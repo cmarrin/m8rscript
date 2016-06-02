@@ -38,8 +38,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <assert.h>
 #include <Stream.h>
-#include <String.h>
 
+#include "MString.h"
 #include "FixedPointFloat.h"
 
 #include "parse.tab.h"
@@ -91,7 +91,7 @@ private:
   	void scanDigits();
   
   	mutable uint8_t _lastChar;
-  	String _ostring;
+  	MString _ostring;
   	Stream* _istream;
 };
 

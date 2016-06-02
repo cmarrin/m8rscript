@@ -36,6 +36,8 @@
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
 		49E6481A1D00C088005F5059 /* Scanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scanner.cpp; path = ../m8rscript/Scanner.cpp; sourceTree = "<group>"; };
 		49E6481B1D00C088005F5059 /* Scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scanner.h; path = ../m8rscript/Scanner.h; sourceTree = "<group>"; };
+		49E648211D00C329005F5059 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stream.h; sourceTree = "<group>"; };
+		49E648221D00CB57005F5059 /* MString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../m8rscript/MString.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,8 @@
 		49E648071D00BEEC005F5059 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				49E648221D00CB57005F5059 /* MString.h */,
+				49E648211D00C329005F5059 /* Stream.h */,
 				49E648141D00C088005F5059 /* FixedPointFloat.h */,
 				49E648151D00C088005F5059 /* parse.tab.cpp */,
 				49E648161D00C088005F5059 /* parse.tab.h */,
@@ -88,6 +92,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */;
 			buildPhases = (
+				49E648231D00CE63005F5059 /* ShellScript */,
 				49E647E41D00B68F005F5059 /* Sources */,
 				49E647E51D00B68F005F5059 /* Frameworks */,
 				49E647E61D00B68F005F5059 /* CopyFiles */,
@@ -132,6 +137,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		49E648231D00CE63005F5059 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "env
+";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		49E647E41D00B68F005F5059 /* Sources */ = {
@@ -234,6 +256,8 @@
 		49E647F01D00B68F005F5059 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "../m8rscript-mac";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -241,6 +265,8 @@
 		49E647F11D00B68F005F5059 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "../m8rscript-mac";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

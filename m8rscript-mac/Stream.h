@@ -35,48 +35,26 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <Stream.h>
-
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Class: FileStream
+//  Class: Stream
 //
-//  Makes the SPIFFS File class look like an Arduino Stream
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class FileStream : public Stream {
+class Stream {
 public:
-	FileStream(File* file) : _file(file) { }
+	Stream() { }
 	
-	virtual int available() override { return _file->size(); }
-    virtual int read() override
-    virtual int peek() override;
-	virtual void flush() override;
+	int available() { return 0; }
+    int read() { return 0; }
+    int peek() { return 0; }
+	void flush() { }
 	
 private:
-	File* _file;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: StringStream
-//
-//  
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class StringStream : public Stream {
-public:
-    StringStream() { }
-    virtual uint8_t getChar() const override { return 0; }
-    virtual bool put(uint8_t) override { }
-    virtual bool put(char) override { }
-    virtual bool put(const char* s, int32_t len = 0) override { }
-
-    const char* current() { return nullptr; }
 };
 
 }
