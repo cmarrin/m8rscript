@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <File.h>
 #include <Stream.h>
 
 namespace m8r {

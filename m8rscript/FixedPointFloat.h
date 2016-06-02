@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-      this list of conditions and the following disclaimer.
-      
+	  this list of conditions and the following disclaimer.
+	  
     - Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-      
+	  notice, this list of conditions and the following disclaimer in the 
+	  documentation and/or other materials provided with the distribution.
+	  
     - Neither the name of the <ORGANIZATION> nor the names of its 
-      contributors may be used to endorse or promote products derived from 
-      this software without specific prior written permission.
-      
+	  contributors may be used to endorse or promote products derived from 
+	  this software without specific prior written permission.
+	  
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -35,30 +35,62 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <Stream.h>
-#include <StreamString.h>
-
-#include "Scanner.h"
-
-namespace m8r {
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: Parser
-//
-//  
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class Parser  {
-public:
-	Parser(Stream* istream);
-    
-    ~Parser()
-    { }
-    
-private:
-    Scanner _scanner;
-};
-
+#ifdef FIXED_POINT_FLOAT
+#define FPF int32_t
+#define FPF_ADD(a,b)	(a+b)
+#define FPF_SUB(a,b)	(a-b)
+#define FPF_MUL(a,b)	(a*b/1000)
+#define FPF_DIV(a,b)	(a*1000/b)
+inline FPF FPF_MAKE(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
+{
+	int32_t num = i*1000;
+	while (dp < 3) {
+		++dp;
+		f *= 10;
+	}
+	while (dp > 3) {
+		--dp;
+		f /= 10;
+	}
+	num += f;
+	while (e > 0) {
+		--e;
+		num *= 10;
+	}
+	while (e < 0) {
+		++e;
+		num /= 10;
+	}
+	return num;
 }
+
+#define FPF_TO_INT(f)	(f/1000)
+#define INT_TO_FPF(i)	(i*1000)
+
+#else
+
+#define FPF float
+#define FPF_ADD(a,b)	(a+b)
+#define FPF_SUB(a,b)	(a-b)
+#define FPF_MUL(a,b)	(a*b)
+#define FPF_DIV(a,b)	(a/b)
+inline FPF FPF_MAKE(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
+{
+	float num = (float) f;
+	while (dp-- > 0)
+		num /= 10;
+	num += (float) i;
+	while (e > 0) {
+		--e;
+		num *= 10;
+	}
+	while (e < 0) {
+		++e;
+		num /= 10;
+	}
+	return num;
+}
+
+#define FPF_TO_INT(f)	((int32_t) f)
+#define INT_TO_FPF(i)	((float) i)
+#endif

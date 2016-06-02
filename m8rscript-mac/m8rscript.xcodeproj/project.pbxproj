@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		49E647F31D00B90F005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E647F21D00B90F005F5059 /* m8rscript.cpp */; };
-		49E647FE1D00B9A6005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E647F51D00B9A6005F5059 /* Scanner.cpp */; };
-		49E647FF1D00B9A6005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E647F71D00B9A6005F5059 /* parse.tab.cpp */; };
-		49E648001D00B9A6005F5059 /* parse.y in Sources */ = {isa = PBXBuildFile; fileRef = 49E647F91D00B9A6005F5059 /* parse.y */; };
-		49E648011D00B9A6005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E647FB1D00B9A6005F5059 /* Parser.cpp */; };
+		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
+		49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
+		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
+		49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,16 +27,15 @@
 
 /* Begin PBXFileReference section */
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
-		49E647F21D00B90F005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = SOURCE_ROOT; };
-		49E647F41D00B9A6005F5059 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stream.h; path = "../m8rscript-esp/Stream.h"; sourceTree = "<group>"; };
-		49E647F51D00B9A6005F5059 /* Scanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scanner.cpp; path = "../m8rscript-esp/Scanner.cpp"; sourceTree = "<group>"; };
-		49E647F61D00B9A6005F5059 /* Scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scanner.h; path = "../m8rscript-esp/Scanner.h"; sourceTree = "<group>"; };
-		49E647F71D00B9A6005F5059 /* parse.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse.tab.cpp; path = "../m8rscript-esp/parse.tab.cpp"; sourceTree = "<group>"; };
-		49E647F81D00B9A6005F5059 /* parse.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parse.tab.h; path = "../m8rscript-esp/parse.tab.h"; sourceTree = "<group>"; };
-		49E647F91D00B9A6005F5059 /* parse.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = parse.y; path = "../m8rscript-esp/parse.y"; sourceTree = "<group>"; };
-		49E647FA1D00B9A6005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = "../m8rscript-esp/Parser.h"; sourceTree = "<group>"; };
-		49E647FB1D00B9A6005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = "../m8rscript-esp/Parser.cpp"; sourceTree = "<group>"; };
-		49E647FD1D00B9A6005F5059 /* FixedPointFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FixedPointFloat.h; path = "../m8rscript-esp/FixedPointFloat.h"; sourceTree = "<group>"; };
+		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
+		49E648141D00C088005F5059 /* FixedPointFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FixedPointFloat.h; path = ../m8rscript/FixedPointFloat.h; sourceTree = "<group>"; };
+		49E648151D00C088005F5059 /* parse.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse.tab.cpp; path = ../m8rscript/parse.tab.cpp; sourceTree = "<group>"; };
+		49E648161D00C088005F5059 /* parse.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parse.tab.h; path = ../m8rscript/parse.tab.h; sourceTree = "<group>"; };
+		49E648171D00C088005F5059 /* parse.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = parse.y; path = ../m8rscript/parse.y; sourceTree = "<group>"; };
+		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../m8rscript/Parser.cpp; sourceTree = "<group>"; };
+		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
+		49E6481A1D00C088005F5059 /* Scanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scanner.cpp; path = ../m8rscript/Scanner.cpp; sourceTree = "<group>"; };
+		49E6481B1D00C088005F5059 /* Scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scanner.h; path = ../m8rscript/Scanner.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,7 +52,7 @@
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
-				49E647EA1D00B68F005F5059 /* m8rscript */,
+				49E648071D00BEEC005F5059 /* src */,
 				49E647E91D00B68F005F5059 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -67,21 +65,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		49E647EA1D00B68F005F5059 /* m8rscript */ = {
+		49E648071D00BEEC005F5059 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				49E647F41D00B9A6005F5059 /* Stream.h */,
-				49E647F51D00B9A6005F5059 /* Scanner.cpp */,
-				49E647F61D00B9A6005F5059 /* Scanner.h */,
-				49E647F71D00B9A6005F5059 /* parse.tab.cpp */,
-				49E647F81D00B9A6005F5059 /* parse.tab.h */,
-				49E647F91D00B9A6005F5059 /* parse.y */,
-				49E647FA1D00B9A6005F5059 /* Parser.h */,
-				49E647FB1D00B9A6005F5059 /* Parser.cpp */,
-				49E647FD1D00B9A6005F5059 /* FixedPointFloat.h */,
-				49E647F21D00B90F005F5059 /* m8rscript.cpp */,
+				49E648141D00C088005F5059 /* FixedPointFloat.h */,
+				49E648151D00C088005F5059 /* parse.tab.cpp */,
+				49E648161D00C088005F5059 /* parse.tab.h */,
+				49E648171D00C088005F5059 /* parse.y */,
+				49E648181D00C088005F5059 /* Parser.cpp */,
+				49E648191D00C088005F5059 /* Parser.h */,
+				49E6481A1D00C088005F5059 /* Scanner.cpp */,
+				49E6481B1D00C088005F5059 /* Scanner.h */,
+				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
 			);
-			path = m8rscript;
+			name = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,11 +138,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49E647FE1D00B9A6005F5059 /* Scanner.cpp in Sources */,
-				49E648001D00B9A6005F5059 /* parse.y in Sources */,
-				49E647FF1D00B9A6005F5059 /* parse.tab.cpp in Sources */,
-				49E648011D00B9A6005F5059 /* Parser.cpp in Sources */,
-				49E647F31D00B90F005F5059 /* m8rscript.cpp in Sources */,
+				49E6481E1D00C088005F5059 /* Parser.cpp in Sources */,
+				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
+				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
+				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
