@@ -11,13 +11,15 @@
  */
 
 %{
-#include <stdio.h>
+#include "Scanner.h"
 
-inline void yyerror(char* s) { printf("%s\n", s); }
+#define YYSTYPE m8r::Scanner::TokenValue
 
-int yylex (/*YYSTYPE **/void* yylval_param /* , void* yyscanner*/)
+inline void yyerror(m8r::Scanner* scanner, char* s) { scanner->printError(s); }
+
+int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 {
-	return 0; //((UC::Scanner*) yyscanner)->getToken(yylval_param);
+	return scanner->getToken(token);
 }
 
 %}
@@ -41,6 +43,7 @@ int yylex (/*YYSTYPE **/void* yylval_param /* , void* yyscanner*/)
 %token K_RETURN			20
 
 %token K_UNKNOWN		21
+%token K_COMMENT		22
 
 /* 33-47 are special chars and can't be used */
 
@@ -84,6 +87,9 @@ int yylex (/*YYSTYPE **/void* yylval_param /* , void* yyscanner*/)
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
 %pure_parser
+
+%lex-param { m8r::Scanner* scanner }
+%parse-param { m8r::Scanner* scanner }
 
 %start program
 %%

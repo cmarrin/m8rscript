@@ -152,11 +152,16 @@ static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
 static inline bool isSpecial(uint8_t c)		{ return !isDigit(c) && !isIdFirst(c) && c >= 0x21 && c <= 0x7e; }
 static inline uint8_t toLower(uint8_t c)	{ return isUpper(c) ? (c-'A'+'a') : c; }
 
+void Scanner::printError(const char* s)
+{
+	printf("%s\n", s);
+}
+
 // If the word is a keyword, return the token for it, otherwise return T_IDENTIFIER
-int Scanner::scanKeyword(const char* s, uint32_t len)
+uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
 {
 	for (int i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
-		if (strncmp(keywords[i].word, s, len) == 0) {
+		if (strncmp(keywords[i].word, &(_ostring[current]), len) == 0) {
 			return keywords[i].token;
 		}
 	}
@@ -166,14 +171,14 @@ int Scanner::scanKeyword(const char* s, uint32_t len)
 uint8_t Scanner::scanString(char terminal)
 {
 	uint8_t c;
-	const char* s = _ostring.current();
+	uint32_t current = _ostring.length();
 	
-	while ((c = _istream->getChar()) != C_EOF) {
+	while ((c = _istream->read()) != C_EOF) {
 		if (c == terminal) {
-			_ostring.put('\0');
+			_ostring += '\0';
 			break;
 		}
-		_ostring.put(c);
+		_ostring += c;
 	}
 	return T_STRING;
 }
@@ -181,22 +186,22 @@ uint8_t Scanner::scanString(char terminal)
 uint8_t Scanner::scanSpecial()
 {
 	uint8_t c;
-    const char* s = _ostring.current();
+	uint32_t current = _ostring.length();
 	
-	while ((c = _istream->getChar()) != C_EOF) {
+	while ((c = _istream->read()) != C_EOF) {
 		if (!isSpecial(c)) {
-            _ostring.put('\0');
+			_ostring += '\0';
 			putback(c);
 			break;
 		}
-        _ostring.put(c);
+		_ostring += c;
     }
 
-    uint32_t len = _ostring.current() - s;
+    uint32_t len = _ostring.length() - current;
     if (!len) {
         return C_EOF;
     }
-    uint8_t token = scanKeyword(s, len);
+    uint8_t token = scanKeyword(current, len);
 
 	return (token == C_EOF) ? K_UNKNOWN : token;
 }
@@ -204,49 +209,50 @@ uint8_t Scanner::scanSpecial()
 uint8_t Scanner::scanIdentifier()
 {
 	uint8_t c;
-    const char* s = _ostring.current();
+	uint32_t current = _ostring.length();
 
 	bool first = true;
-	while ((c = _istream->getChar()) != C_EOF) {
+	while ((c = _istream->read()) != C_EOF) {
 		if (!((first && isIdFirst(c)) || (!first && isIdOther(c)))) {
-            _ostring.put('\0');
+			_ostring += '\0';
 			putback(c);
 			break;
 		}
-        _ostring.put(c);
+		_ostring += c;
 		first = false;
 	}
-    return (_ostring.current() - s) ? scanKeyword(s, _ostring.current() - s) : C_EOF;
+    uint32_t len = _ostring.length() - current;
+    return (len) ? scanKeyword(current, len) : C_EOF;
 }
 
 void Scanner::scanDigits()
 {
 	uint8_t c;
-	while ((c = _istream->getChar()) != C_EOF) {
+	while ((c = _istream->read()) != C_EOF) {
 		if (!isDigit(c)) {
-            _ostring.put('\0');
+			_ostring += '\0';
 			putback(c);
 			break;
 		}
-        _ostring.put(c);
+		_ostring += c;
 	}
 }
 
 uint8_t Scanner::scanNumber()
 {
 	uint8_t c;
-    const char* s = _ostring.current();
+	uint32_t current = _ostring.length();
 	
-	if (!isDigit(c = _istream->getChar())) {
+	if (!isDigit(c = _istream->read())) {
 		putback(c);
 		return C_EOF;
 	}
 	
-        _ostring.put(c);
+	_ostring += c;
 	
-	if (c == '0' && ((c = _istream->getChar()) == 'x' || c == 'X')) {
-        _ostring.put('x');
-		if (!isDigit(c = _istream->getChar())) {
+	if (c == '0' && ((c = _istream->read()) == 'x' || c == 'X')) {
+        _ostring += 'x';
+		if (!isDigit(c = _istream->read())) {
 			putback(c);
 			return K_UNKNOWN;
 		}
@@ -258,44 +264,55 @@ uint8_t Scanner::scanNumber()
 	return T_INTEGER;
 }
 
-uint8_t Scanner::getToken(TokenValue& tokenValue)
+uint8_t Scanner::scanComment()
+{
+	uint8_t c;
+
+	if ((c = _istream->read()) == '*') {
+		for ( ; ; ) {
+			c = _istream->read();
+			if (c == C_EOF) {
+				return C_EOF;
+			}
+			if (c == '*') {
+				if ((c = _istream->read()) == '/') {
+					break;
+				}
+				putback(c);
+			}
+		}
+		return K_COMMENT;
+	}
+	if (c == '/') {
+		// Comment
+		for ( ; ; ) {
+			c = _istream->read();
+			if (c == C_EOF) {
+				return C_EOF;
+			}
+			if (c == '\n') {
+				break;
+			}
+		}
+		return K_COMMENT;
+	}
+	return '/';
+}
+
+uint8_t Scanner::getToken(TokenValue* tokenValue)
 {
 	uint8_t c;
 	uint8_t token;
 	
-	while ((c = _istream->getChar()) != C_EOF) {
+	while ((c = _istream->read()) != C_EOF) {
 		switch(c) {
 			case '/':
-				if ((c = _istream->getChar()) == '*') {
-					// Comment
-					for ( ; ; ) {
-						c = _istream->getChar();
-						if (c == C_EOF) {
-							return C_EOF;
-						}
-						if (c == '*') {
-							if ((c = _istream->getChar()) == '/') {
-								break;
-							}
-							putback(c);
-						}
-					}
+				token = scanComment();
+				if (token == K_COMMENT) {
+					// For now we ignore comments
 					break;
 				}
-				if (c == '/') {
-					// Comment
-					for ( ; ; ) {
-						c = _istream->getChar();
-						if (c == C_EOF) {
-							return C_EOF;
-						}
-						if (c == '\n') {
-							break;
-						}
-					}
-					break;
-				}
-				return '/';
+				return token;
 				
 			case '\"':
 				return scanString('\"');

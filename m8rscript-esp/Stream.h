@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-	  this list of conditions and the following disclaimer.
-	  
+    this list of conditions and the following disclaimer.
+    
     - Redistributions in binary form must reproduce the above copyright 
-	  notice, this list of conditions and the following disclaimer in the 
-	  documentation and/or other materials provided with the distribution.
-	  
+    notice, this list of conditions and the following disclaimer in the 
+    documentation and/or other materials provided with the distribution.
+    
     - Neither the name of the <ORGANIZATION> nor the names of its 
-	  contributors may be used to endorse or promote products derived from 
-	  this software without specific prior written permission.
-	  
+    contributors may be used to endorse or promote products derived from 
+    this software without specific prior written permission.
+    
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -35,57 +35,49 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <stdint.h>
-#include <assert.h>
-
-#include "FixedPointFloat.h"
-#include "Stream.h"
-
-#include "parse.tab.h"
-
-#define MAX_ID_LENGTH 32
+#include <File.h>
+#include <Stream.h>
 
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Class: Scanner
+//  Class: FileStream
+//
+//  Makes the SPIFFS File class look like an Arduino Stream
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class FileStream : public Stream {
+public:
+	FileStream(File* file) : _file(file) { }
+	
+	virtual int available() override { return _file->size(); }
+    virtual int read() override
+    virtual int peek() override;
+	virtual void flush() override;
+	
+private:
+	File* _file;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: StringStream
 //
 //  
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class Scanner  {
+class StringStream : public Stream {
 public:
-  	typedef union { int32_t integer; FPF number; uint16_t atom; } TokenValue;
-  
-  	Scanner(Stream* istream)
-  	 : _lastChar(C_EOF)
-  	 , _istream(istream)
-  	{ }
-  	
-  	~Scanner()
-  	{ }
-  
-  	uint8_t getToken(TokenValue& token);
-  	
-private:
-	void putback(uint8_t c) const
-	{
-  		assert(_lastChar == C_EOF && c != C_EOF);
-  		_lastChar = c;
-	}
+    StringStream() { }
+    virtual uint8_t getChar() const override { return 0; }
+    virtual bool put(uint8_t) override { }
+    virtual bool put(char) override { }
+    virtual bool put(const char* s, int32_t len = 0) override { }
 
-  	static int scanKeyword(const char* s, uint32_t len);
-  	uint8_t scanString(char terminal);
-  	uint8_t scanSpecial();
-  	uint8_t scanIdentifier();
-  	uint8_t scanNumber();
-  	void scanDigits();
-  
-  	mutable uint8_t _lastChar;
-  	StringStream _ostring;
-  	Stream* _istream;
+    const char* current() { return nullptr; }
 };
 
 }

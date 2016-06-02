@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer.
-    
+	  this list of conditions and the following disclaimer.
+	  
     - Redistributions in binary form must reproduce the above copyright 
-    notice, this list of conditions and the following disclaimer in the 
-    documentation and/or other materials provided with the distribution.
-    
+	  notice, this list of conditions and the following disclaimer in the 
+	  documentation and/or other materials provided with the distribution.
+	  
     - Neither the name of the <ORGANIZATION> nor the names of its 
-    contributors may be used to endorse or promote products derived from 
-    this software without specific prior written permission.
-    
+	  contributors may be used to endorse or promote products derived from 
+	  this software without specific prior written permission.
+	  
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -35,41 +35,64 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <stdint.h>
+#include <assert.h>
+#include <Stream.h>
+#include <String.h>
+
+#include "FixedPointFloat.h"
+
+#include "parse.tab.h"
+
+#define MAX_ID_LENGTH 32
+
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Class: Stream
+//  Class: Scanner
 //
 //  
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class Stream {
+class Scanner  {
 public:
-    virtual uint8_t getChar() const = 0;
-    virtual bool put(uint8_t) = 0;
-    virtual bool put(char) = 0;
-    virtual bool put(const char* s, int32_t len = 0) = 0;
-};
+  	struct TokenValue {
+		const char* s;
+		uint32_t len;
+	};
+  
+  	Scanner(Stream* istream)
+  	 : _lastChar(C_EOF)
+  	 , _istream(istream)
+  	{ }
+  	
+  	~Scanner()
+  	{ }
+  
+  	uint8_t getToken(TokenValue* token);
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: StringStream
-//
-//  
-//
-//////////////////////////////////////////////////////////////////////////////
+	void printError(const char* s);
+  	
+private:
+	void putback(uint8_t c) const
+	{
+  		assert(_lastChar == C_EOF && c != C_EOF);
+  		_lastChar = c;
+	}
 
-class StringStream : public Stream {
-public:
-    StringStream() { }
-    virtual uint8_t getChar() const override { return 0; }
-    virtual bool put(uint8_t) override { }
-    virtual bool put(char) override { }
-    virtual bool put(const char* s, int32_t len = 0) override { }
-
-    const char* current() { return nullptr; }
+  	uint8_t scanKeyword(uint32_t current, uint32_t len);
+  	uint8_t scanString(char terminal);
+  	uint8_t scanSpecial();
+  	uint8_t scanIdentifier();
+  	uint8_t scanNumber();
+  	uint8_t scanComment();
+  	void scanDigits();
+  
+  	mutable uint8_t _lastChar;
+  	String _ostring;
+  	Stream* _istream;
 };
 
 }
