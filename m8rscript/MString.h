@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#if 1
+#if __APPLE__
 #include <string>
 #define STRING std::string
 #else
