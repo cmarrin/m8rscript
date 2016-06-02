@@ -256,6 +256,7 @@
 		49E647F01D00B68F005F5059 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_UNREACHABLE_CODE = NO;
 				HEADER_SEARCH_PATHS = "../m8rscript-mac";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -265,6 +266,7 @@
 		49E647F11D00B68F005F5059 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_UNREACHABLE_CODE = NO;
 				HEADER_SEARCH_PATHS = "../m8rscript-mac";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";

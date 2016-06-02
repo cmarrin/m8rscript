@@ -35,7 +35,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#if 1
+#include <string>
+#define STRING std::string
+#else
 #include <String.h>
+#define STRING String
+#endif
 
 namespace m8r {
 
@@ -52,11 +58,11 @@ public:
 	MString() { }
 	
     char& operator[](const int index) { return _string[index]; }
-	uint32_t length() const { return _string.length(); }
-	String& operator+=(uint8_t c) { return _string += c; }
+	uint32_t length() const { return static_cast<uint32_t>(_string.length()); }
+	STRING& operator+=(uint8_t c) { return _string += c; }
 	
 private:
-    String _string;
+    STRING _string;
 };
 
 }

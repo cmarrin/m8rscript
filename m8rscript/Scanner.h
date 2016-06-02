@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <assert.h>
-#include <Stream.h>
 
+#include "Stream.h"
 #include "MString.h"
 #include "FixedPointFloat.h"
 
@@ -88,7 +88,7 @@ private:
   	uint8_t scanIdentifier();
   	uint8_t scanNumber();
   	uint8_t scanComment();
-  	void scanDigits();
+  	void scanDigits(bool hex);
   
   	mutable uint8_t _lastChar;
   	MString _ostring;

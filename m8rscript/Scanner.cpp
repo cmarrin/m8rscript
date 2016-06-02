@@ -143,14 +143,13 @@ static Keyword keywords[] = {
 */
 
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
-static inline bool isHexDigit(uint8_t c)	{ return isDigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
+static inline bool isHex(uint8_t c)	{ return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
 static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
 static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
 static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
 static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
 static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
 static inline bool isSpecial(uint8_t c)		{ return !isDigit(c) && !isIdFirst(c) && c >= 0x21 && c <= 0x7e; }
-static inline uint8_t toLower(uint8_t c)	{ return isUpper(c) ? (c-'A'+'a') : c; }
 
 void Scanner::printError(const char* s)
 {
@@ -171,7 +170,6 @@ uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
 uint8_t Scanner::scanString(char terminal)
 {
 	uint8_t c;
-	uint32_t current = _ostring.length();
 	
 	while ((c = _istream->read()) != C_EOF) {
 		if (c == terminal) {
@@ -225,11 +223,11 @@ uint8_t Scanner::scanIdentifier()
     return (len) ? scanKeyword(current, len) : C_EOF;
 }
 
-void Scanner::scanDigits()
+void Scanner::scanDigits(bool hex)
 {
 	uint8_t c;
 	while ((c = _istream->read()) != C_EOF) {
-		if (!isDigit(c)) {
+		if (!isDigit(c) || (hex && isHex(c))) {
 			_ostring += '\0';
 			putback(c);
 			break;
@@ -241,7 +239,7 @@ void Scanner::scanDigits()
 uint8_t Scanner::scanNumber()
 {
 	uint8_t c;
-	uint32_t current = _ostring.length();
+    bool hex = false;
 	
 	if (!isDigit(c = _istream->read())) {
 		putback(c);
@@ -256,11 +254,12 @@ uint8_t Scanner::scanNumber()
 			putback(c);
 			return K_UNKNOWN;
 		}
+        hex = true;
 	} else {
 		putback(c);
 	}
 	
-	scanDigits();
+	scanDigits(hex);
 	return T_INTEGER;
 }
 
