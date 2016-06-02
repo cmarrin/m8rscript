@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-namespace m8r {
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -47,14 +47,45 @@ namespace m8r {
 
 class Stream {
 public:
-	Stream() { }
-	
-	int available() { return 0; }
-    int read() { return 0; }
-    int peek() { return 0; }
-	void flush() { }
+	virtual int available() = 0;
+    virtual int read() = 0;
+    virtual int peek() = 0;
+	virtual void flush() = 0;
 	
 private:
+    FILE* _file;
+    size_t _size;
 };
 
-}
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: FileStream
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class FileStream : public Stream {
+public:
+	FileStream(const char* file)
+    {
+        FILE* _file = fopen(file, "r");
+        if (!_file) {
+            _size = 0;
+            return;
+        }
+        fseek(_file, 0, SEEK_END);
+        _size = ftell(_file);
+        fseek(_file, 0, SEEK_SET);
+    }
+	
+    bool loaded() { return _file; }
+	virtual int available() override { return static_cast<int>(_size); }
+    virtual int read() override { return 0; }
+    virtual int peek() override { return 0; }
+	virtual void flush() override { }
+	
+private:
+    FILE* _file;
+    size_t _size;
+};
