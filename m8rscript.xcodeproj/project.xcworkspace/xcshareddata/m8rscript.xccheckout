@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>450189CA-733E-45DF-9C8C-D36E61AA70D6</string>
+	<key>IDESourceControlProjectName</key>
+	<string>m8rscript</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>3AB2AA7813687CF753DD8BB03C8CB44C1DFEC1E5</key>
+		<string>git.marrin.org:marrinator.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>projects/m8rscript/m8rscript.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>3AB2AA7813687CF753DD8BB03C8CB44C1DFEC1E5</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>git.marrin.org:marrinator.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>3AB2AA7813687CF753DD8BB03C8CB44C1DFEC1E5</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>3AB2AA7813687CF753DD8BB03C8CB44C1DFEC1E5</string>
+			<key>IDESourceControlWCCName</key>
+			<string>marrinator</string>
+		</dict>
+	</array>
+</dict>
+</plist>
