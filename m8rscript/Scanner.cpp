@@ -46,53 +46,10 @@ struct Keyword
 	int token;
 };
 
+static const char* specialSingleChar = "(),.:;?[]{}~";
+static const char* specialFirstChar = "!%&*+-/<=>^|";
+
 static Keyword keywords[] = {
-	{ "!", 			'!' },
-	{ "!=", 		O_NE },
-	{ "%", 			'%' },
-	{ "%=", 		O_MODEQ },
-	{ "&", 			'&' },
-	{ "&&", 		O_LAND },
-	{ "&=", 		O_ANDEQ },
-	{ "(",			'(' },
-	{ ")",			')' },
-	{ "*", 			'*' },
-	{ "*=", 		O_MULEQ },
-	{ "+", 			'+' },
-	{ "++", 		O_INC },
-	{ "+=", 		O_ADDEQ },
-	{ ",",			',' },
-	{ "-", 			'-' },
-    { ".",          '.' },
-	{ "--", 		O_DEC },
-	{ "-=", 		O_SUBEQ },
-	{ "/", 			'/' },
-	{ "/=", 		O_DIVEQ },
-	{ ":",			':' },
-	{ ";",			';' },
-	{ "<", 			'<' },
-	{ "<<", 		O_LSHIFT },
-	{ "<=", 		O_LE },
-	{ "<<=", 		O_LSHIFTEQ },
-	{ "=",			'=' },
-	{ "==", 		O_EQ },
-	{ ">", 			'>'},
-	{ ">=", 		O_GE },
-	{ ">>", 		O_RSHIFT },
-	{ ">>=", 		O_RSHIFTEQ },
-	{ ">>>", 		O_RSHIFTFILL },
-	{ ">>>=", 		O_RSHIFTFILLEQ },
-	{ "?",			'?' },
-	{ "[",			'[' },
-	{ "]",			']' },
-	{ "^", 			'^' },
-	{ "^=", 		O_XOREQ },
-	{ "{",			'{' },
-	{ "|", 			'|' },
-	{ "|=", 		O_OREQ },
-	{ "||", 		O_LOR },
-	{ "}",			'}' },
-	{ "~",			'~' },
 	{ "break",		K_BREAK },
 	{ "case",		K_CASE },
 	{ "continue",	K_CONTINUE },
@@ -110,39 +67,6 @@ static Keyword keywords[] = {
 	{ "while",		K_WHILE },
 };
 
-/*
-	invalid chars: '#', '\'
-	"!"		0x21
-	"%"		0x25
-	"&"		0x26
-	"("		0x28
-	")"		0x29
-	"*"		0x2a
-	"+"		0x2b
-	","		0x2c
-	"-"		0x2d
-	"."		0x2e
-	"/"		0x2f
-	
-	":"		0x3a
-	";"		0x3b
-	"<"		0x3c
-	"="		0x3d
-	">"		0x3e
-	"?"		0x3f
-	
-	"["		0x5b
-	"]"		0x5d
-	"^"		0x5e
-	
-	"{"		0x7b
-	"|"		0x7c
-	"}"		0x7d
-	"~"		0x7e
-	
-;
-*/
-
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
 static inline bool isHex(uint8_t c)         { return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
 static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
@@ -150,7 +74,6 @@ static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
 static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
 static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
 static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
-static inline bool isSpecial(uint8_t c)		{ return !isDigit(c) && !isIdFirst(c) && c >= 0x21 && c <= 0x7e; }
 static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
 void Scanner::printError(const char* s)
@@ -185,26 +108,143 @@ uint8_t Scanner::scanString(char terminal)
 
 uint8_t Scanner::scanSpecial()
 {
-	uint8_t c;
-	uint32_t current = _ostring.length();
-	
-	while ((c = get()) != C_EOF) {
-		if (!isSpecial(c)) {
-			putback(c);
-			break;
-		}
-		_ostring += c;
-    }
-
-    uint32_t len = _ostring.length() - current;
-    if (!len) {
+	uint8_t c1 = get();
+    uint8_t c2;
+    if (c1 == C_EOF) {
         return C_EOF;
     }
     
-    _ostring += '\0';
-    uint8_t token = scanKeyword(current, len);
+    if (c1 == '<') {
+        if ((c2 = get()) == C_EOF) {
+            return C_EOF;
+        }
+        if (c2 == '<') {
+            if ((c2 = get()) == C_EOF) {
+                return C_EOF;
+            }
+            if (c2 == '=') {
+                return O_LSHIFTEQ;
+            }
+            putback(c2);
+            return O_LSHIFT;
+        }
+        if (c2 == '=') {
+            return O_LE;
+        }
+        putback(c2);
+        return c1;
+    }
 
-	return (token == C_EOF) ? K_UNKNOWN : token;
+    if (c1 == '>') {
+        if ((c2 = get()) == C_EOF) {
+            return C_EOF;
+        }
+        if (c2 == '>') {
+            if ((c2 = get()) == C_EOF) {
+                return C_EOF;
+            }
+            if (c2 == '=') {
+                return O_RSHIFTEQ;
+            }
+            if (c2 == '>') {
+                if ((c2 = get()) == C_EOF) {
+                    return C_EOF;
+                }
+                if (c2 == '=') {
+                    return O_RSHIFTFILLEQ;
+                }
+                putback(c2);
+                return O_RSHIFTFILL;
+            }
+            putback(c2);
+            return O_RSHIFT;
+        }
+        if (c2 == '=') {
+            return O_GE;
+        }
+        putback(c2);
+        return c1;
+    }
+        
+    if (strchr(specialSingleChar, c1)) {
+        return c1;
+    }
+    
+    if (!strchr(specialFirstChar, c1)) {
+        putback(c1);
+        return C_EOF;
+    }
+
+	if ((c2 = get()) == C_EOF) {
+        return C_EOF;
+    }
+    
+    switch(c2) {
+        case '!':
+            if (c2 == '=') {
+                return O_NE;
+            }
+            break;
+        case '%':
+            if (c2 == '=') {
+                return O_MODEQ;
+            }
+            break;
+        case '&':
+            if (c2 == '&') {
+                return O_LAND;
+            }
+            if (c2 == '=') {
+                return O_ANDEQ;
+            }
+            break;
+        case '*':
+            if (c2 == '=') {
+                return O_MULEQ;
+            }
+            break;
+        case '+':
+            if (c2 == '=') {
+                return O_ADDEQ;
+            }
+            if (c2 == '+') {
+                return O_INC;
+            }
+            break;
+        case '-':
+            if (c2 == '=') {
+                return O_SUBEQ;
+            }
+            if (c2 == '-') {
+                return O_DEC;
+            }
+            break;
+        case '/':
+            if (c2 == '=') {
+                return O_DIVEQ;
+            }
+            break;
+        case '=':
+            if (c2 == '=') {
+                return O_EQ;
+            }
+            break;
+        case '^':
+            if (c2 == '=') {
+                return O_XOREQ;
+            }
+            break;
+        case '|':
+            if (c2 == '=') {
+                return O_OREQ;
+            }
+            if (c2 == '|') {
+                return O_LOR;
+            }
+            break;
+    }
+    putback(c2);
+    return c1;
 }
 
 uint8_t Scanner::scanIdentifier()

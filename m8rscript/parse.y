@@ -15,13 +15,12 @@
 
 #define YYSTYPE m8r::Scanner::TokenValue
 
-#define YYDEBUG 1
-
 inline void yyerror(m8r::Scanner* scanner, const char* s) { scanner->printError(s); }
 
 int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 {
-	return scanner->getToken(token);
+    uint8_t t = scanner->getToken(token);
+    return (t == C_EOF) ? 0 : t;
 }
 
 %}
@@ -84,13 +83,12 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 
 %token E_ERROR			191
 
-%token C_EOF			255
+%token C_EOF			255 "end of file"
 
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
 %pure_parser
-
-%debug
+//%debug
 
 %lex-param { m8r::Scanner* scanner }
 %parse-param { m8r::Scanner* scanner }

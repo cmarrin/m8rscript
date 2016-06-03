@@ -170,20 +170,19 @@
 
 #define YYSTYPE m8r::Scanner::TokenValue
 
-#define YYDEBUG 1
-
 inline void yyerror(m8r::Scanner* scanner, const char* s) { scanner->printError(s); }
 
 int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 {
-	return scanner->getToken(token);
+    uint8_t t = scanner->getToken(token);
+    return (t == C_EOF) ? 0 : t;
 }
 
 
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 
 /* Enabling verbose error messages.  */
@@ -212,7 +211,7 @@ typedef int YYSTYPE;
 
 
 /* Line 216 of yacc.c.  */
-#line 216 "parse.tab.cpp"
+#line 215 "parse.tab.cpp"
 
 #ifdef short
 # undef short
@@ -551,21 +550,21 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   102,   102,   106,   107,   111,   112,   116,   117,   118,
-     119,   120,   121,   125,   126,   127,   128,   129,   133,   134,
-     138,   139,   140,   141,   145,   146,   150,   151,   152,   156,
-     157,   161,   162,   166,   167,   171,   172,   173,   174,   175,
-     176,   177,   181,   182,   183,   184,   188,   189,   190,   194,
-     195,   196,   197,   201,   202,   203,   204,   205,   209,   210,
-     211,   215,   216,   220,   221,   225,   226,   230,   231,   235,
-     236,   240,   241,   245,   246,   250,   251,   252,   253,   254,
-     255,   256,   257,   258,   259,   260,   261,   265,   266,   270,
-     274,   275,   279,   280,   284,   288,   289,   290,   291,   292,
-     293,   294,   298,   299,   303,   304,   308,   309,   313,   314,
-     318,   322,   323,   327,   328,   332,   333,   337,   341,   345,
-     346,   347,   351,   352,   353,   354,   358,   359,   363,   364,
-     368,   369,   372,   374,   378,   379,   383,   384,   388,   392,
-     393,   394,   395
+       0,   100,   100,   104,   105,   109,   110,   114,   115,   116,
+     117,   118,   119,   123,   124,   125,   126,   127,   131,   132,
+     136,   137,   138,   139,   143,   144,   148,   149,   150,   154,
+     155,   159,   160,   164,   165,   169,   170,   171,   172,   173,
+     174,   175,   179,   180,   181,   182,   186,   187,   188,   192,
+     193,   194,   195,   199,   200,   201,   202,   203,   207,   208,
+     209,   213,   214,   218,   219,   223,   224,   228,   229,   233,
+     234,   238,   239,   243,   244,   248,   249,   250,   251,   252,
+     253,   254,   255,   256,   257,   258,   259,   263,   264,   268,
+     272,   273,   277,   278,   282,   286,   287,   288,   289,   290,
+     291,   292,   296,   297,   301,   302,   306,   307,   311,   312,
+     316,   320,   321,   325,   326,   330,   331,   335,   339,   343,
+     344,   345,   349,   350,   351,   352,   356,   357,   361,   362,
+     366,   367,   370,   372,   376,   377,   381,   382,   386,   390,
+     391,   392,   393
 };
 #endif
 
@@ -581,10 +580,10 @@ static const char *const yytname[] =
   "O_RSHIFTEQ", "O_RSHIFTFILLEQ", "O_LSHIFTEQ", "O_ADDEQ", "O_SUBEQ",
   "O_MULEQ", "O_DIVEQ", "O_MODEQ", "O_ANDEQ", "O_XOREQ", "O_OREQ",
   "O_RSHIFT", "O_RSHIFTFILL", "O_LSHIFT", "O_INC", "O_DEC", "O_LAND",
-  "O_LOR", "O_LE", "O_GE", "O_EQ", "O_NE", "E_ERROR", "C_EOF", "'('",
-  "')'", "'['", "']'", "'.'", "','", "'+'", "'-'", "'~'", "'!'", "'*'",
-  "'/'", "'%'", "'<'", "'>'", "'&'", "'^'", "'|'", "'?'", "':'", "'='",
-  "';'", "'{'", "'}'", "$accept", "program", "source_elements",
+  "O_LOR", "O_LE", "O_GE", "O_EQ", "O_NE", "E_ERROR", "\"end of file\"",
+  "'('", "')'", "'['", "']'", "'.'", "','", "'+'", "'-'", "'~'", "'!'",
+  "'*'", "'/'", "'%'", "'<'", "'>'", "'&'", "'^'", "'|'", "'?'", "':'",
+  "'='", "';'", "'{'", "'}'", "$accept", "program", "source_elements",
   "source_element", "primary_expression", "member_expression",
   "new_expression", "call_expression", "left_hand_side_expression",
   "postfix_expression", "arguments", "argument_list", "unary_expression",
@@ -1714,7 +1713,7 @@ yyreduce:
     {
       
 /* Line 1267 of yacc.c.  */
-#line 1718 "parse.tab.cpp"
+#line 1717 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1928,6 +1927,6 @@ yyreturn:
 }
 
 
-#line 398 "parse.y"
+#line 396 "parse.y"
 
 
