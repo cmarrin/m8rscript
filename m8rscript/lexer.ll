@@ -4,9 +4,13 @@ H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 
 %{
-#include <stdio.h>
-#include "parse.tab.hh"
+#include "parse.tab.h"
+
+#define register
+
 %}
+
+%option reentrant
 
 %%
 "/*" {
@@ -24,20 +28,20 @@ E			[Ee][+-]?{D}+
 	}
 }
 
-"function"		{ return(K_FUNCTION); }
-"delete"		{ return(K_DELETE); }
-"global"		{ return(K_GLOBAL); }
-"new"			{ return(K_NEW); }
 "break"			{ return(K_BREAK); }
 "case"			{ return(K_CASE); }
 "continue"		{ return(K_CONTINUE); }
 "default"		{ return(K_DEFAULT); }
+"delete"		{ return(K_DELETE); }
 "do"			{ return(K_DO); }
 "else"			{ return(K_ELSE); }
 "for"			{ return(K_FOR); }
+"function"		{ return(K_FUNCTION); }
 "if"			{ return(K_IF); }
+"new"			{ return(K_NEW); }
 "return"		{ return(K_RETURN); }
 "switch"		{ return(K_SWITCH); }
+"var"			{ return(K_VAR); }
 "while"			{ return(K_WHILE); }
 
 {L}({L}|{D})*	{ return(T_IDENTIFIER); }

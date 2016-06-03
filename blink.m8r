@@ -1,0 +1,20 @@
+/*
+    This is a test program
+*/
+
+GPIO.pinMode(2, GPIO.OUTPUT);
+Serial.begin(9600);
+Serial.println("Started Blink");
+while (1) {
+    blink();
+}
+
+function blink()
+{
+    GPIO.digitalWrite(2, GPIO.HIGH);
+    Serial.println("Blink on");
+    System.delay(200);
+    GPIO.digitalWrite(2, GPIO.LOW);
+    Serial.println("Blink off");
+    System.delay(200); // wait a bit
+}

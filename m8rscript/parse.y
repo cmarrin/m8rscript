@@ -15,6 +15,8 @@
 
 #define YYSTYPE m8r::Scanner::TokenValue
 
+#define YYDEBUG 1
+
 inline void yyerror(m8r::Scanner* scanner, const char* s) { scanner->printError(s); }
 
 int yylex(YYSTYPE* token, m8r::Scanner* scanner)
@@ -87,6 +89,8 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
 %pure_parser
+
+%debug
 
 %lex-param { m8r::Scanner* scanner }
 %parse-param { m8r::Scanner* scanner }

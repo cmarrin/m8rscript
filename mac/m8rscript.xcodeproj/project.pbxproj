@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49AC57211D01476C00DB94B5 /* lexer.ll in Sources */ = {isa = PBXBuildFile; fileRef = 49AC571F1D01476C00DB94B5 /* lexer.ll */; };
+		49AC57251D01497700DB94B5 /* lex.yy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57241D01497700DB94B5 /* lex.yy.cc */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
 		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
@@ -26,6 +28,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		49AC571F1D01476C00DB94B5 /* lexer.ll */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.llvm; name = lexer.ll; path = ../m8rscript/lexer.ll; sourceTree = "<group>"; };
+		49AC57241D01497700DB94B5 /* lex.yy.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lex.yy.cc; path = ../m8rscript/lex.yy.cc; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* FixedPointFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FixedPointFloat.h; path = ../m8rscript/FixedPointFloat.h; sourceTree = "<group>"; };
@@ -70,6 +74,8 @@
 		49E648071D00BEEC005F5059 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				49AC57241D01497700DB94B5 /* lex.yy.cc */,
+				49AC571F1D01476C00DB94B5 /* lexer.ll */,
 				49E648221D00CB57005F5059 /* MString.h */,
 				49E648211D00C329005F5059 /* Stream.h */,
 				49E648141D00C088005F5059 /* FixedPointFloat.h */,
@@ -162,7 +168,9 @@
 			files = (
 				49E6481E1D00C088005F5059 /* Parser.cpp in Sources */,
 				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
+				49AC57251D01497700DB94B5 /* lex.yy.cc in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
+				49AC57211D01476C00DB94B5 /* lexer.ll in Sources */,
 				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

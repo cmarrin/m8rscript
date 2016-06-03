@@ -99,6 +99,7 @@ private:
   	Stream* _istream;
     mutable uint32_t _lineno;
     uint8_t _lastToken;
+    uint32_t _lastTokenValue;
 };
 
 }

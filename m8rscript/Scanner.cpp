@@ -63,6 +63,7 @@ static Keyword keywords[] = {
 	{ "+=", 		O_ADDEQ },
 	{ ",",			',' },
 	{ "-", 			'-' },
+    { ".",          '.' },
 	{ "--", 		O_DEC },
 	{ "-=", 		O_SUBEQ },
 	{ "/", 			'/' },
@@ -143,17 +144,18 @@ static Keyword keywords[] = {
 */
 
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
-static inline bool isHex(uint8_t c)	{ return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
+static inline bool isHex(uint8_t c)         { return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
 static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
 static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
 static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
 static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
 static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
 static inline bool isSpecial(uint8_t c)		{ return !isDigit(c) && !isIdFirst(c) && c >= 0x21 && c <= 0x7e; }
+static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
 void Scanner::printError(const char* s)
 {
-	printf("%s on line %d (last token:%d\n", s, _lineno, _lastToken);
+	printf("%s on line %d, last='%s' (%d)\n", s, _lineno, &(_ostring[_lastTokenValue]), _lastToken);
 }
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
@@ -334,13 +336,18 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 {
 	uint8_t c;
 	uint8_t token = C_EOF;
+    _lastTokenValue = _ostring.length();
 	
 	while (token == C_EOF && (c = get()) != C_EOF) {
+        if (isWhitespace(c)) {
+            continue;
+        }
 		switch(c) {
 			case '/':
 				token = scanComment();
 				if (token == K_COMMENT) {
 					// For now we ignore comments
+                    token = C_EOF;
 					break;
 				}
 				break;

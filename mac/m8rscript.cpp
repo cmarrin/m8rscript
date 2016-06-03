@@ -14,8 +14,12 @@
 
 #define Root $(SRCROOT)
 
+extern int yydebug;
+
 int main(int argc, const char* argv[])
 {
+    yydebug = 1;
+    
     if (argc < 2) {
         std::cout << "No file specified, exiting\n";
         return 0;
