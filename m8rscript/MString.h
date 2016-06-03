@@ -56,10 +56,20 @@ namespace m8r {
 class MString {
 public:
 	MString() { }
+	MString(const char* s, uint32_t len)
+    {
+        for (int i = 0; i < len; ++i) {
+            _string += s[i];
+        }
+    }
 	
     char& operator[](const int index) { return _string[index]; }
+    const char& operator[](const int index) const { return _string[index]; }
 	uint32_t length() const { return static_cast<uint32_t>(_string.length()); }
 	STRING& operator+=(uint8_t c) { return _string += c; }
+	STRING& operator+=(const char* s) { return _string += s; }
+    const char* c_str() const { return &(_string[0]); }
+    void clear() { _string = ""; }
 	
 private:
     STRING _string;

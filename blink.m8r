@@ -2,7 +2,7 @@
     This is a test program
 */
 
-GPIO.pinMode(2, GPIO.OUTPUT);
+GPIO.pinMode(0x2, GPIO.OUTPUT);
 Serial.begin(9600);
 Serial.println("Started Blink");
 while (1) {
@@ -11,7 +11,7 @@ while (1) {
 
 function blink()
 {
-    GPIO.digitalWrite(2, GPIO.HIGH);
+    GPIO.digitalWrite(0x0002, GPIO.HIGH);
     Serial.println("Blink on");
     System.delay(200);
     GPIO.digitalWrite(2, GPIO.LOW);

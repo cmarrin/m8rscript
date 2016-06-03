@@ -11,6 +11,7 @@
 		49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
 		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
 		49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
+		49E6482D1D01F3CA005F5059 /* Atom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6482C1D01F3CA005F5059 /* Atom.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +39,8 @@
 		49E6481B1D00C088005F5059 /* Scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scanner.h; path = ../m8rscript/Scanner.h; sourceTree = "<group>"; };
 		49E648211D00C329005F5059 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stream.h; sourceTree = "<group>"; };
 		49E648221D00CB57005F5059 /* MString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../m8rscript/MString.h; sourceTree = "<group>"; };
+		49E6482B1D01F279005F5059 /* Atom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Atom.h; path = ../m8rscript/Atom.h; sourceTree = "<group>"; };
+		49E6482C1D01F3CA005F5059 /* Atom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Atom.cpp; path = ../m8rscript/Atom.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +84,8 @@
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
+				49E6482B1D01F279005F5059 /* Atom.h */,
+				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -92,7 +97,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */;
 			buildPhases = (
-				49E648231D00CE63005F5059 /* ShellScript */,
 				49E647E41D00B68F005F5059 /* Sources */,
 				49E647E51D00B68F005F5059 /* Frameworks */,
 				49E647E61D00B68F005F5059 /* CopyFiles */,
@@ -138,23 +142,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		49E648231D00CE63005F5059 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "env
-";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		49E647E41D00B68F005F5059 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -164,6 +151,7 @@
 				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
 				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,
+				49E6482D1D01F3CA005F5059 /* Atom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

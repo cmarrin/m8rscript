@@ -29,15 +29,6 @@ int main(int argc, const char* argv[])
         return 0;
     }
     
-    const char* root = getenv("SRCROOT");
-    
-    chdir(root);
-    
-    char cwd[256];
-    getcwd(cwd, 255);
-    std::cout << "cwd='" << cwd << "'\n";
-    
-    
     FileStream istream(argv[1]);
     std::cout << "Opening '" << argv[1] << "'\n";
 
@@ -48,6 +39,6 @@ int main(int argc, const char* argv[])
     
     std::cout << "Parsing...\n";
     m8r::Parser parser(&istream);
-    std::cout << "Done!\n";
+    std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n";
     return 0;
 }

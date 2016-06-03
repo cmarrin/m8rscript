@@ -78,14 +78,14 @@ static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c 
 
 void Scanner::printError(const char* s)
 {
-	printf("%s on line %d, last='%s' (%d)\n", s, _lineno, &(_ostring[_lastTokenValue]), _lastToken);
+	printf("%s on line %d\n", s, _lineno);
 }
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
-uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
+uint8_t Scanner::scanKeyword(const char* s)
 {
 	for (int i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
-		if (strncmp(keywords[i].word, &(_ostring[current]), len) == 0) {
+		if (strcmp(keywords[i].word, s) == 0) {
 			return keywords[i].token;
 		}
 	}
@@ -95,13 +95,13 @@ uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
 uint8_t Scanner::scanString(char terminal)
 {
 	uint8_t c;
+    _tokenString.clear();
 	
 	while ((c = get()) != C_EOF) {
 		if (c == terminal) {
-			_ostring += '\0';
 			break;
 		}
-		_ostring += c;
+		_tokenString += c;
 	}
 	return T_STRING;
 }
@@ -250,7 +250,7 @@ uint8_t Scanner::scanSpecial()
 uint8_t Scanner::scanIdentifier()
 {
 	uint8_t c;
-	uint32_t current = _ostring.length();
+	_tokenString.clear();
 
 	bool first = true;
 	while ((c = get()) != C_EOF) {
@@ -258,13 +258,12 @@ uint8_t Scanner::scanIdentifier()
 			putback(c);
 			break;
 		}
-		_ostring += c;
+		_tokenString += c;
 		first = false;
 	}
-    uint32_t len = _ostring.length() - current;
+    uint32_t len = _tokenString.length();
     if (len) {
-        _ostring += '\0';
-        uint8_t token = scanKeyword(current, len);
+        uint8_t token = scanKeyword(_tokenString.c_str());
         return (token == K_UNKNOWN) ? T_IDENTIFIER : token;
     }
 
@@ -276,45 +275,54 @@ void Scanner::scanDigits(bool hex)
 	uint8_t c;
 	while ((c = get()) != C_EOF) {
 		if (!isDigit(c) || (hex && isHex(c))) {
-			_ostring += '\0';
 			putback(c);
 			break;
 		}
-		_ostring += c;
+		_tokenString += c;
 	}
 }
 
 uint8_t Scanner::scanNumber()
 {
-	uint8_t c;
+	_tokenString.clear();
+    
+	uint8_t c = get();
+    if (c == C_EOF) {
+        return C_EOF;
+    }
     bool hex = false;
 	
-	if (!isDigit(c = get())) {
+	if (!isDigit(c)) {
 		putback(c);
 		return C_EOF;
 	}
 	
-	_ostring += c;
-	
-	if (c == '0' && ((c = get()) == 'x' || c == 'X')) {
-        _ostring += 'x';
-		if (!isDigit(c = get())) {
-			_ostring += '\0';
-			putback(c);
-			return K_UNKNOWN;
-		}
-        hex = true;
-	} else {
-		putback(c);
+	_tokenString += c;
+    
+    if (c == '0') {
+        if ((c = get()) == C_EOF) {
+            return C_EOF;
+        }
+        if (c == 'x' || c == 'X') {
+            _tokenString += 'x';
+            if ((c = get()) == C_EOF) {
+                return C_EOF;
+            }
+            if (!isDigit(c)) {
+                putback(c);
+                return K_UNKNOWN;
+            }
+            hex = true;
+        }
+        putback(c);
 	}
 	
 	while ((c = get()) != C_EOF) {
 		if (!(isDigit(c) || (hex && isHex(c)))) {
-			_ostring += '\0';
 			putback(c);
 			break;
 		}
-		_ostring += c;
+		_tokenString += c;
 	}
 
 	return T_INTEGER;
@@ -376,7 +384,6 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 {
 	uint8_t c;
 	uint8_t token = C_EOF;
-    _lastTokenValue = _ostring.length();
 	
 	while (token == C_EOF && (c = get()) != C_EOF) {
         if (isWhitespace(c)) {
@@ -393,22 +400,32 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 				break;
 				
 			case '\"':
-				token = scanString('\"');
+			case '\'':
+				token = scanString(c);
+                tokenValue->s = strdup(_tokenString.c_str());
+                tokenValue->type = TokenValue::Type::String;
+                _tokenString.clear();
 				break;
 
-			case '\'':
-				token = scanString('\'');
-				break;
-			
 			default:
 				putback(c);
 				if ((token = scanNumber()) != C_EOF) {
+                    // FIXME: Parse integers
+                    // FIXME: Scan and parse floats
+                    tokenValue->i = 0;
+                    tokenValue->type = TokenValue::Type::Integer;
+                    _tokenString.clear();
 					break;
 				}
 				if ((token = scanSpecial()) != C_EOF) {
 					break;
 				}
 				if ((token = scanIdentifier()) != C_EOF) {
+                    if (token == T_IDENTIFIER) {
+                        tokenValue->a = _atomTable.atomizeString(_tokenString.c_str());
+                        tokenValue->type = TokenValue::Type::Identifier;
+                        _tokenString.clear();
+                    }
 					break;
 				}
 				token = K_UNKNOWN;
@@ -416,10 +433,6 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 		}
 	}
     
-    _lastToken = token;
-    if (token == K_UNKNOWN) {
-        (void) 0;
-    }
 	return token;
 }
 

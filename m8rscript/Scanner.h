@@ -41,6 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Stream.h"
 #include "MString.h"
 #include "FixedPointFloat.h"
+#include "Atom.h"
 
 #include "parse.tab.h"
 
@@ -59,15 +60,21 @@ namespace m8r {
 class Scanner  {
 public:
   	struct TokenValue {
-		const char* s;
-		uint32_t len;
+        enum class Type { Float, Integer, Identifier, String };
+        Type type;
+        union {
+            float f;
+            uint32_t i;
+            Atom a;
+            const char* s;
+        };
 	};
   
   	Scanner(Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
-     , _lastToken(C_EOF)
+     , _nerrors(0)
   	{ }
   	
   	~Scanner()
@@ -76,6 +83,8 @@ public:
   	uint8_t getToken(TokenValue* token);
 
 	void printError(const char* s);
+    
+    uint32_t nerrors() const { return _nerrors; }
   	
 private:
     uint8_t get() const;
@@ -86,7 +95,7 @@ private:
   		_lastChar = c;
 	}
 
-  	uint8_t scanKeyword(uint32_t current, uint32_t len);
+  	uint8_t scanKeyword(const char*);
   	uint8_t scanString(char terminal);
   	uint8_t scanSpecial();
   	uint8_t scanIdentifier();
@@ -95,11 +104,11 @@ private:
   	void scanDigits(bool hex);
   
   	mutable uint8_t _lastChar;
-  	MString _ostring;
+  	MString _tokenString;
   	Stream* _istream;
     mutable uint32_t _lineno;
-    uint8_t _lastToken;
-    uint32_t _lastTokenValue;
+    uint32_t _nerrors;
+    AtomTable _atomTable;
 };
 
 }

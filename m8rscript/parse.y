@@ -13,9 +13,14 @@
 %{
 #include "Scanner.h"
 
+#define YYERROR_VERBOSE
+
 #define YYSTYPE m8r::Scanner::TokenValue
 
-inline void yyerror(m8r::Scanner* scanner, const char* s) { scanner->printError(s); }
+inline void yyerror(m8r::Scanner* scanner, const char* s)
+{
+    scanner->printError(s);
+}
 
 int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 {
