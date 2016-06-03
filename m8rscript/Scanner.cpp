@@ -46,6 +46,10 @@ struct Keyword
 	int token;
 };
 
+static const char* opcodes[] = {
+    "DEREF",
+};
+
 static const char* specialSingleChar = "(),.:;?[]{}~";
 static const char* specialFirstChar = "!%&*+-/<=>^|";
 
@@ -380,7 +384,7 @@ uint8_t Scanner::get() const
     return c;
 }
 
-uint8_t Scanner::getToken(TokenValue* tokenValue)
+uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 {
 	uint8_t c;
 	uint8_t token = C_EOF;
@@ -402,8 +406,7 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 			case '\"':
 			case '\'':
 				token = scanString(c);
-                tokenValue->s = strdup(_tokenString.c_str());
-                tokenValue->type = TokenValue::Type::String;
+                tokenValue->string = strdup(_tokenString.c_str());
                 _tokenString.clear();
 				break;
 
@@ -412,8 +415,7 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 				if ((token = scanNumber()) != C_EOF) {
                     // FIXME: Parse integers
                     // FIXME: Scan and parse floats
-                    tokenValue->i = 0;
-                    tokenValue->type = TokenValue::Type::Integer;
+                    tokenValue->integer = 0;
                     _tokenString.clear();
 					break;
 				}
@@ -422,8 +424,7 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 				}
 				if ((token = scanIdentifier()) != C_EOF) {
                     if (token == T_IDENTIFIER) {
-                        tokenValue->a = _atomTable.atomizeString(_tokenString.c_str());
-                        tokenValue->type = TokenValue::Type::Identifier;
+                        tokenValue->atom = _atomTable.atomizeString(_tokenString.c_str());
                         _tokenString.clear();
                     }
 					break;
@@ -435,6 +436,48 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
     
 	return token;
 }
+
+void Scanner::emit(const char* value)
+{
+    printf("STR(%s)\n", value);
+}
+
+void Scanner::emit(const Atom& value)
+{
+    printf("ID(%s)\n", _atomTable.toString(value).c_str());
+}
+
+void Scanner::emit(OpcodeType value)
+{
+    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #if 0
 void

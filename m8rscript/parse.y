@@ -15,7 +15,7 @@
 
 #define YYERROR_VERBOSE
 
-#define YYSTYPE m8r::Scanner::TokenValue
+//#define YYSTYPE m8r::Scanner::TokenValue
 
 inline void yyerror(m8r::Scanner* scanner, const char* s)
 {
@@ -90,6 +90,16 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 
 %token C_EOF			255 "end of file"
 
+%union {
+    const char*         string;
+    float				number;
+    uint32_t            integer;
+	m8r::Atom           atom;
+};
+
+%type <string>		T_STRING
+%type <atom>		T_IDENTIFIER
+
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
 %pure_parser
@@ -116,7 +126,7 @@ source_element
     ;
 	
 primary_expression
-	: T_IDENTIFIER
+	: identifier
     | T_FLOAT
 	| T_INTEGER
     | T_STRING
@@ -128,7 +138,7 @@ member_expression
 	: primary_expression
 	| function_expression
 	| member_expression '[' expression ']'
-	| member_expression '.' T_IDENTIFIER
+	| member_expression '.' identifier { scanner->emit(m8r::Scanner::OpcodeType::Deref); }
     | K_NEW member_expression arguments
     ;
 
@@ -141,7 +151,7 @@ call_expression
 	: member_expression arguments
 	| call_expression arguments
     | call_expression '[' expression ']'
-    | call_expression '.' T_IDENTIFIER
+    | call_expression '.' identifier { scanner->emit(m8r::Scanner::OpcodeType::Deref); }
 	;
 
 left_hand_side_expression
@@ -279,8 +289,8 @@ variable_declaration_list:
     ;
 
 variable_declaration:
-    	T_IDENTIFIER
-    |	T_IDENTIFIER initializer
+    	identifier
+    |	identifier initializer
     ;
 
 initializer:
@@ -358,8 +368,8 @@ jump_statement
 	;
 
 function_declaration
-	: K_FUNCTION T_IDENTIFIER '(' ')' '{' function_body '}'
-	| K_FUNCTION T_IDENTIFIER '(' formal_parameter_list ')' '{' function_body '}'
+	: K_FUNCTION identifier '(' ')' '{' function_body '}'
+	| K_FUNCTION identifier '(' formal_parameter_list ')' '{' function_body '}'
 	;
 
 function_expression
@@ -368,8 +378,8 @@ function_expression
     ;
     
 formal_parameter_list:
-		T_IDENTIFIER
-    |	formal_parameter_list ',' T_IDENTIFIER
+		identifier
+    |	formal_parameter_list ',' identifier
     ;
     
 function_body
@@ -392,10 +402,14 @@ property_assignment
     ;
     
 property_name
-    : T_IDENTIFIER
+    : identifier
     | T_STRING
     | T_FLOAT
     | T_INTEGER
+    ;
+
+identifier
+    : T_IDENTIFIER { scanner->emit($1); }
     ;
 
 %%

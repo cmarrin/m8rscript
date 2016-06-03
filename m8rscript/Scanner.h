@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 
 #include "Stream.h"
-#include "MString.h"
+//#include "MString.h"
 #include "FixedPointFloat.h"
 #include "Atom.h"
 
@@ -59,17 +59,8 @@ namespace m8r {
 
 class Scanner  {
 public:
-  	struct TokenValue {
-        enum class Type { Float, Integer, Identifier, String };
-        Type type;
-        union {
-            float f;
-            uint32_t i;
-            Atom a;
-            const char* s;
-        };
-	};
-  
+    enum class OpcodeType { Deref };
+    
   	Scanner(Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
@@ -80,11 +71,15 @@ public:
   	~Scanner()
   	{ }
   
-  	uint8_t getToken(TokenValue* token);
+  	uint8_t getToken(YYSTYPE* token);
 
 	void printError(const char* s);
     
     uint32_t nerrors() const { return _nerrors; }
+    
+    void emit(const char*);
+    void emit(const Atom&);
+    void emit(OpcodeType);
   	
 private:
     uint8_t get() const;

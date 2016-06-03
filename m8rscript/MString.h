@@ -35,11 +35,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cstdint>
+
 #if __APPLE__
 #include <string>
 #define STRING std::string
 #else
-#include <String.h>
+#include <Arduino.h>
 #define STRING String
 #endif
 
@@ -68,7 +70,7 @@ public:
 	uint32_t length() const { return static_cast<uint32_t>(_string.length()); }
 	STRING& operator+=(uint8_t c) { return _string += c; }
 	STRING& operator+=(const char* s) { return _string += s; }
-    const char* c_str() const { return &(_string[0]); }
+    const char* c_str() const { return _string.c_str(); }
     void clear() { _string = ""; }
 	
 private:
