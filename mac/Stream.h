@@ -69,20 +69,20 @@ class FileStream : public Stream {
 public:
 	FileStream(const char* file)
     {
-        FILE* _file = fopen(file, "r");
+        _file = fopen(file, "r");
         if (!_file) {
             _size = 0;
             return;
         }
         fseek(_file, 0, SEEK_END);
         _size = ftell(_file);
-        fseek(_file, 0, SEEK_SET);
+        rewind(_file);
     }
 	
     bool loaded() { return _file; }
-	virtual int available() override { return static_cast<int>(_size); }
-    virtual int read() override { return 0; }
-    virtual int peek() override { return 0; }
+	virtual int available() override { return static_cast<int>(_size - ftell(_file)); }
+    virtual int read() override { return fgetc(_file); }
+    virtual int peek() override { int c = fgetc(_file); ungetc(c, _file); return c; }
 	virtual void flush() override { }
 	
 private:

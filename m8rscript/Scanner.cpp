@@ -153,10 +153,10 @@ static inline bool isSpecial(uint8_t c)		{ return !isDigit(c) && !isIdFirst(c) &
 
 void Scanner::printError(const char* s)
 {
-	printf("%s\n", s);
+	printf("%s on line %d (last token:%d\n", s, _lineno, _lastToken);
 }
 
-// If the word is a keyword, return the token for it, otherwise return T_IDENTIFIER
+// If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
 {
 	for (int i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
@@ -164,14 +164,14 @@ uint8_t Scanner::scanKeyword(uint32_t current, uint32_t len)
 			return keywords[i].token;
 		}
 	}
-	return C_EOF;
+	return K_UNKNOWN;
 }
 
 uint8_t Scanner::scanString(char terminal)
 {
 	uint8_t c;
 	
-	while ((c = _istream->read()) != C_EOF) {
+	while ((c = get()) != C_EOF) {
 		if (c == terminal) {
 			_ostring += '\0';
 			break;
@@ -186,9 +186,8 @@ uint8_t Scanner::scanSpecial()
 	uint8_t c;
 	uint32_t current = _ostring.length();
 	
-	while ((c = _istream->read()) != C_EOF) {
+	while ((c = get()) != C_EOF) {
 		if (!isSpecial(c)) {
-			_ostring += '\0';
 			putback(c);
 			break;
 		}
@@ -199,6 +198,8 @@ uint8_t Scanner::scanSpecial()
     if (!len) {
         return C_EOF;
     }
+    
+    _ostring += '\0';
     uint8_t token = scanKeyword(current, len);
 
 	return (token == C_EOF) ? K_UNKNOWN : token;
@@ -210,9 +211,8 @@ uint8_t Scanner::scanIdentifier()
 	uint32_t current = _ostring.length();
 
 	bool first = true;
-	while ((c = _istream->read()) != C_EOF) {
+	while ((c = get()) != C_EOF) {
 		if (!((first && isIdFirst(c)) || (!first && isIdOther(c)))) {
-			_ostring += '\0';
 			putback(c);
 			break;
 		}
@@ -220,13 +220,19 @@ uint8_t Scanner::scanIdentifier()
 		first = false;
 	}
     uint32_t len = _ostring.length() - current;
-    return (len) ? scanKeyword(current, len) : C_EOF;
+    if (len) {
+        _ostring += '\0';
+        uint8_t token = scanKeyword(current, len);
+        return (token == K_UNKNOWN) ? T_IDENTIFIER : token;
+    }
+
+    return C_EOF;
 }
 
 void Scanner::scanDigits(bool hex)
 {
 	uint8_t c;
-	while ((c = _istream->read()) != C_EOF) {
+	while ((c = get()) != C_EOF) {
 		if (!isDigit(c) || (hex && isHex(c))) {
 			_ostring += '\0';
 			putback(c);
@@ -241,16 +247,17 @@ uint8_t Scanner::scanNumber()
 	uint8_t c;
     bool hex = false;
 	
-	if (!isDigit(c = _istream->read())) {
+	if (!isDigit(c = get())) {
 		putback(c);
 		return C_EOF;
 	}
 	
 	_ostring += c;
 	
-	if (c == '0' && ((c = _istream->read()) == 'x' || c == 'X')) {
+	if (c == '0' && ((c = get()) == 'x' || c == 'X')) {
         _ostring += 'x';
-		if (!isDigit(c = _istream->read())) {
+		if (!isDigit(c = get())) {
+			_ostring += '\0';
 			putback(c);
 			return K_UNKNOWN;
 		}
@@ -259,7 +266,15 @@ uint8_t Scanner::scanNumber()
 		putback(c);
 	}
 	
-	scanDigits(hex);
+	while ((c = get()) != C_EOF) {
+		if (!(isDigit(c) || (hex && isHex(c)))) {
+			_ostring += '\0';
+			putback(c);
+			break;
+		}
+		_ostring += c;
+	}
+
 	return T_INTEGER;
 }
 
@@ -267,14 +282,14 @@ uint8_t Scanner::scanComment()
 {
 	uint8_t c;
 
-	if ((c = _istream->read()) == '*') {
+	if ((c = get()) == '*') {
 		for ( ; ; ) {
-			c = _istream->read();
+			c = get();
 			if (c == C_EOF) {
 				return C_EOF;
 			}
 			if (c == '*') {
-				if ((c = _istream->read()) == '/') {
+				if ((c = get()) == '/') {
 					break;
 				}
 				putback(c);
@@ -285,7 +300,7 @@ uint8_t Scanner::scanComment()
 	if (c == '/') {
 		// Comment
 		for ( ; ; ) {
-			c = _istream->read();
+			c = get();
 			if (c == C_EOF) {
 				return C_EOF;
 			}
@@ -298,12 +313,29 @@ uint8_t Scanner::scanComment()
 	return '/';
 }
 
+uint8_t Scanner::get() const
+{
+    if (_lastChar != C_EOF) {
+        uint8_t c = _lastChar;
+        _lastChar = C_EOF;
+        return c;
+    }
+    if (!_istream->available()) {
+        return C_EOF;
+    }
+    uint8_t c = _istream->read();
+    if (c == '\n') {
+        ++_lineno;
+    }
+    return c;
+}
+
 uint8_t Scanner::getToken(TokenValue* tokenValue)
 {
 	uint8_t c;
-	uint8_t token;
+	uint8_t token = C_EOF;
 	
-	while ((c = _istream->read()) != C_EOF) {
+	while (token == C_EOF && (c = get()) != C_EOF) {
 		switch(c) {
 			case '/':
 				token = scanComment();
@@ -311,29 +343,37 @@ uint8_t Scanner::getToken(TokenValue* tokenValue)
 					// For now we ignore comments
 					break;
 				}
-				return token;
+				break;
 				
 			case '\"':
-				return scanString('\"');
+				token = scanString('\"');
+				break;
 
 			case '\'':
-				return scanString('\'');
+				token = scanString('\'');
+				break;
 			
 			default:
 				putback(c);
 				if ((token = scanNumber()) != C_EOF) {
-					return token;
+					break;
 				}
 				if ((token = scanSpecial()) != C_EOF) {
-					return token;
+					break;
 				}
 				if ((token = scanIdentifier()) != C_EOF) {
-					return token;
+					break;
 				}
-				return K_UNKNOWN;
+				token = K_UNKNOWN;
+                break;
 		}
 	}
-	return C_EOF;
+    
+    _lastToken = token;
+    if (token == K_UNKNOWN) {
+        (void) 0;
+    }
+	return token;
 }
 
 #if 0

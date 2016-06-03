@@ -66,6 +66,8 @@ public:
   	Scanner(Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
+     , _lineno(1)
+     , _lastToken(C_EOF)
   	{ }
   	
   	~Scanner()
@@ -76,6 +78,8 @@ public:
 	void printError(const char* s);
   	
 private:
+    uint8_t get() const;
+    
 	void putback(uint8_t c) const
 	{
   		assert(_lastChar == C_EOF && c != C_EOF);
@@ -93,6 +97,8 @@ private:
   	mutable uint8_t _lastChar;
   	MString _ostring;
   	Stream* _istream;
+    mutable uint32_t _lineno;
+    uint8_t _lastToken;
 };
 
 }

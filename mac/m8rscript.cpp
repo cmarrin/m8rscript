@@ -7,9 +7,12 @@
 //
 
 #include <iostream>
+#include <unistd.h>
 
 #include "Stream.h"
 #include "Parser.h"
+
+#define Root $(SRCROOT)
 
 int main(int argc, const char* argv[])
 {
@@ -17,6 +20,15 @@ int main(int argc, const char* argv[])
         std::cout << "No file specified, exiting\n";
         return 0;
     }
+    
+    const char* root = getenv("SRCROOT");
+    
+    chdir(root);
+    
+    char cwd[256];
+    getcwd(cwd, 255);
+    std::cout << "cwd='" << cwd << "'\n";
+    
     
     FileStream istream(argv[1]);
     std::cout << "Opening '" << argv[1] << "'\n";
