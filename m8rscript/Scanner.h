@@ -80,6 +80,8 @@ public:
     void emit(const char*);
     void emit(const Atom&);
     void emit(OpcodeType);
+    void emit(uint32_t);
+    void emit(float);
   	
 private:
     uint8_t get() const;
@@ -97,6 +99,7 @@ private:
   	uint8_t scanNumber();
   	uint8_t scanComment();
   	void scanDigits(bool hex);
+  	bool scanFloat();
   
   	mutable uint8_t _lastChar;
   	MString _tokenString;

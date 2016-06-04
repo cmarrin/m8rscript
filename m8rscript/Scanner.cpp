@@ -320,16 +320,42 @@ uint8_t Scanner::scanNumber()
         }
         putback(c);
 	}
-	
-	while ((c = get()) != C_EOF) {
-		if (!(isDigit(c) || (hex && isHex(c)))) {
-			putback(c);
-			break;
-		}
-		_tokenString += c;
-	}
+    
+    scanDigits(hex);
+    return scanFloat() ? T_FLOAT : T_INTEGER;
+}
 
-	return T_INTEGER;
+bool Scanner::scanFloat()
+{
+    bool haveFloat = false;
+	uint8_t c;
+    if ((c = get()) == C_EOF) {
+        return false;
+    }
+    if (c == '.') {
+        haveFloat = true;
+        _tokenString += c;
+        scanDigits(false);
+        if ((c = get()) == C_EOF) {
+            return false;
+        }
+    }
+    if (c == 'e' || c == 'E') {
+        haveFloat = true;
+        _tokenString += 'e';
+        if ((c = get()) == C_EOF) {
+            return false;
+        }
+        if (c == '+' || c == '-') {
+            _tokenString += c;
+        } else {
+            putback(c);
+        }
+        scanDigits(false);
+    } else {
+        putback(c);
+    }
+    return haveFloat;
 }
 
 uint8_t Scanner::scanComment()
@@ -413,9 +439,11 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 			default:
 				putback(c);
 				if ((token = scanNumber()) != C_EOF) {
-                    // FIXME: Parse integers
-                    // FIXME: Scan and parse floats
-                    tokenValue->integer = 0;
+                    if (token == T_INTEGER) {
+                        tokenValue->integer = static_cast<uint32_t>(strtol(_tokenString.c_str(), NULL, 0));
+                    } else {
+                        tokenValue->number = static_cast<float>(atof(_tokenString.c_str()));
+                    }
                     _tokenString.clear();
 					break;
 				}
@@ -452,6 +480,15 @@ void Scanner::emit(OpcodeType value)
     printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
 }
 
+void Scanner::emit(uint32_t value)
+{
+    printf("INT(%d)\n", value);
+}
+
+void Scanner::emit(float value)
+{
+    printf("FLT(%g)\n", value);
+}
 
 
 

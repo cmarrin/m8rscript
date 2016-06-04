@@ -99,6 +99,8 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 
 %type <string>		T_STRING
 %type <atom>		T_IDENTIFIER
+%type <integer>		T_INTEGER
+%type <number>		T_FLOAT
 
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
@@ -127,9 +129,9 @@ source_element
 	
 primary_expression
 	: identifier
-    | T_FLOAT
-	| T_INTEGER
-    | T_STRING
+    | T_FLOAT { scanner->emit($1); }
+	| T_INTEGER { scanner->emit($1); }
+    | T_STRING { scanner->emit($1); }
     | object_literal
 	| '(' expression ')'
 	;
@@ -403,9 +405,9 @@ property_assignment
     
 property_name
     : identifier
-    | T_STRING
-    | T_FLOAT
-    | T_INTEGER
+    | T_STRING { scanner->emit($1); }
+    | T_FLOAT { scanner->emit($1); }
+    | T_INTEGER { scanner->emit($1); }
     ;
 
 identifier
