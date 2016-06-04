@@ -27,6 +27,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		49AC572F1D02C71B00DB94B5 /* Opcodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Opcodes.h; path = ../m8rscript/Opcodes.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* FixedPointFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FixedPointFloat.h; path = ../m8rscript/FixedPointFloat.h; sourceTree = "<group>"; };
@@ -86,6 +87,7 @@
 				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
 				49E6482B1D01F279005F5059 /* Atom.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
+				49AC572F1D02C71B00DB94B5 /* Opcodes.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -97,6 +99,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */;
 			buildPhases = (
+				49AC572E1D02C11E00DB94B5 /* ShellScript */,
 				49E647E41D00B68F005F5059 /* Sources */,
 				49E647E51D00B68F005F5059 /* Frameworks */,
 				49E647E61D00B68F005F5059 /* CopyFiles */,
@@ -141,6 +144,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		49AC572E1D02C11E00DB94B5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $SRCROOT/../m8rscript ; ./buildparser.sh\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		49E647E41D00B68F005F5059 /* Sources */ = {

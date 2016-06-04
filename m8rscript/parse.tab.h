@@ -138,15 +138,17 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 93 "parse.y"
+#line 95 "parse.y"
 {
+    m8r::OpcodeType     op;
     const char*         string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;
+    uint32_t            argcount;
 }
 /* Line 1529 of yacc.c.  */
-#line 150 "parse.tab.h"
+#line 152 "parse.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

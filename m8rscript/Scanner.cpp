@@ -47,7 +47,10 @@ struct Keyword
 };
 
 static const char* opcodes[] = {
-    "DEREF",
+    "DEREF", "NEW", "CALL", "NEWID", 
+    "STO", "STOMUL", "STOADD", "STOSUB", "STODIV", "STOMOD", "STOSHL", "STOSHR", "STOSAL", "STOAND", "STOOR", "STOXOR",
+    "PREINC", "PREDEC", "POSTINC", "POSTDEC", "UPLUS", "UMINUS", "UNOT", "UNEG", "DEL",
+
 };
 
 static const char* specialSingleChar = "(),.:;?[]{}~";
@@ -475,11 +478,6 @@ void Scanner::emit(const Atom& value)
     printf("ID(%s)\n", _atomTable.toString(value).c_str());
 }
 
-void Scanner::emit(OpcodeType value)
-{
-    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
-}
-
 void Scanner::emit(uint32_t value)
 {
     printf("INT(%d)\n", value);
@@ -488,6 +486,17 @@ void Scanner::emit(uint32_t value)
 void Scanner::emit(float value)
 {
     printf("FLT(%g)\n", value);
+}
+
+void Scanner::emit(OpcodeType value)
+{
+    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
+}
+
+void Scanner::emit(OpcodeType value, uint32_t param)
+{
+    printf("INT(%d)\n", param);
+    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
 }
 
 

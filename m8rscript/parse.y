@@ -11,6 +11,8 @@
  */
 
 %{
+#include "Atom.h"
+#include "Opcodes.h"
 #include "Scanner.h"
 
 #define YYERROR_VERBOSE
@@ -91,16 +93,20 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 %token C_EOF			255 "end of file"
 
 %union {
+    m8r::OpcodeType     op;
     const char*         string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;
+    uint32_t            argcount;
 };
 
 %type <string>		T_STRING
 %type <atom>		T_IDENTIFIER
 %type <integer>		T_INTEGER
 %type <number>		T_FLOAT
+%type <argcount>    argument_list arguments
+%type <op>          assignment_operator unary_operator
 
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
@@ -140,8 +146,8 @@ member_expression
 	: primary_expression
 	| function_expression
 	| member_expression '[' expression ']'
-	| member_expression '.' identifier { scanner->emit(m8r::Scanner::OpcodeType::Deref); }
-    | K_NEW member_expression arguments
+	| member_expression '.' identifier { scanner->emit(m8r::OpcodeType::Deref); }
+    | K_NEW member_expression arguments { scanner->emit(m8r::OpcodeType::New, $3); }
     ;
 
 new_expression
@@ -150,10 +156,10 @@ new_expression
 	;
 
 call_expression
-	: member_expression arguments
-	| call_expression arguments
+	: member_expression arguments  { scanner->emit(m8r::OpcodeType::Call, $2); }
+	| call_expression arguments  { scanner->emit(m8r::OpcodeType::New, $2); }
     | call_expression '[' expression ']'
-    | call_expression '.' identifier { scanner->emit(m8r::Scanner::OpcodeType::Deref); }
+    | call_expression '.' identifier { scanner->emit(m8r::OpcodeType::Deref); }
 	;
 
 left_hand_side_expression
@@ -163,33 +169,33 @@ left_hand_side_expression
 
 postfix_expression
 	: left_hand_side_expression
-	| left_hand_side_expression O_INC
-	| left_hand_side_expression O_DEC
+	| left_hand_side_expression O_INC { scanner->emit(m8r::OpcodeType::PostInc); }
+	| left_hand_side_expression O_DEC { scanner->emit(m8r::OpcodeType::PostDec); }
     ;
 
 arguments
-    : '(' ')'
-    | '(' argument_list ')'
+    : '(' ')' { $$ = 0; }
+    | '(' argument_list ')' { $$ = $2; }
     ;
     
 argument_list
-	: assignment_expression
-	| argument_list ',' assignment_expression
+	: assignment_expression { $$ = 1; }
+	| argument_list ',' assignment_expression { $$++; }
 	;
 
 unary_expression
 	: postfix_expression
-	| unary_operator unary_expression
+	| unary_operator unary_expression { scanner->emit($1); }
 	;
 
 unary_operator
-	: '+'
-	| '-'
-	| '~'
-	| '!'
-	| K_DELETE
-	| O_INC
-	| O_DEC
+	: '+' { $$ = m8r::OpcodeType::UPlus; }
+	| '-' { $$ = m8r::OpcodeType::UMinus; }
+	| '~' { $$ = m8r::OpcodeType::UNeg; }
+	| '!' { $$ = m8r::OpcodeType::UNot; }
+	| K_DELETE { $$ = m8r::OpcodeType::Delete; }
+	| O_INC { $$ = m8r::OpcodeType::PreInc; }
+	| O_DEC { $$ = m8r::OpcodeType::PreDec; }
 	;
 
 multiplicative_expression
@@ -258,22 +264,22 @@ conditional_expression
 
 assignment_expression
 	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	| unary_expression assignment_operator assignment_expression { scanner->emit($2); }
 	;
 
 assignment_operator
-	: '='
-	| O_MULEQ
-	| O_DIVEQ
-	| O_MODEQ
-	| O_ADDEQ
-	| O_SUBEQ
-	| O_LSHIFTEQ
-	| O_RSHIFTEQ
-	| O_RSHIFTFILLEQ
-	| O_ANDEQ
-	| O_XOREQ
-	| O_OREQ
+	: '=' { $$ = m8r::OpcodeType::Assign; }
+	| O_MULEQ { $$ = m8r::OpcodeType::AssignMul; }
+	| O_DIVEQ { $$ = m8r::OpcodeType::AssignDiv; }
+	| O_MODEQ { $$ = m8r::OpcodeType::AssignMod; }
+	| O_ADDEQ { $$ = m8r::OpcodeType::AssignAdd; }
+	| O_SUBEQ { $$ = m8r::OpcodeType::AssignSub; }
+	| O_LSHIFTEQ { $$ = m8r::OpcodeType::AssignSHL; }
+	| O_RSHIFTEQ { $$ = m8r::OpcodeType::AssignSHR; }
+	| O_RSHIFTFILLEQ { $$ = m8r::OpcodeType::AssignSAR; }
+	| O_ANDEQ { $$ = m8r::OpcodeType::AssignAnd; }
+	| O_XOREQ { $$ = m8r::OpcodeType::AssignXor; }
+	| O_OREQ { $$ = m8r::OpcodeType::AssignOr; }
 	;
 
 expression
@@ -291,12 +297,12 @@ variable_declaration_list:
     ;
 
 variable_declaration:
-    	identifier
-    |	identifier initializer
+    	identifier { scanner->emit(m8r::OpcodeType::NewID); }
+    |	identifier { scanner->emit(m8r::OpcodeType::NewID); } initializer
     ;
 
 initializer:
-    	'=' assignment_expression
+    	'=' assignment_expression { scanner->emit(m8r::OpcodeType::Assign); }
     ;
 
 statement

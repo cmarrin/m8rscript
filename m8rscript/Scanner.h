@@ -39,9 +39,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 
 #include "Stream.h"
-//#include "MString.h"
 #include "FixedPointFloat.h"
 #include "Atom.h"
+#include "Opcodes.h"
 
 #include "parse.tab.h"
 
@@ -59,8 +59,6 @@ namespace m8r {
 
 class Scanner  {
 public:
-    enum class OpcodeType { Deref };
-    
   	Scanner(Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
@@ -79,9 +77,10 @@ public:
     
     void emit(const char*);
     void emit(const Atom&);
-    void emit(OpcodeType);
     void emit(uint32_t);
     void emit(float);
+    void emit(OpcodeType);
+    void emit(OpcodeType, uint32_t);
   	
 private:
     uint8_t get() const;
