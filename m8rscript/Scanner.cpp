@@ -47,9 +47,10 @@ struct Keyword
 };
 
 static const char* opcodes[] = {
-    "DEREF", "NEW", "CALL", "NEWID", 
+    "DEREF", "NEW", "CALL", "NEWID", "GOTO",
     "STO", "STOMUL", "STOADD", "STOSUB", "STODIV", "STOMOD", "STOSHL", "STOSHR", "STOSAL", "STOAND", "STOOR", "STOXOR",
     "PREINC", "PREDEC", "POSTINC", "POSTDEC", "UPLUS", "UMINUS", "UNOT", "UNEG", "DEL",
+    "LOR", "LAND", "AND", "OR", "XOR", "EQ", "NE", "LT", "LE", "GT", "GE", "SHL", "SHR", "SAR", "ADD", "SUB", "MUL", "DIV", "MOD", 
 
 };
 
@@ -268,7 +269,7 @@ uint8_t Scanner::scanIdentifier()
 		_tokenString += c;
 		first = false;
 	}
-    uint32_t len = _tokenString.length();
+    size_t len = _tokenString.length();
     if (len) {
         uint8_t token = scanKeyword(_tokenString.c_str());
         return (token == K_UNKNOWN) ? T_IDENTIFIER : token;
@@ -488,259 +489,45 @@ void Scanner::emit(float value)
     printf("FLT(%g)\n", value);
 }
 
-void Scanner::emit(OpcodeType value)
+void Scanner::emit(Op value)
 {
     printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
 }
 
-void Scanner::emit(OpcodeType value, uint32_t param)
+void Scanner::emit(ExecutionUnit* value)
 {
-    printf("INT(%d)\n", param);
-    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
+    printf("EU(%p)\n", value);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-void
-Scanner::getToken(TokenValue& token)
+void Scanner::emit(Op value, uint32_t param)
 {
-	uint8_t c = (_lastChar == C_EOF) ? getChar() : _lastChar;
-	_lastChar = C_EOF;
-	token.token = C_EOF;
-	
-	if (c == C_EOF)
-		return;
-	
-	if (isDigit(c)) {
-		// scanning a number <digit>+['.'<digit>*]?[['E'|'e']['+'|'-']?<digit>+]?
-		//            state:    0      1     2         3       4        5         6
-		// or
-		//                   '0'['x'|'X']<hexdigit>+
-		uint8_t c1 = c;
-		c = getChar();
-		if (c == C_EOF)
-			return;
-		
-		// check for hex
-		if (c1 == '0' && (c == 'x' || c == 'X')) {
-			int32_t n = 0;
-			while (isHexDigit(c = getChar())) {
-				n *= 16;
-				n += isDigit(c) ? (c-'0') : (toLower(c)-'a'+10);
-			}
-			
-			if (c != C_EOF)
-				_lastChar = c;
-				
-			token.integer = n;
-			token.token = T_INTEGER;
-			return;
-		}
-		else {
-			uint8_t state = 0;
-			bool needChar = false;
-			uint32_t i = 0;
-			uint32_t f = 0;
-			uint8_t dp = 0;
-			int32_t e = 0;
-			bool negExp = false;
-			
-			while (1) {
-				switch(state) {
-					case 0:	// digits before decimal
-						if (isDigit(c)) {
-							i = i*10+(c-'0');
-							needChar = true;
-						}
-						else
-							state = 1;
-						break;
-					case 1: // decimal point
-						if (c == '.') {
-							needChar = true;
-							state = 2;
-						}
-						else
-							state = 3;
-						break;
-					case 2: // digits after decimal
-						if (isDigit(c)) {
-							f = f*10+(c-'0');
-							dp++;
-							needChar = true;
-						}
-						else
-							state = 3;
-						break;
-					case 3: // exponent
-						if (c == 'e' || c == 'E') {
-							needChar = true;
-							state = 4;
-						}
-						else
-							state = 6;
-						break;
-					case 4: // exponent + or -
-						if (c == '+' || c == '-') {
-							if (c == '-')
-								negExp = true;
-							needChar = true;
-						}
-						state = 5;
-						break;
-					case 5: // exponent number
-						if (isDigit(c)) {
-							e = e*10+(c-'0');
-							needChar = true;
-						}
-						else
-							state = 6;
-						break;
-				}
-				
-				if (needChar) {
-					needChar = false;
-					c = getChar();
-					if (c == C_EOF) {
-						if (state == 0 || state == 2 || state == 5)
-							state = 6;
-						else {
-							token.token = E_ERROR;
-							return;
-						}
-					}
-				}
-				
-				if (state == 6) {
-					if (e == 0 && f == 0 && dp == 0) {
-						// return integer
-						token.integer = i;
-						token.token = T_INTEGER;
-						return;
-					}
-					else {
-						if (negExp)
-							e = -e;
-						token.number = FPF_MAKE(i, f, dp, e);
-						token.token = T_FLOAT;
-						return;
-					}
-				}
-			}
-		}
-	}
-	else if (isIdFirst(c)) {
-		// scanning identifier or keyword <idfirst><idother>*
-		_tokenString.resize(MAX_ID_LENGTH);
-		char* p = &(_tokenString[0]);
-		uint16_t n = MAX_ID_LENGTH;
-	
-		while (isIdOther(c = getChar()) && n-- > 1)
-			*p++ = (char) c;
-			
-		if (c != C_EOF)
-			_lastChar = c;
-			
-		// make it an atom
-		const char* s = &(_tokenString[0]);
-		uint16_t len = p-s;
-		
-		// see if this is a keyword
-		uint8_t keyword = scanKeyword(p);
-		if (keyword != C_EOF)
-			token.token = keyword;
-		else {
-			token.atom = _atomList->add(s, len);
-			token.token = T_IDENTIFIER;
-		}
-		return;
-	}
-	else if (c == '\'' || c == '"') {
-		// scan string
-		char* p = &(_tokenString[0]);
-		uint8_t match = c;
-		
-		--p;	// toss quote
-		
-		while(1) {
-			c = getChar();
-			if (c != match) {
-				if (c == '\\') {
-					c = getChar();
-					switch(c) {
-						case 'n':	c = '\n'; break;
-						case 't':	c = '\t'; break;
-						case 'r':	c = '\r'; break;
-						case '\'':	c = '\''; break;
-						case '"':	c = '"'; break;
-						// handle the rest later
-					}
-				}
-				
-				uint16_t n = p-&(_tokenString[0]);
-				if (_tokenString.size() < n - 2)
-					_tokenString.resize(_tokenString.size() + MAX_ID_LENGTH);
-					
-				p = &(_tokenString[n]);
-				*p++ = (char) c;
-			}
-		}
-		
-		char* s = &(_tokenString[0]);
-		token.atom = _atomList->add(s, p-s);
-		token.token = T_STRING;
-		return;
-	}
-	else if (isSpecial(c)) {
-		// scanning special char sequence <special>+
-		char s[5];
-		char* p = s;
-		uint8_t n = 4;
-		*p++ = c;
-		
-		while (isSpecial(c = getChar()) && n-- > 0)
-			*p++ = (char) c;
-		
-		*p = '\0';
-		
-		if (c != C_EOF)
-			_lastChar = c;
-			
-		if (s[1] == '\0') {
-			// single character case
-			token.token = (s[0] == '#' || s[0] == '\\') ? C_EOF : s[0];
-			return;
-		}
-
-		token.token = scanKeyword( &(s[0]));
-		return;
-	}
-	
-	token.token = C_EOF;
+    printf("OP(%s[%d])\n", opcodes[static_cast<size_t>(value)], param);
 }
-#endif
+
+Label Scanner::label() const
+{
+    Label lbl = _currentExecutionUnit->label();
+    printf("LABEL[%d]\n", lbl.uniqueID);
+    return lbl;
+}
+
+void Scanner::emit(Label label)
+{
+    printf("OP(GOTO[%d])\n", label.uniqueID);
+}
+
+void Scanner::functionStart()
+{
+    _executionUnits.push_back(_currentExecutionUnit);
+    _currentExecutionUnit = new ExecutionUnit();
+}
+
+ExecutionUnit* Scanner::functionEnd()
+{
+    assert(_currentExecutionUnit && _executionUnits.size());
+    ExecutionUnit* eu = _currentExecutionUnit;
+    _currentExecutionUnit = _executionUnits.back();
+    _executionUnits.pop_back();
+    return eu;
+}
+

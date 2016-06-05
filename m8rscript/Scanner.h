@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Stream.h"
 #include "FixedPointFloat.h"
 #include "Atom.h"
-#include "Opcodes.h"
+#include "ExecutionUnit.h"
 
 #include "parse.tab.h"
 
@@ -64,10 +64,17 @@ public:
   	 , _istream(istream)
      , _lineno(1)
      , _nerrors(0)
-  	{ }
+  	{
+        _currentExecutionUnit = new ExecutionUnit();
+    }
   	
   	~Scanner()
-  	{ }
+  	{
+        delete _currentExecutionUnit;
+        for (uint32_t i = 0; i < _executionUnits.size(); ++i) {
+            delete _executionUnits[i];
+        }
+    }
   
   	uint8_t getToken(YYSTYPE* token);
 
@@ -76,11 +83,18 @@ public:
     uint32_t nerrors() const { return _nerrors; }
     
     void emit(const char*);
-    void emit(const Atom&);
     void emit(uint32_t);
     void emit(float);
-    void emit(OpcodeType);
-    void emit(OpcodeType, uint32_t);
+    void emit(const Atom&);
+    void emit(Op);
+    void emit(Op, uint32_t);
+    void emit(ExecutionUnit*);
+    void emit(Label);
+    Label label() const;
+    
+    void functionAddParam(const Atom& atom) { _currentExecutionUnit->addParam(atom); }
+    void functionStart();
+    ExecutionUnit* functionEnd();
   	
 private:
     uint8_t get() const;
@@ -101,11 +115,13 @@ private:
   	bool scanFloat();
   
   	mutable uint8_t _lastChar;
-  	MString _tokenString;
+  	String _tokenString;
   	Stream* _istream;
     mutable uint32_t _lineno;
     uint32_t _nerrors;
     AtomTable _atomTable;
+    ExecutionUnit *_currentExecutionUnit;
+    Vector<ExecutionUnit*> _executionUnits;
 };
 
 }

@@ -12,7 +12,7 @@
 
 %{
 #include "Atom.h"
-#include "Opcodes.h"
+#include "ExecutionUnit.h"
 #include "Scanner.h"
 
 #define YYERROR_VERBOSE
@@ -93,7 +93,9 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 %token C_EOF			255 "end of file"
 
 %union {
-    m8r::OpcodeType     op;
+    m8r::Op             op;
+    m8r::Label          label;
+    m8r::ExecutionUnit* function;
     const char*         string;
     float				number;
     uint32_t            integer;
@@ -107,6 +109,8 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 %type <number>		T_FLOAT
 %type <argcount>    argument_list arguments
 %type <op>          assignment_operator unary_operator
+%type <label>       iteration_start
+%type <function>    function
 
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
@@ -146,8 +150,8 @@ member_expression
 	: primary_expression
 	| function_expression
 	| member_expression '[' expression ']'
-	| member_expression '.' identifier { scanner->emit(m8r::OpcodeType::Deref); }
-    | K_NEW member_expression arguments { scanner->emit(m8r::OpcodeType::New, $3); }
+	| member_expression '.' identifier { scanner->emit(m8r::Op::DEREF); }
+    | K_NEW member_expression arguments { scanner->emit(m8r::Op::NEW, $3); }
     ;
 
 new_expression
@@ -156,10 +160,10 @@ new_expression
 	;
 
 call_expression
-	: member_expression arguments  { scanner->emit(m8r::OpcodeType::Call, $2); }
-	| call_expression arguments  { scanner->emit(m8r::OpcodeType::New, $2); }
+	: member_expression arguments  { scanner->emit(m8r::Op::CALL, $2); }
+	| call_expression arguments  { scanner->emit(m8r::Op::CALL, $2); }
     | call_expression '[' expression ']'
-    | call_expression '.' identifier { scanner->emit(m8r::OpcodeType::Deref); }
+    | call_expression '.' identifier { scanner->emit(m8r::Op::DEREF); }
 	;
 
 left_hand_side_expression
@@ -169,8 +173,8 @@ left_hand_side_expression
 
 postfix_expression
 	: left_hand_side_expression
-	| left_hand_side_expression O_INC { scanner->emit(m8r::OpcodeType::PostInc); }
-	| left_hand_side_expression O_DEC { scanner->emit(m8r::OpcodeType::PostDec); }
+	| left_hand_side_expression O_INC { scanner->emit(m8r::Op::POSTINC); }
+	| left_hand_side_expression O_DEC { scanner->emit(m8r::Op::POSTDEC); }
     ;
 
 arguments
@@ -189,72 +193,72 @@ unary_expression
 	;
 
 unary_operator
-	: '+' { $$ = m8r::OpcodeType::UPlus; }
-	| '-' { $$ = m8r::OpcodeType::UMinus; }
-	| '~' { $$ = m8r::OpcodeType::UNeg; }
-	| '!' { $$ = m8r::OpcodeType::UNot; }
-	| K_DELETE { $$ = m8r::OpcodeType::Delete; }
-	| O_INC { $$ = m8r::OpcodeType::PreInc; }
-	| O_DEC { $$ = m8r::OpcodeType::PreDec; }
+	: '+' { $$ = m8r::Op::UPLUS; }
+	| '-' { $$ = m8r::Op::UMINUS; }
+	| '~' { $$ = m8r::Op::UNEG; }
+	| '!' { $$ = m8r::Op::UNOT; }
+	| K_DELETE { $$ = m8r::Op::DEL; }
+	| O_INC { $$ = m8r::Op::PREINC; }
+	| O_DEC { $$ = m8r::Op::PREDEC; }
 	;
 
 multiplicative_expression
 	: unary_expression
-	| multiplicative_expression '*' unary_expression
-	| multiplicative_expression '/' unary_expression
-	| multiplicative_expression '%' unary_expression
+	| multiplicative_expression '*' unary_expression { scanner->emit(m8r::Op::MUL); }
+	| multiplicative_expression '/' unary_expression { scanner->emit(m8r::Op::DIV); }
+	| multiplicative_expression '%' unary_expression { scanner->emit(m8r::Op::MOD); }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression '+' multiplicative_expression { scanner->emit(m8r::Op::ADD); }
+	| additive_expression '-' multiplicative_expression { scanner->emit(m8r::Op::SUB); }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression O_LSHIFT additive_expression
-	| shift_expression O_RSHIFT additive_expression
-	| shift_expression O_RSHIFTFILL additive_expression
+	| shift_expression O_LSHIFT additive_expression { scanner->emit(m8r::Op::SHL); }
+	| shift_expression O_RSHIFT additive_expression { scanner->emit(m8r::Op::SHR); }
+	| shift_expression O_RSHIFTFILL additive_expression { scanner->emit(m8r::Op::SAR); }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression O_LE shift_expression
-	| relational_expression O_GE shift_expression
+	| relational_expression '<' shift_expression { scanner->emit(m8r::Op::LT); }
+	| relational_expression '>' shift_expression { scanner->emit(m8r::Op::GT); }
+	| relational_expression O_LE shift_expression { scanner->emit(m8r::Op::LE); }
+	| relational_expression O_GE shift_expression { scanner->emit(m8r::Op::GE); }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression O_EQ relational_expression
-	| equality_expression O_NE relational_expression
+	| equality_expression O_EQ relational_expression { scanner->emit(m8r::Op::EQ); }
+	| equality_expression O_NE relational_expression { scanner->emit(m8r::Op::NE); }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression '&' equality_expression { scanner->emit(m8r::Op::AND); }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression { scanner->emit(m8r::Op::XOR); }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression { scanner->emit(m8r::Op::OR); }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression O_LAND inclusive_or_expression
+	| logical_and_expression O_LAND inclusive_or_expression { scanner->emit(m8r::Op::LAND); }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression O_LOR logical_and_expression
+	| logical_or_expression O_LOR logical_and_expression { scanner->emit(m8r::Op::LOR); }
 	;
 
 conditional_expression
@@ -268,18 +272,18 @@ assignment_expression
 	;
 
 assignment_operator
-	: '=' { $$ = m8r::OpcodeType::Assign; }
-	| O_MULEQ { $$ = m8r::OpcodeType::AssignMul; }
-	| O_DIVEQ { $$ = m8r::OpcodeType::AssignDiv; }
-	| O_MODEQ { $$ = m8r::OpcodeType::AssignMod; }
-	| O_ADDEQ { $$ = m8r::OpcodeType::AssignAdd; }
-	| O_SUBEQ { $$ = m8r::OpcodeType::AssignSub; }
-	| O_LSHIFTEQ { $$ = m8r::OpcodeType::AssignSHL; }
-	| O_RSHIFTEQ { $$ = m8r::OpcodeType::AssignSHR; }
-	| O_RSHIFTFILLEQ { $$ = m8r::OpcodeType::AssignSAR; }
-	| O_ANDEQ { $$ = m8r::OpcodeType::AssignAnd; }
-	| O_XOREQ { $$ = m8r::OpcodeType::AssignXor; }
-	| O_OREQ { $$ = m8r::OpcodeType::AssignOr; }
+	: '=' { $$ = m8r::Op::STO; }
+	| O_MULEQ { $$ = m8r::Op::STOMUL; }
+	| O_DIVEQ { $$ = m8r::Op::STODIV; }
+	| O_MODEQ { $$ = m8r::Op::STOMOD; }
+	| O_ADDEQ { $$ = m8r::Op::STOADD; }
+	| O_SUBEQ { $$ = m8r::Op::STOSUB; }
+	| O_LSHIFTEQ { $$ = m8r::Op::STOSHL; }
+	| O_RSHIFTEQ { $$ = m8r::Op::STOSHR; }
+	| O_RSHIFTFILLEQ { $$ = m8r::Op::STOSAR; }
+	| O_ANDEQ { $$ = m8r::Op::STOAND; }
+	| O_XOREQ { $$ = m8r::Op::STOXOR; }
+	| O_OREQ { $$ = m8r::Op::STOOR; }
 	;
 
 expression
@@ -297,12 +301,12 @@ variable_declaration_list:
     ;
 
 variable_declaration:
-    	identifier { scanner->emit(m8r::OpcodeType::NewID); }
-    |	identifier { scanner->emit(m8r::OpcodeType::NewID); } initializer
+    	identifier { scanner->emit(m8r::Op::NEWID); }
+    |	identifier { scanner->emit(m8r::Op::NEWID); } initializer
     ;
 
 initializer:
-    	'=' assignment_expression { scanner->emit(m8r::OpcodeType::Assign); }
+    	'=' assignment_expression { scanner->emit(m8r::Op::STO); }
     ;
 
 statement
@@ -362,10 +366,12 @@ default_clause:
 		K_DEFAULT ':' statement
 	;
 
+iteration_start: { $$ = scanner->label(); } ;
+
 iteration_statement
-	: K_WHILE '(' expression ')' statement
-	| K_DO statement K_WHILE '(' expression ')' ';'
-	| K_FOR '(' expression_statement expression_statement expression ')' statement
+	: K_WHILE iteration_start '(' expression ')' statement { scanner->emit($2); }
+	| K_DO iteration_start statement K_WHILE '(' expression ')' ';' { scanner->emit($2); }
+	| K_FOR '(' expression_statement iteration_start expression_statement expression ')' statement { scanner->emit($4); }
 	;
 
 jump_statement
@@ -375,20 +381,17 @@ jump_statement
 	| K_RETURN expression ';'
 	;
 
-function_declaration
-	: K_FUNCTION identifier '(' ')' '{' function_body '}'
-	| K_FUNCTION identifier '(' formal_parameter_list ')' '{' function_body '}'
-	;
+function_declaration : K_FUNCTION T_IDENTIFIER function { scanner->emit($3); scanner->emit($2); scanner->emit(m8r::Op::STO); } ;
 
-function_expression
-    : K_FUNCTION '(' ')' '{' function_body '}'
-    | K_FUNCTION '(' formal_parameter_list ')' '{' function_body '}'
+function_expression : K_FUNCTION function { scanner->emit($2); } ;
+    
+formal_parameter_list
+    :   /* empty */
+    |   T_IDENTIFIER { scanner->functionAddParam($1); }
+    |	formal_parameter_list ',' T_IDENTIFIER
     ;
     
-formal_parameter_list:
-		identifier
-    |	formal_parameter_list ',' identifier
-    ;
+function : '(' { scanner->functionStart(); } formal_parameter_list ')' '{' function_body '}' { $$ = scanner->functionEnd(); } ;
     
 function_body
     : /* empty */

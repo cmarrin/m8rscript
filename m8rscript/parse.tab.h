@@ -140,7 +140,9 @@
 typedef union YYSTYPE
 #line 95 "parse.y"
 {
-    m8r::OpcodeType     op;
+    m8r::Op             op;
+    m8r::Label          label;
+    m8r::ExecutionUnit* function;
     const char*         string;
     float				number;
     uint32_t            integer;
@@ -148,7 +150,7 @@ typedef union YYSTYPE
     uint32_t            argcount;
 }
 /* Line 1529 of yacc.c.  */
-#line 152 "parse.tab.h"
+#line 154 "parse.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

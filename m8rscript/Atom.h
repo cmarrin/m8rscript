@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "MString.h"
+#include "Containers.h"
 
 namespace m8r {
 
@@ -73,10 +73,10 @@ protected:
 class AtomTable {
 public:
     Atom atomizeString(const char*);
-    MString toString(const Atom& atom) const { return MString(&(_table[atom._index + 1]), -_table[atom._index]); }
+    String toString(const Atom& atom) const { return String(&(_table[atom._index + 1]), -_table[atom._index]); }
 
 private:
-    MString _table;
+    String _table;
 };
 
 }
