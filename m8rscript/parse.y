@@ -369,9 +369,9 @@ default_clause:
 iteration_start: { $$ = scanner->label(); } ;
 
 iteration_statement
-	: K_WHILE iteration_start '(' expression ')' statement { scanner->emit($2); }
-	| K_DO iteration_start statement K_WHILE '(' expression ')' ';' { scanner->emit($2); }
-	| K_FOR '(' expression_statement iteration_start expression_statement expression ')' statement { scanner->emit($4); }
+	: K_WHILE iteration_start '(' expression { scanner->loopStart(false, $2); } ')' statement { scanner->loopEnd($2); }
+	| K_DO iteration_start statement K_WHILE '(' expression ')' ';'
+	| K_FOR '(' expression_statement iteration_start expression_statement expression ')' statement
 	;
 
 jump_statement

@@ -55,13 +55,7 @@ public:
 	String() : _size(1), _capacity(0), _data(nullptr) { }
 	String(const char* s, size_t len = -1) : _size(1), _capacity(0), _data(nullptr)
     {
-        if (len == -1) {
-            len = strlen(s);
-        }
-        ensureCapacity(len + 1);
-        memcpy(_data, s, len);
-        _size = len + 1;
-        _data[_size - 1] = '\0';
+        set(s, len);
     }
     
     String(const String& other) : _data(nullptr)
@@ -71,7 +65,7 @@ public:
     
     ~String() { free(_data); };
 
-    String &operator=(const String& other)
+    String& operator=(const String& other)
     {
         if (_data) {
             free(_data);
@@ -83,7 +77,18 @@ public:
             memcpy(_data, other._data, _size);
         }
         return *this;
-    };
+    }
+    
+    void set(const char* s, size_t len = -1)
+    {
+        if (len == -1) {
+            len = strlen(s);
+        }
+        ensureCapacity(len + 1);
+        memcpy(_data, s, len);
+        _size = len + 1;
+        _data[_size - 1] = '\0';
+    }
 	
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
@@ -177,8 +182,8 @@ public:
     void pop_back() { _size--; }
     
     size_t size() const { return _size; };
-    const type& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
-    type& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
+    const type& operator[](size_t i) const { assert(i >= 0 && i < _size); return _data[i]; };
+    type& operator[](size_t i) { assert(i >= 0 && i < _size); return _data[i]; };
     
     type& back() { return _data[_size - 1]; }
     const type& back() const { return _data[_size - 1]; }
@@ -186,6 +191,9 @@ public:
 private:
     void ensureCapacity(size_t size)
     {
+        if (_capacity >= size) {
+            return;
+        }
         _capacity = _capacity ? _capacity * 2 : 1;
         if (_capacity < size) {
             _capacity = size;

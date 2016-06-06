@@ -40,22 +40,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+static const char* specialSingleChar = "(),.:;?[]{}~";
+static const char* specialFirstChar = "!%&*+-/<=>^|";
+
 struct Keyword
 {
 	const char* word;
 	int token;
 };
-
-static const char* opcodes[] = {
-    "DEREF", "NEW", "CALL", "NEWID", "GOTO",
-    "STO", "STOMUL", "STOADD", "STOSUB", "STODIV", "STOMOD", "STOSHL", "STOSHR", "STOSAL", "STOAND", "STOOR", "STOXOR",
-    "PREINC", "PREDEC", "POSTINC", "POSTDEC", "UPLUS", "UMINUS", "UNOT", "UNEG", "DEL",
-    "LOR", "LAND", "AND", "OR", "XOR", "EQ", "NE", "LT", "LE", "GT", "GE", "SHL", "SHR", "SAR", "ADD", "SUB", "MUL", "DIV", "MOD", 
-
-};
-
-static const char* specialSingleChar = "(),.:;?[]{}~";
-static const char* specialFirstChar = "!%&*+-/<=>^|";
 
 static Keyword keywords[] = {
 	{ "break",		K_BREAK },
@@ -471,55 +463,59 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 
 void Scanner::emit(const char* value)
 {
-    printf("STR(%s)\n", value);
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(const Atom& value)
 {
-    printf("ID(%s)\n", _atomTable.toString(value).c_str());
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(uint32_t value)
 {
-    printf("INT(%d)\n", value);
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(float value)
 {
-    printf("FLT(%g)\n", value);
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(Op value)
 {
-    printf("OP(%s)\n", opcodes[static_cast<size_t>(value)]);
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(ExecutionUnit* value)
 {
-    printf("EU(%p)\n", value);
+    _currentExecutionUnit->addCode(value);
 }
 
 void Scanner::emit(Op value, uint32_t param)
 {
-    printf("OP(%s[%d])\n", opcodes[static_cast<size_t>(value)], param);
+    _currentExecutionUnit->addCode(value);
 }
 
 Label Scanner::label() const
 {
     Label lbl = _currentExecutionUnit->label();
-    printf("LABEL[%d]\n", lbl.uniqueID);
     return lbl;
 }
 
-void Scanner::emit(Label label)
+void Scanner::loopStart(bool cond, Label& label)
 {
-    printf("OP(GOTO[%d])\n", label.uniqueID);
+    _currentExecutionUnit->addFixupJump(cond, label);
+}
+
+void Scanner::loopEnd(Label& label)
+{
+    _currentExecutionUnit->addJumpAndFixup(label);
 }
 
 void Scanner::functionStart()
 {
     _executionUnits.push_back(_currentExecutionUnit);
-    _currentExecutionUnit = new ExecutionUnit();
+    _currentExecutionUnit = new ExecutionUnit(this);
 }
 
 ExecutionUnit* Scanner::functionEnd()

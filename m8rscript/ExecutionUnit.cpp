@@ -34,17 +34,14 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
 #include "ExecutionUnit.h"
+
+#include "Scanner.h"
 #include <cassert>
+#include <cstdio>
 
 using namespace m8r;
 
 uint32_t ExecutionUnit::_nextID = 1;
-
-inline uint8_t byteFromInt(uint32_t value, uint32_t index)
-{
-    assert(index < 4);
-    return (reinterpret_cast<uint8_t*>(&value))[index];
-}
 
 void ExecutionUnit::addCode(const char* s)
 {
@@ -74,12 +71,47 @@ void ExecutionUnit::addCode(float)
 {
 }
 
-void ExecutionUnit::addCode(const Atom&)
+void ExecutionUnit::addCode(const Atom& atom)
+{
+    _code.push_back(static_cast<uint8_t>(Op::PUSHID));
+    addCodeInt(atom.rawAtom(), 2);
+}
+
+void ExecutionUnit::addCode(Op value)
 {
 }
 
-void ExecutionUnit::addCode(Op)
+void ExecutionUnit::addFixupJump(bool cond, Label& label)
 {
+    _code.push_back(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
+    label.fixupAddr = static_cast<int32_t>(_code.size());
+    _code.push_back(0);
+    _code.push_back(0);
+}
+
+void ExecutionUnit::addJumpAndFixup(Label& label)
+{
+    int32_t jumpAddr = label.label - static_cast<int32_t>(_code.size());
+    if (jumpAddr >= -127 && jumpAddr <= 127) {
+        _code.push_back(static_cast<uint8_t>(Op::JMP));
+        _code.push_back(static_cast<uint8_t>(jumpAddr));
+    } else {
+        if (jumpAddr < -32767 || jumpAddr > 32767) {
+            printf("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
+            return;
+        }
+        _code.push_back(static_cast<uint8_t>(Op::JMP) | 0x01);
+        _code.push_back(byteFromInt(jumpAddr, 1));
+        _code.push_back(byteFromInt(jumpAddr, 0));
+    }
+    
+    jumpAddr = static_cast<int32_t>(_code.size()) - label.fixupAddr;
+    if (jumpAddr < -32767 || jumpAddr > 32767) {
+        printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
+        return;
+    }
+    _code[label.fixupAddr] = byteFromInt(jumpAddr, 1);
+    _code[label.fixupAddr + 1] = byteFromInt(jumpAddr, 0);
 }
 
 void ExecutionUnit::addCode(Op, uint32_t)
@@ -89,4 +121,140 @@ void ExecutionUnit::addCode(Op, uint32_t)
 void ExecutionUnit::addCode(ExecutionUnit*)
 {
 }
+
+void ExecutionUnit::printCode() const
+{
+#if SHOW_CODE
+    int i = 0;
+    while (i < _code.size()) {
+        indentCode();
+        
+        switch(static_cast<Op>(_code[i++])) {
+            case Op::PUSHID: {
+                String s;
+                _scanner->stringFromRawAtom(s, intFromCode(i, 2));
+                printf("ID(%s)\n", s.c_str());
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    
+    
+    
+    
+//#if SHOW_CODE
+//    indentCode();
+//    printf("ID(%s)\n", _atomTable.toString(value).c_str());
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("INT(%d)\n", value);
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("FLT(%g)\n", value);
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("OP(%s)\n", stringFromOp(value));
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("EU(%p)\n", value);
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("OP(%s[%d])\n", stringFromOp(value), param);
+//#endif
+//
+//#if SHOW_CODE
+//    printf("\n");
+//    indentCode();
+//    printf("LABEL[%d]\n", lbl.uniqueID);
+//    _nestingLevel++;
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("EU(%p)\n", value);
+//#endif
+//
+//#if SHOW_CODE
+//    indentCode();
+//    printf("OP(%s[%d])\n", stringFromOp(value), param);
+//#endif
+//
+//#if SHOW_CODE
+//    printf("\n");
+//    indentCode();
+//    printf("FUNCTION\n");
+//    _nestingLevel++;
+//#endif
+//
+//#if SHOW_CODE
+//    _nestingLevel--;
+//    indentCode();
+//    printf("END\n");
+//    printf("\n");
+//#endif
+
+#endif
+}
+
+#if SHOW_CODE
+struct CodeMap
+{
+    Op op;
+    const char* s;
+};
+
+#define OP(op) { Op::op, #op },
+
+static CodeMap opcodes[] = {
+    OP(PUSHID)
+    OP(PUSHF)
+    OP(PUSHIX)
+    OP(PUSHSX1)
+    OP(PUSHSX2)
+    OP(JMP)
+    OP(JT)
+    OP(JF)
+    
+    OP(PUSHI)
+    OP(PUSHS)
+    OP(CALL)
+    
+    OP(DEREF) OP(NEW) OP(NEWID) OP(DEL)
+    OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD)
+    OP(STOSHL) OP(STOSHR) OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
+    OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
+    OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
+    OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
+};
+
+const char* stringFromOp(Op op)
+{
+    for (auto c : opcodes) {
+        if (c.op == op) {
+            return c.s;
+        }
+    }
+    return "UNKNOWN";
+}
+
+void ExecutionUnit::indentCode() const
+{
+    for (int i = 0; i < _nestingLevel; ++i) {
+        printf("    ");
+    }
+}
+
+#endif
 

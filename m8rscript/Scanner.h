@@ -65,7 +65,7 @@ public:
      , _lineno(1)
      , _nerrors(0)
   	{
-        _currentExecutionUnit = new ExecutionUnit();
+        _currentExecutionUnit = new ExecutionUnit(this);
     }
   	
   	~Scanner()
@@ -89,12 +89,18 @@ public:
     void emit(Op);
     void emit(Op, uint32_t);
     void emit(ExecutionUnit*);
-    void emit(Label);
+
     Label label() const;
+    void loopStart(bool cond, Label&);
+    void loopEnd(Label&);
     
     void functionAddParam(const Atom& atom) { _currentExecutionUnit->addParam(atom); }
     void functionStart();
     ExecutionUnit* functionEnd();
+    
+    void printCode() const { _currentExecutionUnit->printCode(); }
+    
+    void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
   	
 private:
     uint8_t get() const;
@@ -113,7 +119,7 @@ private:
   	uint8_t scanComment();
   	void scanDigits(bool hex);
   	bool scanFloat();
-  
+    
   	mutable uint8_t _lastChar;
   	String _tokenString;
   	Stream* _istream;

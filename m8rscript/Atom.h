@@ -49,12 +49,14 @@ namespace m8r {
 
 class Atom {
     friend class AtomTable;
-    
+        
 public:
     static constexpr uint16_t NoAtom = 0xffff;
     static constexpr uint8_t MaxAtomSize = 127;
     
     bool valid() const { return _index != NoAtom; }
+    uint16_t rawAtom() const { return _index; }
+    void set(uint16_t rawAtom) { _index = rawAtom; }
 
 protected:
     uint16_t _index;
@@ -73,7 +75,8 @@ protected:
 class AtomTable {
 public:
     Atom atomizeString(const char*);
-    String toString(const Atom& atom) const { return String(&(_table[atom._index + 1]), -_table[atom._index]); }
+    void stringFromAtom(String& s, const Atom& atom) const { stringFromRawAtom(s, atom._index); }
+    void stringFromRawAtom(String& s, uint16_t rawAtom) const { s.set(&(_table[rawAtom + 1]), -_table[rawAtom]); }
 
 private:
     String _table;
