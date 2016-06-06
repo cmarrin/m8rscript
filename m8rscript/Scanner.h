@@ -87,7 +87,7 @@ public:
     void emit(float);
     void emit(const Atom&);
     void emit(Op);
-    void emit(Op, uint32_t);
+    void emitCallOrNew(bool call, uint32_t nparams);
     void emit(ExecutionUnit*);
 
     Label label() const;

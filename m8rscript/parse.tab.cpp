@@ -1757,17 +1757,17 @@ yyreduce:
 
   case 17:
 #line 154 "parse.y"
-    { scanner->emit(m8r::Op::NEW, (yyvsp[(3) - (3)].argcount)); ;}
+    { scanner->emitCallOrNew(false, (yyvsp[(3) - (3)].argcount)); ;}
     break;
 
   case 20:
 #line 163 "parse.y"
-    { scanner->emit(m8r::Op::CALL, (yyvsp[(2) - (2)].argcount)); ;}
+    { scanner->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
     break;
 
   case 21:
 #line 164 "parse.y"
-    { scanner->emit(m8r::Op::CALL, (yyvsp[(2) - (2)].argcount)); ;}
+    { scanner->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
     break;
 
   case 23:

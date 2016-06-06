@@ -491,9 +491,9 @@ void Scanner::emit(ExecutionUnit* value)
     _currentExecutionUnit->addCode(value);
 }
 
-void Scanner::emit(Op value, uint32_t param)
+void Scanner::emitCallOrNew(bool call, uint32_t nparams)
 {
-    _currentExecutionUnit->addCode(value);
+    _currentExecutionUnit->addCallOrNew(call, nparams);
 }
 
 Label Scanner::label() const

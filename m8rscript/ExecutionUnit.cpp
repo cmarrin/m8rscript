@@ -63,12 +63,28 @@ void ExecutionUnit::addCode(const char* s)
     _code.push_back('\0');
 }
 
-void ExecutionUnit::addCode(uint32_t)
+void ExecutionUnit::addCode(uint32_t value)
 {
+    uint32_t size;
+    Op op;
+    if (value >= -127 && value <= 127) {
+        size = 1;
+        op = Op::PUSHIX1;
+    } else if (value >= -32767 && value <= 32767) {
+        size = 2;
+        op = Op::PUSHIX2;
+    } else {
+        size = 4;
+        op = Op::PUSHIX4;
+    }
+    _code.push_back(static_cast<uint8_t>(op));
+    addCodeInt(value, size);
 }
 
-void ExecutionUnit::addCode(float)
+void ExecutionUnit::addCode(float value)
 {
+    _code.push_back(static_cast<uint8_t>(Op::PUSHF));
+    addCodeInt(*(reinterpret_cast<uint32_t*>(&value)), 4);
 }
 
 void ExecutionUnit::addCode(const Atom& atom)
@@ -79,6 +95,7 @@ void ExecutionUnit::addCode(const Atom& atom)
 
 void ExecutionUnit::addCode(Op value)
 {
+    _code.push_back(static_cast<uint8_t>(value));
 }
 
 void ExecutionUnit::addFixupJump(bool cond, Label& label)
@@ -114,29 +131,74 @@ void ExecutionUnit::addJumpAndFixup(Label& label)
     _code[label.fixupAddr + 1] = byteFromInt(jumpAddr, 0);
 }
 
-void ExecutionUnit::addCode(Op, uint32_t)
+void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
 {
+    assert(nparams < 256);
+    Op op = call ? Op::CALL : Op::NEW;
+    _code.push_back(static_cast<uint8_t>(op) | (nparams > 6) ? 0x07 : nparams);
+    _code.push_back(nparams);
 }
 
-void ExecutionUnit::addCode(ExecutionUnit*)
+void ExecutionUnit::addCode(ExecutionUnit* p)
 {
+    // FIXME - We really should use an address here
+    _code.push_back(static_cast<uint8_t>(Op::FUN));
+    addCodeInt(0, 4);
+    
 }
 
 void ExecutionUnit::printCode() const
 {
 #if SHOW_CODE
     int i = 0;
+    String strValue;
+    uint32_t intValue;
+    uint32_t size;
+    
     while (i < _code.size()) {
         indentCode();
         
-        switch(static_cast<Op>(_code[i++])) {
-            case Op::PUSHID: {
-                String s;
-                _scanner->stringFromRawAtom(s, intFromCode(i, 2));
-                printf("ID(%s)\n", s.c_str());
+        Op op = static_cast<Op>(_code[i++]);
+        uint8_t opAsInt = static_cast<uint8_t>(op);
+        switch(op) {
+            case Op::PUSHID:
+                _scanner->stringFromRawAtom(strValue, intFromCode(i, 2));
+                i += 2;
+                printf("ID(%s)\n", strValue.c_str());
                 break;
-            }
+            case Op::PUSHIX1:
+            case Op::PUSHIX2:
+            case Op::PUSHIX4:
+                size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
+                intValue = intFromCode(i, size);
+                i += size;
+                printf("INT(%d)\n", intValue);
+                break;
+            case Op::PUSHF:
+                intValue = intFromCode(i, 4);
+                i += 4;
+                printf("FLT(%g)\n", *(reinterpret_cast<float*>(&intValue)));
+                break;
+            case Op::FUN:
+                printf("EU(%d)\n", intFromCode(i, 4));
+                i += 4;
+               break;
+            case Op::NEW:
+            case Op::CALL:
+                intValue = opAsInt & 0x07;
+                if (intValue == 0x07) {
+                    intValue = intFromCode(i, 1);
+                    i += 1;
+                }
+                printf("%s[%d]\n", (op == Op::CALL) ? "CALL" : "NEW", intValue);
+                break;
+            case Op::EU:
+                intValue = intFromCode(i, 4);
+                i += 4;
+                printf("EU(%u)\n", intValue);
+                break;
             default:
+                printf("OP(%s)\n", stringFromOp(op));
                 break;
         }
     }
@@ -145,56 +207,9 @@ void ExecutionUnit::printCode() const
     
     
 //#if SHOW_CODE
-//    indentCode();
-//    printf("ID(%s)\n", _atomTable.toString(value).c_str());
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("INT(%d)\n", value);
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("FLT(%g)\n", value);
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("OP(%s)\n", stringFromOp(value));
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("EU(%p)\n", value);
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("OP(%s[%d])\n", stringFromOp(value), param);
-//#endif
-//
-//#if SHOW_CODE
 //    printf("\n");
 //    indentCode();
 //    printf("LABEL[%d]\n", lbl.uniqueID);
-//    _nestingLevel++;
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("EU(%p)\n", value);
-//#endif
-//
-//#if SHOW_CODE
-//    indentCode();
-//    printf("OP(%s[%d])\n", stringFromOp(value), param);
-//#endif
-//
-//#if SHOW_CODE
-//    printf("\n");
-//    indentCode();
-//    printf("FUNCTION\n");
 //    _nestingLevel++;
 //#endif
 //
@@ -220,7 +235,9 @@ struct CodeMap
 static CodeMap opcodes[] = {
     OP(PUSHID)
     OP(PUSHF)
-    OP(PUSHIX)
+    OP(PUSHIX1)
+    OP(PUSHIX2)
+    OP(PUSHIX4)
     OP(PUSHSX1)
     OP(PUSHSX2)
     OP(JMP)
@@ -239,7 +256,7 @@ static CodeMap opcodes[] = {
     OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
 };
 
-const char* stringFromOp(Op op)
+const char* ExecutionUnit::stringFromOp(Op op)
 {
     for (auto c : opcodes) {
         if (c.op == op) {

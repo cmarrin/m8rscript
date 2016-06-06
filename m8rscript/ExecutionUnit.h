@@ -48,9 +48,11 @@ class Scanner;
 enum class Op {
     PUSHID = 0x01,  // Next 2 bytes are atom
     PUSHF = 0x02,   // Next 4 bytes are number
-    PUSHIX = 0x03,  // Next 4 bytes are number
-    PUSHSX1 = 0x04, // Next byte is length from 0 to 255, followed by string (includes trailing '\0')
-    PUSHSX2 = 0x05, // Next 2 bytes are length from 0 to 64435, followed by string (includes trailing '\0')
+    PUSHIX1 = 0x03,  // Next byte is number
+    PUSHIX2 = 0x04,  // Next 2 bytes are number
+    PUSHIX4 = 0x05,  // Next 4 bytes are number
+    PUSHSX1 = 0x06, // Next byte is length from 0 to 255, followed by string (includes trailing '\0')
+    PUSHSX2 = 0x07, // Next 2 bytes are length from 0 to 64435, followed by string (includes trailing '\0')
     
     // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
     JMP = 0x08,
@@ -59,14 +61,20 @@ enum class Op {
     
     PUSHI = 0x10,   // Lower 4 bits is number from -8 to +7
     PUSHS = 0x20,   // Lower 4 bits is length from 1 to 16 (value+1)
-    CALL = 0x30,    // Lower 4 bits is number of params from 0 to 15
     
-    DEREF = 0x40, NEW = 0x41, NEWID = 0x42, DEL = 0x43, 
+    // For CALL and NEW Lower 3 bits is number of params from 0 to 6
+    // A value of 7 means param count is in next byte
+    CALL = 0x30, NEW = 0x38,
+    
+    EU = 0x40,  // Next 4 bytes is some kind of EU address
+    
     STO = 0x50, STOMUL = 0x51, STOADD = 0x52, STOSUB = 0x53, STODIV = 0x54, STOMOD = 0x55,
     STOSHL = 0x56, STOSHR = 0x57, STOSAR = 0x58, STOAND = 0x59, STOOR = 0x5A, STOXOR = 0x5B,
     PREINC = 0x60, PREDEC = 0x61, POSTINC = 0x62, POSTDEC = 0x63, UPLUS = 0x64, UMINUS = 0x65, UNOT = 0x66, UNEG = 0x67,
     LOR = 0x70, LAND = 0x71, AND = 0x72, OR = 0x73, XOR = 0x74, EQ = 0x75, NE = 0x70, LT = 0x70, LE = 0x70, GT = 0x70, GE = 0x70,
     SHL = 0x70, SHR = 0x70, SAR = 0x70, ADD = 0x70, SUB = 0x70, MUL = 0x70, DIV = 0x70, MOD = 0x70,
+
+    DEREF = 0x80, NEWID = 0x81, DEL = 0x82, FUN = 0x83,
 };
 
 struct Label {
@@ -94,8 +102,8 @@ public:
     void addCode(float);
     void addCode(const Atom&);
     void addCode(Op);
-    void addCode(Op, uint32_t);
     void addCode(ExecutionUnit*);
+    void addCallOrNew(bool call, uint32_t nparams);
     void addFixupJump(bool cond, Label&);
     void addJumpAndFixup(Label&);
     
@@ -126,6 +134,7 @@ private:
     }
 
 #if SHOW_CODE
+    static const char* stringFromOp(Op op);
     void indentCode() const;
     mutable uint32_t _nestingLevel = 0;
 #endif

@@ -151,7 +151,7 @@ member_expression
 	| function_expression
 	| member_expression '[' expression ']'
 	| member_expression '.' identifier { scanner->emit(m8r::Op::DEREF); }
-    | K_NEW member_expression arguments { scanner->emit(m8r::Op::NEW, $3); }
+    | K_NEW member_expression arguments { scanner->emitCallOrNew(false, $3); }
     ;
 
 new_expression
@@ -160,8 +160,8 @@ new_expression
 	;
 
 call_expression
-	: member_expression arguments  { scanner->emit(m8r::Op::CALL, $2); }
-	| call_expression arguments  { scanner->emit(m8r::Op::CALL, $2); }
+	: member_expression arguments  { scanner->emitCallOrNew(true, $2); }
+	| call_expression arguments  { scanner->emitCallOrNew(true, $2); }
     | call_expression '[' expression ']'
     | call_expression '.' identifier { scanner->emit(m8r::Op::DEREF); }
 	;
