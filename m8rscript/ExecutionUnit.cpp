@@ -43,6 +43,8 @@ using namespace m8r;
 
 uint32_t ExecutionUnit::_nextID = 1;
 
+static inline uint8_t opAsInt(Op op) { return static_cast<uint8_t>(op); }
+
 void ExecutionUnit::addCode(const char* s)
 {
     uint32_t len = static_cast<uint32_t>(strlen(s)) + 1;
@@ -135,8 +137,10 @@ void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
 {
     assert(nparams < 256);
     Op op = call ? Op::CALL : Op::NEW;
-    _code.push_back(static_cast<uint8_t>(op) | (nparams > 6) ? 0x07 : nparams);
-    _code.push_back(nparams);
+    _code.push_back(opAsInt(op) | ((nparams > 6) ? 0x07 : nparams));
+    if (nparams > 6) {
+        _code.push_back(nparams);
+    }
 }
 
 void ExecutionUnit::addCode(ExecutionUnit* p)
@@ -150,58 +154,162 @@ void ExecutionUnit::addCode(ExecutionUnit* p)
 void ExecutionUnit::printCode() const
 {
 #if SHOW_CODE
+
+
+
+
+//    static void* dispatchTable[] = { &&LabelA, &&LabelB, &&LabelC };
+//    #define DISPATCH goto *dispatchTable[_code[0]]
+//    while(1) {
+//        LabelA:
+//            DISPATCH;
+//        LabelB:
+//            DISPATCH;
+//        LabelC:
+//            DISPATCH;
+//    }
+
+    #undef OP
+    #define OP(op) &&L_ ## op,
+    
+    static void* dispatchTable[] {
+        /* 0x00 */    OP(UNKNOWN)
+        /* 0x01 */ OP(PUSHID)
+        /* 0x02 */ OP(PUSHF)
+        /* 0x03 */ OP(PUSHIX1)
+        /* 0x04 */ OP(PUSHIX2)
+        /* 0x05 */ OP(PUSHIX4)
+        /* 0x06 */ OP(PUSHSX1)
+        /* 0x07 */ OP(PUSHSX2)
+        /* 0x08 */ OP(JMP) OP(JMP)
+        /* 0x0A */ OP(JT) OP(JT)
+        /* 0x0C */ OP(JF) OP(JF)
+        /* 0x0E */     OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0x10 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x18 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x20 */ OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS)
+        /* 0x28 */      OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS)
+
+        /* 0x30 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
+        /* 0x38 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
+        
+        /* 0x40 */ OP(EU)
+        
+        /* 0x41 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x48 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0x50 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x58 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x5C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x60 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x68 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x70 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x78 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x80 */ OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x94 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xE0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xE8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xF0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xF8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+    };
+
+    #undef DISPATCH
+    #define DISPATCH { \
+        op = static_cast<Op>(_code[i++]); \
+        goto *dispatchTable[opAsInt(op)]; \
+    }
+
     int i = 0;
     String strValue;
     uint32_t intValue;
     uint32_t size;
     
-    while (i < _code.size()) {
-        indentCode();
-        
-        Op op = static_cast<Op>(_code[i++]);
-        uint8_t opAsInt = static_cast<uint8_t>(op);
-        switch(op) {
-            case Op::PUSHID:
-                _scanner->stringFromRawAtom(strValue, intFromCode(i, 2));
-                i += 2;
-                printf("ID(%s)\n", strValue.c_str());
-                break;
-            case Op::PUSHIX1:
-            case Op::PUSHIX2:
-            case Op::PUSHIX4:
-                size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
-                intValue = intFromCode(i, size);
-                i += size;
-                printf("INT(%d)\n", intValue);
-                break;
-            case Op::PUSHF:
-                intValue = intFromCode(i, 4);
-                i += 4;
-                printf("FLT(%g)\n", *(reinterpret_cast<float*>(&intValue)));
-                break;
-            case Op::FUN:
-                printf("EU(%d)\n", intFromCode(i, 4));
-                i += 4;
-               break;
-            case Op::NEW:
-            case Op::CALL:
-                intValue = opAsInt & 0x07;
-                if (intValue == 0x07) {
-                    intValue = intFromCode(i, 1);
-                    i += 1;
-                }
-                printf("%s[%d]\n", (op == Op::CALL) ? "CALL" : "NEW", intValue);
-                break;
-            case Op::EU:
-                intValue = intFromCode(i, 4);
-                i += 4;
-                printf("EU(%u)\n", intValue);
-                break;
-            default:
-                printf("OP(%s)\n", stringFromOp(op));
-                break;
+    Op op;
+    
+    DISPATCH;
+    
+    L_UNKNOWN:
+        printf("UNKNOWN\n");
+        DISPATCH;
+    L_PUSHID:
+        _scanner->stringFromRawAtom(strValue, intFromCode(i, 2));
+        i += 2;
+        indentCode(); printf("ID(%s)\n", strValue.c_str());
+        DISPATCH;
+    L_PUSHF:
+        intValue = intFromCode(i, 4);
+        i += 4;
+        indentCode(); printf("FLT(%g)\n", *(reinterpret_cast<float*>(&intValue)));
+        DISPATCH;
+    L_PUSHI:
+    L_PUSHIX1:
+    L_PUSHIX2:
+    L_PUSHIX4:
+        if (maskOp(op, 0x0f) == Op::PUSHI) {
+            intValue = intFromOp(op, 0x0f);
+        } else {
+            size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
+            intValue = intFromCode(i, size);
+            i += size;
         }
-    }
+        indentCode(); printf("INT(%d)\n", intValue);
+        DISPATCH;
+    L_PUSHS:
+    L_PUSHSX1:
+    L_PUSHSX2:
+        if (maskOp(op, 0x0f) == Op::PUSHS) {
+            intValue = intFromOp(op, 0x0f);
+        } else {
+            size = (op == Op::PUSHSX1) ? 1 : 2;
+            intValue = intFromCode(i, size);
+            i += size;
+        }
+        indentCode(); printf("STR(\"%.*s\")\n", intValue, &(_code[i]));
+        i += intValue;
+        DISPATCH;
+    L_JMP:
+        intValue = intFromCode(i, opAsInt(op) & 0x01);
+        indentCode(); printf("JMP[%d]\n", intValue);
+        DISPATCH;
+    L_JT:
+        intValue = intFromCode(i, opAsInt(op) & 0x01);
+        indentCode(); printf("JT[%d]\n", intValue);
+        DISPATCH;
+    L_JF:
+        intValue = intFromCode(i, opAsInt(op) & 0x01);
+        indentCode(); printf("JF[%d]\n", intValue);
+        DISPATCH;
+    L_NEW:
+    L_CALL:
+        intValue = opAsInt(op) & 0x07;
+        if (intValue == 0x07) {
+            intValue = intFromCode(i, 1);
+            i += 1;
+        }
+        indentCode(); printf("%s[%d]\n", (maskOp(op, 0x07) == Op::CALL) ? "CALL" : "NEW", intValue);
+        DISPATCH;
+    L_EU:
+        intValue = intFromCode(i, 4);
+        i += 4;
+        indentCode(); printf("EU(%u)\n", intValue);
+        DISPATCH;
+    L_OPCODE:
+        indentCode(); printf("OP(%s)\n", stringFromOp(op));
+        DISPATCH;
     
     
     
@@ -230,6 +338,7 @@ struct CodeMap
     const char* s;
 };
 
+#undef OP
 #define OP(op) { Op::op, #op },
 
 static CodeMap opcodes[] = {
@@ -240,20 +349,25 @@ static CodeMap opcodes[] = {
     OP(PUSHIX4)
     OP(PUSHSX1)
     OP(PUSHSX2)
+    
     OP(JMP)
     OP(JT)
     OP(JF)
     
     OP(PUSHI)
     OP(PUSHS)
-    OP(CALL)
     
-    OP(DEREF) OP(NEW) OP(NEWID) OP(DEL)
+    OP(CALL) OP(NEW)
+    
+    OP(EU)
+    
     OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD)
     OP(STOSHL) OP(STOSHR) OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
     OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
     OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
     OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
+
+    OP(DEREF) OP(NEW) OP(NEWID) OP(DEL)
 };
 
 const char* ExecutionUnit::stringFromOp(Op op)
