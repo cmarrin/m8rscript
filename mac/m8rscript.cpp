@@ -40,6 +40,6 @@ int main(int argc, const char* argv[])
     std::cout << "Parsing...\n";
     m8r::Parser parser(&istream);
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n";
-    parser.printCode();
+    printf("%s", parser.toString().c_str());
     return 0;
 }

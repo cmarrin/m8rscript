@@ -109,6 +109,8 @@ public:
         _size += len;
         return *this;
     }
+    
+    String& operator+=(const String& s) { return *this += s.c_str(); }
 
     const char* c_str() const { return _data; }
     void clear()
@@ -187,6 +189,11 @@ public:
     
     type& back() { return _data[_size - 1]; }
     const type& back() const { return _data[_size - 1]; }
+    
+    type* begin() { return _data; }
+    const type* begin() const { return _data; }
+    type* end() { return _data + _size; }
+    const type* end() const { return _data + _size; }
     
 private:
     void ensureCapacity(size_t size)

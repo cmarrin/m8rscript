@@ -45,6 +45,11 @@ namespace m8r {
 
 class Scanner;
 
+class Object {
+public:
+    virtual String toString() const = 0;
+};
+
 enum class Op {
     PUSHID = 0x01,  // Next 2 bytes are atom
     PUSHF = 0x02,   // Next 4 bytes are number
@@ -66,8 +71,6 @@ enum class Op {
     // A value of 7 means param count is in next byte
     CALL = 0x30, NEW = 0x38,
     
-    EU = 0x40,  // Next 4 bytes is some kind of EU address
-    
     STO = 0x50, STOMUL = 0x51, STOADD = 0x52, STOSUB = 0x53, STODIV = 0x54, STOMOD = 0x55, STOSHL = 0x56, STOSHR = 0x57,
     STOSAR = 0x58, STOAND = 0x59, STOOR = 0x5A, STOXOR = 0x5B,
     PREINC = 0x60, PREDEC = 0x61, POSTINC = 0x62, POSTDEC = 0x63, UPLUS = 0x64, UMINUS = 0x65, UNOT = 0x66, UNEG = 0x67,
@@ -75,7 +78,7 @@ enum class Op {
     LE = 0x78, GT = 0x79, GE = 0x7A, SHL = 0x7B, SHR = 0x7C, SAR = 0x7D, ADD = 0x7E, SUB = 0x7F,
     MUL = 0x80, DIV = 0x81, MOD = 0x82,
 
-    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, FUN = 0x93,
+    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, END = 0x93,
 };
 
 struct Label {
@@ -84,7 +87,7 @@ struct Label {
     int32_t fixupAddr : 20;
 };
 
-class ExecutionUnit {
+class ExecutionUnit : public Object {
 public:
     ExecutionUnit(Scanner* scanner) : _scanner(scanner) { }
     
@@ -108,7 +111,9 @@ public:
     void addFixupJump(bool cond, Label&);
     void addJumpAndFixup(Label&);
     
-    void printCode() const;
+    virtual String toString() const;
+
+	void setName(const Atom& atom) { _name = atom; }
     
 private:
     static uint8_t byteFromInt(uint32_t value, uint32_t index)
@@ -117,7 +122,17 @@ private:
         return static_cast<uint8_t>(value >> (8 * index));
     }
         
-    uint32_t intFromCode(uint32_t index, uint32_t size) const
+    int32_t intFromCode(uint32_t index, uint32_t size) const
+    {
+        uint32_t num = uintFromCode(index, size);
+        uint32_t mask = 0x80 << (8 * (size - 1));
+        if (num & mask) {
+            return num | ~(mask - 1);
+        }
+        return static_cast<int32_t>(num);
+    }
+    
+    uint32_t uintFromCode(uint32_t index, uint32_t size) const
     {
         uint32_t value = 0;
         for (int i = 0; i < size; ++i) {
@@ -135,11 +150,19 @@ private:
     }
     
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
-    uint32_t intFromOp(Op op, uint8_t mask) const { return static_cast<uint8_t>(op) & mask; }
+    int8_t intFromOp(Op op, uint8_t mask) const
+    {
+        uint8_t num = static_cast<uint8_t>(op) & mask;
+        if (num & 0x8) {
+            num |= 0xf0;
+        }
+        return static_cast<int8_t>(num);
+    }
+    uint8_t uintFromOp(Op op, uint8_t mask) const { return static_cast<uint8_t>(op) & mask; }
 
 #if SHOW_CODE
     static const char* stringFromOp(Op op);
-    void indentCode() const;
+    void indentCode(String&) const;
     mutable uint32_t _nestingLevel = 0;
 #endif
       
@@ -148,6 +171,9 @@ private:
     Vector<Atom> _params;
     Vector<uint8_t> _code;
     Scanner* _scanner;
+    Vector<Object*> _objects;
+    uint32_t _id = _nextID++;
+	Atom _name;
 };
     
 }

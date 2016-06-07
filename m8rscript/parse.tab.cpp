@@ -1735,7 +1735,12 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 8:
+        case 2:
+#line 127 "parse.y"
+    { scanner->emit(m8r::Op::END); ;}
+    break;
+
+  case 8:
 #line 142 "parse.y"
     { scanner->emit((yyvsp[(1) - (1)].number)); ;}
     break;
@@ -2037,7 +2042,7 @@ yyreduce:
 
   case 129:
 #line 384 "parse.y"
-    { scanner->emit((yyvsp[(3) - (3)].function)); scanner->emit((yyvsp[(2) - (3)].atom)); scanner->emit(m8r::Op::STO); ;}
+    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); scanner->emit((yyvsp[(2) - (3)].atom)); ;}
     break;
 
   case 130:
@@ -2082,7 +2087,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2086 "parse.tab.cpp"
+#line 2091 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

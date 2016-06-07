@@ -98,8 +98,9 @@ public:
     void functionStart();
     ExecutionUnit* functionEnd();
     
-    void printCode() const { _currentExecutionUnit->printCode(); }
+    String toString() const { return _currentExecutionUnit->toString(); }
     
+    void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
     void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
   	
 private:

@@ -37,13 +37,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Scanner.h"
 #include <cassert>
-#include <cstdio>
 
 using namespace m8r;
 
 uint32_t ExecutionUnit::_nextID = 1;
-
-static inline uint8_t opAsInt(Op op) { return static_cast<uint8_t>(op); }
 
 void ExecutionUnit::addCode(const char* s)
 {
@@ -137,37 +134,41 @@ void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
 {
     assert(nparams < 256);
     Op op = call ? Op::CALL : Op::NEW;
-    _code.push_back(opAsInt(op) | ((nparams > 6) ? 0x07 : nparams));
+    _code.push_back(static_cast<uint8_t>(op) | ((nparams > 6) ? 0x07 : nparams));
     if (nparams > 6) {
         _code.push_back(nparams);
     }
 }
 
-void ExecutionUnit::addCode(ExecutionUnit* p)
+void ExecutionUnit::addCode(ExecutionUnit* eu)
 {
-    // FIXME - We really should use an address here
-    _code.push_back(static_cast<uint8_t>(Op::FUN));
-    addCodeInt(0, 4);
-    
+    _objects.push_back(eu);
 }
 
-void ExecutionUnit::printCode() const
+#if SHOW_CODE
+static String toString(float value)
+{
+    String s;
+    char buf[40];
+    sprintf(buf, "%g", value);
+    s.set(buf);
+    return s;
+}
+
+static String toString(int32_t value)
+{
+    String s;
+    char buf[40];
+    sprintf(buf, "%d", value);
+    s.set(buf);
+    return s;
+}
+
+#endif
+
+String ExecutionUnit::toString() const
 {
 #if SHOW_CODE
-
-
-
-
-//    static void* dispatchTable[] = { &&LabelA, &&LabelB, &&LabelC };
-//    #define DISPATCH goto *dispatchTable[_code[0]]
-//    while(1) {
-//        LabelA:
-//            DISPATCH;
-//        LabelB:
-//            DISPATCH;
-//        LabelC:
-//            DISPATCH;
-//    }
 
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -193,10 +194,8 @@ void ExecutionUnit::printCode() const
 
         /* 0x30 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x38 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
-        
-        /* 0x40 */ OP(EU)
-        
-        /* 0x41 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0x40 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x48 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x50 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -210,7 +209,7 @@ void ExecutionUnit::printCode() const
         /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
         /* 0x94 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
@@ -230,12 +229,25 @@ void ExecutionUnit::printCode() const
     #undef DISPATCH
     #define DISPATCH { \
         op = static_cast<Op>(_code[i++]); \
-        goto *dispatchTable[opAsInt(op)]; \
+        goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
+    
+    String outputString;
 
+	for (auto obj : _objects) {
+		outputString += obj->toString();
+	}
+	
+	String name;
+	_scanner->stringFromAtom(name, _name);
+    outputString += "FUNCTION(";
+    outputString += name.c_str();
+    outputString += ")\n";
+	
     int i = 0;
     String strValue;
-    uint32_t intValue;
+    uint32_t uintValue;
+    int32_t intValue;
     uint32_t size;
     
     Op op;
@@ -243,17 +255,23 @@ void ExecutionUnit::printCode() const
     DISPATCH;
     
     L_UNKNOWN:
-        printf("UNKNOWN\n");
+        outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
-        _scanner->stringFromRawAtom(strValue, intFromCode(i, 2));
+        _scanner->stringFromRawAtom(strValue, uintFromCode(i, 2));
         i += 2;
-        indentCode(); printf("ID(%s)\n", strValue.c_str());
+        indentCode(outputString);
+        outputString += "ID(";
+        outputString += strValue.c_str();
+        outputString += ")\n";
         DISPATCH;
     L_PUSHF:
-        intValue = intFromCode(i, 4);
+        uintValue = uintFromCode(i, 4);
         i += 4;
-        indentCode(); printf("FLT(%g)\n", *(reinterpret_cast<float*>(&intValue)));
+        indentCode(outputString);
+        outputString += "FLT(";
+        outputString += ::toString(*(reinterpret_cast<float*>(&uintValue)));
+        outputString += ")\n";
         DISPATCH;
     L_PUSHI:
     L_PUSHIX1:
@@ -266,50 +284,63 @@ void ExecutionUnit::printCode() const
             intValue = intFromCode(i, size);
             i += size;
         }
-        indentCode(); printf("INT(%d)\n", intValue);
+        indentCode(outputString);
+        outputString += "INT(";
+        outputString += ::toString(intValue);
+        outputString += ")\n";
         DISPATCH;
     L_PUSHS:
     L_PUSHSX1:
     L_PUSHSX2:
         if (maskOp(op, 0x0f) == Op::PUSHS) {
-            intValue = intFromOp(op, 0x0f);
+            uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (op == Op::PUSHSX1) ? 1 : 2;
-            intValue = intFromCode(i, size);
+            uintValue = uintFromCode(i, size);
             i += size;
         }
-        indentCode(); printf("STR(\"%.*s\")\n", intValue, &(_code[i]));
-        i += intValue;
+        indentCode(outputString);
+        outputString += "STR(\"";
+        outputString += String(reinterpret_cast<const char*>(&(_code[i])), uintValue);
+        outputString += ")\n";
+        i += uintValue;
         DISPATCH;
     L_JMP:
-        intValue = intFromCode(i, opAsInt(op) & 0x01);
-        indentCode(); printf("JMP[%d]\n", intValue);
-        DISPATCH;
     L_JT:
-        intValue = intFromCode(i, opAsInt(op) & 0x01);
-        indentCode(); printf("JT[%d]\n", intValue);
-        DISPATCH;
     L_JF:
-        intValue = intFromCode(i, opAsInt(op) & 0x01);
-        indentCode(); printf("JF[%d]\n", intValue);
+        size = intFromOp(op, 0x01) + 1;
+        intValue = intFromCode(i, size);
+        op = maskOp(op, 0x01);
+        indentCode(outputString);
+        outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
+        outputString += "[";
+        outputString += intValue;
+        outputString += "]\n";
+        i += size;
         DISPATCH;
     L_NEW:
     L_CALL:
-        intValue = opAsInt(op) & 0x07;
-        if (intValue == 0x07) {
-            intValue = intFromCode(i, 1);
+        uintValue = uintFromOp(op, 0x07);
+        if (uintValue == 0x07) {
+            uintValue = uintFromCode(i, 1);
             i += 1;
         }
-        indentCode(); printf("%s[%d]\n", (maskOp(op, 0x07) == Op::CALL) ? "CALL" : "NEW", intValue);
-        DISPATCH;
-    L_EU:
-        intValue = intFromCode(i, 4);
-        i += 4;
-        indentCode(); printf("EU(%u)\n", intValue);
+        indentCode(outputString);
+        outputString += (maskOp(op, 0x07) == Op::CALL) ? "CALL" : "NEW";
+        outputString += "[";
+        outputString += uintValue;
+        outputString += "]\n";
         DISPATCH;
     L_OPCODE:
-        indentCode(); printf("OP(%s)\n", stringFromOp(op));
+        indentCode(outputString);
+        outputString += "OP(";
+        outputString += stringFromOp(op);
+        outputString += ")\n";
         DISPATCH;
+    L_END:
+        indentCode(outputString);
+        outputString += "END\n";
+        return outputString;
     
     
     
@@ -359,15 +390,13 @@ static CodeMap opcodes[] = {
     
     OP(CALL) OP(NEW)
     
-    OP(EU)
-    
     OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD)
     OP(STOSHL) OP(STOSHR) OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
     OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
     OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
     OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
 
-    OP(DEREF) OP(NEW) OP(NEWID) OP(DEL)
+    OP(DEREF) OP(NEWID) OP(DEL) OP(END)
 };
 
 const char* ExecutionUnit::stringFromOp(Op op)
@@ -380,10 +409,10 @@ const char* ExecutionUnit::stringFromOp(Op op)
     return "UNKNOWN";
 }
 
-void ExecutionUnit::indentCode() const
+void ExecutionUnit::indentCode(String& s) const
 {
     for (int i = 0; i < _nestingLevel; ++i) {
-        printf("    ");
+        s += "    ";
     }
 }
 

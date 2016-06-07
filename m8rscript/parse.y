@@ -124,7 +124,7 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 %%
 
 program
-    : source_elements
+    : source_elements { scanner->emit(m8r::Op::END); }
     ;
 
 source_elements
@@ -381,7 +381,7 @@ jump_statement
 	| K_RETURN expression ';'
 	;
 
-function_declaration : K_FUNCTION T_IDENTIFIER function { scanner->emit($3); scanner->emit($2); scanner->emit(m8r::Op::STO); } ;
+function_declaration : K_FUNCTION T_IDENTIFIER function { $3->setName($2); scanner->emit($2); }
 
 function_expression : K_FUNCTION function { scanner->emit($2); } ;
     

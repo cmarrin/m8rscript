@@ -57,7 +57,7 @@ public:
     
     uint32_t nerrors() const { return _scanner.nerrors(); }
     
-    void printCode() const { _scanner.printCode(); }
+    String toString() const { return _scanner.toString(); }
     
 private:
     Scanner _scanner;
