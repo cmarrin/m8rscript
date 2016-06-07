@@ -150,27 +150,27 @@ void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
 }
 
 #if SHOW_CODE
-static String toString(float value)
+static m8r::String toString(float value)
 {
-    String s;
+    m8r::String s;
     char buf[40];
     sprintf(buf, "%g", value);
     s.set(buf);
     return s;
 }
 
-static String toString(int32_t value)
+static m8r::String toString(int32_t value)
 {
-    String s;
+    m8r::String s;
     char buf[40];
     sprintf(buf, "%d", value);
     s.set(buf);
     return s;
 }
 
-static String toString(uint32_t value)
+static m8r::String toString(uint32_t value)
 {
-    String s;
+    m8r::String s;
     char buf[40];
     sprintf(buf, "%u", value);
     s.set(buf);
@@ -179,7 +179,7 @@ static String toString(uint32_t value)
 
 #endif
 
-String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
+m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
 {
 #if SHOW_CODE
 
@@ -245,7 +245,7 @@ String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    String outputString;
+    m8r::String outputString;
 
 	for (int i = 0; i < obj->numObjects(); ++i) {
 		outputString += stringFromCode(nestingLevel + 1, obj->objectAtIndex(i));
@@ -254,7 +254,7 @@ String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
     
     _nestingLevel = nestingLevel;
 	
-	String name = "<anonymous>";
+	m8r::String name = "<anonymous>";
     if (obj->name() && obj->name()->valid()) {
         _parser->stringFromAtom(name, *obj->name());
     }
@@ -267,7 +267,7 @@ String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
     _nestingLevel++;
 	
     int i = 0;
-    String strValue;
+    m8r::String strValue;
     uint32_t uintValue;
     int32_t intValue;
     uint32_t size;

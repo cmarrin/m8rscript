@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Parser.h"
 
-#include <cstdio>
 #include <cstring>
 
 using namespace m8r;
