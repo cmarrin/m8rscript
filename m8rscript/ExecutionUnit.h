@@ -49,26 +49,44 @@ class Parser;
 class Function;
 class Program;
 
+//  Opcodes with params have bit patterns.
+//  Upper 2 bits are 00
+//  The lower 2 bits indicate the number of additional bytes:
+//      00 - 1
+//      01 - 2
+//      10 - unused
+//      11 - 4
+//
+//  The next 4 bits is the opcode class:
+//      0000 - unused
+//      0001 - PUSHID
+//      0010 - PUSHF
+//      0011 - PUSHI
+//      0100 - PUSHS
+//      0101 - JMP
+//      0110 - JT
+//      0111 - JF
+//      1000 - CALL
+//      1001 - NEW
+//
 enum class Op {
-    PUSHID = 0x01,  // Next 2 bytes are atom
-    PUSHF = 0x02,   // Next 4 bytes are number
-    PUSHIX1 = 0x03,  // Next byte is number
-    PUSHIX2 = 0x04,  // Next 2 bytes are number
-    PUSHIX4 = 0x05,  // Next 4 bytes are number
-    PUSHSX1 = 0x06, // Next byte is length from 0 to 255, followed by string (includes trailing '\0')
-    PUSHSX2 = 0x07, // Next 2 bytes are length from 0 to 64435, followed by string (includes trailing '\0')
+    PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
+    PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
+    PUSHIX = 0x0C,   // 0000 1100 - Next byte is number
+    PUSHSX = 0x10,   // 0001 0000 - Next byte is length from 0 to 255, followed by string (includes trailing '\0')
     
     // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
-    JMP = 0x08,
-    JT = 0x0A,
-    JF = 0x0C,
-    
-    PUSHI = 0x10,   // Lower 4 bits is number from -8 to +7
-    PUSHS = 0x20,   // Lower 4 bits is length from 1 to 16 (value+1)
+    JMP = 0x14,     // 0001 0100
+    JT = 0x18,      // 0001 1000
+    JF = 0x1C,      // 0001 1100
     
     // For CALL and NEW Lower 3 bits is number of params from 0 to 6
     // A value of 7 means param count is in next byte
-    CALL = 0x30, NEW = 0x38,
+    CALLX = 0x20,   // 0010 0000
+    NEWX = 0x24,    // 0010 0100
+    
+    PUSHI = 0x30,   // Lower 4 bits is number from -8 to +7
+    PUSHS = 0x40,   // Lower 4 bits is length from 1 to 16 (value+1)
     
     STO = 0x50, STOMUL = 0x51, STOADD = 0x52, STOSUB = 0x53, STODIV = 0x54, STOMOD = 0x55, STOSHL = 0x56, STOSHR = 0x57,
     STOSAR = 0x58, STOAND = 0x59, STOOR = 0x5A, STOXOR = 0x5B,
@@ -77,7 +95,7 @@ enum class Op {
     LE = 0x78, GT = 0x79, GE = 0x7A, SHL = 0x7B, SHR = 0x7C, SAR = 0x7D, ADD = 0x7E, SUB = 0x7F,
     MUL = 0x80, DIV = 0x81, MOD = 0x82,
 
-    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, LABEL = 0x93, END = 0x94,
+    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, END = 0x93,
 };
 
 struct Label {

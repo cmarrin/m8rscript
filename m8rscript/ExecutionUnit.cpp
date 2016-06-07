@@ -47,7 +47,6 @@ Label ExecutionUnit::label()
     Label label;
     label.label = _currentFunction->codeSize();
     label.uniqueID = _nextID++;
-    _currentFunction->addCode(static_cast<uint8_t>(Op::LABEL));
     return label;
 }
     
@@ -222,7 +221,7 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(LABEL) OP(END)
+        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
         /* 0x94 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
@@ -247,11 +246,6 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     
     m8r::String outputString;
 
-	for (int i = 0; i < obj->numObjects(); ++i) {
-		outputString += stringFromCode(nestingLevel + 1, obj->objectAtIndex(i));
-        outputString += "\n";
-	}
-    
     _nestingLevel = nestingLevel;
 	
 	m8r::String name = "<anonymous>";
@@ -266,6 +260,20 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     
     _nestingLevel++;
 	
+	for (int i = 0; i < obj->numObjects(); ++i) {
+		outputString += stringFromCode(_nestingLevel, obj->objectAtIndex(i));
+        outputString += "\n";
+	}
+    
+    // Annotate the code to add labels
+    struct Annotation {
+        uint32_t addr;
+        uint32_t uniqueID;
+    };
+    Vector<Annotation> annotations;
+    uint32_t uniqueID = 1;
+    for 
+    
     int i = 0;
     m8r::String strValue;
     uint32_t uintValue;
@@ -339,9 +347,6 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += ::toString(intValue);
         outputString += "]\n";
         i += size;
-        if (op == Op::JMP) {
-            --_nestingLevel;
-        }
         DISPATCH;
     L_NEW:
     L_CALL:
@@ -361,11 +366,6 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += "OP(";
         outputString += stringFromOp(op);
         outputString += ")\n";
-        DISPATCH;
-    L_LABEL:
-        indentCode(outputString);
-        outputString += "LABEL\n";
-        ++_nestingLevel;
         DISPATCH;
     L_END:
         _nestingLevel--;
@@ -427,7 +427,7 @@ static CodeMap opcodes[] = {
     OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
     OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
 
-    OP(DEREF) OP(NEWID) OP(DEL) OP(LABEL) OP(END)
+    OP(DEREF) OP(NEWID) OP(DEL) OP(END)
 };
 
 const char* ExecutionUnit::stringFromOp(Op op)

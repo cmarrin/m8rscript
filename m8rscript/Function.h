@@ -62,7 +62,7 @@ public:
         return String(reinterpret_cast<const char*>(&(_code[index])), len);
     }
 
-    void setName(const Atom& atom) { _name = _name; }
+    void setName(const Atom& atom) { _name = atom; }
     void addParam(const Atom& atom) { _params.push_back(atom); }
     
     void addCode(uint8_t c) { _code.push_back(c); }
