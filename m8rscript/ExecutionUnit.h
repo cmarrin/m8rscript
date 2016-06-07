@@ -80,22 +80,21 @@ enum class Op {
     JT = 0x18,      // 0001 1000
     JF = 0x1C,      // 0001 1100
     
-    // For CALL and NEW Lower 3 bits is number of params from 0 to 6
-    // A value of 7 means param count is in next byte
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
     
     PUSHI = 0x30,   // Lower 4 bits is number from -8 to +7
-    PUSHS = 0x40,   // Lower 4 bits is length from 1 to 16 (value+1)
+    CALL = 0x40,    // Lower 4 bits is number of params from 0 to 15
+    NEW = 0x50,     // Lower 4 bits is number of params from 0 to 15
     
-    STO = 0x50, STOMUL = 0x51, STOADD = 0x52, STOSUB = 0x53, STODIV = 0x54, STOMOD = 0x55, STOSHL = 0x56, STOSHR = 0x57,
-    STOSAR = 0x58, STOAND = 0x59, STOOR = 0x5A, STOXOR = 0x5B,
     PREINC = 0x60, PREDEC = 0x61, POSTINC = 0x62, POSTDEC = 0x63, UPLUS = 0x64, UMINUS = 0x65, UNOT = 0x66, UNEG = 0x67,
     LOR = 0x70, LAND = 0x71, AND = 0x72, OR = 0x73, XOR = 0x74, EQ = 0x75, NE = 0x76, LT = 0x77,
     LE = 0x78, GT = 0x79, GE = 0x7A, SHL = 0x7B, SHR = 0x7C, SAR = 0x7D, ADD = 0x7E, SUB = 0x7F,
     MUL = 0x80, DIV = 0x81, MOD = 0x82,
+    STO = 0x90, STOMUL = 0x91, STOADD = 0x92, STOSUB = 0x93, STODIV = 0x94, STOMOD = 0x95, STOSHL = 0x96, STOSHR = 0x97,
+    STOSAR = 0x98, STOAND = 0x99, STOOR = 0x9A, STOXOR = 0x9B,
 
-    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, END = 0x93,
+    DEREF = 0xA0, NEWID = 0xA1, DEL = 0xA2, END = 0xA3,
 };
 
 struct Label {

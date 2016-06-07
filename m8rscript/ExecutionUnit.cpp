@@ -53,14 +53,15 @@ Label ExecutionUnit::label()
 void ExecutionUnit::addCode(const char* s)
 {
     uint32_t len = static_cast<uint32_t>(strlen(s)) + 1;
-    if (len < 16) {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHS) | static_cast<uint8_t>(len));
-    } else if (len < 256) {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX1));
+    if (len < 256) {
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX));
         _currentFunction->addCode(len);
     } else {
         assert(len < 65536);
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX2));
+        if (len > 65535) {
+            len = 65535;
+        }
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX) | 1);
         _currentFunction->addCode(Function::byteFromInt(len, 1));
         _currentFunction->addCode(Function::byteFromInt(len, 0));
     }
@@ -73,16 +74,20 @@ void ExecutionUnit::addCode(const char* s)
 void ExecutionUnit::addCode(uint32_t value)
 {
     uint32_t size;
-    Op op;
-    if (value >= -127 && value <= 127) {
+    uint8_t op;
+    
+    if (value >= -8 && value <= 7) {
+        size = 0;
+        op = static_cast<uint8_t>(Op::PUSHI);
+    } else if (value >= -127 && value <= 127) {
         size = 1;
-        op = Op::PUSHIX1;
+        op = static_cast<uint8_t>(Op::PUSHIX);
     } else if (value >= -32767 && value <= 32767) {
         size = 2;
-        op = Op::PUSHIX2;
+        op = static_cast<uint8_t>(Op::PUSHIX) | 0x01;
     } else {
         size = 4;
-        op = Op::PUSHIX4;
+        op = static_cast<uint8_t>(Op::PUSHIX) | 0x03;
     }
     _currentFunction->addCode(static_cast<uint8_t>(op));
     _currentFunction->addCodeInt(value, size);
@@ -186,33 +191,28 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     #define OP(op) &&L_ ## op,
     
     static void* dispatchTable[] {
-        /* 0x00 */    OP(UNKNOWN)
-        /* 0x01 */ OP(PUSHID)
-        /* 0x02 */ OP(PUSHF)
-        /* 0x03 */ OP(PUSHIX1)
-        /* 0x04 */ OP(PUSHIX2)
-        /* 0x05 */ OP(PUSHIX4)
-        /* 0x06 */ OP(PUSHSX1)
-        /* 0x07 */ OP(PUSHSX2)
-        /* 0x08 */ OP(JMP) OP(JMP)
-        /* 0x0A */ OP(JT) OP(JT)
-        /* 0x0C */ OP(JF) OP(JF)
-        /* 0x0E */     OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */    OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x05 */ OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x0B */ OP(PUSHF)
+        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN) OP(PUSHIX)
+        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x10 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
-        /* 0x18 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
-        /* 0x20 */ OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS)
-        /* 0x28 */      OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS) OP(PUSHS)
+        /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        
+        /* 0x28 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x30 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
-        /* 0x38 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
+        /* 0x30 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x38 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
 
-        /* 0x40 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x48 */     OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x40 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
+        /* 0x48 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
+        /* 0x50 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
+        /* 0x58 */      OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
 
-        /* 0x50 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x58 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x5C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x60 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0x68 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x70 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -220,11 +220,12 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         /* 0x80 */ OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x98 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x9C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
-        /* 0x94 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xA0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
+        /* 0xA4 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
@@ -272,7 +273,25 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     };
     Vector<Annotation> annotations;
     uint32_t uniqueID = 1;
-    for 
+    for (int i = 0; obj->codeAtIndex(i) != static_cast<uint8_t>(Op::END); ) {
+        uint8_t code = obj->codeAtIndex(i++);
+        if (code >= static_cast<uint8_t>(Op::PUSHI)) {
+            continue;
+        }
+        int count = (code & 0x03) + 1;
+        int nexti = i + count;
+        if (code == static_cast<uint8_t>(Op::PUSHSX)) {
+            nexti += intFromCode(obj, i, count);
+        }
+        
+        code &= 0xf0;
+        Op op = static_cast<Op>(code);
+        if (op == Op::JMP || op == Op::JT || op == Op::JF) {
+            uint32_t addr = intFromCode(obj, i, count);
+            Annotation annotation = { i + addr, uniqueID++ };
+            annotations.push_back(annotation);
+        }
+    }
     
     int i = 0;
     m8r::String strValue;
@@ -304,13 +323,11 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
-    L_PUSHIX1:
-    L_PUSHIX2:
-    L_PUSHIX4:
+    L_PUSHIX:
         if (maskOp(op, 0x0f) == Op::PUSHI) {
             intValue = intFromOp(op, 0x0f);
         } else {
-            size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
+            size = (static_cast<uint8_t>(op) & 0x03) + 1;
             intValue = intFromCode(obj, i, size);
             i += size;
         }
@@ -319,20 +336,14 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += ::toString(intValue);
         outputString += ")\n";
         DISPATCH;
-    L_PUSHS:
-    L_PUSHSX1:
-    L_PUSHSX2:
-        if (maskOp(op, 0x0f) == Op::PUSHS) {
-            uintValue = uintFromOp(op, 0x0f);
-        } else {
-            size = (op == Op::PUSHSX1) ? 1 : 2;
-            uintValue = uintFromCode(obj, i, size);
-            i += size;
-        }
+    L_PUSHSX:
+        size = (static_cast<uint8_t>(op) & 0x0f) + 1;
+        uintValue = uintFromCode(obj, i, size);
+        i += size;
         indentCode(outputString);
         outputString += "STR(\"";
         outputString += obj->stringFromCode(i, uintValue);
-        outputString += ")\n";
+        outputString += "\")\n";
         i += uintValue;
         DISPATCH;
     L_JMP:
@@ -349,14 +360,18 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         i += size;
         DISPATCH;
     L_NEW:
+    L_NEWX:
     L_CALL:
-        uintValue = uintFromOp(op, 0x07);
-        if (uintValue == 0x07) {
+    L_CALLX:
+        if (op == Op::CALLX || op == Op::NEWX) {
             uintValue = uintFromCode(obj, i, 1);
             i += 1;
+        } else {
+            uintValue = uintFromOp(op, 0x07);
         }
+        
         indentCode(outputString);
-        outputString += (maskOp(op, 0x07) == Op::CALL) ? "CALL" : "NEW";
+        outputString += (maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
         outputString += "[";
         outputString += ::toString(uintValue);
         outputString += "]\n";
@@ -406,26 +421,26 @@ struct CodeMap
 static CodeMap opcodes[] = {
     OP(PUSHID)
     OP(PUSHF)
-    OP(PUSHIX1)
-    OP(PUSHIX2)
-    OP(PUSHIX4)
-    OP(PUSHSX1)
-    OP(PUSHSX2)
+    OP(PUSHIX)
+    OP(PUSHSX)
     
     OP(JMP)
     OP(JT)
     OP(JF)
     
+    OP(CALLX)
+    OP(NEWX)
+
     OP(PUSHI)
-    OP(PUSHS)
+    OP(CALL)
+    OP(NEW)
     
-    OP(CALL) OP(NEW)
-    
-    OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD)
-    OP(STOSHL) OP(STOSHR) OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
     OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
-    OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
-    OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
+    OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT)
+    OP(LE) OP(GT) OP(GE) OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB)
+    OP(MUL) OP(DIV) OP(MOD)
+    OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD) OP(STOSHL) OP(STOSHR)
+    OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
 
     OP(DEREF) OP(NEWID) OP(DEL) OP(END)
 };
