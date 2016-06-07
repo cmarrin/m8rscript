@@ -179,7 +179,7 @@ static String toString(uint32_t value)
 
 #endif
 
-String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
+String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
 {
 #if SHOW_CODE
 
@@ -241,22 +241,22 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = static_cast<Op>(function->codeAtIndex(i++)); \
+        op = static_cast<Op>(obj->codeAtIndex(i++)); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
     String outputString;
 
-	for (auto obj : function->objects()) {
-		outputString += toString(nestingLevel + 1, obj);
+	for (int i = 0; i < obj->numObjects(); ++i) {
+		outputString += stringFromCode(nestingLevel + 1, obj->objectAtIndex(i));
         outputString += "\n";
 	}
     
     _nestingLevel = nestingLevel;
 	
 	String name = "<anonymous>";
-    if (function->name().valid()) {
-        _parser->stringFromAtom(name, function->name());
+    if (obj->name() && obj->name()->valid()) {
+        _parser->stringFromAtom(name, *obj->name());
     }
     
     indentCode(outputString);
@@ -280,7 +280,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
-        _parser->stringFromRawAtom(strValue, function->uintFromCode(i, 2));
+        _parser->stringFromRawAtom(strValue, uintFromCode(obj, i, 2));
         i += 2;
         indentCode(outputString);
         outputString += "ID(";
@@ -288,7 +288,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
         outputString += ")\n";
         DISPATCH;
     L_PUSHF:
-        uintValue = function->uintFromCode(i, 4);
+        uintValue = uintFromCode(obj, i, 4);
         i += 4;
         indentCode(outputString);
         outputString += "FLT(";
@@ -303,7 +303,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
             intValue = intFromOp(op, 0x0f);
         } else {
             size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
-            intValue = function->intFromCode(i, size);
+            intValue = intFromCode(obj, i, size);
             i += size;
         }
         indentCode(outputString);
@@ -318,12 +318,12 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (op == Op::PUSHSX1) ? 1 : 2;
-            uintValue = function->uintFromCode(i, size);
+            uintValue = uintFromCode(obj, i, size);
             i += size;
         }
         indentCode(outputString);
         outputString += "STR(\"";
-        outputString += function->stringFromCode(i, uintValue);
+        outputString += obj->stringFromCode(i, uintValue);
         outputString += ")\n";
         i += uintValue;
         DISPATCH;
@@ -331,7 +331,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = function->intFromCode(i, size);
+        intValue = intFromCode(obj, i, size);
         op = maskOp(op, 0x01);
         indentCode(outputString);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
@@ -347,7 +347,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
     L_CALL:
         uintValue = uintFromOp(op, 0x07);
         if (uintValue == 0x07) {
-            uintValue = function->uintFromCode(i, 1);
+            uintValue = uintFromCode(obj, i, 1);
             i += 1;
         }
         indentCode(outputString);

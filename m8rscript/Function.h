@@ -52,46 +52,22 @@ public:
         }
     }
 
-    const Atom& name() const { return _name; }
-    void setName(const Atom& atom) { _name = _name; }
-    void addParam(const Atom& atom) { _params.push_back(atom); }
-    
-    void addCode(uint8_t c) { _code.push_back(c); }
-    uint8_t codeAtIndex(uint32_t index) const { return _code[index]; }
-    void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
-    uint32_t codeSize() const { return static_cast<uint32_t>(_code.size()); }
-    
-    String stringFromCode(uint32_t index, uint32_t len) const
+    virtual const Atom* name() const override { return &_name; }
+    virtual bool hasCode() const override { return true; }
+    virtual uint8_t codeAtIndex(uint32_t index) const override { return _code[index]; }
+    virtual uint32_t numObjects() const override { return static_cast<uint32_t>(_objects.size()); }
+    virtual Object* objectAtIndex(uint32_t i) override { return _objects[i]; }
+    virtual String stringFromCode(uint32_t index, uint32_t len) const override
     {
         return String(reinterpret_cast<const char*>(&(_code[index])), len);
     }
 
-    int32_t intFromCode(uint32_t index, uint32_t size) const
-    {
-        uint32_t num = uintFromCode(index, size);
-        uint32_t mask = 0x80 << (8 * (size - 1));
-        if (num & mask) {
-            return num | ~(mask - 1);
-        }
-        return static_cast<int32_t>(num);
-    }
+    void setName(const Atom& atom) { _name = _name; }
+    void addParam(const Atom& atom) { _params.push_back(atom); }
     
-    uint32_t uintFromCode(uint32_t index, uint32_t size) const
-    {
-        uint32_t value = 0;
-        for (int i = 0; i < size; ++i) {
-            value <<= 8;
-            value |= codeAtIndex(index + i);
-        }
-        return value;
-    }
-    
-    void addCodeInt(uint32_t value, uint32_t size)
-    {
-        for (int i = size - 1; i >= 0; --i) {
-            addCode(byteFromInt(value, i));
-        }
-    }
+    void addCode(uint8_t c) { _code.push_back(c); }
+    void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
+    uint32_t codeSize() const { return static_cast<uint32_t>(_code.size()); }
     
     static uint8_t byteFromInt(uint32_t value, uint32_t index)
     {
@@ -99,6 +75,13 @@ public:
         return static_cast<uint8_t>(value >> (8 * index));
     }
         
+    void addCodeInt(uint32_t value, uint32_t size)
+    {
+        for (int i = size - 1; i >= 0; --i) {
+            addCode(byteFromInt(value, i));
+        }
+    }
+    
     void addObject(Object* obj) { _objects.push_back(obj); }
     
     const Vector<Object*>& objects() const { return _objects; }

@@ -122,7 +122,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %%
 
 program
-    : source_elements { parser->emit(m8r::Op::END); }
+    : source_elements { parser->programEnd(); }
     ;
 
 source_elements

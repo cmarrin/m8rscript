@@ -62,7 +62,7 @@ public:
         }
     }
     
-    String toString() const { return _eu.toString(0, _program->main()); }
+    String toString() const { return _eu.stringFromCode(0, _program->main()); }
     
   	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
     
@@ -80,6 +80,7 @@ public:
     void functionAddParam(const Atom& atom) { _currentFunction->addParam(atom); }
     void functionStart();
     Function* functionEnd();
+    void programEnd();
         
     void emit(const char* value) { _eu.addCode(value); }
     void emit(uint32_t value) { _eu.addCode(value); }

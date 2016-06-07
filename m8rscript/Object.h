@@ -40,6 +40,13 @@ namespace m8r {
 class Object {
 public:
     virtual ~Object() { }
+
+    virtual const Atom* name() const { return nullptr; }
+    virtual bool hasCode() const { return false; }
+    virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
+    virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
+    virtual uint32_t numObjects() const { return 0; }
+    virtual Object* objectAtIndex(uint32_t i) { return nullptr; }
 };
     
 }

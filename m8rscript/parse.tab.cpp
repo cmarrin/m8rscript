@@ -1735,7 +1735,7 @@ yyreduce:
     {
         case 2:
 #line 125 "parse.y"
-    { parser->emit(m8r::Op::END); ;}
+    { parser->programEnd(); ;}
     break;
 
   case 8:

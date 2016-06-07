@@ -83,7 +83,11 @@ Function* Parser::functionEnd()
     Function* function = _currentFunction;
     _currentFunction = _functions.back();
     _functions.pop_back();
+    _eu.setFunction(_currentFunction);
     return function;
 }
 
-
+void Parser::programEnd()
+{
+    emit(Op::END);
+}
