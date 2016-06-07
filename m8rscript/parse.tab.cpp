@@ -168,20 +168,18 @@
 
 #include "Atom.h"
 #include "ExecutionUnit.h"
-#include "Scanner.h"
+#include "Parser.h"
 
 #define YYERROR_VERBOSE
 
-//#define YYSTYPE m8r::Scanner::TokenValue
-
-inline void yyerror(m8r::Scanner* scanner, const char* s)
+inline void yyerror(m8r::Parser* parser, const char* s)
 {
-    scanner->printError(s);
+    parser->printError(s);
 }
 
-int yylex(YYSTYPE* token, m8r::Scanner* scanner)
+int yylex(YYSTYPE* token, m8r::Parser* parser)
 {
-    uint8_t t = scanner->getToken(token);
+    uint8_t t = parser->getToken(token);
     return (t == C_EOF) ? 0 : t;
 }
 
@@ -207,7 +205,7 @@ int yylex(YYSTYPE* token, m8r::Scanner* scanner)
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 95 "parse.y"
+#line 93 "parse.y"
 {
     m8r::Op             op;
     m8r::Label          label;
@@ -219,7 +217,7 @@ typedef union YYSTYPE
     uint32_t            argcount;
 }
 /* Line 193 of yacc.c.  */
-#line 223 "parse.tab.cpp"
+#line 221 "parse.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -232,7 +230,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 236 "parse.tab.cpp"
+#line 234 "parse.tab.cpp"
 
 #ifdef short
 # undef short
@@ -571,21 +569,21 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   127,   127,   131,   132,   136,   137,   141,   142,   143,
-     144,   145,   146,   150,   151,   152,   153,   154,   158,   159,
-     163,   164,   165,   166,   170,   171,   175,   176,   177,   181,
-     182,   186,   187,   191,   192,   196,   197,   198,   199,   200,
-     201,   202,   206,   207,   208,   209,   213,   214,   215,   219,
-     220,   221,   222,   226,   227,   228,   229,   230,   234,   235,
-     236,   240,   241,   245,   246,   250,   251,   255,   256,   260,
-     261,   265,   266,   270,   271,   275,   276,   277,   278,   279,
-     280,   281,   282,   283,   284,   285,   286,   290,   291,   295,
-     299,   300,   304,   305,   305,   309,   313,   314,   315,   316,
-     317,   318,   319,   323,   324,   328,   329,   333,   334,   338,
-     339,   343,   347,   348,   352,   353,   357,   358,   362,   366,
-     369,   372,   372,   373,   374,   378,   379,   380,   381,   384,
-     386,   388,   390,   391,   395,   395,   399,   401,   405,   406,
-     410,   411,   415,   419,   420,   421,   422,   426
+       0,   125,   125,   129,   130,   134,   135,   139,   140,   141,
+     142,   143,   144,   148,   149,   150,   151,   152,   156,   157,
+     161,   162,   163,   164,   168,   169,   173,   174,   175,   179,
+     180,   184,   185,   189,   190,   194,   195,   196,   197,   198,
+     199,   200,   204,   205,   206,   207,   211,   212,   213,   217,
+     218,   219,   220,   224,   225,   226,   227,   228,   232,   233,
+     234,   238,   239,   243,   244,   248,   249,   253,   254,   258,
+     259,   263,   264,   268,   269,   273,   274,   275,   276,   277,
+     278,   279,   280,   281,   282,   283,   284,   288,   289,   293,
+     297,   298,   302,   303,   303,   307,   311,   312,   313,   314,
+     315,   316,   317,   321,   322,   326,   327,   331,   332,   336,
+     337,   341,   345,   346,   350,   351,   355,   356,   360,   364,
+     367,   370,   370,   371,   372,   376,   377,   378,   379,   382,
+     384,   386,   388,   389,   393,   393,   397,   399,   403,   404,
+     408,   409,   413,   417,   418,   419,   420,   424
 };
 #endif
 
@@ -948,7 +946,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (scanner, YY_("syntax error: cannot back up")); \
+      yyerror (parser, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -1005,7 +1003,7 @@ while (YYID (0))
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval, scanner)
+# define YYLEX yylex (&yylval, parser)
 #endif
 
 /* Enable debugging if requested.  */
@@ -1028,7 +1026,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value, scanner); \
+		  Type, Value, parser); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -1042,19 +1040,19 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, m8r::Scanner* scanner)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, m8r::Parser* parser)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep, scanner)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, parser)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
-    m8r::Scanner* scanner;
+    m8r::Parser* parser;
 #endif
 {
   if (!yyvaluep)
     return;
-  YYUSE (scanner);
+  YYUSE (parser);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
@@ -1076,14 +1074,14 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, scanner)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, m8r::Scanner* scanner)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, m8r::Parser* parser)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep, scanner)
+yy_symbol_print (yyoutput, yytype, yyvaluep, parser)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
-    m8r::Scanner* scanner;
+    m8r::Parser* parser;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -1091,7 +1089,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, scanner)
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, scanner);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, parser);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -1131,13 +1129,13 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule, m8r::Scanner* scanner)
+yy_reduce_print (YYSTYPE *yyvsp, int yyrule, m8r::Parser* parser)
 #else
 static void
-yy_reduce_print (yyvsp, yyrule, scanner)
+yy_reduce_print (yyvsp, yyrule, parser)
     YYSTYPE *yyvsp;
     int yyrule;
-    m8r::Scanner* scanner;
+    m8r::Parser* parser;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -1151,7 +1149,7 @@ yy_reduce_print (yyvsp, yyrule, scanner)
       fprintf (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       , scanner);
+		       		       , parser);
       fprintf (stderr, "\n");
     }
 }
@@ -1159,7 +1157,7 @@ yy_reduce_print (yyvsp, yyrule, scanner)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule, scanner); \
+    yy_reduce_print (yyvsp, Rule, parser); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1410,18 +1408,18 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, m8r::Scanner* scanner)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, m8r::Parser* parser)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep, scanner)
+yydestruct (yymsg, yytype, yyvaluep, parser)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
-    m8r::Scanner* scanner;
+    m8r::Parser* parser;
 #endif
 {
   YYUSE (yyvaluep);
-  YYUSE (scanner);
+  YYUSE (parser);
 
   if (!yymsg)
     yymsg = "Deleting";
@@ -1446,7 +1444,7 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (m8r::Scanner* scanner);
+int yyparse (m8r::Parser* parser);
 #else
 int yyparse ();
 #endif
@@ -1475,11 +1473,11 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (m8r::Scanner* scanner)
+yyparse (m8r::Parser* parser)
 #else
 int
-yyparse (scanner)
-    m8r::Scanner* scanner;
+yyparse (parser)
+    m8r::Parser* parser;
 #endif
 #endif
 {
@@ -1736,358 +1734,358 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 127 "parse.y"
-    { scanner->emit(m8r::Op::END); ;}
+#line 125 "parse.y"
+    { parser->emit(m8r::Op::END); ;}
     break;
 
   case 8:
-#line 142 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].number)); ;}
+#line 140 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 9:
-#line 143 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].integer)); ;}
+#line 141 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].integer)); ;}
     break;
 
   case 10:
-#line 144 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].string)); ;}
+#line 142 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 16:
-#line 153 "parse.y"
-    { scanner->emit(m8r::Op::DEREF); ;}
+#line 151 "parse.y"
+    { parser->emit(m8r::Op::DEREF); ;}
     break;
 
   case 17:
-#line 154 "parse.y"
-    { scanner->emitCallOrNew(false, (yyvsp[(3) - (3)].argcount)); ;}
+#line 152 "parse.y"
+    { parser->emitCallOrNew(false, (yyvsp[(3) - (3)].argcount)); ;}
     break;
 
   case 20:
-#line 163 "parse.y"
-    { scanner->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
+#line 161 "parse.y"
+    { parser->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
     break;
 
   case 21:
-#line 164 "parse.y"
-    { scanner->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
+#line 162 "parse.y"
+    { parser->emitCallOrNew(true, (yyvsp[(2) - (2)].argcount)); ;}
     break;
 
   case 23:
-#line 166 "parse.y"
-    { scanner->emit(m8r::Op::DEREF); ;}
+#line 164 "parse.y"
+    { parser->emit(m8r::Op::DEREF); ;}
     break;
 
   case 27:
-#line 176 "parse.y"
-    { scanner->emit(m8r::Op::POSTINC); ;}
+#line 174 "parse.y"
+    { parser->emit(m8r::Op::POSTINC); ;}
     break;
 
   case 28:
-#line 177 "parse.y"
-    { scanner->emit(m8r::Op::POSTDEC); ;}
+#line 175 "parse.y"
+    { parser->emit(m8r::Op::POSTDEC); ;}
     break;
 
   case 29:
-#line 181 "parse.y"
+#line 179 "parse.y"
     { (yyval.argcount) = 0; ;}
     break;
 
   case 30:
-#line 182 "parse.y"
+#line 180 "parse.y"
     { (yyval.argcount) = (yyvsp[(2) - (3)].argcount); ;}
     break;
 
   case 31:
-#line 186 "parse.y"
+#line 184 "parse.y"
     { (yyval.argcount) = 1; ;}
     break;
 
   case 32:
-#line 187 "parse.y"
+#line 185 "parse.y"
     { (yyval.argcount)++; ;}
     break;
 
   case 34:
-#line 192 "parse.y"
-    { scanner->emit((yyvsp[(1) - (2)].op)); ;}
+#line 190 "parse.y"
+    { parser->emit((yyvsp[(1) - (2)].op)); ;}
     break;
 
   case 35:
-#line 196 "parse.y"
+#line 194 "parse.y"
     { (yyval.op) = m8r::Op::UPLUS; ;}
     break;
 
   case 36:
-#line 197 "parse.y"
+#line 195 "parse.y"
     { (yyval.op) = m8r::Op::UMINUS; ;}
     break;
 
   case 37:
-#line 198 "parse.y"
+#line 196 "parse.y"
     { (yyval.op) = m8r::Op::UNEG; ;}
     break;
 
   case 38:
-#line 199 "parse.y"
+#line 197 "parse.y"
     { (yyval.op) = m8r::Op::UNOT; ;}
     break;
 
   case 39:
-#line 200 "parse.y"
+#line 198 "parse.y"
     { (yyval.op) = m8r::Op::DEL; ;}
     break;
 
   case 40:
-#line 201 "parse.y"
+#line 199 "parse.y"
     { (yyval.op) = m8r::Op::PREINC; ;}
     break;
 
   case 41:
-#line 202 "parse.y"
+#line 200 "parse.y"
     { (yyval.op) = m8r::Op::PREDEC; ;}
     break;
 
   case 43:
-#line 207 "parse.y"
-    { scanner->emit(m8r::Op::MUL); ;}
+#line 205 "parse.y"
+    { parser->emit(m8r::Op::MUL); ;}
     break;
 
   case 44:
-#line 208 "parse.y"
-    { scanner->emit(m8r::Op::DIV); ;}
+#line 206 "parse.y"
+    { parser->emit(m8r::Op::DIV); ;}
     break;
 
   case 45:
-#line 209 "parse.y"
-    { scanner->emit(m8r::Op::MOD); ;}
+#line 207 "parse.y"
+    { parser->emit(m8r::Op::MOD); ;}
     break;
 
   case 47:
-#line 214 "parse.y"
-    { scanner->emit(m8r::Op::ADD); ;}
+#line 212 "parse.y"
+    { parser->emit(m8r::Op::ADD); ;}
     break;
 
   case 48:
-#line 215 "parse.y"
-    { scanner->emit(m8r::Op::SUB); ;}
+#line 213 "parse.y"
+    { parser->emit(m8r::Op::SUB); ;}
     break;
 
   case 50:
-#line 220 "parse.y"
-    { scanner->emit(m8r::Op::SHL); ;}
+#line 218 "parse.y"
+    { parser->emit(m8r::Op::SHL); ;}
     break;
 
   case 51:
-#line 221 "parse.y"
-    { scanner->emit(m8r::Op::SHR); ;}
+#line 219 "parse.y"
+    { parser->emit(m8r::Op::SHR); ;}
     break;
 
   case 52:
-#line 222 "parse.y"
-    { scanner->emit(m8r::Op::SAR); ;}
+#line 220 "parse.y"
+    { parser->emit(m8r::Op::SAR); ;}
     break;
 
   case 54:
-#line 227 "parse.y"
-    { scanner->emit(m8r::Op::LT); ;}
+#line 225 "parse.y"
+    { parser->emit(m8r::Op::LT); ;}
     break;
 
   case 55:
-#line 228 "parse.y"
-    { scanner->emit(m8r::Op::GT); ;}
+#line 226 "parse.y"
+    { parser->emit(m8r::Op::GT); ;}
     break;
 
   case 56:
-#line 229 "parse.y"
-    { scanner->emit(m8r::Op::LE); ;}
+#line 227 "parse.y"
+    { parser->emit(m8r::Op::LE); ;}
     break;
 
   case 57:
-#line 230 "parse.y"
-    { scanner->emit(m8r::Op::GE); ;}
+#line 228 "parse.y"
+    { parser->emit(m8r::Op::GE); ;}
     break;
 
   case 59:
-#line 235 "parse.y"
-    { scanner->emit(m8r::Op::EQ); ;}
+#line 233 "parse.y"
+    { parser->emit(m8r::Op::EQ); ;}
     break;
 
   case 60:
-#line 236 "parse.y"
-    { scanner->emit(m8r::Op::NE); ;}
+#line 234 "parse.y"
+    { parser->emit(m8r::Op::NE); ;}
     break;
 
   case 62:
-#line 241 "parse.y"
-    { scanner->emit(m8r::Op::AND); ;}
+#line 239 "parse.y"
+    { parser->emit(m8r::Op::AND); ;}
     break;
 
   case 64:
-#line 246 "parse.y"
-    { scanner->emit(m8r::Op::XOR); ;}
+#line 244 "parse.y"
+    { parser->emit(m8r::Op::XOR); ;}
     break;
 
   case 66:
-#line 251 "parse.y"
-    { scanner->emit(m8r::Op::OR); ;}
+#line 249 "parse.y"
+    { parser->emit(m8r::Op::OR); ;}
     break;
 
   case 68:
-#line 256 "parse.y"
-    { scanner->emit(m8r::Op::LAND); ;}
+#line 254 "parse.y"
+    { parser->emit(m8r::Op::LAND); ;}
     break;
 
   case 70:
-#line 261 "parse.y"
-    { scanner->emit(m8r::Op::LOR); ;}
+#line 259 "parse.y"
+    { parser->emit(m8r::Op::LOR); ;}
     break;
 
   case 74:
-#line 271 "parse.y"
-    { scanner->emit((yyvsp[(2) - (3)].op)); ;}
+#line 269 "parse.y"
+    { parser->emit((yyvsp[(2) - (3)].op)); ;}
     break;
 
   case 75:
-#line 275 "parse.y"
+#line 273 "parse.y"
     { (yyval.op) = m8r::Op::STO; ;}
     break;
 
   case 76:
-#line 276 "parse.y"
+#line 274 "parse.y"
     { (yyval.op) = m8r::Op::STOMUL; ;}
     break;
 
   case 77:
-#line 277 "parse.y"
+#line 275 "parse.y"
     { (yyval.op) = m8r::Op::STODIV; ;}
     break;
 
   case 78:
-#line 278 "parse.y"
+#line 276 "parse.y"
     { (yyval.op) = m8r::Op::STOMOD; ;}
     break;
 
   case 79:
-#line 279 "parse.y"
+#line 277 "parse.y"
     { (yyval.op) = m8r::Op::STOADD; ;}
     break;
 
   case 80:
-#line 280 "parse.y"
+#line 278 "parse.y"
     { (yyval.op) = m8r::Op::STOSUB; ;}
     break;
 
   case 81:
-#line 281 "parse.y"
+#line 279 "parse.y"
     { (yyval.op) = m8r::Op::STOSHL; ;}
     break;
 
   case 82:
-#line 282 "parse.y"
+#line 280 "parse.y"
     { (yyval.op) = m8r::Op::STOSHR; ;}
     break;
 
   case 83:
-#line 283 "parse.y"
+#line 281 "parse.y"
     { (yyval.op) = m8r::Op::STOSAR; ;}
     break;
 
   case 84:
-#line 284 "parse.y"
+#line 282 "parse.y"
     { (yyval.op) = m8r::Op::STOAND; ;}
     break;
 
   case 85:
-#line 285 "parse.y"
+#line 283 "parse.y"
     { (yyval.op) = m8r::Op::STOXOR; ;}
     break;
 
   case 86:
-#line 286 "parse.y"
+#line 284 "parse.y"
     { (yyval.op) = m8r::Op::STOOR; ;}
     break;
 
   case 92:
-#line 304 "parse.y"
-    { scanner->emit(m8r::Op::NEWID); ;}
+#line 302 "parse.y"
+    { parser->emit(m8r::Op::NEWID); ;}
     break;
 
   case 93:
-#line 305 "parse.y"
-    { scanner->emit(m8r::Op::NEWID); ;}
+#line 303 "parse.y"
+    { parser->emit(m8r::Op::NEWID); ;}
     break;
 
   case 95:
-#line 309 "parse.y"
-    { scanner->emit(m8r::Op::STO); ;}
+#line 307 "parse.y"
+    { parser->emit(m8r::Op::STO); ;}
     break;
 
   case 120:
-#line 369 "parse.y"
-    { (yyval.label) = scanner->label(); ;}
+#line 367 "parse.y"
+    { (yyval.label) = parser->label(); ;}
     break;
 
   case 121:
-#line 372 "parse.y"
-    { scanner->loopStart(false, (yyvsp[(2) - (4)].label)); ;}
+#line 370 "parse.y"
+    { parser->loopStart(false, (yyvsp[(2) - (4)].label)); ;}
     break;
 
   case 122:
-#line 372 "parse.y"
-    { scanner->loopEnd((yyvsp[(2) - (7)].label)); ;}
+#line 370 "parse.y"
+    { parser->loopEnd((yyvsp[(2) - (7)].label)); ;}
     break;
 
   case 129:
-#line 384 "parse.y"
-    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); scanner->emit((yyvsp[(3) - (3)].function)); ;}
+#line 382 "parse.y"
+    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); parser->emit((yyvsp[(3) - (3)].function)); ;}
     break;
 
   case 130:
-#line 386 "parse.y"
-    { scanner->emit((yyvsp[(2) - (2)].function)); ;}
+#line 384 "parse.y"
+    { parser->emit((yyvsp[(2) - (2)].function)); ;}
     break;
 
   case 132:
-#line 390 "parse.y"
-    { scanner->functionAddParam((yyvsp[(1) - (1)].atom)); ;}
+#line 388 "parse.y"
+    { parser->functionAddParam((yyvsp[(1) - (1)].atom)); ;}
     break;
 
   case 134:
-#line 395 "parse.y"
-    { scanner->functionStart(); ;}
+#line 393 "parse.y"
+    { parser->functionStart(); ;}
     break;
 
   case 135:
-#line 396 "parse.y"
-    { scanner->emit(m8r::Op::END); (yyval.function) = scanner->functionEnd(); ;}
+#line 394 "parse.y"
+    { parser->emit(m8r::Op::END); (yyval.function) = parser->functionEnd(); ;}
     break;
 
   case 144:
-#line 420 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].string)); ;}
+#line 418 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 145:
-#line 421 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].number)); ;}
+#line 419 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 146:
-#line 422 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].integer)); ;}
+#line 420 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].integer)); ;}
     break;
 
   case 147:
-#line 426 "parse.y"
-    { scanner->emit((yyvsp[(1) - (1)].atom)); ;}
+#line 424 "parse.y"
+    { parser->emit((yyvsp[(1) - (1)].atom)); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2091 "parse.tab.cpp"
+#line 2089 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2123,7 +2121,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (scanner, YY_("syntax error"));
+      yyerror (parser, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -2147,11 +2145,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (scanner, yymsg);
+	    yyerror (parser, yymsg);
 	  }
 	else
 	  {
-	    yyerror (scanner, YY_("syntax error"));
+	    yyerror (parser, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -2175,7 +2173,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval, scanner);
+		      yytoken, &yylval, parser);
 	  yychar = YYEMPTY;
 	}
     }
@@ -2231,7 +2229,7 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp, scanner);
+		  yystos[yystate], yyvsp, parser);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2269,7 +2267,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (scanner, YY_("memory exhausted"));
+  yyerror (parser, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -2277,7 +2275,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval, scanner);
+		 yytoken, &yylval, parser);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -2285,7 +2283,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp, scanner);
+		  yystos[*yyssp], yyvsp, parser);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -2301,6 +2299,6 @@ yyreturn:
 }
 
 
-#line 429 "parse.y"
+#line 427 "parse.y"
 
 

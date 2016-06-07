@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 
-#include "Scanner.h"
+#include "Parser.h"
 #include <cassert>
 
 using namespace m8r;
@@ -261,7 +261,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
 	
 	String name = "<anonymous>";
     if (_name.valid()) {
-        _scanner->stringFromAtom(name, _name);
+        _parser->stringFromAtom(name, _name);
     }
     
     indentCode(outputString);
@@ -285,7 +285,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
-        _scanner->stringFromRawAtom(strValue, uintFromCode(i, 2));
+        _parser->stringFromRawAtom(strValue, uintFromCode(i, 2));
         i += 2;
         indentCode(outputString);
         outputString += "ID(";

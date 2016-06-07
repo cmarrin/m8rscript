@@ -38,17 +38,13 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
+#include "Object.h"
 
 #define SHOW_CODE 1
 
 namespace m8r {
 
-class Scanner;
-
-class Object {
-public:
-    virtual String toString(uint32_t nestingLevel) const = 0;
-};
+class Parser;
 
 enum class Op {
     PUSHID = 0x01,  // Next 2 bytes are atom
@@ -89,7 +85,7 @@ struct Label {
 
 class ExecutionUnit : public Object {
 public:
-    ExecutionUnit(Scanner* scanner) : _scanner(scanner) { _name.set(Atom::NoAtom); }
+    ExecutionUnit(Parser* parser) : _parser(parser) { _name.set(Atom::NoAtom); }
     
     Label label();
     
@@ -164,7 +160,7 @@ private:
     
     Vector<Atom> _params;
     Vector<uint8_t> _code;
-    Scanner* _scanner;
+    Parser* _parser;
     Vector<Object*> _objects;
     uint32_t _id = _nextID++;
 	Atom _name;

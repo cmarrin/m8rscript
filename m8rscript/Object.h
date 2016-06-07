@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-      this list of conditions and the following disclaimer.
-      
+    this list of conditions and the following disclaimer.
+    
     - Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-      
+    notice, this list of conditions and the following disclaimer in the 
+    documentation and/or other materials provided with the distribution.
+    
     - Neither the name of the <ORGANIZATION> nor the names of its 
-      contributors may be used to endorse or promote products derived from 
-      this software without specific prior written permission.
-      
+    contributors may be used to endorse or promote products derived from 
+    this software without specific prior written permission.
+    
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -33,53 +33,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Parser.h"
+#pragma once
 
-using namespace m8r;
+namespace m8r {
 
-extern int yyparse(Parser*);
-
-Parser::Parser(Stream* istream) : _scanner(this, istream)
-{
-    _program = new Program();
-    _currentExecutionUnit = new ExecutionUnit(this);
-	yyparse(this);
+class Object {
+public:
+    virtual String toString(uint32_t nestingLevel) const = 0;
+};
+    
 }
-
-void Parser::printError(const char* s)
-{
-	printf("%s on line %d\n", s, _scanner.lineno());
-}
-
-Label Parser::label() const
-{
-    Label lbl = _currentExecutionUnit->label();
-    return lbl;
-}
-
-void Parser::loopStart(bool cond, Label& label)
-{
-    _currentExecutionUnit->addFixupJump(cond, label);
-}
-
-void Parser::loopEnd(Label& label)
-{
-    _currentExecutionUnit->addJumpAndFixup(label);
-}
-
-void Parser::functionStart()
-{
-    _executionUnits.push_back(_currentExecutionUnit);
-    _currentExecutionUnit = new ExecutionUnit(this);
-}
-
-ExecutionUnit* Parser::functionEnd()
-{
-    assert(_currentExecutionUnit && _executionUnits.size());
-    ExecutionUnit* eu = _currentExecutionUnit;
-    _currentExecutionUnit = _executionUnits.back();
-    _executionUnits.pop_back();
-    return eu;
-}
-
-

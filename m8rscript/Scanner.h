@@ -59,49 +59,23 @@ namespace m8r {
 
 class Scanner  {
 public:
-  	Scanner(Stream* istream)
+  	Scanner(Parser* parser, Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
      , _nerrors(0)
+     , _parser(parser)
   	{
-        _currentExecutionUnit = new ExecutionUnit(this);
     }
   	
   	~Scanner()
   	{
-        delete _currentExecutionUnit;
-        for (uint32_t i = 0; i < _executionUnits.size(); ++i) {
-            delete _executionUnits[i];
-        }
     }
   
   	uint8_t getToken(YYSTYPE* token);
-
-	void printError(const char* s);
     
     uint32_t nerrors() const { return _nerrors; }
-    
-    void emit(const char*);
-    void emit(uint32_t);
-    void emit(float);
-    void emit(const Atom&);
-    void emit(Op);
-    void emitCallOrNew(bool call, uint32_t nparams);
-    void emit(ExecutionUnit*);
-
-    Label label() const;
-    void loopStart(bool cond, Label&);
-    void loopEnd(Label&);
-    
-    void functionAddParam(const Atom& atom) { _currentExecutionUnit->addParam(atom); }
-    void functionStart();
-    ExecutionUnit* functionEnd();
-    
-    String toString() const { return _currentExecutionUnit->toString(0); }
-    
-    void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
-    void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
+    uint32_t lineno() const { return _lineno; }
   	
 private:
     uint8_t get() const;
@@ -126,9 +100,7 @@ private:
   	Stream* _istream;
     mutable uint32_t _lineno;
     uint32_t _nerrors;
-    AtomTable _atomTable;
-    ExecutionUnit *_currentExecutionUnit;
-    Vector<ExecutionUnit*> _executionUnits;
+    Parser* _parser;
 };
 
 }

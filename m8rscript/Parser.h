@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Stream.h"
 #include "Scanner.h"
+#include "ExecutionUnit.h"
+#include "Program.h"
 
 namespace m8r {
 
@@ -53,14 +55,44 @@ public:
 	Parser(Stream* istream);
     
     ~Parser()
-    { }
+    {
+        delete _currentExecutionUnit;
+        for (uint32_t i = 0; i < _executionUnits.size(); ++i) {
+            delete _executionUnits[i];
+        }
+    }
     
+  	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
+    
+	void printError(const char* s);
     uint32_t nerrors() const { return _scanner.nerrors(); }
     
-    String toString() const { return _scanner.toString(); }
+    String toString() const { return _currentExecutionUnit->toString(0); }
+    void stringFromAtom(String& s, const Atom& atom) const { _program->stringFromAtom(s, atom); }
+    void stringFromRawAtom(String& s, uint16_t rawAtom) const { _program->stringFromRawAtom(s, rawAtom); }
+    Atom atomizeString(const char* s) { return _program->atomizeString(s); }
     
+    Label label() const;
+    void loopStart(bool cond, Label&);
+    void loopEnd(Label&);
+    
+    void functionAddParam(const Atom& atom) { _currentExecutionUnit->addParam(atom); }
+    void functionStart();
+    ExecutionUnit* functionEnd();
+        
+    void emit(const char* value) { _currentExecutionUnit->addCode(value); }
+    void emit(uint32_t value) { _currentExecutionUnit->addCode(value); }
+    void emit(float value) { _currentExecutionUnit->addCode(value); }
+    void emit(const Atom& value) { _currentExecutionUnit->addCode(value); }
+    void emit(Op value) { _currentExecutionUnit->addCode(value); }
+    void emit(ExecutionUnit* value) { _currentExecutionUnit->addCode(value); }
+    void emitCallOrNew(bool call, uint32_t nparams) { _currentExecutionUnit->addCallOrNew(call, nparams); }
+
 private:
     Scanner _scanner;
+    Program* _program;
+    ExecutionUnit *_currentExecutionUnit;
+    Vector<ExecutionUnit*> _executionUnits;
 };
 
 }

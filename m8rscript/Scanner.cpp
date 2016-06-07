@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Scanner.h"
 
+#include "Parser.h"
+
 #include <cstdio>
 #include <cstring>
 
@@ -75,11 +77,6 @@ static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
 static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
 static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
 static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
-
-void Scanner::printError(const char* s)
-{
-	printf("%s on line %d\n", s, _lineno);
-}
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 uint8_t Scanner::scanKeyword(const char* s)
@@ -448,7 +445,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 				}
 				if ((token = scanIdentifier()) != C_EOF) {
                     if (token == T_IDENTIFIER) {
-                        tokenValue->atom = _atomTable.atomizeString(_tokenString.c_str());
+                        tokenValue->atom = _parser->atomizeString(_tokenString.c_str());
                         _tokenString.clear();
                     }
 					break;
@@ -460,70 +457,3 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
     
 	return token;
 }
-
-void Scanner::emit(const char* value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emit(const Atom& value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emit(uint32_t value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emit(float value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emit(Op value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emit(ExecutionUnit* value)
-{
-    _currentExecutionUnit->addCode(value);
-}
-
-void Scanner::emitCallOrNew(bool call, uint32_t nparams)
-{
-    _currentExecutionUnit->addCallOrNew(call, nparams);
-}
-
-Label Scanner::label() const
-{
-    Label lbl = _currentExecutionUnit->label();
-    return lbl;
-}
-
-void Scanner::loopStart(bool cond, Label& label)
-{
-    _currentExecutionUnit->addFixupJump(cond, label);
-}
-
-void Scanner::loopEnd(Label& label)
-{
-    _currentExecutionUnit->addJumpAndFixup(label);
-}
-
-void Scanner::functionStart()
-{
-    _executionUnits.push_back(_currentExecutionUnit);
-    _currentExecutionUnit = new ExecutionUnit(this);
-}
-
-ExecutionUnit* Scanner::functionEnd()
-{
-    assert(_currentExecutionUnit && _executionUnits.size());
-    ExecutionUnit* eu = _currentExecutionUnit;
-    _currentExecutionUnit = _executionUnits.back();
-    _executionUnits.pop_back();
-    return eu;
-}
-
