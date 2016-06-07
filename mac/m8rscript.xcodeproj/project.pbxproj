@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4942EA831D070C9B00E02088 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
@@ -30,6 +31,8 @@
 /* Begin PBXFileReference section */
 		4942EA7E1D06FC2500E02088 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../m8rscript/Object.h; sourceTree = "<group>"; };
 		4942EA7F1D07009E00E02088 /* Program.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../m8rscript/Program.h; sourceTree = "<group>"; };
+		4942EA811D07043C00E02088 /* Function.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../m8rscript/Function.h; sourceTree = "<group>"; };
+		4942EA821D070C9B00E02088 /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../m8rscript/Program.cpp; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +98,8 @@
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
 				4942EA7F1D07009E00E02088 /* Program.h */,
+				4942EA811D07043C00E02088 /* Function.h */,
+				4942EA821D070C9B00E02088 /* Program.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 			files = (
 				49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */,
 				49E6481E1D00C088005F5059 /* Parser.cpp in Sources */,
+				4942EA831D070C9B00E02088 /* Program.cpp in Sources */,
 				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
 				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,

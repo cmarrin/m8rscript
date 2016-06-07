@@ -167,7 +167,7 @@
 #line 13 "parse.y"
 
 #include "Atom.h"
-#include "ExecutionUnit.h"
+#include "Function.h"
 #include "Parser.h"
 
 #define YYERROR_VERBOSE
@@ -209,7 +209,7 @@ typedef union YYSTYPE
 {
     m8r::Op             op;
     m8r::Label          label;
-    m8r::ExecutionUnit* function;
+    m8r::Function*      function;
     const char*         string;
     float				number;
     uint32_t            integer;

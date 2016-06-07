@@ -142,7 +142,7 @@ typedef union YYSTYPE
 {
     m8r::Op             op;
     m8r::Label          label;
-    m8r::ExecutionUnit* function;
+    m8r::Function*      function;
     const char*         string;
     float				number;
     uint32_t            integer;

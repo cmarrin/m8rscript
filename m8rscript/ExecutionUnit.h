@@ -38,13 +38,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
-#include "Object.h"
+#include "Function.h"
+#include "Program.h"
 
 #define SHOW_CODE 1
 
 namespace m8r {
 
 class Parser;
+class Function;
+class Program;
 
 enum class Op {
     PUSHID = 0x01,  // Next 2 bytes are atom
@@ -83,62 +86,34 @@ struct Label {
     int32_t fixupAddr : 20;
 };
 
-class ExecutionUnit : public Object {
+class ExecutionUnit {
 public:
-    ExecutionUnit(Parser* parser) : _parser(parser) { _name.set(Atom::NoAtom); }
+    ExecutionUnit(Parser* parser, Program* program)
+        : _parser(parser)
+        , _currentProgram(program)
+    { }
+    
+    String toString(uint32_t nestingLevel, Function* function) const;
+
+    void setFunction(Function* function) { _currentFunction = function; }
     
     Label label();
     
-    void addParam(const Atom& atom) { _params.push_back(atom); }
+    void addParam(const Atom& atom) { _currentFunction->addParam(atom); }
     
     void addCode(const char*);
     void addCode(uint32_t);
     void addCode(float);
     void addCode(const Atom&);
     void addCode(Op);
-    void addCode(ExecutionUnit*);
+    
+    void addCode(Object* obj) { _currentFunction->addObject(obj); }
+
     void addCallOrNew(bool call, uint32_t nparams);
     void addFixupJump(bool cond, Label&);
     void addJumpAndFixup(Label&);
     
-    virtual String toString(uint32_t nestingLevel) const;
-
-	void setName(const Atom& atom) { _name = atom; }
-    
 private:
-    static uint8_t byteFromInt(uint32_t value, uint32_t index)
-    {
-        assert(index < 4);
-        return static_cast<uint8_t>(value >> (8 * index));
-    }
-        
-    int32_t intFromCode(uint32_t index, uint32_t size) const
-    {
-        uint32_t num = uintFromCode(index, size);
-        uint32_t mask = 0x80 << (8 * (size - 1));
-        if (num & mask) {
-            return num | ~(mask - 1);
-        }
-        return static_cast<int32_t>(num);
-    }
-    
-    uint32_t uintFromCode(uint32_t index, uint32_t size) const
-    {
-        uint32_t value = 0;
-        for (int i = 0; i < size; ++i) {
-            value <<= 8;
-            value |= _code[index + i];
-        }
-        return value;
-    }
-    
-    void addCodeInt(uint32_t value, uint32_t size)
-    {
-        for (int i = size - 1; i >= 0; --i) {
-            _code.push_back(byteFromInt(value, i));
-        }
-    }
-    
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
     int8_t intFromOp(Op op, uint8_t mask) const
     {
@@ -158,12 +133,10 @@ private:
       
     static uint32_t _nextID;
     
-    Vector<Atom> _params;
-    Vector<uint8_t> _code;
     Parser* _parser;
-    Vector<Object*> _objects;
+    Function* _currentFunction;
+    Program* _currentProgram;
     uint32_t _id = _nextID++;
-	Atom _name;
 };
     
 }

@@ -39,10 +39,13 @@ using namespace m8r;
 
 extern int yyparse(Parser*);
 
-Parser::Parser(Stream* istream) : _scanner(this, istream)
+Parser::Parser(Stream* istream)
+    : _scanner(this, istream)
+    , _program(new Program)
+    , _eu(this, _program)
 {
-    _program = new Program();
-    _currentExecutionUnit = new ExecutionUnit(this);
+    _currentFunction = _program->main();
+    _eu.setFunction(_program->main());
 	yyparse(this);
 }
 
@@ -51,35 +54,36 @@ void Parser::printError(const char* s)
 	printf("%s on line %d\n", s, _scanner.lineno());
 }
 
-Label Parser::label() const
+Label Parser::label()
 {
-    Label lbl = _currentExecutionUnit->label();
+    Label lbl = _eu.label();
     return lbl;
 }
 
 void Parser::loopStart(bool cond, Label& label)
 {
-    _currentExecutionUnit->addFixupJump(cond, label);
+    _eu.addFixupJump(cond, label);
 }
 
 void Parser::loopEnd(Label& label)
 {
-    _currentExecutionUnit->addJumpAndFixup(label);
+    _eu.addJumpAndFixup(label);
 }
 
 void Parser::functionStart()
 {
-    _executionUnits.push_back(_currentExecutionUnit);
-    _currentExecutionUnit = new ExecutionUnit(this);
+    _functions.push_back(_currentFunction);
+    _currentFunction = new Function();
+    _eu.setFunction(_currentFunction);
 }
 
-ExecutionUnit* Parser::functionEnd()
+Function* Parser::functionEnd()
 {
-    assert(_currentExecutionUnit && _executionUnits.size());
-    ExecutionUnit* eu = _currentExecutionUnit;
-    _currentExecutionUnit = _executionUnits.back();
-    _executionUnits.pop_back();
-    return eu;
+    assert(_currentFunction && _functions.size());
+    Function* function = _currentFunction;
+    _currentFunction = _functions.back();
+    _functions.pop_back();
+    return function;
 }
 
 

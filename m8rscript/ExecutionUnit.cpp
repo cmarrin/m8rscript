@@ -45,9 +45,9 @@ uint32_t ExecutionUnit::_nextID = 1;
 Label ExecutionUnit::label()
 {
     Label label;
-    label.label = static_cast<int32_t>(_code.size());
+    label.label = _currentFunction->codeSize();
     label.uniqueID = _nextID++;
-    _code.push_back(static_cast<uint8_t>(Op::LABEL));
+    _currentFunction->addCode(static_cast<uint8_t>(Op::LABEL));
     return label;
 }
     
@@ -55,20 +55,20 @@ void ExecutionUnit::addCode(const char* s)
 {
     uint32_t len = static_cast<uint32_t>(strlen(s)) + 1;
     if (len < 16) {
-        _code.push_back(static_cast<uint8_t>(Op::PUSHS) | static_cast<uint8_t>(len));
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHS) | static_cast<uint8_t>(len));
     } else if (len < 256) {
-        _code.push_back(static_cast<uint8_t>(Op::PUSHSX1));
-        _code.push_back(len);
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX1));
+        _currentFunction->addCode(len);
     } else {
         assert(len < 65536);
-        _code.push_back(static_cast<uint8_t>(Op::PUSHSX2));
-        _code.push_back(byteFromInt(len, 1));
-        _code.push_back(byteFromInt(len, 0));
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX2));
+        _currentFunction->addCode(Function::byteFromInt(len, 1));
+        _currentFunction->addCode(Function::byteFromInt(len, 0));
     }
     for (const char* p = s; *p != '\0'; ++p) {
-        _code.push_back(*p);
+        _currentFunction->addCode(*p);
     }
-    _code.push_back('\0');
+    _currentFunction->addCode('\0');
 }
 
 void ExecutionUnit::addCode(uint32_t value)
@@ -85,73 +85,68 @@ void ExecutionUnit::addCode(uint32_t value)
         size = 4;
         op = Op::PUSHIX4;
     }
-    _code.push_back(static_cast<uint8_t>(op));
-    addCodeInt(value, size);
+    _currentFunction->addCode(static_cast<uint8_t>(op));
+    _currentFunction->addCodeInt(value, size);
 }
 
 void ExecutionUnit::addCode(float value)
 {
-    _code.push_back(static_cast<uint8_t>(Op::PUSHF));
-    addCodeInt(*(reinterpret_cast<uint32_t*>(&value)), 4);
+    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHF));
+    _currentFunction->addCodeInt(*(reinterpret_cast<uint32_t*>(&value)), 4);
 }
 
 void ExecutionUnit::addCode(const Atom& atom)
 {
-    _code.push_back(static_cast<uint8_t>(Op::PUSHID));
-    addCodeInt(atom.rawAtom(), 2);
+    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHID));
+    _currentFunction->addCodeInt(atom.rawAtom(), 2);
 }
 
 void ExecutionUnit::addCode(Op value)
 {
-    _code.push_back(static_cast<uint8_t>(value));
+    _currentFunction->addCode(static_cast<uint8_t>(value));
 }
 
 void ExecutionUnit::addFixupJump(bool cond, Label& label)
 {
-    _code.push_back(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
-    label.fixupAddr = static_cast<int32_t>(_code.size());
-    _code.push_back(0);
-    _code.push_back(0);
+    _currentFunction->addCode(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
+    label.fixupAddr = static_cast<int32_t>(_currentFunction->codeSize());
+    _currentFunction->addCode(0);
+    _currentFunction->addCode(0);
 }
 
 void ExecutionUnit::addJumpAndFixup(Label& label)
 {
-    int32_t jumpAddr = label.label - static_cast<int32_t>(_code.size());
+    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize());
     if (jumpAddr >= -127 && jumpAddr <= 127) {
-        _code.push_back(static_cast<uint8_t>(Op::JMP));
-        _code.push_back(static_cast<uint8_t>(jumpAddr));
+        _currentFunction->addCode(static_cast<uint8_t>(Op::JMP));
+        _currentFunction->addCode(static_cast<uint8_t>(jumpAddr));
     } else {
         if (jumpAddr < -32767 || jumpAddr > 32767) {
             printf("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
             return;
         }
-        _code.push_back(static_cast<uint8_t>(Op::JMP) | 0x01);
-        _code.push_back(byteFromInt(jumpAddr, 1));
-        _code.push_back(byteFromInt(jumpAddr, 0));
+        _currentFunction->addCode(static_cast<uint8_t>(Op::JMP) | 0x01);
+        _currentFunction->addCode(Function::byteFromInt(jumpAddr, 1));
+        _currentFunction->addCode(Function::byteFromInt(jumpAddr, 0));
     }
     
-    jumpAddr = static_cast<int32_t>(_code.size()) - label.fixupAddr;
+    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.fixupAddr;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
-    _code[label.fixupAddr] = byteFromInt(jumpAddr, 1);
-    _code[label.fixupAddr + 1] = byteFromInt(jumpAddr, 0);
+    _currentFunction->setCodeAtIndex(label.fixupAddr, Function::byteFromInt(jumpAddr, 1));
+    _currentFunction->setCodeAtIndex(label.fixupAddr + 1, Function::byteFromInt(jumpAddr, 0));
 }
 
 void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
 {
     assert(nparams < 256);
     Op op = call ? Op::CALL : Op::NEW;
-    _code.push_back(static_cast<uint8_t>(op) | ((nparams > 6) ? 0x07 : nparams));
+    _currentFunction->addCode(static_cast<uint8_t>(op) | ((nparams > 6) ? 0x07 : nparams));
     if (nparams > 6) {
-        _code.push_back(nparams);
+        _currentFunction->addCode(nparams);
     }
-}
-
-void ExecutionUnit::addCode(ExecutionUnit* eu)
-{
-    _objects.push_back(eu);
 }
 
 #if SHOW_CODE
@@ -184,7 +179,7 @@ static String toString(uint32_t value)
 
 #endif
 
-String ExecutionUnit::toString(uint32_t nestingLevel) const
+String ExecutionUnit::toString(uint32_t nestingLevel, Function* function) const
 {
 #if SHOW_CODE
 
@@ -246,22 +241,22 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = static_cast<Op>(_code[i++]); \
+        op = static_cast<Op>(function->codeAtIndex(i++)); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
     String outputString;
 
-	for (auto obj : _objects) {
-		outputString += obj->toString(nestingLevel + 1);
+	for (auto obj : function->objects()) {
+		outputString += toString(nestingLevel + 1, obj);
         outputString += "\n";
 	}
     
     _nestingLevel = nestingLevel;
 	
 	String name = "<anonymous>";
-    if (_name.valid()) {
-        _parser->stringFromAtom(name, _name);
+    if (function->name().valid()) {
+        _parser->stringFromAtom(name, function->name());
     }
     
     indentCode(outputString);
@@ -285,7 +280,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
-        _parser->stringFromRawAtom(strValue, uintFromCode(i, 2));
+        _parser->stringFromRawAtom(strValue, function->uintFromCode(i, 2));
         i += 2;
         indentCode(outputString);
         outputString += "ID(";
@@ -293,7 +288,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
         outputString += ")\n";
         DISPATCH;
     L_PUSHF:
-        uintValue = uintFromCode(i, 4);
+        uintValue = function->uintFromCode(i, 4);
         i += 4;
         indentCode(outputString);
         outputString += "FLT(";
@@ -308,7 +303,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
             intValue = intFromOp(op, 0x0f);
         } else {
             size = (op == Op::PUSHIX1) ? 1 : ((op == Op::PUSHIX2) ? 2 : 4);
-            intValue = intFromCode(i, size);
+            intValue = function->intFromCode(i, size);
             i += size;
         }
         indentCode(outputString);
@@ -323,12 +318,12 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (op == Op::PUSHSX1) ? 1 : 2;
-            uintValue = uintFromCode(i, size);
+            uintValue = function->uintFromCode(i, size);
             i += size;
         }
         indentCode(outputString);
         outputString += "STR(\"";
-        outputString += String(reinterpret_cast<const char*>(&(_code[i])), uintValue);
+        outputString += function->stringFromCode(i, uintValue);
         outputString += ")\n";
         i += uintValue;
         DISPATCH;
@@ -336,7 +331,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(i, size);
+        intValue = function->intFromCode(i, size);
         op = maskOp(op, 0x01);
         indentCode(outputString);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
@@ -352,7 +347,7 @@ String ExecutionUnit::toString(uint32_t nestingLevel) const
     L_CALL:
         uintValue = uintFromOp(op, 0x07);
         if (uintValue == 0x07) {
-            uintValue = uintFromCode(i, 1);
+            uintValue = function->uintFromCode(i, 1);
             i += 1;
         }
         indentCode(outputString);

@@ -39,7 +39,7 @@ namespace m8r {
 
 class Object {
 public:
-    virtual String toString(uint32_t nestingLevel) const = 0;
+    virtual ~Object() { }
 };
     
 }
