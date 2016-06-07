@@ -163,9 +163,18 @@ private:
     }
     
 #if SHOW_CODE
+    struct Annotation {
+        uint32_t addr;
+        uint32_t uniqueID;
+    };
+    typedef Vector<Annotation> Annotations;
+
+    uint32_t findAnnotation(uint32_t addr) const;
+    void preamble(String& s, uint32_t addr) const;
     static const char* stringFromOp(Op op);
     void indentCode(String&) const;
     mutable uint32_t _nestingLevel = 0;
+    mutable Annotations annotations;
 #endif
       
     static uint32_t _nextID;

@@ -112,15 +112,15 @@ void ExecutionUnit::addCode(Op value)
 
 void ExecutionUnit::addFixupJump(bool cond, Label& label)
 {
-    _currentFunction->addCode(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
     label.fixupAddr = static_cast<int32_t>(_currentFunction->codeSize());
+    _currentFunction->addCode(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
     _currentFunction->addCode(0);
     _currentFunction->addCode(0);
 }
 
 void ExecutionUnit::addJumpAndFixup(Label& label)
 {
-    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize());
+    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize()) - 1;
     if (jumpAddr >= -127 && jumpAddr <= 127) {
         _currentFunction->addCode(static_cast<uint8_t>(Op::JMP));
         _currentFunction->addCode(static_cast<uint8_t>(jumpAddr));
@@ -134,13 +134,13 @@ void ExecutionUnit::addJumpAndFixup(Label& label)
         _currentFunction->addCode(Function::byteFromInt(jumpAddr, 0));
     }
     
-    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.fixupAddr;
+    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.fixupAddr - 1;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
-    _currentFunction->setCodeAtIndex(label.fixupAddr, Function::byteFromInt(jumpAddr, 1));
-    _currentFunction->setCodeAtIndex(label.fixupAddr + 1, Function::byteFromInt(jumpAddr, 0));
+    _currentFunction->setCodeAtIndex(label.fixupAddr + 1, Function::byteFromInt(jumpAddr, 1));
+    _currentFunction->setCodeAtIndex(label.fixupAddr + 2, Function::byteFromInt(jumpAddr, 0));
 }
 
 void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
@@ -179,6 +179,34 @@ static m8r::String toString(uint32_t value)
     sprintf(buf, "%u", value);
     s.set(buf);
     return s;
+}
+
+uint32_t ExecutionUnit::findAnnotation(uint32_t addr) const
+{
+    for (auto annotation : annotations) {
+        if (annotation.addr == addr) {
+            return annotation.uniqueID;
+        }
+    }
+    return 0;
+}
+
+void ExecutionUnit::preamble(String& s, uint32_t addr) const
+{
+    uint32_t uniqueID = findAnnotation(addr);
+    if (!uniqueID) {
+        indentCode(s);
+        return;
+    }
+    if (_nestingLevel) {
+        --_nestingLevel;
+        indentCode(s);
+        ++_nestingLevel;
+    }
+    s += "LABEL[";
+    s += toString(uniqueID);
+    s += "]\n";
+    indentCode(s);
 }
 
 #endif
@@ -267,11 +295,6 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
 	}
     
     // Annotate the code to add labels
-    struct Annotation {
-        uint32_t addr;
-        uint32_t uniqueID;
-    };
-    Vector<Annotation> annotations;
     uint32_t uniqueID = 1;
     for (int i = 0; obj->codeAtIndex(i) != static_cast<uint8_t>(Op::END); ) {
         uint8_t code = obj->codeAtIndex(i++);
@@ -284,13 +307,14 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
             nexti += intFromCode(obj, i, count);
         }
         
-        code &= 0xf0;
+        code &= 0xfc;
         Op op = static_cast<Op>(code);
         if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-            uint32_t addr = intFromCode(obj, i, count);
-            Annotation annotation = { i + addr, uniqueID++ };
+            int32_t addr = intFromCode(obj, i, count);
+            Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
             annotations.push_back(annotation);
         }
+        i = nexti;
     }
     
     int i = 0;
@@ -307,23 +331,24 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
+        preamble(outputString, i - 1);
         _parser->stringFromRawAtom(strValue, uintFromCode(obj, i, 2));
         i += 2;
-        indentCode(outputString);
         outputString += "ID(";
         outputString += strValue.c_str();
         outputString += ")\n";
         DISPATCH;
     L_PUSHF:
+        preamble(outputString, i - 1);
         uintValue = uintFromCode(obj, i, 4);
         i += 4;
-        indentCode(outputString);
         outputString += "FLT(";
         outputString += ::toString(*(reinterpret_cast<float*>(&uintValue)));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
     L_PUSHIX:
+        preamble(outputString, i - 1);
         if (maskOp(op, 0x0f) == Op::PUSHI) {
             intValue = intFromOp(op, 0x0f);
         } else {
@@ -331,16 +356,15 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
             intValue = intFromCode(obj, i, size);
             i += size;
         }
-        indentCode(outputString);
         outputString += "INT(";
         outputString += ::toString(intValue);
         outputString += ")\n";
         DISPATCH;
     L_PUSHSX:
+        preamble(outputString, i - 1);
         size = (static_cast<uint8_t>(op) & 0x0f) + 1;
         uintValue = uintFromCode(obj, i, size);
         i += size;
-        indentCode(outputString);
         outputString += "STR(\"";
         outputString += obj->stringFromCode(i, uintValue);
         outputString += "\")\n";
@@ -349,13 +373,13 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     L_JMP:
     L_JT:
     L_JF:
+        preamble(outputString, i - 1);
         size = intFromOp(op, 0x01) + 1;
         intValue = intFromCode(obj, i, size);
         op = maskOp(op, 0x01);
-        indentCode(outputString);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
-        outputString += "[";
-        outputString += ::toString(intValue);
+        outputString += " LABEL[";
+        outputString += ::toString(findAnnotation(i + intValue));
         outputString += "]\n";
         i += size;
         DISPATCH;
@@ -363,6 +387,7 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     L_NEWX:
     L_CALL:
     L_CALLX:
+        preamble(outputString, i - 1);
         if (op == Op::CALLX || op == Op::NEWX) {
             uintValue = uintFromCode(obj, i, 1);
             i += 1;
@@ -370,21 +395,20 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
             uintValue = uintFromOp(op, 0x07);
         }
         
-        indentCode(outputString);
         outputString += (maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
         outputString += "[";
         outputString += ::toString(uintValue);
         outputString += "]\n";
         DISPATCH;
     L_OPCODE:
-        indentCode(outputString);
+        preamble(outputString, i - 1);
         outputString += "OP(";
         outputString += stringFromOp(op);
         outputString += ")\n";
         DISPATCH;
     L_END:
         _nestingLevel--;
-        indentCode(outputString);
+        preamble(outputString, i - 1);
         outputString += "END\n";
         return outputString;
     

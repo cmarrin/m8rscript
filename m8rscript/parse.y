@@ -367,7 +367,7 @@ default_clause:
 iteration_start: { $$ = parser->label(); } ;
 
 iteration_statement
-	: K_WHILE iteration_start '(' expression { parser->loopStart(false, $2); } ')' statement { parser->loopEnd($2); }
+	: K_WHILE iteration_start '(' { parser->loopStart(false, $2); } expression ')' statement { parser->loopEnd($2); }
 	| K_DO iteration_start statement K_WHILE '(' expression ')' ';'
 	| K_FOR '(' expression_statement iteration_start expression_statement expression ')' statement
 	;
