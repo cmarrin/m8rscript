@@ -164,6 +164,15 @@ static String toString(int32_t value)
     return s;
 }
 
+static String toString(uint32_t value)
+{
+    String s;
+    char buf[40];
+    sprintf(buf, "%u", value);
+    s.set(buf);
+    return s;
+}
+
 #endif
 
 String ExecutionUnit::toString() const
@@ -238,8 +247,10 @@ String ExecutionUnit::toString() const
 		outputString += obj->toString();
 	}
 	
-	String name;
-	_scanner->stringFromAtom(name, _name);
+	String name = "<anonymous>";
+    if (_name.valid()) {
+        _scanner->stringFromAtom(name, _name);
+    }
     outputString += "FUNCTION(";
     outputString += name.c_str();
     outputString += ")\n";
@@ -314,7 +325,7 @@ String ExecutionUnit::toString() const
         indentCode(outputString);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
         outputString += "[";
-        outputString += intValue;
+        outputString += ::toString(intValue);
         outputString += "]\n";
         i += size;
         DISPATCH;
@@ -328,7 +339,7 @@ String ExecutionUnit::toString() const
         indentCode(outputString);
         outputString += (maskOp(op, 0x07) == Op::CALL) ? "CALL" : "NEW";
         outputString += "[";
-        outputString += uintValue;
+        outputString += ::toString(uintValue);
         outputString += "]\n";
         DISPATCH;
     L_OPCODE:

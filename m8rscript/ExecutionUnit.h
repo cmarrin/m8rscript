@@ -89,7 +89,7 @@ struct Label {
 
 class ExecutionUnit : public Object {
 public:
-    ExecutionUnit(Scanner* scanner) : _scanner(scanner) { }
+    ExecutionUnit(Scanner* scanner) : _scanner(scanner) { _name.set(Atom::NoAtom); }
     
     Label label() const
     {
