@@ -47,7 +47,7 @@ class Scanner;
 
 class Object {
 public:
-    virtual String toString() const = 0;
+    virtual String toString(uint32_t nestingLevel) const = 0;
 };
 
 enum class Op {
@@ -78,7 +78,7 @@ enum class Op {
     LE = 0x78, GT = 0x79, GE = 0x7A, SHL = 0x7B, SHR = 0x7C, SAR = 0x7D, ADD = 0x7E, SUB = 0x7F,
     MUL = 0x80, DIV = 0x81, MOD = 0x82,
 
-    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, END = 0x93,
+    DEREF = 0x90, NEWID = 0x91, DEL = 0x92, LABEL = 0x93, END = 0x94,
 };
 
 struct Label {
@@ -91,13 +91,7 @@ class ExecutionUnit : public Object {
 public:
     ExecutionUnit(Scanner* scanner) : _scanner(scanner) { _name.set(Atom::NoAtom); }
     
-    Label label() const
-    {
-        Label label;
-        label.label = static_cast<int32_t>(_code.size());
-        label.uniqueID = _nextID++;
-        return label;
-    }
+    Label label();
     
     void addParam(const Atom& atom) { _params.push_back(atom); }
     
@@ -111,7 +105,7 @@ public:
     void addFixupJump(bool cond, Label&);
     void addJumpAndFixup(Label&);
     
-    virtual String toString() const;
+    virtual String toString(uint32_t nestingLevel) const;
 
 	void setName(const Atom& atom) { _name = atom; }
     

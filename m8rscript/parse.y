@@ -381,7 +381,7 @@ jump_statement
 	| K_RETURN expression ';'
 	;
 
-function_declaration : K_FUNCTION T_IDENTIFIER function { $3->setName($2); scanner->emit($2); }
+function_declaration : K_FUNCTION T_IDENTIFIER function { $3->setName($2); scanner->emit($3); }
 
 function_expression : K_FUNCTION function { scanner->emit($2); } ;
     
@@ -391,7 +391,10 @@ formal_parameter_list
     |	formal_parameter_list ',' T_IDENTIFIER
     ;
     
-function : '(' { scanner->functionStart(); } formal_parameter_list ')' '{' function_body '}' { $$ = scanner->functionEnd(); } ;
+function
+    :   '(' { scanner->functionStart(); } 
+        formal_parameter_list ')' '{' function_body '}' { scanner->emit(m8r::Op::END); $$ = scanner->functionEnd(); }
+    ;
     
 function_body
     : /* empty */

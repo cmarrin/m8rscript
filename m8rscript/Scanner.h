@@ -98,7 +98,7 @@ public:
     void functionStart();
     ExecutionUnit* functionEnd();
     
-    String toString() const { return _currentExecutionUnit->toString(); }
+    String toString() const { return _currentExecutionUnit->toString(0); }
     
     void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
     void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }

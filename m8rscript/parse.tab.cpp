@@ -584,8 +584,8 @@ static const yytype_uint16 yyrline[] =
      317,   318,   319,   323,   324,   328,   329,   333,   334,   338,
      339,   343,   347,   348,   352,   353,   357,   358,   362,   366,
      369,   372,   372,   373,   374,   378,   379,   380,   381,   384,
-     386,   388,   390,   391,   394,   394,   396,   398,   402,   403,
-     407,   408,   412,   416,   417,   418,   419,   423
+     386,   388,   390,   391,   395,   395,   399,   401,   405,   406,
+     410,   411,   415,   419,   420,   421,   422,   426
 };
 #endif
 
@@ -2042,7 +2042,7 @@ yyreduce:
 
   case 129:
 #line 384 "parse.y"
-    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); scanner->emit((yyvsp[(2) - (3)].atom)); ;}
+    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); scanner->emit((yyvsp[(3) - (3)].function)); ;}
     break;
 
   case 130:
@@ -2056,32 +2056,32 @@ yyreduce:
     break;
 
   case 134:
-#line 394 "parse.y"
+#line 395 "parse.y"
     { scanner->functionStart(); ;}
     break;
 
   case 135:
-#line 394 "parse.y"
-    { (yyval.function) = scanner->functionEnd(); ;}
+#line 396 "parse.y"
+    { scanner->emit(m8r::Op::END); (yyval.function) = scanner->functionEnd(); ;}
     break;
 
   case 144:
-#line 417 "parse.y"
+#line 420 "parse.y"
     { scanner->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 145:
-#line 418 "parse.y"
+#line 421 "parse.y"
     { scanner->emit((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 146:
-#line 419 "parse.y"
+#line 422 "parse.y"
     { scanner->emit((yyvsp[(1) - (1)].integer)); ;}
     break;
 
   case 147:
-#line 423 "parse.y"
+#line 426 "parse.y"
     { scanner->emit((yyvsp[(1) - (1)].atom)); ;}
     break;
 
@@ -2301,6 +2301,6 @@ yyreturn:
 }
 
 
-#line 426 "parse.y"
+#line 429 "parse.y"
 
 

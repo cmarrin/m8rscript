@@ -42,6 +42,15 @@ using namespace m8r;
 
 uint32_t ExecutionUnit::_nextID = 1;
 
+Label ExecutionUnit::label()
+{
+    Label label;
+    label.label = static_cast<int32_t>(_code.size());
+    label.uniqueID = _nextID++;
+    _code.push_back(static_cast<uint8_t>(Op::LABEL));
+    return label;
+}
+    
 void ExecutionUnit::addCode(const char* s)
 {
     uint32_t len = static_cast<uint32_t>(strlen(s)) + 1;
@@ -175,7 +184,7 @@ static String toString(uint32_t value)
 
 #endif
 
-String ExecutionUnit::toString() const
+String ExecutionUnit::toString(uint32_t nestingLevel) const
 {
 #if SHOW_CODE
 
@@ -218,7 +227,7 @@ String ExecutionUnit::toString() const
         /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
+        /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(LABEL) OP(END)
         /* 0x94 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
@@ -244,16 +253,23 @@ String ExecutionUnit::toString() const
     String outputString;
 
 	for (auto obj : _objects) {
-		outputString += obj->toString();
+		outputString += obj->toString(nestingLevel + 1);
+        outputString += "\n";
 	}
+    
+    _nestingLevel = nestingLevel;
 	
 	String name = "<anonymous>";
     if (_name.valid()) {
         _scanner->stringFromAtom(name, _name);
     }
+    
+    indentCode(outputString);
     outputString += "FUNCTION(";
     outputString += name.c_str();
     outputString += ")\n";
+    
+    _nestingLevel++;
 	
     int i = 0;
     String strValue;
@@ -328,6 +344,9 @@ String ExecutionUnit::toString() const
         outputString += ::toString(intValue);
         outputString += "]\n";
         i += size;
+        if (op == Op::JMP) {
+            --_nestingLevel;
+        }
         DISPATCH;
     L_NEW:
     L_CALL:
@@ -348,7 +367,13 @@ String ExecutionUnit::toString() const
         outputString += stringFromOp(op);
         outputString += ")\n";
         DISPATCH;
+    L_LABEL:
+        indentCode(outputString);
+        outputString += "LABEL\n";
+        ++_nestingLevel;
+        DISPATCH;
     L_END:
+        _nestingLevel--;
         indentCode(outputString);
         outputString += "END\n";
         return outputString;
@@ -407,7 +432,7 @@ static CodeMap opcodes[] = {
     OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
     OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD)
 
-    OP(DEREF) OP(NEWID) OP(DEL) OP(END)
+    OP(DEREF) OP(NEWID) OP(DEL) OP(LABEL) OP(END)
 };
 
 const char* ExecutionUnit::stringFromOp(Op op)
