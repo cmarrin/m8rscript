@@ -83,7 +83,7 @@ enum class Op {
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
     
-    PUSHI = 0x30,   // Lower 4 bits is number from -8 to +7
+    PUSHI = 0x30,   // Lower 4 bits is number from 0 to 15
     CALL = 0x40,    // Lower 4 bits is number of params from 0 to 15
     NEW = 0x50,     // Lower 4 bits is number of params from 0 to 15
     

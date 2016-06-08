@@ -76,20 +76,21 @@ void ExecutionUnit::addCode(uint32_t value)
     uint32_t size;
     uint8_t op;
     
-    if (value >= -8 && value <= 7) {
-        size = 0;
-        op = static_cast<uint8_t>(Op::PUSHI);
-    } else if (value >= -127 && value <= 127) {
+    if (value <= 15) {
+        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHI) | value);
+        return;
+    }
+    if (value <= 255) {
         size = 1;
         op = static_cast<uint8_t>(Op::PUSHIX);
-    } else if (value >= -32767 && value <= 32767) {
+    } else if (value <= 65535) {
         size = 2;
         op = static_cast<uint8_t>(Op::PUSHIX) | 0x01;
     } else {
         size = 4;
         op = static_cast<uint8_t>(Op::PUSHIX) | 0x03;
     }
-    _currentFunction->addCode(static_cast<uint8_t>(op));
+    _currentFunction->addCode(op);
     _currentFunction->addCodeInt(value, size);
 }
 
@@ -159,15 +160,6 @@ static m8r::String toString(float value)
     m8r::String s;
     char buf[40];
     sprintf(buf, "%g", value);
-    s.set(buf);
-    return s;
-}
-
-static m8r::String toString(int32_t value)
-{
-    m8r::String s;
-    char buf[40];
-    sprintf(buf, "%d", value);
     s.set(buf);
     return s;
 }
@@ -350,14 +342,14 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     L_PUSHIX:
         preamble(outputString, i - 1);
         if (maskOp(op, 0x0f) == Op::PUSHI) {
-            intValue = intFromOp(op, 0x0f);
+            uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
-            intValue = intFromCode(obj, i, size);
+            uintValue = uintFromCode(obj, i, size);
             i += size;
         }
         outputString += "INT(";
-        outputString += ::toString(intValue);
+        outputString += ::toString(uintValue);
         outputString += ")\n";
         DISPATCH;
     L_PUSHSX:
