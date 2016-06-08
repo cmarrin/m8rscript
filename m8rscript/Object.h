@@ -43,14 +43,22 @@ class Object;
 
 class Value {
 public:
-    Value(const Value& other) : _value(other._value) { }
+    enum class Type { Object };
+
+    Value(const Value& other)
+        : _value(other._value)
+        , _type(other._type)
+    { }
+    
     Value(Object* obj)
         : _value(reinterpret_cast<void*>(obj))
         , _type(Type::Object)
     { }
+    
+    Type type() const { return _type; }
+    Object* object() const { return (_type == Type::Object) ? reinterpret_cast<Object*>(_value) : nullptr; }
 
 private:
-    enum class Type { Object };
     void* _value;
     Type _type;
 };

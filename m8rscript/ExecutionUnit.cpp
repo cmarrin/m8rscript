@@ -301,11 +301,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     _nestingLevel++;
 
-// FIXME: Need to traverse the values in Object	
-//	for (int i = 0; i < obj->numObjects(); ++i) {
-//		outputString += stringFromCode(_nestingLevel, obj->objectAtIndex(i));
-//        outputString += "\n";
-//	}
+	for (auto value : obj->values()) {
+        if (value.second.object() && value.second.object()->hasCode()) {
+            outputString += stringFromCode(_nestingLevel, value.second.object());
+            outputString += "\n";
+        }
+	}
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
