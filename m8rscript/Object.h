@@ -73,6 +73,7 @@ public:
     
     virtual bool hasCode() const { return false; }
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
+    virtual uint32_t codeSize() const { return 0; }
     virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
     virtual const ValueMap& values() const { return _values; }
     virtual Value* value(const Atom& s) { return &(_values.find(s)->second); }

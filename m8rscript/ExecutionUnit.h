@@ -69,6 +69,7 @@ class Program;
 //      1000 - CALL
 //      1001 - NEW
 //      1010 - PUSHO
+//      1011 - RET
 //
 enum class Op {
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
@@ -84,10 +85,12 @@ enum class Op {
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
     PUSHO = 0x2B,   // 0010 1011
+    RETX = 0x2C,    // 0010 1100
     
     PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
     CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
     NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
+    RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
     
     STO = 0x80, STOMUL = 0x81, STOADD = 0x82, STOSUB = 0x83, STODIV = 0x84, STOMOD = 0x85, STOSHL = 0x86, STOSHR = 0x87,
     STOSAR = 0x88, STOAND = 0x89, STOOR = 0x8A, STOXOR = 0x8B,
@@ -112,7 +115,7 @@ public:
         , _currentProgram(program)
     { }
     
-    String stringFromCode(uint32_t nestingLevel, Object* obj) const;
+    String toString() const;
 
     void setFunction(Function* function) { _currentFunction = function; }
     
@@ -130,11 +133,13 @@ public:
     void addObject(Object* obj) { addCode(_currentProgram->addObject(obj)); }
     void addNamedFunction(Function*, const Atom& name);
 
-    void addCallOrNew(bool call, uint32_t nparams);
+    void addCodeWithCount(Op value, uint32_t nparams);
     void addFixupJump(bool cond, Label&);
     void addJumpAndFixup(Label&);
     
 private:
+    String generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const;
+
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
     int8_t intFromOp(Op op, uint8_t mask) const
     {

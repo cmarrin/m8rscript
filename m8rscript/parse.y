@@ -149,7 +149,7 @@ member_expression
 	| function_expression
 	| member_expression '[' expression ']'
 	| member_expression '.' identifier { parser->emit(m8r::Op::DEREF); }
-    | K_NEW member_expression arguments { parser->emitCallOrNew(false, $3); }
+    | K_NEW member_expression arguments { parser->emitWithCount(m8r::Op::NEW, $3); }
     ;
 
 new_expression
@@ -158,8 +158,8 @@ new_expression
 	;
 
 call_expression
-	: member_expression arguments  { parser->emitCallOrNew(true, $2); }
-	| call_expression arguments  { parser->emitCallOrNew(true, $2); }
+	: member_expression arguments  { parser->emitWithCount(m8r::Op::CALL, $2); }
+	| call_expression arguments  { parser->emitWithCount(m8r::Op::CALL, $2); }
     | call_expression '[' expression ']'
     | call_expression '.' identifier { parser->emit(m8r::Op::DEREF); }
 	;
@@ -375,8 +375,8 @@ iteration_statement
 jump_statement
 	: K_CONTINUE ';'
 	| K_BREAK ';'
-	| K_RETURN ';'
-	| K_RETURN expression ';'
+	| K_RETURN ';' { parser->emitWithCount(m8r::Op::RET, 0); }
+	| K_RETURN argument_list ';' { parser->emitWithCount(m8r::Op::RET, $2); }
 	;
 
 function_declaration : K_FUNCTION T_IDENTIFIER function { parser->addNamedFunction($3, $2); }

@@ -50,6 +50,7 @@ public:
     virtual const Atom* name() const override { return &_name; }
     virtual bool hasCode() const override { return true; }
     virtual uint8_t codeAtIndex(uint32_t index) const override { return _code[index]; }
+    virtual uint32_t codeSize() const override { return static_cast<uint32_t>(_code.size()); }
     virtual String stringFromCode(uint32_t index, uint32_t len) const override
     {
         return String(reinterpret_cast<const char*>(&(_code[index])), len);
@@ -60,7 +61,6 @@ public:
     
     void addCode(uint8_t c) { _code.push_back(c); }
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
-    uint32_t codeSize() const { return static_cast<uint32_t>(_code.size()); }
     
     static uint8_t byteFromInt(uint32_t value, uint32_t index)
     {

@@ -114,6 +114,7 @@ void ExecutionUnit::addCode(Op value)
 void ExecutionUnit::addCode(const ObjectId& value)
 {
     _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHO));
+    _currentFunction->addCodeInt(value.rawObjectId(), 4);
 }
 
 void ExecutionUnit::addNamedFunction(Function* function, const Atom& name)
@@ -159,13 +160,19 @@ void ExecutionUnit::addJumpAndFixup(Label& label)
     _currentFunction->setCodeAtIndex(label.fixupAddr + 2, Function::byteFromInt(jumpAddr, 0));
 }
 
-void ExecutionUnit::addCallOrNew(bool call, uint32_t nparams)
+void ExecutionUnit::addCodeWithCount(Op value, uint32_t nparams)
 {
     assert(nparams < 256);
-    Op op = call ? Op::CALL : Op::NEW;
-    _currentFunction->addCode(static_cast<uint8_t>(op) | ((nparams > 6) ? 0x07 : nparams));
-    if (nparams > 6) {
-        _currentFunction->addCode(nparams);
+    assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
+    uint8_t code = static_cast<uint8_t>(value);
+    
+    if (nparams > 15) {
+        value = (value == Op::CALL) ? Op::CALLX : ((value == Op::NEW) ? Op::NEWX : Op::RETX);
+        _currentFunction->addCode(static_cast<uint8_t>(value));
+        _currentFunction->addCodeInt(nparams, 1);
+    } else {
+        code |= nparams;
+        _currentFunction->addCode(code);
     }
 }
 
@@ -211,19 +218,34 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
         ++_nestingLevel;
     }
     s += "LABEL[";
-    s += toString(uniqueID);
+    s += ::toString(uniqueID);
     s += "]\n";
     indentCode(s);
 }
-
 #endif
 
-m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
+String ExecutionUnit::toString() const
 {
-    //Value v = *obj->value("Foo");
-    
 #if SHOW_CODE
+    String outputString;
+    
+	for (const auto& object : _currentProgram->objects()) {
+        if (object.second->hasCode()) {
+            outputString += generateCodeString(_nestingLevel, ::toString(object.first.rawObjectId()).c_str(), object.second);
+            outputString += "\n";
+        }
+	}
+    
+    outputString += generateCodeString(0, "main", _currentProgram->main());
+    return outputString;
+#else
+    return "PROGRAM\n"
+#endif
+}
 
+#if SHOW_CODE
+m8r::String ExecutionUnit::generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const
+{
     #undef OP
     #define OP(op) &&L_ ## op,
     
@@ -239,9 +261,9 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(PUSHO) OP(PUSHO) OP(PUSHO) OP(PUSHO)
+        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO)
+        /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         
-        /* 0x2C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -251,9 +273,8 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         /* 0x58 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x60 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
         /* 0x68 */      OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
-
-        /* 0x70 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x78 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x70 */ OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET)
+        /* 0x78 */      OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET)
 
         /* 0x80 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0x88 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -289,8 +310,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     _nestingLevel = nestingLevel;
 	
-	m8r::String name = "<anonymous>";
-    if (obj->name() && obj->name()->valid()) {
+	m8r::String name;
+    if (functionName[0] != '\0') {
+        name = "<";
+        name += functionName;
+        name += ">";
+    }
+    else if (obj->name() && obj->name()->valid()) {
         _parser->stringFromAtom(name, *obj->name());
     }
     
@@ -301,9 +327,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     _nestingLevel++;
 
-	for (auto value : obj->values()) {
+	for (const auto& value : obj->values()) {
         if (value.second.object() && value.second.object()->hasCode()) {
-            outputString += stringFromCode(_nestingLevel, value.second.object());
+            outputString += generateCodeString(_nestingLevel, "", value.second.object());
             outputString += "\n";
         }
 	}
@@ -329,6 +355,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             annotations.push_back(annotation);
         }
         i = nexti;
+        if (i >= obj->codeSize()) {
+            printf("WENT PAST THE END OF CODE\n");
+            return outputString;
+        }
     }
     
     int i = 0;
@@ -391,7 +421,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         outputString += "OBJ(";
         outputString += ::toString(uintValue);
         outputString += ")\n";
-        i += uintValue;
         DISPATCH;
     L_JMP:
     L_JT:
@@ -420,6 +449,20 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         
         outputString += (maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
         outputString += "[";
+        outputString += ::toString(uintValue);
+        outputString += "]\n";
+        DISPATCH;
+    L_RET:
+    L_RETX:
+        preamble(outputString, i - 1);
+        if (op == Op::RETX) {
+            uintValue = uintFromCode(obj, i, 1);
+            i += 1;
+        } else {
+            uintValue = uintFromOp(op, 0x07);
+        }
+    
+        outputString += "RET[";
         outputString += ::toString(uintValue);
         outputString += "]\n";
         DISPATCH;
@@ -452,10 +495,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 //    printf("\n");
 //#endif
 
-#endif
 }
 
-#if SHOW_CODE
 struct CodeMap
 {
     Op op;
@@ -478,10 +519,12 @@ static CodeMap opcodes[] = {
     OP(CALLX)
     OP(NEWX)
     OP(PUSHO)
+    OP(RETX)
 
     OP(PUSHI)
     OP(CALL)
     OP(NEW)
+    OP(RET)
     
     OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD) OP(STOSHL) OP(STOSHR)
     OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)

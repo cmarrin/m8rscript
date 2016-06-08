@@ -62,7 +62,7 @@ public:
         }
     }
     
-    String toString() const { return _eu.stringFromCode(0, _program->main()); }
+    String toString() const { return _eu.toString(); }
     
   	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
     
@@ -90,7 +90,7 @@ public:
     void addObject(Object* value) { _eu.addObject(value); }
     void addNamedFunction(Function* value, const Atom& name) { _eu.addNamedFunction(value, name); }
     void setFunction(Function* value) { _eu.setFunction(value); }
-    void emitCallOrNew(bool call, uint32_t nparams) { _eu.addCallOrNew(call, nparams); }
+    void emitWithCount(Op value, uint32_t count) { _eu.addCodeWithCount(value, count); }
 
 private:
     Scanner _scanner;

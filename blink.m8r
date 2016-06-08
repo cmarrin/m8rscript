@@ -20,3 +20,24 @@ function blink()
     Serial.println("Blink off");
     System.delay(200); // wait a bit
 }
+
+function add(x)
+{
+	return function(y)
+	{
+		return x+y;
+	};
+}
+
+add2 = add(2);
+print(add2(5));
+
+function multi(x)
+{
+	return x + 3, x * 4, x / 5;
+}
+
+var a;
+var b;
+var c;
+a, b, c = multi(4);
