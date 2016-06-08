@@ -111,6 +111,21 @@ void ExecutionUnit::addCode(Op value)
     _currentFunction->addCode(static_cast<uint8_t>(value));
 }
 
+void ExecutionUnit::addCode(const ObjectId& value)
+{
+    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHO));
+}
+
+void ExecutionUnit::addNamedFunction(Function* function, const Atom& name)
+{
+    function->setName(name);
+    assert(name.valid());
+    if (!name.valid()) {
+        return;
+    }
+    _currentFunction->setValue(name, Value(function));
+}
+
 void ExecutionUnit::addFixupJump(bool cond, Label& label)
 {
     label.fixupAddr = static_cast<int32_t>(_currentFunction->codeSize());
@@ -205,6 +220,8 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
 
 m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) const
 {
+    //Value v = *obj->value("Foo");
+    
 #if SHOW_CODE
 
     #undef OP
@@ -222,34 +239,35 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x28 */ OP(PUSHO) OP(PUSHO) OP(PUSHO) OP(PUSHO)
         
-        /* 0x28 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x2C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x30 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x30 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
-        /* 0x38 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x48 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x50 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
+        /* 0x58 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
+        /* 0x60 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
+        /* 0x68 */      OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
 
-        /* 0x40 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
-        /* 0x48 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
-        /* 0x50 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
-        /* 0x58 */      OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
+        /* 0x70 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x78 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x60 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x68 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x70 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x78 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x80 */ OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x83 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x88 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x80 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x88 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0x8C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x90 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x98 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0x9C */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-
-        /* 0xA0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
-        /* 0xA4 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x98 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xA0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xA3 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xB0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0xC0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(END)
+        /* 0xC4 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xD0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xD8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
@@ -258,6 +276,8 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         /* 0xF0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xF8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
     };
+    
+static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is wrong size");
 
     #undef DISPATCH
     #define DISPATCH { \
@@ -280,11 +300,12 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
     outputString += ")\n";
     
     _nestingLevel++;
-	
-	for (int i = 0; i < obj->numObjects(); ++i) {
-		outputString += stringFromCode(_nestingLevel, obj->objectAtIndex(i));
-        outputString += "\n";
-	}
+
+// FIXME: Need to traverse the values in Object	
+//	for (int i = 0; i < obj->numObjects(); ++i) {
+//		outputString += stringFromCode(_nestingLevel, obj->objectAtIndex(i));
+//        outputString += "\n";
+//	}
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
@@ -360,6 +381,15 @@ m8r::String ExecutionUnit::stringFromCode(uint32_t nestingLevel, Object* obj) co
         outputString += "STR(\"";
         outputString += obj->stringFromCode(i, uintValue);
         outputString += "\")\n";
+        i += uintValue;
+        DISPATCH;
+    L_PUSHO:
+        preamble(outputString, i - 1);
+        uintValue = uintFromCode(obj, i, 4);
+        i += 4;
+        outputString += "OBJ(";
+        outputString += ::toString(uintValue);
+        outputString += ")\n";
         i += uintValue;
         DISPATCH;
     L_JMP:
@@ -446,17 +476,18 @@ static CodeMap opcodes[] = {
     
     OP(CALLX)
     OP(NEWX)
+    OP(PUSHO)
 
     OP(PUSHI)
     OP(CALL)
     OP(NEW)
     
-    OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
+    OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD) OP(STOSHL) OP(STOSHR)
+    OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
     OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT)
     OP(LE) OP(GT) OP(GE) OP(SHL) OP(SHR) OP(SAR) OP(ADD) OP(SUB)
     OP(MUL) OP(DIV) OP(MOD)
-    OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD) OP(STOSHL) OP(STOSHR)
-    OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR)
+    OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
 
     OP(DEREF) OP(NEWID) OP(DEL) OP(END)
 };

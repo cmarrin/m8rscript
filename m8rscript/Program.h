@@ -43,6 +43,17 @@ namespace m8r {
 class Object;
 class Function;
 
+class ObjectId {
+    friend class Program;
+    
+public:
+    bool operator<(const ObjectId& other) const { return _id < other._id; }
+    
+private:
+    uint32_t _id;
+};
+    
+
 class Program {
 public:
     Program() { _main = new Function(); }
@@ -54,10 +65,19 @@ public:
     void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
     void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
     Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
+    ObjectId addObject(Object* obj)
+    {
+        ObjectId id;
+        id._id = _nextId++;
+        _objects.emplace(id, obj);
+        return id;
+    }
 
 private:
     AtomTable _atomTable;
     Function* _main;
+    std::map<ObjectId, Object*> _objects;
+    uint32_t _nextId = 1;
 };
     
 }

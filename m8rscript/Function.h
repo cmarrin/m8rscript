@@ -45,18 +45,11 @@ class Function : public Object {
 public:
     Function() { _name.set(Atom::NoAtom); }
 
-    virtual ~Function()
-    {
-        for (auto obj : _objects) {
-            delete obj;
-        }
-    }
+    virtual ~Function() { }
 
     virtual const Atom* name() const override { return &_name; }
     virtual bool hasCode() const override { return true; }
     virtual uint8_t codeAtIndex(uint32_t index) const override { return _code[index]; }
-    virtual uint32_t numObjects() const override { return static_cast<uint32_t>(_objects.size()); }
-    virtual Object* objectAtIndex(uint32_t i) override { return _objects[i]; }
     virtual String stringFromCode(uint32_t index, uint32_t len) const override
     {
         return String(reinterpret_cast<const char*>(&(_code[index])), len);
@@ -82,14 +75,9 @@ public:
         }
     }
     
-    void addObject(Object* obj) { _objects.push_back(obj); }
-    
-    const Vector<Object*>& objects() const { return _objects; }
-
 private:
     Vector<Atom> _params;
     Vector<uint8_t> _code;
-    Vector<Object*> _objects;
 	Atom _name;
 };
     

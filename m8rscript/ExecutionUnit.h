@@ -68,6 +68,7 @@ class Program;
 //      0111 - JF
 //      1000 - CALL
 //      1001 - NEW
+//      1010 - PUSHO
 //
 enum class Op {
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
@@ -82,19 +83,20 @@ enum class Op {
     
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
+    PUSHO = 0x2B,   // 0010 1011
     
-    PUSHI = 0x30,   // Lower 4 bits is number from 0 to 15
-    CALL = 0x40,    // Lower 4 bits is number of params from 0 to 15
-    NEW = 0x50,     // Lower 4 bits is number of params from 0 to 15
+    PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
+    CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
+    NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
     
-    PREINC = 0x60, PREDEC = 0x61, POSTINC = 0x62, POSTDEC = 0x63, UPLUS = 0x64, UMINUS = 0x65, UNOT = 0x66, UNEG = 0x67,
-    LOR = 0x70, LAND = 0x71, AND = 0x72, OR = 0x73, XOR = 0x74, EQ = 0x75, NE = 0x76, LT = 0x77,
-    LE = 0x78, GT = 0x79, GE = 0x7A, SHL = 0x7B, SHR = 0x7C, SAR = 0x7D, ADD = 0x7E, SUB = 0x7F,
-    MUL = 0x80, DIV = 0x81, MOD = 0x82,
-    STO = 0x90, STOMUL = 0x91, STOADD = 0x92, STOSUB = 0x93, STODIV = 0x94, STOMOD = 0x95, STOSHL = 0x96, STOSHR = 0x97,
-    STOSAR = 0x98, STOAND = 0x99, STOOR = 0x9A, STOXOR = 0x9B,
+    STO = 0x80, STOMUL = 0x81, STOADD = 0x82, STOSUB = 0x83, STODIV = 0x84, STOMOD = 0x85, STOSHL = 0x86, STOSHR = 0x87,
+    STOSAR = 0x88, STOAND = 0x89, STOOR = 0x8A, STOXOR = 0x8B,
+    LOR = 0x90, LAND = 0x91, AND = 0x92, OR = 0x93, XOR = 0x94, EQ = 0x95, NE = 0x96, LT = 0x97,
+    LE = 0x98, GT = 0x99, GE = 0x9A, SHL = 0x9B, SHR = 0x9C, SAR = 0x9D, ADD = 0x9E, SUB = 0x9F,
+    MUL = 0xA0, DIV = 0xA1, MOD = 0xA2,
+    PREINC = 0xB0, PREDEC = 0xB1, POSTINC = 0xB2, POSTDEC = 0xB3, UPLUS = 0xB4, UMINUS = 0xB5, UNOT = 0xB6, UNEG = 0xB7,
 
-    DEREF = 0xA0, NEWID = 0xA1, DEL = 0xA2, END = 0xA3,
+    DEREF = 0xC0, NEWID = 0xC1, DEL = 0xC2, END = 0xC3,
 };
 
 struct Label {
@@ -123,8 +125,10 @@ public:
     void addCode(float);
     void addCode(const Atom&);
     void addCode(Op);
+    void addCode(const ObjectId&);
     
-    void addCode(Object* obj) { _currentFunction->addObject(obj); }
+    void addObject(Object* obj) { addCode(_currentProgram->addObject(obj)); }
+    void addNamedFunction(Function*, const Atom& name);
 
     void addCallOrNew(bool call, uint32_t nparams);
     void addFixupJump(bool cond, Label&);

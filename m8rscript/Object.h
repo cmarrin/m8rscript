@@ -35,18 +35,43 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <map>
+
 namespace m8r {
+
+class Object;
+
+class Value {
+public:
+    Value(const Value& other) : _value(other._value) { }
+    Value(Object* obj)
+        : _value(reinterpret_cast<void*>(obj))
+        , _type(Type::Object)
+    { }
+
+private:
+    enum class Type { Object };
+    void* _value;
+    Type _type;
+};
 
 class Object {
 public:
+    typedef std::map<Atom, Value> ValueMap;
+    
     virtual ~Object() { }
 
     virtual const Atom* name() const { return nullptr; }
+    
     virtual bool hasCode() const { return false; }
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
-    virtual uint32_t numObjects() const { return 0; }
-    virtual Object* objectAtIndex(uint32_t i) { return nullptr; }
+    virtual const ValueMap& values() const { return _values; }
+    virtual Value* value(const Atom& s) { return &(_values.find(s)->second); }
+    virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
+    
+private:
+    ValueMap _values;
 };
     
 }

@@ -379,9 +379,9 @@ jump_statement
 	| K_RETURN expression ';'
 	;
 
-function_declaration : K_FUNCTION T_IDENTIFIER function { $3->setName($2); parser->emit($3); }
+function_declaration : K_FUNCTION T_IDENTIFIER function { parser->addNamedFunction($3, $2); }
 
-function_expression : K_FUNCTION function { parser->emit($2); } ;
+function_expression : K_FUNCTION function { parser->addObject($2); } ;
     
 formal_parameter_list
     :   /* empty */

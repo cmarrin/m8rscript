@@ -87,7 +87,9 @@ public:
     void emit(float value) { _eu.addCode(value); }
     void emit(const Atom& value) { _eu.addCode(value); }
     void emit(Op value) { _eu.addCode(value); }
-    void emit(Function* value) { _eu.addCode(value); }
+    void addObject(Object* value) { _eu.addObject(value); }
+    void addNamedFunction(Function* value, const Atom& name) { _eu.addNamedFunction(value, name); }
+    void setFunction(Function* value) { _eu.setFunction(value); }
     void emitCallOrNew(bool call, uint32_t nparams) { _eu.addCallOrNew(call, nparams); }
 
 private:

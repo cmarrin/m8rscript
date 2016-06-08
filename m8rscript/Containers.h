@@ -111,6 +111,8 @@ public:
     }
     
     String& operator+=(const String& s) { return *this += s.c_str(); }
+    
+    bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
 
     const char* c_str() const { return _data; }
     void clear()

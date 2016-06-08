@@ -2040,12 +2040,12 @@ yyreduce:
 
   case 129:
 #line 382 "parse.y"
-    { (yyvsp[(3) - (3)].function)->setName((yyvsp[(2) - (3)].atom)); parser->emit((yyvsp[(3) - (3)].function)); ;}
+    { parser->addNamedFunction((yyvsp[(3) - (3)].function), (yyvsp[(2) - (3)].atom)); ;}
     break;
 
   case 130:
 #line 384 "parse.y"
-    { parser->emit((yyvsp[(2) - (2)].function)); ;}
+    { parser->addObject((yyvsp[(2) - (2)].function)); ;}
     break;
 
   case 132:
