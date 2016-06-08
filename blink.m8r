@@ -34,10 +34,8 @@ print(add2(5));
 
 function multi(x)
 {
-	return x + 3, x * 4, x / 5;
+	return { x + 3, x * 4, x / 5 };
 }
 
-var a;
-var b;
-var c;
-a, b, c = multi(4);
+a = multi(4);
+Serial.println("a=" + a);

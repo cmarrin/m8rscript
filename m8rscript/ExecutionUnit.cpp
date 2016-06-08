@@ -338,23 +338,22 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     uint32_t uniqueID = 1;
     for (int i = 0; obj->codeAtIndex(i) != static_cast<uint8_t>(Op::END); ) {
         uint8_t code = obj->codeAtIndex(i++);
-        if (code >= static_cast<uint8_t>(Op::PUSHI)) {
-            continue;
+        if (code < static_cast<uint8_t>(Op::PUSHI)) {
+            int count = (code & 0x03) + 1;
+            int nexti = i + count;
+            if (code == static_cast<uint8_t>(Op::PUSHSX)) {
+                nexti += intFromCode(obj, i, count);
+            }
+            
+            code &= 0xfc;
+            Op op = static_cast<Op>(code);
+            if (op == Op::JMP || op == Op::JT || op == Op::JF) {
+                int32_t addr = intFromCode(obj, i, count);
+                Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
+                annotations.push_back(annotation);
+            }
+            i = nexti;
         }
-        int count = (code & 0x03) + 1;
-        int nexti = i + count;
-        if (code == static_cast<uint8_t>(Op::PUSHSX)) {
-            nexti += intFromCode(obj, i, count);
-        }
-        
-        code &= 0xfc;
-        Op op = static_cast<Op>(code);
-        if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-            int32_t addr = intFromCode(obj, i, count);
-            Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
-            annotations.push_back(annotation);
-        }
-        i = nexti;
         if (i >= obj->codeSize()) {
             printf("WENT PAST THE END OF CODE\n");
             return outputString;

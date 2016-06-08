@@ -376,7 +376,7 @@ jump_statement
 	: K_CONTINUE ';'
 	| K_BREAK ';'
 	| K_RETURN ';' { parser->emitWithCount(m8r::Op::RET, 0); }
-	| K_RETURN argument_list ';' { parser->emitWithCount(m8r::Op::RET, $2); }
+	| K_RETURN expression ';' { parser->emitWithCount(m8r::Op::RET, 1); }
 	;
 
 function_declaration : K_FUNCTION T_IDENTIFIER function { parser->addNamedFunction($3, $2); }

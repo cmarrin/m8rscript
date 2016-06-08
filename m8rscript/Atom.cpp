@@ -54,8 +54,11 @@ Atom AtomTable::atomizeString(const char* s)
         p = strstr(p, s);
         assert(p != start); // Since the first string is preceded by a length, this should never happen
         if (p && p[-1] < 0) {
-            a._index = p - start - 1;
-            return a;
+            // The next char either needs to be negative (meaning the start of the next word) or the end of the string
+            if (p[len] <= 0) {
+                a._index = p - start - 1;
+                return a;
+            }
         }
     }
     
