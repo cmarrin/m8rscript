@@ -150,7 +150,7 @@ private:
 //
 //  Class: Vector
 //
-//  Wrapper String class that works on both Mac and ESP
+//  Wrapper Vector class that works on both Mac and ESP
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -186,6 +186,12 @@ public:
     void pop_back() { _size--; }
     
     size_t size() const { return _size; };
+    void resize(size_t size)
+    {
+        ensureCapacity(size);
+        _size = size;
+    }
+    
     const type& operator[](size_t i) const { assert(i >= 0 && i < _size); return _data[i]; };
     type& operator[](size_t i) { assert(i >= 0 && i < _size); return _data[i]; };
     
@@ -216,6 +222,58 @@ private:
     size_t _size;
     size_t _capacity;
     type *_data;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: Map
+//
+//  Wrapper Map class that works on both Mac and ESP
+//  Simle ordered array. Done this way to minimize space
+//
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename Key, typename Value>
+class Map {
+public:
+    typedef struct { Key key; Value value; } Pair;
+
+    Value* find(const Key& key)
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        return (result >= 0) ? &(_list[result].value) : nullptr;
+    }
+    Value* emplace(const Key& key, const Value& value)
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        if (result < 0) {
+            _list.resize(_list.size() + 1);
+            int sizeToMove = static_cast<int>(_list.size()) + result;
+            if (sizeToMove) {
+                memcpy(&_list[-result], &_list[-result - 1], sizeToMove);
+            }
+            _list[-result - 1] = { key, value };
+        }
+        return &(_list[-result - 1].value);
+    }
+    
+    Pair* begin() { return _list.size() ? &(_list[0]) : nullptr; }
+    const Pair* begin() const { return _list.size() ? &(_list[0]) : nullptr; }
+    Pair* end() { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
+    const Pair* end() const { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
+
+private:
+    int search(int first, int last, const Key& key)
+    {
+        if (first <= last) {
+            int mid = (first + last) / 2;
+            int result = key.compare(_list[mid].key);
+            return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
+        }
+        return -(first + 1);    // failed to find key
+    }
+    
+    Vector<Pair> _list;
 };
 
 }

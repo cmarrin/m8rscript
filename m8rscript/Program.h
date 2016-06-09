@@ -48,7 +48,7 @@ class ObjectId {
     
 public:
     uint32_t rawObjectId() const { return _id; }
-    bool operator<(const ObjectId& other) const { return _id < other._id; }
+    int compare(const ObjectId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
     
 private:
     uint32_t _id;
@@ -57,7 +57,7 @@ private:
 
 class Program {
 public:
-    typedef std::map<ObjectId, Object*> ObjectMap;
+    typedef Map<ObjectId, Object*> ObjectMap;
 
     Program() { _main = new Function(); }
     
@@ -76,8 +76,6 @@ public:
         return id;
     }
     const ObjectMap& objects() const { return _objects; }
-
-    
 
 private:
     AtomTable _atomTable;

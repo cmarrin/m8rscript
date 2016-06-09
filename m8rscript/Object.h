@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <map>
+#include "Containers.h"
 
 namespace m8r {
 
@@ -43,12 +43,10 @@ class Object;
 
 class Value {
 public:
-    enum class Type { Object };
+    enum class Type { None, Object };
 
-    Value(const Value& other)
-        : _value(other._value)
-        , _type(other._type)
-    { }
+    Value() : _value(nullptr), _type(Type::None) { }
+    Value(const Value& other) : _value(other._value), _type(other._type) { }
     
     Value(Object* obj)
         : _value(reinterpret_cast<void*>(obj))
@@ -65,7 +63,7 @@ private:
 
 class Object {
 public:
-    typedef std::map<Atom, Value> ValueMap;
+    typedef Map<Atom, Value> ValueMap;
     
     virtual ~Object() { }
 
@@ -76,7 +74,7 @@ public:
     virtual uint32_t codeSize() const { return 0; }
     virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
     virtual const ValueMap& values() const { return _values; }
-    virtual Value* value(const Atom& s) { return &(_values.find(s)->second); }
+    virtual Value* value(const Atom& s) { return _values.find(s); }
     virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
     
 private:

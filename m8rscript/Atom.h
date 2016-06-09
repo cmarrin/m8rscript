@@ -58,7 +58,7 @@ public:
     uint16_t rawAtom() const { return _index; }
     void set(uint16_t rawAtom) { _index = rawAtom; }
 
-    bool operator<(const Atom& other) const { return _index < other._index; }
+    int compare(const Atom& other) const { return static_cast<int>(_index) - static_cast<int>(other._index); }
 
 protected:
     uint16_t _index;

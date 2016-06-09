@@ -224,14 +224,14 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
 }
 #endif
 
-String ExecutionUnit::toString() const
+m8r::String ExecutionUnit::toString() const
 {
 #if SHOW_CODE
     String outputString;
     
 	for (const auto& object : _currentProgram->objects()) {
-        if (object.second->hasCode()) {
-            outputString += generateCodeString(_nestingLevel, ::toString(object.first.rawObjectId()).c_str(), object.second);
+        if (object.value->hasCode()) {
+            outputString += generateCodeString(_nestingLevel, ::toString(object.key.rawObjectId()).c_str(), object.value);
             outputString += "\n";
         }
 	}
@@ -328,8 +328,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     _nestingLevel++;
 
 	for (const auto& value : obj->values()) {
-        if (value.second.object() && value.second.object()->hasCode()) {
-            outputString += generateCodeString(_nestingLevel, "", value.second.object());
+        if (value.value.object() && value.value.object()->hasCode()) {
+            outputString += generateCodeString(_nestingLevel, "", value.value.object());
             outputString += "\n";
         }
 	}
