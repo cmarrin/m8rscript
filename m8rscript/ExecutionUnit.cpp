@@ -336,7 +336,15 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
-    for (int i = 0; obj->codeAtIndex(i) != static_cast<uint8_t>(Op::END); ) {
+    int i = 0;
+    for ( ; ; ) {
+        if (i >= obj->codeSize()) {
+            printf("WENT PAST THE END OF CODE\n");
+            return outputString;
+        }
+        if (obj->codeAtIndex(i) == static_cast<uint8_t>(Op::END)) {
+            break;
+        }
         uint8_t code = obj->codeAtIndex(i++);
         if (code < static_cast<uint8_t>(Op::PUSHI)) {
             int count = (code & 0x03) + 1;
@@ -354,13 +362,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             }
             i = nexti;
         }
-        if (i >= obj->codeSize()) {
-            printf("WENT PAST THE END OF CODE\n");
-            return outputString;
-        }
     }
     
-    int i = 0;
+    i = 0;
     m8r::String strValue;
     uint32_t uintValue;
     int32_t intValue;

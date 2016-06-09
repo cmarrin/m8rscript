@@ -110,6 +110,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %type <label>       iteration_start
 %type <function>    function
 
+%right '?' ':'
 %left O_LOR
 %left O_LAND
 %left '|'
@@ -122,10 +123,13 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %left '*' '/' '%'
 %left UNARY
 
-/*  we expect if..then..else to produce a shift/reduce conflict */
-%expect 1
+// We expect if..then..else to produce a shift/reduce conflict
+// and empty statement and empty object literal produce another
+// These both resolve correctly
+%expect 2
 %pure_parser
 //%debug
+//%verbose
 
 %lex-param { m8r::Parser* parser }
 %parse-param { m8r::Parser* parser }
@@ -153,6 +157,7 @@ primary_expression
 	| T_INTEGER { parser->emit($1); }
     | T_STRING { parser->emit($1); }
     | object_literal
+    | array_literal
 	| '(' expression ')'
 	;
 	
@@ -181,10 +186,11 @@ left_hand_side_expression
 	| call_expression
 	;
 
-postfix_expression
-	: left_hand_side_expression
-	| left_hand_side_expression O_INC { parser->emit(m8r::Op::POSTINC); }
+mutation_expression
+	: left_hand_side_expression O_INC { parser->emit(m8r::Op::POSTINC); }
 	| left_hand_side_expression O_DEC { parser->emit(m8r::Op::POSTDEC); }
+	| O_INC left_hand_side_expression { parser->emit(m8r::Op::PREINC); }
+	| O_DEC left_hand_side_expression { parser->emit(m8r::Op::PREDEC); }
     ;
 
 arguments
@@ -193,8 +199,8 @@ arguments
     ;
     
 argument_list
-	: assignment_expression { $$ = 1; }
-	| argument_list ',' assignment_expression { $$++; }
+	: expression { $$ = 1; }
+	| argument_list ',' expression { $$++; }
 	;
 
 unary_operator
@@ -202,13 +208,11 @@ unary_operator
 	| '-' { $$ = m8r::Op::UMINUS; }
 	| '~' { $$ = m8r::Op::UNEG; }
 	| '!' { $$ = m8r::Op::UNOT; }
-	| K_DELETE { $$ = m8r::Op::DEL; }
-	| O_INC { $$ = m8r::Op::PREINC; }
-	| O_DEC { $$ = m8r::Op::PREDEC; }
 	;
 
 arithmetic_expression
-	: postfix_expression
+	: mutation_expression
+    | left_hand_side_expression
     | unary_operator arithmetic_expression %prec UNARY { parser->emit($1); }
 	| arithmetic_expression '*' arithmetic_expression { parser->emit(m8r::Op::MUL); }
 	| arithmetic_expression '/' arithmetic_expression { parser->emit(m8r::Op::DIV); }
@@ -229,16 +233,12 @@ arithmetic_expression
 	| arithmetic_expression '|' arithmetic_expression { parser->emit(m8r::Op::OR); }
 	| arithmetic_expression O_LAND arithmetic_expression { parser->emit(m8r::Op::LAND); }
 	| arithmetic_expression O_LOR arithmetic_expression { parser->emit(m8r::Op::LOR); }
-	;
-
-conditional_expression
-	: arithmetic_expression
-	| arithmetic_expression '?' expression ':' conditional_expression
+	| arithmetic_expression '?' arithmetic_expression ':' arithmetic_expression
 	;
 
 assignment_expression
-	: conditional_expression
-	| postfix_expression assignment_operator assignment_expression { parser->emit($2); }
+	: mutation_expression assignment_operator arithmetic_expression { parser->emit($2); }
+	| mutation_expression assignment_operator assignment_expression { parser->emit($2); }
 	;
 
 assignment_operator
@@ -257,14 +257,10 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression
-	| expression ',' assignment_expression
-	;
+    : assignment_expression
+    | arithmetic_expression
+    ;
 
-declaration_statement
-	: K_VAR variable_declaration_list ';'
-	;
-	
 variable_declaration_list:
 		variable_declaration
     |	variable_declaration_list ',' variable_declaration
@@ -276,13 +272,17 @@ variable_declaration:
     ;
 
 initializer:
-    	'=' assignment_expression { parser->emit(m8r::Op::STO); }
+    	'=' expression { parser->emit(m8r::Op::STO); }
     ;
 
 statement
-	: compound_statement
-	| declaration_statement
-	| expression_statement
+	: ';'
+    | compound_statement
+	| K_VAR variable_declaration_list ';'
+    | K_DELETE left_hand_side_expression ';'
+    | call_expression ';'
+    | mutation_expression ';'
+    | assignment_expression ';'
 	| selection_statement
 	| switch_statement
 	| iteration_statement
@@ -299,11 +299,6 @@ statement_list
 	| statement_list statement
 	;
 
-expression_statement
-	: ';'
-	| expression ';'
-	;
-
 selection_statement
 	: K_IF '(' expression ')' statement
 	| K_IF '(' expression ')' statement K_ELSE statement
@@ -318,9 +313,9 @@ case_block:
 	|	'{' case_clauses_opt default_clause case_clauses_opt '}'
 	;
 
-case_clauses_opt:
-		case_clauses
-	|	/* empty */
+case_clauses_opt
+    : case_clauses
+	| /* empty */
 	;
 
 case_clauses:
@@ -338,10 +333,16 @@ default_clause:
 
 iteration_start: { $$ = parser->label(); } ;
 
+assignment_expression_list
+    : assignment_expression
+    | assignment_expression ',' assignment_expression
+    ;
+
 iteration_statement
 	: K_WHILE iteration_start '(' { parser->loopStart(false, $2); } expression ')' statement { parser->loopEnd($2); }
 	| K_DO iteration_start statement K_WHILE '(' expression ')' ';'
-	| K_FOR '(' expression_statement iteration_start expression_statement expression ')' statement
+	| K_FOR '(' assignment_expression_list ';' iteration_start expression ';' expression ')' statement
+	| K_FOR '(' K_VAR variable_declaration_list ';' iteration_start expression ';' expression ')' statement
 	;
 
 jump_statement
@@ -371,9 +372,13 @@ function_body
     | source_elements
     ;
 
-object_literal
+array_literal
     : '[' ']'
-	| '[' property_name_and_value_list ']'
+    | '[' argument_list ']'
+    ;
+
+object_literal
+    : '{' property_name_and_value_list '}'
     ;
 
 property_name_and_value_list
@@ -382,7 +387,8 @@ property_name_and_value_list
     ;
 
 property_assignment
-    : property_name ':' assignment_expression
+    : 
+    | property_name ':' expression
     ;
     
 property_name

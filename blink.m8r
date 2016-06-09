@@ -2,6 +2,9 @@
     This is a test program
 */
 
+var a = { b : 5+c };
+var b = [ 1, 2, 3 ];
+
 GPIO.pinMode(0x2, GPIO.OUTPUT);
 Serial.begin(9600);
 Serial.println("Started Blink");
