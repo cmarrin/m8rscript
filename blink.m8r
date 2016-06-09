@@ -29,13 +29,15 @@ function add(x)
 	};
 }
 
-add2 = add(2);
-print(add2(5));
+var a = b * c + d * e;
 
-function multi(x)
-{
-	return { x + 3, x * 4, x / 5 };
-}
-
-a = multi(4);
-Serial.println("a=" + a);
+// add2 = add(2);
+// print(add2(5));
+// 
+// function multi(x)
+// {
+//  return { x + 3, x * 4, x / 5 };
+// }
+// 
+// a = multi(4);
+// Serial.println("a=" + a);

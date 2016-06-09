@@ -83,7 +83,8 @@
      O_EQ = 85,
      O_NE = 86,
      E_ERROR = 191,
-     C_EOF = 255
+     C_EOF = 255,
+     UNARY = 258
    };
 #endif
 /* Tokens.  */
@@ -132,6 +133,7 @@
 #define O_NE 86
 #define E_ERROR 191
 #define C_EOF 255
+#define UNARY 258
 
 
 
@@ -150,7 +152,7 @@ typedef union YYSTYPE
     uint32_t            argcount;
 }
 /* Line 1529 of yacc.c.  */
-#line 154 "parse.tab.h"
+#line 156 "parse.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -110,6 +110,18 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %type <label>       iteration_start
 %type <function>    function
 
+%left O_LOR
+%left O_LAND
+%left '|'
+%left '^'
+%left '&'
+%left O_EQ O_NE
+%left '<' '>' O_LE O_GE
+%left O_LSHIFT O_RSHIFT O_RSHIFTFILL
+%left '+' '-'
+%left '*' '/' '%'
+%left UNARY
+
 /*  we expect if..then..else to produce a shift/reduce conflict */
 %expect 1
 %pure_parser
@@ -185,11 +197,6 @@ argument_list
 	| argument_list ',' assignment_expression { $$++; }
 	;
 
-unary_expression
-	: postfix_expression
-	| unary_operator unary_expression { parser->emit($1); }
-	;
-
 unary_operator
 	: '+' { $$ = m8r::Op::UPLUS; }
 	| '-' { $$ = m8r::Op::UMINUS; }
@@ -200,73 +207,38 @@ unary_operator
 	| O_DEC { $$ = m8r::Op::PREDEC; }
 	;
 
-multiplicative_expression
-	: unary_expression
-	| multiplicative_expression '*' unary_expression { parser->emit(m8r::Op::MUL); }
-	| multiplicative_expression '/' unary_expression { parser->emit(m8r::Op::DIV); }
-	| multiplicative_expression '%' unary_expression { parser->emit(m8r::Op::MOD); }
-	;
-
-additive_expression
-	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression { parser->emit(m8r::Op::ADD); }
-	| additive_expression '-' multiplicative_expression { parser->emit(m8r::Op::SUB); }
-	;
-
-shift_expression
-	: additive_expression
-	| shift_expression O_LSHIFT additive_expression { parser->emit(m8r::Op::SHL); }
-	| shift_expression O_RSHIFT additive_expression { parser->emit(m8r::Op::SHR); }
-	| shift_expression O_RSHIFTFILL additive_expression { parser->emit(m8r::Op::SAR); }
-	;
-
-relational_expression
-	: shift_expression
-	| relational_expression '<' shift_expression { parser->emit(m8r::Op::LT); }
-	| relational_expression '>' shift_expression { parser->emit(m8r::Op::GT); }
-	| relational_expression O_LE shift_expression { parser->emit(m8r::Op::LE); }
-	| relational_expression O_GE shift_expression { parser->emit(m8r::Op::GE); }
-	;
-
-equality_expression
-	: relational_expression
-	| equality_expression O_EQ relational_expression { parser->emit(m8r::Op::EQ); }
-	| equality_expression O_NE relational_expression { parser->emit(m8r::Op::NE); }
-	;
-
-and_expression
-	: equality_expression
-	| and_expression '&' equality_expression { parser->emit(m8r::Op::AND); }
-	;
-
-exclusive_or_expression
-	: and_expression
-	| exclusive_or_expression '^' and_expression { parser->emit(m8r::Op::XOR); }
-	;
-
-inclusive_or_expression
-	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression { parser->emit(m8r::Op::OR); }
-	;
-
-logical_and_expression
-	: inclusive_or_expression
-	| logical_and_expression O_LAND inclusive_or_expression { parser->emit(m8r::Op::LAND); }
-	;
-
-logical_or_expression
-	: logical_and_expression
-	| logical_or_expression O_LOR logical_and_expression { parser->emit(m8r::Op::LOR); }
+arithmetic_expression
+	: postfix_expression
+    | unary_operator arithmetic_expression %prec UNARY { parser->emit($1); }
+	| arithmetic_expression '*' arithmetic_expression { parser->emit(m8r::Op::MUL); }
+	| arithmetic_expression '/' arithmetic_expression { parser->emit(m8r::Op::DIV); }
+	| arithmetic_expression '%' arithmetic_expression { parser->emit(m8r::Op::MOD); }
+	| arithmetic_expression '+' arithmetic_expression { parser->emit(m8r::Op::ADD); }
+	| arithmetic_expression '-' arithmetic_expression { parser->emit(m8r::Op::SUB); }
+	| arithmetic_expression O_LSHIFT arithmetic_expression { parser->emit(m8r::Op::SHL); }
+	| arithmetic_expression O_RSHIFT arithmetic_expression { parser->emit(m8r::Op::SHR); }
+	| arithmetic_expression O_RSHIFTFILL arithmetic_expression { parser->emit(m8r::Op::SAR); }
+	| arithmetic_expression '<' arithmetic_expression { parser->emit(m8r::Op::LT); }
+	| arithmetic_expression '>' arithmetic_expression { parser->emit(m8r::Op::GT); }
+	| arithmetic_expression O_LE arithmetic_expression { parser->emit(m8r::Op::LE); }
+	| arithmetic_expression O_GE arithmetic_expression { parser->emit(m8r::Op::GE); }
+	| arithmetic_expression O_EQ arithmetic_expression { parser->emit(m8r::Op::EQ); }
+	| arithmetic_expression O_NE arithmetic_expression { parser->emit(m8r::Op::NE); }
+	| arithmetic_expression '&' arithmetic_expression { parser->emit(m8r::Op::AND); }
+	| arithmetic_expression '^' arithmetic_expression { parser->emit(m8r::Op::XOR); }
+	| arithmetic_expression '|' arithmetic_expression { parser->emit(m8r::Op::OR); }
+	| arithmetic_expression O_LAND arithmetic_expression { parser->emit(m8r::Op::LAND); }
+	| arithmetic_expression O_LOR arithmetic_expression { parser->emit(m8r::Op::LOR); }
 	;
 
 conditional_expression
-	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	: arithmetic_expression
+	| arithmetic_expression '?' expression ':' conditional_expression
 	;
 
 assignment_expression
 	: conditional_expression
-	| unary_expression assignment_operator assignment_expression { parser->emit($2); }
+	| postfix_expression assignment_operator assignment_expression { parser->emit($2); }
 	;
 
 assignment_operator
