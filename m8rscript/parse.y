@@ -268,8 +268,8 @@ variable_declaration_list:
     ;
 
 variable_declaration:
-    	identifier { parser->emit(m8r::Op::NEWID); }
-    |	identifier { parser->emit(m8r::Op::NEWID); } initializer
+    	T_IDENTIFIER { parser->addVar($1); }
+    |	T_IDENTIFIER { parser->addVar($1); parser->emit($1); } initializer
     ;
 
 initializer:
@@ -365,7 +365,10 @@ formal_parameter_list
     
 function
     :   '(' { parser->functionStart(); } 
-        formal_parameter_list ')' '{' function_body '}' { parser->emit(m8r::Op::END); $$ = parser->functionEnd(); }
+        formal_parameter_list
+            { parser->functionParamsEnd(); } 
+        ')' '{' function_body '}'
+            { parser->emit(m8r::Op::END); $$ = parser->functionEnd(); }
     ;
     
 function_body

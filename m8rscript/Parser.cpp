@@ -73,7 +73,7 @@ void Parser::loopEnd(Label& label)
 
 void Parser::functionAddParam(const Atom& atom)
 {
-    if (!_currentFunction->addParam(atom)) {
+    if (!_currentFunction->addLocal(atom)) {
         String s = "param '";
         s += _program->stringFromAtom(atom);
         s += "' already exists";
@@ -86,6 +86,11 @@ void Parser::functionStart()
     _functions.push_back(_currentFunction);
     _currentFunction = new Function();
     _eu.setFunction(_currentFunction);
+}
+
+void Parser::functionParamsEnd()
+{
+    _currentFunction->markParamEnd();
 }
 
 Function* Parser::functionEnd()

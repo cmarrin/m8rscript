@@ -99,7 +99,8 @@ enum class Op {
     MUL = 0xA0, DIV = 0xA1, MOD = 0xA2,
     PREINC = 0xB0, PREDEC = 0xB1, POSTINC = 0xB2, POSTDEC = 0xB3, UPLUS = 0xB4, UMINUS = 0xB5, UNOT = 0xB6, UNEG = 0xB7,
 
-    DEREF = 0xC0, NEWID = 0xC1, DEL = 0xC2, END = 0xC3,
+    DEREF = 0xC0, DEL = 0xC1, END = 0xC2,
+    POP = 0xD0, 
 };
 
 struct Label {
@@ -123,7 +124,7 @@ public:
     
     Label label();
     
-    void addParam(const Atom& atom) { _currentFunction->addParam(atom); }
+    void addLocal(const Atom& atom) { _currentFunction->addLocal(atom); }
     
     void addString(StringId s);
     void addCode(uint32_t);

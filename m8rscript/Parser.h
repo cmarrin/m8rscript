@@ -80,6 +80,7 @@ public:
     
     void functionAddParam(const Atom& atom);
     void functionStart();
+    void functionParamsEnd();
     Function* functionEnd();
     void programEnd();
         
@@ -92,6 +93,7 @@ public:
     void addNamedFunction(Function* value, const Atom& name) { _eu.addNamedFunction(value, name); }
     void setFunction(Function* value) { _eu.setFunction(value); }
     void emitWithCount(Op value, uint32_t count) { _eu.addCodeWithCount(value, count); }
+    void addVar(const Atom& value) { _currentFunction->addLocal(value); }
 
 private:
     Scanner _scanner;

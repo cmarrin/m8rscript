@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool Function::addParam(const Atom& atom)
+bool Function::addLocal(const Atom& atom)
 {
     for (auto pair : _locals) {
         if (pair.key == atom) {
