@@ -69,8 +69,8 @@ public:
 	void printError(const char* s);
     uint32_t nerrors() const { return _scanner.nerrors(); }
     
-    void stringFromAtom(String& s, const Atom& atom) const { _program->stringFromAtom(s, atom); }
-    void stringFromRawAtom(String& s, uint16_t rawAtom) const { _program->stringFromRawAtom(s, rawAtom); }
+    String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
+    String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _program->atomizeString(s); }
     StringId addString(const char* s) { return _program->addString(s); }
     
@@ -78,7 +78,7 @@ public:
     void loopStart(bool cond, Label&);
     void loopEnd(Label&);
     
-    void functionAddParam(const Atom& atom) { _currentFunction->addParam(atom); }
+    void functionAddParam(const Atom& atom);
     void functionStart();
     Function* functionEnd();
     void programEnd();

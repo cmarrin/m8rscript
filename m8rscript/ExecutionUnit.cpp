@@ -452,7 +452,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         name += ">";
     }
     else if (obj->name() && obj->name()->valid()) {
-        _parser->stringFromAtom(name, *obj->name());
+        name = _parser->stringFromAtom(*obj->name());
     }
     
     indentCode(outputString);
@@ -514,7 +514,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        _parser->stringFromRawAtom(strValue, uintFromCode(obj, i, 2));
+        strValue = _parser->stringFromRawAtom(uintFromCode(obj, i, 2));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();

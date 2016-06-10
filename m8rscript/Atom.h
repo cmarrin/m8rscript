@@ -60,6 +60,7 @@ public:
     static Atom atomFromRawAtom(uint16_t rawAtom) { Atom a; a._index = rawAtom; return a; }
 
     int compare(const Atom& other) const { return static_cast<int>(_index) - static_cast<int>(other._index); }
+    bool operator==(const Atom& other) const { return _index == other._index; }
 
 protected:
     uint16_t _index;
@@ -78,8 +79,8 @@ protected:
 class AtomTable {
 public:
     Atom atomizeString(const char*);
-    void stringFromAtom(String& s, const Atom& atom) const { stringFromRawAtom(s, atom._index); }
-    void stringFromRawAtom(String& s, uint16_t rawAtom) const { s.set(&(_table[rawAtom + 1]), -_table[rawAtom]); }
+    String stringFromAtom(Atom atom) const { return stringFromRawAtom(atom._index); }
+    String stringFromRawAtom(uint16_t rawAtom) const { return String(&(_table[rawAtom + 1]), -_table[rawAtom]); }
 
 private:
     String _table;

@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <ctime>
 
 #include "Stream.h"
 #include "Parser.h"
@@ -38,8 +39,18 @@ int main(int argc, const char* argv[])
     }
     
     std::cout << "Parsing...\n";
+    
+    std::clock_t startTime = std::clock();
     m8r::Parser parser(&istream);
+    std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n";
+
+    startTime = std::clock();
     printf("%s", parser.toString().c_str());
+    std::clock_t printTime = std::clock() - startTime;
+    
+    std::cout << "Parse took " << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us" <<
+        ", print took " << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+    
     return 0;
 }

@@ -70,6 +70,16 @@ void Parser::loopEnd(Label& label)
     _eu.addJumpAndFixup(label);
 }
 
+void Parser::functionAddParam(const Atom& atom)
+{
+    if (!_currentFunction->addParam(atom)) {
+        String s = "param '";
+        s += _program->stringFromAtom(atom);
+        s += "' already exists";
+        printError(s.c_str());
+    }
+}
+
 void Parser::functionStart()
 {
     _functions.push_back(_currentFunction);

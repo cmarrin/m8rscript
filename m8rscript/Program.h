@@ -64,8 +64,8 @@ public:
     
     Function* main() { return _main; }
     
-    void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
-    void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
+    String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
+    String stringFromRawAtom(uint16_t rawAtom) const { return _atomTable.stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     StringId addString(const char* s)
     {

@@ -35,27 +35,35 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Atom.h"
 #include "Containers.h"
 #include "Value.h"
 
 namespace m8r {
 
-class Object {
-public:
-    virtual ~Object() { }
+class Object;
 
-    virtual const Atom* name() const { return nullptr; }
+class Value {
+public:
+    typedef Map<Atom, Value> Map;
+    enum class Type { None, Object, Float, Integer, String };
+
+    Value() : _value(nullptr), _type(Type::None) { }
+    Value(const Value& other) : _value(other._value), _type(other._type) { }
     
-    virtual bool hasCode() const { return false; }
-    virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
-    virtual uint32_t codeSize() const { return 0; }
-    virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
-    virtual const Value::Map& values() const { return _values; }
-    virtual Value* value(const Atom& s) { return _values.find(s); }
-    virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
+    Value(Object* obj) : _value(reinterpret_cast<void*>(obj)) , _type(Type::Object) { }
+    Value(float value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Float) { }
+    Value(int32_t value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Integer) { }
+    Value(StringId value) : _value(reinterpret_cast<void*>(value.rawStringId())) , _type(Type::String) { }
     
+    ~Value();
+    
+    Type type() const { return _type; }
+    Object* object() const { return (_type == Type::Object) ? reinterpret_cast<Object*>(_value) : nullptr; }
+
 private:
-    Value::Map _values;
+    void* _value;
+    Type _type;
 };
-    
+
 }

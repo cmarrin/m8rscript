@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer.
-    
+	  this list of conditions and the following disclaimer.
+	  
     - Redistributions in binary form must reproduce the above copyright 
-    notice, this list of conditions and the following disclaimer in the 
-    documentation and/or other materials provided with the distribution.
-    
+	  notice, this list of conditions and the following disclaimer in the 
+	  documentation and/or other materials provided with the distribution.
+	  
     - Neither the name of the <ORGANIZATION> nor the names of its 
-    contributors may be used to endorse or promote products derived from 
-    this software without specific prior written permission.
-    
+	  contributors may be used to endorse or promote products derived from 
+	  this software without specific prior written permission.
+	  
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -33,29 +33,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#pragma once
+#include "Function.h"
 
-#include "Containers.h"
-#include "Value.h"
+using namespace m8r;
 
-namespace m8r {
-
-class Object {
-public:
-    virtual ~Object() { }
-
-    virtual const Atom* name() const { return nullptr; }
-    
-    virtual bool hasCode() const { return false; }
-    virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
-    virtual uint32_t codeSize() const { return 0; }
-    virtual String stringFromCode(uint32_t index, uint32_t len) const { return String(); }
-    virtual const Value::Map& values() const { return _values; }
-    virtual Value* value(const Atom& s) { return _values.find(s); }
-    virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
-    
-private:
-    Value::Map _values;
-};
-    
+bool Function::addParam(const Atom& atom)
+{
+    for (auto pair : _locals) {
+        if (pair.key == atom) {
+            return false;
+        }
+    }
+    _locals.push_back({ atom, Value() });
+    return true;
 }

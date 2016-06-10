@@ -57,7 +57,7 @@ public:
     }
 
     void setName(const Atom& atom) { _name = atom; }
-    void addParam(const Atom& atom) { _params.push_back(atom); }
+    bool addParam(const Atom& atom);
     
     void addCode(uint8_t c) { _code.push_back(c); }
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
@@ -76,9 +76,9 @@ public:
     }
     
 private:
-    Vector<Atom> _params;
     Vector<uint8_t> _code;
 	Atom _name;
+    Vector<Value::Map::Pair> _locals;
 };
     
 }
