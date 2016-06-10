@@ -115,6 +115,8 @@ public:
         , _currentProgram(program)
     { }
     
+    void run();
+    
     String toString() const;
 
     void setFunction(Function* function) { _currentFunction = function; }
@@ -138,6 +140,7 @@ public:
     void addJumpAndFixup(Label&);
     
 private:
+    Value valueFromId(Atom, Object*);
     String generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const;
 
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
@@ -171,6 +174,12 @@ private:
         return value;
     }
     
+    float floatFromCode(Object* obj, uint32_t index) const
+    {
+        uint32_t i = uintFromCode(obj, index, 4);
+        return *reinterpret_cast<float*>(&i);
+    }
+    
 #if SHOW_CODE
     struct Annotation {
         uint32_t addr;
@@ -192,6 +201,7 @@ private:
     Function* _currentFunction;
     Program* _currentProgram;
     uint32_t _id = _nextID++;
+    Vector<Value> _stack;
 };
     
 }

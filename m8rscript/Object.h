@@ -39,19 +39,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class Value;
 class Object;
+
+typedef Map<Atom, Value> ValueMap;
 
 class Value {
 public:
-    enum class Type { None, Object };
+    enum class Type { None, Object, Float, Integer, String };
 
     Value() : _value(nullptr), _type(Type::None) { }
     Value(const Value& other) : _value(other._value), _type(other._type) { }
     
-    Value(Object* obj)
-        : _value(reinterpret_cast<void*>(obj))
-        , _type(Type::Object)
-    { }
+    Value(Object* obj) : _value(reinterpret_cast<void*>(obj)) , _type(Type::Object) { }
+    Value(float value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Float) { }
+    Value(int32_t value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Integer) { }
+    Value(const char* value) : _value(reinterpret_cast<void*>(const_cast<char*>(value))) , _type(Type::String) { }
     
     Type type() const { return _type; }
     Object* object() const { return (_type == Type::Object) ? reinterpret_cast<Object*>(_value) : nullptr; }
@@ -63,8 +66,6 @@ private:
 
 class Object {
 public:
-    typedef Map<Atom, Value> ValueMap;
-    
     virtual ~Object() { }
 
     virtual const Atom* name() const { return nullptr; }

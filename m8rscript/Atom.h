@@ -57,6 +57,7 @@ public:
     bool valid() const { return _index != NoAtom; }
     uint16_t rawAtom() const { return _index; }
     void set(uint16_t rawAtom) { _index = rawAtom; }
+    static Atom atomFromRawAtom(uint16_t rawAtom) { Atom a; a._index = rawAtom; return a; }
 
     int compare(const Atom& other) const { return static_cast<int>(_index) - static_cast<int>(other._index); }
 
