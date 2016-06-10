@@ -42,6 +42,23 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class StringId {
+    friend class Program;
+    
+public:
+    uint32_t rawStringId() const { return _id; }
+    static StringId stringIdFromRawStringId(uint32_t id)
+    {
+        StringId s;
+        s._id = id;
+        return s;
+    }
+    int compare(const StringId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
+    
+private:
+    uint32_t _id;
+};
+    
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: String

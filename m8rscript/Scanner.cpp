@@ -424,7 +424,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 			case '\"':
 			case '\'':
 				token = scanString(c);
-                tokenValue->string = strdup(_tokenString.c_str());
+                tokenValue->string = _parser->addString(_tokenString.c_str());
                 _tokenString.clear();
 				break;
 

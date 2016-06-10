@@ -50,25 +50,10 @@ Label ExecutionUnit::label()
     return label;
 }
     
-void ExecutionUnit::addCode(const char* s)
+void ExecutionUnit::addString(StringId s)
 {
-    uint32_t len = static_cast<uint32_t>(strlen(s)) + 1;
-    if (len < 256) {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX));
-        _currentFunction->addCode(len);
-    } else {
-        assert(len < 65536);
-        if (len > 65535) {
-            len = 65535;
-        }
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX) | 1);
-        _currentFunction->addCode(Function::byteFromInt(len, 1));
-        _currentFunction->addCode(Function::byteFromInt(len, 0));
-    }
-    for (const char* p = s; *p != '\0'; ++p) {
-        _currentFunction->addCode(*p);
-    }
-    _currentFunction->addCode('\0');
+    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX));
+    _currentFunction->addCodeInt(s.rawStringId(), 4);
 }
 
 void ExecutionUnit::addCode(uint32_t value)
@@ -285,7 +270,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         size = (static_cast<uint8_t>(op) & 0x0f) + 1;
         uintValue = uintFromCode(obj, i, size);
         i += size;
-        //_stack.push_back(Value(reinterpret_cast<const char*>(&(obj->codeAtIndex(i++)))));
+        _stack.push_back(Value(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++))));
         i += uintValue;
         DISPATCH;
     L_PUSHO:
@@ -559,13 +544,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHSX:
         preamble(outputString, i - 1);
-        size = (static_cast<uint8_t>(op) & 0x0f) + 1;
-        uintValue = uintFromCode(obj, i, size);
-        i += size;
+        uintValue = uintFromCode(obj, i, 4);
+        i += 4;
         outputString += "STR(\"";
-        outputString += obj->stringFromCode(i, uintValue);
+        outputString += _currentProgram->stringFromId(StringId::stringIdFromRawStringId(uintValue));
         outputString += "\")\n";
-        i += uintValue;
         DISPATCH;
     L_PUSHO:
         preamble(outputString, i - 1);

@@ -54,7 +54,7 @@ public:
     Value(Object* obj) : _value(reinterpret_cast<void*>(obj)) , _type(Type::Object) { }
     Value(float value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Float) { }
     Value(int32_t value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Integer) { }
-    Value(const char* value) : _value(reinterpret_cast<void*>(const_cast<char*>(value))) , _type(Type::String) { }
+    Value(StringId value) : _value(reinterpret_cast<void*>(value.rawStringId())) , _type(Type::String) { }
     
     Type type() const { return _type; }
     Object* object() const { return (_type == Type::Object) ? reinterpret_cast<Object*>(_value) : nullptr; }

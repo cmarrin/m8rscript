@@ -170,6 +170,7 @@
 
 #include "Atom.h"
 #include "Function.h"
+#include "Program.h"
 #include "Parser.h"
 
 #define YYERROR_VERBOSE
@@ -207,19 +208,19 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 93 "parse.y"
+#line 94 "parse.y"
 {
     m8r::Op             op;
     m8r::Label          label;
     m8r::Function*      function;
-    const char*         string;
+    m8r::StringId         string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;
     uint32_t            argcount;
 }
 /* Line 193 of yacc.c.  */
-#line 223 "parse.tab.cpp"
+#line 224 "parse.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -232,7 +233,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 236 "parse.tab.cpp"
+#line 237 "parse.tab.cpp"
 
 #ifdef short
 # undef short
@@ -572,21 +573,21 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   141,   141,   145,   146,   150,   151,   155,   156,   157,
-     158,   159,   160,   161,   165,   166,   167,   168,   169,   173,
-     174,   178,   179,   180,   181,   185,   186,   190,   191,   192,
-     193,   197,   198,   202,   203,   207,   208,   209,   210,   214,
-     215,   216,   217,   218,   219,   220,   221,   222,   223,   224,
-     225,   226,   227,   228,   229,   230,   231,   232,   233,   234,
-     235,   236,   240,   241,   245,   246,   247,   248,   249,   250,
-     251,   252,   253,   254,   255,   256,   260,   261,   265,   266,
-     270,   271,   271,   275,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   293,   294,   298,   299,   303,
-     304,   308,   312,   313,   317,   318,   322,   323,   327,   331,
-     334,   337,   338,   342,   342,   343,   344,   345,   349,   350,
-     351,   352,   355,   357,   359,   361,   362,   366,   366,   370,
-     372,   376,   377,   381,   385,   386,   389,   391,   395,   396,
-     397,   398,   402
+       0,   142,   142,   146,   147,   151,   152,   156,   157,   158,
+     159,   160,   161,   162,   166,   167,   168,   169,   170,   174,
+     175,   179,   180,   181,   182,   186,   187,   191,   192,   193,
+     194,   198,   199,   203,   204,   208,   209,   210,   211,   215,
+     216,   217,   218,   219,   220,   221,   222,   223,   224,   225,
+     226,   227,   228,   229,   230,   231,   232,   233,   234,   235,
+     236,   237,   241,   242,   246,   247,   248,   249,   250,   251,
+     252,   253,   254,   255,   256,   257,   261,   262,   266,   267,
+     271,   272,   272,   276,   280,   281,   282,   283,   284,   285,
+     286,   287,   288,   289,   290,   294,   295,   299,   300,   304,
+     305,   309,   313,   314,   318,   319,   323,   324,   328,   332,
+     335,   338,   339,   343,   343,   344,   345,   346,   350,   351,
+     352,   353,   356,   358,   360,   362,   363,   367,   367,   371,
+     373,   377,   378,   382,   386,   387,   390,   392,   396,   397,
+     398,   399,   403
 };
 #endif
 
@@ -1803,368 +1804,368 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 141 "parse.y"
+#line 142 "parse.y"
     { parser->programEnd(); ;}
     break;
 
   case 8:
-#line 156 "parse.y"
+#line 157 "parse.y"
     { parser->emit((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 9:
-#line 157 "parse.y"
+#line 158 "parse.y"
     { parser->emit((yyvsp[(1) - (1)].integer)); ;}
     break;
 
   case 10:
-#line 158 "parse.y"
-    { parser->emit((yyvsp[(1) - (1)].string)); ;}
+#line 159 "parse.y"
+    { parser->emitString((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 17:
-#line 168 "parse.y"
+#line 169 "parse.y"
     { parser->emit(m8r::Op::DEREF); ;}
     break;
 
   case 18:
-#line 169 "parse.y"
+#line 170 "parse.y"
     { parser->emitWithCount(m8r::Op::NEW, (yyvsp[(3) - (3)].argcount)); ;}
     break;
 
   case 21:
-#line 178 "parse.y"
-    { parser->emitWithCount(m8r::Op::CALL, (yyvsp[(2) - (2)].argcount)); ;}
-    break;
-
-  case 22:
 #line 179 "parse.y"
     { parser->emitWithCount(m8r::Op::CALL, (yyvsp[(2) - (2)].argcount)); ;}
     break;
 
+  case 22:
+#line 180 "parse.y"
+    { parser->emitWithCount(m8r::Op::CALL, (yyvsp[(2) - (2)].argcount)); ;}
+    break;
+
   case 24:
-#line 181 "parse.y"
+#line 182 "parse.y"
     { parser->emit(m8r::Op::DEREF); ;}
     break;
 
   case 27:
-#line 190 "parse.y"
+#line 191 "parse.y"
     { parser->emit(m8r::Op::POSTINC); ;}
     break;
 
   case 28:
-#line 191 "parse.y"
+#line 192 "parse.y"
     { parser->emit(m8r::Op::POSTDEC); ;}
     break;
 
   case 29:
-#line 192 "parse.y"
+#line 193 "parse.y"
     { parser->emit(m8r::Op::PREINC); ;}
     break;
 
   case 30:
-#line 193 "parse.y"
+#line 194 "parse.y"
     { parser->emit(m8r::Op::PREDEC); ;}
     break;
 
   case 31:
-#line 197 "parse.y"
+#line 198 "parse.y"
     { (yyval.argcount) = 0; ;}
     break;
 
   case 32:
-#line 198 "parse.y"
+#line 199 "parse.y"
     { (yyval.argcount) = (yyvsp[(2) - (3)].argcount); ;}
     break;
 
   case 33:
-#line 202 "parse.y"
+#line 203 "parse.y"
     { (yyval.argcount) = 1; ;}
     break;
 
   case 34:
-#line 203 "parse.y"
+#line 204 "parse.y"
     { (yyval.argcount)++; ;}
     break;
 
   case 35:
-#line 207 "parse.y"
+#line 208 "parse.y"
     { (yyval.op) = m8r::Op::UPLUS; ;}
     break;
 
   case 36:
-#line 208 "parse.y"
+#line 209 "parse.y"
     { (yyval.op) = m8r::Op::UMINUS; ;}
     break;
 
   case 37:
-#line 209 "parse.y"
+#line 210 "parse.y"
     { (yyval.op) = m8r::Op::UNEG; ;}
     break;
 
   case 38:
-#line 210 "parse.y"
+#line 211 "parse.y"
     { (yyval.op) = m8r::Op::UNOT; ;}
     break;
 
   case 41:
-#line 216 "parse.y"
+#line 217 "parse.y"
     { parser->emit((yyvsp[(1) - (2)].op)); ;}
     break;
 
   case 42:
-#line 217 "parse.y"
+#line 218 "parse.y"
     { parser->emit(m8r::Op::MUL); ;}
     break;
 
   case 43:
-#line 218 "parse.y"
+#line 219 "parse.y"
     { parser->emit(m8r::Op::DIV); ;}
     break;
 
   case 44:
-#line 219 "parse.y"
+#line 220 "parse.y"
     { parser->emit(m8r::Op::MOD); ;}
     break;
 
   case 45:
-#line 220 "parse.y"
+#line 221 "parse.y"
     { parser->emit(m8r::Op::ADD); ;}
     break;
 
   case 46:
-#line 221 "parse.y"
+#line 222 "parse.y"
     { parser->emit(m8r::Op::SUB); ;}
     break;
 
   case 47:
-#line 222 "parse.y"
+#line 223 "parse.y"
     { parser->emit(m8r::Op::SHL); ;}
     break;
 
   case 48:
-#line 223 "parse.y"
+#line 224 "parse.y"
     { parser->emit(m8r::Op::SHR); ;}
     break;
 
   case 49:
-#line 224 "parse.y"
+#line 225 "parse.y"
     { parser->emit(m8r::Op::SAR); ;}
     break;
 
   case 50:
-#line 225 "parse.y"
+#line 226 "parse.y"
     { parser->emit(m8r::Op::LT); ;}
     break;
 
   case 51:
-#line 226 "parse.y"
+#line 227 "parse.y"
     { parser->emit(m8r::Op::GT); ;}
     break;
 
   case 52:
-#line 227 "parse.y"
+#line 228 "parse.y"
     { parser->emit(m8r::Op::LE); ;}
     break;
 
   case 53:
-#line 228 "parse.y"
+#line 229 "parse.y"
     { parser->emit(m8r::Op::GE); ;}
     break;
 
   case 54:
-#line 229 "parse.y"
+#line 230 "parse.y"
     { parser->emit(m8r::Op::EQ); ;}
     break;
 
   case 55:
-#line 230 "parse.y"
+#line 231 "parse.y"
     { parser->emit(m8r::Op::NE); ;}
     break;
 
   case 56:
-#line 231 "parse.y"
+#line 232 "parse.y"
     { parser->emit(m8r::Op::AND); ;}
     break;
 
   case 57:
-#line 232 "parse.y"
+#line 233 "parse.y"
     { parser->emit(m8r::Op::XOR); ;}
     break;
 
   case 58:
-#line 233 "parse.y"
+#line 234 "parse.y"
     { parser->emit(m8r::Op::OR); ;}
     break;
 
   case 59:
-#line 234 "parse.y"
+#line 235 "parse.y"
     { parser->emit(m8r::Op::LAND); ;}
     break;
 
   case 60:
-#line 235 "parse.y"
+#line 236 "parse.y"
     { parser->emit(m8r::Op::LOR); ;}
     break;
 
   case 62:
-#line 240 "parse.y"
-    { parser->emit((yyvsp[(2) - (3)].op)); ;}
-    break;
-
-  case 63:
 #line 241 "parse.y"
     { parser->emit((yyvsp[(2) - (3)].op)); ;}
     break;
 
+  case 63:
+#line 242 "parse.y"
+    { parser->emit((yyvsp[(2) - (3)].op)); ;}
+    break;
+
   case 64:
-#line 245 "parse.y"
+#line 246 "parse.y"
     { (yyval.op) = m8r::Op::STO; ;}
     break;
 
   case 65:
-#line 246 "parse.y"
+#line 247 "parse.y"
     { (yyval.op) = m8r::Op::STOMUL; ;}
     break;
 
   case 66:
-#line 247 "parse.y"
+#line 248 "parse.y"
     { (yyval.op) = m8r::Op::STODIV; ;}
     break;
 
   case 67:
-#line 248 "parse.y"
+#line 249 "parse.y"
     { (yyval.op) = m8r::Op::STOMOD; ;}
     break;
 
   case 68:
-#line 249 "parse.y"
+#line 250 "parse.y"
     { (yyval.op) = m8r::Op::STOADD; ;}
     break;
 
   case 69:
-#line 250 "parse.y"
+#line 251 "parse.y"
     { (yyval.op) = m8r::Op::STOSUB; ;}
     break;
 
   case 70:
-#line 251 "parse.y"
+#line 252 "parse.y"
     { (yyval.op) = m8r::Op::STOSHL; ;}
     break;
 
   case 71:
-#line 252 "parse.y"
+#line 253 "parse.y"
     { (yyval.op) = m8r::Op::STOSHR; ;}
     break;
 
   case 72:
-#line 253 "parse.y"
+#line 254 "parse.y"
     { (yyval.op) = m8r::Op::STOSAR; ;}
     break;
 
   case 73:
-#line 254 "parse.y"
+#line 255 "parse.y"
     { (yyval.op) = m8r::Op::STOAND; ;}
     break;
 
   case 74:
-#line 255 "parse.y"
+#line 256 "parse.y"
     { (yyval.op) = m8r::Op::STOXOR; ;}
     break;
 
   case 75:
-#line 256 "parse.y"
+#line 257 "parse.y"
     { (yyval.op) = m8r::Op::STOOR; ;}
     break;
 
   case 80:
-#line 270 "parse.y"
-    { parser->emit(m8r::Op::NEWID); ;}
-    break;
-
-  case 81:
 #line 271 "parse.y"
     { parser->emit(m8r::Op::NEWID); ;}
     break;
 
+  case 81:
+#line 272 "parse.y"
+    { parser->emit(m8r::Op::NEWID); ;}
+    break;
+
   case 83:
-#line 275 "parse.y"
+#line 276 "parse.y"
     { parser->emit(m8r::Op::STO); ;}
     break;
 
   case 110:
-#line 334 "parse.y"
+#line 335 "parse.y"
     { (yyval.label) = parser->label(); ;}
     break;
 
   case 113:
-#line 342 "parse.y"
+#line 343 "parse.y"
     { parser->loopStart(false, (yyvsp[(2) - (3)].label)); ;}
     break;
 
   case 114:
-#line 342 "parse.y"
+#line 343 "parse.y"
     { parser->loopEnd((yyvsp[(2) - (7)].label)); ;}
     break;
 
   case 120:
-#line 351 "parse.y"
+#line 352 "parse.y"
     { parser->emitWithCount(m8r::Op::RET, 0); ;}
     break;
 
   case 121:
-#line 352 "parse.y"
+#line 353 "parse.y"
     { parser->emitWithCount(m8r::Op::RET, 1); ;}
     break;
 
   case 122:
-#line 355 "parse.y"
+#line 356 "parse.y"
     { parser->addNamedFunction((yyvsp[(3) - (3)].function), (yyvsp[(2) - (3)].atom)); ;}
     break;
 
   case 123:
-#line 357 "parse.y"
+#line 358 "parse.y"
     { parser->addObject((yyvsp[(2) - (2)].function)); ;}
     break;
 
   case 125:
-#line 361 "parse.y"
+#line 362 "parse.y"
     { parser->functionAddParam((yyvsp[(1) - (1)].atom)); ;}
     break;
 
   case 127:
-#line 366 "parse.y"
+#line 367 "parse.y"
     { parser->functionStart(); ;}
     break;
 
   case 128:
-#line 367 "parse.y"
+#line 368 "parse.y"
     { parser->emit(m8r::Op::END); (yyval.function) = parser->functionEnd(); ;}
     break;
 
   case 139:
-#line 396 "parse.y"
-    { parser->emit((yyvsp[(1) - (1)].string)); ;}
+#line 397 "parse.y"
+    { parser->emitString((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 140:
-#line 397 "parse.y"
+#line 398 "parse.y"
     { parser->emit((yyvsp[(1) - (1)].number)); ;}
     break;
 
   case 141:
-#line 398 "parse.y"
+#line 399 "parse.y"
     { parser->emit((yyvsp[(1) - (1)].integer)); ;}
     break;
 
   case 142:
-#line 402 "parse.y"
+#line 403 "parse.y"
     { parser->emit((yyvsp[(1) - (1)].atom)); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2168 "parse.tab.cpp"
+#line 2169 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2378,6 +2379,6 @@ yyreturn:
 }
 
 
-#line 405 "parse.y"
+#line 406 "parse.y"
 
 

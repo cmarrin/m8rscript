@@ -54,7 +54,6 @@ private:
     uint32_t _id;
 };
     
-
 class Program {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
@@ -68,6 +67,18 @@ public:
     void stringFromAtom(String& s, const Atom& atom) const { _atomTable.stringFromAtom(s, atom); }
     void stringFromRawAtom(String& s, uint16_t rawAtom) const { _atomTable.stringFromRawAtom(s, rawAtom); }
     Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
+    StringId addString(const char* s)
+    {
+        size_t length = strlen(s);
+        size_t index = _stringTable.size();
+        _stringTable.resize(index + length + 1);
+        memcpy(&(_stringTable[index]), s, length + 1);
+        StringId id;
+        id._id = static_cast<uint32_t>(index);
+        return id;
+    }
+    const char* stringFromId(const StringId& id) { return &(_stringTable[id.rawStringId()]); }
+    
     ObjectId addObject(Object* obj)
     {
         ObjectId id;
@@ -79,6 +90,7 @@ public:
 
 private:
     AtomTable _atomTable;
+    Vector<char> _stringTable;
     Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;
