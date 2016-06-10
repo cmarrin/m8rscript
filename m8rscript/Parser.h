@@ -67,7 +67,7 @@ public:
   	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
     
 	void printError(const char* s);
-    uint32_t nerrors() const { return _scanner.nerrors(); }
+    uint32_t nerrors() const { return _nerrors; }
     
     String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
@@ -99,6 +99,7 @@ private:
     ExecutionUnit _eu;
     Function* _currentFunction;
     Vector<Function*> _functions;
+    uint32_t _nerrors = 0;
 };
 
 }

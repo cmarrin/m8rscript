@@ -24,7 +24,7 @@ function blink()
     System.delay(200); // wait a bit
 }
 
-function add(x)
+function add(x, y, z)
 {
 	return function(y)
 	{

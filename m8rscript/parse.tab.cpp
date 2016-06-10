@@ -2133,6 +2133,11 @@ yyreduce:
     { parser->functionAddParam((yyvsp[(1) - (1)].atom)); ;}
     break;
 
+  case 126:
+#line 363 "parse.y"
+    { parser->functionAddParam((yyvsp[(3) - (3)].atom)); ;}
+    break;
+
   case 127:
 #line 367 "parse.y"
     { parser->functionStart(); ;}
@@ -2165,7 +2170,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2169 "parse.tab.cpp"
+#line 2174 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

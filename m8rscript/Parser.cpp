@@ -51,7 +51,8 @@ Parser::Parser(Stream* istream)
 
 void Parser::printError(const char* s)
 {
-	printf("%s on line %d\n", s, _scanner.lineno());
+    ++_nerrors;
+	printf("Error: %s on line %d\n", s, _scanner.lineno());
 }
 
 Label Parser::label()

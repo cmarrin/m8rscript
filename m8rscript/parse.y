@@ -360,7 +360,7 @@ function_expression : K_FUNCTION function { parser->addObject($2); } ;
 formal_parameter_list
     :   /* empty */
     |   T_IDENTIFIER { parser->functionAddParam($1); }
-    |	formal_parameter_list ',' T_IDENTIFIER
+    |	formal_parameter_list ',' T_IDENTIFIER { parser->functionAddParam($3); }
     ;
     
 function

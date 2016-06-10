@@ -63,7 +63,6 @@ public:
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
-     , _nerrors(0)
      , _parser(parser)
   	{
     }
@@ -74,7 +73,6 @@ public:
   
   	uint8_t getToken(YYSTYPE* token);
     
-    uint32_t nerrors() const { return _nerrors; }
     uint32_t lineno() const { return _lineno; }
   	
 private:
@@ -99,7 +97,6 @@ private:
   	String _tokenString;
   	Stream* _istream;
     mutable uint32_t _lineno;
-    uint32_t _nerrors;
     Parser* _parser;
 };
 
