@@ -145,7 +145,7 @@ typedef union YYSTYPE
     m8r::Op             op;
     m8r::Label          label;
     m8r::Function*      function;
-    m8r::StringId         string;
+    m8r::StringId       string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;

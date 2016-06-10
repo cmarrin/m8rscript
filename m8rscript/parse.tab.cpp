@@ -213,7 +213,7 @@ typedef union YYSTYPE
     m8r::Op             op;
     m8r::Label          label;
     m8r::Function*      function;
-    m8r::StringId         string;
+    m8r::StringId       string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;
@@ -1828,7 +1828,7 @@ yyreduce:
 
   case 10:
 #line 159 "parse.y"
-    { parser->emitString((yyvsp[(1) - (1)].string)); ;}
+    { parser->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 17:
@@ -2163,7 +2163,7 @@ yyreduce:
 
   case 140:
 #line 400 "parse.y"
-    { parser->emitString((yyvsp[(1) - (1)].string)); ;}
+    { parser->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
   case 141:

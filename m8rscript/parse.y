@@ -95,7 +95,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
     m8r::Op             op;
     m8r::Label          label;
     m8r::Function*      function;
-    m8r::StringId         string;
+    m8r::StringId       string;
     float				number;
     uint32_t            integer;
 	m8r::Atom           atom;
@@ -156,7 +156,7 @@ primary_expression
 	: identifier
     | T_FLOAT { parser->emit($1); }
 	| T_INTEGER { parser->emit($1); }
-    | T_STRING { parser->emitString($1); }
+    | T_STRING { parser->emit($1); }
     | object_literal
     | array_literal
 	| '(' expression ')'
@@ -397,7 +397,7 @@ property_assignment
     
 property_name
     : identifier
-    | T_STRING { parser->emitString($1); }
+    | T_STRING { parser->emit($1); }
     | T_FLOAT { parser->emit($1); }
     | T_INTEGER { parser->emit($1); }
     ;

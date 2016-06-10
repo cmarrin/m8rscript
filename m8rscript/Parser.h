@@ -72,7 +72,10 @@ public:
     String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _program->atomizeString(s); }
-    StringId addString(const char* s) { return _program->addString(s); }
+
+    StringId startString() { return _program->startString(); }
+    void addToString(char c) { _program->addToString(c); }
+    void endString() { _program->endString(); }
     
     Label label();
     void loopStart(bool cond, Label&);
@@ -84,7 +87,7 @@ public:
     Function* functionEnd();
     void programEnd();
         
-    void emitString(StringId value) { _eu.addString(value); }
+    void emit(StringId value) { _eu.addString(value); }
     void emit(uint32_t value) { _eu.addCode(value); }
     void emit(float value) { _eu.addCode(value); }
     void emit(const Atom& value) { _eu.addCode(value); }

@@ -91,13 +91,12 @@ uint8_t Scanner::scanKeyword(const char* s)
 uint8_t Scanner::scanString(char terminal)
 {
 	uint8_t c;
-    _tokenString.clear();
 	
 	while ((c = get()) != C_EOF) {
 		if (c == terminal) {
 			break;
 		}
-		_tokenString += c;
+		_parser->addToString(c);
 	}
 	return T_STRING;
 }
@@ -423,9 +422,9 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 				
 			case '\"':
 			case '\'':
+                tokenValue->string = _parser->startString();
 				token = scanString(c);
-                tokenValue->string = _parser->addString(_tokenString.c_str());
-                _tokenString.clear();
+                _parser->endString();
 				break;
 
 			default:

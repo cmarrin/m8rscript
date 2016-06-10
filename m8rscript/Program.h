@@ -67,6 +67,11 @@ public:
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     String stringFromRawAtom(uint16_t rawAtom) const { return _atomTable.stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
+    
+    StringId startString() { StringId id; id._id = static_cast<uint32_t>(_stringTable.size()); return id; }
+    void addToString(char c) { _stringTable.push_back(c); }
+    void endString() { _stringTable.push_back('\0'); }
+    
     StringId addString(const char* s)
     {
         size_t length = strlen(s);
