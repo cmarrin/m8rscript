@@ -47,3 +47,13 @@ bool Function::addLocal(const Atom& atom)
     _locals.push_back({ atom, Value() });
     return true;
 }
+
+int32_t Function::localValueIndex(Atom name) const
+{
+    for (int i = 0; i < _locals.size(); ++i) {
+        if (_locals[i].key == name) {
+            return i;
+        }
+    }
+    return -1;
+}

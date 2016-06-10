@@ -70,6 +70,7 @@ class Program;
 //      1001 - NEW
 //      1010 - PUSHO
 //      1011 - RET
+//      1100 - PUSHL - Push local variable. Param is index in _locals
 //
 enum class Op {
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
@@ -86,21 +87,23 @@ enum class Op {
     NEWX = 0x24,    // 0010 0100
     PUSHO = 0x2B,   // 0010 1011
     RETX = 0x2C,    // 0010 1100
+    PUSHLX = 0x30,  // 0011 0000
     
     PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
     CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
     NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
     RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
-    
-    STO = 0x80, STOMUL = 0x81, STOADD = 0x82, STOSUB = 0x83, STODIV = 0x84, STOMOD = 0x85, STOSHL = 0x86, STOSHR = 0x87,
-    STOSAR = 0x88, STOAND = 0x89, STOOR = 0x8A, STOXOR = 0x8B,
-    LOR = 0x90, LAND = 0x91, AND = 0x92, OR = 0x93, XOR = 0x94, EQ = 0x95, NE = 0x96, LT = 0x97,
-    LE = 0x98, GT = 0x99, GE = 0x9A, SHL = 0x9B, SHR = 0x9C, SAR = 0x9D, ADD = 0x9E, SUB = 0x9F,
-    MUL = 0xA0, DIV = 0xA1, MOD = 0xA2,
-    PREINC = 0xB0, PREDEC = 0xB1, POSTINC = 0xB2, POSTDEC = 0xB3, UPLUS = 0xB4, UMINUS = 0xB5, UNOT = 0xB6, UNEG = 0xB7,
+    PUSHL = 0x80,   // Lower 4 bits is the index into _locals from 0 to 15
 
-    DEREF = 0xC0, DEL = 0xC1, END = 0xC2,
-    POP = 0xD0, 
+    PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3, UPLUS = 0xD4, UMINUS = 0xD5, UNOT = 0xD6, UNEG = 0xD7,
+    DEREF = 0xD8, DEL = 0xD9, POP = 0xDA,
+    
+    STO = 0xE0, STOMUL = 0xE1, STOADD = 0xE2, STOSUB = 0xE3, STODIV = 0xE4, STOMOD = 0xE5, STOSHL = 0xE6, STOSHR = 0xE7,
+    STOSAR = 0xE8, STOAND = 0xE9, STOOR = 0xEA, STOXOR = 0xEB, LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,
+    XOR = 0xF0, EQ = 0xF1, NE = 0xF2, LT = 0xF3, LE = 0xF4, GT = 0xF5, GE = 0xF6, SHL = 0xF7,
+    SHR = 0xF8, SAR = 0xF9, ADD = 0xFA, SUB = 0xFB, MUL = 0xFC, DIV = 0xFD, MOD = 0xFE,
+    
+    END = 0xFF,
 };
 
 struct Label {

@@ -2,8 +2,9 @@
     This is a test program
 */
 
-var a = { b : 5+c };
 var b = [ 1, 2, 3 ];
+var c = 12.5;
+var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
 
 GPIO.pinMode(0x2, GPIO.OUTPUT);
 Serial.begin(9600);
