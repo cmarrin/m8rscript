@@ -38,6 +38,8 @@
 		4942EA841D0AEAC600E02088 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../m8rscript/Value.cpp; sourceTree = "<group>"; };
 		4942EA851D0AEAC600E02088 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../m8rscript/Value.h; sourceTree = "<group>"; };
 		4942EA871D0AF26300E02088 /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../m8rscript/Function.cpp; sourceTree = "<group>"; };
+		4942EA8A1D0C86CC00E02088 /* blink.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blink.m8r; path = ../blink.m8r; sourceTree = "<group>"; };
+		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -67,9 +69,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4942EA891D0C86BB00E02088 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				4942EA8A1D0C86CC00E02088 /* blink.m8r */,
+				4942EA8B1D0C870200E02088 /* basic.m8r */,
+			);
+			name = Tests;
+			sourceTree = "<group>";
+		};
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
+				4942EA891D0C86BB00E02088 /* Tests */,
 				49E648071D00BEEC005F5059 /* src */,
 				49E647E91D00B68F005F5059 /* Products */,
 			);

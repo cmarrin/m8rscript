@@ -109,7 +109,7 @@ enum class Op {
 struct Label {
     int32_t label : 20;
     uint32_t uniqueID : 12;
-    int32_t fixupAddr : 20;
+    int32_t matchedAddr : 20;
 };
 
 class ExecutionUnit {
@@ -135,13 +135,14 @@ public:
     void addCode(const Atom&);
     void addCode(Op);
     void addCode(const ObjectId&);
+    void addCode(uint8_t c) { _currentFunction->addCode(c); }
     
     void addObject(Object* obj) { addCode(_currentProgram->addObject(obj)); }
     void addNamedFunction(Function*, const Atom& name);
 
     void addCodeWithCount(Op value, uint32_t nparams);
-    void addFixupJump(bool cond, Label&);
-    void addJumpAndFixup(Label&);
+    void addMatchedJump(Op op, Label&);
+    void matchJump(Label&);
     
 private:
     Value* valueFromId(Atom, Object*);

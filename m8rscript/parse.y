@@ -334,16 +334,42 @@ default_clause:
 
 iteration_start: { $$ = parser->label(); } ;
 
-assignment_expression_list
-    : assignment_expression
-    | assignment_expression ',' assignment_expression
+for_loop_initializer
+    : /* empty */
+    | K_VAR T_IDENTIFIER { parser->addVar($2); parser->emit($2); } initializer
+    | T_IDENTIFIER { parser->emit($1); } initializer
     ;
 
+for_loop_initializers
+    : for_loop_initializer
+    | for_loop_initializers ',' for_loop_initializer
+    ;
+
+// For Loop code:
+//
+// emit <initializer>
+// a = label()
+// emit <conditional>
+// addMatchedJump(JF, a)
+// startDeferred()
+// emit <incrementer>
+// endDeferred()
+// emit <statement>
+// emitDeferred()
+// matchJump() 
+// 
 iteration_statement
-	: K_WHILE iteration_start '(' { parser->loopStart(false, $2); } expression ')' statement { parser->loopEnd($2); }
+	: K_WHILE '(' iteration_start expression
+        { parser->addMatchedJump(m8r::Op::JF, $3); }
+      ')' statement
+        { parser->matchJump($3); }
 	| K_DO iteration_start statement K_WHILE '(' expression ')' ';'
-	| K_FOR '(' assignment_expression_list ';' iteration_start expression ';' expression ')' statement
-	| K_FOR '(' K_VAR variable_declaration_list ';' iteration_start expression ';' expression ')' statement
+	| K_FOR '(' for_loop_initializers ';' iteration_start expression 
+        { parser->addMatchedJump(m8r::Op::JF, $5); parser->startDeferred(); }
+      ';' expression
+        { parser->endDeferred(); }
+      ')' statement
+        { parser->emitDeferred(); parser->matchJump($5); }
 	;
 
 jump_statement

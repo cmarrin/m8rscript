@@ -49,13 +49,22 @@ public:
     virtual bool hasCode() const { return false; }
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
-    virtual const Value::Map& values() const { return _values; }
-    virtual Value* property(const Atom& s) { return _values.find(s); }
-    virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
+    virtual const Value::Map* values() const { return nullptr; }
+    virtual Value* property(const Atom& s) { return nullptr; }
+    virtual bool setValue(const Atom& s, const Value& v) { return false; }
     virtual Atom localName(uint32_t index) const { return Atom(); }
     virtual Value::Map::Pair* localValue(uint32_t index) { return nullptr; }
     virtual int32_t localValueIndex(uint32_t index) const { return -1; }
     virtual Value* value() { return nullptr; }
+};
+    
+class MaterObject : public Object {
+public:
+    virtual ~MaterObject() { }
+
+    virtual const Value::Map* values() const { return &_values; }
+    virtual Value* property(const Atom& s) { return _values.find(s); }
+    virtual bool setValue(const Atom& s, const Value& v) { _values.emplace(s, v); return true; }
     
 private:
     Value::Map _values;

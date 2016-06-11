@@ -61,14 +61,24 @@ Label Parser::label()
     return lbl;
 }
 
-void Parser::loopStart(bool cond, Label& label)
+void Parser::addMatchedJump(Op op, Label& label)
 {
-    _eu.addFixupJump(cond, label);
+    _eu.addMatchedJump(op, label);
 }
 
-void Parser::loopEnd(Label& label)
+void Parser::matchJump(Label& label)
 {
-    _eu.addJumpAndFixup(label);
+    _eu.matchJump(label);
+}
+
+void Parser::emitDeferred()
+{
+    assert(!_deferred);
+    assert(_deferredCode.size() > 0);
+    for (auto c : _deferredCode.back()) {
+        _eu.addCode(c);
+    }
+    _deferredCode.pop_back();
 }
 
 void Parser::functionAddParam(const Atom& atom)

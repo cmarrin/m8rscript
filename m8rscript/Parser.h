@@ -77,9 +77,29 @@ public:
     void addToString(char c) { _program->addToString(c); }
     void endString() { _program->endString(); }
     
+    // The next 3 functions work together:
+    //
+    // Label has a current location which is filled in by the label() call,
+    // and a match location which is filled in by the addMatchedJump() function.
+    // addMatchedJump also adds the passed Op (which can be JMP, JT or JF)
+    // with an empty jump address, to be filled in my matchJump().
+    // 
+    // When matchJump() is called it adds a JMP to the current location in
+    // the Label and then fixed up the match location with the location just
+    // past the JMP
+    //
     Label label();
-    void loopStart(bool cond, Label&);
-    void loopEnd(Label&);
+    void addMatchedJump(Op op, Label&);
+    void matchJump(Label&);
+    void startDeferred()
+    {
+        assert(!_deferred);
+        _deferred = true;
+        _deferredCode.resize(_deferredCode.size() + 1);
+    }
+    
+    void endDeferred() { assert(_deferred); _deferred = false; }
+    void emitDeferred();
     
     void functionAddParam(const Atom& atom);
     void functionStart();
@@ -105,6 +125,8 @@ private:
     Function* _currentFunction;
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;
+    Vector<Vector<uint8_t>> _deferredCode;
+    bool _deferred = false;
 };
 
 }

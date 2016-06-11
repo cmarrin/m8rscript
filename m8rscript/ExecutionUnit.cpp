@@ -124,15 +124,15 @@ void ExecutionUnit::addNamedFunction(Function* function, const Atom& name)
     _currentFunction->setValue(name, Value(function));
 }
 
-void ExecutionUnit::addFixupJump(bool cond, Label& label)
+void ExecutionUnit::addMatchedJump(Op op, Label& label)
 {
-    label.fixupAddr = static_cast<int32_t>(_currentFunction->codeSize());
-    _currentFunction->addCode(static_cast<uint8_t>(cond ? Op::JT : Op::JF) | 1);
-    _currentFunction->addCode(0);
-    _currentFunction->addCode(0);
+    assert(op == Op::JMP || op == Op::JF || op == Op::JF);
+    label.matchedAddr = static_cast<int32_t>(_currentFunction->codeSize());
+    _currentFunction->addCode(static_cast<uint8_t>(op) | 1);
+    _currentFunction->addCodeInt(0, 2);
 }
 
-void ExecutionUnit::addJumpAndFixup(Label& label)
+void ExecutionUnit::matchJump(Label& label)
 {
     int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize()) - 1;
     if (jumpAddr >= -127 && jumpAddr <= 127) {
@@ -144,17 +144,16 @@ void ExecutionUnit::addJumpAndFixup(Label& label)
             return;
         }
         _currentFunction->addCode(static_cast<uint8_t>(Op::JMP) | 0x01);
-        _currentFunction->addCode(Function::byteFromInt(jumpAddr, 1));
-        _currentFunction->addCode(Function::byteFromInt(jumpAddr, 0));
+        _currentFunction->addCodeInt(jumpAddr, 2);
     }
     
-    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.fixupAddr - 1;
+    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.matchedAddr - 1;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
-    _currentFunction->setCodeAtIndex(label.fixupAddr + 1, Function::byteFromInt(jumpAddr, 1));
-    _currentFunction->setCodeAtIndex(label.fixupAddr + 2, Function::byteFromInt(jumpAddr, 0));
+    _currentFunction->setCodeAtIndex(label.matchedAddr + 1, Function::byteFromInt(jumpAddr, 1));
+    _currentFunction->setCodeAtIndex(label.matchedAddr + 2, Function::byteFromInt(jumpAddr, 0));
 }
 
 void ExecutionUnit::addCodeWithCount(Op value, uint32_t nparams)
@@ -515,13 +514,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     outputString += ")\n";
     
     _nestingLevel++;
-
-	for (const auto& value : obj->values()) {
-        if (value.value.objectValue() && value.value.objectValue()->hasCode()) {
-            outputString += generateCodeString(_nestingLevel, "", value.value.objectValue());
-            outputString += "\n";
+    if (obj->values()) {
+        for (const auto& value : *obj->values()) {
+            if (value.value.objectValue() && value.value.objectValue()->hasCode()) {
+                outputString += generateCodeString(_nestingLevel, "", value.value.objectValue());
+                outputString += "\n";
+            }
         }
-	}
+    }
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
