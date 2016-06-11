@@ -50,11 +50,12 @@ public:
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
     virtual const Value::Map& values() const { return _values; }
-    virtual Value* value(const Atom& s) { return _values.find(s); }
+    virtual Value* property(const Atom& s) { return _values.find(s); }
     virtual void setValue(const Atom& s, const Value& v) { _values.emplace(s, v); }
     virtual Atom localName(uint32_t index) const { return Atom(); }
     virtual Value::Map::Pair* localValue(uint32_t index) { return nullptr; }
     virtual int32_t localValueIndex(uint32_t index) const { return -1; }
+    virtual Value* value() { return nullptr; }
     
 private:
     Value::Map _values;

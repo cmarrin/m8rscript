@@ -51,9 +51,8 @@ class Atom {
     friend class AtomTable;
         
 public:
-    static constexpr uint16_t NoAtom = 0xffff;
-    static constexpr uint8_t MaxAtomSize = 127;
-    
+    static Atom emptyAtom() { Atom a; a._index = NoAtom; return a; }
+
     bool valid() const { return _index != NoAtom; }
     uint16_t rawAtom() const { return _index; }
     void set(uint16_t rawAtom) { _index = rawAtom; }
@@ -64,6 +63,12 @@ public:
 
 protected:
     uint16_t _index;
+
+private:
+    static constexpr uint16_t NoAtom = std::numeric_limits<uint16_t>::max();
+    static constexpr uint8_t MaxAtomSize = 127;
+    
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -144,7 +144,9 @@ public:
     void addJumpAndFixup(Label&);
     
 private:
-    Value valueFromId(Atom, Object*);
+    Value* valueFromId(Atom, Object*);
+    void call(uint32_t nparams, Object*, bool isNew);
+
     String generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const;
 
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }

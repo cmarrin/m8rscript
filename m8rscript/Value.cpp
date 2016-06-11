@@ -35,8 +35,34 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Value.h"
 
+#include "Object.h"
+
 using namespace m8r;
 
 Value::~Value()
 {
 }
+
+bool Value::boolValue() const
+{
+    //enum class Type { None, Object, Float, Integer, String, Id };
+    switch(_type) {
+        case Type::None: return false;
+        case Type::Object: {
+            Value* v = nullptr;
+            Object* obj = objectValue();
+            if (obj) {
+                v = obj->value();
+            }
+            return v ? v->boolValue() : false;
+        }
+        case Type::Float: return floatValue() != 0;
+        case Type::Integer: return intValue() != 0;
+        case Type::String: {
+            const char* s = stringValue();
+            return s ? (s[0] != '\0') : false;
+        }
+        case Type::Id: return false;
+    }
+}
+

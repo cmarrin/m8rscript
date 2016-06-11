@@ -43,24 +43,51 @@ namespace m8r {
 
 class Object;
 
+typedef union {
+    void* v;
+    float f;
+    int32_t i;
+    Object* o;
+    const char* s;
+    Atom a;
+} U;
+
+inline void* valueFromFloat(float f) { U u; u.f = f; return u.v; }
+inline void* valueFromInt(int32_t i) { U u; u.i = i; return u.v; }
+inline void* valueFromObj(Object* o) { U u; u.o = o; return u.v; }
+inline void* valueFromStr(const char* s) { U u; u.s = s; return u.v; }
+inline void* valueFromId(Atom a) { U u; u.a = a; return u.v; }
+
+inline float floatFromValue(void* v) { U u; u.v = v; return u.f; }
+inline int32_t intFromValue(void* v) { U u; u.v = v; return u.i; }
+inline Object* objFromValue(void* v) { U u; u.v = v; return u.o; }
+inline const char* strFromValue(void* v) { U u; u.v = v; return u.s; }
+inline Atom idFromValue(void* v) { U u; u.v = v; return u.a; }
+
 class Value {
 public:
     typedef Map<Atom, Value> Map;
-    enum class Type { None, Object, Float, Integer, String };
+    enum class Type { None, Object, Float, Integer, String, Id };
 
     Value() : _value(nullptr), _type(Type::None) { }
     Value(const Value& other) : _value(other._value), _type(other._type) { }
     
-    Value(Object* obj) : _value(reinterpret_cast<void*>(obj)) , _type(Type::Object) { }
-    Value(float value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Float) { }
-    Value(int32_t value) : _value(*reinterpret_cast<void**>(&value)) , _type(Type::Integer) { }
-    Value(StringId value) : _value(reinterpret_cast<void*>(value.rawStringId())) , _type(Type::String) { }
+    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object) { }
+    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float) { }
+    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer) { }
+    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String) { }
+    Value(Atom value) : _value(valueFromId(value)), _type(Type::Id) { }
     
     ~Value();
     
     Type type() const { return _type; }
-    Object* object() const { return (_type == Type::Object) ? reinterpret_cast<Object*>(_value) : nullptr; }
-
+    Object* objectValue() const { return (_type == Type::Object) ? objFromValue(_value) : nullptr; }
+    bool boolValue() const;
+    int32_t intValue() const { return (_type == Type::Integer) ? intFromValue(_value) : 0; }
+    float floatValue() const { return (_type == Type::Float) ? floatFromValue(_value) : 0; }
+    const char* stringValue() const { return (_type == Type::String) ? strFromValue(_value) : nullptr; }
+    Atom atomValue() const { return (_type == Type::Id) ? idFromValue(_value) : Atom::emptyAtom(); }
+    
 private:
     void* _value;
     Type _type;

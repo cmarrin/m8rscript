@@ -43,7 +43,7 @@ namespace m8r {
 
 class Function : public Object {
 public:
-    Function() { _name.set(Atom::NoAtom); }
+    Function() { _name = Atom::emptyAtom(); }
 
     virtual ~Function() { }
 

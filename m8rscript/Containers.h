@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <cassert>
 #include <cstring>
+#include <limits>
 
 namespace m8r {
 
@@ -46,6 +47,7 @@ class StringId {
     friend class Program;
     
 public:
+    static StringId emptyStringId() { StringId s; s._id = NoString; return s; }
     uint32_t rawStringId() const { return _id; }
     static StringId stringIdFromRawStringId(uint32_t id)
     {
@@ -56,6 +58,7 @@ public:
     int compare(const StringId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
     
 private:
+    static constexpr uint32_t NoString = std::numeric_limits<uint32_t>::max();
     uint32_t _id;
 };
     
