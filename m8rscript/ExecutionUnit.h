@@ -52,7 +52,7 @@ class Program;
 
 class ExecutionUnit {
 public:
-    ExecutionUnit() { }
+    ExecutionUnit() : _stack(10) { }
     
     void run(Program* program);
     
@@ -116,7 +116,7 @@ private:
     mutable Annotations annotations;
 #endif
       
-    std::vector<Value> _stack;
+    Stack<Value> _stack;
 };
     
 }

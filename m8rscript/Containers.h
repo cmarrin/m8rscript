@@ -214,4 +214,31 @@ private:
     std::vector<Pair> _list;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: Stack
+//
+//  Wrapper around std::vector to give stack semantics
+//
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename type>
+class Stack : std::vector<type> {
+    typedef std::vector<type> super;
+    
+public:
+    Stack() { }
+    Stack(size_t reserveCount) { super::reserve(reserveCount); }
+    
+    void clear() { super::clear(); }
+    void push(const type& value) { super::push_back(value); }
+    type& top(size_t relative = 0)
+    {
+        assert(super::size() - relative > 0);
+        return super::at(super::size() - relative - 1);
+    }
+    void pop() { super::pop_back(); }
+
+};
+
 }

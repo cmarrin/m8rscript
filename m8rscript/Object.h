@@ -50,7 +50,8 @@ public:
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
     virtual const Value::Map* values() const { return nullptr; }
-    virtual Value* property(const Atom& s) { return nullptr; }
+    virtual int32_t propertyIndex(const Atom& s) const { return -1; }
+    virtual Value* property(int32_t index) const { return nullptr; }
     virtual bool setValue(const Atom& s, const Value& v) { return false; }
     virtual Atom localName(uint32_t index) const { return Atom(); }
     virtual Value::Map::Pair* localValue(uint32_t index) { return nullptr; }

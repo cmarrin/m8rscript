@@ -51,8 +51,13 @@ int main(int argc, const char* argv[])
     printf("%s\n", eu.generateCodeString(parser.program()).c_str());
     std::clock_t printTime = std::clock() - startTime;
     
-    std::cout << "Parse took " << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us" <<
-        ", print took " << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+    startTime = std::clock();
+    eu.run(parser.program());
+    std::clock_t runTime = std::clock() - startTime;
+    
+    std::cout << "Parse:" << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+    std::cout << "Print:" << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+    std::cout << "Run  :" << (static_cast<double>(runTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
     
     return 0;
 }

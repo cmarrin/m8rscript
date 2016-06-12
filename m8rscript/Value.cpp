@@ -63,6 +63,7 @@ bool Value::boolValue() const
             return s ? (s[0] != '\0') : false;
         }
         case Type::Id: return false;
+        case Type::Ref:
+            return objFromValue()->property(_id)->boolValue();
     }
 }
-

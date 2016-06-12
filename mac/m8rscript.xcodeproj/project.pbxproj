@@ -302,6 +302,7 @@
 		49E647F01D00B68F005F5059 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_WARN_UNREACHABLE_CODE = NO;
 				HEADER_SEARCH_PATHS = "../m8rscript-mac";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
@@ -312,6 +313,7 @@
 		49E647F11D00B68F005F5059 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_WARN_UNREACHABLE_CODE = NO;
 				HEADER_SEARCH_PATHS = "../m8rscript-mac";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";

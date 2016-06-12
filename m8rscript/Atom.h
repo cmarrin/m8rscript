@@ -67,8 +67,6 @@ protected:
 private:
     static constexpr uint16_t NoAtom = std::numeric_limits<uint16_t>::max();
     static constexpr uint8_t MaxAtomSize = 127;
-    
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

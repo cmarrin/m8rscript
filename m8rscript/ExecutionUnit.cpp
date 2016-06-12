@@ -123,7 +123,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     }
     
     Object* obj = program->main();
-    _stack.resize(0);
+    _stack.clear();
     int i = 0;
     
     m8r::String strValue;
@@ -132,9 +132,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     float floatValue;
     bool boolValue;
     uint32_t size;
-    Op op;
-    const Value* value;
-    
+    Op op;    
     
     DISPATCH;
     
@@ -142,12 +140,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         return;
     L_PUSHID:
-        _stack.push_back(Atom::atomFromRawAtom(uintFromCode(obj, i, 2)));
+        _stack.push(Atom::atomFromRawAtom(uintFromCode(obj, i, 2)));
         i += 2;
         DISPATCH;
     L_PUSHF:
         floatValue = floatFromCode(obj, i);
-        _stack.push_back(Value(floatValue));
+        _stack.push(Value(floatValue));
         i += 4;
         DISPATCH;
     L_PUSHI:
@@ -159,14 +157,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             intValue = intFromCode(obj, i, size);
             i += size;
         }
-        _stack.push_back(Value(intValue));
+        _stack.push(Value(intValue));
         DISPATCH;
     L_PUSHSX:
-        size = (static_cast<uint8_t>(op) & 0x0f) + 1;
-        uintValue = uintFromCode(obj, i, size);
-        i += size;
-        _stack.push_back(Value(program->stringFromId(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++)))));
-        i += uintValue;
+        uintValue = uintFromCode(obj, i, 4);
+        i += 4;
+        _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++)))));
         DISPATCH;
     L_PUSHO:
         uintValue = uintFromCode(obj, i, 4);
@@ -174,15 +170,15 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
-        if (maskOp(op, 0x0f) == Op::PUSHI) {
+        if (maskOp(op, 0x0f) == Op::PUSHL) {
             intValue = intFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
+            assert(size <= 2);
             intValue = intFromCode(obj, i, size);
             i += size;
         }
-        intValue = obj->localValueIndex(intValue);
-        _stack.push_back(value ? *value : Value());
+        _stack.push(Value(obj, intValue));
         DISPATCH;
     L_JMP:
     L_JT:
@@ -192,8 +188,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         op = maskOp(op, 0x01);
         i += size;
         if (op != Op::JMP) {
-            boolValue = _stack.back().boolValue() != 0;
-            _stack.pop_back();
+            boolValue = _stack.top().boolValue() != 0;
+            _stack.pop();
             if (op == Op::JT) {
                 boolValue = !boolValue;
             }
@@ -214,7 +210,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
             op = maskOp(op, 0x0f);
         }
-        _stack.push_back(Value(i));
+        _stack.push(Value(i));
         call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
         DISPATCH;
     L_RET:
@@ -227,6 +223,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         }
         DISPATCH;
     L_OPCODE:
+        switch(op) {
+            case Op::STOPOP:
+                _stack.top(-2);
+                break;
+            default:
+                break;
+        }
         DISPATCH;
     L_END:
         return;

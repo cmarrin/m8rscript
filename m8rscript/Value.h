@@ -56,7 +56,7 @@ typedef union {
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
-    enum class Type { None, Object, Float, Integer, String, Id };
+    enum class Type { None, Object, Float, Integer, String, Id, Ref };
 
     Value() : _value(nullptr), _type(Type::None), _id(NoId) { }
     Value(const Value& other) : _value(other._value), _type(other._type), _id(other._id) { }
@@ -66,28 +66,28 @@ public:
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(NoId) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(NoId) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
+    Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
     
     ~Value();
     
     Type type() const { return _type; }
-    Object* objectValue() const { return (_type == Type::Object) ? objFromValue(_value) : nullptr; }
+    Object* objectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
     bool boolValue() const;
-    int32_t intValue() const { return (_type == Type::Integer) ? intFromValue(_value) : 0; }
-    float floatValue() const { return (_type == Type::Float) ? floatFromValue(_value) : 0; }
-    const char* stringValue() const { return (_type == Type::String) ? strFromValue(_value) : nullptr; }
-    Atom idValue() const { return (_type == Type::Id) ? idFromValue(*this) : Atom::emptyAtom(); }
+    int32_t intValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
+    float floatValue() const { return (_type == Type::Float) ? floatFromValue() : 0; }
+    const char* stringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
+    Atom idValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
     
-private:
+private:    
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
 
-    inline float floatFromValue(void* v) const { U u; u.v = v; return u.f; }
-    inline int32_t intFromValue(void* v) const { U u; u.v = v; return u.i; }
-    inline Object* objFromValue(void* v) const { U u; u.v = v; return u.o; }
-    inline const char* strFromValue(void* v) const { U u; u.v = v; return u.s; }
-    inline Atom idFromValue(const Value& v) const { return Atom::atomFromRawAtom(v._id); }
+    inline float floatFromValue() const { U u; u.v = _value; return u.f; }
+    inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
+    inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
+    inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
 
     static constexpr uint16_t NoId = std::numeric_limits<uint16_t>::max();
     void* _value;
