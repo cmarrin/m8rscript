@@ -40,6 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "Program.h"
 
+#include <vector>
+
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,8 +70,8 @@ public:
     uint32_t nerrors() const { return _nerrors; }
     Program* program() const { return _program; }
     
-    String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
-    String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
+    m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
+    m8r::String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _program->atomizeString(s); }
 
     StringId startString() { return _program->startString(); }
@@ -118,12 +120,29 @@ public:
     void addVar(const Atom& value) { _currentFunction->addLocal(value); }
 
 private:
+    static uint8_t byteFromInt(uint32_t value, uint32_t index)
+    {
+        assert(index < 4);
+        return static_cast<uint8_t>(value >> (8 * index));
+    }
+    
+    void addCodeInt(uint32_t value, uint32_t size)
+    {
+        for (int i = size - 1; i >= 0; --i) {
+            addCodeByte(byteFromInt(value, i));
+        }
+    }
+    
+    void addCodeByte(Op op) { addCodeByte(static_cast<uint8_t>(op)); }
+    void addCodeByte(Op op, uint32_t mask) { addCodeByte(static_cast<uint8_t>(op) | mask); }
+    void addCodeByte(uint8_t);
+    
     Scanner _scanner;
     Program* _program;
     Function* _currentFunction;
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;
-    Vector<Vector<uint8_t>> _deferredCode;
+    std::vector<std::vector<uint8_t>> _deferredCode;
     bool _deferred = false;
 
     static uint32_t _nextLabelId;

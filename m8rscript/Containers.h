@@ -209,6 +209,7 @@ public:
     void resize(size_t size)
     {
         ensureCapacity(size);
+        
         _size = size;
     }
     

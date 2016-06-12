@@ -66,7 +66,7 @@ inline Atom idFromValue(void* v) { U u; u.v = v; return u.a; }
 
 class Value {
 public:
-    typedef Map<Atom, Value> Map;
+    typedef m8r::Map<Atom, Value> Map;
     enum class Type { None, Object, Float, Integer, String, Id };
 
     Value() : _value(nullptr), _type(Type::None) { }

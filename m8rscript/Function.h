@@ -72,19 +72,6 @@ public:
     void addCode(uint8_t c) { _code.push_back(c); }
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
     
-    static uint8_t byteFromInt(uint32_t value, uint32_t index)
-    {
-        assert(index < 4);
-        return static_cast<uint8_t>(value >> (8 * index));
-    }
-        
-    void addCodeInt(uint32_t value, uint32_t size)
-    {
-        for (int i = size - 1; i >= 0; --i) {
-            addCode(byteFromInt(value, i));
-        }
-    }
-    
 private:
     Vector<uint8_t> _code;
 	Atom _name;

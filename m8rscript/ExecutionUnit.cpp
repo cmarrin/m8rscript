@@ -280,10 +280,10 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
 }
 #endif
 
-String ExecutionUnit::generateCodeString(const Program* program) const
+m8r::String ExecutionUnit::generateCodeString(const Program* program) const
 {
 #if SHOW_CODE
-    String outputString;
+    m8r::String outputString;
     
 	for (const auto& object : program->objects()) {
         if (object.value->hasCode()) {
@@ -601,7 +601,7 @@ const char* ExecutionUnit::stringFromOp(Op op)
     return "UNKNOWN";
 }
 
-void ExecutionUnit::indentCode(String& s) const
+void ExecutionUnit::indentCode(m8r::String& s) const
 {
     for (int i = 0; i < _nestingLevel; ++i) {
         s += "    ";

@@ -84,11 +84,11 @@ private:
 class AtomTable {
 public:
     Atom atomizeString(const char*);
-    String stringFromAtom(Atom atom) const { return stringFromRawAtom(atom._index); }
-    String stringFromRawAtom(uint16_t rawAtom) const { return String(&(_table[rawAtom + 1]), -_table[rawAtom]); }
+    m8r::String stringFromAtom(Atom atom) const { return stringFromRawAtom(atom._index); }
+    m8r::String stringFromRawAtom(uint16_t rawAtom) const { return m8r::String(&(_table[rawAtom + 1]), -_table[rawAtom]); }
 
 private:
-    String _table;
+    m8r::String _table;
 };
 
 }

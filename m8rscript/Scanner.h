@@ -100,7 +100,7 @@ private:
   	bool scanFloat();
     
   	mutable uint8_t _lastChar;
-  	String _tokenString;
+  	m8r::String _tokenString;
   	Stream* _istream;
     mutable uint32_t _lineno;
     Parser* _parser;

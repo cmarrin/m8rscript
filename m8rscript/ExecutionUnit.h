@@ -56,13 +56,13 @@ public:
     
     void run(Program* program);
     
-    String generateCodeString(const Program* program) const;
+    m8r::String generateCodeString(const Program* program) const;
     
 private:
     Value* valueFromId(Atom, const Object*) const;
     void call(uint32_t nparams, Object*, bool isNew);
 
-    String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
+    m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
     int8_t intFromOp(Op op, uint8_t mask) const
@@ -109,9 +109,9 @@ private:
     typedef Vector<Annotation> Annotations;
 
     uint32_t findAnnotation(uint32_t addr) const;
-    void preamble(String& s, uint32_t addr) const;
+    void preamble(m8r::String& s, uint32_t addr) const;
     static const char* stringFromOp(Op op);
-    void indentCode(String&) const;
+    void indentCode(m8r::String&) const;
     mutable uint32_t _nestingLevel = 0;
     mutable Annotations annotations;
 #endif
