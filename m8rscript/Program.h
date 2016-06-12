@@ -96,7 +96,7 @@ public:
 
 private:
     AtomTable _atomTable;
-    Vector<char> _stringTable;
+    std::vector<char> _stringTable;
     Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;

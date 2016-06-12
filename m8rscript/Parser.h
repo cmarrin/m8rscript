@@ -140,7 +140,7 @@ private:
     Scanner _scanner;
     Program* _program;
     Function* _currentFunction;
-    Vector<Function*> _functions;
+    std::vector<Function*> _functions;
     uint32_t _nerrors = 0;
     std::vector<std::vector<uint8_t>> _deferredCode;
     bool _deferred = false;

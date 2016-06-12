@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cassert>
 #include <cstring>
 #include <limits>
+#include <vector>
 
 namespace m8r {
 
@@ -168,85 +169,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Class: Vector
-//
-//  Wrapper Vector class that works on both Mac and ESP
-//
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename type>
-class Vector {
-public:
-    Vector() : _size(0), _capacity(0), _data(nullptr) {}; // Default constructor
-    Vector(Vector const &other) : _data(nullptr)
-    {
-        *this = other;
-    };
-    
-    ~Vector() { free(_data); };
-    
-    Vector &operator=(Vector const &other)
-    {
-        if (_data) {
-            free(_data);
-        }
-        _size = other._size;
-        _capacity = other._capacity;
-        _data = static_cast<type *>(malloc(_capacity*sizeof(type)));
-        memcpy(_data, other._data, _size * sizeof(type));
-        return *this;
-    };
-
-    void push_back(type const &x)
-    {
-        ensureCapacity(_size + 1);
-        _data[_size++] = x;
-    };
-    
-    void pop_back() { _size--; }
-    
-    size_t size() const { return _size; };
-    void resize(size_t size)
-    {
-        ensureCapacity(size);
-        
-        _size = size;
-    }
-    
-    const type& operator[](size_t i) const { assert(i >= 0 && i < _size); return _data[i]; };
-    type& operator[](size_t i) { assert(i >= 0 && i < _size); return _data[i]; };
-    
-    type& back() { return _data[_size - 1]; }
-    const type& back() const { return _data[_size - 1]; }
-    
-    type* begin() { return _data; }
-    const type* begin() const { return _data; }
-    type* end() { return _data + _size; }
-    const type* end() const { return _data + _size; }
-    
-private:
-    void ensureCapacity(size_t size)
-    {
-        if (_capacity >= size) {
-            return;
-        }
-        _capacity = _capacity ? _capacity * 2 : 1;
-        if (_capacity < size) {
-            _capacity = size;
-        }
-        type *newData = static_cast<type *>(malloc(_capacity * sizeof(type)));
-        memcpy(newData, _data, _size * sizeof(type));
-        free(_data);
-        _data = newData;
-    };
-
-    size_t _size;
-    size_t _capacity;
-    type *_data;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
 //  Class: Map
 //
 //  Wrapper Map class that works on both Mac and ESP
@@ -294,7 +216,7 @@ private:
         return -(first + 1);    // failed to find key
     }
     
-    Vector<Pair> _list;
+    std::vector<Pair> _list;
 };
 
 }

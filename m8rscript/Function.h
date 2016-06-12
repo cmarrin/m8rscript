@@ -73,9 +73,9 @@ public:
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
     
 private:
-    Vector<uint8_t> _code;
+    std::vector<uint8_t> _code;
 	Atom _name;
-    Vector<Value::Map::Pair> _locals;
+    std::vector<Value::Map::Pair> _locals;
     uint32_t _paramEnd = 0;
 };
     
