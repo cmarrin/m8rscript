@@ -381,7 +381,7 @@ jump_statement
 
 function_declaration : K_FUNCTION T_IDENTIFIER function { parser->addNamedFunction($3, $2); }
 
-function_expression : K_FUNCTION function { parser->addObject($2); } ;
+function_expression : K_FUNCTION function { parser->emit($2); } ;
     
 formal_parameter_list
     :   /* empty */

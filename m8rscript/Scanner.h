@@ -41,13 +41,19 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Stream.h"
 #include "FixedPointFloat.h"
 #include "Atom.h"
-#include "ExecutionUnit.h"
+#include "Opcodes.h"
+
+namespace m8r {
+    class Function;
+}
 
 #include "parse.tab.h"
 
 #define MAX_ID_LENGTH 32
 
 namespace m8r {
+
+class Parser;
 
 //////////////////////////////////////////////////////////////////////////////
 //

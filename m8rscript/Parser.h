@@ -61,13 +61,12 @@ public:
             delete _functions[i];
         }
     }
-    
-    String toString() const { return _eu.toString(); }
-    
+
   	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
     
 	void printError(const char* s);
     uint32_t nerrors() const { return _nerrors; }
+    Program* program() const { return _program; }
     
     String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
@@ -107,26 +106,28 @@ public:
     Function* functionEnd();
     void programEnd();
         
-    void emit(StringId value) { _eu.addString(value); }
-    void emit(uint32_t value) { _eu.addCode(value); }
-    void emit(float value) { _eu.addCode(value); }
-    void emit(const Atom& value) { _eu.addCode(value); }
-    void emit(Op value) { _eu.addCode(value); }
-    void addObject(Object* value) { _eu.addObject(value); }
-    void addNamedFunction(Function* value, const Atom& name) { _eu.addNamedFunction(value, name); }
-    void setFunction(Function* value) { _eu.setFunction(value); }
-    void emitWithCount(Op value, uint32_t count) { _eu.addCodeWithCount(value, count); }
+    void emit(StringId value);
+    void emit(uint32_t value);
+    void emit(float value);
+    void emit(const Atom& value);
+    void emit(Op value);
+    
+    void emit(Object* obj);
+    void addNamedFunction(Function* value, const Atom& name);
+    void emitWithCount(Op value, uint32_t count);
     void addVar(const Atom& value) { _currentFunction->addLocal(value); }
 
 private:
     Scanner _scanner;
     Program* _program;
-    ExecutionUnit _eu;
     Function* _currentFunction;
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;
     Vector<Vector<uint8_t>> _deferredCode;
     bool _deferred = false;
+
+    static uint32_t _nextLabelId;
+    
 };
 
 }

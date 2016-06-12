@@ -45,8 +45,10 @@ int main(int argc, const char* argv[])
     std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n\n";
 
+    m8r::ExecutionUnit eu;
+    
     startTime = std::clock();
-    printf("%s\n", parser.toString().c_str());
+    printf("%s\n", eu.generateCodeString(parser.program()).c_str());
     std::clock_t printTime = std::clock() - startTime;
     
     std::cout << "Parse took " << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us" <<

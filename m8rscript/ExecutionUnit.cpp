@@ -40,139 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-uint32_t ExecutionUnit::_nextID = 1;
-
-Label ExecutionUnit::label()
-{
-    Label label;
-    label.label = _currentFunction->codeSize();
-    label.uniqueID = _nextID++;
-    return label;
-}
-    
-void ExecutionUnit::addString(StringId s)
-{
-    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHSX));
-    _currentFunction->addCodeInt(s.rawStringId(), 4);
-}
-
-void ExecutionUnit::addCode(uint32_t value)
-{
-    uint32_t size;
-    uint8_t op;
-    
-    if (value <= 15) {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHI) | value);
-        return;
-    }
-    if (value <= 255) {
-        size = 1;
-        op = static_cast<uint8_t>(Op::PUSHIX);
-    } else if (value <= 65535) {
-        size = 2;
-        op = static_cast<uint8_t>(Op::PUSHIX) | 0x01;
-    } else {
-        size = 4;
-        op = static_cast<uint8_t>(Op::PUSHIX) | 0x03;
-    }
-    _currentFunction->addCode(op);
-    _currentFunction->addCodeInt(value, size);
-}
-
-void ExecutionUnit::addCode(float value)
-{
-    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHF));
-    _currentFunction->addCodeInt(*(reinterpret_cast<uint32_t*>(&value)), 4);
-}
-
-void ExecutionUnit::addCode(const Atom& atom)
-{
-    int32_t index = _currentFunction->localValueIndex(atom);
-    if (index >= 0) {
-        if (index <= 15) {
-            _currentFunction->addCode(static_cast<uint8_t>(static_cast<uint8_t>(Op::PUSHL) | index));
-        } else {
-            assert(index < 65536);
-            uint32_t size = (index < 256) ? 1 : 2;
-            _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHLX) | (size - 1));
-            _currentFunction->addCodeInt(index, size);
-        }
-    } else {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHID));
-        _currentFunction->addCodeInt(atom.rawAtom(), 2);
-    }
-}
-
-void ExecutionUnit::addCode(Op value)
-{
-    _currentFunction->addCode(static_cast<uint8_t>(value));
-}
-
-void ExecutionUnit::addCode(const ObjectId& value)
-{
-    _currentFunction->addCode(static_cast<uint8_t>(Op::PUSHO));
-    _currentFunction->addCodeInt(value.rawObjectId(), 4);
-}
-
-void ExecutionUnit::addNamedFunction(Function* function, const Atom& name)
-{
-    function->setName(name);
-    assert(name.valid());
-    if (!name.valid()) {
-        return;
-    }
-    _currentFunction->setValue(name, Value(function));
-}
-
-void ExecutionUnit::addMatchedJump(Op op, Label& label)
-{
-    assert(op == Op::JMP || op == Op::JF || op == Op::JF);
-    label.matchedAddr = static_cast<int32_t>(_currentFunction->codeSize());
-    _currentFunction->addCode(static_cast<uint8_t>(op) | 1);
-    _currentFunction->addCodeInt(0, 2);
-}
-
-void ExecutionUnit::matchJump(Label& label)
-{
-    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize()) - 1;
-    if (jumpAddr >= -127 && jumpAddr <= 127) {
-        _currentFunction->addCode(static_cast<uint8_t>(Op::JMP));
-        _currentFunction->addCode(static_cast<uint8_t>(jumpAddr));
-    } else {
-        if (jumpAddr < -32767 || jumpAddr > 32767) {
-            printf("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
-            return;
-        }
-        _currentFunction->addCode(static_cast<uint8_t>(Op::JMP) | 0x01);
-        _currentFunction->addCodeInt(jumpAddr, 2);
-    }
-    
-    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.matchedAddr - 1;
-    if (jumpAddr < -32767 || jumpAddr > 32767) {
-        printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
-        return;
-    }
-    _currentFunction->setCodeAtIndex(label.matchedAddr + 1, Function::byteFromInt(jumpAddr, 1));
-    _currentFunction->setCodeAtIndex(label.matchedAddr + 2, Function::byteFromInt(jumpAddr, 0));
-}
-
-void ExecutionUnit::addCodeWithCount(Op value, uint32_t nparams)
-{
-    assert(nparams < 256);
-    assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
-    uint8_t code = static_cast<uint8_t>(value);
-    
-    if (nparams > 15) {
-        value = (value == Op::CALL) ? Op::CALLX : ((value == Op::NEW) ? Op::NEWX : Op::RETX);
-        _currentFunction->addCode(static_cast<uint8_t>(value));
-        _currentFunction->addCodeInt(nparams, 1);
-    } else {
-        code |= nparams;
-        _currentFunction->addCode(code);
-    }
-}
-
-Value* ExecutionUnit::valueFromId(Atom id, Object* obj)
+Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 {
     // Start at the current object and walk up the chain
     return nullptr;
@@ -192,7 +60,7 @@ void ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
 //    }
 }
 
-void ExecutionUnit::run()
+void ExecutionUnit::run(Program* program)
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -254,7 +122,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    Object* obj = _currentProgram->main();
+    Object* obj = program->main();
     _stack.resize(0);
     int i = 0;
     
@@ -297,7 +165,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         size = (static_cast<uint8_t>(op) & 0x0f) + 1;
         uintValue = uintFromCode(obj, i, size);
         i += size;
-        _stack.push_back(Value(_currentProgram->stringFromId(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++)))));
+        _stack.push_back(Value(program->stringFromId(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++)))));
         i += uintValue;
         DISPATCH;
     L_PUSHO:
@@ -412,19 +280,19 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
 }
 #endif
 
-m8r::String ExecutionUnit::toString() const
+String ExecutionUnit::generateCodeString(const Program* program) const
 {
 #if SHOW_CODE
     String outputString;
     
-	for (const auto& object : _currentProgram->objects()) {
+	for (const auto& object : program->objects()) {
         if (object.value->hasCode()) {
-            outputString += generateCodeString(_nestingLevel, ::toString(object.key.rawObjectId()).c_str(), object.value);
+            outputString += generateCodeString(program, object.value, ::toString(object.key.rawObjectId()).c_str(), _nestingLevel);
             outputString += "\n";
         }
 	}
     
-    outputString += generateCodeString(0, "main", _currentProgram->main());
+    outputString += generateCodeString(program, program->main(), "main", 0);
     return outputString;
 #else
     return "PROGRAM\n";
@@ -432,7 +300,7 @@ m8r::String ExecutionUnit::toString() const
 }
 
 #if SHOW_CODE
-m8r::String ExecutionUnit::generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const
+m8r::String ExecutionUnit::generateCodeString(const Program* program, const Object* obj, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -505,7 +373,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         name += ">";
     }
     else if (obj->name() && obj->name()->valid()) {
-        name = _parser->stringFromAtom(*obj->name());
+        name = program->stringFromAtom(*obj->name());
     }
     
     indentCode(outputString);
@@ -517,7 +385,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     if (obj->values()) {
         for (const auto& value : *obj->values()) {
             if (value.value.objectValue() && value.value.objectValue()->hasCode()) {
-                outputString += generateCodeString(_nestingLevel, "", value.value.objectValue());
+                outputString += generateCodeString(program, value.value.objectValue(), "", _nestingLevel);
                 outputString += "\n";
             }
         }
@@ -568,7 +436,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        strValue = _parser->stringFromRawAtom(uintFromCode(obj, i, 2));
+        strValue = program->stringFromRawAtom(uintFromCode(obj, i, 2));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();
@@ -601,7 +469,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(obj, i, 4);
         i += 4;
         outputString += "STR(\"";
-        outputString += _currentProgram->stringFromId(StringId::stringIdFromRawStringId(uintValue));
+        outputString += program->stringFromId(StringId::stringIdFromRawStringId(uintValue));
         outputString += "\")\n";
         DISPATCH;
     L_PUSHO:
@@ -623,7 +491,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += size;
         }
         outputString += "LOCAL(";
-        outputString += _parser->stringFromAtom(obj->localName(uintValue));
+        outputString += program->stringFromAtom(obj->localName(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_JMP:

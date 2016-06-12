@@ -2133,7 +2133,7 @@ yyreduce:
 
   case 129:
 #line 384 "parse.y"
-    { parser->addObject((yyvsp[(2) - (2)].function)); ;}
+    { parser->emit((yyvsp[(2) - (2)].function)); ;}
     break;
 
   case 131:

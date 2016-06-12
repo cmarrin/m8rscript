@@ -62,6 +62,7 @@ public:
     
     ~Program();
     
+    const Function* main() const { return _main; }
     Function* main() { return _main; }
     
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
@@ -82,7 +83,7 @@ public:
         id._id = static_cast<uint32_t>(index);
         return id;
     }
-    const char* stringFromId(const StringId& id) { return &(_stringTable[id.rawStringId()]); }
+    const char* stringFromId(const StringId& id) const { return &(_stringTable[id.rawStringId()]); }
     
     ObjectId addObject(Object* obj)
     {

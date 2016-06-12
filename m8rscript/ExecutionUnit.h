@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Atom.h"
 #include "Function.h"
 #include "Program.h"
+#include "Opcodes.h"
 
 #define SHOW_CODE 1
 
@@ -49,106 +50,19 @@ class Parser;
 class Function;
 class Program;
 
-//  Opcodes with params have bit patterns.
-//  Upper 2 bits are 00
-//  The lower 2 bits indicate the number of additional bytes:
-//      00 - 1
-//      01 - 2
-//      10 - unused
-//      11 - 4
-//
-//  The next 4 bits is the opcode class:
-//      0000 - unused
-//      0001 - PUSHID
-//      0010 - PUSHF
-//      0011 - PUSHI
-//      0100 - PUSHS
-//      0101 - JMP
-//      0110 - JT
-//      0111 - JF
-//      1000 - CALL
-//      1001 - NEW
-//      1010 - PUSHO
-//      1011 - RET
-//      1100 - PUSHL - Push local variable. Param is index in _locals
-//
-enum class Op {
-    PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
-    PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
-    PUSHIX = 0x0C,   // 0000 1100 - Next byte is number
-    PUSHSX = 0x10,   // 0001 0000
-    
-    // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
-    JMP = 0x14,     // 0001 0100
-    JT = 0x18,      // 0001 1000
-    JF = 0x1C,      // 0001 1100
-    
-    CALLX = 0x20,   // 0010 0000
-    NEWX = 0x24,    // 0010 0100
-    PUSHO = 0x2B,   // 0010 1011
-    RETX = 0x2C,    // 0010 1100
-    PUSHLX = 0x30,  // 0011 0000
-    
-    PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
-    CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
-    NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
-    RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
-    PUSHL = 0x80,   // Lower 4 bits is the index into _locals from 0 to 15
-
-    PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3, UPLUS = 0xD4, UMINUS = 0xD5, UNOT = 0xD6, UNEG = 0xD7,
-    DEREF = 0xD8, DEL = 0xD9, POP = 0xDA,
-    
-    STO = 0xE0, STOMUL = 0xE1, STOADD = 0xE2, STOSUB = 0xE3, STODIV = 0xE4, STOMOD = 0xE5, STOSHL = 0xE6, STOSHR = 0xE7,
-    STOSAR = 0xE8, STOAND = 0xE9, STOOR = 0xEA, STOXOR = 0xEB, LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,
-    XOR = 0xF0, EQ = 0xF1, NE = 0xF2, LT = 0xF3, LE = 0xF4, GT = 0xF5, GE = 0xF6, SHL = 0xF7,
-    SHR = 0xF8, SAR = 0xF9, ADD = 0xFA, SUB = 0xFB, MUL = 0xFC, DIV = 0xFD, MOD = 0xFE,
-    
-    END = 0xFF,
-};
-
-struct Label {
-    int32_t label : 20;
-    uint32_t uniqueID : 12;
-    int32_t matchedAddr : 20;
-};
-
 class ExecutionUnit {
 public:
-    ExecutionUnit(Parser* parser, Program* program)
-        : _parser(parser)
-        , _currentProgram(program)
-    { }
+    ExecutionUnit() { }
     
-    void run();
+    void run(Program* program);
     
-    String toString() const;
-
-    void setFunction(Function* function) { _currentFunction = function; }
-    
-    Label label();
-    
-    void addLocal(const Atom& atom) { _currentFunction->addLocal(atom); }
-    
-    void addString(StringId s);
-    void addCode(uint32_t);
-    void addCode(float);
-    void addCode(const Atom&);
-    void addCode(Op);
-    void addCode(const ObjectId&);
-    void addCode(uint8_t c) { _currentFunction->addCode(c); }
-    
-    void addObject(Object* obj) { addCode(_currentProgram->addObject(obj)); }
-    void addNamedFunction(Function*, const Atom& name);
-
-    void addCodeWithCount(Op value, uint32_t nparams);
-    void addMatchedJump(Op op, Label&);
-    void matchJump(Label&);
+    String generateCodeString(const Program* program) const;
     
 private:
-    Value* valueFromId(Atom, Object*);
+    Value* valueFromId(Atom, const Object*) const;
     void call(uint32_t nparams, Object*, bool isNew);
 
-    String generateCodeString(uint32_t nestingLevel, const char* functionName, Object* obj) const;
+    String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
     Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
     int8_t intFromOp(Op op, uint8_t mask) const
@@ -161,7 +75,7 @@ private:
     }
     uint8_t uintFromOp(Op op, uint8_t mask) const { return static_cast<uint8_t>(op) & mask; }
 
-    int32_t intFromCode(Object* obj, uint32_t index, uint32_t size) const
+    int32_t intFromCode(const Object* obj, uint32_t index, uint32_t size) const
     {
         uint32_t num = uintFromCode(obj, index, size);
         uint32_t mask = 0x80 << (8 * (size - 1));
@@ -171,7 +85,7 @@ private:
         return static_cast<int32_t>(num);
     }
     
-    uint32_t uintFromCode(Object* obj, uint32_t index, uint32_t size) const
+    uint32_t uintFromCode(const Object* obj, uint32_t index, uint32_t size) const
     {
         uint32_t value = 0;
         for (int i = 0; i < size; ++i) {
@@ -181,7 +95,7 @@ private:
         return value;
     }
     
-    float floatFromCode(Object* obj, uint32_t index) const
+    float floatFromCode(const Object* obj, uint32_t index) const
     {
         uint32_t i = uintFromCode(obj, index, 4);
         return *reinterpret_cast<float*>(&i);
@@ -202,12 +116,6 @@ private:
     mutable Annotations annotations;
 #endif
       
-    static uint32_t _nextID;
-    
-    Parser* _parser;
-    Function* _currentFunction;
-    Program* _currentProgram;
-    uint32_t _id = _nextID++;
     Vector<Value> _stack;
 };
     
