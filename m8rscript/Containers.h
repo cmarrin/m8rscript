@@ -76,7 +76,13 @@ public:
 	String() : _size(1), _capacity(0), _data(nullptr) { }
 	String(const char* s, size_t len = -1) : _size(1), _capacity(0), _data(nullptr)
     {
-        set(s, len);
+        if (len == -1) {
+            len = strlen(s);
+        }
+        ensureCapacity(len + 1);
+        memcpy(_data, s, len);
+        _size = len + 1;
+        _data[_size - 1] = '\0';
     }
     
     String(const String& other) : _data(nullptr)
@@ -100,17 +106,6 @@ public:
         return *this;
     }
     
-    void set(const char* s, size_t len = -1)
-    {
-        if (len == -1) {
-            len = strlen(s);
-        }
-        ensureCapacity(len + 1);
-        memcpy(_data, s, len);
-        _size = len + 1;
-        _data[_size - 1] = '\0';
-    }
-	
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
 	size_t length() const { return _size - 1; }
@@ -136,7 +131,7 @@ public:
     bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
 
     const char* c_str() const { return _data; }
-    void clear()
+    void erase()
     {
         _size = 1;
         if (_data) {

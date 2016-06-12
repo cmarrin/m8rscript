@@ -238,7 +238,7 @@ static m8r::String toString(float value)
     m8r::String s;
     char buf[40];
     sprintf(buf, "%g", value);
-    s.set(buf);
+    s = buf;
     return s;
 }
 
@@ -247,7 +247,7 @@ static m8r::String toString(uint32_t value)
     m8r::String s;
     char buf[40];
     sprintf(buf, "%u", value);
-    s.set(buf);
+    s = buf;
     return s;
 }
 

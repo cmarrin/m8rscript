@@ -245,7 +245,7 @@ uint8_t Scanner::scanSpecial()
 uint8_t Scanner::scanIdentifier()
 {
 	uint8_t c;
-	_tokenString.clear();
+	_tokenString.erase();
 
 	bool first = true;
 	while ((c = get()) != C_EOF) {
@@ -279,7 +279,7 @@ void Scanner::scanDigits(bool hex)
 
 uint8_t Scanner::scanNumber()
 {
-	_tokenString.clear();
+	_tokenString.erase();
     
 	uint8_t c = get();
     if (c == C_EOF) {
@@ -435,7 +435,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
                     } else {
                         tokenValue->number = static_cast<float>(atof(_tokenString.c_str()));
                     }
-                    _tokenString.clear();
+                    _tokenString.erase();
 					break;
 				}
 				if ((token = scanSpecial()) != C_EOF) {
@@ -444,7 +444,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 				if ((token = scanIdentifier()) != C_EOF) {
                     if (token == T_IDENTIFIER) {
                         tokenValue->atom = _parser->atomizeString(_tokenString.c_str());
-                        _tokenString.clear();
+                        _tokenString.erase();
                     }
 					break;
 				}
