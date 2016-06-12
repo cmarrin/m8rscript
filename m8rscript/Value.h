@@ -42,6 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class Object;
+class Value;
 
 typedef union {
     void* v;
@@ -52,31 +53,19 @@ typedef union {
     Atom a;
 } U;
 
-inline void* valueFromFloat(float f) { U u; u.f = f; return u.v; }
-inline void* valueFromInt(int32_t i) { U u; u.i = i; return u.v; }
-inline void* valueFromObj(Object* o) { U u; u.o = o; return u.v; }
-inline void* valueFromStr(const char* s) { U u; u.s = s; return u.v; }
-inline void* valueFromId(Atom a) { U u; u.a = a; return u.v; }
-
-inline float floatFromValue(void* v) { U u; u.v = v; return u.f; }
-inline int32_t intFromValue(void* v) { U u; u.v = v; return u.i; }
-inline Object* objFromValue(void* v) { U u; u.v = v; return u.o; }
-inline const char* strFromValue(void* v) { U u; u.v = v; return u.s; }
-inline Atom idFromValue(void* v) { U u; u.v = v; return u.a; }
-
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     enum class Type { None, Object, Float, Integer, String, Id };
 
-    Value() : _value(nullptr), _type(Type::None) { }
-    Value(const Value& other) : _value(other._value), _type(other._type) { }
+    Value() : _value(nullptr), _type(Type::None), _id(NoId) { }
+    Value(const Value& other) : _value(other._value), _type(other._type), _id(other._id) { }
     
-    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object) { }
-    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float) { }
-    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer) { }
-    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String) { }
-    Value(Atom value) : _value(valueFromId(value)), _type(Type::Id) { }
+    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(NoId) { }
+    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(NoId) { }
+    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(NoId) { }
+    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(NoId) { }
+    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     
     ~Value();
     
@@ -86,11 +75,24 @@ public:
     int32_t intValue() const { return (_type == Type::Integer) ? intFromValue(_value) : 0; }
     float floatValue() const { return (_type == Type::Float) ? floatFromValue(_value) : 0; }
     const char* stringValue() const { return (_type == Type::String) ? strFromValue(_value) : nullptr; }
-    Atom atomValue() const { return (_type == Type::Id) ? idFromValue(_value) : Atom::emptyAtom(); }
+    Atom idValue() const { return (_type == Type::Id) ? idFromValue(*this) : Atom::emptyAtom(); }
     
 private:
+    inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
+    inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
+    inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
+    inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
+
+    inline float floatFromValue(void* v) const { U u; u.v = v; return u.f; }
+    inline int32_t intFromValue(void* v) const { U u; u.v = v; return u.i; }
+    inline Object* objFromValue(void* v) const { U u; u.v = v; return u.o; }
+    inline const char* strFromValue(void* v) const { U u; u.v = v; return u.s; }
+    inline Atom idFromValue(const Value& v) const { return Atom::atomFromRawAtom(v._id); }
+
+    static constexpr uint16_t NoId = std::numeric_limits<uint16_t>::max();
     void* _value;
-    Type _type;
+    Type _type : 4;
+    uint16_t _id;
 };
 
 }

@@ -273,7 +273,7 @@ variable_declaration:
     ;
 
 initializer:
-    	'=' expression { parser->emit(m8r::Op::STO); }
+    	'=' expression { parser->emit(m8r::Op::STOPOP); }
     ;
 
 statement
@@ -282,8 +282,8 @@ statement
 	| K_VAR variable_declaration_list ';'
     | K_DELETE left_hand_side_expression ';'
     | call_expression ';'
-    | mutation_expression ';'
-    | assignment_expression ';'
+    | mutation_expression { parser->emit(m8r::Op::POP); } ';'
+    | assignment_expression  { parser->emit(m8r::Op::POP); } ';'
 	| selection_statement
 	| switch_statement
 	| iteration_statement
@@ -367,7 +367,7 @@ iteration_statement
 	| K_FOR '(' for_loop_initializers ';' iteration_start expression 
         { parser->addMatchedJump(m8r::Op::JF, $5); parser->startDeferred(); }
       ';' expression
-        { parser->endDeferred(); }
+        { parser->emit(m8r::Op::POP); parser->endDeferred(); }
       ')' statement
         { parser->emitDeferred(); parser->matchJump($5); }
 	;
