@@ -110,7 +110,7 @@ void Parser::emit(float value)
 
 void Parser::emit(const Atom& atom)
 {
-    int32_t index = _currentFunction->localValueIndex(atom);
+    int32_t index = _currentFunction->localIndex(atom);
     if (index >= 0) {
         if (index <= 15) {
             addCodeByte(Op::PUSHL, index);
@@ -139,12 +139,10 @@ void Parser::emit(Object* obj)
 
 void Parser::addNamedFunction(Function* function, const Atom& name)
 {
-    function->setName(name);
     assert(name.valid());
-    if (!name.valid()) {
-        return;
-    }
-    _currentFunction->setValue(name, Value(function));
+    int32_t index = _currentFunction->addProperty(name);
+    assert(index >= 0);
+    _currentFunction->setProperty(index, function);
 }
 
 void Parser::addMatchedJump(Op op, Label& label)

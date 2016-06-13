@@ -174,9 +174,14 @@ private:
 template<typename Key, typename Value>
 class Map {
 public:
-    typedef struct { Key key; Value value; } Pair;
+    struct Pair
+    {
+        bool operator==(const Pair& other) const { return key == other.key; }
+        Key key;
+        Value value;
+    };
 
-    Value* find(const Key& key)
+    Value* find(const Key& key) const
     {
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
         return (result >= 0) ? &(_list[result].value) : nullptr;

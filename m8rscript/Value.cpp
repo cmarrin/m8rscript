@@ -45,7 +45,6 @@ Value::~Value()
 
 bool Value::boolValue() const
 {
-    //enum class Type { None, Object, Float, Integer, String, Id };
     switch(_type) {
         case Type::None: return false;
         case Type::Object: {
@@ -67,3 +66,16 @@ bool Value::boolValue() const
             return objFromValue()->property(_id)->boolValue();
     }
 }
+
+bool Value::setValue(const Value& v)
+{
+    switch(_type) {
+        case Type::Object:
+            return objFromValue()->setValue(v);
+        case Type::Ref:
+            return objFromValue()->setProperty(_id, v);
+        default:
+            return false;
+    }
+}
+

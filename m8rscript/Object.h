@@ -42,6 +42,8 @@ namespace m8r {
 
 class Object {
 public:
+    typedef std::vector<Value::Map::Pair> Properties;
+
     virtual ~Object() { }
 
     virtual const Atom* name() const { return nullptr; }
@@ -49,26 +51,56 @@ public:
     virtual bool hasCode() const { return false; }
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
-    virtual const Value::Map* values() const { return nullptr; }
+    
+    virtual const Properties* properties() const { return nullptr; }
     virtual int32_t propertyIndex(const Atom& s) const { return -1; }
-    virtual Value* property(int32_t index) const { return nullptr; }
-    virtual bool setValue(const Atom& s, const Value& v) { return false; }
-    virtual Atom localName(uint32_t index) const { return Atom(); }
-    virtual Value::Map::Pair* localValue(uint32_t index) { return nullptr; }
-    virtual int32_t localValueIndex(uint32_t index) const { return -1; }
+    virtual Value* property(int32_t index) { return nullptr; }
+    virtual bool setProperty(int32_t index, const Value&) { return false; }
+    virtual Atom propertyName(uint32_t index) const { return Atom(); }
+    virtual int32_t addProperty(const Atom&) { return -1; }
+    
+    virtual int32_t addLocal(const Atom& name) { return -1; }
+    virtual int32_t localIndex(const Atom& name) const { return -1; }
+
+    virtual bool setValue(const Value&) { return false; }
     virtual Value* value() { return nullptr; }
 };
     
 class MaterObject : public Object {
-public:
+public:    
     virtual ~MaterObject() { }
 
-    virtual const Value::Map* values() const { return &_values; }
-    virtual Value* property(const Atom& s) { return _values.find(s); }
-    virtual bool setValue(const Atom& s, const Value& v) { _values.emplace(s, v); return true; }
+    virtual const Properties* properties() const override { return &_properties; }
+    virtual int32_t propertyIndex(const Atom& s) const override { return findPropertyIndex(s); }
+    virtual Value* property(int32_t index) override { return &(_properties[index].value); }
+    virtual bool setProperty(int32_t index, const Value& v) override
+    {
+        _properties[index].value = v;
+        return true;
+    }
     
+    virtual Atom propertyName(uint32_t index) const override { return _properties[index].key; }
+    virtual int32_t addProperty(const Atom& name) override
+    {
+        if (findPropertyIndex(name) >= 0) {
+            return -1;
+        }
+        _properties.push_back({ name, Value() });
+        return static_cast<int32_t>(_properties.size()) - 1;
+    }
+
 private:
-    Value::Map _values;
+    int32_t findPropertyIndex(const Atom& name) const
+    {
+        for (int32_t i = 0; i < _properties.size(); ++i) {
+            if (_properties[i].key == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    Properties _properties;
 };
     
 }

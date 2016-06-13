@@ -37,21 +37,21 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool Function::addLocal(const Atom& atom)
+int32_t Function::addLocal(const Atom& atom)
 {
-    for (auto pair : _locals) {
-        if (pair.key == atom) {
-            return false;
+    for (auto name : _locals) {
+        if (name == atom) {
+            return -1;
         }
     }
-    _locals.push_back({ atom, Value() });
-    return true;
+    _locals.push_back(atom);
+    return static_cast<int32_t>(_locals.size()) - 1;
 }
 
-int32_t Function::localValueIndex(Atom name) const
+int32_t Function::localIndex(const Atom& name) const
 {
     for (int i = 0; i < _locals.size(); ++i) {
-        if (_locals[i].key == name) {
+        if (_locals[i] == name) {
             return i;
         }
     }

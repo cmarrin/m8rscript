@@ -78,6 +78,8 @@ public:
     const char* stringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     Atom idValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
     
+    bool setValue(const Value&);
+    
 private:    
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }

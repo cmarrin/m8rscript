@@ -225,7 +225,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_OPCODE:
         switch(op) {
             case Op::STOPOP:
-                _stack.top(-2);
+                _stack.top(-1).setValue(_stack.top());
+                _stack.pop();
                 break;
             default:
                 break;
@@ -385,8 +386,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     outputString += ")\n";
     
     _nestingLevel++;
-    if (obj->values()) {
-        for (const auto& value : *obj->values()) {
+    if (obj->properties()) {
+        for (const auto& value : *obj->properties()) {
             if (value.value.objectValue() && value.value.objectValue()->hasCode()) {
                 outputString += generateCodeString(program, value.value.objectValue(), "", _nestingLevel);
                 outputString += "\n";
@@ -494,7 +495,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += size;
         }
         outputString += "LOCAL(";
-        outputString += program->stringFromAtom(obj->localName(uintValue));
+        outputString += program->stringFromAtom(obj->propertyName(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_JMP:

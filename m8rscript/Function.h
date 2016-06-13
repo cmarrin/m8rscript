@@ -41,41 +41,27 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Function : public Object {
+class Function : public MaterObject {
 public:
-    Function() { _name = Atom::emptyAtom(); }
+    Function() { }
 
     virtual ~Function() { }
 
-    virtual const Atom* name() const override { return &_name; }
     virtual bool hasCode() const override { return true; }
     virtual uint8_t codeAtIndex(uint32_t index) const override { return _code[index]; }
     virtual uint32_t codeSize() const override { return static_cast<uint32_t>(_code.size()); }
-    virtual Atom localName(uint32_t index) const override
-    {
-        assert(index < _locals.size());
-        return _locals[index].key;
-    }
 
-    virtual Value::Map::Pair* localValue(uint32_t index) override
-    {
-        assert(index < _locals.size());
-        return &(_locals[index]);
-    }
-    
-    virtual int32_t localValueIndex(Atom name) const;
+    virtual int32_t addLocal(const Atom& name) override;
+    virtual int32_t localIndex(const Atom& name) const override;
 
-    void setName(const Atom& atom) { _name = atom; }
-    bool addLocal(const Atom& atom);
-    void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
-    
     void addCode(uint8_t c) { _code.push_back(c); }
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
-    
+
+    void markParamEnd() { _paramEnd = static_cast<uint32_t>(properties()->size()); }
+
 private:
     std::vector<uint8_t> _code;
-	Atom _name;
-    std::vector<Value::Map::Pair> _locals;
+    std::vector<Atom> _locals;
     uint32_t _paramEnd = 0;
 };
     
