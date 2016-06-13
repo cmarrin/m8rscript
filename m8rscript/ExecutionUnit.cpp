@@ -108,9 +108,9 @@ void ExecutionUnit::run(Program* program)
         /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xF0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xF8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
+        /* 0xF0 */ OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
+        /* 0xF8 */ OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
         /* 0xFF */ OP(END)
     };
     
@@ -153,13 +153,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHI:
     L_PUSHIX:
         if (maskOp(op, 0x0f) == Op::PUSHI) {
-            intValue = intFromOp(op, 0x0f);
+            uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
-            intValue = intFromCode(obj, i, size);
+            uintValue = uintFromCode(obj, i, size);
             i += size;
         }
-        _stack.push(Value(intValue));
+        _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
         uintValue = uintFromCode(obj, i, 4);
@@ -224,6 +224,24 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x07);
         }
         DISPATCH;
+    L_BINARYOP:
+        rightValue = _stack.top().bakeValue();
+        _stack.pop();
+        leftValue = _stack.top().bakeValue();
+        if (leftValue.isInteger() && rightValue.isInteger()) {
+            switch(op) {
+                case Op::MUL: _stack.setTop(leftValue.asIntValue() * rightValue.asIntValue()); break;
+                case Op::LT: _stack.setTop(leftValue.asIntValue() < rightValue.asIntValue()); break;
+                default: assert(0); break;
+            }
+        } else {
+            switch(op) {
+                case Op::MUL: _stack.setTop(leftValue.toFloatValue() * rightValue.toFloatValue()); break;
+                case Op::LT: _stack.setTop(leftValue.toFloatValue() < rightValue.toFloatValue()); break;
+                default: assert(0); break;
+            }
+        }
+        DISPATCH;
     L_OPCODE:
         switch(op) {
             case Op::STOPOP:
@@ -231,16 +249,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 _stack.pop();
                 _stack.pop();
                 break;
-            case Op::MUL:
-                rightValue = _stack.top().bakeValue();
-                _stack.pop();
-                leftValue = _stack.top().bakeValue();
-                if (leftValue.isInteger() && rightValue.isInteger()) {
-                    _stack.setTop(leftValue.asIntValue() * rightValue.asIntValue());
-                } else {
-                    _stack.setTop(leftValue.toFloatValue() * rightValue.toFloatValue());
-                }
             default:
+                assert(0);
                 break;
         }
         DISPATCH;

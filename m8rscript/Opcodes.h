@@ -69,7 +69,7 @@ struct Label {
 enum class Op {
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
     PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
-    PUSHIX = 0x0C,   // 0000 1100 - Next byte is number
+    PUSHIX = 0x0C,   // 0000 1100 - Next bytes are number
     PUSHSX = 0x10,   // 0001 0000
     
     // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
