@@ -117,7 +117,7 @@ public:
     void emit(Object* obj);
     void addNamedFunction(Function* value, const Atom& name);
     void emitWithCount(Op value, uint32_t count);
-    void addVar(const Atom& name) { _currentFunction->addProperty(name); }
+    void addVar(const Atom& name) { _currentFunction->addLocal(name); }
 
 private:
     static uint8_t byteFromInt(uint32_t value, uint32_t index)

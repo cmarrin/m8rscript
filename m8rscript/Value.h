@@ -51,12 +51,14 @@ typedef union {
     Object* o;
     const char* s;
     Atom a;
+    Value* val;
 } U;
 
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
-    enum class Type { None, Object, Float, Integer, String, Id, Ref };
+    
+    enum class Type { None, Object, Float, Integer, String, Id, Ref, ValuePtr };
 
     Value() : _value(nullptr), _type(Type::None), _id(NoId) { }
     Value(const Value& other) : _value(other._value), _type(other._type), _id(other._id) { }
@@ -67,29 +69,40 @@ public:
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(NoId) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
+    Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(NoId) { }
     
     ~Value();
     
-    Type type() const { return _type; }
-    Object* objectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
-    bool boolValue() const;
-    int32_t intValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
-    float floatValue() const { return (_type == Type::Float) ? floatFromValue() : 0; }
-    const char* stringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
-    Atom idValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
+    //
+    // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
+    // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
+    Object* asObjectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
+    int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
+    float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : 0; }
+    const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
+    Atom asIdValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
+    
+    bool toBoolValue() const;
+    float toFloatValue() const;
+
     bool setValue(const Value&);
+    Value bakeValue() const;
+    bool isInteger() const { return _type == Type::Integer; }
     
-private:    
+private:  
+  
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
+    inline void* valueFromValuePtr(Value* val) const { U u; u.val = val; return u.v; }
 
     inline float floatFromValue() const { U u; u.v = _value; return u.f; }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
     inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
+    inline Value* valuePtrFromValue() const { U u; u.v = _value; return u.val; }
 
     static constexpr uint16_t NoId = std::numeric_limits<uint16_t>::max();
     void* _value;

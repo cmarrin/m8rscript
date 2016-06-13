@@ -124,6 +124,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     Object* obj = program->main();
     _stack.clear();
+    _stack.setFrameSize(obj->localSize());
     int i = 0;
     
     m8r::String strValue;
@@ -132,7 +133,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     float floatValue;
     bool boolValue;
     uint32_t size;
-    Op op;    
+    Op op;
+    Value leftValue, rightValue;
     
     DISPATCH;
     
@@ -178,7 +180,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             intValue = intFromCode(obj, i, size);
             i += size;
         }
-        _stack.push(Value(obj, intValue));
+        _stack.push(&(_stack.inFrame(intValue)));
         DISPATCH;
     L_JMP:
     L_JT:
@@ -188,7 +190,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         op = maskOp(op, 0x01);
         i += size;
         if (op != Op::JMP) {
-            boolValue = _stack.top().boolValue() != 0;
+            boolValue = _stack.top().toBoolValue() != 0;
             _stack.pop();
             if (op == Op::JT) {
                 boolValue = !boolValue;
@@ -227,7 +229,17 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             case Op::STOPOP:
                 _stack.top(-1).setValue(_stack.top());
                 _stack.pop();
+                _stack.pop();
                 break;
+            case Op::MUL:
+                rightValue = _stack.top().bakeValue();
+                _stack.pop();
+                leftValue = _stack.top().bakeValue();
+                if (leftValue.isInteger() && rightValue.isInteger()) {
+                    _stack.setTop(leftValue.asIntValue() * rightValue.asIntValue());
+                } else {
+                    _stack.setTop(leftValue.toFloatValue() * rightValue.toFloatValue());
+                }
             default:
                 break;
         }
@@ -388,8 +400,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     _nestingLevel++;
     if (obj->properties()) {
         for (const auto& value : *obj->properties()) {
-            if (value.value.objectValue() && value.value.objectValue()->hasCode()) {
-                outputString += generateCodeString(program, value.value.objectValue(), "", _nestingLevel);
+            if (value.value.asObjectValue() && value.value.asObjectValue()->hasCode()) {
+                outputString += generateCodeString(program, value.value.asObjectValue(), "", _nestingLevel);
                 outputString += "\n";
             }
         }
@@ -495,7 +507,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += size;
         }
         outputString += "LOCAL(";
-        outputString += program->stringFromAtom(obj->propertyName(uintValue));
+        outputString += program->stringFromAtom(obj->localName(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_JMP:

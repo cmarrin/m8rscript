@@ -236,14 +236,20 @@ public:
     Stack(size_t reserveCount) { super::reserve(reserveCount); }
     
     void clear() { super::clear(); }
+    size_t size() const { return super::size(); }
     void push(const type& value) { super::push_back(value); }
-    type& top(size_t relative = 0)
+    type& top(int32_t relative = 0)
     {
-        assert(super::size() - relative > 0);
-        return super::at(super::size() - relative - 1);
+        assert(static_cast<int32_t>(super::size()) + relative > 0);
+        return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
+    void setFrameSize(size_t frameSize) {  _frame = size(); super::resize(size() + frameSize); }
+    type& inFrame(int32_t index) { return super::at(_frame + index); }
     void pop() { super::pop_back(); }
+    void setTop(const type& value) { super::back() = value; }
 
+private:
+    size_t _frame = 0;
 };
 
 }

@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "Object.h"
+#include <string>
 
 using namespace m8r;
 
@@ -43,39 +44,76 @@ Value::~Value()
 {
 }
 
-bool Value::boolValue() const
+bool Value::toBoolValue() const
 {
     switch(_type) {
+        case Type::ValuePtr:
+            return bakeValue().toBoolValue();
         case Type::None: return false;
         case Type::Object: {
             Value* v = nullptr;
-            Object* obj = objectValue();
+            Object* obj = asObjectValue();
             if (obj) {
                 v = obj->value();
             }
-            return v ? v->boolValue() : false;
+            return v ? v->toBoolValue() : false;
         }
-        case Type::Float: return floatValue() != 0;
-        case Type::Integer: return intValue() != 0;
+        case Type::Float: return asFloatValue() != 0;
+        case Type::Integer: return asIntValue() != 0;
         case Type::String: {
-            const char* s = stringValue();
+            const char* s = asStringValue();
             return s ? (s[0] != '\0') : false;
         }
         case Type::Id: return false;
         case Type::Ref:
-            return objFromValue()->property(_id)->boolValue();
+            return objFromValue()->property(_id)->toBoolValue();
+    }
+}
+
+float Value::toFloatValue() const
+{
+    switch(_type) {
+        case Type::ValuePtr:
+            return bakeValue().toFloatValue();
+        case Type::None: return 0;
+        case Type::Object: {
+            Value* v = nullptr;
+            Object* obj = asObjectValue();
+            if (obj) {
+                v = obj->value();
+            }
+            return v ? v->toFloatValue() : 0;
+        }
+        case Type::Float: return asFloatValue();
+        case Type::Integer: return static_cast<float>(asIntValue());
+        case Type::String: {
+            const char* s = asStringValue();
+            return s ? std::stof(s) : 0;
+        }
+        case Type::Id: return 0;
+        case Type::Ref:
+            return objFromValue()->property(_id)->toFloatValue();
     }
 }
 
 bool Value::setValue(const Value& v)
 {
+    Value bakedValue = v.bakeValue();
     switch(_type) {
         case Type::Object:
-            return objFromValue()->setValue(v);
+            return objFromValue()->setValue(bakedValue);
         case Type::Ref:
-            return objFromValue()->setProperty(_id, v);
+            return objFromValue()->setProperty(_id, bakedValue);
+        case Type::ValuePtr:
+            *valuePtrFromValue() = bakedValue;
+            return true;
         default:
             return false;
     }
+}
+
+Value Value::bakeValue() const
+{
+    return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue();
 }
 
