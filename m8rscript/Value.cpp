@@ -70,6 +70,15 @@ bool Value::toBoolValue() const
     }
 }
 
+uint32_t Value::toUIntValue() const
+{
+    switch(_type) {
+        case Type::Integer: return asUIntValue();
+        case Type::ValuePtr: return bakeValue().toUIntValue();
+        default: return static_cast<int32_t>(toFloatValue());
+    }
+}
+
 float Value::toFloatValue() const
 {
     switch(_type) {
@@ -112,8 +121,13 @@ bool Value::setValue(const Value& v)
     }
 }
 
-Value Value::bakeValue() const
+Object* Value::toObjectValue() const
 {
-    return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue();
+    if (_type == Type::Object) {
+        return objFromValue();
+    }
+    if (_type == Type::ValuePtr) {
+        return valuePtrFromValue()->toObjectValue();
+    }
+    return nullptr;
 }
-

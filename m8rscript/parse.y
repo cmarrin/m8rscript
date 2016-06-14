@@ -106,7 +106,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %type <atom>		T_IDENTIFIER
 %type <integer>		T_INTEGER
 %type <number>		T_FLOAT
-%type <argcount>    argument_list arguments property_name_and_value_list
+%type <argcount>    argument_list arguments
 %type <op>          assignment_operator unary_operator
 %type <label>       iteration_start
 %type <function>    function
@@ -165,7 +165,7 @@ primary_expression
 member_expression
 	: primary_expression
 	| function_expression
-	| member_expression '[' expression ']'
+	| member_expression '[' expression ']' { parser->emit(m8r::Op::DEREF); }
 	| member_expression '.' identifier { parser->emit(m8r::Op::DEREF); }
     | K_NEW member_expression arguments { parser->emitWithCount(m8r::Op::NEW, $3); }
     ;

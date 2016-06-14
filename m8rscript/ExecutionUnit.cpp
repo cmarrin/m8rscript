@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 #include <cassert>
 #include <cmath>
+#include <string>
 
 using namespace m8r;
 
@@ -59,6 +60,40 @@ void ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
 //    for (size_t i = 0; i < nparams; ++i) {
 //        if (
 //    }
+}
+
+bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& derefValue)
+{
+    Object* obj = objectValue.toObjectValue();
+    if (!obj) {
+        return false;
+    }
+    if (derefValue.isInteger()) {
+        Value* newValue = obj->element(derefValue.toIntValue());
+        if (newValue) {
+            objectValue = newValue;
+            return true;
+        }
+        return false;
+    }
+    int32_t index = obj->addProperty(propertyNameFromValue(program, derefValue), true);
+    if (index < 0) {
+        return false;
+    }
+    objectValue = obj->property(index);
+    return true;
+}
+
+Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
+{
+    switch(value.type()) {
+        case Value::Type::String: return program->atomizeString(value.asStringValue());
+        case Value::Type::Id: return value.asIdValue();
+        case Value::Type::Integer: return program->atomizeString(std::to_string(value.asIntValue()).c_str());
+        case Value::Type::ValuePtr: return propertyNameFromValue(program, value.bakeValue());
+        default: break;
+    }
+    return Atom::emptyAtom(); 
 }
 
 void ExecutionUnit::run(Program* program)
@@ -106,9 +141,9 @@ void ExecutionUnit::run(Program* program)
         /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
@@ -137,6 +172,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     uint32_t size;
     Op op;
     Value leftValue, rightValue;
+    Object* objectValue;
     
     DISPATCH;
     
@@ -278,44 +314,59 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             }
         }
         DISPATCH;
-    L_OPCODE:
-        switch(op) {
-            case Op::POP:
-                _stack.pop();
-                break;
-            case Op::STOPOP:
-                _stack.top(-1).setValue(_stack.top());
-                _stack.pop();
-                _stack.pop();
-                break;
-            case Op::PREINC:
-                _stack.top().setValue(_stack.top().toIntValue() + 1);
-                break;
-            case Op::PREDEC:
-                _stack.top().setValue(_stack.top().toIntValue() + 1);
-                break;
-            case Op::POSTINC:
-                if (!_stack.top().isLValue()) {
-                    printf("Must have an lvalue for POSTINC\n");
-                } else {
-                    leftValue = _stack.top().bakeValue();
-                    _stack.top().setValue(_stack.top().toIntValue() + 1);
-                    _stack.setTop(leftValue);
-                }
-                break;
-            case Op::POSTDEC:
-                if (!_stack.top().isLValue()) {
-                    printf("Must have an lvalue for POSTINC\n");
-                } else {
-                    leftValue = _stack.top().bakeValue();
-                    _stack.top().setValue(_stack.top().toIntValue() - 1);
-                    _stack.setTop(leftValue);
-                }
-                break;
-            default:
-                assert(0);
-                break;
+    L_PREINC:
+        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        DISPATCH;
+    L_PREDEC:
+        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        DISPATCH;
+    L_POSTINC:
+        if (!_stack.top().isLValue()) {
+            printf("Must have an lvalue for POSTINC\n");
+        } else {
+            leftValue = _stack.top().bakeValue();
+            _stack.top().setValue(_stack.top().toIntValue() + 1);
+            _stack.setTop(leftValue);
         }
+        DISPATCH;
+    L_POSTDEC:
+        if (!_stack.top().isLValue()) {
+            printf("Must have an lvalue for POSTINC\n");
+        } else {
+            leftValue = _stack.top().bakeValue();
+            _stack.top().setValue(_stack.top().toIntValue() - 1);
+            _stack.setTop(leftValue);
+        }
+        DISPATCH;
+    L_STO:
+        _stack.top(-1).setValue(_stack.top());
+        _stack.pop();
+        DISPATCH;
+    L_STOA:
+        objectValue = _stack.top(-1).asObjectValue();
+        if (!objectValue) {
+            printf("target of STOA must be an Object\n");
+        } else {
+            objectValue->appendElement(_stack.top());
+        }
+        _stack.pop();
+        DISPATCH;
+    L_POP:
+        _stack.pop();
+        DISPATCH;
+    L_STOPOP:
+        _stack.top(-1).setValue(_stack.top());
+        _stack.pop();
+        _stack.pop();
+        DISPATCH;
+    L_DEREF:
+        if (!deref(program, _stack.top(-1), _stack.top())) {
+            printf("Deref out of range or invalid\n");
+        }
+        _stack.pop();
+        DISPATCH;
+    L_OPCODE:
+        assert(0);
         DISPATCH;
     L_END:
         assert(_stack.size() == previousSize);

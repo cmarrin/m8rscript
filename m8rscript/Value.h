@@ -75,6 +75,8 @@ public:
     
     ~Value();
     
+    Type type() const { return _type; }
+    
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
@@ -88,12 +90,14 @@ public:
     
     bool toBoolValue() const;
     float toFloatValue() const;
-    int32_t toIntValue() const { return (_type == Type::Integer) ? asIntValue() : static_cast<int32_t>(toFloatValue()); }
-    int32_t toUIntValue() const { return (_type == Type::Integer) ? asUIntValue() : static_cast<uint32_t>(toFloatValue()); }
+    int32_t toIntValue() const { return static_cast<int32_t>(toUIntValue()); }
+    uint32_t toUIntValue() const;
+    Object* toObjectValue() const;
 
     bool setValue(const Value&);
-    Value bakeValue() const;
-    bool isInteger() const { return _type == Type::Integer; }
+    Value bakeValue() const { return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue(); }
+    
+    bool isInteger() const { return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger()); }
     bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
     
 private:  

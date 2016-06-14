@@ -10,10 +10,10 @@
 //    print(i + "squared is " + i * i);
 //}
 
-var a = [ ];
+var a = [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ];
 var n = 1000;
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
-        a[i] = i * (i + 1) / 2;
+        a[j] = j * (j + 1) / 2;
     }
 }

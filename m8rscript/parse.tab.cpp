@@ -1826,6 +1826,11 @@ yyreduce:
     { parser->emit((yyvsp[(1) - (1)].string)); ;}
     break;
 
+  case 16:
+#line 168 "parse.y"
+    { parser->emit(m8r::Op::DEREF); ;}
+    break;
+
   case 17:
 #line 169 "parse.y"
     { parser->emit(m8r::Op::DEREF); ;}
@@ -2248,7 +2253,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2252 "parse.tab.cpp"
+#line 2257 "parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

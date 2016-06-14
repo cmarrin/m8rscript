@@ -57,7 +57,7 @@ int main(int argc, const char* argv[])
     
     std::cout << "Parse:" << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
     std::cout << "Print:" << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
-    std::cout << "Run  :" << (static_cast<double>(runTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+    std::cout << "Run  :" << (static_cast<double>(runTime) / CLOCKS_PER_SEC * 1000) << "ms\n";
     
     return 0;
 }

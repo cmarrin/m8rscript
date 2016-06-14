@@ -61,6 +61,8 @@ public:
 private:
     Value* valueFromId(Atom, const Object*) const;
     void call(uint32_t nparams, Object*, bool isNew);
+    bool deref(Program*, Value&, const Value&);
+    Atom propertyNameFromValue(Program*, const Value&);
 
     m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
