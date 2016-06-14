@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Parser.h"
 #include <cassert>
+#include <cmath>
 
 using namespace m8r;
 
@@ -106,11 +107,11 @@ void ExecutionUnit::run(Program* program)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
-        /* 0xF0 */ OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
-        /* 0xF8 */ OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP) OP(BINARYOP)
+        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0xF0 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
     };
     
@@ -124,7 +125,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     Object* obj = program->main();
     _stack.clear();
-    _stack.setFrameSize(obj->localSize());
+    size_t previousFrame = _stack.setLocalFrame(obj->localSize());
+    size_t previousSize = _stack.size();
     int i = 0;
     
     m8r::String strValue;
@@ -164,11 +166,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHSX:
         uintValue = uintFromCode(obj, i, 4);
         i += 4;
-        _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(obj->codeAtIndex(i++)))));
+        _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(uintValue))));
         DISPATCH;
     L_PUSHO:
         uintValue = uintFromCode(obj, i, 4);
         i += 4;
+        _stack.push(program->objectFromObjectId(ObjectId::objectIdFromRawObjectId(uintValue)));
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
@@ -199,7 +202,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 DISPATCH;
             }
         }
-        i += intValue;
+        i += intValue - size;
         DISPATCH;
     L_NEW:
     L_NEWX:
@@ -212,8 +215,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
             op = maskOp(op, 0x0f);
         }
-        _stack.push(Value(i));
-        call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
+
+        // FIXME: For now just pop everything that was put on the stack
+        _stack.pop(uintValue + 1);
+        //_stack.push(Value(i));
+        //call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
+    
         DISPATCH;
     L_RET:
     L_RETX:
@@ -224,30 +231,86 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x07);
         }
         DISPATCH;
-    L_BINARYOP:
+    L_BINIOP:
+        rightValue = _stack.top().bakeValue();
+        _stack.pop();
+        leftValue = _stack.top().bakeValue();
+        switch(op) {
+            case Op::LOR: _stack.setTop(leftValue.toIntValue() || rightValue.toIntValue()); break;
+            case Op::LAND: _stack.setTop(leftValue.toIntValue() && rightValue.toIntValue()); break;
+            case Op::AND: _stack.setTop(leftValue.toIntValue() & rightValue.toIntValue()); break;
+            case Op::OR: _stack.setTop(leftValue.toIntValue() | rightValue.toIntValue()); break;
+            case Op::XOR: _stack.setTop(leftValue.toIntValue() ^ rightValue.toIntValue()); break;
+            case Op::EQ: _stack.setTop(leftValue.toIntValue() == rightValue.toIntValue()); break;
+            case Op::NE: _stack.setTop(leftValue.toIntValue() != rightValue.toIntValue()); break;
+            case Op::LT: _stack.setTop(leftValue.toIntValue() < rightValue.toIntValue()); break;
+            case Op::LE: _stack.setTop(leftValue.toIntValue() <= rightValue.toIntValue()); break;
+            case Op::GT: _stack.setTop(leftValue.toIntValue() > rightValue.toIntValue()); break;
+            case Op::GE: _stack.setTop(leftValue.toIntValue() >= rightValue.toIntValue()); break;
+            case Op::SHL: _stack.setTop(leftValue.toIntValue() << rightValue.toIntValue()); break;
+            case Op::SHR: _stack.setTop(leftValue.asUIntValue() >> rightValue.asUIntValue()); break;
+            case Op::SAR: _stack.setTop(leftValue.toIntValue() >> rightValue.toIntValue()); break;
+            default: assert(0); break;
+        }
+        DISPATCH;
+
+    L_BINOP:
         rightValue = _stack.top().bakeValue();
         _stack.pop();
         leftValue = _stack.top().bakeValue();
         if (leftValue.isInteger() && rightValue.isInteger()) {
             switch(op) {
+                case Op::ADD: _stack.setTop(leftValue.asIntValue() + rightValue.asIntValue()); break;
+                case Op::SUB: _stack.setTop(leftValue.asIntValue() - rightValue.asIntValue()); break;
                 case Op::MUL: _stack.setTop(leftValue.asIntValue() * rightValue.asIntValue()); break;
-                case Op::LT: _stack.setTop(leftValue.asIntValue() < rightValue.asIntValue()); break;
+                case Op::DIV: _stack.setTop(leftValue.asIntValue() / rightValue.asIntValue()); break;
+                case Op::MOD: _stack.setTop(leftValue.asIntValue() % rightValue.asIntValue()); break;
                 default: assert(0); break;
             }
         } else {
             switch(op) {
-                case Op::MUL: _stack.setTop(leftValue.toFloatValue() * rightValue.toFloatValue()); break;
-                case Op::LT: _stack.setTop(leftValue.toFloatValue() < rightValue.toFloatValue()); break;
+                case Op::ADD: _stack.setTop(leftValue.asFloatValue() + rightValue.asFloatValue()); break;
+                case Op::SUB: _stack.setTop(leftValue.asFloatValue() - rightValue.asFloatValue()); break;
+                case Op::MUL: _stack.setTop(leftValue.asFloatValue() * rightValue.asFloatValue()); break;
+                case Op::DIV: _stack.setTop(leftValue.asFloatValue() / rightValue.asFloatValue()); break;
+                case Op::MOD: _stack.setTop(std::fmod(leftValue.asFloatValue(), rightValue.asFloatValue())); break;
                 default: assert(0); break;
             }
         }
         DISPATCH;
     L_OPCODE:
         switch(op) {
+            case Op::POP:
+                _stack.pop();
+                break;
             case Op::STOPOP:
                 _stack.top(-1).setValue(_stack.top());
                 _stack.pop();
                 _stack.pop();
+                break;
+            case Op::PREINC:
+                _stack.top().setValue(_stack.top().toIntValue() + 1);
+                break;
+            case Op::PREDEC:
+                _stack.top().setValue(_stack.top().toIntValue() + 1);
+                break;
+            case Op::POSTINC:
+                if (!_stack.top().isLValue()) {
+                    printf("Must have an lvalue for POSTINC\n");
+                } else {
+                    leftValue = _stack.top().bakeValue();
+                    _stack.top().setValue(_stack.top().toIntValue() + 1);
+                    _stack.setTop(leftValue);
+                }
+                break;
+            case Op::POSTDEC:
+                if (!_stack.top().isLValue()) {
+                    printf("Must have an lvalue for POSTINC\n");
+                } else {
+                    leftValue = _stack.top().bakeValue();
+                    _stack.top().setValue(_stack.top().toIntValue() - 1);
+                    _stack.setTop(leftValue);
+                }
                 break;
             default:
                 assert(0);
@@ -255,6 +318,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         }
         DISPATCH;
     L_END:
+        assert(_stack.size() == previousSize);
+        _stack.restoreFrame(previousFrame);
         return;
 }
 
@@ -372,7 +437,7 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program, const Obje
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xF0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -408,10 +473,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     outputString += ")\n";
     
     _nestingLevel++;
-    if (obj->properties()) {
-        for (const auto& value : *obj->properties()) {
-            if (value.value.asObjectValue() && value.value.asObjectValue()->hasCode()) {
-                outputString += generateCodeString(program, value.value.asObjectValue(), "", _nestingLevel);
+    if (obj->propertyCount()) {
+        for (int32_t i = 0; i < obj->propertyCount(); ++i) {
+            const Value* value = obj->property(i);
+            if (!value) {
+                continue;
+            }
+            if (value->asObjectValue() && value->asObjectValue()->hasCode()) {
+                outputString += generateCodeString(program, value->asObjectValue(), "", _nestingLevel);
                 outputString += "\n";
             }
         }
@@ -610,6 +679,9 @@ static CodeMap opcodes[] = {
     
     OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
     OP(DEREF) OP(DEL) OP(POP) OP(STOPOP)
+    
+    OP(STOA)
+    OP(STOO)
 
     OP(STO) OP(STOMUL) OP(STOADD) OP(STOSUB) OP(STODIV) OP(STOMOD) OP(STOSHL) OP(STOSHR)
     OP(STOSAR) OP(STOAND) OP(STOOR) OP(STOXOR) OP(LOR) OP(LAND) OP(AND) OP(OR)

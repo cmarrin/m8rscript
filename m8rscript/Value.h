@@ -48,6 +48,7 @@ typedef union {
     void* v;
     float f;
     int32_t i;
+    uint32_t u;
     Object* o;
     const char* s;
     Atom a;
@@ -66,6 +67,7 @@ public:
     Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(NoId) { }
     Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(NoId) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(NoId) { }
+    Value(uint32_t value) : _value(valueFromUInt(value)) , _type(Type::Integer), _id(NoId) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(NoId) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
@@ -79,27 +81,33 @@ public:
     
     Object* asObjectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
+    uint32_t asUIntValue() const { return (_type == Type::Integer) ? uintFromValue() : 0; }
     float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : 0; }
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     Atom asIdValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
     
     bool toBoolValue() const;
     float toFloatValue() const;
+    int32_t toIntValue() const { return (_type == Type::Integer) ? asIntValue() : static_cast<int32_t>(toFloatValue()); }
+    int32_t toUIntValue() const { return (_type == Type::Integer) ? asUIntValue() : static_cast<uint32_t>(toFloatValue()); }
 
     bool setValue(const Value&);
     Value bakeValue() const;
     bool isInteger() const { return _type == Type::Integer; }
+    bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
     
 private:  
   
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
+    inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
     inline void* valueFromValuePtr(Value* val) const { U u; u.val = val; return u.v; }
 
     inline float floatFromValue() const { U u; u.v = _value; return u.f; }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
+    inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
     inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
     inline Value* valuePtrFromValue() const { U u; u.v = _value; return u.val; }

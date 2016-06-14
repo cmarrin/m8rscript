@@ -52,12 +52,13 @@ public:
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
     
-    virtual const Properties* properties() const { return nullptr; }
     virtual int32_t propertyIndex(const Atom& s) const { return -1; }
     virtual Value* property(int32_t index) { return nullptr; }
+    virtual const Value* property(int32_t index) const { return nullptr; }
     virtual bool setProperty(int32_t index, const Value&) { return false; }
     virtual Atom propertyName(uint32_t index) const { return Atom(); }
     virtual int32_t addProperty(const Atom&) { return -1; }
+    virtual size_t propertyCount() const { return 0; }
     
     virtual int32_t addLocal(const Atom& name) { return -1; }
     virtual int32_t localIndex(const Atom& name) const { return -1; }
@@ -72,9 +73,9 @@ class MaterObject : public Object {
 public:    
     virtual ~MaterObject() { }
 
-    virtual const Properties* properties() const override { return &_properties; }
     virtual int32_t propertyIndex(const Atom& s) const override { return findPropertyIndex(s); }
     virtual Value* property(int32_t index) override { return &(_properties[index].value); }
+    virtual const Value* property(int32_t index) const override { return &(_properties[index].value); }
     virtual bool setProperty(int32_t index, const Value& v) override
     {
         _properties[index].value = v;
@@ -91,6 +92,8 @@ public:
         return static_cast<int32_t>(_properties.size()) - 1;
     }
 
+    virtual size_t propertyCount() const override { return _properties.size(); }
+
 private:
     int32_t findPropertyIndex(const Atom& name) const
     {
@@ -103,6 +106,12 @@ private:
     }
     
     Properties _properties;
+};
+
+class Array : public Object {
+
+private:
+    std::vector<Value> _array;
 };
     
 }

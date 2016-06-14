@@ -106,7 +106,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
 %type <atom>		T_IDENTIFIER
 %type <integer>		T_INTEGER
 %type <number>		T_FLOAT
-%type <argcount>    argument_list arguments
+%type <argcount>    argument_list arguments property_name_and_value_list
 %type <op>          assignment_operator unary_operator
 %type <label>       iteration_start
 %type <function>    function
@@ -238,8 +238,8 @@ arithmetic_expression
 	;
 
 assignment_expression
-	: mutation_expression assignment_operator arithmetic_expression { parser->emit($2); }
-	| mutation_expression assignment_operator assignment_expression { parser->emit($2); }
+	: left_hand_side_expression assignment_operator arithmetic_expression { parser->emit($2); }
+	| left_hand_side_expression assignment_operator assignment_expression { parser->emit($2); }
 	;
 
 assignment_operator
@@ -403,22 +403,27 @@ function_body
     ;
 
 array_literal
-    : '[' ']'
-    | '[' argument_list ']'
+    : '[' { parser->emitArrayLiteral(); } ']'
+    | '[' { parser->emitArrayLiteral(); } array_value_list ']'
+    ;
+
+array_value_list
+    : expression { parser->emit(m8r::Op::STOA); }
+    | array_value_list ',' expression { parser->emit(m8r::Op::STOA); }
     ;
 
 object_literal
-    : '{' property_name_and_value_list '}'
+    : '{' property_name_and_value_list '}' { parser->emitObjectLiteral(); }
     ;
 
 property_name_and_value_list
-    : property_assignment
-    | property_name_and_value_list ',' property_assignment
+    : /* empty */
+    | property_assignment { parser->emit(m8r::Op::STOO); }
+    | property_name_and_value_list ',' property_assignment { parser->emit(m8r::Op::STOO); }
     ;
 
 property_assignment
-    : 
-    | property_name ':' expression
+    : property_name ':' expression
     ;
     
 property_name

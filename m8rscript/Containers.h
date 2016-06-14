@@ -181,10 +181,14 @@ public:
         Value value;
     };
 
-    Value* find(const Key& key) const
+    bool find(const Key& key, Value& value) const
     {
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
-        return (result >= 0) ? &(_list[result].value) : nullptr;
+        if (result < 0) {
+            return false;
+        }
+        value = _list[result].value;
+        return true;
     }
     Value* emplace(const Key& key, const Value& value)
     {
@@ -206,7 +210,7 @@ public:
     const Pair* end() const { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
 
 private:
-    int search(int first, int last, const Key& key)
+    int search(int first, int last, const Key& key) const
     {
         if (first <= last) {
             int mid = (first + last) / 2;
@@ -243,9 +247,23 @@ public:
         assert(static_cast<int32_t>(super::size()) + relative > 0);
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
-    void setFrameSize(size_t frameSize) {  _frame = size(); super::resize(size() + frameSize); }
+    
+    size_t setLocalFrame(size_t localSize)
+    {
+        size_t oldFrame = _frame;
+        _frame = size();
+        super::resize(size() + localSize);
+        return oldFrame;
+    }
+    void restoreFrame(size_t frame)
+    {
+        assert(frame <= size() && frame <= _frame);
+        super::resize(_frame);
+        _frame = frame;
+    }
+    
     type& inFrame(int32_t index) { return super::at(_frame + index); }
-    void pop() { super::pop_back(); }
+    void pop(size_t n = 1) { super::resize(size() - n); }
     void setTop(const type& value) { super::back() = value; }
 
 private:

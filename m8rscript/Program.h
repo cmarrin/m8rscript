@@ -50,6 +50,8 @@ public:
     uint32_t rawObjectId() const { return _id; }
     int compare(const ObjectId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
     
+    static ObjectId objectIdFromRawObjectId(uint32_t rawObjectId) { ObjectId id; id._id = rawObjectId; return id; }
+    
 private:
     uint32_t _id;
 };
@@ -93,6 +95,11 @@ public:
         return id;
     }
     const ObjectMap& objects() const { return _objects; }
+    Object* objectFromObjectId(const ObjectId& id)
+    {
+        Object* obj;
+        return _objects.find(id, obj) ? obj : nullptr;
+    }
 
 private:
     AtomTable _atomTable;
