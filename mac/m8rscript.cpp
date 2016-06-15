@@ -19,6 +19,8 @@
 extern int yydebug;
 #endif
 
+void print(const char* s) { std::cout << s; }
+
 int main(int argc, const char* argv[])
 {
 #ifdef YYDEBUG
@@ -41,18 +43,19 @@ int main(int argc, const char* argv[])
     std::cout << "Parsing...\n";
     
     std::clock_t startTime = std::clock();
-    m8r::Parser parser(&istream);
+    m8r::Parser parser(&istream, print);
     std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n\n";
 
     m8r::ExecutionUnit eu;
     
     startTime = std::clock();
-    printf("%s\n", eu.generateCodeString(parser.program()).c_str());
+    m8r::String s = eu.generateCodeString(parser.program());
     std::clock_t printTime = std::clock() - startTime;
+    std::cout << s.c_str();
     
     startTime = std::clock();
-    eu.run(parser.program());
+    eu.run(parser.program(), print);
     std::clock_t runTime = std::clock() - startTime;
     
     std::cout << "Parse:" << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us\n";

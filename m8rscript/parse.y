@@ -16,8 +16,6 @@
 #include "Program.h"
 #include "Parser.h"
 
-#define YYERROR_VERBOSE
-
 inline void yyerror(m8r::Parser* parser, const char* s)
 {
     parser->printError(s);

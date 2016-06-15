@@ -41,9 +41,10 @@ extern int yyparse(Parser*);
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(Stream* istream)
+Parser::Parser(Stream* istream, void (*printer)(const char*))
     : _scanner(this, istream)
     , _program(new Program)
+    , _printer(printer)
 {
     _currentFunction = _program->main();
 	yyparse(this);
@@ -52,7 +53,13 @@ Parser::Parser(Stream* istream)
 void Parser::printError(const char* s)
 {
     ++_nerrors;
-	printf("Error: %s on line %d\n", s, _scanner.lineno());
+    _printer("Error: ");
+    _printer(s);
+    _printer(" on line ");
+    char buf[20];
+    sprintf(buf, "%d", _scanner.lineno());
+    _printer(buf);
+    _printer("\n");
 }
 
 Label Parser::label()
@@ -161,7 +168,7 @@ void Parser::matchJump(Label& label)
         addCodeByte(static_cast<uint8_t>(jumpAddr));
     } else {
         if (jumpAddr < -32767 || jumpAddr > 32767) {
-            printf("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
+            printError("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
             return;
         }
         addCodeByte(Op::JMP, 0x01);
@@ -170,7 +177,7 @@ void Parser::matchJump(Label& label)
     
     jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.matchedAddr - 1;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
-        printf("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
+        printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
     _currentFunction->setCodeAtIndex(label.matchedAddr + 1, byteFromInt(jumpAddr, 1));

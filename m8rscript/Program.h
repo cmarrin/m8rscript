@@ -104,7 +104,7 @@ public:
 private:
     static AtomTable _atomTable;
     
-    std::vector<char> _stringTable;
+    Vector<char> _stringTable;
     Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;

@@ -68,7 +68,7 @@ public:
 private:
     enum class Property { Length };
     static Map<Atom, Property> _properties;
-    std::vector<Value> _array;
+    Vector<Value> _array;
 };
     
 }

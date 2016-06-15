@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "Opcodes.h"
 
-#define SHOW_CODE 0
+#define SHOW_CODE 1
 
 namespace m8r {
 
@@ -54,12 +54,12 @@ class ExecutionUnit {
 public:
     ExecutionUnit() : _stack(10) { }
     
-    void run(Program* program);
+    void run(Program* program, void (*printer)(const char*));
     
     m8r::String generateCodeString(const Program* program) const;
     
 private:
-    void printError(const char* s) const;
+    bool printError(const char* s, void (*)(const char*)) const;
     
     Value* valueFromId(Atom, const Object*) const;
     void call(uint32_t nparams, Object*, bool isNew);
@@ -110,7 +110,7 @@ private:
         uint32_t addr;
         uint32_t uniqueID;
     };
-    typedef std::vector<Annotation> Annotations;
+    typedef Vector<Annotation> Annotations;
 
     uint32_t findAnnotation(uint32_t addr) const;
     void preamble(m8r::String& s, uint32_t addr) const;
@@ -121,7 +121,7 @@ private:
 #endif
       
     Stack<Value> _stack;
-    
+
     mutable uint32_t _nerrors = 0;
 };
     

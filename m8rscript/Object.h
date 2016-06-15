@@ -42,7 +42,7 @@ namespace m8r {
 
 class Object {
 public:
-    typedef std::vector<Value::Map::Pair> Properties;
+    typedef Vector<Value::Map::Pair> Properties;
 
     virtual ~Object() { }
 

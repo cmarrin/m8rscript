@@ -140,7 +140,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 94 "parse.y"
+#line 92 "parse.y"
 {
     m8r::Op             op;
     m8r::Label          label;

@@ -42,14 +42,17 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void ExecutionUnit::printError(const char* s) const
+bool ExecutionUnit::printError(const char* s, void (*printer)(const char*)) const
 {
     ++_nerrors;
-	printf("Runtime error: %s\n", s);
+    printer("Runtime error: ");
+    printer(s);
+    printer("\n");
     if (++_nerrors > 10) {
-        printf("\n\nToo many runtime errors, exiting...\n");
-        exit(1);
+        printer("\n\nToo many runtime errors, exiting...\n");
+        return false;
     }
+    return true;
 }
 
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
@@ -110,12 +113,18 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     return Atom::emptyAtom(); 
 }
 
-void ExecutionUnit::run(Program* program)
+// Local implementation to workaround ESP8266 bug
+static float myfmod(float a, float b)
+{
+    return (a - b * floor(a / b));
+}
+
+void ExecutionUnit::run(Program* program, void (*printer)(const char*))
 {
     #undef OP
     #define OP(op) &&L_ ## op,
     
-    static void* dispatchTable[] {
+    static const void* dispatchTable[] {
         /* 0x00 */    OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x05 */ OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x0B */ OP(PUSHF)
@@ -323,7 +332,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 case Op::SUB: _stack.setTop(leftValue.asFloatValue() - rightValue.asFloatValue()); break;
                 case Op::MUL: _stack.setTop(leftValue.asFloatValue() * rightValue.asFloatValue()); break;
                 case Op::DIV: _stack.setTop(leftValue.asFloatValue() / rightValue.asFloatValue()); break;
-                case Op::MOD: _stack.setTop(std::fmod(leftValue.asFloatValue(), rightValue.asFloatValue())); break;
+                case Op::MOD: _stack.setTop(static_cast<float>(myfmod(leftValue.asFloatValue(), rightValue.asFloatValue()))); break;
                 default: assert(0); break;
             }
         }
@@ -336,7 +345,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
-            printError("Must have an lvalue for POSTINC");
+            if (!printError("Must have an lvalue for POSTINC", printer)) {
+                return;
+            }
         } else {
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() + 1);
@@ -345,7 +356,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTDEC:
         if (!_stack.top().isLValue()) {
-            printError("Must have an lvalue for POSTDEC");
+            if (!printError("Must have an lvalue for POSTDEC", printer)) {
+                return;
+            }
         } else {
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() - 1);
@@ -359,7 +372,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
-            printError("target of STOA must be an Object");
+            if (!printError("target of STOA must be an Object", printer)) {
+                return;
+            }
         } else {
             objectValue->appendElement(_stack.top());
         }
@@ -375,7 +390,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_DEREF:
         if (!deref(program, _stack.top(-1), _stack.top())) {
-            printError("Deref out of range or invalid");
+            if (!printError("Deref out of range or invalid", printer)) {
+                return;
+            }
         }
         _stack.pop();
         DISPATCH;
@@ -401,7 +418,7 @@ static m8r::String toString(float value)
 static m8r::String toString(uint32_t value)
 {
     m8r::String s;
-    char buf[40];
+    char buf[20];
     sprintf(buf, "%u", value);
     s = buf;
     return s;
@@ -460,8 +477,7 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program, const Obje
 {
     #undef OP
     #define OP(op) &&L_ ## op,
-    
-    static void* dispatchTable[] {
+    static const void* dispatchTable[] {
         /* 0x00 */    OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x05 */ OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x0B */ OP(PUSHF)
@@ -556,7 +572,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     int i = 0;
     for ( ; ; ) {
         if (i >= obj->codeSize()) {
-            printError("WENT PAST THE END OF CODE");
+            outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
         if (obj->codeAtIndex(i) == static_cast<uint8_t>(Op::END)) {

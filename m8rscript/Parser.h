@@ -55,7 +55,7 @@ namespace m8r {
 
 class Parser  {
 public:
-	Parser(Stream* istream);
+	Parser(Stream* istream, void (*printer)(const char*));
     
     ~Parser()
     {
@@ -144,10 +144,12 @@ private:
     Scanner _scanner;
     Program* _program;
     Function* _currentFunction;
-    std::vector<Function*> _functions;
+    Vector<Function*> _functions;
     uint32_t _nerrors = 0;
-    std::vector<std::vector<uint8_t>> _deferredCode;
+    Vector<Vector<uint8_t>> _deferredCode;
     bool _deferred = false;
+    
+    void (*_printer)(const char*);
 
     static uint32_t _nextLabelId;
     

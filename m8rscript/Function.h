@@ -62,8 +62,8 @@ public:
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(propertyCount()); }
 
 private:
-    std::vector<uint8_t> _code;
-    std::vector<Atom> _locals;
+    Vector<uint8_t> _code;
+    Vector<Atom> _locals;
     uint32_t _paramEnd = 0;
 };
     
