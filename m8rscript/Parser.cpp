@@ -73,8 +73,8 @@ Label Parser::label()
 void Parser::addCodeByte(uint8_t c)
 {
     if (_deferred) {
-        assert(_deferredCode.size() > 0);
-        _deferredCode.back().push_back(c);
+        assert(_deferredCodeBlocks.size() > 0);
+        _deferredCode.push_back(c);
     } else {
         _currentFunction->addCode(c);
     }
@@ -200,11 +200,12 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
 void Parser::emitDeferred()
 {
     assert(!_deferred);
-    assert(_deferredCode.size() > 0);
-    for (auto c : _deferredCode.back()) {
-        _currentFunction->addCode(c);
+    assert(_deferredCodeBlocks.size() > 0);
+    for (size_t i = _deferredCodeBlocks.back(); i < _deferredCode.size(); ++i) {
+        _currentFunction->addCode(_deferredCode[i]);
     }
-    _deferredCode.pop_back();
+    _deferredCode.resize(_deferredCodeBlocks.back());
+    _deferredCodeBlocks.pop_back();
 }
 
 void Parser::functionAddParam(const Atom& atom)

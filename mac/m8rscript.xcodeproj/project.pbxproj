@@ -43,6 +43,7 @@
 		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		4942EA8C1D0D950100E02088 /* Opcodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Opcodes.h; path = ../m8rscript/Opcodes.h; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
+		497F1F3F1D11CB5D0045866E /* m8rscript.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
@@ -116,6 +117,7 @@
 				4942EA811D07043C00E02088 /* Function.h */,
 				4942EA8C1D0D950100E02088 /* Opcodes.h */,
 				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
+				497F1F3F1D11CB5D0045866E /* m8rscript.ino */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
 				49E648151D00C088005F5059 /* parse.tab.cpp */,
 				49E648161D00C088005F5059 /* parse.tab.h */,

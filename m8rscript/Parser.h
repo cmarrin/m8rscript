@@ -41,8 +41,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "Array.h"
 
-#include <vector>
-
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -97,7 +95,7 @@ public:
     {
         assert(!_deferred);
         _deferred = true;
-        _deferredCode.resize(_deferredCode.size() + 1);
+        _deferredCodeBlocks.push_back(_deferredCode.size());
     }
     
     void endDeferred() { assert(_deferred); _deferred = false; }
@@ -146,7 +144,8 @@ private:
     Function* _currentFunction;
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;
-    Vector<Vector<uint8_t>> _deferredCode;
+    Vector<size_t> _deferredCodeBlocks;
+    Vector<uint8_t> _deferredCode;
     bool _deferred = false;
     
     void (*_printer)(const char*);

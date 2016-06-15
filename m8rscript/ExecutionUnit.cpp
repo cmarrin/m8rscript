@@ -582,9 +582,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (code < static_cast<uint8_t>(Op::PUSHI)) {
             int count = (code & 0x03) + 1;
             int nexti = i + count;
-            if (code == static_cast<uint8_t>(Op::PUSHSX)) {
-                nexti += intFromCode(obj, i, count);
-            }
             
             code &= 0xfc;
             Op op = static_cast<Op>(code);

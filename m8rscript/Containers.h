@@ -40,7 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cassert>
 #include <cstring>
 #include <limits>
-#include <vector>
 
 namespace m8r {
 
@@ -173,7 +172,7 @@ private:
 template<typename type>
 class Vector {
 public:
-    Vector() : _size(0), _capacity(0), _data(nullptr) {}; // Default constructor
+    Vector() : _size(0), _capacity(0), _data(nullptr) { }
     Vector(Vector const &other) : _data(nullptr)
     {
         *this = other;

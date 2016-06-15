@@ -59,19 +59,19 @@ class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type { None, Object, Float, Integer, String, Id, Ref, ValuePtr };
+    enum class Type { None = 0, Object, Float, Integer, String, Id, Ref, ValuePtr };
 
-    Value() : _value(nullptr), _type(Type::None), _id(NoId) { }
+    Value() : _value(nullptr), _type(Type::None), _id(0) { }
     Value(const Value& other) : _value(other._value), _type(other._type), _id(other._id) { }
     
-    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(NoId) { }
-    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(NoId) { }
-    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(NoId) { }
-    Value(uint32_t value) : _value(valueFromUInt(value)) , _type(Type::Integer), _id(NoId) { }
-    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(NoId) { }
+    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(0) { }
+    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
+    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
+    Value(uint32_t value) : _value(valueFromUInt(value)) , _type(Type::Integer), _id(0) { }
+    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
-    Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(NoId) { }
+    Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(0) { }
     
     ~Value();
     
@@ -101,8 +101,7 @@ public:
     bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
     bool isNone() const { return _type == Type::None; }
     
-private:  
-  
+private:
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
@@ -116,8 +115,7 @@ private:
     inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
     inline Value* valuePtrFromValue() const { U u; u.v = _value; return u.val; }
-
-    static constexpr uint16_t NoId = std::numeric_limits<uint16_t>::max();
+    
     void* _value;
     Type _type;
     uint16_t _id;
