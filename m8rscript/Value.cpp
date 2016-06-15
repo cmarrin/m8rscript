@@ -66,7 +66,7 @@ bool Value::toBoolValue() const
         }
         case Type::Id: return false;
         case Type::Ref:
-            return objFromValue()->property(_id)->toBoolValue();
+            return objFromValue()->property(_id).toBoolValue();
     }
 }
 
@@ -97,11 +97,11 @@ float Value::toFloatValue() const
         case Type::Integer: return static_cast<float>(asIntValue());
         case Type::String: {
             const char* s = asStringValue();
-            return s ? std::stof(s) : 0;
+            return s ? std::atof(s) : 0;
         }
         case Type::Id: return 0;
         case Type::Ref:
-            return objFromValue()->property(_id)->toFloatValue();
+            return objFromValue()->property(_id).toFloatValue();
     }
 }
 

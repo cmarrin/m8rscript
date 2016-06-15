@@ -52,12 +52,12 @@ public:
     virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
     virtual uint32_t codeSize() const { return 0; }
     
-    virtual int32_t propertyIndex(const Atom& s) const { return -1; }
-    virtual Value* property(int32_t index) { return nullptr; }
-    virtual const Value* property(int32_t index) const { return nullptr; }
+    virtual int32_t propertyIndex(const Atom& s, bool canExist = false) { return -1; }
+    virtual Value propertyRef(int32_t index) { return Value(); }
+    virtual const Value property(int32_t index) const { return Value(); }
     virtual bool setProperty(int32_t index, const Value&) { return false; }
     virtual Atom propertyName(uint32_t index) const { return Atom(); }
-    virtual int32_t addProperty(const Atom&, bool canExist = false) { return -1; }
+    virtual int32_t addProperty(const Atom&) { return -1; }
     virtual size_t propertyCount() const { return 0; }
     
     virtual Value* element(uint32_t index) { return nullptr; }
@@ -80,9 +80,17 @@ class MaterObject : public Object {
 public:    
     virtual ~MaterObject() { }
 
-    virtual int32_t propertyIndex(const Atom& s) const override { return findPropertyIndex(s); }
-    virtual Value* property(int32_t index) override { return &(_properties[index].value); }
-    virtual const Value* property(int32_t index) const override { return &(_properties[index].value); }
+    virtual int32_t propertyIndex(const Atom& name, bool canExist = false) override
+    {
+        int32_t index = findPropertyIndex(name);
+        if (index < 0) {
+            index = static_cast<int32_t>(_properties.size());
+            _properties.push_back({ name, Value() });
+        }
+        return index;
+    }
+    virtual Value propertyRef(int32_t index) override { return Value(&(_properties[index].value)); }
+    virtual const Value property(int32_t index) const override { return _properties[index].value; }
     virtual bool setProperty(int32_t index, const Value& v) override
     {
         _properties[index].value = v;
@@ -90,11 +98,11 @@ public:
     }
     
     virtual Atom propertyName(uint32_t index) const override { return _properties[index].key; }
-    virtual int32_t addProperty(const Atom& name, bool canExist = false) override
+    virtual int32_t addProperty(const Atom& name) override
     {
         int32_t index = findPropertyIndex(name);
         if (index >= 0) {
-            return canExist ? index : -1;
+            return -1;
         }
         _properties.push_back({ name, Value() });
         return static_cast<int32_t>(_properties.size()) - 1;
@@ -114,26 +122,6 @@ private:
     }
     
     Properties _properties;
-};
-
-class Array : public Object {
-public:
-    virtual Value* element(uint32_t index) override { return (index < _array.size()) ? &(_array[index]) : nullptr; }
-    virtual const Value* element(uint32_t index) const override { return (index < _array.size()) ? &(_array[index]) : nullptr; }
-    virtual bool setElement(uint32_t index, const Value& value) override
-    {
-        if (index >= _array.size()) {
-            return false;
-        }
-        _array[index] = value;
-        return true;
-    }
-    virtual bool appendElement(const Value& value) override { _array.push_back(value); return true; }
-    virtual size_t elementCount() const override { return _array.size(); }
-    virtual void setElementCount(size_t size) override { _array.resize(size); }
-
-private:
-    std::vector<Value> _array;
 };
     
 }

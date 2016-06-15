@@ -42,6 +42,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+void ExecutionUnit::printError(const char* s) const
+{
+    ++_nerrors;
+	printf("Runtime error: %s\n", s);
+    if (++_nerrors > 10) {
+        printf("\n\nToo many runtime errors, exiting...\n");
+        exit(1);
+    }
+}
+
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 {
     // Start at the current object and walk up the chain
@@ -76,11 +86,11 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         }
         return false;
     }
-    int32_t index = obj->addProperty(propertyNameFromValue(program, derefValue), true);
+    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
         return false;
     }
-    objectValue = obj->property(index);
+    objectValue = obj->propertyRef(index);
     return true;
 }
 
@@ -89,7 +99,11 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     switch(value.type()) {
         case Value::Type::String: return program->atomizeString(value.asStringValue());
         case Value::Type::Id: return value.asIdValue();
-        case Value::Type::Integer: return program->atomizeString(std::to_string(value.asIntValue()).c_str());
+        case Value::Type::Integer: {
+            char buf[40];
+            sprintf(buf, "%d", value.asIntValue());
+            return program->atomizeString(buf);
+        }
         case Value::Type::ValuePtr: return propertyNameFromValue(program, value.bakeValue());
         default: break;
     }
@@ -322,7 +336,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
-            printf("Must have an lvalue for POSTINC\n");
+            printError("Must have an lvalue for POSTINC");
         } else {
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() + 1);
@@ -331,7 +345,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTDEC:
         if (!_stack.top().isLValue()) {
-            printf("Must have an lvalue for POSTINC\n");
+            printError("Must have an lvalue for POSTDEC");
         } else {
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() - 1);
@@ -345,7 +359,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
-            printf("target of STOA must be an Object\n");
+            printError("target of STOA must be an Object");
         } else {
             objectValue->appendElement(_stack.top());
         }
@@ -361,7 +375,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_DEREF:
         if (!deref(program, _stack.top(-1), _stack.top())) {
-            printf("Deref out of range or invalid\n");
+            printError("Deref out of range or invalid");
         }
         _stack.pop();
         DISPATCH;
@@ -526,12 +540,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     _nestingLevel++;
     if (obj->propertyCount()) {
         for (int32_t i = 0; i < obj->propertyCount(); ++i) {
-            const Value* value = obj->property(i);
-            if (!value) {
+            const Value& value = obj->property(i);
+            if (value.isNone()) {
                 continue;
             }
-            if (value->asObjectValue() && value->asObjectValue()->hasCode()) {
-                outputString += generateCodeString(program, value->asObjectValue(), "", _nestingLevel);
+            if (value.asObjectValue() && value.asObjectValue()->hasCode()) {
+                outputString += generateCodeString(program, value.asObjectValue(), "", _nestingLevel);
                 outputString += "\n";
             }
         }
@@ -542,7 +556,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     int i = 0;
     for ( ; ; ) {
         if (i >= obj->codeSize()) {
-            printf("WENT PAST THE END OF CODE\n");
+            printError("WENT PAST THE END OF CODE");
             return outputString;
         }
         if (obj->codeAtIndex(i) == static_cast<uint8_t>(Op::END)) {

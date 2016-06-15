@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Scanner.h"
 #include "ExecutionUnit.h"
 #include "Program.h"
+#include "Array.h"
 
 #include <vector>
 

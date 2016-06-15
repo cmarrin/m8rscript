@@ -33,13 +33,67 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
+#include "Array.h"
+
 #include "Program.h"
 
 using namespace m8r;
 
-AtomTable Program::_atomTable;
+Map<Atom, Array::Property> Array::_properties;
 
-Program::~Program()
+Array::Array()
 {
-    delete _main;
+    if (_properties.empty()) {
+        _properties.emplace(Program::atomizeString("length"), Property::Length);
+    }
+}
+
+int32_t Array::propertyIndex(const Atom& name, bool canExist)
+{
+    Property prop;
+    return _properties.find(name, prop) ? static_cast<int32_t>(prop) : -1;
+}
+
+Value Array::propertyRef(int32_t index)
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Length: return Value(this, _array.size());
+        default: return Value();
+    }
+}
+
+const Value Array::property(int32_t index) const
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Length: return Value(static_cast<int32_t>(_array.size()));
+        default: return Value();
+    }
+}
+
+bool Array::setProperty(int32_t index, const Value& value)
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Length: _array.resize(value.toUIntValue()); return true;
+        default: return false;
+    }
+}
+
+Atom Array::propertyName(uint32_t index) const
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Length:
+            // Find it the hard way
+            for (const auto& entry : _properties) {
+                if (static_cast<int32_t>(entry.value) == index) {
+                    return entry.key;
+                }
+            }
+            return Atom::emptyAtom();
+        default: return Atom::emptyAtom();
+    }
+}
+
+size_t Array::propertyCount() const
+{
+    return _properties.size();
 }

@@ -99,6 +99,7 @@ public:
     
     bool isInteger() const { return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger()); }
     bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
+    bool isNone() const { return _type == Type::None; }
     
 private:  
   
@@ -118,7 +119,7 @@ private:
 
     static constexpr uint16_t NoId = std::numeric_limits<uint16_t>::max();
     void* _value;
-    Type _type : 4;
+    Type _type;
     uint16_t _id;
 };
 

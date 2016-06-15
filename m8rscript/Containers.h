@@ -208,6 +208,9 @@ public:
     const Pair* begin() const { return _list.size() ? &(_list[0]) : nullptr; }
     Pair* end() { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
     const Pair* end() const { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
+    
+    bool empty() const { return _list.empty(); }
+    size_t size() const { return _list.size(); }
 
 private:
     int search(int first, int last, const Key& key) const

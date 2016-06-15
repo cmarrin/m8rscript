@@ -67,9 +67,9 @@ public:
     const Function* main() const { return _main; }
     Function* main() { return _main; }
     
-    String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
-    String stringFromRawAtom(uint16_t rawAtom) const { return _atomTable.stringFromRawAtom(rawAtom); }
-    Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
+    static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
+    static String stringFromRawAtom(uint16_t rawAtom) { return _atomTable.stringFromRawAtom(rawAtom); }
+    static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     
     StringId startString() { StringId id; id._id = static_cast<uint32_t>(_stringTable.size()); return id; }
     void addToString(char c) { _stringTable.push_back(c); }
@@ -102,7 +102,8 @@ public:
     }
 
 private:
-    AtomTable _atomTable;
+    static AtomTable _atomTable;
+    
     std::vector<char> _stringTable;
     Function* _main;
     ObjectMap _objects;

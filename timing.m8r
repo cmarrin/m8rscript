@@ -1,0 +1,12 @@
+//
+// Timing test
+//
+
+var a = [ ];
+var n = 1000;
+a.length = n;
+for (var i = 0; i < n; ++i) {
+    for (var j = 0; j < n; ++j) {
+        a[j] = j * (j + 1) / 2;
+    }
+}

@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "Opcodes.h"
 
-#define SHOW_CODE 1
+#define SHOW_CODE 0
 
 namespace m8r {
 
@@ -59,6 +59,8 @@ public:
     m8r::String generateCodeString(const Program* program) const;
     
 private:
+    void printError(const char* s) const;
+    
     Value* valueFromId(Atom, const Object*) const;
     void call(uint32_t nparams, Object*, bool isNew);
     bool deref(Program*, Value&, const Value&);
@@ -119,6 +121,8 @@ private:
 #endif
       
     Stack<Value> _stack;
+    
+    mutable uint32_t _nerrors = 0;
 };
     
 }
