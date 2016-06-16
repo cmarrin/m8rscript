@@ -82,8 +82,17 @@ void Parser::addCodeByte(uint8_t c)
 
 void Parser::emit(StringId s)
 {
-    addCodeByte(Op::PUSHSX);
-    addCodeInt(s.rawStringId(), 4);
+    uint32_t rawStringId = s.rawStringId();
+    uint32_t sizeMask;
+    if (rawStringId <= 255) {
+        sizeMask = 0;
+    } else if (rawStringId <= 65535) {
+        sizeMask = 1;
+    } else {
+        sizeMask = 3;
+    }
+    addCodeByte(static_cast<uint8_t>(Op::PUSHSX) | sizeMask);
+    addCodeInt(rawStringId, sizeMask + 1);
 }
 
 void Parser::emit(uint32_t value)

@@ -59,20 +59,26 @@ class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type { None = 0, Object, Float, Integer, String, Id, Ref, ValuePtr };
+    enum class Type { None = 0, Object, Float, Integer, String, Id, Ref, ValuePtr, Return };
 
     Value() : _value(nullptr), _type(Type::None), _id(0) { }
-    Value(const Value& other) : _value(other._value), _type(other._type), _id(other._id) { }
+    Value(const Value& other) { *this = other; }
+    Value(Value& other) { *this = other; }
     
     Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(0) { }
     Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
-    Value(uint32_t value) : _value(valueFromUInt(value)) , _type(Type::Integer), _id(0) { }
+    Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
     Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(0) { }
+    
+    Value& operator=(const Value& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
+    Value& operator=(Value&& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
 
+    ~Value() { }
+    
     Type type() const { return _type; }
     
     //
@@ -88,9 +94,19 @@ public:
     
     bool toBoolValue() const;
     float toFloatValue() const;
-    int32_t toIntValue() const { return static_cast<int32_t>(toUIntValue()); }
-    uint32_t toUIntValue() const;
     Object* toObjectValue() const;
+
+    int32_t toIntValue() const { return static_cast<int32_t>(toUIntValue()); }
+    uint32_t toUIntValue() const
+    {
+        if (_type == Type::Integer) {
+            return asUIntValue();
+        }
+        if (_type == Type::ValuePtr) {
+            return bakeValue().toUIntValue();
+        }
+        return static_cast<int32_t>(toFloatValue());
+    }
 
     bool setValue(const Value&);
     Value bakeValue() const { return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue(); }

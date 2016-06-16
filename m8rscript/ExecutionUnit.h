@@ -62,7 +62,7 @@ private:
     bool printError(const char* s, void (*)(const char*)) const;
     
     Value* valueFromId(Atom, const Object*) const;
-    void call(uint32_t nparams, Object*, bool isNew);
+    uint32_t call(uint32_t nparams, Object*, bool isNew);
     bool deref(Program*, Value&, const Value&);
     Atom propertyNameFromValue(Program*, const Value&);
 

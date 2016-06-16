@@ -63,15 +63,7 @@ bool Value::toBoolValue() const
         case Type::Id: return false;
         case Type::Ref:
             return objFromValue()->property(_id).toBoolValue();
-    }
-}
-
-uint32_t Value::toUIntValue() const
-{
-    switch(_type) {
-        case Type::Integer: return asUIntValue();
-        case Type::ValuePtr: return bakeValue().toUIntValue();
-        default: return static_cast<int32_t>(toFloatValue());
+        case Type::Return: assert(0); return false;
     }
 }
 
@@ -98,6 +90,7 @@ float Value::toFloatValue() const
         case Type::Id: return 0;
         case Type::Ref:
             return objFromValue()->property(_id).toFloatValue();
+        case Type::Return: assert(0); return 0;
     }
 }
 

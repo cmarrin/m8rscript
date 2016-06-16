@@ -279,7 +279,7 @@ statement
     | compound_statement
 	| K_VAR variable_declaration_list ';'
     | K_DELETE left_hand_side_expression ';'
-    | call_expression ';'
+    | call_expression  { parser->emit(m8r::Op::POP); } ';'
     | mutation_expression { parser->emit(m8r::Op::POP); } ';'
     | assignment_expression  { parser->emit(m8r::Op::POP); } ';'
 	| selection_statement

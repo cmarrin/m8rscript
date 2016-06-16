@@ -46,8 +46,6 @@ Array::Array()
     if (_properties.empty()) {
         _properties.emplace(Program::atomizeString("length"), Property::Length);
     }
-    
-    _array.reserve(10000);
 }
 
 int32_t Array::propertyIndex(const Atom& name, bool canExist)

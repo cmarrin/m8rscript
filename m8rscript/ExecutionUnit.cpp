@@ -61,9 +61,13 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
-void ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
+uint32_t ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
 {
-//    // On entry the stack has the return address, followed by nparams values, followed by the function to be called
+// On entry the stack has:
+//      tos             ==> the return address
+//      tos-1           ==> nparams values
+//      tos-nparams-1   ==> the function to be called
+//
 //    size_t tos = _stack.size();
 //    Value& callee = _stack[tos - nparams - 2];
 //    Object* callee =
@@ -73,6 +77,24 @@ void ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
 //    for (size_t i = 0; i < nparams; ++i) {
 //        if (
 //    }
+
+//  FIXME: Implement calling
+//  until then, just pop the return addr
+    _stack.pop();
+
+// and push a dummy return count
+    _stack.push(Value(0, Value::Type::Return));
+    
+//
+// On return the return address has:
+//      tos         ==> A Value of type Type::Return with the count of actual returned values
+//      tos-1       ==> count returned values
+//      tos-count-1 ==> nparams values
+//      tos-count-nparams-1 ==> the function to be called
+//
+    uint32_t returnCount = _stack.top().asIntValue();
+    _stack.pop();
+    return returnCount;
 }
 
 bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& derefValue)
@@ -208,7 +230,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     int32_t leftIntValue, rightIntValue;
     float leftFloatValue, rightFloatValue;
     Object* objectValue;
-    
+    Value returnedValue;
+    uint32_t returnCount;
+
     DISPATCH;
     
     L_UNKNOWN:
@@ -235,8 +259,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
-        uintValue = uintFromCode(code, i, 4);
-        i += 4;
+        size = (static_cast<uint8_t>(op) & 0x03) + 1;
+        uintValue = uintFromCode(code, i, size);
+        i += size;
         _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(uintValue))));
         DISPATCH;
     L_PUSHO:
@@ -287,11 +312,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             op = maskOp(op, 0x0f);
         }
 
-        // FIXME: For now just pop everything that was put on the stack
-        _stack.pop(uintValue + 1);
-        //_stack.push(Value(i));
-        //call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
+        _stack.push(Value(i));
+        returnCount = call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
     
+        // Call/new is an expression. It needs to leave one item on the stack. If no values were
+        // returned, push a null Value. Otherwise push the first returned value
+        returnedValue = returnCount ? _stack.top(1-returnCount) : Value();
+        _stack.pop(returnCount + uintValue + 1);
+        _stack.push(returnedValue);
         DISPATCH;
     L_RET:
     L_RETX:
@@ -677,8 +705,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHSX:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(code, i, 4);
-        i += 4;
+        size = (static_cast<uint8_t>(op) & 0x03) + 1;
+        uintValue = uintFromCode(code, i, size);
+        i += size;
         outputString += "STR(\"";
         outputString += program->stringFromId(StringId::stringIdFromRawStringId(uintValue));
         outputString += "\")\n";
