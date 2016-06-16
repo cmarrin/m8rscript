@@ -65,7 +65,7 @@ void Parser::printError(const char* s)
 Label Parser::label()
 {
     Label label;
-    label.label = _currentFunction->codeSize();
+    label.label = static_cast<int32_t>(_currentFunction->code()->size());
     label.uniqueID = _nextLabelId++;
     return label;
 }
@@ -155,14 +155,14 @@ void Parser::addNamedFunction(Function* function, const Atom& name)
 void Parser::addMatchedJump(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JF || op == Op::JF);
-    label.matchedAddr = static_cast<int32_t>(_currentFunction->codeSize());
+    label.matchedAddr = static_cast<int32_t>(_currentFunction->code()->size());
     addCodeByte(op, 1);
     addCodeInt(0, 2);
 }
 
 void Parser::matchJump(Label& label)
 {
-    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->codeSize()) - 1;
+    int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->code()->size()) - 1;
     if (jumpAddr >= -127 && jumpAddr <= 127) {
         addCodeByte(Op::JMP);
         addCodeByte(static_cast<uint8_t>(jumpAddr));
@@ -175,7 +175,7 @@ void Parser::matchJump(Label& label)
         addCodeInt(jumpAddr, 2);
     }
     
-    jumpAddr = static_cast<int32_t>(_currentFunction->codeSize()) - label.matchedAddr - 1;
+    jumpAddr = static_cast<int32_t>(_currentFunction->code()->size()) - label.matchedAddr - 1;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;

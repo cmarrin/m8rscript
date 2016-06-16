@@ -145,7 +145,7 @@ private:
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;
     Vector<size_t> _deferredCodeBlocks;
-    Vector<uint8_t> _deferredCode;
+    Code _deferredCode;
     bool _deferred = false;
     
     void (*_printer)(const char*);

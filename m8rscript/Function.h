@@ -47,9 +47,7 @@ public:
 
     virtual ~Function() { }
 
-    virtual bool hasCode() const override { return true; }
-    virtual uint8_t codeAtIndex(uint32_t index) const override { return _code[index]; }
-    virtual uint32_t codeSize() const override { return static_cast<uint32_t>(_code.size()); }
+    virtual const Code* code() const override { return &_code; }
 
     virtual int32_t addLocal(const Atom& name) override;
     virtual int32_t localIndex(const Atom& name) const override;
@@ -62,7 +60,7 @@ public:
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(propertyCount()); }
 
 private:
-    Vector<uint8_t> _code;
+    Code _code;
     Vector<Atom> _locals;
     uint32_t _paramEnd = 0;
 };

@@ -221,7 +221,8 @@ public:
     const type* end() const { return _data + _size; }
     
 private:
-    void ensureCapacity(size_t size)
+    void ensureCapacity(size_t size) { if (_capacity >= size) return; _ensureCapacity(size); }
+    void _ensureCapacity(size_t size)
     {
         if (_capacity >= size) {
             return;

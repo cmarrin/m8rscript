@@ -40,10 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Value::~Value()
-{
-}
-
 bool Value::toBoolValue() const
 {
     switch(_type) {

@@ -167,8 +167,8 @@ void ExecutionUnit::run(Program* program, void (*printer)(const char*))
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
-        /* 0xF0 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINOP) OP(BINOP) OP(BINIOP) OP(BINIOP)
+        /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
     };
@@ -177,11 +177,21 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = static_cast<Op>(obj->codeAtIndex(i++)); \
+        op = static_cast<Op>(code[i++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
     Object* obj = program->main();
+    if (!obj) {
+        return;
+    }
+    
+    const Code* codeObj = obj->code();
+    if (!codeObj) {
+        return;
+    }
+    const uint8_t* code = &(codeObj->at(0));
+    
     _stack.clear();
     size_t previousFrame = _stack.setLocalFrame(obj->localSize());
     size_t previousSize = _stack.size();
@@ -195,6 +205,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     uint32_t size;
     Op op;
     Value leftValue, rightValue;
+    int32_t leftIntValue, rightIntValue;
+    float leftFloatValue, rightFloatValue;
     Object* objectValue;
     
     DISPATCH;
@@ -203,11 +215,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         return;
     L_PUSHID:
-        _stack.push(Atom::atomFromRawAtom(uintFromCode(obj, i, 2)));
+        _stack.push(Atom::atomFromRawAtom(uintFromCode(code, i, 2)));
         i += 2;
         DISPATCH;
     L_PUSHF:
-        floatValue = floatFromCode(obj, i);
+        floatValue = floatFromCode(code, i);
         _stack.push(Value(floatValue));
         i += 4;
         DISPATCH;
@@ -217,18 +229,18 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
-            uintValue = uintFromCode(obj, i, size);
+            uintValue = uintFromCode(code, i, size);
             i += size;
         }
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
-        uintValue = uintFromCode(obj, i, 4);
+        uintValue = uintFromCode(code, i, 4);
         i += 4;
         _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(uintValue))));
         DISPATCH;
     L_PUSHO:
-        uintValue = uintFromCode(obj, i, 4);
+        uintValue = uintFromCode(code, i, 4);
         i += 4;
         _stack.push(program->objectFromObjectId(ObjectId::objectIdFromRawObjectId(uintValue)));
         DISPATCH;
@@ -239,7 +251,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
             assert(size <= 2);
-            intValue = intFromCode(obj, i, size);
+            intValue = intFromCode(code, i, size);
             i += size;
         }
         _stack.push(&(_stack.inFrame(intValue)));
@@ -248,7 +260,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(obj, i, size);
+        intValue = intFromCode(code, i, size);
         op = maskOp(op, 0x01);
         i += size;
         if (op != Op::JMP) {
@@ -268,7 +280,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_CALL:
     L_CALLX:
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(obj, i, 1);
+            uintValue = uintFromCode(code, i, 1);
             i += 1;
         } else {
             uintValue = uintFromOp(op, 0x0f);
@@ -284,31 +296,24 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_RET:
     L_RETX:
         if (op == Op::RETX) {
-            uintValue = uintFromCode(obj, i, 1);
+            uintValue = uintFromCode(code, i, 1);
             i += 1;
         } else {
             uintValue = uintFromOp(op, 0x07);
         }
         DISPATCH;
     L_BINIOP:
-        rightValue = _stack.top().bakeValue();
+        rightIntValue = _stack.top().bakeValue().toIntValue();
         _stack.pop();
-        leftValue = _stack.top().bakeValue();
+        leftIntValue = _stack.top().bakeValue().toIntValue();
         switch(op) {
-            case Op::LOR: _stack.setTop(leftValue.toIntValue() || rightValue.toIntValue()); break;
-            case Op::LAND: _stack.setTop(leftValue.toIntValue() && rightValue.toIntValue()); break;
-            case Op::AND: _stack.setTop(leftValue.toIntValue() & rightValue.toIntValue()); break;
-            case Op::OR: _stack.setTop(leftValue.toIntValue() | rightValue.toIntValue()); break;
-            case Op::XOR: _stack.setTop(leftValue.toIntValue() ^ rightValue.toIntValue()); break;
-            case Op::EQ: _stack.setTop(leftValue.toIntValue() == rightValue.toIntValue()); break;
-            case Op::NE: _stack.setTop(leftValue.toIntValue() != rightValue.toIntValue()); break;
-            case Op::LT: _stack.setTop(leftValue.toIntValue() < rightValue.toIntValue()); break;
-            case Op::LE: _stack.setTop(leftValue.toIntValue() <= rightValue.toIntValue()); break;
-            case Op::GT: _stack.setTop(leftValue.toIntValue() > rightValue.toIntValue()); break;
-            case Op::GE: _stack.setTop(leftValue.toIntValue() >= rightValue.toIntValue()); break;
-            case Op::SHL: _stack.setTop(leftValue.toIntValue() << rightValue.toIntValue()); break;
-            case Op::SHR: _stack.setTop(leftValue.asUIntValue() >> rightValue.asUIntValue()); break;
-            case Op::SAR: _stack.setTop(leftValue.toIntValue() >> rightValue.toIntValue()); break;
+            case Op::AND: _stack.setTop(leftIntValue & rightIntValue); break;
+            case Op::OR: _stack.setTop(leftIntValue | rightIntValue); break;
+            case Op::XOR: _stack.setTop(leftIntValue ^ rightIntValue); break;
+            case Op::SHL: _stack.setTop(leftIntValue << rightIntValue); break;
+            case Op::SAR: _stack.setTop(leftIntValue >> rightIntValue); break;
+            case Op::SHR:
+                _stack.setTop(static_cast<uint32_t>(leftIntValue) >> rightIntValue); break;
             default: assert(0); break;
         }
         DISPATCH;
@@ -318,21 +323,42 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.pop();
         leftValue = _stack.top().bakeValue();
         if (leftValue.isInteger() && rightValue.isInteger()) {
+            leftIntValue = leftValue.toIntValue();
+            rightIntValue = rightValue.toIntValue();
             switch(op) {
-                case Op::ADD: _stack.setTop(leftValue.asIntValue() + rightValue.asIntValue()); break;
-                case Op::SUB: _stack.setTop(leftValue.asIntValue() - rightValue.asIntValue()); break;
-                case Op::MUL: _stack.setTop(leftValue.asIntValue() * rightValue.asIntValue()); break;
-                case Op::DIV: _stack.setTop(leftValue.asIntValue() / rightValue.asIntValue()); break;
-                case Op::MOD: _stack.setTop(leftValue.asIntValue() % rightValue.asIntValue()); break;
+                case Op::LOR: _stack.setTop(leftIntValue || rightIntValue); break;
+                case Op::LAND: _stack.setTop(leftIntValue && rightIntValue); break;
+                case Op::EQ: _stack.setTop(leftIntValue == rightIntValue); break;
+                case Op::NE: _stack.setTop(leftIntValue != rightIntValue); break;
+                case Op::LT: _stack.setTop(leftIntValue < rightIntValue); break;
+                case Op::LE: _stack.setTop(leftIntValue <= rightIntValue); break;
+                case Op::GT: _stack.setTop(leftIntValue > rightIntValue); break;
+                case Op::GE: _stack.setTop(leftIntValue >= rightIntValue); break;
+                case Op::ADD: _stack.setTop(leftIntValue + rightIntValue); break;
+                case Op::SUB: _stack.setTop(leftIntValue - rightIntValue); break;
+                case Op::MUL: _stack.setTop(leftIntValue * rightIntValue); break;
+                case Op::DIV: _stack.setTop(leftIntValue / rightIntValue); break;
+                case Op::MOD: _stack.setTop(leftIntValue % rightIntValue); break;
                 default: assert(0); break;
             }
         } else {
+            leftFloatValue = leftValue.toFloatValue();
+            rightFloatValue = rightValue.toFloatValue();
+               
             switch(op) {
-                case Op::ADD: _stack.setTop(leftValue.asFloatValue() + rightValue.asFloatValue()); break;
-                case Op::SUB: _stack.setTop(leftValue.asFloatValue() - rightValue.asFloatValue()); break;
-                case Op::MUL: _stack.setTop(leftValue.asFloatValue() * rightValue.asFloatValue()); break;
-                case Op::DIV: _stack.setTop(leftValue.asFloatValue() / rightValue.asFloatValue()); break;
-                case Op::MOD: _stack.setTop(static_cast<float>(myfmod(leftValue.asFloatValue(), rightValue.asFloatValue()))); break;
+                case Op::LOR: _stack.setTop(leftFloatValue || rightFloatValue); break;
+                case Op::LAND: _stack.setTop(leftFloatValue && rightFloatValue); break;
+                case Op::EQ: _stack.setTop(leftFloatValue == rightFloatValue); break;
+                case Op::NE: _stack.setTop(leftFloatValue != rightFloatValue); break;
+                case Op::LT: _stack.setTop(leftFloatValue < rightFloatValue); break;
+                case Op::LE: _stack.setTop(leftFloatValue <= rightFloatValue); break;
+                case Op::GT: _stack.setTop(leftFloatValue > rightFloatValue); break;
+                case Op::GE: _stack.setTop(leftFloatValue >= rightFloatValue); break;
+                case Op::ADD: _stack.setTop(leftFloatValue + rightFloatValue); break;
+                case Op::SUB: _stack.setTop(leftFloatValue - rightFloatValue); break;
+                case Op::MUL: _stack.setTop(leftFloatValue * rightFloatValue); break;
+                case Op::DIV: _stack.setTop(leftFloatValue / rightFloatValue); break;
+                case Op::MOD: _stack.setTop(static_cast<float>(myfmod(leftFloatValue, rightFloatValue))); break;
                 default: assert(0); break;
             }
         }
@@ -349,6 +375,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 return;
             }
         } else {
+            if (!_stack.top().isInteger()) {
+                if (!printError("Must have an integer value for POSTINC", printer)) {
+                    return;
+                }
+            }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() + 1);
             _stack.setTop(leftValue);
@@ -360,6 +391,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 return;
             }
         } else {
+            if (!_stack.top().isInteger()) {
+                if (!printError("Must have an integer value for POSTDEC", printer)) {
+                    return;
+                }
+            }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() - 1);
             _stack.setTop(leftValue);
@@ -459,7 +495,7 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program) const
     m8r::String outputString;
     
 	for (const auto& object : program->objects()) {
-        if (object.value->hasCode()) {
+        if (object.value->code()) {
             outputString += generateCodeString(program, object.value, ::toString(object.key.rawObjectId()).c_str(), _nestingLevel);
             outputString += "\n";
         }
@@ -530,7 +566,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = static_cast<Op>(obj->codeAtIndex(i++)); \
+        op = static_cast<Op>(code[i++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -560,33 +596,35 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             if (value.isNone()) {
                 continue;
             }
-            if (value.asObjectValue() && value.asObjectValue()->hasCode()) {
+            if (value.asObjectValue() && value.asObjectValue()->code()) {
                 outputString += generateCodeString(program, value.asObjectValue(), "", _nestingLevel);
                 outputString += "\n";
             }
         }
     }
     
+    const uint8_t* code = &(obj->code()->at(0));
+
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
     int i = 0;
     for ( ; ; ) {
-        if (i >= obj->codeSize()) {
+        if (i >= obj->code()->size()) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
-        if (obj->codeAtIndex(i) == static_cast<uint8_t>(Op::END)) {
+        if (obj->code()->at(i) == static_cast<uint8_t>(Op::END)) {
             break;
         }
-        uint8_t code = obj->codeAtIndex(i++);
-        if (code < static_cast<uint8_t>(Op::PUSHI)) {
-            int count = (code & 0x03) + 1;
+        uint8_t c = obj->code()->at(i++);
+        if (c < static_cast<uint8_t>(Op::PUSHI)) {
+            int count = (c & 0x03) + 1;
             int nexti = i + count;
             
-            code &= 0xfc;
-            Op op = static_cast<Op>(code);
+            c &= 0xfc;
+            Op op = static_cast<Op>(c);
             if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-                int32_t addr = intFromCode(obj, i, count);
+                int32_t addr = intFromCode(code, i, count);
                 Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
                 annotations.push_back(annotation);
             }
@@ -609,7 +647,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        strValue = program->stringFromRawAtom(uintFromCode(obj, i, 2));
+        strValue = program->stringFromRawAtom(uintFromCode(code, i, 2));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();
@@ -617,7 +655,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHF:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(obj, i, 4);
+        uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "FLT(";
         outputString += ::toString(*(reinterpret_cast<float*>(&uintValue)));
@@ -630,7 +668,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
-            uintValue = uintFromCode(obj, i, size);
+            uintValue = uintFromCode(code, i, size);
             i += size;
         }
         outputString += "INT(";
@@ -639,7 +677,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHSX:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(obj, i, 4);
+        uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "STR(\"";
         outputString += program->stringFromId(StringId::stringIdFromRawStringId(uintValue));
@@ -647,7 +685,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHO:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(obj, i, 4);
+        uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "OBJ(";
         outputString += ::toString(uintValue);
@@ -660,7 +698,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
-            uintValue = uintFromCode(obj, i, size);
+            uintValue = uintFromCode(code, i, size);
             i += size;
         }
         outputString += "LOCAL(";
@@ -672,7 +710,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_JF:
         preamble(outputString, i - 1);
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(obj, i, size);
+        intValue = intFromCode(code, i, size);
         op = maskOp(op, 0x01);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
         outputString += " LABEL[";
@@ -686,7 +724,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_CALLX:
         preamble(outputString, i - 1);
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(obj, i, 1);
+            uintValue = uintFromCode(code, i, 1);
             i += 1;
         } else {
             uintValue = uintFromOp(op, 0x07);
@@ -701,7 +739,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_RETX:
         preamble(outputString, i - 1);
         if (op == Op::RETX) {
-            uintValue = uintFromCode(obj, i, 1);
+            uintValue = uintFromCode(code, i, 1);
             i += 1;
         } else {
             uintValue = uintFromOp(op, 0x07);

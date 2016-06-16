@@ -40,6 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+typedef Vector<uint8_t> Code;
+
 class Object {
 public:
     typedef Vector<Value::Map::Pair> Properties;
@@ -48,9 +50,7 @@ public:
 
     virtual const Atom* name() const { return nullptr; }
     
-    virtual bool hasCode() const { return false; }
-    virtual uint8_t codeAtIndex(uint32_t index) const { return 0; }
-    virtual uint32_t codeSize() const { return 0; }
+    virtual const Code* code() const { return nullptr; }
     
     virtual int32_t propertyIndex(const Atom& s, bool canExist = false) { return -1; }
     virtual Value propertyRef(int32_t index) { return Value(); }

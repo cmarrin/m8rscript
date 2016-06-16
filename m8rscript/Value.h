@@ -72,9 +72,7 @@ public:
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
     Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
     Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(0) { }
-    
-    ~Value();
-    
+
     Type type() const { return _type; }
     
     //

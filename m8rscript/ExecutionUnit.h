@@ -79,9 +79,9 @@ private:
     }
     uint8_t uintFromOp(Op op, uint8_t mask) const { return static_cast<uint8_t>(op) & mask; }
 
-    int32_t intFromCode(const Object* obj, uint32_t index, uint32_t size) const
+    int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size) const
     {
-        uint32_t num = uintFromCode(obj, index, size);
+        uint32_t num = uintFromCode(code, index, size);
         uint32_t mask = 0x80 << (8 * (size - 1));
         if (num & mask) {
             return num | ~(mask - 1);
@@ -89,19 +89,19 @@ private:
         return static_cast<int32_t>(num);
     }
     
-    uint32_t uintFromCode(const Object* obj, uint32_t index, uint32_t size) const
+    uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size) const
     {
         uint32_t value = 0;
         for (int i = 0; i < size; ++i) {
             value <<= 8;
-            value |= obj->codeAtIndex(index + i);
+            value |= code[index + i];
         }
         return value;
     }
     
-    float floatFromCode(const Object* obj, uint32_t index) const
+    float floatFromCode(const uint8_t* code, uint32_t index) const
     {
-        uint32_t i = uintFromCode(obj, index, 4);
+        uint32_t i = uintFromCode(code, index, 4);
         return *reinterpret_cast<float*>(&i);
     }
     

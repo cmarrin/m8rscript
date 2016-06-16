@@ -3,7 +3,7 @@
 //
 
 var a = [ ];
-var n = 1000;
+var n = 5000;
 a.length = n;
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
