@@ -97,8 +97,30 @@ uint32_t ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
     return returnCount;
 }
 
+Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValue)
+{
+    if (derefValue.isInteger()) {
+        return Value();
+    }
+    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
+    if (index < 0) {
+        return Value();
+    }
+    return obj->propertyRef(index);
+}
+
 bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& derefValue)
 {
+    if (objectValue.type() == Value::Type::Id) {
+        objectValue = deref(program, program->global(), objectValue);
+        return deref(program, objectValue, derefValue);
+    }
+    
+    if (objectValue.type() == Value::Type::Ref) {
+        objectValue = objectValue.appendPropertyRef(derefValue);
+        return !objectValue.isNone();
+    }
+    
     Object* obj = objectValue.toObjectValue();
     if (!obj) {
         return false;

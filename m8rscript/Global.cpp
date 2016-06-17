@@ -33,77 +33,74 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#pragma once
+#include "Global.h"
 
-#include <stdint.h>
-#include <assert.h>
+#include "Program.h"
 
-#include "Stream.h"
-#include "Float.h"
-#include "Atom.h"
-#include "Opcodes.h"
+using namespace m8r;
 
-namespace m8r {
-    class Function;
+Map<Atom, Global::Property> Global::_properties;
+
+Global::Global()
+{
+    if (_properties.empty()) {
+        _properties.emplace(Program::atomizeString("Date"), Property::Date);
+        _properties.emplace(Program::atomizeString("now"), Property::Date_now);
+    }
 }
 
-#include "parse.tab.h"
+int32_t Global::propertyIndex(const Atom& name, bool canExist)
+{
+    Property prop;
+    return _properties.find(name, prop) ? static_cast<int32_t>(prop) : -1;
+}
 
-#define MAX_ID_LENGTH 32
-
-namespace m8r {
-
-class Parser;
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: Scanner
-//
-//  
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class Scanner  {
-public:
-  	Scanner(Parser* parser, Stream* istream)
-  	 : _lastChar(C_EOF)
-  	 , _istream(istream)
-     , _lineno(1)
-     , _parser(parser)
-  	{
+Value Global::propertyRef(int32_t index)
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date: return Value(this, 0);
+        default: return Value();
     }
-  	
-  	~Scanner()
-  	{
+}
+
+const Value Global::property(int32_t index) const
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date: return Value(0);
+        default: return Value();
     }
-  
-  	uint8_t getToken(YYSTYPE* token);
-    
-    uint32_t lineno() const { return _lineno; }
-  	
-private:
-    uint8_t get() const;
-    
-	void putback(uint8_t c) const
-	{
-  		assert(_lastChar == C_EOF && c != C_EOF);
-  		_lastChar = c;
-	}
+}
 
-  	uint8_t scanKeyword(const char*);
-  	uint8_t scanString(char terminal);
-  	uint8_t scanSpecial();
-  	uint8_t scanIdentifier();
-  	uint8_t scanNumber();
-  	uint8_t scanComment();
-  	void scanDigits(bool hex);
-  	bool scanFloat();
-    
-  	mutable uint8_t _lastChar;
-  	m8r::String _tokenString;
-  	Stream* _istream;
-    mutable uint32_t _lineno;
-    Parser* _parser;
-};
+bool Global::setProperty(int32_t index, const Value& value)
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date: return true;
+        default: return false;
+    }
+}
 
+Atom Global::propertyName(uint32_t index) const
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date:
+            // Find it the hard way
+            for (const auto& entry : _properties) {
+                if (static_cast<int32_t>(entry.value) == index) {
+                    return entry.key;
+                }
+            }
+            return Atom::emptyAtom();
+        default: return Atom::emptyAtom();
+    }
+}
+
+size_t Global::propertyCount() const
+{
+    return _properties.size();
+}
+
+Value Global::appendPropertyRef(uint32_t index, const Atom&)
+{
+    // FIXME: For now assume we're appending Date with now
+    return Value(this, static_cast<uint16_t>(Property::Date_now));
 }

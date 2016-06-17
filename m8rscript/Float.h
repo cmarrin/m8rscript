@@ -35,62 +35,77 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+namespace m8r {
+
+class Float
+{
+public:
+    static Float makeFloat(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
+    {
 #ifdef FIXED_POINT_FLOAT
-#define FPF int32_t
-#define FPF_ADD(a,b)	(a+b)
-#define FPF_SUB(a,b)	(a-b)
-#define FPF_MUL(a,b)	(a*b/1000)
-#define FPF_DIV(a,b)	(a*1000/b)
-inline FPF FPF_MAKE(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
-{
-	int32_t num = i*1000;
-	while (dp < 3) {
-		++dp;
-		f *= 10;
-	}
-	while (dp > 3) {
-		--dp;
-		f /= 10;
-	}
-	num += f;
-	while (e > 0) {
-		--e;
-		num *= 10;
-	}
-	while (e < 0) {
-		++e;
-		num /= 10;
-	}
-	return num;
-}
-
-#define FPF_TO_INT(f)	(f/1000)
-#define INT_TO_FPF(i)	(i*1000)
-
+        int32_t num = i*1000;
+        while (dp < 3) {
+            ++dp;
+            f *= 10;
+        }
+        while (dp > 3) {
+            --dp;
+            f /= 10;
+        }
+        while ( f > 1000) {
+            f /= 10;
+        }
+        num += f;
+        while (e > 0) {
+            --e;
+            num *= 10;
+        }
+        while (e < 0) {
+            ++e;
+            num /= 10;
+        }
+        Float f;
+        f._v = num;
+        return f;
 #else
-
-#define FPF float
-#define FPF_ADD(a,b)	(a+b)
-#define FPF_SUB(a,b)	(a-b)
-#define FPF_MUL(a,b)	(a*b)
-#define FPF_DIV(a,b)	(a/b)
-inline FPF FPF_MAKE(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
-{
-	float num = (float) f;
-	while (dp-- > 0)
-		num /= 10;
-	num += (float) i;
-	while (e > 0) {
-		--e;
-		num *= 10;
-	}
-	while (e < 0) {
-		++e;
-		num /= 10;
-	}
-	return num;
-}
-
-#define FPF_TO_INT(f)	((int32_t) f)
-#define INT_TO_FPF(i)	((float) i)
+        float num = (float) f;
+        while (dp-- > 0)
+            num /= 10;
+        num += (float) i;
+        while (e > 0) {
+            --e;
+            num *= 10;
+        }
+        while (e < 0) {
+            ++e;
+            num /= 10;
+        }
+        Float v;
+        v._v = num;
+        return v;
 #endif
+    }
+    
+    Float& operator=(const Float& other) { _v = other._v; return *this; }
+    Float& operator=(Float& other) { _v = other._v; return *this; }
+    
+    Float operator+(const Float& other) { Float r; r._v = _v + other._v; return *this; }
+    Float operator-(const Float& other) { Float r; r._v = _v - other._v; return *this; }
+
+#ifdef FIXED_POINT_FLOAT
+    Float operator*(const Float& other) { Float r; r._v = _v * other._v / 1000; return *this; }
+    Float operator/(const Float& other) { Float r; r._v = _v * 1000 / other._v; return *this; }
+#else
+    Float operator*(const Float& other) { Float r; r._v = _v * other._v; return *this; }
+    Float operator/(const Float& other) { Float r; r._v = _v / other._v; return *this; }
+#endif
+    
+private:
+#ifdef FIXED_POINT_FLOAT
+    int32_t _v;
+#else
+    float _v;
+#endif
+};
+
+}

@@ -110,6 +110,7 @@ public:
 
     bool setValue(const Value&);
     Value bakeValue() const { return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue(); }
+    Value appendPropertyRef(const Value& value) const;
     
     bool isInteger() const { return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger()); }
     bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }

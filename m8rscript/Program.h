@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Function.h"
+#include "Global.h"
 
 namespace m8r {
 
@@ -66,6 +67,8 @@ public:
     
     const Function* main() const { return _main; }
     Function* main() { return _main; }
+    const Object* global() const { return &_global; }
+    Object* global() { return &_global; }
     
     static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
     static String stringFromRawAtom(uint16_t rawAtom) { return _atomTable.stringFromRawAtom(rawAtom); }
@@ -108,6 +111,7 @@ private:
     Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;
+    Global _global;
 };
     
 }

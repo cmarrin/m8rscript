@@ -59,6 +59,7 @@ public:
     virtual Atom propertyName(uint32_t index) const { return Atom(); }
     virtual int32_t addProperty(const Atom&) { return -1; }
     virtual size_t propertyCount() const { return 0; }
+    virtual Value appendPropertyRef(uint32_t index, const Atom&) { return Value(); }
     
     virtual Value* element(uint32_t index) { return nullptr; }
     virtual const Value* element(uint32_t index) const { return nullptr; }

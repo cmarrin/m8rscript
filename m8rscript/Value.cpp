@@ -120,3 +120,10 @@ Object* Value::toObjectValue() const
     }
     return nullptr;
 }
+
+Value Value::appendPropertyRef(const Value& value) const
+{
+    return (_type == Type::Ref) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
+}
+    
+

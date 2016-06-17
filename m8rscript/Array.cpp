@@ -57,7 +57,7 @@ int32_t Array::propertyIndex(const Atom& name, bool canExist)
 Value Array::propertyRef(int32_t index)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Length: return Value(this, _array.size());
+        case Property::Length: return Value(this, static_cast<int32_t>(Property::Length));
         default: return Value();
     }
 }

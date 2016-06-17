@@ -63,6 +63,7 @@ private:
     
     Value* valueFromId(Atom, const Object*) const;
     uint32_t call(uint32_t nparams, Object*, bool isNew);
+    Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);
     Atom propertyNameFromValue(Program*, const Value&);
 

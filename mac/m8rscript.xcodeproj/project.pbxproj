@@ -10,6 +10,7 @@
 		4942EA831D070C9B00E02088 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		4942EA861D0AEAC600E02088 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
 		4942EA881D0AF26300E02088 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
+		4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4984E8301D1370A500D0ABA6 /* Global.cpp */; };
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49D95E811D107AEE00B8A651 /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
@@ -46,13 +47,15 @@
 		497F1F3F1D11CB5D0045866E /* m8rscript.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
 		4984E82F1D1336AE00D0ABA6 /* timing.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.lua; path = ../timing.lua; sourceTree = "<group>"; };
+		4984E8301D1370A500D0ABA6 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../m8rscript/Global.cpp; sourceTree = "<group>"; };
+		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../m8rscript/Global.h; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
-		49E648141D00C088005F5059 /* FixedPointFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FixedPointFloat.h; path = ../m8rscript/FixedPointFloat.h; sourceTree = "<group>"; };
+		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
 		49E648151D00C088005F5059 /* parse.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse.tab.cpp; path = ../m8rscript/parse.tab.cpp; sourceTree = "<group>"; };
 		49E648161D00C088005F5059 /* parse.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parse.tab.h; path = ../m8rscript/parse.tab.h; sourceTree = "<group>"; };
 		49E648171D00C088005F5059 /* parse.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = parse.y; path = ../m8rscript/parse.y; sourceTree = "<group>"; };
@@ -116,9 +119,11 @@
 				49E648221D00CB57005F5059 /* Containers.h */,
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */,
-				49E648141D00C088005F5059 /* FixedPointFloat.h */,
+				49E648141D00C088005F5059 /* Float.h */,
 				4942EA871D0AF26300E02088 /* Function.cpp */,
 				4942EA811D07043C00E02088 /* Function.h */,
+				4984E8301D1370A500D0ABA6 /* Global.cpp */,
+				4984E8311D1370A500D0ABA6 /* Global.h */,
 				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
 				497F1F3F1D11CB5D0045866E /* m8rscript.ino */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
@@ -217,6 +222,7 @@
 				49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */,
 				4942EA881D0AF26300E02088 /* Function.cpp in Sources */,
 				49E6481E1D00C088005F5059 /* Parser.cpp in Sources */,
+				4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */,
 				4942EA831D070C9B00E02088 /* Program.cpp in Sources */,
 				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,

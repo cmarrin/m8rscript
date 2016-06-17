@@ -3,7 +3,7 @@
 --
 
 local a = { }
-local n = 5000
+local n = 1000
 a.n = n
 
 local startTime = os.clock();
