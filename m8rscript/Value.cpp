@@ -40,6 +40,50 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+m8r::String Value::toString(float value)
+{
+    char buf[40];
+    sprintf(buf, "%g", value);
+    return m8r::String(buf);
+}
+
+m8r::String Value::toString(uint32_t value)
+{
+    char buf[20];
+    sprintf(buf, "%u", value);
+    return m8r::String(buf);
+}
+
+m8r::String Value::toString(int32_t value)
+{
+    char buf[20];
+    sprintf(buf, "%d", value);
+    return m8r::String(buf);
+}
+
+m8r::String Value::toStringValue() const
+{
+    switch(_type) {
+        case Type::ValuePtr:
+            return bakeValue().toStringValue();
+        case Type::None: return String();
+        case Type::Object: {
+            Value* v = nullptr;
+            Object* obj = asObjectValue();
+            if (obj) {
+                v = obj->value();
+            }
+            return v ? v->toStringValue() : String();
+        }
+        case Type::Float: return toString(asFloatValue());
+        case Type::Integer: return toString(asIntValue());
+        case Type::String: return m8r::String(asStringValue());
+        case Type::Id: return m8r::String();
+        case Type::Ref: return objFromValue()->property(_id).toStringValue();
+        case Type::Return: assert(0); return m8r::String();
+    }
+}
+
 bool Value::toBoolValue() const
 {
     switch(_type) {
@@ -125,5 +169,14 @@ Value Value::appendPropertyRef(const Value& value) const
 {
     return (_type == Type::Ref) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
 }
+
+uint32_t Value::call(Stack<Value>& stack, uint32_t nparams)
+{
+    if (_type == Type::Ref) {
+        return objFromValue()->callProperty(_id, stack, nparams);
+    }
+    return -1;
+}
+
     
 

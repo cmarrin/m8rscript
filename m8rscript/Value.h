@@ -92,6 +92,7 @@ public:
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     Atom asIdValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
     
+    m8r::String toStringValue() const;
     bool toBoolValue() const;
     float toFloatValue() const;
     Object* toObjectValue() const;
@@ -111,10 +112,23 @@ public:
     bool setValue(const Value&);
     Value bakeValue() const { return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue(); }
     Value appendPropertyRef(const Value& value) const;
+    uint32_t call(Stack<Value>& stack, uint32_t nparams);
     
-    bool isInteger() const { return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger()); }
+    bool isInteger() const
+    {
+        return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger());
+    }
+    bool isFloat() const
+    {
+        return (_type == Type::Float) || (_type == Type::ValuePtr && bakeValue().isFloat());
+    }
+    bool isNumber() const { return isInteger() || isFloat(); }
     bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
     bool isNone() const { return _type == Type::None; }
+
+    static m8r::String toString(float value);
+    static m8r::String toString(int32_t value);
+    static m8r::String toString(uint32_t value);
     
 private:
     inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }

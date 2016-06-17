@@ -52,9 +52,17 @@ public:
     virtual size_t propertyCount() const override;
     virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
 
+    virtual int32_t callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams) override;
+
 private:
-    enum class Property { Date, Date_now };
+    uint32_t currentTime() const;
+
+    enum class Property { Date, Date_now, print };
     static Map<Atom, Property> _properties;
+    
+#if __APPLE__
+    uint64_t _startTime;
+#endif
 };
     
 }

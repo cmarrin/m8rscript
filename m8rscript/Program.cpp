@@ -39,6 +39,11 @@ using namespace m8r;
 
 AtomTable Program::_atomTable;
 
+Program::Program()
+{
+    _main = new Function();
+}
+
 Program::~Program()
 {
     delete _main;

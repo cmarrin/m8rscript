@@ -61,8 +61,7 @@ class Program {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
 
-    Program() { _main = new Function(); }
-    
+    Program();
     ~Program();
     
     const Function* main() const { return _main; }
@@ -103,6 +102,8 @@ public:
         Object* obj;
         return _objects.find(id, obj) ? obj : nullptr;
     }
+    
+    uint32_t currentTime() const;
 
 private:
     static AtomTable _atomTable;

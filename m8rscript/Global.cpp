@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Global.h"
 
 #include "Program.h"
+#include <ctime>
+#include <cstdio>
 
 using namespace m8r;
 
@@ -43,9 +45,12 @@ Map<Atom, Global::Property> Global::_properties;
 
 Global::Global()
 {
+    _startTime = static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC);
+
     if (_properties.empty()) {
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
         _properties.emplace(Program::atomizeString("now"), Property::Date_now);
+        _properties.emplace(Program::atomizeString("print"), Property::print);
     }
 }
 
@@ -58,7 +63,8 @@ int32_t Global::propertyIndex(const Atom& name, bool canExist)
 Value Global::propertyRef(int32_t index)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Date: return Value(this, 0);
+        case Property::Date: return Value(this, static_cast<uint32_t>(Property::Date));
+        case Property::print: return Value(this, static_cast<uint32_t>(Property::print));
         default: return Value();
     }
 }
@@ -81,17 +87,13 @@ bool Global::setProperty(int32_t index, const Value& value)
 
 Atom Global::propertyName(uint32_t index) const
 {
-    switch(static_cast<Property>(index)) {
-        case Property::Date:
-            // Find it the hard way
-            for (const auto& entry : _properties) {
-                if (static_cast<int32_t>(entry.value) == index) {
-                    return entry.key;
-                }
-            }
-            return Atom::emptyAtom();
-        default: return Atom::emptyAtom();
+    // Find it the hard way
+    for (const auto& entry : _properties) {
+        if (static_cast<int32_t>(entry.value) == index) {
+            return entry.key;
+        }
     }
+    return Atom::emptyAtom();
 }
 
 size_t Global::propertyCount() const
@@ -103,4 +105,27 @@ Value Global::appendPropertyRef(uint32_t index, const Atom&)
 {
     // FIXME: For now assume we're appending Date with now
     return Value(this, static_cast<uint16_t>(Property::Date_now));
+}
+
+int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams)
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date_now:
+            stack.push(currentTime());
+            return 1;
+        case Property::print:
+            for (int i = 1 - nparams; i <= 0; ++i) {
+                printf("%s", stack.top(i).toStringValue().c_str());
+            }
+        default: return -1;
+    }
+}
+
+uint32_t Global::currentTime() const
+{
+#if __APPLE__
+    return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC) - _startTime);
+#else
+    return millis();
+#endif
 }

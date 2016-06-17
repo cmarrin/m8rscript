@@ -61,12 +61,11 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
-uint32_t ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
+uint32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
 {
 // On entry the stack has:
-//      tos             ==> the return address
-//      tos-1           ==> nparams values
-//      tos-nparams-1   ==> the function to be called
+//      tos           ==> nparams values
+//      tos-nparams   ==> the function to be called
 //
 //    size_t tos = _stack.size();
 //    Value& callee = _stack[tos - nparams - 2];
@@ -78,23 +77,23 @@ uint32_t ExecutionUnit::call(uint32_t nparams, Object* obj, bool isNew)
 //        if (
 //    }
 
-//  FIXME: Implement calling
-//  until then, just pop the return addr
-    _stack.pop();
-
-// and push a dummy return count
-    _stack.push(Value(0, Value::Type::Return));
+    Value callee = _stack.top(-nparams);
+    if (callee.type() == Value::Type::Id) {
+        callee = deref(program, program->global(), callee);
+    }
     
+    // FIXME: when error occurs (return < 0) log an error or something
+    int32_t returnCount = callee.call(_stack, nparams);
+    if (returnCount < 0) {
+        returnCount = 0;
+    }
+    return returnCount;
 //
 // On return the return address has:
-//      tos         ==> A Value of type Type::Return with the count of actual returned values
-//      tos-1       ==> count returned values
-//      tos-count-1 ==> nparams values
-//      tos-count-nparams-1 ==> the function to be called
+//      tos       ==> count returned values
+//      tos-count ==> nparams values
+//      tos-count-nparams ==> the function to be called
 //
-    uint32_t returnCount = _stack.top().asIntValue();
-    _stack.pop();
-    return returnCount;
 }
 
 Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValue)
@@ -213,7 +212,7 @@ void ExecutionUnit::run(Program* program, void (*printer)(const char*))
         /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINOP) OP(BINOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
-        /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
+        /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
     };
     
@@ -253,7 +252,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
-    uint32_t returnCount;
+    int32_t returnCount;
 
     DISPATCH;
     
@@ -334,12 +333,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             op = maskOp(op, 0x0f);
         }
 
-        _stack.push(Value(i));
-        returnCount = call(uintValue, obj, op == Op::CALL || op == Op::CALLX);
+        returnCount = call(program, uintValue, obj, op == Op::CALL || op == Op::CALLX);
     
         // Call/new is an expression. It needs to leave one item on the stack. If no values were
         // returned, push a null Value. Otherwise push the first returned value
-        returnedValue = returnCount ? _stack.top(1-returnCount) : Value();
+        returnedValue = (returnCount > 0) ? _stack.top(1-returnCount) : Value();
         _stack.pop(returnCount + uintValue + 1);
         _stack.push(returnedValue);
         DISPATCH;
@@ -350,6 +348,20 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += 1;
         } else {
             uintValue = uintFromOp(op, 0x07);
+        }
+        DISPATCH;
+    L_ADD:
+        rightValue = _stack.top().bakeValue();
+        _stack.pop();
+        leftValue = _stack.top().bakeValue();
+        if (leftValue.isInteger() && rightValue.isInteger()) {
+            _stack.setTop(leftValue.toIntValue() + rightValue.toIntValue());
+        } else if (leftValue.isNumber() && rightValue.isNumber()) {
+            _stack.setTop(leftValue.toFloatValue() + rightValue.toFloatValue());
+        } else {
+            m8r::String s = leftValue.toStringValue();
+            s += rightValue.toStringValue();
+            _stack.setTop(s.c_str());
         }
         DISPATCH;
     L_BINIOP:
@@ -384,7 +396,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 case Op::LE: _stack.setTop(leftIntValue <= rightIntValue); break;
                 case Op::GT: _stack.setTop(leftIntValue > rightIntValue); break;
                 case Op::GE: _stack.setTop(leftIntValue >= rightIntValue); break;
-                case Op::ADD: _stack.setTop(leftIntValue + rightIntValue); break;
                 case Op::SUB: _stack.setTop(leftIntValue - rightIntValue); break;
                 case Op::MUL: _stack.setTop(leftIntValue * rightIntValue); break;
                 case Op::DIV: _stack.setTop(leftIntValue / rightIntValue); break;
@@ -404,7 +415,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 case Op::LE: _stack.setTop(leftFloatValue <= rightFloatValue); break;
                 case Op::GT: _stack.setTop(leftFloatValue > rightFloatValue); break;
                 case Op::GE: _stack.setTop(leftFloatValue >= rightFloatValue); break;
-                case Op::ADD: _stack.setTop(leftFloatValue + rightFloatValue); break;
                 case Op::SUB: _stack.setTop(leftFloatValue - rightFloatValue); break;
                 case Op::MUL: _stack.setTop(leftFloatValue * rightFloatValue); break;
                 case Op::DIV: _stack.setTop(leftFloatValue / rightFloatValue); break;
@@ -492,24 +502,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 }
 
 #if SHOW_CODE
-static m8r::String toString(float value)
-{
-    m8r::String s;
-    char buf[40];
-    sprintf(buf, "%g", value);
-    s = buf;
-    return s;
-}
-
-static m8r::String toString(uint32_t value)
-{
-    m8r::String s;
-    char buf[20];
-    sprintf(buf, "%u", value);
-    s = buf;
-    return s;
-}
-
 uint32_t ExecutionUnit::findAnnotation(uint32_t addr) const
 {
     for (auto annotation : annotations) {
@@ -533,7 +525,7 @@ void ExecutionUnit::preamble(String& s, uint32_t addr) const
         ++_nestingLevel;
     }
     s += "LABEL[";
-    s += ::toString(uniqueID);
+    s += Value::toString(uniqueID);
     s += "]\n";
     indentCode(s);
 }
@@ -546,7 +538,7 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program) const
     
 	for (const auto& object : program->objects()) {
         if (object.value->code()) {
-            outputString += generateCodeString(program, object.value, ::toString(object.key.rawObjectId()).c_str(), _nestingLevel);
+            outputString += generateCodeString(program, object.value, Value::toString(object.key.rawObjectId()).c_str(), _nestingLevel);
             outputString += "\n";
         }
 	}
@@ -708,7 +700,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "FLT(";
-        outputString += ::toString(*(reinterpret_cast<float*>(&uintValue)));
+        outputString += Value::toString(*(reinterpret_cast<float*>(&uintValue)));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
@@ -722,7 +714,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += size;
         }
         outputString += "INT(";
-        outputString += ::toString(uintValue);
+        outputString += Value::toString(uintValue);
         outputString += ")\n";
         DISPATCH;
     L_PUSHSX:
@@ -739,7 +731,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "OBJ(";
-        outputString += ::toString(uintValue);
+        outputString += Value::toString(uintValue);
         outputString += ")\n";
         DISPATCH;
     L_PUSHL:
@@ -765,7 +757,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         op = maskOp(op, 0x01);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
         outputString += " LABEL[";
-        outputString += ::toString(findAnnotation(i + intValue));
+        outputString += Value::toString(findAnnotation(i + intValue));
         outputString += "]\n";
         i += size;
         DISPATCH;
@@ -783,7 +775,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         
         outputString += (maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
         outputString += "[";
-        outputString += ::toString(uintValue);
+        outputString += Value::toString(uintValue);
         outputString += "]\n";
         DISPATCH;
     L_RET:
@@ -797,7 +789,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         }
     
         outputString += "RET[";
-        outputString += ::toString(uintValue);
+        outputString += Value::toString(uintValue);
         outputString += "]\n";
         DISPATCH;
     L_OPCODE:
