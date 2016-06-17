@@ -70,6 +70,7 @@ static Keyword keywords[] = {
 };
 
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
+static inline bool isOctal(uint8_t c)       { return c >= '0' && c <= '7'; }
 static inline bool isHex(uint8_t c)         { return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
 static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
 static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
@@ -97,6 +98,79 @@ uint8_t Scanner::scanString(char terminal)
 		if (c == terminal) {
 			break;
 		}
+        while (c == '\\') {
+            switch((c = get())) {
+                case 'a': c = 0x07; break;
+                case 'b': c = 0x08; break;
+                case 'f': c = 0x0c; break;
+                case 'n': c = 0x0a; break;
+                case 'r': c = 0x0d; break;
+                case 't': c = 0x09; break;
+                case 'v': c = 0x0b; break;
+                case '\\': c = 0x5c; break;
+                case '\'': c = 0x27; break;
+                case '"': c = 0x22; break;
+                case '?': c = 0x3f; break;
+                case 'x': {
+                    if ((c = get()) == C_EOF) {
+                        return T_STRING;
+                    }
+                    
+                    if (!isHex(c) && !isDigit(c)) {
+                        c = '?';
+                        break;
+                    }
+                    
+                    uint32_t num = 0;
+                    putback(c);
+                    while ((c = get()) != C_EOF) {
+                        if (!isHex(c) && !isDigit(c)) {
+                            break;
+                        }
+                        if (isDigit(c)) {
+                            num = (num << 4) | (c - '0');
+                        } else if (isUpper(c)) {
+                            num = (num << 4) | ((c - 'A') + 0x0a);
+                        } else {
+                            num = (num << 4) | ((c - 'a') + 0x0a);
+                        }
+                    }
+                    if (num > 0xffffff) {
+                        _parser->addToString(static_cast<uint8_t>(num >> 24) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num >> 16) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                    } else if (num > 0xffff) {
+                        _parser->addToString(static_cast<uint8_t>(num >> 16) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                    } else if (num > 0xff) {
+                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
+                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                    } else {
+                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                    }
+                    break;
+                }
+                default: {
+                    if (!isOctal(c)) {
+                        c = '?';
+                        break;
+                    }
+                    
+                    uint32_t size = 0;
+                    uint32_t num = c - '0';
+                    while ((c = get()) != C_EOF) {
+                        if (!isOctal(c) || ++size >= 3) {
+                            break;
+                        }
+                        num = (num << 3) | (c - '0');
+                    }
+                    _parser->addToString(static_cast<uint8_t>(num) & 0x3f);
+                    break;
+                }
+            }
+        }
 		_parser->addToString(c);
 	}
 	return T_STRING;

@@ -46,21 +46,24 @@ int main(int argc, const char* argv[])
     m8r::Parser parser(&istream, print);
     std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n\n";
-
-    m8r::ExecutionUnit eu;
-    
-    startTime = std::clock();
-    m8r::String s = eu.generateCodeString(parser.program());
-    std::clock_t printTime = std::clock() - startTime;
-    std::cout << s.c_str();
-    
-    startTime = std::clock();
-    eu.run(parser.program(), print);
-    std::clock_t runTime = std::clock() - startTime;
-    
     std::cout << "Parse:" << (static_cast<double>(parseTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
-    std::cout << "Print:" << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
-    std::cout << "Run  :" << (static_cast<double>(runTime) / CLOCKS_PER_SEC * 1000) << "ms\n";
+
+    if (!parser.nerrors()) {
+        m8r::ExecutionUnit eu;
+        
+        startTime = std::clock();
+        m8r::String s = eu.generateCodeString(parser.program());
+        std::clock_t printTime = std::clock() - startTime;
+        std::cout << s.c_str();
+        
+        startTime = std::clock();
+        eu.run(parser.program(), print);
+        std::clock_t runTime = std::clock() - startTime;
+        
+        std::cout << "Print:" << (static_cast<double>(printTime) / CLOCKS_PER_SEC * 1000000) << "us\n";
+        std::cout << "Run  :" << (static_cast<double>(runTime) / CLOCKS_PER_SEC * 1000) << "ms\n";
+    }
     
+    std::cout << "\n";
     return 0;
 }
