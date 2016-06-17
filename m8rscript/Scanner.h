@@ -65,7 +65,7 @@ class Parser;
 
 class Scanner  {
 public:
-  	Scanner(Parser* parser, Stream* istream)
+  	Scanner(Parser* parser, m8r::Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
@@ -101,7 +101,7 @@ private:
     
   	mutable uint8_t _lastChar;
   	m8r::String _tokenString;
-  	Stream* _istream;
+  	m8r::Stream* _istream;
     mutable uint32_t _lineno;
     Parser* _parser;
 };

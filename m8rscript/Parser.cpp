@@ -41,7 +41,7 @@ extern int yyparse(Parser*);
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(Stream* istream, void (*printer)(const char*))
+Parser::Parser(m8r::Stream* istream, void (*printer)(const char*))
     : _scanner(this, istream)
     , _program(new Program)
     , _printer(printer)

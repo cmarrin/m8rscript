@@ -1,9 +1,11 @@
 #include "Parser.h"
+#include "Stream.h"
 
 void print(const char* s) { }
 
-void setup()
+int main(int argc, const char* argv[])
 {
+    // put your setup code here, to run once:
     m8r::FileStream istream("");
     m8r::Parser parser(&istream, ::print);
     m8r::ExecutionUnit eu;
@@ -12,8 +14,4 @@ void setup()
 
     //m8r::Program program;
     //eu.run(&program, print);
-}
-
-void loop()
-{
 }

@@ -152,7 +152,7 @@ typedef union YYSTYPE
     uint32_t            argcount;
 }
 /* Line 1529 of yacc.c.  */
-#line 156 "parse.tab.h"
+#line 156 "m8rscript/parse.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

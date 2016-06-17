@@ -53,7 +53,7 @@ namespace m8r {
 
 class Parser  {
 public:
-	Parser(Stream* istream, void (*printer)(const char*));
+	Parser(m8r::Stream* istream, void (*printer)(const char*));
     
     ~Parser()
     {

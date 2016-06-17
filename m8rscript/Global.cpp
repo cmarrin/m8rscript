@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdio>
 
 #if !__APPLE__
-#include <Arduino.h>
+//#include <Arduino.h>
 #endif
 
 using namespace m8r;
@@ -132,6 +132,6 @@ uint32_t Global::currentTime() const
 #if __APPLE__
     return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC) - _startTime);
 #else
-    return millis();
+    return 0; //millis();
 #endif
 }

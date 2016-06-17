@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 
+namespace m8r {
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Stream
@@ -65,7 +67,7 @@ private:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class FileStream : public Stream {
+class FileStream : public m8r::Stream {
 public:
 	FileStream(const char* file)
     {
@@ -89,3 +91,5 @@ private:
     FILE* _file;
     size_t _size;
 };
+
+}

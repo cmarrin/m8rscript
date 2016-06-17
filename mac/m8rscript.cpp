@@ -32,7 +32,7 @@ int main(int argc, const char* argv[])
         return 0;
     }
     
-    FileStream istream(argv[1]);
+    m8r::FileStream istream(argv[1]);
     std::cout << "Opening '" << argv[1] << "'\n";
 
     if (!istream.loaded()) {

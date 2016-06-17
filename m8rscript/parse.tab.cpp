@@ -218,7 +218,7 @@ typedef union YYSTYPE
     uint32_t            argcount;
 }
 /* Line 193 of yacc.c.  */
-#line 222 "parse.tab.cpp"
+#line 222 "m8rscript/parse.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -231,7 +231,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 235 "parse.tab.cpp"
+#line 235 "m8rscript/parse.tab.cpp"
 
 #ifdef short
 # undef short
@@ -2256,7 +2256,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2260 "parse.tab.cpp"
+#line 2260 "m8rscript/parse.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
