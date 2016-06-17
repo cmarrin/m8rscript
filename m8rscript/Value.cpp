@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "Object.h"
-#include <string>
+#include <cstdio>
 
 using namespace m8r;
 

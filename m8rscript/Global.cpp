@@ -39,13 +39,19 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <ctime>
 #include <cstdio>
 
+#if !__APPLE__
+#include <Arduino.h>
+#endif
+
 using namespace m8r;
 
 Map<Atom, Global::Property> Global::_properties;
 
 Global::Global()
 {
+#if __APPLE__
     _startTime = static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC);
+#endif
 
     if (_properties.empty()) {
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
