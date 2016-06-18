@@ -17,9 +17,11 @@
 # User editable area
 #====================================================================================
 
-#=== Project specific definitions: sketch and list of needed libraries
-SKETCH ?= m8rscript.cpp
-LIBS ?= Array.cpp \
+#=== Project specific definitions
+SRC_DIR = ../m8rscript
+
+MAIN_SRC ?= m8rscript.cpp
+SRC ?= Array.cpp \
 		Atom.cpp \
 		ExecutionUnit.cpp \
 		Function.cpp \
@@ -59,10 +61,10 @@ MKESPARD_VERSION = 1.0.0
 
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
-MAIN_NAME = $(basename $(notdir $(SKETCH)))
+MAIN_NAME = $(basename $(notdir $(MAIN_SRC)))
 MAIN_EXE = $(BUILD_ROOT)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
-SRC_GIT_VERSION = $(call git_description,$(dir $(SKETCH)))
+SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
@@ -83,6 +85,9 @@ AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
 ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 OTA_TOOL = $(TOOLS_ROOT)/espota.py
 
+LIBS = c gcc hal pp phy net80211 lwip wpa main
+LIBS := $(addprefix -l,$(LIBS))
+
 INCLUDE_DIRS += $(SDK_ROOT)/include $(SDK_ROOT)/lwip/include $(CORE_DIR) $(ESP_ROOT)/variants/generic $(OBJ_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
@@ -90,7 +95,8 @@ C_FLAGS ?= -c -Os -g -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL 
 CPP_FLAGS ?= -c -Os -g -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -g -x assembler-with-cpp -MMD
 LD_FLAGS ?= -g -w -Os -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
-LD_STD_LIBS ?= -lm -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+# LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
+LD_STD_LIBS = $(LIBS)
 
 # Core source files
 CORE_DIR = $(ESP_ROOT)/cores-min
@@ -99,7 +105,7 @@ CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # User defined compilation units
-USER_SRC = $(SKETCH) $(shell find $(LIBS) -name "*.S" -o -name "*.c" -o -name "*.cpp")
+USER_SRC = $(SRC_DIR)/$(MAIN_SRC) $(shell find $(addprefix $(SRC_DIR)/, $(SRC)) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 # Object file suffix seems to be significant for the linker...
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
