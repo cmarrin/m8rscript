@@ -20,7 +20,7 @@
 #=== Project specific definitions
 SRC_DIR = ../m8rscript
 
-MAIN_SRC ?= m8rscript.cpp
+MAIN_SRC ?= m8rscript.ino
 SRC ?= Array.cpp \
 		Atom.cpp \
 		ExecutionUnit.cpp \
@@ -96,10 +96,13 @@ CPP_FLAGS ?= -c -Os -g -mlongcalls -mtext-section-literals -fno-exceptions -fno-
 S_FLAGS ?= -c -g -x assembler-with-cpp -MMD
 LD_FLAGS ?= -g -w -Os -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
 # LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
-LD_STD_LIBS = $(LIBS)
+# LD_STD_LIBS = $(LIBS)
+
+LD_STD_LIBS = -lm -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
 
 # Core source files
-CORE_DIR = $(ESP_ROOT)/cores-min
+CORE_DIR = $(ESP_ROOT)/cores/esp8266
+# CORE_DIR = $(ESP_ROOT)/cores-min
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar

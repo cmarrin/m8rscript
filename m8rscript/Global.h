@@ -60,7 +60,7 @@ private:
     enum class Property { Date, Date_now, print };
     static Map<Atom, Property> _properties;
     
-#if __APPLE__
+#ifdef __APPLE__
     uint64_t _startTime;
 #endif
 };

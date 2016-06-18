@@ -71,6 +71,7 @@ class FileStream : public m8r::Stream {
 public:
 	FileStream(const char* file)
     {
+#ifdef __APPLE__
         _file = fopen(file, "r");
         if (!_file) {
             _size = 0;
@@ -79,12 +80,36 @@ public:
         fseek(_file, 0, SEEK_END);
         _size = ftell(_file);
         rewind(_file);
+#endif
     }
 	
     bool loaded() { return _file; }
-	virtual int available() override { return static_cast<int>(_size - ftell(_file)); }
-    virtual int read() override { return fgetc(_file); }
-    virtual int peek() override { int c = fgetc(_file); ungetc(c, _file); return c; }
+	virtual int available() override
+    {
+#ifdef __APPLE__
+        return static_cast<int>(_size - ftell(_file));
+#else
+        return 0;
+#endif
+    }
+    virtual int read() override
+    {
+#ifdef __APPLE__
+        return fgetc(_file);
+#else
+        return 0;
+#endif
+    }
+    virtual int peek() override
+    {
+#ifdef __APPLE__
+        int c = fgetc(_file);
+        ungetc(c, _file);
+        return c;
+#else
+        return 0;
+#endif
+    }
 	virtual void flush() override { }
 	
 private:

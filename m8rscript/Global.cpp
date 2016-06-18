@@ -39,17 +39,13 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <ctime>
 #include <cstdio>
 
-#if !__APPLE__
-//#include <Arduino.h>
-#endif
-
 using namespace m8r;
 
 Map<Atom, Global::Property> Global::_properties;
 
 Global::Global()
 {
-#if __APPLE__
+#ifdef __APPLE__
     _startTime = static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC);
 #endif
 
@@ -129,7 +125,7 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
 
 uint32_t Global::currentTime() const
 {
-#if __APPLE__
+#ifdef __APPLE__
     return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC) - _startTime);
 #else
     return 0; //millis();
