@@ -67,6 +67,7 @@ struct Label {
 //      1100 - PUSHL - Push local variable. Param is index in _locals
 //
 enum class Op {
+    UNKNOWN = 0x00,
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
     PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
     PUSHIX = 0x0C,   // 0000 1100 - Next bytes are number

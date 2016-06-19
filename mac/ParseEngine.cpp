@@ -1,0 +1,303 @@
+/*-------------------------------------------------------------------------
+This source file is a part of m8rscript
+
+For the latest info, see http://www.marrin.org/
+
+Copyright (c) 2016, Chris Marrin
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+    - Redistributions of source code must retain the above copyright notice, 
+	  this list of conditions and the following disclaimer.
+	  
+    - Redistributions in binary form must reproduce the above copyright 
+	  notice, this list of conditions and the following disclaimer in the 
+	  documentation and/or other materials provided with the distribution.
+	  
+    - Neither the name of the <ORGANIZATION> nor the names of its 
+	  contributors may be used to endorse or promote products derived from 
+	  this software without specific prior written permission.
+	  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE.
+-------------------------------------------------------------------------*/
+
+#include "ParseEngine.h"
+
+#include "Parser.h"
+
+using namespace m8r;
+
+Map<uint8_t, ParseEngine::OpInfo> ParseEngine::_opInfo;
+
+ParseEngine::ParseEngine(Parser* parser)
+    : _parser(parser)
+{
+    if (!_opInfo.size()) {
+        _opInfo.emplace('=',            { 1, OpInfo::Assoc::Right, Op::STO });
+        _opInfo.emplace(O_ADDEQ,        { 2, OpInfo::Assoc::Right, Op::STOADD });
+        _opInfo.emplace(O_SUBEQ,        { 2, OpInfo::Assoc::Right, Op::STOSUB });
+        _opInfo.emplace(O_MULEQ,        { 3, OpInfo::Assoc::Right, Op::STOMUL });
+        _opInfo.emplace(O_DIVEQ,        { 3, OpInfo::Assoc::Right, Op::STODIV });
+        _opInfo.emplace(O_MODEQ,        { 3, OpInfo::Assoc::Right, Op::STOMOD });
+        _opInfo.emplace(O_LSHIFTEQ,     { 4, OpInfo::Assoc::Right, Op::STOSHL });
+        _opInfo.emplace(O_RSHIFTEQ,     { 4, OpInfo::Assoc::Right, Op::STOSHR });
+        _opInfo.emplace(O_RSHIFTFILLEQ, { 4, OpInfo::Assoc::Right, Op::STOSAR });
+        _opInfo.emplace(O_ANDEQ,        { 5, OpInfo::Assoc::Right, Op::STOAND });
+        _opInfo.emplace(O_OREQ,         { 5, OpInfo::Assoc::Right, Op::STOOR });
+        _opInfo.emplace(O_XOREQ,        { 5, OpInfo::Assoc::Right, Op::STOXOR });
+        _opInfo.emplace(O_LOR,          { 6, OpInfo::Assoc::Left, Op::LOR });
+        _opInfo.emplace(O_LAND,         { 7, OpInfo::Assoc::Left, Op::LAND });
+        _opInfo.emplace('|',            { 8, OpInfo::Assoc::Left, Op::OR });
+        _opInfo.emplace('^',            { 9, OpInfo::Assoc::Left, Op::XOR });
+        _opInfo.emplace('&',            { 10, OpInfo::Assoc::Left, Op::AND });
+        _opInfo.emplace(O_EQ,           { 11, OpInfo::Assoc::Left, Op::EQ });
+        _opInfo.emplace(O_NE,           { 11, OpInfo::Assoc::Left, Op::NE });
+        _opInfo.emplace('<',            { 12, OpInfo::Assoc::Left, Op::LT });
+        _opInfo.emplace('>',            { 12, OpInfo::Assoc::Left, Op::GT });
+        _opInfo.emplace(O_GE,           { 12, OpInfo::Assoc::Left, Op::GE });
+        _opInfo.emplace(O_LE,           { 12, OpInfo::Assoc::Left, Op::LE });
+        _opInfo.emplace(O_LSHIFT,       { 13, OpInfo::Assoc::Left, Op::SHL });
+        _opInfo.emplace(O_RSHIFT,       { 13, OpInfo::Assoc::Left, Op::SHR });
+        _opInfo.emplace(O_RSHIFTFILL,   { 13, OpInfo::Assoc::Left, Op::SAR });
+        _opInfo.emplace('+',            { 14, OpInfo::Assoc::Left, Op::ADD });
+        _opInfo.emplace('-',            { 14, OpInfo::Assoc::Left, Op::SUB });
+        _opInfo.emplace('*',            { 15, OpInfo::Assoc::Left, Op::MUL });
+        _opInfo.emplace('/',            { 15, OpInfo::Assoc::Left, Op::DIV });
+        _opInfo.emplace('%',            { 15, OpInfo::Assoc::Left, Op::MOD });
+    }
+}
+
+void ParseEngine::syntaxError(Error, uint8_t token)
+{
+}
+
+void ParseEngine::expect(uint8_t token)
+{
+    if (_token != token) {
+        syntaxError(Error::Expected, token);
+    } else {
+        popToken();
+    }
+}
+
+void ParseEngine::program()
+{
+    // Prime the pump
+    popToken();
+    
+    sourceElements();
+    _parser->programEnd();
+}
+
+bool ParseEngine::sourceElements()
+{
+    while(sourceElement()) ;
+    return false;
+}
+
+bool ParseEngine::sourceElement()
+{
+    return statement() | functionDeclaration();
+}
+
+bool ParseEngine::statement()
+{
+    if (_token == C_EOF) {
+        return false;
+    }
+    if (_token == ';' || compoundStatement() || selectionStatement() || 
+        switchStatement() || iterationStatement() || jumpStatement()) {
+        return true;
+    }
+    if (_token == K_VAR) {
+        popToken();
+        variableDeclarationList();
+        expect(';');
+        return true;
+    } else if (_token == K_DELETE) {
+        popToken();
+        leftHandSideExpression();
+        expect(';');
+        return true;
+    } else {
+        arithmeticExpression(1);
+        _parser->emit(m8r::Op::POP);
+        return true;
+    }        
+}
+
+bool ParseEngine::functionDeclaration()
+{
+    if (_token != K_FUNCTION) {
+        return false;
+    }
+    Atom name = _tokenValue.atom;
+    expect(T_IDENTIFIER);
+    Function* f = function();
+    _parser->addNamedFunction(f, name);
+    return true;
+}
+
+bool ParseEngine::compoundStatement()
+{
+    return false;
+}
+
+bool ParseEngine::selectionStatement()
+{
+    return false;
+}
+
+bool ParseEngine::switchStatement()
+{
+    return false;
+}
+
+bool ParseEngine::iterationStatement()
+{
+    return false;
+}
+
+bool ParseEngine::jumpStatement()
+{
+    return false;
+}
+
+bool ParseEngine::variableDeclarationList()
+{
+    bool haveOne = false;
+    while (variableDeclaration()) {
+        if (_token != ',') {
+            return true;
+        }
+        haveOne = true;
+    }
+    return haveOne;
+}
+
+bool ParseEngine::variableDeclaration()
+{
+    if (_token != T_IDENTIFIER) {
+        return false;
+    }
+    Atom name = _tokenValue.atom;
+    _parser->addVar(name);
+    popToken();
+    if (_token != '=') {
+        return true;
+    }
+    popToken();
+    _parser->emit(name);
+    initializer();
+    return true;
+}
+
+void ParseEngine::initializer()
+{
+    expression();
+    _parser->emit(m8r::Op::STOPOP);
+}
+
+bool ParseEngine::expression()
+{
+    arithmeticExpression(1);
+    return true;
+}
+
+void ParseEngine::arithmeticPrimary()
+{
+    if (_token == '(') {
+        popToken();
+        arithmeticExpression(1);
+        expect(')');
+        return;
+    }
+    
+    Op op;
+    switch(_token) {
+        case O_INC: op = Op::PREINC; break;
+        case O_DEC: op = Op::PREDEC; break;
+        case '+': op = Op::UPLUS; break;
+        case '-': op = Op::UMINUS; break;
+        case '~': op = Op::UNEG; break;
+        case '!': op = Op::UNOT; break;
+        default: op = Op::UNKNOWN; break;
+    }
+    
+    if (op != Op::UNKNOWN) {
+        popToken();
+    }
+    leftHandSideExpression();
+    if (op != Op::UNKNOWN) {
+        _parser->emit(op);
+    }
+}
+
+void ParseEngine::arithmeticExpression(uint8_t prec)
+{
+    arithmeticPrimary();
+    while(1) {
+        OpInfo opInfo;            
+        if (!_opInfo.find(_token, opInfo) || opInfo.prec < prec) {
+            break;
+        }
+        uint8_t nextPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (prec + 1) : prec;
+        popToken();
+        arithmeticExpression(nextPrec);
+        _parser->emit(opInfo.op);
+    }
+}
+
+bool ParseEngine::leftHandSideExpression()
+{
+    return callExpression() || newExpression();
+}
+
+bool ParseEngine::callExpression()
+{
+    return false;
+}
+
+bool ParseEngine::newExpression()
+{
+    if (_token == K_NEW) {
+        popToken();
+        return newExpression();
+    }
+    return memberExpression();
+}
+
+bool ParseEngine::memberExpression()
+{
+    return primaryExpression();
+}
+
+bool ParseEngine::primaryExpression()
+{
+    switch(_token) {
+        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); break;
+        case T_FLOAT: _parser->emit(_tokenValue.number); break;
+        case T_INTEGER: _parser->emit(_tokenValue.integer); break;
+        case T_STRING: _parser->emit(_tokenValue.string); break;
+        default: return false;
+    }
+    popToken();
+    return true;
+}
+
+Function* ParseEngine::function()
+{
+    return nullptr;
+}

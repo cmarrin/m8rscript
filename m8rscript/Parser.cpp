@@ -35,6 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Parser.h"
 
+#include "ParseEngine.h"
+
+#define USE_PARSE_ENGINE 1
+
 using namespace m8r;
 
 extern int yyparse(Parser*);
@@ -47,7 +51,13 @@ Parser::Parser(m8r::Stream* istream, void (*printer)(const char*))
     , _printer(printer)
 {
     _currentFunction = _program->main();
+
+#if USE_PARSE_ENGINE
+    ParseEngine p(this);
+    p.program();
+#else
 	yyparse(this);
+#endif
 }
 
 void Parser::printError(const char* s)

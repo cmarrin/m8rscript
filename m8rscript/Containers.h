@@ -55,7 +55,7 @@ public:
         s._id = id;
         return s;
     }
-    int compare(const StringId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
+    int operator-(const StringId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
     
 private:
     static constexpr uint32_t NoString = std::numeric_limits<uint32_t>::max();
@@ -277,7 +277,7 @@ public:
             _list.resize(_list.size() + 1);
             int sizeToMove = static_cast<int>(_list.size()) + result;
             if (sizeToMove) {
-                memcpy(&_list[-result], &_list[-result - 1], sizeToMove);
+                memcpy(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
             }
             _list[-result - 1] = { key, value };
         }
@@ -297,7 +297,7 @@ private:
     {
         if (first <= last) {
             int mid = (first + last) / 2;
-            int result = key.compare(_list[mid].key);
+            int result = key - _list[mid].key;
             return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
         }
         return -(first + 1);    // failed to find key
