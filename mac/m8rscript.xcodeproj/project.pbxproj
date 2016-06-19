@@ -11,7 +11,7 @@
 		4942EA861D0AEAC600E02088 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
 		4942EA881D0AF26300E02088 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
 		4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4984E8301D1370A500D0ABA6 /* Global.cpp */; };
-		498ACA751D15F2BF0039E1CD /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498ACA731D15F2BF0039E1CD /* ParseEngine.cpp */; };
+		498ACA781D17503C0039E1CD /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498ACA761D17503C0039E1CD /* ParseEngine.cpp */; };
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49D95E811D107AEE00B8A651 /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
@@ -52,8 +52,8 @@
 		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../m8rscript/Global.h; sourceTree = "<group>"; };
 		4984E8331D1492ED00D0ABA6 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stream.h; path = ../m8rscript/Stream.h; sourceTree = "<group>"; };
 		4984E8341D1499D900D0ABA6 /* parse.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = parse.y; path = ../parse.y; sourceTree = "<group>"; };
-		498ACA731D15F2BF0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParseEngine.cpp; sourceTree = "<group>"; };
-		498ACA741D15F2BF0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParseEngine.h; sourceTree = "<group>"; };
+		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../m8rscript/ParseEngine.cpp; sourceTree = "<group>"; };
+		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../m8rscript/ParseEngine.h; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
@@ -131,11 +131,11 @@
 				497F1F3F1D11CB5D0045866E /* m8rscript.ino */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
 				4942EA8C1D0D950100E02088 /* Opcodes.h */,
-				498ACA731D15F2BF0039E1CD /* ParseEngine.cpp */,
-				498ACA741D15F2BF0039E1CD /* ParseEngine.h */,
 				4984E8341D1499D900D0ABA6 /* parse.y */,
 				49E648151D00C088005F5059 /* parse.tab.cpp */,
 				49E648161D00C088005F5059 /* parse.tab.h */,
+				498ACA761D17503C0039E1CD /* ParseEngine.cpp */,
+				498ACA771D17503C0039E1CD /* ParseEngine.h */,
 				49E648181D00C088005F5059 /* Parser.cpp */,
 				49E648191D00C088005F5059 /* Parser.h */,
 				4942EA821D070C9B00E02088 /* Program.cpp */,
@@ -229,11 +229,11 @@
 				49E6481E1D00C088005F5059 /* Parser.cpp in Sources */,
 				4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */,
 				4942EA831D070C9B00E02088 /* Program.cpp in Sources */,
+				498ACA781D17503C0039E1CD /* ParseEngine.cpp in Sources */,
 				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
 				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,
 				49E6482D1D01F3CA005F5059 /* Atom.cpp in Sources */,
-				498ACA751D15F2BF0039E1CD /* ParseEngine.cpp in Sources */,
 				4942EA861D0AEAC600E02088 /* Value.cpp in Sources */,
 				49D95E811D107AEE00B8A651 /* Array.cpp in Sources */,
 			);

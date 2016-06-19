@@ -117,7 +117,11 @@ bool ParseEngine::statement()
     if (_token == C_EOF) {
         return false;
     }
-    if (_token == ';' || compoundStatement() || selectionStatement() || 
+    if (_token == ';') {
+        popToken();
+        return true;
+    }
+    if (compoundStatement() || selectionStatement() || 
         switchStatement() || iterationStatement() || jumpStatement()) {
         return true;
     }
@@ -245,17 +249,17 @@ void ParseEngine::arithmeticPrimary()
     }
 }
 
-void ParseEngine::arithmeticExpression(uint8_t prec)
+void ParseEngine::arithmeticExpression(uint8_t minPrec)
 {
     arithmeticPrimary();
     while(1) {
         OpInfo opInfo;            
-        if (!_opInfo.find(_token, opInfo) || opInfo.prec < prec) {
+        if (!_opInfo.find(_token, opInfo) || opInfo.prec < minPrec) {
             break;
         }
-        uint8_t nextPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (prec + 1) : prec;
+        uint8_t nextMinPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (opInfo.prec + 1) : opInfo.prec;
         popToken();
-        arithmeticExpression(nextPrec);
+        arithmeticExpression(nextMinPrec);
         _parser->emit(opInfo.op);
     }
 }

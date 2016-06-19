@@ -94,7 +94,7 @@ private:
     
     bool expression();
     void arithmeticPrimary();
-    void arithmeticExpression(uint8_t prec);
+    void arithmeticExpression(uint8_t minPrec);
     
     bool leftHandSideExpression();
     bool callExpression();

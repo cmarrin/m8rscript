@@ -27,6 +27,7 @@ SRC ?= Array.cpp \
 		Function.cpp \
 		Global.cpp \
 		parse.tab.cpp \
+		ParseEngine.cpp \
 		Parser.cpp \
 		Program.cpp \
 		Scanner.cpp \
