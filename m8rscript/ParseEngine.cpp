@@ -271,19 +271,17 @@ bool ParseEngine::expression(uint8_t minPrec)
         return false;
     }
 
-    bool haveOne = false;
     while(1) {
         OpInfo opInfo;            
         if (!_opInfo.find(_token, opInfo) || opInfo.prec < minPrec) {
             break;
         }
-        haveOne = true;
         uint8_t nextMinPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (opInfo.prec + 1) : opInfo.prec;
         popToken();
         expression(nextMinPrec);
         _parser->emit(opInfo.op);
     }
-    return haveOne;
+    return true;
 }
 
 bool ParseEngine::leftHandSideExpression()
@@ -294,7 +292,9 @@ bool ParseEngine::leftHandSideExpression()
         return true;
     }
     
-    primaryExpression();
+    if (!primaryExpression()) {
+        return false;
+    }
     while(1) {
         if (_token == '(') {
             popToken();
