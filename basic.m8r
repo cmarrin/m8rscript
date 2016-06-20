@@ -15,5 +15,7 @@ c = a * a + b * b;
 //    print(i + " squared times " + c + " is " + (i * i * c) + "\n");
 //}
 
-var t = Date.now() - startTime;
-print("Run time: " + t + "ms\n");
+{
+    var t = Date.now() - startTime;
+    print("Run time: " + t + "ms\n");
+}

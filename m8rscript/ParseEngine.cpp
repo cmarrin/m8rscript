@@ -148,17 +148,12 @@ bool ParseEngine::statement()
         leftHandSideExpression();
         expect(';');
         return true;
-    } else {
-        if (expression()) {
-            _parser->emit(m8r::Op::POP);
-            expect(';');
-            return true;
-        }
-        
-        // We have a token we don't recognize, pop it and continue
-        popToken();
+    } else if (expression()) {
+        _parser->emit(m8r::Op::POP);
+        expect(';');
         return true;
-    }        
+    }
+    return false;
 }
 
 bool ParseEngine::functionDeclaration()
@@ -175,8 +170,13 @@ bool ParseEngine::functionDeclaration()
 
 bool ParseEngine::compoundStatement()
 {
-    // FIXME: Implement
-    return false;
+    if (_token != '{') {
+        return false;
+    }
+    popToken();
+    while (statement()) ;
+    expect('}');
+    return true;
 }
 
 bool ParseEngine::selectionStatement()
@@ -193,8 +193,30 @@ bool ParseEngine::switchStatement()
 
 bool ParseEngine::iterationStatement()
 {
-    // FIXME: Implement
-    return false;
+    uint8_t type = _token;
+    if (_token != K_WHILE && _token != K_DO && _token != K_FOR) {
+        return false;
+    }
+    
+    popToken();
+    expect('(');
+    if (type == K_WHILE) {
+        return true;
+    }
+    if (type == K_DO) {
+        return true;
+    }
+    if (type == K_FOR) {
+        if (_token == K_VAR) {
+            popToken();
+            
+            
+            
+            
+            
+            leftHandSideExpression();
+        return true;
+    }
 }
 
 bool ParseEngine::jumpStatement()
