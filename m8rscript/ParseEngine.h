@@ -74,7 +74,7 @@ private:
         Op op;
     };
         
-    void expect(uint8_t token);
+    bool expect(uint8_t token);
     void syntaxError(Error, uint8_t token);
     
     void popToken() { _token = _parser->getToken(&_tokenValue); }
@@ -92,15 +92,13 @@ private:
     bool variableDeclaration();
     
     bool arithmeticPrimary();
-    bool expression(uint8_t minPrec);
+    bool expression(uint8_t minPrec = 1);
     
     bool leftHandSideExpression();
-    bool callExpression();
-    bool newExpression();
-    bool memberExpression();
     bool primaryExpression();
     
     Function* function();
+    uint32_t argumentList();
     
     Parser* _parser;
     uint8_t _token;

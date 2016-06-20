@@ -94,12 +94,14 @@ void ParseEngine::syntaxError(Error error, uint8_t token)
     _parser->printError(s.c_str());
 }
 
-void ParseEngine::expect(uint8_t token)
+bool ParseEngine::expect(uint8_t token)
 {
     if (_token != token) {
         syntaxError(Error::Expected, token);
+        return false;
     } else {
         popToken();
+        return true;
     }
 }
 
@@ -147,7 +149,7 @@ bool ParseEngine::statement()
         expect(';');
         return true;
     } else {
-        if (expression(1)) {
+        if (expression()) {
             _parser->emit(m8r::Op::POP);
             expect(';');
             return true;
@@ -226,7 +228,7 @@ bool ParseEngine::variableDeclaration()
     }
     popToken();
     _parser->emit(name);
-    expression(1);
+    expression();
     _parser->emit(m8r::Op::STOPOP);
     return true;
 }
@@ -235,7 +237,7 @@ bool ParseEngine::arithmeticPrimary()
 {
     if (_token == '(') {
         popToken();
-        expression(1);
+        expression();
         expect(')');
         return true;
     }
@@ -286,34 +288,51 @@ bool ParseEngine::expression(uint8_t minPrec)
 
 bool ParseEngine::leftHandSideExpression()
 {
-    return callExpression() || newExpression();
-}
-
-bool ParseEngine::callExpression()
-{
-    // FIXME: Implement
-    return false;
-}
-
-bool ParseEngine::newExpression()
-{
     if (_token == K_NEW) {
         popToken();
-        return newExpression();
+        leftHandSideExpression();
+        return true;
     }
-    return memberExpression();
+    
+    primaryExpression();
+    while(1) {
+        if (_token == '(') {
+            popToken();
+            uint32_t argCount = argumentList();
+            expect(')');
+            _parser->emitWithCount(m8r::Op::CALL, argCount);
+        } else if (_token == '[') {
+            popToken();
+            expression();
+            expect(']');
+            _parser->emit(m8r::Op::DEREF);
+        } else if (_token == '.') {
+            popToken();
+            Atom name = _tokenValue.atom;
+            if (expect(T_IDENTIFIER)) {
+                _parser->emit(name);
+                _parser->emit(m8r::Op::DEREF);
+            }
+        } else {
+            return true;
+        }
+    }
 }
 
-bool ParseEngine::memberExpression()
+uint32_t ParseEngine::argumentList()
 {
-    // FIXME: Add the rest of the cases:
-    //
-    // | function_expression
-    //	| member_expression '[' expression ']' { parser->emit(m8r::Op::DEREF); }
-    //	| member_expression '.' identifier { parser->emit(m8r::Op::DEREF); }
-    //    | K_NEW member_expression arguments { parser->emitWithCount(m8r::Op::NEW, $3); }
-
-    return primaryExpression();
+    uint32_t i = 0;
+    
+    if (!expression()) {
+        return i;
+    }
+    ++i;
+    while (_token == ',') {
+        popToken();
+        expression();
+        ++i;
+    }
+    return i;
 }
 
 bool ParseEngine::primaryExpression()
