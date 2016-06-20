@@ -293,7 +293,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHL:
     L_PUSHLX:
         if (maskOp(op, 0x0f) == Op::PUSHL) {
-            intValue = intFromOp(op, 0x0f);
+            intValue = uintFromOp(op, 0x0f);
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
             assert(size <= 2);
