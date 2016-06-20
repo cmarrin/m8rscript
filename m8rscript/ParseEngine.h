@@ -90,11 +90,9 @@ private:
     bool jumpStatement();
     bool variableDeclarationList();
     bool variableDeclaration();
-    void initializer();
     
-    bool expression();
-    void arithmeticPrimary();
-    void arithmeticExpression(uint8_t minPrec);
+    bool arithmeticPrimary();
+    bool expression(uint8_t minPrec);
     
     bool leftHandSideExpression();
     bool callExpression();

@@ -2,9 +2,9 @@
 //Loop and Print
 //
 
-//var startTime = Date.now();
+var startTime = Date.now();
 
-//var s = "\a\b\f\n\r\t\v\\\'\"\?\0\24\377\3777\x0\x1a\x1c3\x1a34b67f9\zABC";
+var s = "\a\b\f\n\r\t\v\\\'\"\?\0\24\377\3777\x0\x1a\x1c3\x1a34b67f9\zABC";
 var a = 3;
 var b = 2.5;
 var c;

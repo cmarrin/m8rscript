@@ -79,8 +79,19 @@ ParseEngine::ParseEngine(Parser* parser)
     }
 }
 
-void ParseEngine::syntaxError(Error, uint8_t token)
+void ParseEngine::syntaxError(Error error, uint8_t token)
 {
+    String s;
+    
+    switch(error) {
+        case Error::Expected:
+            s = "syntax error: expected '";
+            s += token;
+            s += "'";
+            break;
+    }
+    
+    _parser->printError(s.c_str());
 }
 
 void ParseEngine::expect(uint8_t token)
@@ -136,8 +147,14 @@ bool ParseEngine::statement()
         expect(';');
         return true;
     } else {
-        arithmeticExpression(1);
-        _parser->emit(m8r::Op::POP);
+        if (expression(1)) {
+            _parser->emit(m8r::Op::POP);
+            expect(';');
+            return true;
+        }
+        
+        // We have a token we don't recognize, pop it and continue
+        popToken();
         return true;
     }        
 }
@@ -156,26 +173,31 @@ bool ParseEngine::functionDeclaration()
 
 bool ParseEngine::compoundStatement()
 {
+    // FIXME: Implement
     return false;
 }
 
 bool ParseEngine::selectionStatement()
 {
+    // FIXME: Implement
     return false;
 }
 
 bool ParseEngine::switchStatement()
 {
+    // FIXME: Implement
     return false;
 }
 
 bool ParseEngine::iterationStatement()
 {
+    // FIXME: Implement
     return false;
 }
 
 bool ParseEngine::jumpStatement()
 {
+    // FIXME: Implement
     return false;
 }
 
@@ -204,29 +226,18 @@ bool ParseEngine::variableDeclaration()
     }
     popToken();
     _parser->emit(name);
-    initializer();
-    return true;
-}
-
-void ParseEngine::initializer()
-{
-    expression();
+    expression(1);
     _parser->emit(m8r::Op::STOPOP);
-}
-
-bool ParseEngine::expression()
-{
-    arithmeticExpression(1);
     return true;
 }
 
-void ParseEngine::arithmeticPrimary()
+bool ParseEngine::arithmeticPrimary()
 {
     if (_token == '(') {
         popToken();
-        arithmeticExpression(1);
+        expression(1);
         expect(')');
-        return;
+        return true;
     }
     
     Op op;
@@ -243,25 +254,34 @@ void ParseEngine::arithmeticPrimary()
     if (op != Op::UNKNOWN) {
         popToken();
     }
-    leftHandSideExpression();
+    if (!leftHandSideExpression()) {
+        return false;
+    }
     if (op != Op::UNKNOWN) {
         _parser->emit(op);
     }
+    return true;
 }
 
-void ParseEngine::arithmeticExpression(uint8_t minPrec)
+bool ParseEngine::expression(uint8_t minPrec)
 {
-    arithmeticPrimary();
+    if (!arithmeticPrimary()) {
+        return false;
+    }
+
+    bool haveOne = false;
     while(1) {
         OpInfo opInfo;            
         if (!_opInfo.find(_token, opInfo) || opInfo.prec < minPrec) {
             break;
         }
+        haveOne = true;
         uint8_t nextMinPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (opInfo.prec + 1) : opInfo.prec;
         popToken();
-        arithmeticExpression(nextMinPrec);
+        expression(nextMinPrec);
         _parser->emit(opInfo.op);
     }
+    return haveOne;
 }
 
 bool ParseEngine::leftHandSideExpression()
@@ -271,6 +291,7 @@ bool ParseEngine::leftHandSideExpression()
 
 bool ParseEngine::callExpression()
 {
+    // FIXME: Implement
     return false;
 }
 
@@ -285,11 +306,24 @@ bool ParseEngine::newExpression()
 
 bool ParseEngine::memberExpression()
 {
+    // FIXME: Add the rest of the cases:
+    //
+    // | function_expression
+    //	| member_expression '[' expression ']' { parser->emit(m8r::Op::DEREF); }
+    //	| member_expression '.' identifier { parser->emit(m8r::Op::DEREF); }
+    //    | K_NEW member_expression arguments { parser->emitWithCount(m8r::Op::NEW, $3); }
+
     return primaryExpression();
 }
 
 bool ParseEngine::primaryExpression()
 {
+    // FIXME: Add the rest of the cases:
+    //
+    //    | object_literal
+    //    | array_literal
+    //    | '(' expression ')'
+    
     switch(_token) {
         case T_IDENTIFIER: _parser->emit(_tokenValue.atom); break;
         case T_FLOAT: _parser->emit(_tokenValue.number); break;
@@ -303,5 +337,6 @@ bool ParseEngine::primaryExpression()
 
 Function* ParseEngine::function()
 {
+    // FIXME: Implement
     return nullptr;
 }
