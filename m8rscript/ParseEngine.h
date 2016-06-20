@@ -99,6 +99,7 @@ private:
     
     Function* function();
     uint32_t argumentList();
+    void forLoopCondAndIt();
     
     Parser* _parser;
     uint8_t _token;

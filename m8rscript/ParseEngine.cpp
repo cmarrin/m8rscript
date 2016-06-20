@@ -191,6 +191,24 @@ bool ParseEngine::switchStatement()
     return false;
 }
 
+void ParseEngine::forLoopCondAndIt()
+{
+    // On entry, we are at the semicolon before the cond expr
+    expect(';');
+    Label label = _parser->label();
+    expression();
+    _parser->addMatchedJump(m8r::Op::JF, label);
+    _parser->startDeferred();
+    expect(';');
+    expression();
+    _parser->emit(m8r::Op::POP);
+    _parser->endDeferred();
+    expect(')');
+    statement();
+    _parser->emitDeferred();
+    _parser->matchJump(label);
+}
+
 bool ParseEngine::iterationStatement()
 {
     uint8_t type = _token;
@@ -201,22 +219,39 @@ bool ParseEngine::iterationStatement()
     popToken();
     expect('(');
     if (type == K_WHILE) {
-        return true;
-    }
-    if (type == K_DO) {
-        return true;
-    }
-    if (type == K_FOR) {
+        //FIXME: implement
+    } else if (type == K_DO) {
+        //FIXME: implement
+    } else if (type == K_FOR) {
         if (_token == K_VAR) {
             popToken();
-            
-            
-            
-            
-            
-            leftHandSideExpression();
-        return true;
+            variableDeclarationList();
+            if (_token == ':') {
+                // for-in case with var
+                //FIXME: implement
+                // FIXME: We need a way to know if the above decl is a legit variable for for-in
+                popToken();
+                leftHandSideExpression();
+            } else {
+                forLoopCondAndIt();
+            }
+        } else {
+            if (expression()) {
+                if (_token == ':') {
+                    // for-in case with left hand expr
+                    // FIXME: We need a way to know if the above expression is a legit left hand expr
+                    // FIXME: implement
+                    popToken();
+                    leftHandSideExpression();
+                } else {
+                    forLoopCondAndIt();
+                }
+            }
+        }
     }
+    
+    // We should be at the closing paren
+    return true;
 }
 
 bool ParseEngine::jumpStatement()
@@ -277,11 +312,24 @@ bool ParseEngine::arithmeticPrimary()
     
     if (op != Op::UNKNOWN) {
         popToken();
+        arithmeticPrimary();
+        if (op != Op::UPLUS) {
+            _parser->emit(op);
+        }
+        return true;
     }
+    
     if (!leftHandSideExpression()) {
         return false;
     }
+    switch(_token) {
+        case O_INC: op = Op::POSTINC; break;
+        case O_DEC: op = Op::POSTDEC; break;
+        default: op = Op::UNKNOWN; break;
+    }
+    
     if (op != Op::UNKNOWN) {
+        popToken();
         _parser->emit(op);
     }
     return true;

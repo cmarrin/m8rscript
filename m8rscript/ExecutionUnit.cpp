@@ -207,7 +207,7 @@ void ExecutionUnit::run(Program* program, void (*printer)(const char*))
         /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
+        /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
         /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINOP) OP(BINOP) OP(BINIOP) OP(BINIOP)
@@ -362,6 +362,21 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             m8r::String s = leftValue.toStringValue();
             s += rightValue.toStringValue();
             _stack.setTop(s.c_str());
+        }
+        DISPATCH;
+    L_UNOP:
+        rightValue = _stack.top().bakeValue();
+        if (rightValue.isInteger() || op != Op::UMINUS) {
+            rightIntValue = rightValue.toIntValue();
+            switch(op) {
+                case Op::UMINUS: _stack.setTop(-rightIntValue); break;
+                case Op::UNEG: _stack.setTop(~rightIntValue); break;
+                case Op::UNOT: _stack.setTop((rightIntValue == 0) ? 0 : 1); break;
+                default: assert(0);
+            }
+        } else {
+            assert(op == Op::UMINUS);
+            _stack.setTop(-rightValue.toFloatValue());
         }
         DISPATCH;
     L_BINIOP:

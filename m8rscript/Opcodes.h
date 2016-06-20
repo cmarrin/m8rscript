@@ -92,7 +92,7 @@ enum class Op {
 
     PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3,
     
-    // UNARYOP
+    // UNOP
     UPLUS = 0xD4, UMINUS = 0xD5, UNOT = 0xD6, UNEG = 0xD7,
     
     DEREF = 0xD8, DEL = 0xD9, POP = 0xDA, STOPOP = 0xDB,
