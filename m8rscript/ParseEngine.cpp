@@ -79,15 +79,27 @@ ParseEngine::ParseEngine(Parser* parser)
     }
 }
 
-void ParseEngine::syntaxError(Error error, uint8_t token)
+void ParseEngine::syntaxError(Error error, Token token)
 {
     String s;
+    uint8_t c = static_cast<uint8_t>(token);
     
     switch(error) {
         case Error::Expected:
-            s = "syntax error: expected '";
-            s += token;
-            s += "'";
+            s = "syntax error: expected ";
+            if (c < 0x80) {
+                s += '\'';
+                s += c;
+                s += '\'';
+            } else {
+                const char* errorString;
+                switch(token) {
+                    case Token::Expr: errorString = "expression"; break;
+                    case Token::PropertyAssignment: errorString = "property assignment"; break;
+                    default: errorString = "*** UNKNOWN TOKEN ***"; break;
+                }
+                s += errorString;
+            }
             break;
     }
     
@@ -97,12 +109,20 @@ void ParseEngine::syntaxError(Error error, uint8_t token)
 bool ParseEngine::expect(uint8_t token)
 {
     if (_token != token) {
-        syntaxError(Error::Expected, token);
+        syntaxError(Error::Expected, static_cast<Token>(token));
         return false;
     } else {
         popToken();
         return true;
     }
+}
+
+bool ParseEngine::expect(Token token, bool expected)
+{
+    if (!expected) {
+        syntaxError(Error::Expected, token);
+    }
+    return expected;
 }
 
 void ParseEngine::program()
@@ -268,6 +288,7 @@ bool ParseEngine::variableDeclarationList()
             return true;
         }
         haveOne = true;
+        popToken();
     }
     return haveOne;
 }
@@ -285,7 +306,10 @@ bool ParseEngine::variableDeclaration()
     }
     popToken();
     _parser->emit(name);
-    expression();
+    if (!expect(Token::Expr, expression())) {
+        return false;
+    }
+        
     _parser->emit(m8r::Op::STOPOP);
     return true;
 }
@@ -414,14 +438,65 @@ bool ParseEngine::primaryExpression()
     //    | '(' expression ')'
     
     switch(_token) {
-        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); break;
-        case T_FLOAT: _parser->emit(_tokenValue.number); break;
-        case T_INTEGER: _parser->emit(_tokenValue.integer); break;
-        case T_STRING: _parser->emit(_tokenValue.string); break;
+        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); popToken(); break;
+        case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); break;
+        case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); break;
+        case T_STRING: _parser->emit(_tokenValue.string); popToken(); break;
+        case '[':
+            popToken();
+            _parser->emitArrayLiteral();
+            if (expression()) {
+                _parser->emit(m8r::Op::STOA);
+                while (_token == ',') {
+                    popToken();
+                    if (!expect(Token::Expr, expression())) {
+                        break;
+                    }
+                    _parser->emit(m8r::Op::STOA);
+                }
+            }
+            expect(']');
+            break;
+        case '{':
+            popToken();
+            _parser->emitObjectLiteral();
+            if (propertyAssignment()) {
+                _parser->emit(m8r::Op::STOO);
+                while (_token == ',') {
+                    popToken();
+                    if (!expect(Token::PropertyAssignment, propertyAssignment())) {
+                        break;
+                    }
+                    _parser->emit(m8r::Op::STOO);
+                }
+            }
+            expect(']');
+            break;
+            
+            break;
+        
         default: return false;
     }
-    popToken();
     return true;
+}
+
+bool ParseEngine::propertyAssignment()
+{
+    if (!propertyName()) {
+        return false;
+    }
+    return expect(':') && expect(Token::Expr, expression());
+}
+
+bool ParseEngine::propertyName()
+{
+    switch(_token) {
+        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); popToken(); return true;
+        case T_STRING: _parser->emit(_tokenValue.string); popToken(); return true;
+        case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); return true;
+        case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); return true;
+        default: return false;
+    }
 }
 
 Function* ParseEngine::function()

@@ -75,7 +75,8 @@ private:
     };
         
     bool expect(uint8_t token);
-    void syntaxError(Error, uint8_t token);
+    bool expect(Token token, bool expected);
+    void syntaxError(Error, Token token);
     
     void popToken() { _token = _parser->getToken(&_tokenValue); }
 
@@ -100,6 +101,8 @@ private:
     Function* function();
     uint32_t argumentList();
     void forLoopCondAndIt();
+    bool propertyAssignment();
+    bool propertyName();
     
     Parser* _parser;
     uint8_t _token;
