@@ -60,8 +60,8 @@ public:
     virtual Value appendPropertyRef(uint32_t index, const Atom&) { return Value(); }
     virtual int32_t callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams) { return -1; }
     
-    virtual Value* element(uint32_t index) { return nullptr; }
-    virtual const Value* element(uint32_t index) const { return nullptr; }
+    virtual Value elementRef(int32_t index) { return Value(); }
+    virtual const Value element(uint32_t index) const { return Value(); }
     virtual bool setElement(uint32_t index, const Value&) { return false; }
     virtual bool appendElement(const Value&) { return false; }
     virtual size_t elementCount() const { return 0; }
@@ -74,6 +74,7 @@ public:
 
     virtual bool setValue(const Value&) { return false; }
     virtual Value* value() { return nullptr; }
+    virtual int32_t call(Stack<Value>& stack, uint32_t nparams) { return -1; }
 };
     
 class MaterObject : public Object {
@@ -89,7 +90,7 @@ public:
         }
         return index;
     }
-    virtual Value propertyRef(int32_t index) override { return Value(&(_properties[index].value)); }
+    virtual Value propertyRef(int32_t index) override { return Value(this, index, true); }
     virtual const Value property(int32_t index) const override { return _properties[index].value; }
     virtual bool setProperty(int32_t index, const Value& v) override
     {

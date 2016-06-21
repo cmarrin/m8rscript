@@ -65,8 +65,8 @@ int32_t Global::propertyIndex(const Atom& name, bool canExist)
 Value Global::propertyRef(int32_t index)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Date: return Value(this, static_cast<uint32_t>(Property::Date));
-        case Property::print: return Value(this, static_cast<uint32_t>(Property::print));
+        case Property::Date: return Value(this, static_cast<uint32_t>(Property::Date), true);
+        case Property::print: return Value(this, static_cast<uint32_t>(Property::print), true);
         default: return Value();
     }
 }
@@ -103,10 +103,13 @@ size_t Global::propertyCount() const
     return _properties.size();
 }
 
-Value Global::appendPropertyRef(uint32_t index, const Atom&)
+Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 {
     // FIXME: For now assume we're appending Date with now
-    return Value(this, static_cast<uint16_t>(Property::Date_now));
+    if (index != static_cast<uint32_t>(Property::Date) || name.rawAtom() != Program::atomizeString("now").rawAtom()) {
+        return Value();
+    }
+    return Value(this, static_cast<uint16_t>(Property::Date_now), true);
 }
 
 int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams)

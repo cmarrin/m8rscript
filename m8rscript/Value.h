@@ -59,7 +59,7 @@ class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type { None = 0, Object, Float, Integer, String, Id, Ref, ValuePtr, Return };
+    enum class Type { None = 0, Object, Float, Integer, String, Id, ElementRef, PropertyRef, Return };
 
     Value() : _value(nullptr), _type(Type::None), _id(0) { }
     Value(const Value& other) { *this = other; }
@@ -71,8 +71,7 @@ public:
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
-    Value(Object* obj, uint16_t index) : _value(valueFromObj(obj)), _type(Type::Ref), _id(index) { }
-    Value(Value* value) : _value(valueFromValuePtr(value)), _type(Type::ValuePtr), _id(0) { }
+    Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
     
     Value& operator=(const Value& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
     Value& operator=(Value&& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
@@ -103,27 +102,26 @@ public:
         if (_type == Type::Integer) {
             return asUIntValue();
         }
-        if (_type == Type::ValuePtr) {
-            return bakeValue().toUIntValue();
-        }
-        return static_cast<int32_t>(toFloatValue());
+        return canBeBaked() ? bakeValue().toUIntValue() : toFloatValue();
     }
 
     bool setValue(const Value&);
-    Value bakeValue() const { return (_type != Type::ValuePtr) ? *this : *valuePtrFromValue(); }
+    Value bakeValue() const;
+    bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
+    
     Value appendPropertyRef(const Value& value) const;
     uint32_t call(Stack<Value>& stack, uint32_t nparams);
     
     bool isInteger() const
     {
-        return (_type == Type::Integer) || (_type == Type::ValuePtr && bakeValue().isInteger());
+        return (_type == Type::Integer) || (canBeBaked() && bakeValue().isInteger());
     }
     bool isFloat() const
     {
-        return (_type == Type::Float) || (_type == Type::ValuePtr && bakeValue().isFloat());
+        return (_type == Type::Float) || (canBeBaked() && bakeValue().isFloat());
     }
     bool isNumber() const { return isInteger() || isFloat(); }
-    bool isLValue() const { return _type == Type::Ref || _type == Type::ValuePtr; }
+    bool isLValue() const { return canBeBaked(); }
     bool isNone() const { return _type == Type::None; }
 
     static m8r::String toString(float value);

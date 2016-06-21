@@ -115,7 +115,7 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         return deref(program, objectValue, derefValue);
     }
     
-    if (objectValue.type() == Value::Type::Ref) {
+    if (objectValue.type() == Value::Type::PropertyRef) {
         objectValue = objectValue.appendPropertyRef(derefValue);
         return !objectValue.isNone();
     }
@@ -125,12 +125,8 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         return false;
     }
     if (derefValue.isInteger()) {
-        Value* newValue = obj->element(derefValue.toIntValue());
-        if (newValue) {
-            objectValue = newValue;
-            return true;
-        }
-        return false;
+        objectValue = obj->elementRef(derefValue.toIntValue());
+        return !objectValue.isNone();
     }
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
@@ -142,6 +138,9 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
 
 Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
 {
+    if (value.canBeBaked()) {
+        return propertyNameFromValue(program, value.bakeValue());
+    }
     switch(value.type()) {
         case Value::Type::String: return program->atomizeString(value.asStringValue());
         case Value::Type::Id: return value.asIdValue();
@@ -150,7 +149,6 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
             sprintf(buf, "%d", value.asIntValue());
             return program->atomizeString(buf);
         }
-        case Value::Type::ValuePtr: return propertyNameFromValue(program, value.bakeValue());
         default: break;
     }
     return Atom::emptyAtom(); 
@@ -300,7 +298,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             intValue = intFromCode(code, i, size);
             i += size;
         }
-        _stack.push(&(_stack.inFrame(intValue)));
+        _stack.push(_stack.element(intValue));
         DISPATCH;
     L_JMP:
     L_JT:

@@ -64,8 +64,6 @@ m8r::String Value::toString(int32_t value)
 m8r::String Value::toStringValue() const
 {
     switch(_type) {
-        case Type::ValuePtr:
-            return bakeValue().toStringValue();
         case Type::None: return String();
         case Type::Object: {
             Value* v = nullptr;
@@ -79,7 +77,8 @@ m8r::String Value::toStringValue() const
         case Type::Integer: return toString(asIntValue());
         case Type::String: return m8r::String(asStringValue());
         case Type::Id: return m8r::String();
-        case Type::Ref: return objFromValue()->property(_id).toStringValue();
+        case Type::PropertyRef: return objFromValue()->property(_id).toStringValue();
+        case Type::ElementRef: return objFromValue()->element(_id).toStringValue();
         case Type::Return: assert(0); return m8r::String();
     }
 }
@@ -87,8 +86,6 @@ m8r::String Value::toStringValue() const
 bool Value::toBoolValue() const
 {
     switch(_type) {
-        case Type::ValuePtr:
-            return bakeValue().toBoolValue();
         case Type::None: return false;
         case Type::Object: {
             Value* v = nullptr;
@@ -105,17 +102,18 @@ bool Value::toBoolValue() const
             return s ? (s[0] != '\0') : false;
         }
         case Type::Id: return false;
-        case Type::Ref:
-            return objFromValue()->property(_id).toBoolValue();
+        case Type::PropertyRef: return objFromValue()->property(_id).toBoolValue();
+        case Type::ElementRef: return objFromValue()->element(_id).toBoolValue();
         case Type::Return: assert(0); return false;
     }
 }
 
 float Value::toFloatValue() const
 {
+    if (canBeBaked()) {
+        return bakeValue().toFloatValue();
+    }
     switch(_type) {
-        case Type::ValuePtr:
-            return bakeValue().toFloatValue();
         case Type::None: return 0;
         case Type::Object: {
             Value* v = nullptr;
@@ -132,9 +130,7 @@ float Value::toFloatValue() const
             return s ? std::atof(s) : 0;
         }
         case Type::Id: return 0;
-        case Type::Ref:
-            return objFromValue()->property(_id).toFloatValue();
-        case Type::Return: assert(0); return 0;
+        default: assert(0); return 0;
     }
 }
 
@@ -144,10 +140,10 @@ bool Value::setValue(const Value& v)
     switch(_type) {
         case Type::Object:
             return objFromValue()->setValue(bakedValue);
-        case Type::Ref:
+        case Type::PropertyRef:
             return objFromValue()->setProperty(_id, bakedValue);
-        case Type::ValuePtr:
-            *valuePtrFromValue() = bakedValue;
+        case Type::ElementRef:
+            objFromValue()->setElement(_id, bakedValue);
             return true;
         default:
             return false;
@@ -156,27 +152,38 @@ bool Value::setValue(const Value& v)
 
 Object* Value::toObjectValue() const
 {
+    if (canBeBaked()) {
+        return bakeValue().toObjectValue();
+    }
     if (_type == Type::Object) {
         return objFromValue();
-    }
-    if (_type == Type::ValuePtr) {
-        return valuePtrFromValue()->toObjectValue();
     }
     return nullptr;
 }
 
 Value Value::appendPropertyRef(const Value& value) const
 {
-    return (_type == Type::Ref) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
+    return (_type == Type::PropertyRef) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
 }
 
 uint32_t Value::call(Stack<Value>& stack, uint32_t nparams)
 {
-    if (_type == Type::Ref) {
+    if (_type == Type::PropertyRef) {
         return objFromValue()->callProperty(_id, stack, nparams);
+    }
+    if (_type == Type::Object) {
+        return objFromValue()->call(stack, nparams);
     }
     return -1;
 }
 
-    
-
+Value Value::bakeValue() const
+{
+    if (_type == Type::PropertyRef) {
+        return objFromValue()->property(_id);
+    }
+    if (_type == Type::ElementRef) {
+        objFromValue()->element(_id);
+    }
+    return *this;
+}

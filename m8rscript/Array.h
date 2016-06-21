@@ -42,9 +42,9 @@ namespace m8r {
 class Array : public Object {
 public:
     Array();
-    
-    virtual Value* element(uint32_t index) override { return (index < _array.size()) ? &(_array[index]) : nullptr; }
-    virtual const Value* element(uint32_t index) const override { return (index < _array.size()) ? &(_array[index]) : nullptr; }
+
+    virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
+    virtual const Value element(uint32_t index) const override { return (index < _array.size()) ? _array[index] : Value(); }
     virtual bool setElement(uint32_t index, const Value& value) override
     {
         if (index >= _array.size()) {

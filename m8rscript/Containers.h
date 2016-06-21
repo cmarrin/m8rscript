@@ -346,6 +346,7 @@ public:
     }
     
     type& inFrame(int32_t index) { return super::at(_frame + index); }
+    const type& inFrame(int32_t index) const { return super::at(_frame + index); }
     void pop(size_t n = 1) { super::resize(size() - n); }
     void setTop(const type& value) { super::back() = value; }
 

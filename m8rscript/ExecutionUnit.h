@@ -50,6 +50,18 @@ class Parser;
 class Function;
 class Program;
 
+class ExecutionStack : public Stack<Value>, public Object
+{
+public:
+    ExecutionStack(uint32_t size) : Stack<Value>(size) { }
+    virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
+    virtual const Value element(uint32_t index) const override { return inFrame(index); }
+    virtual bool setElement(uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
+    virtual bool appendElement(const Value&) override { assert(0); return false; }
+    virtual size_t elementCount() const override { assert(0); return 0; }
+    virtual void setElementCount(size_t) override { assert(0); }
+};
+
 class ExecutionUnit {
 public:
     ExecutionUnit() : _stack(10) { }
@@ -121,7 +133,7 @@ private:
     mutable Annotations annotations;
 #endif
       
-    Stack<Value> _stack;
+    ExecutionStack _stack;
 
     mutable uint32_t _nerrors = 0;
 };
