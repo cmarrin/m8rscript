@@ -637,8 +637,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         name += functionName;
         name += ">";
     }
-    else if (obj->name() && obj->name()->valid()) {
-        name = program->stringFromAtom(*obj->name());
+    else {
+        name = "anonymous>";
     }
     
     indentCode(outputString);
@@ -654,7 +654,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 continue;
             }
             if (value.asObjectValue() && value.asObjectValue()->code()) {
-                outputString += generateCodeString(program, value.asObjectValue(), "", _nestingLevel);
+                Atom name = obj->propertyName(i);
+                outputString += generateCodeString(program, value.asObjectValue(), program->stringFromAtom(name).c_str(), _nestingLevel);
                 outputString += "\n";
             }
         }

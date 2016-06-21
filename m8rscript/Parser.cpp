@@ -37,11 +37,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ParseEngine.h"
 
-#define USE_PARSE_ENGINE 1
+#define USE_PARSE_ENGINE 0
 
 using namespace m8r;
 
+#if !USE_PARSE_ENGINE
 extern int yyparse(Parser*);
+#endif
 
 uint32_t Parser::_nextLabelId = 1;
 
@@ -229,7 +231,7 @@ void Parser::emitDeferred()
 
 void Parser::functionAddParam(const Atom& atom)
 {
-    if (!_currentFunction->addLocal(atom)) {
+    if (_currentFunction->addLocal(atom) < 0) {
         m8r::String s = "param '";
         s += _program->stringFromAtom(atom);
         s += "' already exists";

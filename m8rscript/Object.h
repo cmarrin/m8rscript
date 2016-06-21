@@ -47,8 +47,6 @@ public:
     typedef Vector<Value::Map::Pair> Properties;
 
     virtual ~Object() { }
-
-    virtual const Atom* name() const { return nullptr; }
     
     virtual const Code* code() const { return nullptr; }
     

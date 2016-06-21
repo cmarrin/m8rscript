@@ -103,6 +103,7 @@ private:
     void forLoopCondAndIt();
     bool propertyAssignment();
     bool propertyName();
+    void formalParameterList();
     
     Parser* _parser;
     uint8_t _token;

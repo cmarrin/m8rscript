@@ -96,6 +96,7 @@ void ParseEngine::syntaxError(Error error, Token token)
                 switch(token) {
                     case Token::Expr: errorString = "expression"; break;
                     case Token::PropertyAssignment: errorString = "property assignment"; break;
+                    case Token::Identifier: errorString = "identifier"; break;
                     default: errorString = "*** UNKNOWN TOKEN ***"; break;
                 }
                 s += errorString;
@@ -142,7 +143,7 @@ bool ParseEngine::sourceElements()
 
 bool ParseEngine::sourceElement()
 {
-    return statement() | functionDeclaration();
+    return functionDeclaration() || statement();
 }
 
 bool ParseEngine::statement()
@@ -181,6 +182,7 @@ bool ParseEngine::functionDeclaration()
     if (_token != K_FUNCTION) {
         return false;
     }
+    popToken();
     Atom name = _tokenValue.atom;
     expect(T_IDENTIFIER);
     Function* f = function();
@@ -239,9 +241,22 @@ bool ParseEngine::iterationStatement()
     popToken();
     expect('(');
     if (type == K_WHILE) {
-        //FIXME: implement
+        Label label = _parser->label();
+        expression();
+        _parser->addMatchedJump(m8r::Op::JF, label);
+        expect(')');
+        statement();
+        _parser->matchJump(label);
     } else if (type == K_DO) {
-        //FIXME: implement
+        Label label = _parser->label();
+        statement();
+        expect(K_WHILE);
+        expect('(');
+        expression();
+        _parser->addMatchedJump(m8r::Op::JT, label);
+        _parser->matchJump(label);
+        expect(')');
+        expect(';');
     } else if (type == K_FOR) {
         if (_token == K_VAR) {
             popToken();
@@ -276,7 +291,20 @@ bool ParseEngine::iterationStatement()
 
 bool ParseEngine::jumpStatement()
 {
-    // FIXME: Implement
+    if (_token == K_BREAK || _token == K_CONTINUE) {
+        popToken();
+        expect(';');
+        return true;
+    }
+    if (_token == K_RETURN) {
+        popToken();
+        uint32_t count = 0;
+        if (expression()) {
+            count = 1;
+        }
+        _parser->emitWithCount(m8r::Op::RET, count);
+        expect(';');
+    }
     return false;
 }
 
@@ -386,6 +414,12 @@ bool ParseEngine::leftHandSideExpression()
         return true;
     }
     
+    if (_token == K_FUNCTION) {
+        popToken();
+        Function* f = function();
+        _parser->emit(f);
+    }
+    
     if (!primaryExpression()) {
         return false;
     }
@@ -431,12 +465,6 @@ uint32_t ParseEngine::argumentList()
 
 bool ParseEngine::primaryExpression()
 {
-    // FIXME: Add the rest of the cases:
-    //
-    //    | object_literal
-    //    | array_literal
-    //    | '(' expression ')'
-    
     switch(_token) {
         case T_IDENTIFIER: _parser->emit(_tokenValue.atom); popToken(); break;
         case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); break;
@@ -470,7 +498,7 @@ bool ParseEngine::primaryExpression()
                     _parser->emit(m8r::Op::STOO);
                 }
             }
-            expect(']');
+            expect('}');
             break;
             
             break;
@@ -501,6 +529,34 @@ bool ParseEngine::propertyName()
 
 Function* ParseEngine::function()
 {
-    // FIXME: Implement
-    return nullptr;
+    expect('(');
+    _parser->functionStart();
+    formalParameterList();
+    _parser->functionParamsEnd();
+    expect(')');
+    expect('{');
+    sourceElements();
+    expect('}');
+    _parser->emit(m8r::Op::END);
+    return _parser->functionEnd();
 }
+
+void ParseEngine::formalParameterList()
+{
+    if (_token != T_IDENTIFIER) {
+        return;
+    }
+    while (1) {
+        _parser->functionAddParam(_tokenValue.atom);
+        popToken();
+        if (_token != ',') {
+            return;
+        }
+        popToken();
+        if (_token != T_IDENTIFIER) {
+            syntaxError(Error::Expected, Token::Identifier);
+            return;
+        }
+    }
+}
+
