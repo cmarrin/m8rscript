@@ -117,6 +117,7 @@ enum class Op {
     END = 0xFF,
 };
 
+#undef DEC
 enum class Token {
     Function = 1,
     New = 2,

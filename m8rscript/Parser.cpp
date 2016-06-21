@@ -37,7 +37,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ParseEngine.h"
 
+#ifndef USE_PARSE_ENGINE
 #define USE_PARSE_ENGINE 1
+#endif
 
 using namespace m8r;
 
