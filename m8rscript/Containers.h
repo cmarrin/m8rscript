@@ -204,7 +204,14 @@ public:
     void clear() { resize(0); }
     size_t size() const { return _size; };
     void reserve(size_t size) { ensureCapacity(size); }
-    void resize(size_t size) { ensureCapacity(size); _size = size; }
+    void resize(size_t size)
+    {
+        ensureCapacity(size);
+        if (size > _size) {
+            memset(_data + _size, 0, (size - _size) * sizeof(type));
+        }
+        _size = size;
+    }
     
     type& operator[](size_t i) { return at(i); };
     const type& operator[](size_t i) const { return at(i); };

@@ -298,7 +298,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             intValue = intFromCode(code, i, size);
             i += size;
         }
-        _stack.push(_stack.element(intValue));
+        _stack.push(_stack.elementRef(intValue));
         DISPATCH;
     L_JMP:
     L_JT:

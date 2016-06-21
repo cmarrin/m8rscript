@@ -183,7 +183,7 @@ Value Value::bakeValue() const
         return objFromValue()->property(_id);
     }
     if (_type == Type::ElementRef) {
-        objFromValue()->element(_id);
+        return objFromValue()->element(_id);
     }
     return *this;
 }
