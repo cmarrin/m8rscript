@@ -91,6 +91,8 @@ public:
     Label label();
     void addMatchedJump(Op op, Label&);
     void matchJump(Label&);
+    void jumpToLabel(Op op, Label&);
+    
     void startDeferred()
     {
         assert(!_deferred);

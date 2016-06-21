@@ -2,6 +2,12 @@
 //Loop and Print
 //
 
+if (0)
+    if (1)
+        print("In innermost if\n");
+    else
+        print("In innermost else\n");
+
 var x = 5;
 ++x++;
 
@@ -15,7 +21,11 @@ var c;
 c = a * a + b * b;
 
 for (var i = 0; i < 10; i++) {
-    print(i + " squared times " + c + " is " + (i * i * c) + "\n");
+    var q;
+    if ((i & 1) == 0) {
+        q = 1;
+    } else q = -1;
+    print(i + " squared times " + (q * c) + " is " + (i * i * (q * c)) + "\n");
 }
 
 {

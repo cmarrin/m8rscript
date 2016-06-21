@@ -203,8 +203,30 @@ bool ParseEngine::compoundStatement()
 
 bool ParseEngine::selectionStatement()
 {
-    // FIXME: Implement
-    return false;
+    if (_token != K_IF) {
+        return false;
+    }
+    popToken();
+    expect('(');
+    expression();
+    
+    Label ifLabel = _parser->label();
+    Label elseLabel = _parser->label();
+    _parser->addMatchedJump(m8r::Op::JF, elseLabel);
+
+    expect(')');
+    statement();
+
+    if (_token == K_ELSE) {
+        popToken();
+        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
+        _parser->matchJump(elseLabel);
+        statement();
+        _parser->matchJump(ifLabel);
+    } else {
+        _parser->matchJump(elseLabel);
+    }
+    return true;
 }
 
 bool ParseEngine::switchStatement()
@@ -218,16 +240,17 @@ void ParseEngine::forLoopCondAndIt()
     // On entry, we are at the semicolon before the cond expr
     expect(';');
     Label label = _parser->label();
-    expression();
+    expression(); // cond expr
     _parser->addMatchedJump(m8r::Op::JF, label);
     _parser->startDeferred();
     expect(';');
-    expression();
+    expression(); // iterator
     _parser->emit(m8r::Op::POP);
     _parser->endDeferred();
     expect(')');
     statement();
     _parser->emitDeferred();
+    _parser->jumpToLabel(Op::JMP, label);
     _parser->matchJump(label);
 }
 
@@ -246,6 +269,7 @@ bool ParseEngine::iterationStatement()
         _parser->addMatchedJump(m8r::Op::JF, label);
         expect(')');
         statement();
+        _parser->jumpToLabel(Op::JMP, label);
         _parser->matchJump(label);
     } else if (type == K_DO) {
         Label label = _parser->label();
@@ -253,8 +277,7 @@ bool ParseEngine::iterationStatement()
         expect(K_WHILE);
         expect('(');
         expression();
-        _parser->addMatchedJump(m8r::Op::JT, label);
-        _parser->matchJump(label);
+        _parser->jumpToLabel(m8r::Op::JT, label);
         expect(')');
         expect(';');
     } else if (type == K_FOR) {
