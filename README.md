@@ -16,4 +16,16 @@ MaterScript is really small. An empty ESP8266 app takes up 217K of flash and 26K
 
 So I've started hand coding a recursive decent parser, which can be done with hardly any data storage other than the stack. A very rudimentary version is working and is saving about 6K of that 11K of data. And there are still optimization to be done.
 
-### More to come
+### Memory sizes
+The table below shows the current size of the code (as of 6/21/16). The ParseEngine based parser saves considerably on ram usage over the yyparse based parser.
+|                   |                                     | Flash   | Ram    | Remaining Ram |
+|-------------------|-------------------------------------|---------|--------|---------------|
+| Total Memory Used | yyParse/Parser                      | 22,608  | 9,272  |               |
+|                   | ParseEngine/Parser                  | 20,420  | 4,468  |               |
+|                   | yyParse/GenString                   | 5,532   | 2,676  |               |
+|                   | yyParse/EU                          | 7,656   | 1,616  |               |
+|                   |                                     |         |        |               |
+|                   | Savings of ParseEngine over yyparse | 2,188   | 4,804  |               |
+|                   |                                     |         |        |               |
+|                   | EU only size                        | 7,656   | 1,616  | 49,148        |
+|                   | Parse Engine Parser + EU size       | 28,076  | 6,084  | 44,680        |
