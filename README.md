@@ -18,6 +18,7 @@ So I've started hand coding a recursive decent parser, which can be done with ha
 
 ### Memory sizes
 The table below shows the current size of the code (as of 6/21/16). The ParseEngine based parser saves considerably on ram usage over the yyparse based parser.
+
 |                   |                                     | Flash   | Ram    | Remaining Ram |
 |-------------------|-------------------------------------|---------|--------|---------------|
 | Total Memory Used | yyParse/Parser                      | 22,608  | 9,272  |               |
