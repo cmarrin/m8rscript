@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 
 #include <cstring>
-#include <string>
 
 using namespace m8r;
 
@@ -508,7 +507,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
                     if (token == T_INTEGER) {
                         tokenValue->integer = static_cast<uint32_t>(strtol(_tokenString.c_str(), NULL, 0));
                     } else {
-                        tokenValue->number = static_cast<float>(std::atof(_tokenString.c_str()));
+                        tokenValue->number = Value::floatFromString(_tokenString.c_str());
                     }
                     _tokenString.erase();
 					break;

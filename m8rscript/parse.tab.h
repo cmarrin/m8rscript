@@ -140,13 +140,13 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 92 "parse.y"
+#line 93 "parse.y"
 {
     m8r::Op             op;
     m8r::Label          label;
     m8r::Function*      function;
     m8r::StringId       string;
-    float				number;
+    m8r::RawFloat		number;
     uint32_t            integer;
 	m8r::Atom           atom;
     uint32_t            argcount;

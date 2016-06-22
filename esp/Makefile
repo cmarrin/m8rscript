@@ -89,6 +89,7 @@ OTA_TOOL = $(TOOLS_ROOT)/espota.py
 LIBS = c gcc hal pp phy net80211 lwip wpa main
 LIBS := $(addprefix -l,$(LIBS))
 
+USE_PARSE_ENGINE ?= 1
 INCLUDE_DIRS += $(SDK_ROOT)/include $(SDK_ROOT)/lwip/include $(CORE_DIR) $(ESP_ROOT)/variants/generic $(OBJ_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE)
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))

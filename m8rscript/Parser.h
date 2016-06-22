@@ -111,7 +111,7 @@ public:
         
     void emit(StringId value);
     void emit(uint32_t value);
-    void emit(float value);
+    void emit(Float value);
     void emit(const Atom& value);
     void emit(Op value);
     

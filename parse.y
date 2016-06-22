@@ -12,6 +12,7 @@
 
 %{
 #include "Atom.h"
+#include "Float.h"
 #include "Function.h"
 #include "Program.h"
 #include "Parser.h"
@@ -94,7 +95,7 @@ int yylex(YYSTYPE* token, m8r::Parser* parser)
     m8r::Label          label;
     m8r::Function*      function;
     m8r::StringId       string;
-    float				number;
+    m8r::RawFloat		number;
     uint32_t            integer;
 	m8r::Atom           atom;
     uint32_t            argcount;

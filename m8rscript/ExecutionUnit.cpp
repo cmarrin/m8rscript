@@ -35,10 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 
+#include "Float.h"
 #include "Parser.h"
 #include <cassert>
-#include <cmath>
-#include <string>
 
 using namespace m8r;
 
@@ -145,19 +144,11 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
         case Value::Type::String: return program->atomizeString(value.asStringValue());
         case Value::Type::Id: return value.asIdValue();
         case Value::Type::Integer: {
-            char buf[40];
-            sprintf(buf, "%d", value.asIntValue());
-            return program->atomizeString(buf);
+            return program->atomizeString(Value::toString(value.asIntValue()).c_str());
         }
         default: break;
     }
     return Atom::emptyAtom(); 
-}
-
-// Local implementation to workaround ESP8266 bug
-static float myfmod(float a, float b)
-{
-    return (a - b * floor(a / b));
 }
 
 void ExecutionUnit::run(Program* program, void (*printer)(const char*))
@@ -208,7 +199,7 @@ void ExecutionUnit::run(Program* program, void (*printer)(const char*))
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
         /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINOP) OP(BINOP) OP(BINIOP) OP(BINIOP)
+        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
@@ -241,13 +232,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     m8r::String strValue;
     uint32_t uintValue;
     int32_t intValue;
-    float floatValue;
+    Float floatValue;
     bool boolValue;
     uint32_t size;
     Op op;
     Value leftValue, rightValue;
     int32_t leftIntValue, rightIntValue;
-    float leftFloatValue, rightFloatValue;
+    Float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
     int32_t returnCount;
@@ -382,6 +373,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.pop();
         leftIntValue = _stack.top().bakeValue().toIntValue();
         switch(op) {
+            case Op::LOR: _stack.setTop(leftIntValue || rightIntValue); break;
+            case Op::LAND: _stack.setTop(leftIntValue && rightIntValue); break;
             case Op::AND: _stack.setTop(leftIntValue & rightIntValue); break;
             case Op::OR: _stack.setTop(leftIntValue | rightIntValue); break;
             case Op::XOR: _stack.setTop(leftIntValue ^ rightIntValue); break;
@@ -401,8 +394,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             leftIntValue = leftValue.toIntValue();
             rightIntValue = rightValue.toIntValue();
             switch(op) {
-                case Op::LOR: _stack.setTop(leftIntValue || rightIntValue); break;
-                case Op::LAND: _stack.setTop(leftIntValue && rightIntValue); break;
                 case Op::EQ: _stack.setTop(leftIntValue == rightIntValue); break;
                 case Op::NE: _stack.setTop(leftIntValue != rightIntValue); break;
                 case Op::LT: _stack.setTop(leftIntValue < rightIntValue); break;
@@ -420,8 +411,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             rightFloatValue = rightValue.toFloatValue();
                
             switch(op) {
-                case Op::LOR: _stack.setTop(leftFloatValue || rightFloatValue); break;
-                case Op::LAND: _stack.setTop(leftFloatValue && rightFloatValue); break;
                 case Op::EQ: _stack.setTop(leftFloatValue == rightFloatValue); break;
                 case Op::NE: _stack.setTop(leftFloatValue != rightFloatValue); break;
                 case Op::LT: _stack.setTop(leftFloatValue < rightFloatValue); break;
@@ -431,7 +420,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 case Op::SUB: _stack.setTop(leftFloatValue - rightFloatValue); break;
                 case Op::MUL: _stack.setTop(leftFloatValue * rightFloatValue); break;
                 case Op::DIV: _stack.setTop(leftFloatValue / rightFloatValue); break;
-                case Op::MOD: _stack.setTop(static_cast<float>(myfmod(leftFloatValue, rightFloatValue))); break;
+                case Op::MOD: _stack.setTop(leftFloatValue % rightFloatValue); break;
                 default: assert(0); break;
             }
         }
@@ -714,7 +703,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "FLT(";
-        outputString += Value::toString(*(reinterpret_cast<float*>(&uintValue)));
+        outputString += Value::toString(Float(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:

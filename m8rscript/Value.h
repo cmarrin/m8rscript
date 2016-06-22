@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Containers.h"
-#include "Value.h"
+#include "Float.h"
 
 namespace m8r {
 
@@ -46,7 +46,7 @@ class Value;
 
 typedef union {
     void* v;
-    float f;
+    RawFloat f;
     int32_t i;
     uint32_t u;
     Object* o;
@@ -66,7 +66,7 @@ public:
     Value(Value& other) { *this = other; }
     
     Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(0) { }
-    Value(float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
+    Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
@@ -87,13 +87,13 @@ public:
     Object* asObjectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
     uint32_t asUIntValue() const { return (_type == Type::Integer) ? uintFromValue() : 0; }
-    float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : 0; }
+    Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     Atom asIdValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
     
     m8r::String toStringValue() const;
     bool toBoolValue() const;
-    float toFloatValue() const;
+    Float toFloatValue() const;
     Object* toObjectValue() const;
 
     int32_t toIntValue() const { return static_cast<int32_t>(toUIntValue()); }
@@ -102,7 +102,7 @@ public:
         if (_type == Type::Integer) {
             return asUIntValue();
         }
-        return canBeBaked() ? bakeValue().toUIntValue() : toFloatValue();
+        return canBeBaked() ? bakeValue().toUIntValue() : static_cast<uint32_t>(toFloatValue());
     }
 
     bool setValue(const Value&);
@@ -124,19 +124,20 @@ public:
     bool isLValue() const { return canBeBaked(); }
     bool isNone() const { return _type == Type::None; }
 
-    static m8r::String toString(float value);
+    static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
     static m8r::String toString(uint32_t value);
+    static Float floatFromString(const char*);
     
 private:
-    inline void* valueFromFloat(float f) const { U u; u.f = f; return u.v; }
+    inline void* valueFromFloat(Float f) const { U u; u.f = f; return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
     inline void* valueFromValuePtr(Value* val) const { U u; u.val = val; return u.v; }
 
-    inline float floatFromValue() const { U u; u.v = _value; return u.f; }
+    inline Float floatFromValue() const { U u; u.v = _value; return Float(u.f); }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
     inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
     inline Object* objFromValue() const { U u; u.v = _value; return u.o; }

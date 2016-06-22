@@ -36,29 +36,36 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "Object.h"
-#include <cstdio>
+//#include <cstdio>
 
 using namespace m8r;
 
-m8r::String Value::toString(float value)
+m8r::String Value::toString(Float value)
 {
+    // FIXME: Implement
     char buf[40];
-    sprintf(buf, "%g", value);
+    //sprintf(buf, "%g", value);
     return m8r::String(buf);
 }
 
 m8r::String Value::toString(uint32_t value)
 {
     char buf[20];
-    sprintf(buf, "%u", value);
+    //sprintf(buf, "%u", value);
     return m8r::String(buf);
 }
 
 m8r::String Value::toString(int32_t value)
 {
     char buf[20];
-    sprintf(buf, "%d", value);
+    //sprintf(buf, "%d", value);
     return m8r::String(buf);
+}
+
+Float Value::floatFromString(const char* s)
+{
+    // FIXME: implement
+    return Float();
 }
 
 m8r::String Value::toStringValue() const
@@ -95,7 +102,7 @@ bool Value::toBoolValue() const
             }
             return v ? v->toBoolValue() : false;
         }
-        case Type::Float: return asFloatValue() != 0;
+        case Type::Float: return asFloatValue() != Float();
         case Type::Integer: return asIntValue() != 0;
         case Type::String: {
             const char* s = asStringValue();
@@ -108,30 +115,37 @@ bool Value::toBoolValue() const
     }
 }
 
-float Value::toFloatValue() const
+Float Value::toFloatValue() const
 {
     if (canBeBaked()) {
         return bakeValue().toFloatValue();
     }
     switch(_type) {
-        case Type::None: return 0;
+        case Type::None: break;
         case Type::Object: {
             Value* v = nullptr;
             Object* obj = asObjectValue();
             if (obj) {
                 v = obj->value();
             }
-            return v ? v->toFloatValue() : 0;
+            if (v) {
+                return v->toFloatValue();
+            }
+            break;
         }
         case Type::Float: return asFloatValue();
-        case Type::Integer: return static_cast<float>(asIntValue());
+        case Type::Integer: return Float(asIntValue());
         case Type::String: {
             const char* s = asStringValue();
-            return s ? std::atof(s) : 0;
+            if (s) {
+                return floatFromString(s);
+            }
+            break;
         }
-        case Type::Id: return 0;
-        default: assert(0); return 0;
+        case Type::Id: break;
+        default: assert(0); break;
     }
+    return Float();
 }
 
 bool Value::setValue(const Value& v)

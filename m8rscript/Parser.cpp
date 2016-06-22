@@ -70,9 +70,7 @@ void Parser::printError(const char* s)
     _printer("Error: ");
     _printer(s);
     _printer(" on line ");
-    char buf[20];
-    sprintf(buf, "%d", _scanner.lineno());
-    _printer(buf);
+    _printer(Value::toString(_scanner.lineno()).c_str());
     _printer("\n");
 }
 
@@ -168,10 +166,10 @@ void Parser::emit(uint32_t value)
     addCodeInt(value, size);
 }
 
-void Parser::emit(float value)
+void Parser::emit(Float value)
 {
     addCodeByte(Op::PUSHF);
-    addCodeInt(*(reinterpret_cast<uint32_t*>(&value)), 4);
+    addCodeInt(static_cast<RawFloat>(value).raw(), 4);
 }
 
 void Parser::emit(const Atom& atom)

@@ -36,8 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Global.h"
 
 #include "Program.h"
+#ifdef __APPLE__
 #include <ctime>
-#include <cstdio>
+#endif
+//#include <cstdio>
 
 using namespace m8r;
 
@@ -120,7 +122,7 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
             return 1;
         case Property::print:
             for (int i = 1 - nparams; i <= 0; ++i) {
-                printf("%s", stack.top(i).toStringValue().c_str());
+                //printf("%s", stack.top(i).toStringValue().c_str());
             }
         default: return -1;
     }

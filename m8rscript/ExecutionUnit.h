@@ -112,10 +112,10 @@ private:
         return value;
     }
     
-    float floatFromCode(const uint8_t* code, uint32_t index) const
+    Float floatFromCode(const uint8_t* code, uint32_t index) const
     {
         uint32_t i = uintFromCode(code, index, 4);
-        return *reinterpret_cast<float*>(&i);
+        return Float(i);
     }
     
 #if SHOW_CODE

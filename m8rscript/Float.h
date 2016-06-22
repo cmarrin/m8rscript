@@ -37,10 +37,45 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class RawFloat
+{
+    friend class Float;
+
+public:
+    uint32_t raw() const
+    {
+#ifdef FIXED_POINT_FLOAT
+        return _f;
+#else
+        return *(reinterpret_cast<uint32_t*>(const_cast<float*>(&_f)));
+#endif
+    }
+    
+private:
+#ifdef FIXED_POINT_FLOAT
+    int32_t _f;
+#else
+    float _f;
+#endif
+};
+
 class Float
 {
 public:
-    static Float makeFloat(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
+    Float() { _value._f = 0; }
+    Float(const RawFloat& value) { _value._f = value._f; }
+    Float(const Float& value) { _value._f = value._value._f; }
+    Float(Float& value) { _value._f = value._value._f; }
+    Float(uint32_t v)
+    {
+#ifdef FIXED_POINT_FLOAT
+        _value._f = static_cast<int32_t>(v);
+#else
+        _value._f = *(reinterpret_cast<float*>(&v));
+#endif
+    }
+    
+    Float(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
     {
 #ifdef FIXED_POINT_FLOAT
         int32_t num = i*1000;
@@ -65,7 +100,7 @@ public:
             num /= 10;
         }
         Float f;
-        f._v = num;
+        f._value._f = num;
         return f;
 #else
         float num = (float) f;
@@ -80,32 +115,43 @@ public:
             ++e;
             num /= 10;
         }
-        Float v;
-        v._v = num;
-        return v;
+        _value._f = num;
 #endif
     }
     
-    Float& operator=(const Float& other) { _v = other._v; return *this; }
-    Float& operator=(Float& other) { _v = other._v; return *this; }
+    const Float& operator=(const Float& other) { _value._f = other._value._f; return *this; }
+    Float& operator=(Float& other) { _value._f = other._value._f; return *this; }
     
-    Float operator+(const Float& other) { Float r; r._v = _v + other._v; return *this; }
-    Float operator-(const Float& other) { Float r; r._v = _v - other._v; return *this; }
+    Float operator+(const Float& other) const { Float r; r._value._f = _value._f + other._value._f; return r; }
+    Float operator-(const Float& other) const { Float r; r._value._f = _value._f - other._value._f; return r; }
 
 #ifdef FIXED_POINT_FLOAT
-    Float operator*(const Float& other) { Float r; r._v = _v * other._v / 1000; return *this; }
-    Float operator/(const Float& other) { Float r; r._v = _v * 1000 / other._v; return *this; }
+    Float operator*(const Float& other) const { Float r; r._value._f = _value._f * other._value._f / 1000; return r; }
+    Float operator/(const Float& other) const { Float r; r._value._f = _value._f * 1000 / other._value._f; return r; }
+    Float floor() const { Float r; r._value._f = _value._f / 1000 * 1000; return r; }
+    operator uint32_t() { return _value._f; }
 #else
-    Float operator*(const Float& other) { Float r; r._v = _v * other._v; return *this; }
-    Float operator/(const Float& other) { Float r; r._v = _v / other._v; return *this; }
+    Float operator*(const Float& other) const { Float r; r._value._f = _value._f * other._value._f; return r; }
+    Float operator/(const Float& other) const { Float r; r._value._f = _value._f / other._value._f; return r; }
+    Float floor() const { Float r; r._value._f = static_cast<float>(static_cast<int32_t>(_value._f)); return r; }
+    operator uint32_t() const { return static_cast<uint32_t>(_value._f); }
 #endif
+
+    Float operator%(const Float& other) { return *this - other * (*this / other).floor(); }
     
+    bool operator==(const Float& other) const { return _value._f == other._value._f; }
+    bool operator!=(const Float& other) const { return _value._f != other._value._f; }
+    bool operator<(const Float& other) const { return _value._f < other._value._f; }
+    bool operator<=(const Float& other) const { return _value._f <= other._value._f; }
+    bool operator>(const Float& other) const { return _value._f > other._value._f; }
+    bool operator>=(const Float& other) const { return _value._f >= other._value._f; }
+
+    Float operator-() const { Float r; r._value._f = -_value._f; return r; }
+    operator int32_t() const { return static_cast<int32_t>(static_cast<uint32_t>(*this)); }
+    operator RawFloat() const { return _value; }
+
 private:
-#ifdef FIXED_POINT_FLOAT
-    int32_t _v;
-#else
-    float _v;
-#endif
+    RawFloat _value;
 };
 
 }

@@ -35,7 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <stdio.h>
+#include <cstddef>
+#ifdef __APPLE__
+#include <cstdio>
+#endif
 
 namespace m8r {
 
@@ -55,8 +58,6 @@ public:
 	virtual void flush() = 0;
 	
 private:
-    FILE* _file;
-    size_t _size;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,10 +69,10 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 class FileStream : public m8r::Stream {
+#ifdef __APPLE__
 public:
 	FileStream(const char* file)
     {
-#ifdef __APPLE__
         _file = fopen(file, "r");
         if (!_file) {
             _size = 0;
@@ -80,41 +81,56 @@ public:
         fseek(_file, 0, SEEK_END);
         _size = ftell(_file);
         rewind(_file);
-#endif
     }
 	
-    bool loaded() { return _file; }
+    bool loaded()
+    {
+        return _file;
+    }
 	virtual int available() override
     {
-#ifdef __APPLE__
         return static_cast<int>(_size - ftell(_file));
-#else
-        return 0;
-#endif
     }
     virtual int read() override
     {
-#ifdef __APPLE__
-        return fgetc(_file);
-#else
         return 0;
-#endif
     }
     virtual int peek() override
     {
-#ifdef __APPLE__
-        int c = fgetc(_file);
-        ungetc(c, _file);
-        return c;
-#else
         return 0;
-#endif
     }
 	virtual void flush() override { }
 	
 private:
     FILE* _file;
     size_t _size;
+#else
+public:
+	FileStream(const char* file)
+    {
+    }
+	
+    bool loaded()
+    {
+        return false;
+    }
+	virtual int available() override
+    {
+        return 0;
+    }
+    virtual int read() override
+    {
+        return 0;
+    }
+    virtual int peek() override
+    {
+        return 0;
+    }
+	virtual void flush() override { }
+	
+private:
+
+#endif
 };
 
 }
