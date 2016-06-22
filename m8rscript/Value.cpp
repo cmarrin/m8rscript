@@ -42,7 +42,9 @@ using namespace m8r;
 inline static void reverse(char *str, int len)
 {
     for (int32_t i = 0, j = len - 1; i < j; i++, j--) {
-        std::swap(str[i], str[j]);
+        char tmp = str[i];
+        str[i] = str[j];
+        str[j] = tmp;
     }
 }
 
