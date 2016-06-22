@@ -107,7 +107,6 @@ size_t Global::propertyCount() const
 
 Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 {
-    // FIXME: For now assume we're appending Date with now
     if (index != static_cast<uint32_t>(Property::Date) || name.rawAtom() != Program::atomizeString("now").rawAtom()) {
         return Value();
     }

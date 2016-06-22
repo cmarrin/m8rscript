@@ -62,6 +62,9 @@ private:
 class Float
 {
 public:
+    // Max number of digits we will ever print out (integer+fraction)
+    static constexpr uint8_t MaxDigits = 8;
+
     Float() { _value._f = 0; }
     Float(const RawFloat& value) { _value._f = value._f; }
     Float(const Float& value) { _value._f = value._value._f; }

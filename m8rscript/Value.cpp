@@ -40,25 +40,50 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+static void toString(char* buf, uint32_t value)
+{
+    if (value == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    
+    // See how many digits we have
+    uint32_t v = value;
+    int i = 0;
+    for ( ; v > 0; ++i, v /= 10) ;
+    v = value;
+    buf[i] = '\0';
+    while (v > 0) {
+        buf[--i] = static_cast<char>((v % 10) + 0x30);
+        v /= 10;
+    }
+    
+}
+
 m8r::String Value::toString(Float value)
 {
     // FIXME: Implement
-    char buf[40];
+    char buf[Float::MaxDigits + 8];
     //sprintf(buf, "%g", value);
     return m8r::String(buf);
 }
 
 m8r::String Value::toString(uint32_t value)
 {
-    char buf[20];
-    //sprintf(buf, "%u", value);
+    char buf[12];
+    ::toString(buf, value);
     return m8r::String(buf);
 }
 
 m8r::String Value::toString(int32_t value)
 {
-    char buf[20];
-    //sprintf(buf, "%d", value);
+    char buf[12];
+    if (value < 0) {
+        buf[0] = '-';
+        value = -value;
+    }
+    ::toString(buf + 1, value);
     return m8r::String(buf);
 }
 
