@@ -70,7 +70,9 @@ static Keyword keywords[] = {
 
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
 static inline bool isOctal(uint8_t c)       { return c >= '0' && c <= '7'; }
-static inline bool isHex(uint8_t c)         { return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
+static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
+static inline bool isUCHex(uint8_t c)       { return c >= 'A' && c <= 'F'; }
+static inline bool isHex(uint8_t c)         { return isUCHex(c) || isLCHex(c); }
 static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
 static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
 static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
@@ -339,41 +341,53 @@ uint8_t Scanner::scanIdentifier()
     return C_EOF;
 }
 
-void Scanner::scanDigits(bool hex)
+// Return the number of digits scanned
+int32_t Scanner::scanDigits(int32_t& number, bool hex)
 {
 	uint8_t c;
+    int32_t radix = hex ? 16 : 10;
+    int32_t numDigits = 0;
+    
 	while ((c = get()) != C_EOF) {
-		if (!isDigit(c) || (hex && isHex(c))) {
+		if (isDigit(c)) {
+            number = number * radix;
+            number += static_cast<int32_t>(c - '0');
+        } else if (isLCHex(c)) {
+            number = number * radix;
+            number += static_cast<int32_t>(c - 'a' + 10);
+        } else if (isUCHex(c)) {
+            number = number * radix;
+            number += static_cast<int32_t>(c - 'A' + 10);
+        } else {
 			putback(c);
 			break;
-		}
-		_tokenString += c;
+        }
+        ++numDigits;
 	}
+    return numDigits;
 }
 
-uint8_t Scanner::scanNumber()
+uint8_t Scanner::scanNumber(YYSTYPE* tokenValue)
 {
-	_tokenString.erase();
-    
 	uint8_t c = get();
     if (c == C_EOF) {
         return C_EOF;
     }
-    bool hex = false;
-	
+    
 	if (!isDigit(c)) {
 		putback(c);
 		return C_EOF;
 	}
 	
-	_tokenString += c;
-    
+    bool hex = false;
+    int32_t number = static_cast<int32_t>(c - '0');
+    int32_t exp = 0;
+
     if (c == '0') {
         if ((c = get()) == C_EOF) {
             return C_EOF;
         }
         if (c == 'x' || c == 'X') {
-            _tokenString += 'x';
             if ((c = get()) == C_EOF) {
                 return C_EOF;
             }
@@ -386,11 +400,18 @@ uint8_t Scanner::scanNumber()
         putback(c);
 	}
     
-    scanDigits(hex);
-    return scanFloat() ? T_FLOAT : T_INTEGER;
+    scanDigits(number, hex);
+    if (scanFloat(number, exp)) {
+        Float f(number, exp);
+        tokenValue->number = static_cast<RawFloat>(f);
+        return T_FLOAT;
+    }
+    assert(exp == 0);
+    tokenValue->integer = static_cast<uint32_t>(number);
+    return T_INTEGER;
 }
 
-bool Scanner::scanFloat()
+bool Scanner::scanFloat(int32_t& mantissa, int32_t& exp)
 {
     bool haveFloat = false;
 	uint8_t c;
@@ -399,24 +420,27 @@ bool Scanner::scanFloat()
     }
     if (c == '.') {
         haveFloat = true;
-        _tokenString += c;
-        scanDigits(false);
+        exp = -scanDigits(mantissa, false);
         if ((c = get()) == C_EOF) {
             return false;
         }
     }
     if (c == 'e' || c == 'E') {
         haveFloat = true;
-        _tokenString += 'e';
         if ((c = get()) == C_EOF) {
             return false;
         }
+        int32_t neg = 1;
         if (c == '+' || c == '-') {
-            _tokenString += c;
+            if (c == '-') {
+                neg = -1;
+            }
         } else {
             putback(c);
         }
-        scanDigits(false);
+        int32_t realExp;
+        scanDigits(realExp, false);
+        exp += neg * realExp;
     } else {
         putback(c);
     }
@@ -503,13 +527,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 
 			default:
 				putback(c);
-				if ((token = scanNumber()) != C_EOF) {
-                    if (token == T_INTEGER) {
-                        tokenValue->integer = static_cast<uint32_t>(strtol(_tokenString.c_str(), NULL, 0));
-                    } else {
-                        tokenValue->number = Value::floatFromString(_tokenString.c_str());
-                    }
-                    _tokenString.erase();
+				if ((token = scanNumber(tokenValue)) != C_EOF) {
 					break;
 				}
 				if ((token = scanSpecial()) != C_EOF) {

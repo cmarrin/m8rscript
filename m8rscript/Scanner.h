@@ -94,10 +94,10 @@ private:
   	uint8_t scanString(char terminal);
   	uint8_t scanSpecial();
   	uint8_t scanIdentifier();
-  	uint8_t scanNumber();
+  	uint8_t scanNumber(YYSTYPE* tokenValue);
   	uint8_t scanComment();
-  	void scanDigits(bool hex);
-  	bool scanFloat();
+  	int32_t scanDigits(int32_t& number, bool hex);
+  	bool scanFloat(int32_t& mantissa, int32_t& exp);
     
   	mutable uint8_t _lastChar;
   	m8r::String _tokenString;

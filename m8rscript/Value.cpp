@@ -40,39 +40,73 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-static void toString(char* buf, uint32_t value)
+static bool toString(char* buf, uint32_t value, int32_t& exp)
 {
     if (value == 0) {
         buf[0] = '0';
         buf[1] = '\0';
-        return;
+        exp = 0;
+        return true;
     }
     
     // See how many digits we have
     uint32_t v = value;
-    int i = 0;
-    for ( ; v > 0; ++i, v /= 10) ;
+    int digits = 0;
+    for ( ; v > 0; ++digits, v /= 10) ;
     v = value;
+    int32_t dp;
+    if (exp + digits > Float::MaxDigits || -exp > Float::MaxDigits) {
+        // Scientific notation
+        dp = digits - 1;
+        exp += dp;
+    } else {
+        dp = -exp;
+        exp = 0;
+    }
+
+    uint32_t i = (dp <= 0) ? (digits - dp + 1) : (dp + 2);
+    uint32_t end = i - 1;
     buf[i] = '\0';
-    while (v > 0) {
+    while (dp < 0) {
+        buf[--i] = '0';
+        ++dp;
+    }
+    bool haveDP = false;
+    while (v > 0 || dp > 0) {
+        if (--dp == -1) {
+            buf[--i] = '.';
+            haveDP = true;
+        }
         buf[--i] = static_cast<char>((v % 10) + 0x30);
         v /= 10;
     }
     
+    if (haveDP) {
+        while (buf[end] == '0') {
+            buf[end--] = '\0';
+        }
+        if (buf[end] == '.') {
+            buf[end] = '\0';
+        }
+    }
+    return true;
 }
 
 m8r::String Value::toString(Float value)
 {
-    // FIXME: Implement
     char buf[Float::MaxDigits + 8];
-    //sprintf(buf, "%g", value);
+    int32_t exp;
+    int32_t mantissa;
+    value.decompose(mantissa, exp);
+    ::toString(buf, mantissa, exp);
     return m8r::String(buf);
 }
 
 m8r::String Value::toString(uint32_t value)
 {
     char buf[12];
-    ::toString(buf, value);
+    int32_t exp = 0;
+    ::toString(buf, value, exp);
     return m8r::String(buf);
 }
 
@@ -83,7 +117,8 @@ m8r::String Value::toString(int32_t value)
         buf[0] = '-';
         value = -value;
     }
-    ::toString(buf + 1, value);
+    int32_t exp = 0;
+    ::toString(buf + 1, value, exp);
     return m8r::String(buf);
 }
 

@@ -35,6 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#ifndef FIXED_POINT_FLOAT
+#include <cmath>
+#endif
+
 namespace m8r {
 
 class RawFloat
@@ -63,7 +67,7 @@ class Float
 {
 public:
     // Max number of digits we will ever print out (integer+fraction)
-    static constexpr uint8_t MaxDigits = 8;
+    static constexpr uint8_t MaxDigits = 10;
 
     Float() { _value._f = 0; }
     Float(const RawFloat& value) { _value._f = value._f; }
@@ -78,27 +82,15 @@ public:
 #endif
     }
     
-    Float(uint32_t i, uint32_t f, uint8_t dp, int32_t e)
+    Float(int32_t i, int32_t e)
     {
 #ifdef FIXED_POINT_FLOAT
         int32_t num = i*1000;
-        while (dp < 3) {
-            ++dp;
-            f *= 10;
-        }
-        while (dp > 3) {
-            --dp;
-            f /= 10;
-        }
-        while ( f > 1000) {
-            f /= 10;
-        }
-        num += f;
-        while (e > 0) {
+        while (e > 3) {
             --e;
             num *= 10;
         }
-        while (e < 0) {
+        while (e < 3) {
             ++e;
             num /= 10;
         }
@@ -106,10 +98,7 @@ public:
         f._value._f = num;
         return f;
 #else
-        float num = (float) f;
-        while (dp-- > 0)
-            num /= 10;
-        num += (float) i;
+        float num = (float) i;
         while (e > 0) {
             --e;
             num *= 10;
@@ -133,11 +122,38 @@ public:
     Float operator/(const Float& other) const { Float r; r._value._f = _value._f * 1000 / other._value._f; return r; }
     Float floor() const { Float r; r._value._f = _value._f / 1000 * 1000; return r; }
     operator uint32_t() { return _value._f; }
+
+    int32_t mantissa() const { return _value._f; }
+    int32_t exponent() const { return -3; }
 #else
     Float operator*(const Float& other) const { Float r; r._value._f = _value._f * other._value._f; return r; }
     Float operator/(const Float& other) const { Float r; r._value._f = _value._f / other._value._f; return r; }
     Float floor() const { Float r; r._value._f = static_cast<float>(static_cast<int32_t>(_value._f)); return r; }
     operator uint32_t() const { return static_cast<uint32_t>(_value._f); }
+
+    void decompose(int32_t& mantissa, int32_t& exponent) const
+    {
+        int32_t sign = (_value._f < 0) ? -1 : 1;
+        float value = _value._f * sign;
+        int32_t exp = 0;
+        while (value >= 1) {
+            value /= 10;
+            exp++;
+        }
+        while (value < 0.1) {
+            value *= 10;
+            exp--;
+        }
+        mantissa = static_cast<int32_t>(value * 1000000000);
+        exponent = exp - 9;
+    }
+    int32_t exponent() const
+    {
+        int exp;
+        std::frexp(_value._f, &exp);
+        return static_cast<int32_t>(exp - 9);
+    }
+
 #endif
 
     Float operator%(const Float& other) { return *this - other * (*this / other).floor(); }

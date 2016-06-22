@@ -2,6 +2,8 @@
 //Loop and Print
 //
 
+var flt = 2.5;
+
 if (0)
     if (1)
         print("In innermost if\n");
