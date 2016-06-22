@@ -39,6 +39,56 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+inline static void reverse(char *str, int len)
+{
+    for (int32_t i = 0, j = len - 1; i < j; i++, j--) {
+        std::swap(str[i], str[j]);
+    }
+}
+
+static int32_t intToString(int32_t x, char* str, int32_t dp)
+{
+    int32_t i = 0;
+    bool haveDP = false;
+    
+    while (x) {
+        str[i++] = (x % 10) + '0';
+        x /= 10;
+        if (--dp == 0) {
+            str[i++] = '.';
+            haveDP = true;
+        }
+    }
+    
+    if (dp > 0) {
+        while (--dp) {
+            str[i++] = '0';
+        }
+        str[i++] = '.';
+        haveDP = true;
+    }
+    assert(i > 0);
+    if (str[i-1] == '.') {
+        str[i++] = '0';
+    }
+    
+    reverse(str, i);
+    str[i] = '\0';
+
+    if (haveDP) {
+        i--;
+        while (str[i] == '0') {
+            str[i--] = '\0';
+        }
+        if (str[i] == '.') {
+            str[i--] = '\0';
+        }
+        i++;
+    }
+
+    return i;
+}
+
 static bool toString(char* buf, uint32_t value, int32_t& exp)
 {
     if (value == 0) {
@@ -48,6 +98,11 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
         return true;
     }
     
+    if (!exp) {
+        intToString(value, buf, 0);
+        return true;
+    }
+
     // See how many digits we have
     uint32_t v = value;
     int digits = 0;
@@ -62,34 +117,17 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
         dp = -exp;
         exp = 0;
     }
-
-    uint32_t i = (dp <= 0) ? (digits - dp + 1) : ((dp > digits) ? (dp + 2) : (digits + 1));
-    uint32_t end = i - 1;
-    buf[i] = '\0';
-    int32_t savedDP = dp;
-    while (dp < 0) {
-        buf[--i] = '0';
-        ++dp;
-    }
-    bool haveDP = false;
-    while (v > 0 || dp > 0) {
-        if (--dp == -1) {
-            buf[--i] = '.';
-            haveDP = true;
-        }
-        buf[--i] = static_cast<char>((v % 10) + 0x30);
-        v /= 10;
-    }
-    assert(i == 0);
     
-    if (haveDP) {
-        while (buf[end] == '0') {
-            buf[end--] = '\0';
+    int32_t i = intToString(value, buf, dp);
+    if (exp) {
+        buf[i++] = 'e';
+        if (exp < 0) {
+            buf[i++] = '-';
+            exp = -exp;
         }
-        if (buf[end] == '.') {
-            buf[end] = '\0';
-        }
+        intToString(exp, buf + i, 0);
     }
+    
     return true;
 }
 
@@ -99,7 +137,13 @@ m8r::String Value::toString(Float value)
     int32_t exp;
     int32_t mantissa;
     value.decompose(mantissa, exp);
-    ::toString(buf, mantissa, exp);
+    if (mantissa < 0) {
+        buf[0] = '-';
+        mantissa = - mantissa;
+        ::toString(buf + 1, mantissa, exp);
+    } else {
+        ::toString(buf, mantissa, exp);
+    }
     return m8r::String(buf);
 }
 

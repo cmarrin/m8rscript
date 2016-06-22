@@ -26,8 +26,10 @@ for (var i = 0; i < 10; i++) {
     var q;
     if ((i & 1) == 0) {
         q = 1;
-    } else q = -1;
-    print(i + " squared times " + (q * c) + " is " + (i * i * (q * c)) + "\n");
+    } else {
+        q = -1;
+    }
+    print(i + " squared times " + q + " * " + c + " is " + (i * i * (q * c)) + "\n");
 }
 
 {

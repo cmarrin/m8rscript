@@ -48,14 +48,11 @@ class RawFloat
     friend class Float;
 
 public:
-    uint32_t raw() const
-    {
 #ifdef FIXED_POINT_FLOAT
-        return _f;
+    uint32_t raw() const { return _f; }
 #else
-        return *(reinterpret_cast<uint32_t*>(const_cast<float*>(&_f)));
+    uint32_t raw() const { return *(reinterpret_cast<uint32_t*>(const_cast<float*>(&_f))); }
 #endif
-    }
     
 private:
 #ifdef FIXED_POINT_FLOAT
@@ -75,12 +72,12 @@ public:
     Float(const RawFloat& value) { _value._f = value._f; }
     Float(const Float& value) { _value._f = value._value._f; }
     Float(Float& value) { _value._f = value._value._f; }
-    Float(uint32_t v)
+    Float(int32_t v)
     {
 #ifdef FIXED_POINT_FLOAT
         _value._f = static_cast<int32_t>(v);
 #else
-        _value._f = *(reinterpret_cast<float*>(&v));
+        _value._f = static_cast<float>(v);
 #endif
     }
     
@@ -127,6 +124,8 @@ public:
 
     int32_t mantissa() const { return _value._f; }
     int32_t exponent() const { return -3; }
+
+    static Float makeFromRaw(uint32_t r) { _value._f = r; }
 #else
     Float operator*(const Float& other) const { Float r; r._value._f = _value._f * other._value._f; return r; }
     Float operator/(const Float& other) const { Float r; r._value._f = _value._f / other._value._f; return r; }
@@ -151,7 +150,7 @@ public:
             value *= 10;
             exp--;
         }
-        mantissa = static_cast<int32_t>(value * 1000000000);
+        mantissa = static_cast<int32_t>(sign * value * 1000000000);
         exponent = exp - 9;
     }
     int32_t exponent() const
@@ -161,6 +160,7 @@ public:
         return static_cast<int32_t>(exp - 9);
     }
 
+    static Float makeFromRaw(uint32_t r) { Float f; f._value._f = *(reinterpret_cast<float*>(&r)); return f; }
 #endif
 
     Float operator%(const Float& other) { return *this - other * (*this / other).floor(); }
