@@ -93,11 +93,13 @@ public:
     }
     virtual int read() override
     {
-        return 0;
+        return fgetc(_file);
     }
     virtual int peek() override
     {
-        return 0;
+        int c = fgetc(_file);
+        ungetc(c, _file);
+        return c;
     }
 	virtual void flush() override { }
 	
