@@ -51,7 +51,7 @@ uint32_t Parser::_nextLabelId = 1;
 
 Parser::Parser(m8r::Stream* istream, void (*printer)(const char*))
     : _scanner(this, istream)
-    , _program(new Program)
+    , _program(new Program(printer))
     , _printer(printer)
 {
     _currentFunction = _program->main();

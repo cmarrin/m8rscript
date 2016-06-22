@@ -35,9 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cassert>
 #include <cstdlib>
 #include <cstdint>
-#include <cassert>
 #include <cstring>
 #include <limits>
 

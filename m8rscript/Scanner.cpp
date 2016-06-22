@@ -37,8 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Parser.h"
 
-#include <cstring>
-
 using namespace m8r;
 
 static const char* specialSingleChar = "(),.:;?[]{}~";

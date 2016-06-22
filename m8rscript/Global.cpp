@@ -38,18 +38,20 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #ifdef __APPLE__
 #include <ctime>
+#else
+extern "C" {
+#include<user_interface.h>
+}
 #endif
-//#include <cstdio>
 
 using namespace m8r;
 
 Map<Atom, Global::Property> Global::_properties;
 
-Global::Global()
+Global::Global(void (*printer)(const char*)) : _printer(printer)
 {
-#ifdef __APPLE__
-    _startTime = static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC);
-#endif
+    _startTime = 0;
+    _startTime = currentTime();
 
     if (_properties.empty()) {
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
@@ -121,7 +123,7 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
             return 1;
         case Property::print:
             for (int i = 1 - nparams; i <= 0; ++i) {
-                //printf("%s", stack.top(i).toStringValue().c_str());
+                _printer(stack.top(i).toStringValue().c_str());
             }
         default: return -1;
     }
@@ -130,8 +132,8 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
 uint32_t Global::currentTime() const
 {
 #ifdef __APPLE__
-    return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000 / CLOCKS_PER_SEC) - _startTime);
+    return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime);
 #else
-    return 0; //millis();
+    return system_get_time() - _startTime;
 #endif
 }

@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cstddef>
 #ifdef __APPLE__
 #include <cstdio>
 #endif

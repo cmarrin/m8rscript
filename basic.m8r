@@ -2,7 +2,7 @@
 //Loop and Print
 //
 
-var flt = 2.5;
+var flt = 0.100000001;
 
 if (0)
     if (1)
@@ -32,5 +32,5 @@ for (var i = 0; i < 10; i++) {
 
 {
     var t = Date.now() - startTime;
-    print("Run time: " + t + "ms\n");
+    print("Run time: " + ((t + 0.0) / 1000) + "ms\n");
 }

@@ -86,7 +86,7 @@ AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
 ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 OTA_TOOL = $(TOOLS_ROOT)/espota.py
 
-LIBS = c gcc hal pp phy net80211 lwip wpa main
+LIBS = c gcc hal pp phy net80211 lwip wpa main hal
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1

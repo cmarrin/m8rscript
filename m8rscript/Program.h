@@ -61,7 +61,7 @@ class Program {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
 
-    Program();
+    Program(void (*printer)(const char*));
     ~Program();
     
     const Function* main() const { return _main; }

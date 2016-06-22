@@ -39,6 +39,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cmath>
 #endif
 
+#include <cstdint>
+
 namespace m8r {
 
 class RawFloat
@@ -133,6 +135,11 @@ public:
 
     void decompose(int32_t& mantissa, int32_t& exponent) const
     {
+        if (_value._f == 0) {
+            mantissa = 0;
+            exponent = 0;
+            return;
+        }
         int32_t sign = (_value._f < 0) ? -1 : 1;
         float value = _value._f * sign;
         int32_t exp = 0;

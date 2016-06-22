@@ -41,7 +41,7 @@ namespace m8r {
 
 class Global : public Object {
 public:
-    Global();
+    Global(void (*printer)(const char*));
     
     // Global has built-in properties. Handle those here
     virtual int32_t propertyIndex(const Atom& s, bool canExist) override;
@@ -60,9 +60,9 @@ private:
     enum class Property { Date, Date_now, print };
     static Map<Atom, Property> _properties;
     
-#ifdef __APPLE__
     uint64_t _startTime;
-#endif
+
+    void (*_printer)(const char*);
 };
     
 }

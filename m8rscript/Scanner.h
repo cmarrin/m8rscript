@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <stdint.h>
 #include <assert.h>
 
 #include "Stream.h"

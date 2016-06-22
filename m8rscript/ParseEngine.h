@@ -35,8 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <stdint.h>
-
 #include "Atom.h"
 #include "Containers.h"
 #include "Parser.h"

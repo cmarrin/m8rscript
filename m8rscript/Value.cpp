@@ -36,7 +36,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "Object.h"
-//#include <cstdio>
 
 using namespace m8r;
 
@@ -64,9 +63,10 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
         exp = 0;
     }
 
-    uint32_t i = (dp <= 0) ? (digits - dp + 1) : (dp + 2);
+    uint32_t i = (dp <= 0) ? (digits - dp + 1) : ((dp > digits) ? (dp + 2) : (digits + 1));
     uint32_t end = i - 1;
     buf[i] = '\0';
+    int32_t savedDP = dp;
     while (dp < 0) {
         buf[--i] = '0';
         ++dp;
@@ -80,6 +80,7 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
         buf[--i] = static_cast<char>((v % 10) + 0x30);
         v /= 10;
     }
+    assert(i == 0);
     
     if (haveDP) {
         while (buf[end] == '0') {
@@ -113,12 +114,14 @@ m8r::String Value::toString(uint32_t value)
 m8r::String Value::toString(int32_t value)
 {
     char buf[12];
+    int32_t exp = 0;
     if (value < 0) {
         buf[0] = '-';
         value = -value;
+        ::toString(buf + 1, value, exp);
+    } else {
+        ::toString(buf, value, exp);
     }
-    int32_t exp = 0;
-    ::toString(buf + 1, value, exp);
     return m8r::String(buf);
 }
 
