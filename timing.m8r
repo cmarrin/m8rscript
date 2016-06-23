@@ -8,7 +8,7 @@ var r;
 var x = [ 1, 1.5, 7 + q * r ];
 
 var a = [ ];
-var n = 1000;
+var n = 2000;
 a.length = n;
 
 var startTime = Date.now();
@@ -20,4 +20,4 @@ for (var i = 0; i < n; ++i) {
 }
 
 var t = Date.now() - startTime;
-print("Run time: " + ((t + 0.0) / 1000) + "ms\n");
+print("Run time: " + (t / 1000.) + "ms\n");

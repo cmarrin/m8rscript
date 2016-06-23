@@ -703,7 +703,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "FLT(";
-        outputString += Value::toString(Float(uintValue));
+        outputString += Value::toString(Float::makeFromRaw(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
