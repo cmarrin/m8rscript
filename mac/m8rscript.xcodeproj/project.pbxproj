@@ -30,6 +30,8 @@
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
 		49D9B8251D1C854700724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8231D1C854700724911 /* MainMenu.xib */; };
+		49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B82B1D1C8CD300724911 /* green-led-off-md.png */; };
+		49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B82C1D1C8CD300724911 /* green-led-on-md.png */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
 		49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
@@ -90,6 +92,8 @@
 		49D9B8211D1C854700724911 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		49D9B8241D1C854700724911 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		49D9B8261D1C854700724911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		49D9B82B1D1C8CD300724911 /* green-led-off-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-off-md.png"; sourceTree = "<group>"; };
+		49D9B82C1D1C8CD300724911 /* green-led-on-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-on-md.png"; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
+				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B81A1D1C854700724911 /* AppDelegate.swift */,
 				49D9B81C1D1C854700724911 /* Document.swift */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
@@ -152,6 +157,15 @@
 				49D9B8261D1C854700724911 /* Info.plist */,
 			);
 			path = m8rsim;
+			sourceTree = "<group>";
+		};
+		49D9B82A1D1C8C9000724911 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				49D9B82B1D1C8CD300724911 /* green-led-off-md.png */,
+				49D9B82C1D1C8CD300724911 /* green-led-on-md.png */,
+			);
+			name = Images;
 			sourceTree = "<group>";
 		};
 		49E647DF1D00B68F005F5059 = {
@@ -312,8 +326,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,
 				49D9B8201D1C854700724911 /* Document.xib in Resources */,
+				49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */,
 				49D9B8251D1C854700724911 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
