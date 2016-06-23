@@ -63,7 +63,7 @@ static int32_t intToString(int32_t x, char* str, int32_t dp)
     }
     
     if (dp > 0) {
-        while (--dp) {
+        while (dp--) {
             str[i++] = '0';
         }
         str[i++] = '.';

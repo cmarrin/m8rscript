@@ -42,6 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include <cstdint>
+#include <limits>
 
 namespace m8r {
 
@@ -67,7 +68,9 @@ private:
 class Float
 {
 public:
-    static constexpr int32_t Exponent = 10;
+    static constexpr int32_t BinaryExponent = 10;
+    static constexpr int32_t DecimalExponent = 3;
+    static constexpr int32_t DecimalMultiplier = 1000; // pow(10, DecimalExponent)
     
     // Max number of digits we will ever print out (integer+fraction)
     static constexpr uint8_t MaxDigits = 10;
@@ -79,7 +82,7 @@ public:
     Float(int32_t v)
     {
 #ifdef FIXED_POINT_FLOAT
-        _value._f = static_cast<int32_t>(v) < Exponent;
+        _value._f = static_cast<int32_t>(v) << BinaryExponent;
 #else
         _value._f = static_cast<float>(v);
 #endif
@@ -88,15 +91,41 @@ public:
     Float(int32_t i, int32_t e)
     {
 #ifdef FIXED_POINT_FLOAT
-        while (e > -3) {
+        if (i == 0) {
+            _value._f = 0;
+            return;
+        }
+        
+        int64_t num = static_cast<int64_t>(i) * (1 << BinaryExponent);
+        int32_t sign = (num < 0) ? -1 : 1;
+        num *= sign;
+        
+        while (e > 0) {
+            if (num > std::numeric_limits<int32_t>::max()) {
+                // FIXME: Number is over range, handle that
+                _value._f = 0;
+                return;
+            }
             --e;
-            i *= 10;
+            num *= 10;
         }
-        while (e < -3) {
+        while (e < 0) {
+            if (num == 0) {
+                // FIXME: Number is under range, handle that
+                _value._f = 0;
+                return;
+            }
             ++e;
-            i /= 10;
+            num /= 10;
         }
-        _value._f = i;
+        
+        if (num > std::numeric_limits<int32_t>::max()) {
+            // FIXME: Number is under range, handle that
+            _value._f = 0;
+            return;
+        }
+        
+        _value._f = sign * static_cast<int32_t>(num);
 #else
         float num = (float) i;
         while (e > 0) {
@@ -121,18 +150,22 @@ public:
     Float operator*(const Float& other) const
     {
         Float r;
-        int64_t result = static_cast<uint64_t>(_value._f) * other._value._f >> Exponent;
+        int64_t result = static_cast<uint64_t>(_value._f) * other._value._f >> BinaryExponent;
         r._value._f = static_cast<int32_t>(result);
         return r;
     }
     Float operator/(const Float& other) const
     {
+        // FIXME: Have some sort of error on divide by 0
+        if (other._value._f == 0) {
+            return Float();
+        }
         Float r;
-        int64_t result = static_cast<int64_t>(_value._f) << Exponent / other._value._f;
+        int64_t result = (static_cast<int64_t>(_value._f) << BinaryExponent) / other._value._f;
         r._value._f = static_cast<int32_t>(result);
         return r;
     }
-    Float floor() const { Float r; r._value._f = _value._f >> Exponent << Exponent; return r; }
+    Float floor() const { Float r; r._value._f = _value._f >> BinaryExponent << BinaryExponent; return r; }
     operator uint32_t() { return _value._f; }
 
     void decompose(int32_t& mantissa, int32_t& exponent) const
@@ -143,18 +176,9 @@ public:
             return;
         }
         int32_t sign = (_value._f < 0) ? -1 : 1;
-        int64_t value = _value._f * sign;
-        int32_t exp = 0;
-        while (value >= (1 << Exponent)) {
-            value /= 10;
-            exp++;
-        }
-        while (value < (1 << (Exponent - 1))) {
-            value *= 10;
-            exp--;
-        }
-        mantissa = static_cast<int32_t>(sign * value * 1000000000);
-        exponent = exp - 9;
+        int64_t value = static_cast<int64_t>(sign * _value._f) * DecimalMultiplier;
+        mantissa = static_cast<int32_t>(sign * (value / (1 << BinaryExponent)));
+        exponent = -DecimalExponent;
     }
 
     static Float makeFromRaw(uint32_t r) { Float f; f._value._f = r; return f; }
