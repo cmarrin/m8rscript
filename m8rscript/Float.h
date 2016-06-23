@@ -35,10 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#undef FIXED_POINT_FLOAT
-#define FIXED_POINT_FLOAT
-
-#ifndef FIXED_POINT_FLOAT
+#if !FIXED_POINT_FLOAT
 #include <cmath>
 #endif
 
@@ -52,14 +49,14 @@ class RawFloat
     friend class Float;
 
 public:
-#ifdef FIXED_POINT_FLOAT
+#if FIXED_POINT_FLOAT
     uint32_t raw() const { return _f; }
 #else
     uint32_t raw() const { return *(reinterpret_cast<uint32_t*>(const_cast<float*>(&_f))); }
 #endif
     
 private:
-#ifdef FIXED_POINT_FLOAT
+#if FIXED_POINT_FLOAT
     int32_t _f;
 #else
     float _f;
@@ -82,7 +79,7 @@ public:
     Float(Float& value) { _value._f = value._value._f; }
     Float(int32_t v)
     {
-#ifdef FIXED_POINT_FLOAT
+#if FIXED_POINT_FLOAT
         _value._f = static_cast<int32_t>(v) << BinaryExponent;
 #else
         _value._f = static_cast<float>(v);
@@ -91,7 +88,7 @@ public:
     
     Float(int32_t i, int32_t e)
     {
-#ifdef FIXED_POINT_FLOAT
+#if FIXED_POINT_FLOAT
         if (i == 0) {
             _value._f = 0;
             return;
@@ -147,7 +144,7 @@ public:
     Float operator+(const Float& other) const { Float r; r._value._f = _value._f + other._value._f; return r; }
     Float operator-(const Float& other) const { Float r; r._value._f = _value._f - other._value._f; return r; }
 
-#ifdef FIXED_POINT_FLOAT
+#if FIXED_POINT_FLOAT
     Float operator*(const Float& other) const
     {
         Float r;
