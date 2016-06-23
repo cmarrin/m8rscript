@@ -172,22 +172,31 @@ void Parser::emit(Float value)
     addCodeInt(static_cast<RawFloat>(value).raw(), 4);
 }
 
-void Parser::emit(const Atom& atom)
+void Parser::emitId(const Atom& atom, IdType type)
 {
-    int32_t index = _currentFunction->localIndex(atom);
-    if (index >= 0) {
-        if (index <= 15) {
-            addCodeByte(Op::PUSHL, index);
-        } else {
-            assert(index < 65536);
-            uint32_t size = (index < 256) ? 1 : 2;
-            addCodeByte(Op::PUSHLX, size - 1);
-            addCodeInt(index, size);
+    if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
+        int32_t index = _currentFunction->localIndex(atom);
+        if (index < 0 && type == IdType::MustBeLocal) {
+            String s = "'";
+            s += Program::stringFromAtom(atom);
+            s += "' is not a local variable name";
+            printError(s.c_str());
         }
-    } else {
-        addCodeByte(Op::PUSHID);
-        addCodeInt(atom.rawAtom(), 2);
+        if (index >= 0) {
+            if (index <= 15) {
+                addCodeByte(Op::PUSHL, index);
+            } else {
+                assert(index < 65536);
+                uint32_t size = (index < 256) ? 1 : 2;
+                addCodeByte(Op::PUSHLX, size - 1);
+                addCodeInt(index, size);
+            }
+            return;
+        }
     }
+        
+    addCodeByte(Op::PUSHID);
+    addCodeInt(atom.rawAtom(), 2);
 }
 
 void Parser::emit(Op value)

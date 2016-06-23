@@ -356,7 +356,7 @@ bool ParseEngine::variableDeclaration()
         return true;
     }
     popToken();
-    _parser->emit(name);
+    _parser->emitId(name, Parser::IdType::MustBeLocal);
     if (!expect(Token::Expr, expression())) {
         return false;
     }
@@ -461,7 +461,7 @@ bool ParseEngine::leftHandSideExpression()
             popToken();
             Atom name = _tokenValue.atom;
             if (expect(T_IDENTIFIER)) {
-                _parser->emit(name);
+                _parser->emitId(name, Parser::IdType::NotLocal);
                 _parser->emit(m8r::Op::DEREF);
             }
         } else {
@@ -489,7 +489,7 @@ uint32_t ParseEngine::argumentList()
 bool ParseEngine::primaryExpression()
 {
     switch(_token) {
-        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); popToken(); break;
+        case T_IDENTIFIER: _parser->emitId(_tokenValue.atom, Parser::IdType::MightBeLocal); popToken(); break;
         case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); break;
         case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); break;
         case T_STRING: _parser->emit(_tokenValue.string); popToken(); break;
@@ -542,7 +542,7 @@ bool ParseEngine::propertyAssignment()
 bool ParseEngine::propertyName()
 {
     switch(_token) {
-        case T_IDENTIFIER: _parser->emit(_tokenValue.atom); popToken(); return true;
+        case T_IDENTIFIER: _parser->emitId(_tokenValue.atom, Parser::IdType::NotLocal); popToken(); return true;
         case T_STRING: _parser->emit(_tokenValue.string); popToken(); return true;
         case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); return true;
         case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); return true;

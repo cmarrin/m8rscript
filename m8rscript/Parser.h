@@ -112,8 +112,10 @@ public:
     void emit(StringId value);
     void emit(uint32_t value);
     void emit(Float value);
-    void emit(const Atom& value);
     void emit(Op value);
+    
+    enum class IdType { MustBeLocal, MightBeLocal, NotLocal };
+    void emitId(const Atom& value, IdType);
     
     void emit(Object* obj);
     void addNamedFunction(Function* value, const Atom& name);
