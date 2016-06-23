@@ -136,8 +136,11 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         return false;
     }
     if (derefValue.isInteger()) {
-        objectValue = obj->elementRef(derefValue.toIntValue());
-        return !objectValue.isNone();
+        Value elementRef = obj->elementRef(derefValue.toIntValue());
+        if (!elementRef.isNone()) {
+            objectValue = elementRef;
+            return true;
+        }
     }
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
@@ -157,6 +160,9 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
         case Value::Type::Id: return value.asIdValue();
         case Value::Type::Integer: {
             return program->atomizeString(Value::toString(value.asIntValue()).c_str());
+        }
+        case Value::Type::Float: {
+            return program->atomizeString(Value::toString(value.asFloatValue()).c_str());
         }
         default: break;
     }
@@ -209,7 +215,7 @@ void ExecutionUnit::run(Program* program)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
-        /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(STOO) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
@@ -488,6 +494,34 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         } else {
             objectValue->appendElement(_stack.top());
         }
+        _stack.pop();
+        DISPATCH;
+    L_STOO:
+        objectValue = _stack.top(-2).asObjectValue();
+        if (!objectValue) {
+            if (!printError("target of STOO must be an Object")) {
+                return;
+            }
+        } else {
+            Atom name = propertyNameFromValue(program, _stack.top(-1));
+            if (!name.valid()) {
+                if (!printError("Object literal property name must be id, string, integer or float")) {
+                    return;
+                }
+            } else {
+                int32_t index = objectValue->addProperty(name);
+                if (index < 0) {
+                    String s = "Invalid property '";
+                    s += Program::stringFromAtom(name);
+                    s += "' for Object literal";
+                    if (!printError(s.c_str())) {
+                        return;
+                    }
+                }
+                objectValue->setProperty(index, _stack.top());
+            }
+        }
+        _stack.pop();
         _stack.pop();
         DISPATCH;
     L_POP:
