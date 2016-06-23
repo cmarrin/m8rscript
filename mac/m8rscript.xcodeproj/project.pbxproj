@@ -25,6 +25,9 @@
 		498ACA781D17503C0039E1CD /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498ACA761D17503C0039E1CD /* ParseEngine.cpp */; };
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49D95E811D107AEE00B8A651 /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
+		49D9B80A1D1C7CE200724911 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9B8091D1C7CE200724911 /* AppDelegate.swift */; };
+		49D9B80C1D1C7CE200724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B80B1D1C7CE200724911 /* Assets.xcassets */; };
+		49D9B80F1D1C7CE200724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B80D1D1C7CE200724911 /* MainMenu.xib */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
 		49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
@@ -78,6 +81,11 @@
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
+		49D9B8071D1C7CE200724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49D9B8091D1C7CE200724911 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		49D9B80B1D1C7CE200724911 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		49D9B80E1D1C7CE200724911 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		49D9B8101D1C7CE200724911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -94,6 +102,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		49889FE01D1B277C000B267F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49D9B8041D1C7CE200724911 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,11 +137,23 @@
 			name = Tests;
 			sourceTree = "<group>";
 		};
+		49D9B8081D1C7CE200724911 /* m8rsim */ = {
+			isa = PBXGroup;
+			children = (
+				49D9B8091D1C7CE200724911 /* AppDelegate.swift */,
+				49D9B80B1D1C7CE200724911 /* Assets.xcassets */,
+				49D9B80D1D1C7CE200724911 /* MainMenu.xib */,
+				49D9B8101D1C7CE200724911 /* Info.plist */,
+			);
+			path = m8rsim;
+			sourceTree = "<group>";
+		};
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
 				4942EA891D0C86BB00E02088 /* Tests */,
 				49E648071D00BEEC005F5059 /* src */,
+				49D9B8081D1C7CE200724911 /* m8rsim */,
 				49E647E91D00B68F005F5059 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,6 +163,7 @@
 			children = (
 				49E647E81D00B68F005F5059 /* m8rscript */,
 				49889FE51D1B277C000B267F /* m8rscript (FPF) */,
+				49D9B8071D1C7CE200724911 /* m8rsim.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,6 +226,23 @@
 			productReference = 49889FE51D1B277C000B267F /* m8rscript (FPF) */;
 			productType = "com.apple.product-type.tool";
 		};
+		49D9B8061D1C7CE200724911 /* m8rsim */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49D9B8131D1C7CE200724911 /* Build configuration list for PBXNativeTarget "m8rsim" */;
+			buildPhases = (
+				49D9B8031D1C7CE200724911 /* Sources */,
+				49D9B8041D1C7CE200724911 /* Frameworks */,
+				49D9B8051D1C7CE200724911 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = m8rsim;
+			productName = m8rsim;
+			productReference = 49D9B8071D1C7CE200724911 /* m8rsim.app */;
+			productType = "com.apple.product-type.application";
+		};
 		49E647E71D00B68F005F5059 /* m8rscript */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */;
@@ -222,9 +267,14 @@
 		49E647E01D00B68F005F5059 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0800;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
+					49D9B8061D1C7CE200724911 = {
+						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
 					49E647E71D00B68F005F5059 = {
 						CreatedOnToolsVersion = 8.0;
 						ProvisioningStyle = Automatic;
@@ -237,6 +287,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 49E647DF1D00B68F005F5059;
 			productRefGroup = 49E647E91D00B68F005F5059 /* Products */;
@@ -245,9 +296,22 @@
 			targets = (
 				49E647E71D00B68F005F5059 /* m8rscript */,
 				49889FD11D1B277C000B267F /* m8rscript (FPF) */,
+				49D9B8061D1C7CE200724911 /* m8rsim */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		49D9B8051D1C7CE200724911 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49D9B80C1D1C7CE200724911 /* Assets.xcassets in Resources */,
+				49D9B80F1D1C7CE200724911 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		49889FD21D1B277C000B267F /* ShellScript */ = {
@@ -299,6 +363,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		49D9B8031D1C7CE200724911 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49D9B80A1D1C7CE200724911 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49E647E41D00B68F005F5059 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -318,6 +390,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		49D9B80D1D1C7CE200724911 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				49D9B80E1D1C7CE200724911 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		49889FE31D1B277C000B267F /* Debug */ = {
@@ -351,6 +434,33 @@
 				HEADER_SEARCH_PATHS = "../m8rscript-mac";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		49D9B8111D1C7CE200724911 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = m8rsim/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		49D9B8121D1C7CE200724911 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = m8rsim/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};
@@ -476,6 +586,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		49D9B8131D1C7CE200724911 /* Build configuration list for PBXNativeTarget "m8rsim" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49D9B8111D1C7CE200724911 /* Debug */,
+				49D9B8121D1C7CE200724911 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		49E647E31D00B68F005F5059 /* Build configuration list for PBXProject "m8rscript" */ = {
 			isa = XCConfigurationList;
