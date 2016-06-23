@@ -43,6 +43,8 @@ class Array : public Object {
 public:
     Array();
 
+    virtual const char* typeName() const override { return "Array"; }
+
     virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
     virtual const Value element(uint32_t index) const override { return (index < _array.size()) ? _array[index] : Value(); }
     virtual bool setElement(uint32_t index, const Value& value) override

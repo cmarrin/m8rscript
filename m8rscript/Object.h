@@ -48,6 +48,8 @@ public:
 
     virtual ~Object() { }
     
+    virtual const char* typeName() const = 0;
+    
     virtual const Code* code() const { return nullptr; }
     
     virtual int32_t propertyIndex(const Atom& s, bool canExist = false) { return -1; }
@@ -80,6 +82,8 @@ public:
 class MaterObject : public Object {
 public:    
     virtual ~MaterObject() { }
+
+    virtual const char* typeName() const override { return "Object"; }
 
     virtual int32_t propertyIndex(const Atom& name, bool canExist = false) override
     {

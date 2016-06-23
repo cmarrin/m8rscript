@@ -54,6 +54,9 @@ class ExecutionStack : public Stack<Value>, public Object
 {
 public:
     ExecutionStack(uint32_t size) : Stack<Value>(size) { }
+
+    virtual const char* typeName() const override { return "Local"; }
+
     virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
     virtual const Value element(uint32_t index) const override { return inFrame(index); }
     virtual bool setElement(uint32_t index, const Value& value) override { inFrame(index) = value; return true; }

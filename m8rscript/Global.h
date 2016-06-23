@@ -43,6 +43,8 @@ class Global : public Object {
 public:
     Global(void (*printer)(const char*));
     
+    virtual const char* typeName() const override { return "Global"; }
+
     // Global has built-in properties. Handle those here
     virtual int32_t propertyIndex(const Atom& s, bool canExist) override;
     virtual Value propertyRef(int32_t index) override;
