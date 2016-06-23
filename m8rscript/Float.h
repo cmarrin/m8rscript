@@ -194,7 +194,7 @@ public:
             return;
         }
         int32_t sign = (_value._f < 0) ? -1 : 1;
-        float value = _value._f * sign;
+        double value = _value._f * sign;
         int32_t exp = 0;
         while (value >= 1) {
             value /= 10;
