@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "Object.h"
+#include "Program.h"
 
 using namespace m8r;
 
@@ -180,7 +181,7 @@ Float Value::floatFromString(const char* s)
 m8r::String Value::toStringValue() const
 {
     switch(_type) {
-        case Type::None: return String();
+        case Type::None: return String("null");
         case Type::Object: {
             Value* v = nullptr;
             Object* obj = asObjectValue();
@@ -192,7 +193,7 @@ m8r::String Value::toStringValue() const
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
         case Type::String: return m8r::String(asStringValue());
-        case Type::Id: return m8r::String();
+        case Type::Id: return m8r::String(Program::stringFromAtom(asIdValue()));
         case Type::PropertyRef: return objFromValue()->property(_id).toStringValue();
         case Type::ElementRef: return objFromValue()->element(_id).toStringValue();
         case Type::Return: assert(0); return m8r::String();
