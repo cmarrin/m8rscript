@@ -51,7 +51,7 @@ int main(int argc, const char* argv[])
     std::clock_t runTime = 0;
     
     if (!parser.nerrors()) {
-        m8r::ExecutionUnit eu;
+        m8r::ExecutionUnit eu(print);
         
         startTime = std::clock();
         m8r::String s = eu.generateCodeString(parser.program());
@@ -60,7 +60,7 @@ int main(int argc, const char* argv[])
         
         std::cout << "\n***** Start of Program Output *****\n\n";
         startTime = std::clock();
-        eu.run(parser.program(), print);
+        eu.run(parser.program());
         runTime = std::clock() - startTime;
         std::cout << "\n***** End of Program Output *****\n";
     }

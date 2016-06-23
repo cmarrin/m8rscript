@@ -41,14 +41,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool ExecutionUnit::printError(const char* s, void (*printer)(const char*)) const
+bool ExecutionUnit::printError(const char* s) const
 {
     ++_nerrors;
-    printer("Runtime error: ");
-    printer(s);
-    printer("\n");
+    _printer("Runtime error: ");
+    _printer(s);
+    _printer("\n");
     if (++_nerrors > 10) {
-        printer("\n\nToo many runtime errors, exiting...\n");
+        _printer("\n\nToo many runtime errors, exiting...\n");
         return false;
     }
     return true;
@@ -102,6 +102,12 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
     }
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
+        String s = "no property '";
+        s += derefValue.toStringValue();
+        s += "' in '";
+        s += obj->typeName();
+        s += "' Object";
+        printError(s.c_str());
         return Value();
     }
     return obj->propertyRef(index);
@@ -111,6 +117,12 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
 {
     if (objectValue.type() == Value::Type::Id) {
         objectValue = deref(program, program->global(), objectValue);
+        if (objectValue.isNone()) {
+            String s = "    '";
+            s += derefValue.toStringValue();
+            s += "' property does not exist";
+            return printError(s.c_str());
+        }
         return deref(program, objectValue, derefValue);
     }
     
@@ -151,7 +163,7 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     return Atom::emptyAtom(); 
 }
 
-void ExecutionUnit::run(Program* program, void (*printer)(const char*))
+void ExecutionUnit::run(Program* program)
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -433,12 +445,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
-            if (!printError("Must have an lvalue for POSTINC", printer)) {
+            if (!printError("Must have an lvalue for POSTINC")) {
                 return;
             }
         } else {
             if (!_stack.top().isInteger()) {
-                if (!printError("Must have an integer value for POSTINC", printer)) {
+                if (!printError("Must have an integer value for POSTINC")) {
                     return;
                 }
             }
@@ -449,12 +461,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTDEC:
         if (!_stack.top().isLValue()) {
-            if (!printError("Must have an lvalue for POSTDEC", printer)) {
+            if (!printError("Must have an lvalue for POSTDEC")) {
                 return;
             }
         } else {
             if (!_stack.top().isInteger()) {
-                if (!printError("Must have an integer value for POSTDEC", printer)) {
+                if (!printError("Must have an integer value for POSTDEC")) {
                     return;
                 }
             }
@@ -470,7 +482,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
-            if (!printError("target of STOA must be an Object", printer)) {
+            if (!printError("target of STOA must be an Object")) {
                 return;
             }
         } else {
@@ -488,9 +500,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_DEREF:
         if (!deref(program, _stack.top(-1), _stack.top())) {
-            if (!printError("Deref out of range or invalid", printer)) {
-                return;
-            }
+            return;
         }
         _stack.pop();
         DISPATCH;

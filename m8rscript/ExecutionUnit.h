@@ -67,14 +67,14 @@ public:
 
 class ExecutionUnit {
 public:
-    ExecutionUnit() : _stack(10) { }
+    ExecutionUnit(void (*printer)(const char*)) : _stack(10), _printer(printer) { }
     
-    void run(Program* program, void (*printer)(const char*));
+    void run(Program* program);
     
     m8r::String generateCodeString(const Program* program) const;
     
 private:
-    bool printError(const char* s, void (*)(const char*)) const;
+    bool printError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
     uint32_t call(Program* program, uint32_t nparams, Object*, bool isNew);
@@ -139,6 +139,7 @@ private:
     ExecutionStack _stack;
 
     mutable uint32_t _nerrors = 0;
+    void (*_printer)(const char*);
 };
     
 }
