@@ -17,7 +17,6 @@
 		49889FD71D1B277C000B267F /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4984E8301D1370A500D0ABA6 /* Global.cpp */; };
 		49889FD81D1B277C000B267F /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		49889FD91D1B277C000B267F /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498ACA761D17503C0039E1CD /* ParseEngine.cpp */; };
-		49889FDA1D1B277C000B267F /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
 		49889FDB1D1B277C000B267F /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49889FDC1D1B277C000B267F /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
 		49889FDD1D1B277C000B267F /* Atom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6482C1D01F3CA005F5059 /* Atom.cpp */; };
@@ -27,7 +26,6 @@
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49D95E811D107AEE00B8A651 /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
-		49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648151D00C088005F5059 /* parse.tab.cpp */; };
 		49E6481E1D00C088005F5059 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648181D00C088005F5059 /* Parser.cpp */; };
 		49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
 		49E6482D1D01F3CA005F5059 /* Atom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6482C1D01F3CA005F5059 /* Atom.cpp */; };
@@ -293,7 +291,6 @@
 				49889FD71D1B277C000B267F /* Global.cpp in Sources */,
 				49889FD81D1B277C000B267F /* Program.cpp in Sources */,
 				49889FD91D1B277C000B267F /* ParseEngine.cpp in Sources */,
-				49889FDA1D1B277C000B267F /* parse.tab.cpp in Sources */,
 				49889FDB1D1B277C000B267F /* m8rscript.cpp in Sources */,
 				49889FDC1D1B277C000B267F /* Scanner.cpp in Sources */,
 				49889FDD1D1B277C000B267F /* Atom.cpp in Sources */,
@@ -312,7 +309,6 @@
 				4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */,
 				4942EA831D070C9B00E02088 /* Program.cpp in Sources */,
 				498ACA781D17503C0039E1CD /* ParseEngine.cpp in Sources */,
-				49E6481C1D00C088005F5059 /* parse.tab.cpp in Sources */,
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
 				49E6481F1D00C088005F5059 /* Scanner.cpp in Sources */,
 				49E6482D1D01F3CA005F5059 /* Atom.cpp in Sources */,
