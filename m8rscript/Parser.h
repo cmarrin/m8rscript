@@ -41,6 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "Array.h"
 
+#include <memory>
+
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,7 +69,7 @@ public:
     
 	void printError(const char* s);
     uint32_t nerrors() const { return _nerrors; }
-    Program* program() const { return _program; }
+    std::shared_ptr<Program>& program() { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     m8r::String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
@@ -144,7 +146,7 @@ private:
     void addCodeByte(uint8_t);
     
     Scanner _scanner;
-    Program* _program;
+    std::shared_ptr<Program> _program;
     Function* _currentFunction;
     Vector<Function*> _functions;
     uint32_t _nerrors = 0;

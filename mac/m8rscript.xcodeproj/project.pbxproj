@@ -12,7 +12,7 @@
 		4942EA881D0AF26300E02088 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
-		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
+		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
 		4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4984E8301D1370A500D0ABA6 /* Global.cpp */; };
 		49889FD41D1B277C000B267F /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49889FD51D1B277C000B267F /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
@@ -75,7 +75,7 @@
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		49562F6E1D1D7A9C001AFAEE /* Document.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
 		497F1F3F1D11CB5D0045866E /* m8rscript.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
@@ -155,7 +155,7 @@
 				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
 				49562F6D1D1D7A9C001AFAEE /* Document.h */,
-				49562F6E1D1D7A9C001AFAEE /* Document.m */,
+				49562F6E1D1D7A9C001AFAEE /* Document.mm */,
 				49562F691D1D7A75001AFAEE /* main.m */,
 				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
@@ -400,7 +400,7 @@
 			files = (
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
-				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
+				49562F701D1D7A9C001AFAEE /* Document.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

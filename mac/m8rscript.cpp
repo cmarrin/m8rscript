@@ -54,13 +54,13 @@ int main(int argc, const char* argv[])
         m8r::ExecutionUnit eu(print);
         
         startTime = std::clock();
-        m8r::String s = eu.generateCodeString(parser.program());
+        m8r::String s = eu.generateCodeString(parser.program().get());
         printTime = std::clock() - startTime;
         std::cout << "\n***** Start of Generated Code *****\n" << s.c_str() << "\n***** End of Generated Code *****\n";
         
         std::cout << "\n***** Start of Program Output *****\n\n";
         startTime = std::clock();
-        eu.run(parser.program());
+        eu.run(parser.program().get());
         runTime = std::clock() - startTime;
         std::cout << "\n***** End of Program Output *****\n";
     }

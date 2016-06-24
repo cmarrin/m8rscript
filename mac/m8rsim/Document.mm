@@ -8,11 +8,15 @@
 
 #import "Document.h"
 
+#import "Parser.h"
+
 @interface Document ()
 {
     IBOutlet NSTextView* sourceEditor;
     
     NSString* _source;
+    
+    m8r::Program* _program;
 }
 @end
 
@@ -69,7 +73,7 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    _source = [NSString stringWithUTF8String:[data bytes]];
+    _source = [NSString stringWithUTF8String:(const char*)[data bytes]];
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
@@ -89,5 +93,7 @@
 - (IBAction)build:(id)sender {
 }
 
+- (IBAction)run:(id)sender {
+}
 
 @end

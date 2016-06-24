@@ -27,6 +27,7 @@
                 <subviews>
                     <splitView arrangesAllSubviews="NO" dividerStyle="paneSplitter" translatesAutoresizingMaskIntoConstraints="NO" id="ol7-JB-cDN">
                         <rect key="frame" x="0.0" y="0.0" width="611" height="606"/>
+                        <frame key="frameInset" width="611" height="606"/>
                         <subviews>
                             <customView fixedFrame="YES" id="yH8-L1-Khg" userLabel="Upper View">
                                 <rect key="frame" x="0.0" y="0.0" width="611" height="423"/>
@@ -101,6 +102,9 @@
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                     </buttonCell>
+                                                    <connections>
+                                                        <action selector="run:" target="-2" id="pod-EF-bxV"/>
+                                                    </connections>
                                                 </button>
                                                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LT1-X4-TKz">
                                                     <rect key="frame" x="62" y="13" width="71" height="32"/>
@@ -110,6 +114,9 @@
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                     </buttonCell>
+                                                    <connections>
+                                                        <action selector="build:" target="-2" id="KE5-9i-E9E"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                         </view>
@@ -135,7 +142,7 @@
                                                     <subviews>
                                                         <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vO9-4P-bjr">
                                                             <rect key="frame" x="-3" y="-4" width="611" height="150"/>
-                                                            <frame key="frameInset" minX="-3" minY="-4" maxX="-3" maxY="2"/>
+                                                            <frame key="frameInset" minX="-3" minY="-4" maxX="-3" maxY="-2"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <clipView key="contentView" ambiguous="YES" id="MA6-AD-tdC">
                                                                 <rect key="frame" x="1" y="1" width="594" height="148"/>
