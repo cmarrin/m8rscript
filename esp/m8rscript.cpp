@@ -8,9 +8,9 @@ extern "C" void setup()
     // put your setup code here, to run once:
     m8r::FileStream istream("");
     m8r::Parser parser(&istream, ::print);
-    m8r::ExecutionUnit eu;
+    m8r::ExecutionUnit eu(::print);
     eu.generateCodeString(parser.program()).c_str();
-    eu.run(parser.program(), print);
+    eu.run(parser.program());
 
     //m8r::Program program;
     //eu.run(&program, print);

@@ -30,8 +30,7 @@ SRC ?= Array.cpp \
 		Parser.cpp \
 		Program.cpp \
 		Scanner.cpp \
-		Value.cpp \
-		parse.tab.cpp
+		Value.cpp
 
 # Esp8266 Arduino git location
 ESP_ROOT ?= $(HOME)/esp8266
