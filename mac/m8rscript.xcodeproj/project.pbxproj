@@ -10,6 +10,9 @@
 		4942EA831D070C9B00E02088 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		4942EA861D0AEAC600E02088 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
 		4942EA881D0AF26300E02088 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
+		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
+		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
+		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4984E8321D1370A500D0ABA6 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4984E8301D1370A500D0ABA6 /* Global.cpp */; };
 		49889FD41D1B277C000B267F /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49889FD51D1B277C000B267F /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA871D0AF26300E02088 /* Function.cpp */; };
@@ -25,8 +28,6 @@
 		498ACA781D17503C0039E1CD /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498ACA761D17503C0039E1CD /* ParseEngine.cpp */; };
 		49AC57311D03465600DB94B5 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
 		49D95E811D107AEE00B8A651 /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
-		49D9B81B1D1C854700724911 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9B81A1D1C854700724911 /* AppDelegate.swift */; };
-		49D9B81D1D1C854700724911 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9B81C1D1C854700724911 /* Document.swift */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
 		49D9B8251D1C854700724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8231D1C854700724911 /* MainMenu.xib */; };
@@ -70,6 +71,11 @@
 		4942EA8A1D0C86CC00E02088 /* blink.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blink.m8r; path = ../blink.m8r; sourceTree = "<group>"; };
 		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		4942EA8C1D0D950100E02088 /* Opcodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Opcodes.h; path = ../m8rscript/Opcodes.h; sourceTree = "<group>"; };
+		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
+		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
 		497F1F3F1D11CB5D0045866E /* m8rscript.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
@@ -86,8 +92,6 @@
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		49D9B81A1D1C854700724911 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		49D9B81C1D1C854700724911 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		49D9B81F1D1C854700724911 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
 		49D9B8211D1C854700724911 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		49D9B8241D1C854700724911 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -148,9 +152,12 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
+				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
+				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
+				49562F6D1D1D7A9C001AFAEE /* Document.h */,
+				49562F6E1D1D7A9C001AFAEE /* Document.m */,
+				49562F691D1D7A75001AFAEE /* main.m */,
 				49D9B82A1D1C8C9000724911 /* Images */,
-				49D9B81A1D1C854700724911 /* AppDelegate.swift */,
-				49D9B81C1D1C854700724911 /* Document.swift */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
 				49D9B8231D1C854700724911 /* MainMenu.xib */,
@@ -293,6 +300,7 @@
 				TargetAttributes = {
 					49D9B8171D1C854700724911 = {
 						CreatedOnToolsVersion = 8.0;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 					49E647E71D00B68F005F5059 = {
@@ -390,8 +398,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49D9B81D1D1C854700724911 /* Document.swift in Sources */,
-				49D9B81B1D1C854700724911 /* AppDelegate.swift in Sources */,
+				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
+				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
+				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,6 +482,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -480,6 +490,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -487,12 +498,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -626,6 +639,7 @@
 				49D9B8291D1C854700724911 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		49E647E31D00B68F005F5059 /* Build configuration list for PBXProject "m8rscript" */ = {
 			isa = XCConfigurationList;
