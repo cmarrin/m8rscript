@@ -10,7 +10,5 @@
 
 @interface Document : NSDocument
 
-- (IBAction)doImport:(id)sender;
-
 @end
 
