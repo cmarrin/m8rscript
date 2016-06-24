@@ -22,5 +22,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
 
+    @IBAction func `import`(sender: AnyObject)
+    {
+        let openPanel: NSOpenPanel = NSOpenPanel()
+        openPanel.allowedFileTypes = ["m8r"]
+        if (openPanel.runModal() == NSModalResponseOK) {
+            NSDocumentController.shared().currentDocument!.doImport(openPanel.urls[0])
+        }
+        
+        // Get the path to the file chosen in the NSOpenPanel
+//        var path = fileDialog.URL?.path
+//        
+//        // Make sure that a path was chosen
+//        if (path != nil) {
+//            var err = NSError?()
+//            let text = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: &err)
+//            
+//            if !(err != nil) {
+//                NSLog(text!)
+//            }
+//        }
+    }
 }
 
