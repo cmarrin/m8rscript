@@ -59,7 +59,7 @@ public:
 private:
     uint32_t currentTime() const;
 
-    enum class Property { Date, Date_now, print };
+    enum class Property : uint8_t { Date, Date_now, print };
     static Map<Atom, Property> _properties;
     
     uint64_t _startTime;

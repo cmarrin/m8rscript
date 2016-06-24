@@ -54,7 +54,7 @@ class Function;
 
 class ParseEngine  {
 public:
-    enum class Error { Expected };
+    enum class Error : uint8_t { Expected };
     
   	ParseEngine(Parser* parser);
   	
@@ -66,7 +66,7 @@ public:
 
 private:
     struct OpInfo {
-        enum class Assoc { Left, Right };
+        enum class Assoc : uint8_t { Left, Right };
         uint8_t prec;
         Assoc assoc;
         Op op;

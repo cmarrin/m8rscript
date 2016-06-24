@@ -59,7 +59,7 @@ class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type { None = 0, Object, Float, Integer, String, Id, ElementRef, PropertyRef, Return };
+    enum class Type : uint8_t { None = 0, Object, Float, Integer, String, Id, ElementRef, PropertyRef, Return };
 
     Value() : _value(nullptr), _type(Type::None), _id(0) { }
     Value(const Value& other) { *this = other; }

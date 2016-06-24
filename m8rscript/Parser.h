@@ -114,7 +114,7 @@ public:
     void emit(Float value);
     void emit(Op value);
     
-    enum class IdType { MustBeLocal, MightBeLocal, NotLocal };
+    enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
     
     void emit(Object* obj);

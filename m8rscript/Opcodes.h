@@ -66,7 +66,7 @@ struct Label {
 //      1011 - RET
 //      1100 - PUSHL - Push local variable. Param is index in _locals
 //
-enum class Op {
+enum class Op : uint8_t {
     UNKNOWN = 0x00,
     PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
     PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
@@ -118,7 +118,7 @@ enum class Op {
 };
 
 #undef DEC
-enum class Token {
+enum class Token : uint8_t {
     Function = 1,
     New = 2,
     Delete = 3,

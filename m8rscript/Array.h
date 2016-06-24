@@ -68,7 +68,7 @@ public:
     virtual size_t propertyCount() const override;
 
 private:
-    enum class Property { Length };
+    enum class Property : uint8_t { Length };
     static Map<Atom, Property> _properties;
     Vector<Value> _array;
 };

@@ -284,7 +284,7 @@ public:
             _list.resize(_list.size() + 1);
             int sizeToMove = static_cast<int>(_list.size()) + result;
             if (sizeToMove) {
-                memcpy(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
+                memmove(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
             }
             _list[-result - 1] = { key, value };
         }
