@@ -11,10 +11,30 @@
 @interface Document ()
 {
     IBOutlet NSTextView* sourceEditor;
+    
+    NSString* _source;
 }
 @end
 
 @implementation Document
+
+- (void)textStorageDidProcessEditing:(NSNotification *)notification {
+    NSTextStorage *textStorage = notification.object;
+    NSString *string = textStorage.string;
+    NSUInteger n = string.length;
+    [textStorage removeAttribute:NSForegroundColorAttributeName range:NSMakeRange(0, n)];
+    for (NSUInteger i = 0; i < n; i++) {
+        unichar c = [string characterAtIndex:i];
+        if (c == '\\') {
+            [textStorage addAttribute:NSForegroundColorAttributeName value:[NSColor lightGrayColor] range:NSMakeRange(i, 1)];
+            i++;
+        } else if (c == '$') {
+            NSUInteger l = ((i < n - 1) && isdigit([string characterAtIndex:i+1])) ? 2 : 1;
+            [textStorage addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(i, l)];
+            i++;
+        }
+    }
+}
 
 - (instancetype)init {
     self = [super init];
@@ -26,7 +46,12 @@
 
 - (void)awakeFromNib
 {
-    NSLog(@"Awake");
+    NSFont* font = [NSFont fontWithName:@"Menlo Regular" size:12];
+    [sourceEditor setFont:font];
+    [[sourceEditor textStorage] setDelegate:(id) self];
+    if (_source) {
+        [sourceEditor setString:_source];
+    }
 }
 
 + (BOOL)autosavesInPlace {
@@ -44,8 +69,10 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    NSString* s = [NSString stringWithUTF8String:[data bytes]];
-    [sourceEditor setString:s];
+    _source = [NSString stringWithUTF8String:[data bytes]];
+    if (sourceEditor) {
+        [sourceEditor setString:_source];
+    }
     return YES;
 }
 
