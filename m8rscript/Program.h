@@ -70,7 +70,6 @@ public:
     Object* global() { return &_global; }
     
     static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
-    static String stringFromRawAtom(uint16_t rawAtom) { return _atomTable.stringFromRawAtom(rawAtom); }
     static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     
     StringId startString() { StringId id; id._id = static_cast<uint32_t>(_stringTable.size()); return id; }

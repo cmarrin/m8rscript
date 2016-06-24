@@ -99,7 +99,7 @@ Atom Global::propertyName(uint32_t index) const
             return entry.key;
         }
     }
-    return Atom::emptyAtom();
+    return Atom();
 }
 
 size_t Global::propertyCount() const
@@ -109,7 +109,7 @@ size_t Global::propertyCount() const
 
 Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 {
-    if (index != static_cast<uint32_t>(Property::Date) || name.rawAtom() != Program::atomizeString("now").rawAtom()) {
+    if (index != static_cast<uint32_t>(Property::Date) || name != Program::atomizeString("now")) {
         return Value();
     }
     return Value(this, static_cast<uint16_t>(Property::Date_now), true);

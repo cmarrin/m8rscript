@@ -51,7 +51,7 @@ typedef union {
     uint32_t u;
     Object* o;
     const char* s;
-    Atom a;
+    RawAtom a;
     Value* val;
 } U;
 
@@ -70,7 +70,7 @@ public:
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
-    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.rawAtom()) { }
+    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(static_cast<RawAtom>(value).raw()) { }
     Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
     
     Value& operator=(const Value& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
@@ -89,7 +89,7 @@ public:
     uint32_t asUIntValue() const { return (_type == Type::Integer) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
-    Atom asIdValue() const { return (_type == Type::Id) ? Atom::atomFromRawAtom(_id) : Atom::emptyAtom(); }
+    Atom asIdValue() const { return (_type == Type::Id) ? Atom(RawAtom::make(_id)) : Atom(); }
     
     m8r::String toStringValue() const;
     bool toBoolValue() const;

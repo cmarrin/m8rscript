@@ -65,14 +65,13 @@ public:
         }
     }
 
-  	uint8_t getToken(YYSTYPE* token) { return _scanner.getToken(token); }
+  	uint8_t getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
 	void printError(const char* s);
     uint32_t nerrors() const { return _nerrors; }
     std::shared_ptr<Program>& program() { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
-    m8r::String stringFromRawAtom(uint16_t rawAtom) const { return _program->stringFromRawAtom(rawAtom); }
     Atom atomizeString(const char* s) { return _program->atomizeString(s); }
 
     StringId startString() { return _program->startString(); }

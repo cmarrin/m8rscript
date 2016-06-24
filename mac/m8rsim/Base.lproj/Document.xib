@@ -45,6 +45,7 @@
                                             <subviews>
                                                 <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="T2A-LY-iQw">
                                                     <rect key="frame" x="0.0" y="1" width="384" height="421"/>
+                                                    <frame key="frameInset" minX="-0.5" minY="0.5" maxX="0.5" maxY="-0.5"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <size key="minSize" width="384" height="421"/>
@@ -151,7 +152,7 @@
                                                                 <subviews>
                                                                     <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="kHQ-5K-DHj">
                                                                         <rect key="frame" x="0.0" y="0.0" width="114" height="148"/>
-                                                                        <frame key="frameInset" maxX="480"/>
+                                                                        <frame key="frameInset" minX="-0.5" minY="0.5" maxX="480.5" maxY="-0.5"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                         <size key="minSize" width="114" height="148"/>

@@ -196,7 +196,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     }
         
     addCodeByte(Op::PUSHID);
-    addCodeInt(atom.rawAtom(), 2);
+    addCodeInt(static_cast<RawAtom>(atom).raw(), 2);
 }
 
 void Parser::emit(Op value)
@@ -212,7 +212,7 @@ void Parser::emit(Object* obj)
 
 void Parser::addNamedFunction(Function* function, const Atom& name)
 {
-    assert(name.valid());
+    assert(name);
     int32_t index = _currentFunction->addProperty(name);
     assert(index >= 0);
     _currentFunction->setProperty(index, function);

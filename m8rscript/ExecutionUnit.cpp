@@ -166,7 +166,7 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
         }
         default: break;
     }
-    return Atom::emptyAtom(); 
+    return Atom();
 }
 
 void ExecutionUnit::run(Program* program)
@@ -267,7 +267,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         return;
     L_PUSHID:
-        _stack.push(Atom::atomFromRawAtom(uintFromCode(code, i, 2)));
+        _stack.push(Atom(RawAtom::make(uintFromCode(code, i, 2))));
         i += 2;
         DISPATCH;
     L_PUSHF:
@@ -504,7 +504,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             }
         } else {
             Atom name = propertyNameFromValue(program, _stack.top(-1));
-            if (!name.valid()) {
+            if (!name) {
                 if (!printError("Object literal property name must be id, string, integer or float")) {
                     return;
                 }
@@ -736,7 +736,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        strValue = program->stringFromRawAtom(uintFromCode(code, i, 2));
+        strValue = program->stringFromAtom(Atom(RawAtom::make(uintFromCode(code, i, 2))));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();

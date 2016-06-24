@@ -47,26 +47,40 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
+class RawAtom
+{
+    friend class Atom;
+    
+public:
+    uint16_t raw() const { return _index; }
+    static RawAtom make(uint16_t raw) { RawAtom r; r._index = raw; return r; }
+    
+private:
+    uint16_t _index;
+};
+
 class Atom {
     friend class AtomTable;
         
 public:
-    static Atom emptyAtom() { Atom a; a._index = NoAtom; return a; }
+    Atom() { _raw._index = NoAtom; }
+    Atom(RawAtom raw) { _raw._index = raw._index; }
+    Atom(const Atom& other) { _raw._index = other._raw._index; }
+    Atom(Atom& other) { _raw._index = other._raw._index; }
 
-    bool valid() const { return _index != NoAtom; }
-    uint16_t rawAtom() const { return _index; }
-    void set(uint16_t rawAtom) { _index = rawAtom; }
-    static Atom atomFromRawAtom(uint16_t rawAtom) { Atom a; a._index = rawAtom; return a; }
+    const Atom& operator=(const Atom& other) { _raw._index = other._raw._index; return *this; }
+    Atom& operator=(Atom& other) { _raw._index = other._raw._index; return *this; }
+    operator bool() const { return _raw._index != NoAtom; }
+    operator RawAtom() const { return _raw; }
 
-    int operator-(const Atom& other) const { return static_cast<int>(_index) - static_cast<int>(other._index); }
-    bool operator==(const Atom& other) const { return _index == other._index; }
-
-protected:
-    uint16_t _index;
+    int operator-(const Atom& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
+    bool operator==(const Atom& other) const { return _raw._index == other._raw._index; }
 
 private:
     static constexpr uint16_t NoAtom = std::numeric_limits<uint16_t>::max();
     static constexpr uint8_t MaxAtomSize = 127;
+
+    RawAtom _raw;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -82,8 +96,11 @@ private:
 class AtomTable {
 public:
     Atom atomizeString(const char*);
-    m8r::String stringFromAtom(Atom atom) const { return stringFromRawAtom(atom._index); }
-    m8r::String stringFromRawAtom(uint16_t rawAtom) const { return m8r::String(&(_table[rawAtom + 1]), -_table[rawAtom]); }
+    m8r::String stringFromAtom(const Atom atom) const
+    {
+        uint16_t index = static_cast<RawAtom>(atom).raw();
+        return m8r::String(&(_table[index + 1]), -_table[index]);
+    }
 
 private:
     m8r::String _table;

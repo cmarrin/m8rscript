@@ -88,8 +88,8 @@ Atom Array::propertyName(uint32_t index) const
                     return entry.key;
                 }
             }
-            return Atom::emptyAtom();
-        default: return Atom::emptyAtom();
+            return Atom();
+        default: return Atom();
     }
 }
 

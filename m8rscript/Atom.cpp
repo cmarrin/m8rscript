@@ -40,11 +40,9 @@ using namespace m8r;
 
 Atom AtomTable::atomizeString(const char* s)
 {
-    Atom a;
     size_t len = strlen(s);
     if (len > Atom::MaxAtomSize) {
-        a._index = Atom::NoAtom;
-        return a;
+        return Atom();
     }
     
     const char* start = _table.c_str();
@@ -56,13 +54,12 @@ Atom AtomTable::atomizeString(const char* s)
         if (p && p[-1] < 0) {
             // The next char either needs to be negative (meaning the start of the next word) or the end of the string
             if (p[len] <= 0) {
-                a._index = p - start - 1;
-                return a;
+                return Atom(RawAtom::make(p - start - 1));
             }
         }
     }
     
-    a._index = _table.length();
+    Atom a(RawAtom::make(_table.length()));
     _table += -static_cast<int8_t>(len);
     _table += s;
     return a;

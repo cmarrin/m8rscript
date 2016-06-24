@@ -365,7 +365,7 @@ int32_t Scanner::scanDigits(int32_t& number, bool hex)
     return numDigits;
 }
 
-uint8_t Scanner::scanNumber(YYSTYPE* tokenValue)
+uint8_t Scanner::scanNumber(TokenType& tokenValue)
 {
 	uint8_t c = get();
     if (c == C_EOF) {
@@ -401,11 +401,11 @@ uint8_t Scanner::scanNumber(YYSTYPE* tokenValue)
     scanDigits(number, hex);
     if (scanFloat(number, exp)) {
         Float f(number, exp);
-        tokenValue->number = static_cast<RawFloat>(f);
+        tokenValue.number = static_cast<RawFloat>(f);
         return T_FLOAT;
     }
     assert(exp == 0);
-    tokenValue->integer = static_cast<uint32_t>(number);
+    tokenValue.integer = static_cast<uint32_t>(number);
     return T_INTEGER;
 }
 
@@ -497,7 +497,7 @@ uint8_t Scanner::get() const
     return c;
 }
 
-uint8_t Scanner::getToken(YYSTYPE* tokenValue)
+uint8_t Scanner::getToken(TokenType& tokenValue)
 {
 	uint8_t c;
 	uint8_t token = C_EOF;
@@ -518,7 +518,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 				
 			case '\"':
 			case '\'':
-                tokenValue->string = _parser->startString();
+                tokenValue.string = _parser->startString();
 				token = scanString(c);
                 _parser->endString();
 				break;
@@ -533,7 +533,7 @@ uint8_t Scanner::getToken(YYSTYPE* tokenValue)
 				}
 				if ((token = scanIdentifier()) != C_EOF) {
                     if (token == T_IDENTIFIER) {
-                        tokenValue->atom = _parser->atomizeString(_tokenString.c_str());
+                        tokenValue.atom = _parser->atomizeString(_tokenString.c_str());
                         _tokenString.erase();
                     }
 					break;

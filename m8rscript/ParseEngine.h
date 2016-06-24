@@ -76,7 +76,7 @@ private:
     bool expect(Token token, bool expected);
     void syntaxError(Error, Token token);
     
-    void popToken() { _token = _parser->getToken(&_tokenValue); }
+    void popToken() { _token = _parser->getToken(_tokenValue); }
 
     bool sourceElements();
     bool sourceElement();
@@ -105,7 +105,7 @@ private:
     
     Parser* _parser;
     uint8_t _token;
-    YYSTYPE _tokenValue;
+    Scanner::TokenType _tokenValue;
     
     static Map<uint8_t, OpInfo> _opInfo;
 };

@@ -64,6 +64,17 @@ class Parser;
 
 class Scanner  {
 public:
+    typedef struct {
+        m8r::Op             op;
+        m8r::Label          label;
+        m8r::Function*      function;
+        m8r::StringId       string;
+        m8r::RawFloat		number;
+        uint32_t            integer;
+        m8r::RawAtom        atom;
+        uint32_t            argcount;
+    } TokenType;
+
   	Scanner(Parser* parser, m8r::Stream* istream)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
@@ -76,7 +87,7 @@ public:
   	{
     }
   
-  	uint8_t getToken(YYSTYPE* token);
+  	uint8_t getToken(TokenType& token);
     
     uint32_t lineno() const { return _lineno; }
   	
@@ -93,7 +104,7 @@ private:
   	uint8_t scanString(char terminal);
   	uint8_t scanSpecial();
   	uint8_t scanIdentifier();
-  	uint8_t scanNumber(YYSTYPE* tokenValue);
+  	uint8_t scanNumber(TokenType& tokenValue);
   	uint8_t scanComment();
   	int32_t scanDigits(int32_t& number, bool hex);
   	bool scanFloat(int32_t& mantissa, int32_t& exp);
