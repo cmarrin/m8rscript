@@ -109,10 +109,15 @@ size_t Global::propertyCount() const
 
 Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 {
-    if (index != static_cast<uint32_t>(Property::Date) || name != Program::atomizeString("now")) {
+    Property property;
+    if (!_properties.find(name, property)) {
         return Value();
     }
-    return Value(this, static_cast<uint16_t>(Property::Date_now), true);
+    
+    if (index == static_cast<uint32_t>(Property::Date) && property == Property::Date_now) {
+        return Value(this, static_cast<uint16_t>(Property::Date_now), true);
+    }
+    return Value();    
 }
 
 int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams)
