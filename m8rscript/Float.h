@@ -51,9 +51,12 @@ class RawFloat
 public:
 #if FIXED_POINT_FLOAT
     uint32_t raw() const { return _f; }
+    static RawFloat make(uint32_t raw) { RawFloat f; f._f = raw; return f; }
 #else
     uint32_t raw() const { return *(reinterpret_cast<uint32_t*>(const_cast<float*>(&_f))); }
+    static RawFloat make(uint32_t raw) { RawFloat f; f._f = *(reinterpret_cast<float*>(&raw)); return f; }
 #endif
+    
     
 private:
 #if FIXED_POINT_FLOAT
@@ -178,8 +181,6 @@ public:
         mantissa = static_cast<int32_t>(sign * (value / (1 << BinaryExponent)));
         exponent = -DecimalExponent;
     }
-
-    static Float makeFromRaw(uint32_t r) { Float f; f._value._f = r; return f; }
 #else
     Float operator*(const Float& other) const { Float r; r._value._f = _value._f * other._value._f; return r; }
     Float operator/(const Float& other) const { Float r; r._value._f = _value._f / other._value._f; return r; }
@@ -207,8 +208,6 @@ public:
         mantissa = static_cast<int32_t>(sign * value * 1000000000);
         exponent = exp - 9;
     }
-
-    static Float makeFromRaw(uint32_t r) { Float f; f._value._f = *(reinterpret_cast<float*>(&r)); return f; }
 #endif
 
     Float operator%(const Float& other) { return *this - other * (*this / other).floor(); }

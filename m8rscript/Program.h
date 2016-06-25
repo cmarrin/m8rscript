@@ -72,21 +72,19 @@ public:
     static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
     static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     
-    StringId startString() { StringId id; id._id = static_cast<uint32_t>(_stringTable.size()); return id; }
+    StringLiteral startString() { return StringLiteral(RawStringLiteral::make(static_cast<uint32_t>(_stringTable.size()))); }
     void addToString(char c) { _stringTable.push_back(c); }
     void endString() { _stringTable.push_back('\0'); }
     
-    StringId addString(const char* s)
+    StringLiteral addString(const char* s)
     {
         size_t length = strlen(s);
         size_t index = _stringTable.size();
         _stringTable.resize(index + length + 1);
         memcpy(&(_stringTable[index]), s, length + 1);
-        StringId id;
-        id._id = static_cast<uint32_t>(index);
-        return id;
+        return StringLiteral(RawStringLiteral::make(static_cast<uint32_t>(index)));
     }
-    const char* stringFromId(const StringId& id) const { return &(_stringTable[id.rawStringId()]); }
+    const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringTable[static_cast<RawStringLiteral>(id).raw()]); }
     
     ObjectId addObject(Object* obj)
     {

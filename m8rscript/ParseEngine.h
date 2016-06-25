@@ -72,7 +72,7 @@ private:
         Op op;
     };
         
-    bool expect(uint8_t token);
+    bool expect(Token token);
     bool expect(Token token, bool expected);
     void syntaxError(Error, Token token);
     
@@ -104,10 +104,15 @@ private:
     void formalParameterList();
     
     Parser* _parser;
-    uint8_t _token;
+    Token _token;
     Scanner::TokenType _tokenValue;
     
-    static Map<uint8_t, OpInfo> _opInfo;
+    struct CompareTokens
+    {
+        int operator()(const Token& lhs, const Token& rhs) const { return static_cast<int>(lhs) - static_cast<int>(rhs); }
+    };
+
+    static Map<Token, OpInfo, CompareTokens> _opInfo;
 };
 
 }

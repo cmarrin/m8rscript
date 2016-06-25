@@ -118,7 +118,7 @@ private:
     Float floatFromCode(const uint8_t* code, uint32_t index) const
     {
         uint32_t i = uintFromCode(code, index, 4);
-        return Float::makeFromRaw(i);
+        return Float(RawFloat::make(i));
     }
     
 #if SHOW_CODE

@@ -290,7 +290,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         size = (static_cast<uint8_t>(op) & 0x03) + 1;
         uintValue = uintFromCode(code, i, size);
         i += size;
-        _stack.push(Value(program->stringFromId(StringId::stringIdFromRawStringId(uintValue))));
+        _stack.push(Value(program->stringFromStringLiteral(StringLiteral(RawStringLiteral::make(uintValue)))));
         DISPATCH;
     L_PUSHO:
         uintValue = uintFromCode(code, i, 4);
@@ -747,7 +747,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, 4);
         i += 4;
         outputString += "FLT(";
-        outputString += Value::toString(Float::makeFromRaw(uintValue));
+        outputString += Value::toString(Float(RawFloat::make(uintValue)));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
@@ -770,7 +770,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, size);
         i += size;
         outputString += "STR(\"";
-        outputString += program->stringFromId(StringId::stringIdFromRawStringId(uintValue));
+        outputString += program->stringFromStringLiteral(StringLiteral(RawStringLiteral::make(uintValue)));
         outputString += "\")\n";
         DISPATCH;
     L_PUSHO:

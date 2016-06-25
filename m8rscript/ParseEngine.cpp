@@ -39,43 +39,43 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Map<uint8_t, ParseEngine::OpInfo> ParseEngine::_opInfo;
+Map<Token, ParseEngine::OpInfo, ParseEngine::CompareTokens> ParseEngine::_opInfo;
 
 ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
     if (!_opInfo.size()) {
-        _opInfo.emplace('=',            { 1, OpInfo::Assoc::Right, Op::STO });
-        _opInfo.emplace(O_ADDEQ,        { 2, OpInfo::Assoc::Right, Op::STOADD });
-        _opInfo.emplace(O_SUBEQ,        { 2, OpInfo::Assoc::Right, Op::STOSUB });
-        _opInfo.emplace(O_MULEQ,        { 3, OpInfo::Assoc::Right, Op::STOMUL });
-        _opInfo.emplace(O_DIVEQ,        { 3, OpInfo::Assoc::Right, Op::STODIV });
-        _opInfo.emplace(O_MODEQ,        { 3, OpInfo::Assoc::Right, Op::STOMOD });
-        _opInfo.emplace(O_LSHIFTEQ,     { 4, OpInfo::Assoc::Right, Op::STOSHL });
-        _opInfo.emplace(O_RSHIFTEQ,     { 4, OpInfo::Assoc::Right, Op::STOSHR });
-        _opInfo.emplace(O_RSHIFTFILLEQ, { 4, OpInfo::Assoc::Right, Op::STOSAR });
-        _opInfo.emplace(O_ANDEQ,        { 5, OpInfo::Assoc::Right, Op::STOAND });
-        _opInfo.emplace(O_OREQ,         { 5, OpInfo::Assoc::Right, Op::STOOR });
-        _opInfo.emplace(O_XOREQ,        { 5, OpInfo::Assoc::Right, Op::STOXOR });
-        _opInfo.emplace(O_LOR,          { 6, OpInfo::Assoc::Left, Op::LOR });
-        _opInfo.emplace(O_LAND,         { 7, OpInfo::Assoc::Left, Op::LAND });
-        _opInfo.emplace('|',            { 8, OpInfo::Assoc::Left, Op::OR });
-        _opInfo.emplace('^',            { 9, OpInfo::Assoc::Left, Op::XOR });
-        _opInfo.emplace('&',            { 10, OpInfo::Assoc::Left, Op::AND });
-        _opInfo.emplace(O_EQ,           { 11, OpInfo::Assoc::Left, Op::EQ });
-        _opInfo.emplace(O_NE,           { 11, OpInfo::Assoc::Left, Op::NE });
-        _opInfo.emplace('<',            { 12, OpInfo::Assoc::Left, Op::LT });
-        _opInfo.emplace('>',            { 12, OpInfo::Assoc::Left, Op::GT });
-        _opInfo.emplace(O_GE,           { 12, OpInfo::Assoc::Left, Op::GE });
-        _opInfo.emplace(O_LE,           { 12, OpInfo::Assoc::Left, Op::LE });
-        _opInfo.emplace(O_LSHIFT,       { 13, OpInfo::Assoc::Left, Op::SHL });
-        _opInfo.emplace(O_RSHIFT,       { 13, OpInfo::Assoc::Left, Op::SHR });
-        _opInfo.emplace(O_RSHIFTFILL,   { 13, OpInfo::Assoc::Left, Op::SAR });
-        _opInfo.emplace('+',            { 14, OpInfo::Assoc::Left, Op::ADD });
-        _opInfo.emplace('-',            { 14, OpInfo::Assoc::Left, Op::SUB });
-        _opInfo.emplace('*',            { 15, OpInfo::Assoc::Left, Op::MUL });
-        _opInfo.emplace('/',            { 15, OpInfo::Assoc::Left, Op::DIV });
-        _opInfo.emplace('%',            { 15, OpInfo::Assoc::Left, Op::MOD });
+        _opInfo.emplace(Token::STO,         { 1, OpInfo::Assoc::Right, Op::STO });
+        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::Assoc::Right, Op::STOADD });
+        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::Assoc::Right, Op::STOSUB });
+        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::Assoc::Right, Op::STOMUL });
+        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::Assoc::Right, Op::STODIV });
+        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::Assoc::Right, Op::STOMOD });
+        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::Assoc::Right, Op::STOSHL });
+        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::Assoc::Right, Op::STOSHR });
+        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::Assoc::Right, Op::STOSAR });
+        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::Assoc::Right, Op::STOAND });
+        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::Assoc::Right, Op::STOOR });
+        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::Assoc::Right, Op::STOXOR });
+        _opInfo.emplace(Token::LOR,         { 6, OpInfo::Assoc::Left, Op::LOR });
+        _opInfo.emplace(Token::LAND,        { 7, OpInfo::Assoc::Left, Op::LAND });
+        _opInfo.emplace(Token::OR,          { 8, OpInfo::Assoc::Left, Op::OR });
+        _opInfo.emplace(Token::XOR,         { 9, OpInfo::Assoc::Left, Op::XOR });
+        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::Assoc::Left, Op::AND });
+        _opInfo.emplace(Token::EQ,          { 11, OpInfo::Assoc::Left, Op::EQ });
+        _opInfo.emplace(Token::NE,          { 11, OpInfo::Assoc::Left, Op::NE });
+        _opInfo.emplace(Token::LT,          { 12, OpInfo::Assoc::Left, Op::LT });
+        _opInfo.emplace(Token::GT,          { 12, OpInfo::Assoc::Left, Op::GT });
+        _opInfo.emplace(Token::GE,          { 12, OpInfo::Assoc::Left, Op::GE });
+        _opInfo.emplace(Token::LE,          { 12, OpInfo::Assoc::Left, Op::LE });
+        _opInfo.emplace(Token::SHL,         { 13, OpInfo::Assoc::Left, Op::SHL });
+        _opInfo.emplace(Token::SHR,         { 13, OpInfo::Assoc::Left, Op::SHR });
+        _opInfo.emplace(Token::SAR,         { 13, OpInfo::Assoc::Left, Op::SAR });
+        _opInfo.emplace(Token::Plus,        { 14, OpInfo::Assoc::Left, Op::ADD });
+        _opInfo.emplace(Token::Minus,       { 14, OpInfo::Assoc::Left, Op::SUB });
+        _opInfo.emplace(Token::Star,        { 15, OpInfo::Assoc::Left, Op::MUL });
+        _opInfo.emplace(Token::Slash,       { 15, OpInfo::Assoc::Left, Op::DIV });
+        _opInfo.emplace(Token::Percent,     { 15, OpInfo::Assoc::Left, Op::MOD });
     }
 }
 
@@ -107,10 +107,10 @@ void ParseEngine::syntaxError(Error error, Token token)
     _parser->printError(s.c_str());
 }
 
-bool ParseEngine::expect(uint8_t token)
+bool ParseEngine::expect(Token token)
 {
     if (_token != token) {
-        syntaxError(Error::Expected, static_cast<Token>(token));
+        syntaxError(Error::Expected, token);
         return false;
     } else {
         popToken();
@@ -148,10 +148,10 @@ bool ParseEngine::sourceElement()
 
 bool ParseEngine::statement()
 {
-    if (_token == C_EOF) {
+    if (_token == Token::EndOfFile) {
         return false;
     }
-    if (_token == ';') {
+    if (_token == Token::Semicolon) {
         popToken();
         return true;
     }
@@ -159,19 +159,19 @@ bool ParseEngine::statement()
         switchStatement() || iterationStatement() || jumpStatement()) {
         return true;
     }
-    if (_token == K_VAR) {
+    if (_token == Token::Var) {
         popToken();
         variableDeclarationList();
-        expect(';');
+        expect(Token::Semicolon);
         return true;
-    } else if (_token == K_DELETE) {
+    } else if (_token == Token::Delete) {
         popToken();
         leftHandSideExpression();
-        expect(';');
+        expect(Token::Semicolon);
         return true;
     } else if (expression()) {
         _parser->emit(m8r::Op::POP);
-        expect(';');
+        expect(Token::Semicolon);
         return true;
     }
     return false;
@@ -179,12 +179,12 @@ bool ParseEngine::statement()
 
 bool ParseEngine::functionDeclaration()
 {
-    if (_token != K_FUNCTION) {
+    if (_token != Token::Function) {
         return false;
     }
     popToken();
     Atom name = _tokenValue.atom;
-    expect(T_IDENTIFIER);
+    expect(Token::Identifier);
     Function* f = function();
     _parser->addNamedFunction(f, name);
     return true;
@@ -192,32 +192,32 @@ bool ParseEngine::functionDeclaration()
 
 bool ParseEngine::compoundStatement()
 {
-    if (_token != '{') {
+    if (_token != Token::LBrace) {
         return false;
     }
     popToken();
     while (statement()) ;
-    expect('}');
+    expect(Token::RBrace);
     return true;
 }
 
 bool ParseEngine::selectionStatement()
 {
-    if (_token != K_IF) {
+    if (_token != Token::If) {
         return false;
     }
     popToken();
-    expect('(');
+    expect(Token::LParen);
     expression();
     
     Label ifLabel = _parser->label();
     Label elseLabel = _parser->label();
     _parser->addMatchedJump(m8r::Op::JF, elseLabel);
 
-    expect(')');
+    expect(Token::RParen);
     statement();
 
-    if (_token == K_ELSE) {
+    if (_token == Token::Else) {
         popToken();
         _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
@@ -238,16 +238,16 @@ bool ParseEngine::switchStatement()
 void ParseEngine::forLoopCondAndIt()
 {
     // On entry, we are at the semicolon before the cond expr
-    expect(';');
+    expect(Token::Semicolon);
     Label label = _parser->label();
     expression(); // cond expr
     _parser->addMatchedJump(m8r::Op::JF, label);
     _parser->startDeferred();
-    expect(';');
+    expect(Token::Semicolon);
     expression(); // iterator
     _parser->emit(m8r::Op::POP);
     _parser->endDeferred();
-    expect(')');
+    expect(Token::RParen);
     statement();
     _parser->emitDeferred();
     _parser->jumpToLabel(Op::JMP, label);
@@ -256,35 +256,35 @@ void ParseEngine::forLoopCondAndIt()
 
 bool ParseEngine::iterationStatement()
 {
-    uint8_t type = _token;
-    if (_token != K_WHILE && _token != K_DO && _token != K_FOR) {
+    Token type = _token;
+    if (_token != Token::While && _token != Token::Do && _token != Token::For) {
         return false;
     }
     
     popToken();
-    expect('(');
-    if (type == K_WHILE) {
+    expect(Token::LParen);
+    if (type == Token::While) {
         Label label = _parser->label();
         expression();
         _parser->addMatchedJump(m8r::Op::JF, label);
-        expect(')');
+        expect(Token::RParen);
         statement();
         _parser->jumpToLabel(Op::JMP, label);
         _parser->matchJump(label);
-    } else if (type == K_DO) {
+    } else if (type == Token::Do) {
         Label label = _parser->label();
         statement();
-        expect(K_WHILE);
-        expect('(');
+        expect(Token::While);
+        expect(Token::LParen);
         expression();
         _parser->jumpToLabel(m8r::Op::JT, label);
-        expect(')');
-        expect(';');
-    } else if (type == K_FOR) {
-        if (_token == K_VAR) {
+        expect(Token::RParen);
+        expect(Token::Semicolon);
+    } else if (type == Token::For) {
+        if (_token == Token::Var) {
             popToken();
             variableDeclarationList();
-            if (_token == ':') {
+            if (_token == Token::Colon) {
                 // for-in case with var
                 //FIXME: implement
                 // FIXME: We need a way to know if the above decl is a legit variable for for-in
@@ -295,7 +295,7 @@ bool ParseEngine::iterationStatement()
             }
         } else {
             if (expression()) {
-                if (_token == ':') {
+                if (_token == Token::Colon) {
                     // for-in case with left hand expr
                     // FIXME: We need a way to know if the above expression is a legit left hand expr
                     // FIXME: implement
@@ -314,19 +314,19 @@ bool ParseEngine::iterationStatement()
 
 bool ParseEngine::jumpStatement()
 {
-    if (_token == K_BREAK || _token == K_CONTINUE) {
+    if (_token == Token::Break || _token == Token::Continue) {
         popToken();
-        expect(';');
+        expect(Token::Semicolon);
         return true;
     }
-    if (_token == K_RETURN) {
+    if (_token == Token::Return) {
         popToken();
         uint32_t count = 0;
         if (expression()) {
             count = 1;
         }
         _parser->emitWithCount(m8r::Op::RET, count);
-        expect(';');
+        expect(Token::Semicolon);
     }
     return false;
 }
@@ -335,7 +335,7 @@ bool ParseEngine::variableDeclarationList()
 {
     bool haveOne = false;
     while (variableDeclaration()) {
-        if (_token != ',') {
+        if (_token != Token::Comma) {
             return true;
         }
         haveOne = true;
@@ -346,13 +346,13 @@ bool ParseEngine::variableDeclarationList()
 
 bool ParseEngine::variableDeclaration()
 {
-    if (_token != T_IDENTIFIER) {
+    if (_token != Token::Identifier) {
         return false;
     }
     Atom name = _tokenValue.atom;
     _parser->addVar(name);
     popToken();
-    if (_token != '=') {
+    if (_token != Token::STO) {
         return true;
     }
     popToken();
@@ -367,21 +367,21 @@ bool ParseEngine::variableDeclaration()
 
 bool ParseEngine::arithmeticPrimary()
 {
-    if (_token == '(') {
+    if (_token == Token::LParen) {
         popToken();
         expression();
-        expect(')');
+        expect(Token::RParen);
         return true;
     }
     
     Op op;
     switch(_token) {
-        case O_INC: op = Op::PREINC; break;
-        case O_DEC: op = Op::PREDEC; break;
-        case '+': op = Op::UPLUS; break;
-        case '-': op = Op::UMINUS; break;
-        case '~': op = Op::UNEG; break;
-        case '!': op = Op::UNOT; break;
+        case Token::INC: op = Op::PREINC; break;
+        case Token::DEC: op = Op::PREDEC; break;
+        case Token::Plus: op = Op::UPLUS; break;
+        case Token::Minus: op = Op::UMINUS; break;
+        case Token::Twiddle: op = Op::UNEG; break;
+        case Token::Bang: op = Op::UNOT; break;
         default: op = Op::UNKNOWN; break;
     }
     
@@ -398,8 +398,8 @@ bool ParseEngine::arithmeticPrimary()
         return false;
     }
     switch(_token) {
-        case O_INC: op = Op::POSTINC; break;
-        case O_DEC: op = Op::POSTDEC; break;
+        case Token::INC: op = Op::POSTINC; break;
+        case Token::DEC: op = Op::POSTDEC; break;
         default: op = Op::UNKNOWN; break;
     }
     
@@ -431,13 +431,13 @@ bool ParseEngine::expression(uint8_t minPrec)
 
 bool ParseEngine::leftHandSideExpression()
 {
-    if (_token == K_NEW) {
+    if (_token == Token::New) {
         popToken();
         leftHandSideExpression();
         return true;
     }
     
-    if (_token == K_FUNCTION) {
+    if (_token == Token::Function) {
         popToken();
         Function* f = function();
         _parser->emit(f);
@@ -447,20 +447,20 @@ bool ParseEngine::leftHandSideExpression()
         return false;
     }
     while(1) {
-        if (_token == '(') {
+        if (_token == Token::LParen) {
             popToken();
             uint32_t argCount = argumentList();
-            expect(')');
+            expect(Token::RParen);
             _parser->emitWithCount(m8r::Op::CALL, argCount);
-        } else if (_token == '[') {
+        } else if (_token == Token::LBracket) {
             popToken();
             expression();
-            expect(']');
+            expect(Token::RBracket);
             _parser->emit(m8r::Op::DEREF);
-        } else if (_token == '.') {
+        } else if (_token == Token::Period) {
             popToken();
             Atom name = _tokenValue.atom;
-            if (expect(T_IDENTIFIER)) {
+            if (expect(Token::Identifier)) {
                 _parser->emitId(name, Parser::IdType::NotLocal);
                 _parser->emit(m8r::Op::DEREF);
             }
@@ -478,7 +478,7 @@ uint32_t ParseEngine::argumentList()
         return i;
     }
     ++i;
-    while (_token == ',') {
+    while (_token == Token::Comma) {
         popToken();
         expression();
         ++i;
@@ -489,16 +489,16 @@ uint32_t ParseEngine::argumentList()
 bool ParseEngine::primaryExpression()
 {
     switch(_token) {
-        case T_IDENTIFIER: _parser->emitId(_tokenValue.atom, Parser::IdType::MightBeLocal); popToken(); break;
-        case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); break;
-        case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); break;
-        case T_STRING: _parser->emit(_tokenValue.string); popToken(); break;
-        case '[':
+        case Token::Identifier: _parser->emitId(_tokenValue.atom, Parser::IdType::MightBeLocal); popToken(); break;
+        case Token::Float: _parser->emit(_tokenValue.number); popToken(); break;
+        case Token::Integer: _parser->emit(_tokenValue.integer); popToken(); break;
+        case Token::String: _parser->emit(_tokenValue.string); popToken(); break;
+        case Token::LBracket:
             popToken();
             _parser->emitArrayLiteral();
             if (expression()) {
                 _parser->emit(m8r::Op::STOA);
-                while (_token == ',') {
+                while (_token == Token::Comma) {
                     popToken();
                     if (!expect(Token::Expr, expression())) {
                         break;
@@ -506,14 +506,14 @@ bool ParseEngine::primaryExpression()
                     _parser->emit(m8r::Op::STOA);
                 }
             }
-            expect(']');
+            expect(Token::RBracket);
             break;
-        case '{':
+        case Token::LBrace:
             popToken();
             _parser->emitObjectLiteral();
             if (propertyAssignment()) {
                 _parser->emit(m8r::Op::STOO);
-                while (_token == ',') {
+                while (_token == Token::Comma) {
                     popToken();
                     if (!expect(Token::PropertyAssignment, propertyAssignment())) {
                         break;
@@ -521,7 +521,7 @@ bool ParseEngine::primaryExpression()
                     _parser->emit(m8r::Op::STOO);
                 }
             }
-            expect('}');
+            expect(Token::RBrace);
             break;
             
             break;
@@ -536,47 +536,47 @@ bool ParseEngine::propertyAssignment()
     if (!propertyName()) {
         return false;
     }
-    return expect(':') && expect(Token::Expr, expression());
+    return expect(Token::Colon) && expect(Token::Expr, expression());
 }
 
 bool ParseEngine::propertyName()
 {
     switch(_token) {
-        case T_IDENTIFIER: _parser->emitId(_tokenValue.atom, Parser::IdType::NotLocal); popToken(); return true;
-        case T_STRING: _parser->emit(_tokenValue.string); popToken(); return true;
-        case T_FLOAT: _parser->emit(_tokenValue.number); popToken(); return true;
-        case T_INTEGER: _parser->emit(_tokenValue.integer); popToken(); return true;
+        case Token::Identifier: _parser->emitId(_tokenValue.atom, Parser::IdType::NotLocal); popToken(); return true;
+        case Token::String: _parser->emit(_tokenValue.string); popToken(); return true;
+        case Token::Float: _parser->emit(_tokenValue.number); popToken(); return true;
+        case Token::Integer: _parser->emit(_tokenValue.integer); popToken(); return true;
         default: return false;
     }
 }
 
 Function* ParseEngine::function()
 {
-    expect('(');
+    expect(Token::LParen);
     _parser->functionStart();
     formalParameterList();
     _parser->functionParamsEnd();
-    expect(')');
-    expect('{');
+    expect(Token::RParen);
+    expect(Token::LBrace);
     sourceElements();
-    expect('}');
+    expect(Token::RBrace);
     _parser->emit(m8r::Op::END);
     return _parser->functionEnd();
 }
 
 void ParseEngine::formalParameterList()
 {
-    if (_token != T_IDENTIFIER) {
+    if (_token != Token::Identifier) {
         return;
     }
     while (1) {
         _parser->functionAddParam(_tokenValue.atom);
         popToken();
-        if (_token != ',') {
+        if (_token != Token::Comma) {
             return;
         }
         popToken();
-        if (_token != T_IDENTIFIER) {
+        if (_token != Token::Identifier) {
             syntaxError(Error::Expected, Token::Identifier);
             return;
         }

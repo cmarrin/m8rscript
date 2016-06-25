@@ -43,23 +43,36 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class StringId {
+class RawStringLiteral
+{
+    friend class StringLiteral;
+    
+public:
+    uint32_t raw() const { return _index; }
+    static RawStringLiteral make(uint32_t raw) { RawStringLiteral r; r._index = raw; return r; }
+    
+private:
+    uint32_t _index;
+};
+
+class StringLiteral {
     friend class Program;
     
 public:
-    static StringId emptyStringId() { StringId s; s._id = NoString; return s; }
-    uint32_t rawStringId() const { return _id; }
-    static StringId stringIdFromRawStringId(uint32_t id)
-    {
-        StringId s;
-        s._id = id;
-        return s;
-    }
-    int operator-(const StringId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
+    StringLiteral() { _id._index = NoString; }
+    StringLiteral(RawStringLiteral raw) { _id._index = raw._index; }
+    StringLiteral(const StringLiteral& other) { _id._index = other._id._index; }
+    StringLiteral(StringLiteral& other) { _id._index = other._id._index; }
+
+    const StringLiteral& operator=(const StringLiteral& other) { _id._index = other._id._index; return *this; }
+    StringLiteral& operator=(StringLiteral& other) { _id._index = other._id._index; return *this; }
+    operator RawStringLiteral() const { return _id; }
+    
+    int operator-(const StringLiteral& other) const { return static_cast<int>(_id._index) - static_cast<int>(other._id._index); }
     
 private:
     static constexpr uint32_t NoString = std::numeric_limits<uint32_t>::max();
-    uint32_t _id;
+    RawStringLiteral _id;
 };
     
 //////////////////////////////////////////////////////////////////////////////
@@ -258,7 +271,13 @@ private:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-template<typename Key, typename Value>
+template<class T>
+struct CompareKeys
+{
+    int operator()(const T& lhs, const T& rhs) const { return lhs - rhs; }
+};
+
+template<typename Key, typename Value, typename Compare=CompareKeys<Key>>
 class Map {
 public:
     struct Pair
@@ -286,9 +305,10 @@ public:
             if (sizeToMove) {
                 memmove(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
             }
-            _list[-result - 1] = { key, value };
+            result = -result - 1;
+            _list[result] = { key, value };
         }
-        return &(_list[-result - 1].value);
+        return &(_list[result].value);
     }
     
     Pair* begin() { return _list.size() ? &(_list[0]) : nullptr; }
@@ -304,13 +324,14 @@ private:
     {
         if (first <= last) {
             int mid = (first + last) / 2;
-            int result = key - _list[mid].key;
+            int result = _compare(key, _list[mid].key);
             return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
         }
         return -(first + 1);    // failed to find key
     }
     
     Vector<Pair> _list;
+    Compare _compare;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -45,25 +45,25 @@ static const char* specialFirstChar = "!%&*+-/<=>^|";
 struct Keyword
 {
 	const char* word;
-	int token;
+	Token token;
 };
 
 static Keyword keywords[] = {
-	{ "break",		K_BREAK },
-	{ "case",		K_CASE },
-	{ "continue",	K_CONTINUE },
-	{ "default",	K_DEFAULT },
-	{ "delete",		K_DELETE },
-	{ "do",			K_DO },
-	{ "else",		K_ELSE },
-	{ "for",		K_FOR },
-	{ "function",	K_FUNCTION },
-	{ "if",			K_IF },
-	{ "new",		K_NEW },
-	{ "return",		K_RETURN },
-	{ "switch",		K_SWITCH },
-	{ "var",		K_VAR },
-	{ "while",		K_WHILE },
+	{ "break",		Token::Break },
+	{ "case",		Token::Case },
+	{ "continue",	Token::Continue },
+	{ "default",	Token::Default },
+	{ "delete",		Token::Delete },
+	{ "do",			Token::Do },
+	{ "else",		Token::Else },
+	{ "for",		Token::For },
+	{ "function",	Token::Function },
+	{ "if",			Token::If },
+	{ "new",		Token::New },
+	{ "return",		Token::Return },
+	{ "switch",		Token::Switch },
+	{ "var",		Token::Var },
+	{ "while",		Token::While },
 };
 
 static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
@@ -79,17 +79,17 @@ static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
 static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
-uint8_t Scanner::scanKeyword(const char* s)
+Token Scanner::scanKeyword(const char* s)
 {
 	for (int i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
 		if (strcmp(keywords[i].word, s) == 0) {
 			return keywords[i].token;
 		}
 	}
-	return K_UNKNOWN;
+	return Token::Unknown;
 }
 
-uint8_t Scanner::scanString(char terminal)
+Token Scanner::scanString(char terminal)
 {
 	uint8_t c;
 	
@@ -112,7 +112,7 @@ uint8_t Scanner::scanString(char terminal)
                 case '?': c = 0x3f; break;
                 case 'x': {
                     if ((c = get()) == C_EOF) {
-                        return T_STRING;
+                        return Token::String;
                     }
                     
                     if (!isHex(c) && !isDigit(c)) {
@@ -172,151 +172,151 @@ uint8_t Scanner::scanString(char terminal)
         }
 		_parser->addToString(c);
 	}
-	return T_STRING;
+	return Token::String;
 }
 
-uint8_t Scanner::scanSpecial()
+Token Scanner::scanSpecial()
 {
 	uint8_t c1 = get();
     uint8_t c2;
     if (c1 == C_EOF) {
-        return C_EOF;
+        return Token::EndOfFile;
     }
     
     if (c1 == '<') {
         if ((c2 = get()) == C_EOF) {
-            return C_EOF;
+            return Token::EndOfFile;
         }
         if (c2 == '<') {
             if ((c2 = get()) == C_EOF) {
-                return C_EOF;
+                return Token::EndOfFile;
             }
             if (c2 == '=') {
-                return O_LSHIFTEQ;
+                return Token::SHLSTO;
             }
             putback(c2);
-            return O_LSHIFT;
+            return Token::SHL;
         }
         if (c2 == '=') {
-            return O_LE;
+            return Token::LE;
         }
         putback(c2);
-        return c1;
+        return static_cast<Token>(c1);
     }
 
     if (c1 == '>') {
         if ((c2 = get()) == C_EOF) {
-            return C_EOF;
+            return Token::EndOfFile;
         }
         if (c2 == '>') {
             if ((c2 = get()) == C_EOF) {
-                return C_EOF;
+                return Token::EndOfFile;
             }
             if (c2 == '=') {
-                return O_RSHIFTEQ;
+                return Token::SHRSTO;
             }
             if (c2 == '>') {
                 if ((c2 = get()) == C_EOF) {
-                    return C_EOF;
+                    return Token::EndOfFile;
                 }
                 if (c2 == '=') {
-                    return O_RSHIFTFILLEQ;
+                    return Token::SARSTO;
                 }
                 putback(c2);
-                return O_RSHIFTFILL;
+                return Token::SAR;
             }
             putback(c2);
-            return O_RSHIFT;
+            return Token::SHR;
         }
         if (c2 == '=') {
-            return O_GE;
+            return Token::GE;
         }
         putback(c2);
-        return c1;
+        return static_cast<Token>(c1);
     }
         
     if (strchr(specialSingleChar, c1)) {
-        return c1;
+        return static_cast<Token>(c1);
     }
     
     if (!strchr(specialFirstChar, c1)) {
         putback(c1);
-        return C_EOF;
+        return Token::EndOfFile;
     }
 
 	if ((c2 = get()) == C_EOF) {
-        return C_EOF;
+        return Token::EndOfFile;
     }
     
     switch(c2) {
         case '!':
             if (c2 == '=') {
-                return O_NE;
+                return Token::NE;
             }
             break;
         case '%':
             if (c2 == '=') {
-                return O_MODEQ;
+                return Token::MODSTO;
             }
             break;
         case '&':
             if (c2 == '&') {
-                return O_LAND;
+                return Token::LAND;
             }
             if (c2 == '=') {
-                return O_ANDEQ;
+                return Token::ANDSTO;
             }
             break;
         case '*':
             if (c2 == '=') {
-                return O_MULEQ;
+                return Token::MULSTO;
             }
             break;
         case '+':
             if (c2 == '=') {
-                return O_ADDEQ;
+                return Token::ADDSTO;
             }
             if (c2 == '+') {
-                return O_INC;
+                return Token::INC;
             }
             break;
         case '-':
             if (c2 == '=') {
-                return O_SUBEQ;
+                return Token::SUBSTO;
             }
             if (c2 == '-') {
-                return O_DEC;
+                return Token::DEC;
             }
             break;
         case '/':
             if (c2 == '=') {
-                return O_DIVEQ;
+                return Token::DIVSTO;
             }
             break;
         case '=':
             if (c2 == '=') {
-                return O_EQ;
+                return Token::EQ;
             }
             break;
         case '^':
             if (c2 == '=') {
-                return O_XOREQ;
+                return Token::XORSTO;
             }
             break;
         case '|':
             if (c2 == '=') {
-                return O_OREQ;
+                return Token::ORSTO;
             }
             if (c2 == '|') {
-                return O_LOR;
+                return Token::LOR;
             }
             break;
     }
     putback(c2);
-    return c1;
+    return static_cast<Token>(c1);
 }
 
-uint8_t Scanner::scanIdentifier()
+Token Scanner::scanIdentifier()
 {
 	uint8_t c;
 	_tokenString.erase();
@@ -332,11 +332,11 @@ uint8_t Scanner::scanIdentifier()
 	}
     size_t len = _tokenString.length();
     if (len) {
-        uint8_t token = scanKeyword(_tokenString.c_str());
-        return (token == K_UNKNOWN) ? T_IDENTIFIER : token;
+        Token token = scanKeyword(_tokenString.c_str());
+        return (token == Token::Unknown) ? Token::Identifier : token;
     }
 
-    return C_EOF;
+    return Token::EndOfFile;
 }
 
 // Return the number of digits scanned
@@ -365,16 +365,16 @@ int32_t Scanner::scanDigits(int32_t& number, bool hex)
     return numDigits;
 }
 
-uint8_t Scanner::scanNumber(TokenType& tokenValue)
+Token Scanner::scanNumber(TokenType& tokenValue)
 {
 	uint8_t c = get();
     if (c == C_EOF) {
-        return C_EOF;
+        return Token::EndOfFile;
     }
     
 	if (!isDigit(c)) {
 		putback(c);
-		return C_EOF;
+		return Token::EndOfFile;
 	}
 	
     bool hex = false;
@@ -383,15 +383,15 @@ uint8_t Scanner::scanNumber(TokenType& tokenValue)
 
     if (c == '0') {
         if ((c = get()) == C_EOF) {
-            return C_EOF;
+            return Token::EndOfFile;
         }
         if (c == 'x' || c == 'X') {
             if ((c = get()) == C_EOF) {
-                return C_EOF;
+                return Token::EndOfFile;
             }
             if (!isDigit(c)) {
                 putback(c);
-                return K_UNKNOWN;
+                return Token::Unknown;
             }
             hex = true;
         }
@@ -402,11 +402,11 @@ uint8_t Scanner::scanNumber(TokenType& tokenValue)
     if (scanFloat(number, exp)) {
         Float f(number, exp);
         tokenValue.number = static_cast<RawFloat>(f);
-        return T_FLOAT;
+        return Token::Float;
     }
     assert(exp == 0);
     tokenValue.integer = static_cast<uint32_t>(number);
-    return T_INTEGER;
+    return Token::Integer;
 }
 
 bool Scanner::scanFloat(int32_t& mantissa, int32_t& exp)
@@ -445,7 +445,7 @@ bool Scanner::scanFloat(int32_t& mantissa, int32_t& exp)
     return haveFloat;
 }
 
-uint8_t Scanner::scanComment()
+Token Scanner::scanComment()
 {
 	uint8_t c;
 
@@ -453,7 +453,7 @@ uint8_t Scanner::scanComment()
 		for ( ; ; ) {
 			c = get();
 			if (c == C_EOF) {
-				return C_EOF;
+				return Token::EndOfFile;
 			}
 			if (c == '*') {
 				if ((c = get()) == '/') {
@@ -462,22 +462,22 @@ uint8_t Scanner::scanComment()
 				putback(c);
 			}
 		}
-		return K_COMMENT;
+		return Token::Comment;
 	}
 	if (c == '/') {
 		// Comment
 		for ( ; ; ) {
 			c = get();
 			if (c == C_EOF) {
-				return C_EOF;
+				return Token::EndOfFile;
 			}
 			if (c == '\n') {
 				break;
 			}
 		}
-		return K_COMMENT;
+		return Token::Comment;
 	}
-	return '/';
+	return static_cast<Token>('/');
 }
 
 uint8_t Scanner::get() const
@@ -497,21 +497,21 @@ uint8_t Scanner::get() const
     return c;
 }
 
-uint8_t Scanner::getToken(TokenType& tokenValue)
+Token Scanner::getToken(TokenType& tokenValue)
 {
 	uint8_t c;
-	uint8_t token = C_EOF;
+	Token token = Token::EndOfFile;
 	
-	while (token == C_EOF && (c = get()) != C_EOF) {
+	while (token == Token::EndOfFile && (c = get()) != C_EOF) {
         if (isWhitespace(c)) {
             continue;
         }
 		switch(c) {
 			case '/':
 				token = scanComment();
-				if (token == K_COMMENT) {
+				if (token == Token::Comment) {
 					// For now we ignore comments
-                    token = C_EOF;
+                    token = Token::EndOfFile;
 					break;
 				}
 				break;
@@ -525,20 +525,20 @@ uint8_t Scanner::getToken(TokenType& tokenValue)
 
 			default:
 				putback(c);
-				if ((token = scanNumber(tokenValue)) != C_EOF) {
+				if ((token = scanNumber(tokenValue)) != Token::EndOfFile) {
 					break;
 				}
-				if ((token = scanSpecial()) != C_EOF) {
+				if ((token = scanSpecial()) != Token::EndOfFile) {
 					break;
 				}
-				if ((token = scanIdentifier()) != C_EOF) {
-                    if (token == T_IDENTIFIER) {
+				if ((token = scanIdentifier()) != Token::EndOfFile) {
+                    if (token == Token::Identifier) {
                         tokenValue.atom = _parser->atomizeString(_tokenString.c_str());
                         _tokenString.erase();
                     }
 					break;
 				}
-				token = K_UNKNOWN;
+				token = Token::Unknown;
                 break;
 		}
 	}

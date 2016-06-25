@@ -46,8 +46,6 @@ namespace m8r {
     class Function;
 }
 
-#include "parse.tab.h"
-
 #define MAX_ID_LENGTH 32
 
 namespace m8r {
@@ -62,13 +60,15 @@ class Parser;
 //
 //////////////////////////////////////////////////////////////////////////////
 
+static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);
+
 class Scanner  {
 public:
     typedef struct {
         m8r::Op             op;
         m8r::Label          label;
         m8r::Function*      function;
-        m8r::StringId       string;
+        m8r::RawStringLiteral string;
         m8r::RawFloat		number;
         uint32_t            integer;
         m8r::RawAtom        atom;
@@ -87,7 +87,7 @@ public:
   	{
     }
   
-  	uint8_t getToken(TokenType& token);
+  	Token getToken(TokenType& token);
     
     uint32_t lineno() const { return _lineno; }
   	
@@ -100,12 +100,12 @@ private:
   		_lastChar = c;
 	}
 
-  	uint8_t scanKeyword(const char*);
-  	uint8_t scanString(char terminal);
-  	uint8_t scanSpecial();
-  	uint8_t scanIdentifier();
-  	uint8_t scanNumber(TokenType& tokenValue);
-  	uint8_t scanComment();
+  	Token scanKeyword(const char*);
+  	Token scanString(char terminal);
+  	Token scanSpecial();
+  	Token scanIdentifier();
+  	Token scanNumber(TokenType& tokenValue);
+  	Token scanComment();
   	int32_t scanDigits(int32_t& number, bool hex);
   	bool scanFloat(int32_t& mantissa, int32_t& exp);
     

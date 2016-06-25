@@ -101,7 +101,6 @@
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
-		49E648151D00C088005F5059 /* parse.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse.tab.cpp; path = ../m8rscript/parse.tab.cpp; sourceTree = "<group>"; };
 		49E648161D00C088005F5059 /* parse.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parse.tab.h; path = ../m8rscript/parse.tab.h; sourceTree = "<group>"; };
 		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../m8rscript/Parser.cpp; sourceTree = "<group>"; };
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
@@ -215,7 +214,6 @@
 				4942EA7E1D06FC2500E02088 /* Object.h */,
 				4942EA8C1D0D950100E02088 /* Opcodes.h */,
 				4984E8341D1499D900D0ABA6 /* parse.y */,
-				49E648151D00C088005F5059 /* parse.tab.cpp */,
 				49E648161D00C088005F5059 /* parse.tab.h */,
 				498ACA761D17503C0039E1CD /* ParseEngine.cpp */,
 				498ACA771D17503C0039E1CD /* ParseEngine.h */,

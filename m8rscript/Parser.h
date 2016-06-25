@@ -65,7 +65,7 @@ public:
         }
     }
 
-  	uint8_t getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
+  	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
 	void printError(const char* s);
     uint32_t nerrors() const { return _nerrors; }
@@ -74,7 +74,7 @@ public:
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     Atom atomizeString(const char* s) { return _program->atomizeString(s); }
 
-    StringId startString() { return _program->startString(); }
+    StringLiteral startString() { return _program->startString(); }
     void addToString(char c) { _program->addToString(c); }
     void endString() { _program->endString(); }
     
@@ -110,7 +110,7 @@ public:
     Function* functionEnd();
     void programEnd();
         
-    void emit(StringId value);
+    void emit(RawStringLiteral value);
     void emit(uint32_t value);
     void emit(Float value);
     void emit(Op value);
