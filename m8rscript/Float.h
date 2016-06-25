@@ -227,4 +227,122 @@ private:
     RawFloat _value;
 };
 
+template<typename RawType, int32_t BinExp, int32_t DecExp>
+class FPF
+{
+private:
+    static constexpr int32_t exp(int32_t v, int32_t n) { return n ? exp(v * 10, n - 1) : v; }
+
+public:
+    static constexpr int32_t BinaryExponent = BinExp;
+    static constexpr int32_t DecimalExponent = DecExp;
+    static constexpr int32_t DecimalMultiplier = exp(1, DecExp);
+    
+    FPF() { _value = 0; }
+    FPF(const RawType& value) { _value = value; }
+    FPF(const FPF& value) { _value = value._value; }
+    FPF(FPF& value) { _value = value._value; }
+    FPF(int32_t v)
+    {
+        _value = static_cast<int32_t>(v) << BinaryExponent;
+    }
+    
+    FPF(int32_t i, int32_t e)
+    {
+        if (i == 0) {
+            _value = 0;
+            return;
+        }
+        
+        int64_t num = static_cast<int64_t>(i) * (1 << BinaryExponent);
+        int32_t sign = (num < 0) ? -1 : 1;
+        num *= sign;
+        
+        while (e > 0) {
+            if (num > std::numeric_limits<int32_t>::max()) {
+                // FIXME: Number is over range, handle that
+                _value = 0;
+                return;
+            }
+            --e;
+            num *= 10;
+        }
+        while (e < 0) {
+            if (num == 0) {
+                // FIXME: Number is under range, handle that
+                _value = 0;
+                return;
+            }
+            ++e;
+            num /= 10;
+        }
+        
+        if (num > std::numeric_limits<int32_t>::max()) {
+            // FIXME: Number is under range, handle that
+            _value = 0;
+            return;
+        }
+        
+        _value = sign * static_cast<int32_t>(num);
+    }
+    
+    const FPF& operator=(const FPF& other) { _value = other._value; return *this; }
+    FPF& operator=(FPF& other) { _value = other._value; return *this; }
+    
+    FPF operator+(const FPF& other) const { FPF r; r._value = _value + other._value; return r; }
+    FPF operator-(const FPF& other) const { FPF r; r._value = _value - other._value; return r; }
+
+    FPF operator*(const FPF& other) const
+    {
+        FPF r;
+        int64_t result = static_cast<uint64_t>(_value) * other._value >> BinaryExponent;
+        r._value = static_cast<int32_t>(result);
+        return r;
+    }
+    FPF operator/(const FPF& other) const
+    {
+        // FIXME: Have some sort of error on divide by 0
+        if (other._value == 0) {
+            return FPF();
+        }
+        FPF r;
+        int64_t result = (static_cast<int64_t>(_value) << BinaryExponent) / other._value;
+        r._value = static_cast<int32_t>(result);
+        return r;
+    }
+    FPF floor() const { FPF r; r._value = _value >> BinaryExponent << BinaryExponent; return r; }
+    operator uint32_t() { return _value; }
+
+    void decompose(int32_t& mantissa, int32_t& exponent) const
+    {
+        if (_value == 0) {
+            mantissa = 0;
+            exponent = 0;
+            return;
+        }
+        int32_t sign = (_value < 0) ? -1 : 1;
+        int64_t value = static_cast<int64_t>(sign * _value) * DecimalMultiplier;
+        mantissa = static_cast<int32_t>(sign * (value / (1 << BinaryExponent)));
+        exponent = -DecimalExponent;
+    }
+
+    FPF operator%(const FPF& other) { return *this - other * (*this / other).floor(); }
+    
+    bool operator==(const FPF& other) const { return _value == other._value; }
+    bool operator!=(const FPF& other) const { return _value != other._value; }
+    bool operator<(const FPF& other) const { return _value < other._value; }
+    bool operator<=(const FPF& other) const { return _value <= other._value; }
+    bool operator>(const FPF& other) const { return _value > other._value; }
+    bool operator>=(const FPF& other) const { return _value >= other._value; }
+
+    FPF operator-() const { FPF r; r._value = -_value; return r; }
+    operator RawType() const { return static_cast<int32_t>(static_cast<uint32_t>(*this)); }
+
+private:    
+    RawType _value;
+};
+
+typedef FPF<int32_t, 10, 2> FPF32;
+typedef FPF<int64_t, 20, 5> FPF64;
+
 }
