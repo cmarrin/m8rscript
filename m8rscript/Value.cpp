@@ -244,7 +244,7 @@ Float Value::toFloatValue() const
             break;
         }
         case Type::Float: return asFloatValue();
-        case Type::Integer: return Float(asIntValue());
+        case Type::Integer: return Float(asIntValue(), 0);
         case Type::String: {
             const char* s = asStringValue();
             if (s) {

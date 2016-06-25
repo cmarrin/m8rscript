@@ -46,7 +46,7 @@ class Value;
 
 typedef union {
     void* v;
-    RawFloat f;
+    Float::Raw f;
     int32_t i;
     uint32_t u;
     Object* o;
@@ -152,7 +152,7 @@ public:
     static Float floatFromString(const char*);
     
 private:
-    inline void* valueFromFloat(Float f) const { U u; u.f = f; return u.v; }
+    inline void* valueFromFloat(Float f) const { U u; u.f = static_cast<Float::Raw>(f); return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }

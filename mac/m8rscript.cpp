@@ -23,6 +23,13 @@ void print(const char* s) { std::cout << s; }
 
 int main(int argc, const char* argv[])
 {
+m8r::FloatDouble f1(1234, -2);
+m8r::FloatDouble f2(456, 1);
+m8r::FloatDouble f3 = f1 + f2;
+int32_t man, exp;
+f3.decompose(man, exp);
+std::cout << "FPF: " << man << ":" << exp << "\n";
+
 #ifdef YYDEBUG
     yydebug = 0;
 #endif

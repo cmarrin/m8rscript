@@ -60,32 +60,32 @@ public:
         friend class Id;
 
     public:
-        RawType raw() const { return _index; }
+        RawType raw() const { return _raw; }
 
     private:
-        RawType _index;
+        RawType _raw;
     };
     
-    Id() { _raw._index = NoId; }
-    Id(Raw raw) { _raw._index = raw._index; }
-    Id(RawType raw) { _raw._index = raw; }
-    Id(const Id& other) { _raw._index = other._raw._index; }
-    Id(Id& other) { _raw._index = other._raw._index; }
+    Id() { _value._raw = NoId; }
+    Id(Raw raw) { _value._raw = raw._raw; }
+    Id(RawType raw) { _value._raw = raw; }
+    Id(const Id& other) { _value._raw = other._value._raw; }
+    Id(Id& other) { _value._raw = other._value._raw; }
 
-    RawType raw() const { return _raw._index; }
+    RawType raw() const { return _value._raw; }
 
-    const Id& operator=(const Id& other) { _raw._index = other._raw._index; return *this; }
-    Id& operator=(Id& other) { _raw._index = other._raw._index; return *this; }
-    operator bool() const { return _raw._index != NoId; }
-    operator Raw() const { return _raw; }
+    const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
+    Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
+    operator bool() const { return _value._raw != NoId; }
+    operator Raw() const { return _value; }
 
-    int operator-(const Id& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
-    bool operator==(const Id& other) const { return _raw._index == other._raw._index; }
+    int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
+    bool operator==(const Id& other) const { return _value._raw == other._value._raw; }
 
 private:
     static constexpr uint16_t NoId = std::numeric_limits<RawType>::max();
 
-    Raw _raw;
+    Raw _value;
 };
 
 typedef Id<uint32_t> StringLiteral;

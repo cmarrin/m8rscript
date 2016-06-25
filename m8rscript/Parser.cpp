@@ -169,7 +169,7 @@ void Parser::emit(uint32_t value)
 void Parser::emit(Float value)
 {
     addCodeByte(Op::PUSHF);
-    addCodeInt(static_cast<RawFloat>(value).raw(), 4);
+    addCodeInt(value.raw(), 4);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
