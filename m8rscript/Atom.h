@@ -39,46 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: Atom
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class RawAtom
-{
-    friend class Atom;
-    
-public:
-    uint16_t raw() const { return _index; }
-    static RawAtom make(uint16_t raw) { RawAtom r; r._index = raw; return r; }
-    
-private:
-    uint16_t _index;
-};
-
-class Atom {
-public:
-    Atom() { _raw._index = NoAtom; }
-    Atom(RawAtom raw) { _raw._index = raw._index; }
-    Atom(const Atom& other) { _raw._index = other._raw._index; }
-    Atom(Atom& other) { _raw._index = other._raw._index; }
-
-    const Atom& operator=(const Atom& other) { _raw._index = other._raw._index; return *this; }
-    Atom& operator=(Atom& other) { _raw._index = other._raw._index; return *this; }
-    operator bool() const { return _raw._index != NoAtom; }
-    operator RawAtom() const { return _raw; }
-
-    int operator-(const Atom& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
-    bool operator==(const Atom& other) const { return _raw._index == other._raw._index; }
-
-private:
-    static constexpr uint16_t NoAtom = std::numeric_limits<uint16_t>::max();
-
-    RawAtom _raw;
-};
+typedef Id<uint16_t> Atom;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -95,7 +56,7 @@ public:
     Atom atomizeString(const char*);
     m8r::String stringFromAtom(const Atom atom) const
     {
-        uint16_t index = static_cast<RawAtom>(atom).raw();
+        uint16_t index = atom.raw();
         return m8r::String(&(_table[index + 1]), -_table[index]);
     }
 

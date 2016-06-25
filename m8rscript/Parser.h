@@ -110,7 +110,7 @@ public:
     Function* functionEnd();
     void programEnd();
         
-    void emit(RawStringLiteral value);
+    void emit(StringLiteral::Raw value);
     void emit(uint32_t value);
     void emit(Float value);
     void emit(Op value);

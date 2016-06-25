@@ -68,10 +68,10 @@ public:
         m8r::Op             op;
         m8r::Label          label;
         m8r::Function*      function;
-        m8r::RawStringLiteral string;
+        m8r::StringLiteral::Raw string;
         m8r::RawFloat		number;
         uint32_t            integer;
-        m8r::RawAtom        atom;
+        m8r::Atom::Raw      atom;
         uint32_t            argcount;
     } TokenType;
 

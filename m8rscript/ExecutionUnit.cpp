@@ -267,7 +267,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         return;
     L_PUSHID:
-        _stack.push(Atom(RawAtom::make(uintFromCode(code, i, 2))));
+        _stack.push(Atom(uintFromCode(code, i, 2)));
         i += 2;
         DISPATCH;
     L_PUSHF:
@@ -290,12 +290,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         size = (static_cast<uint8_t>(op) & 0x03) + 1;
         uintValue = uintFromCode(code, i, size);
         i += size;
-        _stack.push(Value(program->stringFromStringLiteral(StringLiteral(RawStringLiteral::make(uintValue)))));
+        _stack.push(Value(program->stringFromStringLiteral(StringLiteral(uintValue))));
         DISPATCH;
     L_PUSHO:
         uintValue = uintFromCode(code, i, 4);
         i += 4;
-        _stack.push(program->objectFromObjectId(ObjectId(RawObjectId::make(uintValue))));
+        _stack.push(program->objectFromObjectId(ObjectId(uintValue)));
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
@@ -584,7 +584,7 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program) const
     
 	for (const auto& object : program->objects()) {
         if (object.value->code()) {
-            uint32_t rawId = static_cast<RawObjectId>(object.key).raw();
+            uint32_t rawId = object.key.raw();
             outputString += generateCodeString(program, object.value, Value::toString(rawId).c_str(), _nestingLevel);
             outputString += "\n";
         }
@@ -737,7 +737,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        strValue = program->stringFromAtom(Atom(RawAtom::make(uintFromCode(code, i, 2))));
+        strValue = program->stringFromAtom(Atom(uintFromCode(code, i, 2)));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();
@@ -771,7 +771,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uintValue = uintFromCode(code, i, size);
         i += size;
         outputString += "STR(\"";
-        outputString += program->stringFromStringLiteral(StringLiteral(RawStringLiteral::make(uintValue)));
+        outputString += program->stringFromStringLiteral(StringLiteral(uintValue));
         outputString += "\")\n";
         DISPATCH;
     L_PUSHO:

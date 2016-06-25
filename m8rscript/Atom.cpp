@@ -54,12 +54,12 @@ Atom AtomTable::atomizeString(const char* s)
         if (p && p[-1] < 0) {
             // The next char either needs to be negative (meaning the start of the next word) or the end of the string
             if (p[len] <= 0) {
-                return Atom(RawAtom::make(p - start - 1));
+                return Atom(p - start - 1);
             }
         }
     }
     
-    Atom a(RawAtom::make(_table.length()));
+    Atom a(_table.length());
     _table += -static_cast<int8_t>(len);
     _table += s;
     return a;

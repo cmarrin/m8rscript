@@ -43,38 +43,53 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class RawStringLiteral
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: Id/RawId template
+//
+//  Generic Id class
+//
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename RawType>
+class Id
 {
-    friend class StringLiteral;
-    
 public:
-    uint32_t raw() const { return _index; }
-    static RawStringLiteral make(uint32_t raw) { RawStringLiteral r; r._index = raw; return r; }
+    class Raw
+    {
+        friend class Id;
+
+    public:
+        RawType raw() const { return _index; }
+
+    private:
+        RawType _index;
+    };
     
+    Id() { _raw._index = NoId; }
+    Id(Raw raw) { _raw._index = raw._index; }
+    Id(RawType raw) { _raw._index = raw; }
+    Id(const Id& other) { _raw._index = other._raw._index; }
+    Id(Id& other) { _raw._index = other._raw._index; }
+
+    RawType raw() const { return _raw._index; }
+
+    const Id& operator=(const Id& other) { _raw._index = other._raw._index; return *this; }
+    Id& operator=(Id& other) { _raw._index = other._raw._index; return *this; }
+    operator bool() const { return _raw._index != NoId; }
+    operator Raw() const { return _raw; }
+
+    int operator-(const Id& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
+    bool operator==(const Id& other) const { return _raw._index == other._raw._index; }
+
 private:
-    uint32_t _index;
+    static constexpr uint16_t NoId = std::numeric_limits<RawType>::max();
+
+    Raw _raw;
 };
 
-class StringLiteral {
-    friend class Program;
-    
-public:
-    StringLiteral() { _id._index = NoString; }
-    StringLiteral(RawStringLiteral raw) { _id._index = raw._index; }
-    StringLiteral(const StringLiteral& other) { _id._index = other._id._index; }
-    StringLiteral(StringLiteral& other) { _id._index = other._id._index; }
+typedef Id<uint32_t> StringLiteral;
 
-    const StringLiteral& operator=(const StringLiteral& other) { _id._index = other._id._index; return *this; }
-    StringLiteral& operator=(StringLiteral& other) { _id._index = other._id._index; return *this; }
-    operator RawStringLiteral() const { return _id; }
-    
-    int operator-(const StringLiteral& other) const { return static_cast<int>(_id._index) - static_cast<int>(other._id._index); }
-    
-private:
-    static constexpr uint32_t NoString = std::numeric_limits<uint32_t>::max();
-    RawStringLiteral _id;
-};
-    
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: String

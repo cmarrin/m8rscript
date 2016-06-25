@@ -128,9 +128,9 @@ void Parser::addCodeByte(uint8_t c)
     }
 }
 
-void Parser::emit(RawStringLiteral s)
+void Parser::emit(StringLiteral::Raw s)
 {
-    uint32_t raw = static_cast<RawStringLiteral>(s).raw();
+    uint32_t raw = s.raw();
     uint32_t sizeMask;
     if (raw <= 255) {
         sizeMask = 0;
@@ -196,7 +196,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     }
         
     addCodeByte(Op::PUSHID);
-    addCodeInt(static_cast<RawAtom>(atom).raw(), 2);
+    addCodeInt(atom.raw(), 2);
 }
 
 void Parser::emit(Op value)
@@ -207,7 +207,7 @@ void Parser::emit(Op value)
 void Parser::emit(Object* obj)
 {
     addCodeByte(Op::PUSHO);
-    addCodeInt(static_cast<RawObjectId>(_program->addObject(obj)).raw(), 4);
+    addCodeInt(_program->addObject(obj).raw(), 4);
 }
 
 void Parser::addNamedFunction(Function* function, const Atom& name)

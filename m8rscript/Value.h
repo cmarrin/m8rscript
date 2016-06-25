@@ -51,7 +51,7 @@ typedef union {
     uint32_t u;
     Object* o;
     const char* s;
-    RawAtom a;
+    Atom::Raw a;
     Value* val;
 } U;
 
@@ -69,14 +69,35 @@ public:
     Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
-    Value(const char* value) : _value(valueFromStr(value)) , _type(Type::String), _id(0) { }
-    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(static_cast<RawAtom>(value).raw()) { }
+    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
     Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
+    Value(const char* value) : _value(valueFromStr(strdup(value))) , _type(Type::String), _id(0) { }
     
-    Value& operator=(const Value& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
-    Value& operator=(Value&& other) { _value = other._value; _type = other._type; _id = other._id; return *this; }
+    // Steals the value pointer
+//    Value& operator=(Value&& other)
+//    {
+//        _value = other._value;
+//        _type = other._type;
+//        _id = other._id;
+//        return *this;
+//    }
+    
+    Value& operator=(const Value& other)
+    {
+        if (asStringValue()) {
+            //free(static_cast<void*>(const_cast<char*>(asStringValue())));
+        }
+        if (other.asStringValue()) {
+            _value = valueFromStr(strdup(other.asStringValue()));
+        } else {
+            _value = other._value;
+        }
+        _type = other._type;
+        _id = other._id;
+        return *this;
+    }
 
-    ~Value() { }
+    ~Value() { /*if (asStringValue()) free(static_cast<void*>(const_cast<char*>(asStringValue())));*/ }
     
     Type type() const { return _type; }
     
@@ -88,8 +109,9 @@ public:
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
     uint32_t asUIntValue() const { return (_type == Type::Integer) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
+    Atom asIdValue() const { return (_type == Type::Id) ? Atom(_id) : Atom(); }
+
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
-    Atom asIdValue() const { return (_type == Type::Id) ? Atom(RawAtom::make(_id)) : Atom(); }
     
     m8r::String toStringValue() const;
     bool toBoolValue() const;

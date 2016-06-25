@@ -44,39 +44,8 @@ namespace m8r {
 class Object;
 class Function;
 
-class RawObjectId
-{
-    friend class ObjectId;
-    
-public:
-    uint32_t raw() const { return _index; }
-    static RawObjectId make(uint32_t raw) { RawObjectId r; r._index = raw; return r; }
-    
-private:
-    uint32_t _index;
-};
+typedef Id<uint32_t> ObjectId;
 
-class ObjectId {
-public:
-    ObjectId() { _raw._index = NoObjectId; }
-    ObjectId(RawObjectId raw) { _raw._index = raw._index; }
-    ObjectId(const ObjectId& other) { _raw._index = other._raw._index; }
-    ObjectId(ObjectId& other) { _raw._index = other._raw._index; }
-
-    const ObjectId& operator=(const ObjectId& other) { _raw._index = other._raw._index; return *this; }
-    ObjectId& operator=(ObjectId& other) { _raw._index = other._raw._index; return *this; }
-    operator bool() const { return _raw._index != NoObjectId; }
-    operator RawObjectId() const { return _raw; }
-
-    int operator-(const ObjectId& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
-    bool operator==(const ObjectId& other) const { return _raw._index == other._raw._index; }
-
-private:
-    static constexpr uint32_t NoObjectId = std::numeric_limits<uint32_t>::max();
-
-    RawObjectId _raw;
-};
-    
 class Program {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
@@ -92,7 +61,7 @@ public:
     static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
     static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     
-    StringLiteral startString() { return StringLiteral(RawStringLiteral::make(static_cast<uint32_t>(_stringTable.size()))); }
+    StringLiteral startString() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringTable.size()))); }
     void addToString(char c) { _stringTable.push_back(c); }
     void endString() { _stringTable.push_back('\0'); }
     
@@ -102,13 +71,13 @@ public:
         size_t index = _stringTable.size();
         _stringTable.resize(index + length + 1);
         memcpy(&(_stringTable[index]), s, length + 1);
-        return StringLiteral(RawStringLiteral::make(static_cast<uint32_t>(index)));
+        return StringLiteral(StringLiteral(static_cast<uint32_t>(index)));
     }
-    const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringTable[static_cast<RawStringLiteral>(id).raw()]); }
+    const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringTable[id.raw()]); }
     
     ObjectId addObject(Object* obj)
     {
-        ObjectId id(RawObjectId::make(_nextId++));
+        ObjectId id(_nextId++);
         _objects.emplace(id, obj);
         return id;
     }
