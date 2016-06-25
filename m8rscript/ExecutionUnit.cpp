@@ -295,7 +295,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHO:
         uintValue = uintFromCode(code, i, 4);
         i += 4;
-        _stack.push(program->objectFromObjectId(ObjectId::objectIdFromRawObjectId(uintValue)));
+        _stack.push(program->objectFromObjectId(ObjectId(RawObjectId::make(uintValue))));
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
@@ -584,7 +584,8 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program) const
     
 	for (const auto& object : program->objects()) {
         if (object.value->code()) {
-            outputString += generateCodeString(program, object.value, Value::toString(object.key.rawObjectId()).c_str(), _nestingLevel);
+            uint32_t rawId = static_cast<RawObjectId>(object.key).raw();
+            outputString += generateCodeString(program, object.value, Value::toString(rawId).c_str(), _nestingLevel);
             outputString += "\n";
         }
 	}

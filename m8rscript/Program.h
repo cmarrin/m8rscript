@@ -44,17 +44,37 @@ namespace m8r {
 class Object;
 class Function;
 
-class ObjectId {
-    friend class Program;
+class RawObjectId
+{
+    friend class ObjectId;
     
 public:
-    uint32_t rawObjectId() const { return _id; }
-    int operator-(const ObjectId& other) const { return static_cast<int>(_id) - static_cast<int>(other._id); }
-    
-    static ObjectId objectIdFromRawObjectId(uint32_t rawObjectId) { ObjectId id; id._id = rawObjectId; return id; }
+    uint32_t raw() const { return _index; }
+    static RawObjectId make(uint32_t raw) { RawObjectId r; r._index = raw; return r; }
     
 private:
-    uint32_t _id;
+    uint32_t _index;
+};
+
+class ObjectId {
+public:
+    ObjectId() { _raw._index = NoObjectId; }
+    ObjectId(RawObjectId raw) { _raw._index = raw._index; }
+    ObjectId(const ObjectId& other) { _raw._index = other._raw._index; }
+    ObjectId(ObjectId& other) { _raw._index = other._raw._index; }
+
+    const ObjectId& operator=(const ObjectId& other) { _raw._index = other._raw._index; return *this; }
+    ObjectId& operator=(ObjectId& other) { _raw._index = other._raw._index; return *this; }
+    operator bool() const { return _raw._index != NoObjectId; }
+    operator RawObjectId() const { return _raw; }
+
+    int operator-(const ObjectId& other) const { return static_cast<int>(_raw._index) - static_cast<int>(other._raw._index); }
+    bool operator==(const ObjectId& other) const { return _raw._index == other._raw._index; }
+
+private:
+    static constexpr uint32_t NoObjectId = std::numeric_limits<uint32_t>::max();
+
+    RawObjectId _raw;
 };
     
 class Program {
@@ -88,8 +108,7 @@ public:
     
     ObjectId addObject(Object* obj)
     {
-        ObjectId id;
-        id._id = _nextId++;
+        ObjectId id(RawObjectId::make(_nextId++));
         _objects.emplace(id, obj);
         return id;
     }

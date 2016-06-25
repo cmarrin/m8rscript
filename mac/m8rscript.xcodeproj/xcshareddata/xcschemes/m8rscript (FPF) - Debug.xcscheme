@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "$(SRCROOT)/../basic.m8r"
+            argument = "$(SRCROOT)/../blink.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -41,7 +41,7 @@ using namespace m8r;
 Atom AtomTable::atomizeString(const char* s)
 {
     size_t len = strlen(s);
-    if (len > Atom::MaxAtomSize) {
+    if (len > MaxAtomSize) {
         return Atom();
     }
     

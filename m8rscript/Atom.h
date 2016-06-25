@@ -60,8 +60,6 @@ private:
 };
 
 class Atom {
-    friend class AtomTable;
-        
 public:
     Atom() { _raw._index = NoAtom; }
     Atom(RawAtom raw) { _raw._index = raw._index; }
@@ -78,7 +76,6 @@ public:
 
 private:
     static constexpr uint16_t NoAtom = std::numeric_limits<uint16_t>::max();
-    static constexpr uint8_t MaxAtomSize = 127;
 
     RawAtom _raw;
 };
@@ -103,6 +100,8 @@ public:
     }
 
 private:
+    static constexpr uint8_t MaxAtomSize = 127;
+
     m8r::String _table;
 };
 

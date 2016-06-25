@@ -207,7 +207,7 @@ void Parser::emit(Op value)
 void Parser::emit(Object* obj)
 {
     addCodeByte(Op::PUSHO);
-    addCodeInt(_program->addObject(obj).rawObjectId(), 4);
+    addCodeInt(static_cast<RawObjectId>(_program->addObject(obj)).raw(), 4);
 }
 
 void Parser::addNamedFunction(Function* function, const Atom& name)
