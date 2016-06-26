@@ -144,7 +144,6 @@ public:
         return r;
     }
     _Float floor() const { _Float r; r._value._raw = _value._raw >> BinaryExponent << BinaryExponent; return r; }
-    operator uint32_t() { return _value._raw; }
 
     void decompose(int32_t& mantissa, int32_t& exponent) const
     {

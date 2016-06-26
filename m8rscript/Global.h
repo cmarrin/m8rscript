@@ -57,7 +57,7 @@ public:
     virtual int32_t callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams) override;
 
 private:
-    uint32_t currentTime() const;
+    uint64_t currentTime() const;
 
     enum class Property : uint8_t { Date, Date_now, print };
     static Map<Atom, Property> _properties;

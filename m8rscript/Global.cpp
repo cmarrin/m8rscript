@@ -123,9 +123,11 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Date_now:
-            stack.push(currentTime());
+        case Property::Date_now: {
+            uint64_t t = currentTime();
+            stack.push(Float(static_cast<int32_t>(t), -6));
             return 1;
+        }
         case Property::print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 _printer(stack.top(i).toStringValue().c_str());
@@ -134,10 +136,10 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
     }
 }
 
-uint32_t Global::currentTime() const
+uint64_t Global::currentTime() const
 {
 #ifdef __APPLE__
-    return static_cast<uint32_t>(static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime);
+    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime;
 #else
     return system_get_time() - _startTime;
 #endif

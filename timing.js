@@ -3,7 +3,7 @@
 //
 
 var a = [ ];
-var n = 1000;
+var n = 2000;
 a.length = n;
 
 var startTime = Date.now();

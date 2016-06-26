@@ -34,5 +34,5 @@ for (var i = 0; i < 10; i++) {
 
 {
     var t = Date.now() - startTime;
-    print("Run time: " + ((t + 0.0) / 1000) + "ms\n");
+    print("Run time: " + (t * 1000) + "ms\n");
 }
