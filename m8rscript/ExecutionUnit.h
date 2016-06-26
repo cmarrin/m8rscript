@@ -84,8 +84,8 @@ private:
 
     m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
-    Op maskOp(Op op, uint8_t mask) const { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
-    int8_t intFromOp(Op op, uint8_t mask) const
+    static Op maskOp(Op op, uint8_t mask) { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
+    static int8_t intFromOp(Op op, uint8_t mask)
     {
         uint8_t num = static_cast<uint8_t>(op) & mask;
         if (num & 0x8) {
@@ -93,9 +93,9 @@ private:
         }
         return static_cast<int8_t>(num);
     }
-    uint8_t uintFromOp(Op op, uint8_t mask) const { return static_cast<uint8_t>(op) & mask; }
+    static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
 
-    int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size) const
+    static int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size)
     {
         uint32_t num = uintFromCode(code, index, size);
         uint32_t mask = 0x80 << (8 * (size - 1));
@@ -105,7 +105,7 @@ private:
         return static_cast<int32_t>(num);
     }
     
-    uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size) const
+    static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
     {
         uint32_t value = 0;
         for (int i = 0; i < size; ++i) {
@@ -115,11 +115,18 @@ private:
         return value;
     }
     
-    Float floatFromCode(const uint8_t* code, uint32_t index) const
+    static uint32_t sizeFromOp(Op op)
     {
-        uint32_t i = uintFromCode(code, index, 4);
-        return Float(Float::Raw::make(i));
+        uint32_t size = static_cast<uint8_t>(op) & 0x03;
+        if (size < 2) {
+            return size + 1;
+        }
+        if (size == 2) {
+            return 4;
+        }
+        return 8;
     }
+
     
 #if SHOW_CODE
     struct Annotation {

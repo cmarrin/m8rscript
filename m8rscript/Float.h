@@ -54,10 +54,7 @@ public:
     class Raw
     {
         friend class _Float;
-        
-    public:
-        static Raw make(uint32_t v) { Raw r; r._raw = *(reinterpret_cast<RawType*>(&v)); return r; }
-        
+
     private:
         RawType _raw;
     };
@@ -112,10 +109,16 @@ public:
     }
     
     // FIXME: This works fine for floats and 32 bit integers. We need a solution for 64 bit
-    uint32_t raw() const
+    uint64_t raw() const
     {
         RawType r = _value._raw;
-        return *(reinterpret_cast<uint32_t*>(&(r)));
+        return (sizeof(RawType) > 32) ? *(reinterpret_cast<uint64_t*>(&(r))) : *(reinterpret_cast<uint32_t*>(&(r)));
+    }
+    static _Float make(uint64_t v)
+    {
+        Raw r;
+        r._raw = *(reinterpret_cast<RawType*>(&v));
+        return r;
     }
     operator Raw() const { return _value; }
 

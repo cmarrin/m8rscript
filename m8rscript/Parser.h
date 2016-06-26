@@ -111,7 +111,7 @@ public:
     void programEnd();
         
     void emit(StringLiteral::Raw value);
-    void emit(uint32_t value);
+    void emit(uint64_t value);
     void emit(Float value);
     void emit(Op value);
     
@@ -127,14 +127,15 @@ public:
     void emitObjectLiteral() { emit(new MaterObject()); }
 
 private:
-    static uint8_t byteFromInt(uint32_t value, uint32_t index)
+    static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
-        assert(index < 4);
+        assert(index < 8);
         return static_cast<uint8_t>(value >> (8 * index));
     }
     
-    void addCodeInt(uint32_t value, uint32_t size)
+    void addCodeInt(uint64_t value, uint32_t size)
     {
+        assert(size <= 8);
         for (int i = size - 1; i >= 0; --i) {
             addCodeByte(byteFromInt(value, i));
         }

@@ -135,31 +135,34 @@ void Parser::emit(StringLiteral::Raw s)
     if (raw <= 255) {
         sizeMask = 0;
     } else if (raw <= 65535) {
-        sizeMask = 1;
+        sizeMask = 0x01;
     } else {
-        sizeMask = 3;
+        sizeMask = 0x02;
     }
-    addCodeByte(static_cast<uint8_t>(Op::PUSHSX) | sizeMask);
+    addCodeByte(Op::PUSHSX, sizeMask);
     addCodeInt(raw, sizeMask + 1);
 }
 
-void Parser::emit(uint32_t value)
+void Parser::emit(uint64_t value)
 {
     uint32_t size;
     uint32_t mask;
     
     if (value <= 15) {
-        addCodeByte(Op::PUSHI, value);
+        addCodeByte(Op::PUSHI, static_cast<uint8_t>(value));
         return;
     }
-    if (value <= 255) {
+    if (value < std::numeric_limits<uint8_t>::max()) {
         size = 1;
         mask = 0;
-    } else if (value <= 65535) {
+    } else if (value < std::numeric_limits<uint16_t>::max()) {
         size = 2;
         mask = 0x01;
-    } else {
+    } else if (value < std::numeric_limits<uint32_t>::max()) {
         size = 4;
+        mask = 0x02;
+    } else {
+        size = 8;
         mask = 0x03;
     }
     addCodeByte(Op::PUSHIX, mask);
@@ -168,8 +171,10 @@ void Parser::emit(uint32_t value)
 
 void Parser::emit(Float value)
 {
-    addCodeByte(Op::PUSHF);
-    addCodeInt(value.raw(), 4);
+    uint64_t v = value.raw();
+    uint32_t size = (v <= std::numeric_limits<uint32_t>::max()) ? 4 : 8;
+    addCodeByte(Op::PUSHF, (size == 4) ? 0x02 : 0x03);
+    addCodeInt(v, size);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
@@ -195,7 +200,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
         
-    addCodeByte(Op::PUSHID);
+    addCodeByte(Op::PUSHID, 0x01);
     addCodeInt(atom.raw(), 2);
 }
 
@@ -206,7 +211,7 @@ void Parser::emit(Op value)
 
 void Parser::emit(Object* obj)
 {
-    addCodeByte(Op::PUSHO);
+    addCodeByte(Op::PUSHO, 0x02);
     addCodeInt(_program->addObject(obj).raw(), 4);
 }
 

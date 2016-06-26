@@ -51,7 +51,7 @@ public:
 
     virtual int32_t addLocal(const Atom& name) override;
     virtual int32_t localIndex(const Atom& name) const override;
-    virtual Atom localName(int32_t index) const override { return _locals[index]; }
+    virtual Atom localName(int32_t index) const override { return (index < _locals.size()) ? _locals[index] : Atom(); }
     virtual size_t localSize() const override { return _locals.size(); }
 
     void addCode(uint8_t c) { _code.push_back(c); }

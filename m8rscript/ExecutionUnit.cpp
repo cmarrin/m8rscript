@@ -175,18 +175,18 @@ void ExecutionUnit::run(Program* program)
     #define OP(op) &&L_ ## op,
     
     static const void* dispatchTable[] {
-        /* 0x00 */    OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x05 */ OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x0B */ OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN) OP(PUSHIX)
-        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
+        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(PUSHIX)
+        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
         /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO)
+        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -271,23 +271,24 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         i += 2;
         DISPATCH;
     L_PUSHF:
-        floatValue = floatFromCode(code, i);
+        size = sizeFromOp(op);
+        floatValue = Float::make(uintFromCode(code, i, sizeFromOp(op)));
         _stack.push(Value(floatValue));
-        i += 4;
+        i += size;
         DISPATCH;
     L_PUSHI:
     L_PUSHIX:
         if (maskOp(op, 0x0f) == Op::PUSHI) {
             uintValue = uintFromOp(op, 0x0f);
         } else {
-            size = (static_cast<uint8_t>(op) & 0x03) + 1;
+            size = sizeFromOp(op);
             uintValue = uintFromCode(code, i, size);
             i += size;
         }
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
-        size = (static_cast<uint8_t>(op) & 0x03) + 1;
+        size = sizeFromOp(op);
         uintValue = uintFromCode(code, i, size);
         i += size;
         _stack.push(Value(program->stringFromStringLiteral(StringLiteral(uintValue))));
@@ -603,18 +604,18 @@ m8r::String ExecutionUnit::generateCodeString(const Program* program, const Obje
     #undef OP
     #define OP(op) &&L_ ## op,
     static const void* dispatchTable[] {
-        /* 0x00 */    OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x05 */ OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x0B */ OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN) OP(PUSHIX)
-        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
+        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(PUSHIX)
+        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
         /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO)
+        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -707,12 +708,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             break;
         }
         uint8_t c = obj->code()->at(i++);
-        if (c < static_cast<uint8_t>(Op::PUSHI)) {
-            int count = (c & 0x03) + 1;
+        Op op = maskOp(static_cast<Op>(c), 0x03);
+        
+        if (op < Op::PUSHI) {
+            int count = sizeFromOp(op);
             int nexti = i + count;
             
             c &= 0xfc;
-            Op op = static_cast<Op>(c);
             if (op == Op::JMP || op == Op::JT || op == Op::JF) {
                 int32_t addr = intFromCode(code, i, count);
                 Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
@@ -727,6 +729,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     uint32_t uintValue;
     int32_t intValue;
     uint32_t size;
+    Atom localName;
     
     Op op;
     
@@ -745,10 +748,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHF:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(code, i, 4);
-        i += 4;
+        size = sizeFromOp(op);
+        uintValue = uintFromCode(code, i, size);
+        i += size;
         outputString += "FLT(";
-        outputString += Value::toString(Float(Float::Raw::make(uintValue)));
+        outputString += Value::toString(Float::make(uintValue));
         outputString += ")\n";
         DISPATCH;
     L_PUSHI:
@@ -757,7 +761,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (maskOp(op, 0x0f) == Op::PUSHI) {
             uintValue = uintFromOp(op, 0x0f);
         } else {
-            size = (static_cast<uint8_t>(op) & 0x03) + 1;
+            size = sizeFromOp(op);
             uintValue = uintFromCode(code, i, size);
             i += size;
         }
@@ -767,7 +771,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHSX:
         preamble(outputString, i - 1);
-        size = (static_cast<uint8_t>(op) & 0x03) + 1;
+        size = sizeFromOp(op);
         uintValue = uintFromCode(code, i, size);
         i += size;
         outputString += "STR(\"";
@@ -788,12 +792,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (maskOp(op, 0x0f) == Op::PUSHL) {
             uintValue = uintFromOp(op, 0x0f);
         } else {
-            size = (static_cast<uint8_t>(op) & 0x03) + 1;
+            size = sizeFromOp(op);
             uintValue = uintFromCode(code, i, size);
             i += size;
         }
         outputString += "LOCAL(";
-        outputString += program->stringFromAtom(obj->localName(uintValue));
+        localName = obj->localName(uintValue);
+        outputString += localName ? program->stringFromAtom(localName) : "<UNKNOWN>";
         outputString += ")\n";
         DISPATCH;
     L_JMP:

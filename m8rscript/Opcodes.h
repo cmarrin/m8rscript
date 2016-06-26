@@ -48,28 +48,28 @@ struct Label {
 //  The lower 2 bits indicate the number of additional bytes:
 //      00 - 1
 //      01 - 2
-//      10 - unused
-//      11 - 4
+//      10 - 4
+//      11 - 8
 //
 //  The next 4 bits is the opcode class:
 //      0000 - unused
-//      0001 - PUSHID
-//      0010 - PUSHF
-//      0011 - PUSHI
-//      0100 - PUSHS
-//      0101 - JMP
-//      0110 - JT
-//      0111 - JF
-//      1000 - CALL
-//      1001 - NEW
-//      1010 - PUSHO
-//      1011 - RET
-//      1100 - PUSHL - Push local variable. Param is index in _locals
+//      0001 - PUSHID   2 byte form used
+//      0010 - PUSHF    4 or 8 byte form used
+//      0011 - PUSHI    1, 2, 4, 8 byte forms used
+//      0100 - PUSHS    1, 2 and 4 byte forms used
+//      0101 - JMP      1 and 2 byte forms used
+//      0110 - JT       1 and 2 byte forms used
+//      0111 - JF       1 and 2 byte forms used
+//      1000 - CALL     1 byte form used
+//      1001 - NEW      1 byte form used
+//      1010 - PUSHO    4 byte form used
+//      1011 - RET      1 byte form used
+//      1100 - PUSHL    1 and 2 byte forms used - Push local variable. Param is index in _locals
 //
 enum class Op : uint8_t {
     UNKNOWN = 0x00,
-    PUSHID = 0x05,   // 0000 0101 - Next 2 bytes are atom
-    PUSHF  = 0x0B,   // 0000 1011 - Next 4 bytes are number
+    PUSHID = 0x04,   // 0000 0100 - Next 2 bytes are atom
+    PUSHF  = 0x08,   // 0000 1011 - Next 4 or 8 bytes are number
     PUSHIX = 0x0C,   // 0000 1100 - Next bytes are number
     PUSHSX = 0x10,   // 0001 0000
     
@@ -80,7 +80,7 @@ enum class Op : uint8_t {
     
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
-    PUSHO = 0x2B,   // 0010 1011
+    PUSHO = 0x28,   // 0010 1010
     RETX = 0x2C,    // 0010 1100
     PUSHLX = 0x30,  // 0011 0000
     
