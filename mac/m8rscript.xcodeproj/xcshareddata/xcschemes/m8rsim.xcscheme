@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0800"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "49E647E71D00B68F005F5059"
-               BuildableName = "m8rscript"
-               BlueprintName = "m8rscript"
+               BlueprintIdentifier = "49D9B8171D1C854700724911"
+               BuildableName = "m8rsim.app"
+               BlueprintName = "m8rsim"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49889FD11D1B277C000B267F"
-            BuildableName = "m8rscript (FPF)"
-            BlueprintName = "m8rscript (FPF)"
+            BlueprintIdentifier = "49D9B8171D1C854700724911"
+            BuildableName = "m8rsim.app"
+            BlueprintName = "m8rsim"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -49,25 +49,18 @@
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
-      enableAddressSanitizer = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49889FD11D1B277C000B267F"
-            BuildableName = "m8rscript (FPF)"
-            BlueprintName = "m8rscript (FPF)"
+            BlueprintIdentifier = "49D9B8171D1C854700724911"
+            BuildableName = "m8rsim.app"
+            BlueprintName = "m8rsim"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "$(SRCROOT)/../blink.m8r"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -81,9 +74,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49E647E71D00B68F005F5059"
-            BuildableName = "m8rscript"
-            BlueprintName = "m8rscript"
+            BlueprintIdentifier = "49D9B8171D1C854700724911"
+            BuildableName = "m8rsim.app"
+            BlueprintName = "m8rsim"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

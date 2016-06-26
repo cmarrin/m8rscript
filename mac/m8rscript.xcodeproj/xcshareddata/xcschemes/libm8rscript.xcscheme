@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "49E647E71D00B68F005F5059"
-               BuildableName = "m8rscript"
-               BlueprintName = "m8rscript"
+               BlueprintIdentifier = "494BA16C1D2043B200E72725"
+               BuildableName = "liblibm8rscript.dylib"
+               BlueprintName = "libm8rscript"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,20 +29,11 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49889FD11D1B277C000B267F"
-            BuildableName = "m8rscript (FPF)"
-            BlueprintName = "m8rscript (FPF)"
-            ReferencedContainer = "container:m8rscript.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -51,22 +42,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49889FD11D1B277C000B267F"
-            BuildableName = "m8rscript (FPF)"
-            BlueprintName = "m8rscript (FPF)"
+            BlueprintIdentifier = "494BA16C1D2043B200E72725"
+            BuildableName = "liblibm8rscript.dylib"
+            BlueprintName = "libm8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "$(SRCROOT)/../timing.m8r"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -76,16 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49E647E71D00B68F005F5059"
-            BuildableName = "m8rscript"
-            BlueprintName = "m8rscript"
+            BlueprintIdentifier = "494BA16C1D2043B200E72725"
+            BuildableName = "liblibm8rscript.dylib"
+            BlueprintName = "libm8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

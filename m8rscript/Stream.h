@@ -39,6 +39,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdio>
 #endif
 
+#include "Containers.h"
+
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -132,6 +134,41 @@ public:
 private:
 
 #endif
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: StringStream
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class StringStream : public m8r::Stream {
+public:
+	StringStream(const String& s) : _string(s), _index(0) { }
+	StringStream(const char* s) : _string(s), _index(0) { }
+    
+    virtual ~StringStream() { }
+	
+    bool loaded() { return true; }
+	virtual int available() override
+    {
+        return static_cast<int>(_string.length() - _index);
+    }
+    virtual int read() override
+    {
+        return (_index < _string.length()) ? _string[_index++] : -1;
+    }
+    virtual int peek() override
+    {
+        return (_index < _string.length()) ? _string[_index] : -1;
+    }
+	virtual void flush() override { }
+	
+private:
+    String _string;
+    uint32_t _index;
 };
 
 }

@@ -70,7 +70,7 @@ public:
     Id(Raw raw) { _value._raw = raw._raw; }
     Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
-    Id(Id& other) { _value._raw = other._value._raw; }
+    Id(Id&& other) { _value._raw = other._value._raw; }
 
     RawType raw() const { return _value._raw; }
 

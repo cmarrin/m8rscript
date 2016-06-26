@@ -10,11 +10,17 @@
 
 #import "Parser.h"
 
+#include <iostream>
+#import <sstream>
+
 @interface Document ()
 {
     IBOutlet NSTextView* sourceEditor;
+    __unsafe_unretained IBOutlet NSTextView *consoleOutput;
+    __unsafe_unretained IBOutlet NSTextView *buildOutput;
     
     NSString* _source;
+    NSFont* _font;
     
     m8r::Program* _program;
 }
@@ -43,15 +49,16 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        // Add your subclass-specific initialization here.
+        _font = [NSFont fontWithName:@"Menlo Regular" size:12];
     }
     return self;
 }
 
 - (void)awakeFromNib
 {
-    NSFont* font = [NSFont fontWithName:@"Menlo Regular" size:12];
-    [sourceEditor setFont:font];
+    [sourceEditor setFont:_font];
+    [consoleOutput setFont:_font];
+    [buildOutput setFont:_font];
     [[sourceEditor textStorage] setDelegate:(id) self];
     if (_source) {
         [sourceEditor setString:_source];
@@ -90,10 +97,40 @@
     }];
 }
 
+static void addTextToOutput(NSTextView* view, NSString* text)
+{
+    NSString* string = [NSString stringWithFormat: @"%@%@", view.string, text];
+    [view setString:string];
+    [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
+}
+
+void print(const char* s) { std::cout << s; }
+
 - (IBAction)build:(id)sender {
+    _program = nullptr;
+    
+    m8r::StringStream stream([sourceEditor.string UTF8String]);
+    m8r::Parser parser(&stream, print);
+    addTextToOutput(buildOutput, @"Parsing finished...\n");
+
+    if (parser.nerrors()) {
+        addTextToOutput(buildOutput, [NSString stringWithFormat:@"***** %d errors\n", parser.nerrors()]);
+    } else {
+        addTextToOutput(buildOutput, @"0 errors. Ready to run\n");
+        _program = parser.program();
+    }
+    
+    m8r::ExecutionUnit eu(print);
+    m8r::String codeString = eu.generateCodeString(_program);
+    
+    addTextToOutput(buildOutput, @"\n*** Start Generated Code ***\n\n");
+    addTextToOutput(buildOutput, [NSString stringWithUTF8String:codeString.c_str()]);
+    addTextToOutput(buildOutput, @"\n*** End of Generated Code ***\n\n");
 }
 
 - (IBAction)run:(id)sender {
+    m8r::ExecutionUnit eu(print);
+    eu.run(_program);
 }
 
 @end

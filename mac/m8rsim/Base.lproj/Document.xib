@@ -8,13 +8,15 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="m8rsim" customModuleProvider="target">
             <connections>
+                <outlet property="buildOutput" destination="SlE-A2-biS" id="Trc-jL-umk"/>
+                <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
                 <outlet property="sourceEditor" destination="T2A-LY-iQw" id="7o2-4Q-tqO"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="xOd-HO-29H" userLabel="Window">
+        <window identifier="m8rscript Document Window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="m8rscript Document Window" animationBehavior="default" id="xOd-HO-29H" userLabel="m8rscript Document Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="133" y="235" width="611" height="606"/>
@@ -24,7 +26,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="611" height="606"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <splitView arrangesAllSubviews="NO" dividerStyle="paneSplitter" translatesAutoresizingMaskIntoConstraints="NO" id="ol7-JB-cDN">
+                    <splitView arrangesAllSubviews="NO" autosaveName="m8rscript SplitView" dividerStyle="paneSplitter" translatesAutoresizingMaskIntoConstraints="NO" id="ol7-JB-cDN">
                         <rect key="frame" x="0.0" y="0.0" width="611" height="606"/>
                         <subviews>
                             <customView fixedFrame="YES" id="yH8-L1-Khg" userLabel="Upper View">
@@ -136,10 +138,10 @@
                                                                         <rect key="frame" x="-1" y="1" width="115" height="148"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                        <size key="minSize" width="114" height="148"/>
+                                                                        <size key="minSize" width="594" height="148"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <size key="minSize" width="114" height="148"/>
+                                                                        <size key="minSize" width="594" height="148"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
@@ -159,11 +161,11 @@
                                             </tabViewItem>
                                             <tabViewItem label="Build" identifier="2" id="SYb-76-c8f">
                                                 <view key="view" id="KgF-2F-jSj">
-                                                    <rect key="frame" x="10" y="25" width="605" height="149"/>
+                                                    <rect key="frame" x="10" y="25" width="605" height="148"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
-                                                        <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ner-7k-AiC">
-                                                            <rect key="frame" x="-3" y="13" width="613" height="130"/>
+                                                        <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ner-7k-AiC">
+                                                            <rect key="frame" x="-3" y="12" width="613" height="130"/>
                                                             <clipView key="contentView" id="TAp-vq-abN">
                                                                 <rect key="frame" x="1" y="1" width="596" height="128"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
