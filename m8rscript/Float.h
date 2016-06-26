@@ -56,8 +56,7 @@ public:
         friend class _Float;
         
     public:
-        RawType raw() const { return _raw; }
-        static Raw make(RawType v) { Raw r; r._raw = v; return r; }
+        static Raw make(uint32_t v) { Raw r; r._raw = *(reinterpret_cast<RawType*>(&v)); return r; }
         
     private:
         RawType _raw;
@@ -112,7 +111,12 @@ public:
         _value._raw = sign * static_cast<int32_t>(num);
     }
     
-    RawType raw() const { return _value._raw; }
+    // FIXME: This works fine for floats and 32 bit integers. We need a solution for 64 bit
+    uint32_t raw() const
+    {
+        RawType r = _value._raw;
+        return *(reinterpret_cast<uint32_t*>(&(r)));
+    }
     operator Raw() const { return _value; }
 
     const _Float& operator=(const _Float& other) { _value._raw = other._value._raw; return *this; }
