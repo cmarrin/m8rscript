@@ -35,10 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#if !FIXED_POINT_FLOAT
 #include <cmath>
-#endif
-
 #include <cstdint>
 #include <limits>
 
@@ -307,10 +304,9 @@ typedef _Float<int64_t, 20, 5> Float64;
 typedef _Float<float> FloatFloat;
 typedef _Float<double> FloatDouble;
 
-#if FIXED_POINT_FLOAT
 typedef Float32 Float;
-#else
-typedef FloatFloat Float;
-#endif
+//typedef Float64 Float;
+//typedef FloatFloat Float;
+//typedef FloatDouble Float;
 
 }
