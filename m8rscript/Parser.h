@@ -59,10 +59,6 @@ public:
     
     ~Parser()
     {
-        delete _currentFunction;
-        for (uint32_t i = 0; i < _functions.size(); ++i) {
-            delete _functions[i];
-        }
     }
 
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }

@@ -46,5 +46,4 @@ Program::Program(void (*printer)(const char*)) : _global(printer)
 
 Program::~Program()
 {
-    delete _main;
 }

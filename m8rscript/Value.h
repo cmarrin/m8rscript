@@ -74,13 +74,13 @@ public:
     Value(const char* value) : _value(valueFromStr(strdup(value))) , _type(Type::String), _id(0) { }
     
     // Steals the value pointer
-//    Value& operator=(Value&& other)
-//    {
-//        _value = other._value;
-//        _type = other._type;
-//        _id = other._id;
-//        return *this;
-//    }
+    Value& operator=(Value&& other)
+    {
+        _value = other._value;
+        _type = other._type;
+        _id = other._id;
+        return *this;
+    }
     
     Value& operator=(const Value& other)
     {
