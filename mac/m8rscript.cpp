@@ -61,13 +61,13 @@ std::cout << "FPF: " << man << ":" << exp << "\n";
         m8r::ExecutionUnit eu(print);
         
         startTime = std::clock();
-        m8r::String s = eu.generateCodeString(parser.program().get());
+        m8r::String s = eu.generateCodeString(parser.program());
         printTime = std::clock() - startTime;
         std::cout << "\n***** Start of Generated Code *****\n" << s.c_str() << "\n***** End of Generated Code *****\n";
         
         std::cout << "\n***** Start of Program Output *****\n\n";
         startTime = std::clock();
-        eu.run(parser.program().get());
+        eu.run(parser.program());
         runTime = std::clock() - startTime;
         std::cout << "\n***** End of Program Output *****\n";
     }
