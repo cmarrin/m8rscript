@@ -8,10 +8,15 @@
 
 #import "Document.h"
 
+#import "NSTextView+JSDExtensions.h"
+
 #import "Parser.h"
+#import "Printer.h"
 
 #include <iostream>
 #import <sstream>
+
+class MyPrinter;
 
 @interface Document ()
 {
@@ -21,10 +26,28 @@
     
     NSString* _source;
     NSFont* _font;
+    MyPrinter* _printer;
     
     m8r::Program* _program;
 }
+
+- (void)outputBuildMessage:(const char*) message;
+
 @end
+
+class MyPrinter : public m8r::Printer
+{
+public:
+    MyPrinter(Document* document) : _document(document) { }
+    
+    virtual void print(const char* s) const override
+    {
+        [_document outputBuildMessage:s];
+    }
+    
+private:
+    Document* _document;
+};
 
 @implementation Document
 
@@ -49,6 +72,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _printer = new MyPrinter(self);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
     }
     return self;
@@ -59,6 +83,7 @@
     [sourceEditor setFont:_font];
     [consoleOutput setFont:_font];
     [buildOutput setFont:_font];
+    sourceEditor.ShowsLineNumbers = YES;
     [[sourceEditor textStorage] setDelegate:(id) self];
     if (_source) {
         [sourceEditor setString:_source];
@@ -104,32 +129,40 @@ static void addTextToOutput(NSTextView* view, NSString* text)
     [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
 }
 
-void print(const char* s) { std::cout << s; }
+- (void)outputBuildMessage:(const char*) message
+{
+    addTextToOutput(buildOutput, [NSString stringWithUTF8String:message]);
+}
 
 - (IBAction)build:(id)sender {
     _program = nullptr;
     
+    [buildOutput setString: @""];
+    
+    addTextToOutput(buildOutput, [NSString stringWithFormat:@"Building %@\n", [self displayName]]);
+
     m8r::StringStream stream([sourceEditor.string UTF8String]);
-    m8r::Parser parser(&stream, print);
+    m8r::Parser parser(&stream, _printer);
     addTextToOutput(buildOutput, @"Parsing finished...\n");
 
     if (parser.nerrors()) {
-        addTextToOutput(buildOutput, [NSString stringWithFormat:@"***** %d errors\n", parser.nerrors()]);
+        addTextToOutput(buildOutput, [NSString stringWithFormat:@"***** %d error%s\n", 
+                                        parser.nerrors(), (parser.nerrors() == 1) ? "" : "s"]);
     } else {
         addTextToOutput(buildOutput, @"0 errors. Ready to run\n");
         _program = parser.program();
+
+        m8r::ExecutionUnit eu(_printer);
+        m8r::String codeString = eu.generateCodeString(_program);
+        
+        addTextToOutput(buildOutput, @"\n*** Start Generated Code ***\n\n");
+        addTextToOutput(buildOutput, [NSString stringWithUTF8String:codeString.c_str()]);
+        addTextToOutput(buildOutput, @"\n*** End of Generated Code ***\n\n");
     }
-    
-    m8r::ExecutionUnit eu(print);
-    m8r::String codeString = eu.generateCodeString(_program);
-    
-    addTextToOutput(buildOutput, @"\n*** Start Generated Code ***\n\n");
-    addTextToOutput(buildOutput, [NSString stringWithUTF8String:codeString.c_str()]);
-    addTextToOutput(buildOutput, @"\n*** End of Generated Code ***\n\n");
 }
 
 - (IBAction)run:(id)sender {
-    m8r::ExecutionUnit eu(print);
+    m8r::ExecutionUnit eu(_printer);
     eu.run(_program);
 }
 

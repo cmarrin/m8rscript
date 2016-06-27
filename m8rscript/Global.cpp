@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Global.h"
 
 #include "Program.h"
+#include "Printer.h"
 #ifdef __APPLE__
 #include <ctime>
 #else
@@ -48,7 +49,7 @@ using namespace m8r;
 
 Map<Atom, Global::Property> Global::_properties;
 
-Global::Global(void (*printer)(const char*)) : _printer(printer)
+Global::Global(Printer* printer) : _printer(printer)
 {
     _startTime = 0;
     _startTime = currentTime();
@@ -130,7 +131,9 @@ int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t npara
         }
         case Property::print:
             for (int i = 1 - nparams; i <= 0; ++i) {
-                _printer(stack.top(i).toStringValue().c_str());
+                if (_printer) {
+                    _printer->print(stack.top(i).toStringValue().c_str());
+                }
             }
         default: return -1;
     }

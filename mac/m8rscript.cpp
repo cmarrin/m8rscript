@@ -19,7 +19,11 @@
 extern int yydebug;
 #endif
 
-void print(const char* s) { std::cout << s; }
+class MyPrinter : public m8r::Printer
+{
+public:
+    virtual void print(const char*) const override { std::cout << s; }
+};
 
 int main(int argc, const char* argv[])
 {

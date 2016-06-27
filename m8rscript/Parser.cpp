@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 
 #include "ParseEngine.h"
+#include "Printer.h"
 
 #ifndef USE_PARSE_ENGINE
 #define USE_PARSE_ENGINE 1
@@ -49,7 +50,7 @@ extern int yyparse(Parser*);
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(m8r::Stream* istream, void (*printer)(const char*))
+Parser::Parser(m8r::Stream* istream, Printer* printer)
     : _scanner(this, istream)
     , _program(new Program(printer))
     , _printer(printer)
@@ -67,11 +68,13 @@ Parser::Parser(m8r::Stream* istream, void (*printer)(const char*))
 void Parser::printError(const char* s)
 {
     ++_nerrors;
-    _printer("Error: ");
-    _printer(s);
-    _printer(" on line ");
-    _printer(Value::toString(_scanner.lineno()).c_str());
-    _printer("\n");
+    if (_printer) {
+        _printer->print("Error: ");
+        _printer->print(s);
+        _printer->print(" on line ");
+        _printer->print(Value::toString(_scanner.lineno()).c_str());
+        _printer->print("\n");
+    }
 }
 
 Label Parser::label()

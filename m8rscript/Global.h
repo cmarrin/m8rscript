@@ -39,9 +39,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class Printer;
+
 class Global : public Object {
 public:
-    Global(void (*printer)(const char*));
+    Global(Printer*);
     
     virtual const char* typeName() const override { return "Global"; }
 
@@ -64,7 +66,7 @@ private:
     
     uint64_t _startTime;
 
-    void (*_printer)(const char*);
+    Printer* _printer;
 };
     
 }
