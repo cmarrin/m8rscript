@@ -24,8 +24,10 @@ class MyPrinter;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
-    __weak IBOutlet NSButton *runStopButton;
-    __weak IBOutlet NSButton *buildButton;
+    __weak IBOutlet NSToolbarItem *runButton;
+    __weak IBOutlet NSToolbarItem *buildButton;
+    __weak IBOutlet NSToolbarItem *pauseButton;
+    __weak IBOutlet NSToolbarItem *stopButton;
     
     NSString* _source;
     NSFont* _font;
@@ -57,13 +59,6 @@ private:
 };
 
 @implementation Document
-
-- (void)setRunStop:(BOOL)running enabled:(BOOL)isEnabled
-{
-    runStopButton.title = running ? @"Stop" : @"Run";
-    runStopButton.enabled = isEnabled;
-    _running = running;
-}
 
 - (void)textStorageDidProcessEditing:(NSNotification *)notification {
     NSTextStorage *textStorage = notification.object;
@@ -109,7 +104,10 @@ private:
     if (_source) {
         [sourceEditor setString:_source];
     }
-    [self setRunStop:NO enabled:NO];
+
+    runButton.enabled = NO;
+    stopButton.enabled = NO;
+    pauseButton.enabled = NO;
 }
 
 + (BOOL)autosavesInPlace {
@@ -160,7 +158,10 @@ private:
 
 - (IBAction)build:(id)sender {
     _program = nullptr;
-    [self setRunStop:NO enabled: NO];
+    _running = false;
+    runButton.enabled = NO;
+    pauseButton.enabled = NO;
+    stopButton.enabled = NO;
     
     [buildOutput setString: @""];
     
@@ -177,7 +178,7 @@ private:
     } else {
         [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
         _program = parser.program();
-        [self setRunStop:NO enabled: YES];
+        runButton.enabled = YES;
 
         m8r::ExecutionUnit eu(_printer);
         m8r::String codeString = eu.generateCodeString(_program);
@@ -190,14 +191,16 @@ private:
 
 - (IBAction)run:(id)sender {
     if (_running) {
-        _eu->requestTermination();
-        _running = false;
-        [self outputMessage:@"*** Stopped\n" toBuild:NO];
+        assert(0);
         return;
     }
     
     [buildOutput setString: @""];
-    [self setRunStop:YES enabled: YES];
+    runButton.enabled = NO;
+    stopButton.enabled = YES;
+    _running = true;
+    
+    [consoleOutput setString: @""];
     [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
     dispatch_queue_t queue = dispatch_queue_create("Run Queue", NULL);
     dispatch_async(queue, ^() {
@@ -208,9 +211,27 @@ private:
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)\n", timeInSeconds * 1000] toBuild:NO];
-            [self setRunStop:NO enabled: YES];
+            _running = false;
+            runButton.enabled = YES;
+            stopButton.enabled = NO;
         });
     });
+}
+
+- (IBAction)pause:(id)sender {
+}
+
+- (IBAction)stop:(id)sender {
+    if (!_running) {
+        assert(0);
+        return;
+    }
+    _eu->requestTermination();
+    _running = false;
+    runButton.enabled = YES;
+    stopButton.enabled = NO;
+    [self outputMessage:@"*** Stopped\n" toBuild:NO];
+    return;
 }
 
 @end
