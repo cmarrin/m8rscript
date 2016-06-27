@@ -34,7 +34,7 @@ class MyPrinter;
     MyPrinter* _printer;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
-    BOOL _running;
+    bool _running;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -59,6 +59,20 @@ private:
 };
 
 @implementation Document
+
+-(BOOL) validateToolbarItem:(NSToolbarItem*) item
+{
+    if (item == runButton) {
+        return _program && !_running;
+    }
+    if (item == pauseButton) {
+        return NO;
+    }
+    if (item == stopButton) {
+        return _program && _running;
+    }
+    return YES;
+}
 
 - (void)textStorageDidProcessEditing:(NSNotification *)notification {
     NSTextStorage *textStorage = notification.object;
@@ -104,10 +118,6 @@ private:
     if (_source) {
         [sourceEditor setString:_source];
     }
-
-    runButton.enabled = NO;
-    stopButton.enabled = NO;
-    pauseButton.enabled = NO;
 }
 
 + (BOOL)autosavesInPlace {
@@ -159,9 +169,6 @@ private:
 - (IBAction)build:(id)sender {
     _program = nullptr;
     _running = false;
-    runButton.enabled = NO;
-    pauseButton.enabled = NO;
-    stopButton.enabled = NO;
     
     [buildOutput setString: @""];
     
@@ -196,8 +203,6 @@ private:
     }
     
     [buildOutput setString: @""];
-    runButton.enabled = NO;
-    stopButton.enabled = YES;
     _running = true;
     
     [consoleOutput setString: @""];
@@ -228,8 +233,6 @@ private:
     }
     _eu->requestTermination();
     _running = false;
-    runButton.enabled = YES;
-    stopButton.enabled = NO;
     [self outputMessage:@"*** Stopped\n" toBuild:NO];
     return;
 }
