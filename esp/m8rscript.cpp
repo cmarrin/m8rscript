@@ -19,5 +19,5 @@ extern "C" void user_init()
     eu.run(parser.program());
 
     //m8r::Program program;
-    //eu.run(&program, print);    
+    //eu.run(&program);
 }

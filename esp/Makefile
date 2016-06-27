@@ -20,7 +20,7 @@
 #=== Project specific definitions
 SRC_DIR = ../m8rscript
 
-MAIN_SRC ?= m8rscript.ino
+MAIN_SRC ?= m8rscript.cpp
 SRC ?= Array.cpp \
 		Atom.cpp \
 		ExecutionUnit.cpp \

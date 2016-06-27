@@ -51,8 +51,8 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="T2A-LY-iQw">
-                                                    <rect key="frame" x="-1" y="2" width="385" height="421"/>
-                                                    <frame key="frameInset" maxX="-1"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="385" height="421"/>
+                                                    <frame key="frameInset" minX="-1"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <size key="minSize" width="384" height="421"/>
@@ -130,18 +130,18 @@
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <clipView key="contentView" ambiguous="YES" id="MA6-AD-tdC">
                                                                 <rect key="frame" x="1" y="1" width="594" height="148"/>
-                                                                <frame key="frameInset" minX="1" minY="1" maxX="16" maxY="-3"/>
+                                                                <frame key="frameInset" minX="1" minY="1" maxX="16" maxY="1"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
                                                                     <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="kHQ-5K-DHj">
-                                                                        <rect key="frame" x="-1" y="1" width="115" height="148"/>
-                                                                        <frame key="frameInset" maxX="479" maxY="-4"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="115" height="148"/>
+                                                                        <frame key="frameInset" maxX="479"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                        <size key="minSize" width="115" height="144"/>
+                                                                        <size key="minSize" width="115" height="148"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <size key="minSize" width="115" height="144"/>
+                                                                        <size key="minSize" width="115" height="148"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
@@ -152,9 +152,9 @@
                                                                 <frame key="frameInset" minX="-100" minY="-100" width="87" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
-                                                            <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="9ZK-lD-vjz">
-                                                                <rect key="frame" x="595" y="1" width="15" height="144"/>
-                                                                <frame key="frameInset" minX="595" minY="1" width="15" height="144"/>
+                                                            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.25" horizontal="NO" id="9ZK-lD-vjz">
+                                                                <rect key="frame" x="595" y="1" width="15" height="148"/>
+                                                                <frame key="frameInset" minX="595" minY="1" width="15" height="148"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
