@@ -141,10 +141,10 @@
                                                                         <rect key="frame" x="-1" y="1" width="115" height="148"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                        <size key="minSize" width="594" height="148"/>
+                                                                        <size key="minSize" width="115" height="144"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <size key="minSize" width="594" height="148"/>
+                                                                        <size key="minSize" width="115" height="144"/>
                                                                         <size key="maxSize" width="678" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
@@ -155,7 +155,7 @@
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="9ZK-lD-vjz">
-                                                                <rect key="frame" x="595" y="1" width="15" height="148"/>
+                                                                <rect key="frame" x="595" y="1" width="15" height="144"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
@@ -170,17 +170,17 @@
                                                         <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ner-7k-AiC">
                                                             <rect key="frame" x="-3" y="12" width="613" height="130"/>
                                                             <clipView key="contentView" id="TAp-vq-abN">
-                                                                <rect key="frame" x="1" y="1" width="596" height="128"/>
+                                                                <rect key="frame" x="1" y="1" width="596" height="127"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
                                                                     <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="SlE-A2-biS">
-                                                                        <rect key="frame" x="0.0" y="-1" width="596" height="128"/>
+                                                                        <rect key="frame" x="0.0" y="-1" width="596" height="127"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                        <size key="minSize" width="596" height="128"/>
+                                                                        <size key="minSize" width="596" height="127"/>
                                                                         <size key="maxSize" width="618" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <size key="minSize" width="596" height="128"/>
+                                                                        <size key="minSize" width="596" height="127"/>
                                                                         <size key="maxSize" width="618" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
@@ -191,7 +191,7 @@
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="SeG-cK-J9F">
-                                                                <rect key="frame" x="597" y="1" width="15" height="128"/>
+                                                                <rect key="frame" x="597" y="1" width="15" height="127"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
@@ -222,6 +222,21 @@
                     <constraint firstItem="ol7-JB-cDN" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="tSO-IV-F4f"/>
                 </constraints>
             </view>
+            <toolbar key="toolbar" implicitIdentifier="AB86F7E9-C94D-4F7D-8246-740BF31381D5" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="ZXD-R0-hf2">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="6AB63021-EA50-4666-8009-10A3296DCF5B" label="Run" paletteLabel="Run" tag="-1" image="Run" id="PTc-iU-bNL"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="Xp5-KW-3ww"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="0UH-cz-m8w"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="QGa-QJ-f5Z"/>
+                    <toolbarItem implicitItemIdentifier="A71517BF-9955-4EA3-A060-2645350A844B" label="Build" paletteLabel="Build" tag="-1" image="Build" id="fRb-eR-XFZ" userLabel="Build"/>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="fRb-eR-XFZ"/>
+                    <toolbarItem reference="PTc-iU-bNL"/>
+                    <toolbarItem reference="QGa-QJ-f5Z"/>
+                    <toolbarItem reference="Xp5-KW-3ww"/>
+                </defaultToolbarItems>
+            </toolbar>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
@@ -229,6 +244,8 @@
         </window>
     </objects>
     <resources>
+        <image name="Build" width="240" height="240"/>
+        <image name="Run" width="204" height="204"/>
         <image name="green-led-off-md" width="20" height="20"/>
         <image name="green-led-on-md" width="20" height="20"/>
     </resources>
