@@ -23,6 +23,7 @@ class MyPrinter;
     IBOutlet NSTextView* sourceEditor;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
+    __weak IBOutlet NSTabView *outputView;
     
     NSString* _source;
     NSFont* _font;
@@ -31,22 +32,25 @@ class MyPrinter;
     m8r::Program* _program;
 }
 
-- (void)outputBuildMessage:(const char*) message;
+- (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
 
 @end
 
 class MyPrinter : public m8r::Printer
 {
 public:
-    MyPrinter(Document* document) : _document(document) { }
+    MyPrinter(Document* document) : _document(document), _isBuild(true) { }
     
     virtual void print(const char* s) const override
     {
-        [_document outputBuildMessage:s];
+        [_document outputMessage:[NSString stringWithUTF8String:s] toBuild: _isBuild];
     }
+    
+    void setToBuild(bool b) { _isBuild = b; }
     
 private:
     Document* _document;
+    bool _isBuild;
 };
 
 @implementation Document
@@ -122,16 +126,19 @@ private:
     }];
 }
 
-static void addTextToOutput(NSTextView* view, NSString* text)
+- (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild
 {
-    NSString* string = [NSString stringWithFormat: @"%@%@", view.string, text];
-    [view setString:string];
-    [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
-}
-
-- (void)outputBuildMessage:(const char*) message
-{
-    addTextToOutput(buildOutput, [NSString stringWithUTF8String:message]);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (isBuild) {
+            [outputView selectTabViewItemAtIndex:1];
+        } else {
+            [outputView selectTabViewItemAtIndex:0];
+        }
+        NSTextView* view = isBuild ? buildOutput : consoleOutput;
+        NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
+        [view setString:string];
+        [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
+    });
 }
 
 - (IBAction)build:(id)sender {
@@ -139,31 +146,41 @@ static void addTextToOutput(NSTextView* view, NSString* text)
     
     [buildOutput setString: @""];
     
-    addTextToOutput(buildOutput, [NSString stringWithFormat:@"Building %@\n", [self displayName]]);
+    _printer->setToBuild(true);
+    [self outputMessage:[NSString stringWithFormat:@"Building %@\n", [self displayName]] toBuild:YES];
 
     m8r::StringStream stream([sourceEditor.string UTF8String]);
     m8r::Parser parser(&stream, _printer);
-    addTextToOutput(buildOutput, @"Parsing finished...\n");
+    [self outputMessage:@"Parsing finished...\n" toBuild:YES];
 
     if (parser.nerrors()) {
-        addTextToOutput(buildOutput, [NSString stringWithFormat:@"***** %d error%s\n", 
-                                        parser.nerrors(), (parser.nerrors() == 1) ? "" : "s"]);
+        [self outputMessage:[NSString stringWithFormat:@"***** %d error%s\n", 
+                            parser.nerrors(), (parser.nerrors() == 1) ? "" : "s"] toBuild:YES];
     } else {
-        addTextToOutput(buildOutput, @"0 errors. Ready to run\n");
+        [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
         _program = parser.program();
 
         m8r::ExecutionUnit eu(_printer);
         m8r::String codeString = eu.generateCodeString(_program);
         
-        addTextToOutput(buildOutput, @"\n*** Start Generated Code ***\n\n");
-        addTextToOutput(buildOutput, [NSString stringWithUTF8String:codeString.c_str()]);
-        addTextToOutput(buildOutput, @"\n*** End of Generated Code ***\n\n");
+        [self outputMessage:@"\n*** Start Generated Code ***\n\n" toBuild:YES];
+        [self outputMessage:[NSString stringWithUTF8String:codeString.c_str()] toBuild:YES];
+        [self outputMessage:@"\n*** End of Generated Code ***\n\n" toBuild:YES];
     }
 }
 
 - (IBAction)run:(id)sender {
-    m8r::ExecutionUnit eu(_printer);
-    eu.run(_program);
+    dispatch_queue_t queue = dispatch_queue_create("Run Queue", NULL);
+    dispatch_async(queue, ^() {
+        NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
+        [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
+        _printer->setToBuild(false);
+        m8r::ExecutionUnit eu(_printer);
+        eu.run(_program);
+        timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;
+        [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)", timeInSeconds * 1000] toBuild:NO];
+        [self outputMessage:@"\n" toBuild:NO];
+    });
 }
 
 @end
