@@ -8,9 +8,11 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="m8rsim" customModuleProvider="target">
             <connections>
+                <outlet property="buildButton" destination="LT1-X4-TKz" id="Su4-iw-Bgr"/>
                 <outlet property="buildOutput" destination="SlE-A2-biS" id="Trc-jL-umk"/>
                 <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
+                <outlet property="runStopButton" destination="pPU-va-aZp" id="aKn-Zv-N9z"/>
                 <outlet property="sourceEditor" destination="T2A-LY-iQw" id="7o2-4Q-tqO"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>

@@ -74,6 +74,8 @@ public:
     
     m8r::String generateCodeString(const Program* program) const;
     
+    void requestTermination() { _terminate = true; }
+    
 private:
     bool printError(const char* s) const;
     
@@ -148,6 +150,8 @@ private:
 
     mutable uint32_t _nerrors = 0;
     Printer* _printer;
+    
+    bool _terminate = false;
 };
     
 }

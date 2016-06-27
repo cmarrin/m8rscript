@@ -24,12 +24,15 @@ class MyPrinter;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
+    __weak IBOutlet NSButton *runStopButton;
+    __weak IBOutlet NSButton *buildButton;
     
     NSString* _source;
     NSFont* _font;
     MyPrinter* _printer;
-    
+    m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
+    BOOL _running;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -55,6 +58,13 @@ private:
 
 @implementation Document
 
+- (void)setRunStop:(BOOL)running enabled:(BOOL)isEnabled
+{
+    runStopButton.title = running ? @"Stop" : @"Run";
+    runStopButton.enabled = isEnabled;
+    _running = running;
+}
+
 - (void)textStorageDidProcessEditing:(NSNotification *)notification {
     NSTextStorage *textStorage = notification.object;
     NSString *string = textStorage.string;
@@ -77,9 +87,16 @@ private:
     self = [super init];
     if (self) {
         _printer = new MyPrinter(self);
+        _eu = new m8r::ExecutionUnit(_printer);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    delete _eu;
+    delete _printer;
 }
 
 - (void)awakeFromNib
@@ -92,6 +109,7 @@ private:
     if (_source) {
         [sourceEditor setString:_source];
     }
+    [self setRunStop:NO enabled:NO];
 }
 
 + (BOOL)autosavesInPlace {
@@ -128,21 +146,21 @@ private:
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (isBuild) {
-            [outputView selectTabViewItemAtIndex:1];
-        } else {
-            [outputView selectTabViewItemAtIndex:0];
-        }
-        NSTextView* view = isBuild ? buildOutput : consoleOutput;
-        NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
-        [view setString:string];
-        [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
-    });
+    if (isBuild) {
+        [outputView selectTabViewItemAtIndex:1];
+    } else {
+        [outputView selectTabViewItemAtIndex:0];
+    }
+    NSTextView* view = isBuild ? buildOutput : consoleOutput;
+    NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
+    [view setString:string];
+    [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
+    [view setNeedsDisplay:YES];
 }
 
 - (IBAction)build:(id)sender {
     _program = nullptr;
+    [self setRunStop:NO enabled: NO];
     
     [buildOutput setString: @""];
     
@@ -159,6 +177,7 @@ private:
     } else {
         [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
         _program = parser.program();
+        [self setRunStop:NO enabled: YES];
 
         m8r::ExecutionUnit eu(_printer);
         m8r::String codeString = eu.generateCodeString(_program);
@@ -170,16 +189,27 @@ private:
 }
 
 - (IBAction)run:(id)sender {
+    if (_running) {
+        _eu->requestTermination();
+        _running = false;
+        [self outputMessage:@"*** Stopped\n" toBuild:NO];
+        return;
+    }
+    
+    [buildOutput setString: @""];
+    [self setRunStop:YES enabled: YES];
+    [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
     dispatch_queue_t queue = dispatch_queue_create("Run Queue", NULL);
     dispatch_async(queue, ^() {
-        NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
-        [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
         _printer->setToBuild(false);
-        m8r::ExecutionUnit eu(_printer);
-        eu.run(_program);
+        NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
+        _eu->run(_program);
         timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;
-        [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)", timeInSeconds * 1000] toBuild:NO];
-        [self outputMessage:@"\n" toBuild:NO];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)\n", timeInSeconds * 1000] toBuild:NO];
+            [self setRunStop:NO enabled: YES];
+        });
     });
 }
 

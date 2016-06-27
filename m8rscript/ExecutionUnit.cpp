@@ -232,9 +232,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
+        if (_terminate) { \
+            goto L_END; \
+        } \
         op = static_cast<Op>(code[i++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
+    
+    _terminate = false;
     
     Object* obj = program->main();
     if (!obj) {
@@ -548,7 +553,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         DISPATCH;
     L_END:
-        assert(_stack.size() == previousSize);
+        if (!_terminate) {
+            assert(_stack.size() == previousSize);
+        }
         _stack.restoreFrame(previousFrame);
         return;
 }
