@@ -11,6 +11,7 @@
 #import "NSTextView+JSDExtensions.h"
 
 #import "Parser.h"
+#import "CodePrinter.h"
 #import "Printer.h"
 
 #include <iostream>
@@ -187,8 +188,8 @@ private:
         _program = parser.program();
         runButton.enabled = YES;
 
-        m8r::ExecutionUnit eu(_printer);
-        m8r::String codeString = eu.generateCodeString(_program);
+        m8r::CodePrinter codePrinter(_printer);
+        m8r::String codeString = codePrinter.generateCodeString(_program);
         
         [self outputMessage:@"\n*** Start Generated Code ***\n\n" toBuild:YES];
         [self outputMessage:[NSString stringWithUTF8String:codeString.c_str()] toBuild:YES];
