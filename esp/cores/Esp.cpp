@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <c_types.h>
 #include <cxxabi.h>
+#include <osapi.h>
 
 static const char* s_panic_file = 0;
 static int s_panic_line = 0;
@@ -37,6 +38,8 @@ static const char* s_panic_func = 0;
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 
 extern "C" {
+
+#include <ets_sys.h>
     
 extern void __real_system_restart_local();
 void __wrap_system_restart_local() { __real_system_restart_local(); }
@@ -54,27 +57,19 @@ void abort() { while(1) ; }
 
 void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {
-	return NULL; //malloc(size);
+	return malloc(size);
 }
 
 void ICACHE_RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 {
-    //free(ptr);
-}
-
-void* ICACHE_RAM_ATTR pvPortCalloc(size_t count, size_t size, const char* file, int line)
-{
-	return NULL; //calloc(count, size);
-}
-
-void* ICACHE_RAM_ATTR pvPortRealloc(void *ptr, size_t size, const char* file, int line)
-{
-	return NULL; //realloc(ptr, size);
+    free(ptr);
 }
 
 void* ICACHE_RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
-	return NULL; //calloc(1, size);
+	void* m = malloc(size);
+    os_memset(m, 0, size);
+    return m;
 }
 
 size_t xPortGetFreeHeapSize(void)
@@ -85,11 +80,6 @@ size_t xPortGetFreeHeapSize(void)
 size_t ICACHE_RAM_ATTR xPortWantedSizeAlign(size_t size)
 {
     return (size + 3) & ~((size_t) 3);
-}
-
-void system_show_malloc(void)
-{
-    //umm_info(NULL, 1);
 }
 
 } // extern "C"
