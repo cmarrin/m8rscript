@@ -44,6 +44,7 @@
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
+		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
@@ -95,6 +96,8 @@
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
 		49562F6E1D1D7A9C001AFAEE /* Document.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
+		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
+		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../m8rscript/CodePrinter.h; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
 		4984E82F1D1336AE00D0ABA6 /* timing.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.lua; path = ../timing.lua; sourceTree = "<group>"; };
@@ -273,6 +276,8 @@
 				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
 				49E6482B1D01F279005F5059 /* Atom.h */,
+				4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */,
+				4966A41C1D22F8C4008951F4 /* CodePrinter.h */,
 				49E648221D00CB57005F5059 /* Containers.h */,
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */,
@@ -479,6 +484,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
+				4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

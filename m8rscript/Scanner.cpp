@@ -42,6 +42,16 @@ using namespace m8r;
 static const char* specialSingleChar = "(),.:;?[]{}~";
 static const char* specialFirstChar = "!%&*+-/<=>^|";
 
+inline static bool findChar(const char* s, char c)
+{
+    while (*s) {
+        if (*s++ == c) {
+            return true;
+        }
+    }
+    return false;
+}
+
 struct Keyword
 {
 	const char* word;
@@ -235,11 +245,11 @@ Token Scanner::scanSpecial()
         return static_cast<Token>(c1);
     }
         
-    if (strchr(specialSingleChar, c1)) {
+    if (findChar(specialSingleChar, c1)) {
         return static_cast<Token>(c1);
     }
     
-    if (!strchr(specialFirstChar, c1)) {
+    if (!findChar(specialFirstChar, c1)) {
         putback(c1);
         return Token::EndOfFile;
     }

@@ -49,28 +49,11 @@ class Function;
 class Program;
 class Printer;
 
-class ExecutionStack : public Stack<Value>, public Object
-{
+class CodePrinter {
 public:
-    ExecutionStack(uint32_t size) : Stack<Value>(size) { }
-
-    virtual const char* typeName() const override { return "Local"; }
-
-    virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
-    virtual const Value element(uint32_t index) const override { return inFrame(index); }
-    virtual bool setElement(uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
-    virtual bool appendElement(const Value&) override { assert(0); return false; }
-    virtual size_t elementCount() const override { assert(0); return 0; }
-    virtual void setElementCount(size_t) override { assert(0); }
-};
-
-class ExecutionUnit {
-public:
-    ExecutionUnit(Printer* printer = nullptr) : _stack(10), _printer(printer) { }
+    CodePrinter(Printer* printer = nullptr) : _printer(printer) { }
     
-    void run(Program* program);
-
-    void requestTermination() { _terminate = true; }
+    m8r::String generateCodeString(const Program* program) const;
     
 private:
     bool printError(const char* s) const;
@@ -126,10 +109,21 @@ private:
         return 8;
     }
 
-    ExecutionStack _stack;
+        struct Annotation {
+        uint32_t addr;
+        uint32_t uniqueID;
+    };
+    typedef Vector<Annotation> Annotations;
+
+    uint32_t findAnnotation(uint32_t addr) const;
+    void preamble(m8r::String& s, uint32_t addr) const;
+    static const char* stringFromOp(Op op);
+    void indentCode(m8r::String&) const;
+    mutable uint32_t _nestingLevel = 0;
+    mutable Annotations annotations;
+    
     mutable uint32_t _nerrors = 0;
     Printer* _printer;
-    bool _terminate = false;
 };
     
 }

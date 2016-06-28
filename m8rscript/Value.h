@@ -55,6 +55,14 @@ typedef union {
     Value* val;
 } U;
 
+inline static const char* duplicateString(const char* s)
+{
+    size_t length = strlen(s) + 1;
+    char* newString = static_cast<char*>(malloc(length));
+    memcpy(newString, s, length);
+    return newString;
+}
+
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
@@ -71,7 +79,7 @@ public:
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
     Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
-    Value(const char* value) : _value(valueFromStr(strdup(value))) , _type(Type::String), _id(0) { }
+    Value(const char* value) : _value(valueFromStr(duplicateString(value))) , _type(Type::String), _id(0) { }
     
     // Steals the value pointer
     Value& operator=(Value&& other)
@@ -85,10 +93,11 @@ public:
     Value& operator=(const Value& other)
     {
         if (asStringValue()) {
+            // FIXME: We need to manage these string copies
             //free(static_cast<void*>(const_cast<char*>(asStringValue())));
         }
         if (other.asStringValue()) {
-            _value = valueFromStr(strdup(other.asStringValue()));
+            _value = valueFromStr(duplicateString(other.asStringValue()));
         } else {
             _value = other._value;
         }
@@ -97,7 +106,12 @@ public:
         return *this;
     }
 
-    ~Value() { /*if (asStringValue()) free(static_cast<void*>(const_cast<char*>(asStringValue())));*/ }
+    ~Value() {
+        // FIXME: We need to manage these string copies
+        if (asStringValue()) {
+            //free(static_cast<void*>(const_cast<char*>(asStringValue())));
+        }
+    }
     
     Type type() const { return _type; }
     

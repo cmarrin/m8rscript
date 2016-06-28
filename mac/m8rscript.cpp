@@ -12,6 +12,8 @@
 
 #include "Stream.h"
 #include "Parser.h"
+#include "CodePrinter.h"
+#include "Printer.h"
 
 #define Root $(SRCROOT)
 
@@ -22,7 +24,7 @@ extern int yydebug;
 class MyPrinter : public m8r::Printer
 {
 public:
-    virtual void print(const char*) const override { std::cout << s; }
+    virtual void print(const char* s) const override { std::cout << s; }
 };
 
 int main(int argc, const char* argv[])
@@ -51,10 +53,12 @@ std::cout << "FPF: " << man << ":" << exp << "\n";
         return 0;
     }
     
+    MyPrinter printer;
+    
     std::cout << "Parsing...\n";
     
     std::clock_t startTime = std::clock();
-    m8r::Parser parser(&istream, print);
+    m8r::Parser parser(&istream, &printer);
     std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n\n";
 
@@ -62,14 +66,14 @@ std::cout << "FPF: " << man << ":" << exp << "\n";
     std::clock_t runTime = 0;
     
     if (!parser.nerrors()) {
-        m8r::ExecutionUnit eu(print);
-        
+        m8r::CodePrinter codePrinter(&printer);
         startTime = std::clock();
-        m8r::String s = eu.generateCodeString(parser.program());
+        m8r::String s = codePrinter.generateCodeString(parser.program());
         printTime = std::clock() - startTime;
         std::cout << "\n***** Start of Generated Code *****\n" << s.c_str() << "\n***** End of Generated Code *****\n";
         
         std::cout << "\n***** Start of Program Output *****\n\n";
+        m8r::ExecutionUnit eu(&printer);
         startTime = std::clock();
         eu.run(parser.program());
         runTime = std::clock() - startTime;

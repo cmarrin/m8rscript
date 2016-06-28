@@ -47,11 +47,11 @@ void __wrap_system_restart_local() { __real_system_restart_local(); }
 extern int __real_register_chipv6_phy(uint8_t* init_data);
 extern int __wrap_register_chipv6_phy(uint8_t* init_data) { return __real_register_chipv6_phy(init_data); }
 
-void* malloc(size_t size) { return 0; }
+// Make the cheapest allocator possible. Alloc from a brk and never free
+extern char _heap_start;
+static char* _heap = (char *)&_heap_start;
+void* malloc(size_t size) { void* m = _heap; _heap += size; return m; }
 void free(void* ptr) { }
-char *strdup(const char *s) { return 0; }
-char *strchr(const char *s, int c) { return 0; }
-size_t strlen(const char *str) { return 0; }
 
 void abort() { while(1) ; }
 
@@ -74,7 +74,7 @@ void* ICACHE_RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 
 size_t xPortGetFreeHeapSize(void)
 {
-	return 0; //umm_free_heap_size();
+	return ((char*) 0x3fffc000) - _heap;
 }
 
 size_t ICACHE_RAM_ATTR xPortWantedSizeAlign(size_t size)
