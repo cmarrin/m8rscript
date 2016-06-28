@@ -50,9 +50,10 @@ bool ExecutionUnit::printError(const char* s) const
         _printer->print(s);
         _printer->print("\n");
     }
-    if (_nerrors > 10) {
+    if (_nerrors >= 10) {
         if (_printer) {
             _printer->print("\n\nToo many runtime errors, exiting...\n");
+            _terminate = true;
         }
         return false;
     }
@@ -240,6 +241,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     }
     
     _terminate = false;
+    _nerrors = 0;
     
     Object* obj = program->main();
     if (!obj) {
@@ -462,14 +464,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
-            if (!printError("Must have an lvalue for POSTINC")) {
-                return;
-            }
+            printError("Must have an lvalue for POSTINC");
         } else {
             if (!_stack.top().isInteger()) {
-                if (!printError("Must have an integer value for POSTINC")) {
-                    return;
-                }
+                printError("Must have an integer value for POSTINC");
             }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() + 1);
@@ -478,14 +476,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_POSTDEC:
         if (!_stack.top().isLValue()) {
-            if (!printError("Must have an lvalue for POSTDEC")) {
-                return;
-            }
+            printError("Must have an lvalue for POSTDEC");
         } else {
             if (!_stack.top().isInteger()) {
-                if (!printError("Must have an integer value for POSTDEC")) {
-                    return;
-                }
+                printError("Must have an integer value for POSTDEC");
             }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() - 1);
@@ -499,9 +493,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
-            if (!printError("target of STOA must be an Object")) {
-                return;
-            }
+            printError("target of STOA must be an Object");
         } else {
             objectValue->appendElement(_stack.top());
         }
@@ -510,24 +502,18 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_STOO:
         objectValue = _stack.top(-2).asObjectValue();
         if (!objectValue) {
-            if (!printError("target of STOO must be an Object")) {
-                return;
-            }
+            printError("target of STOO must be an Object");
         } else {
             Atom name = propertyNameFromValue(program, _stack.top(-1));
             if (!name) {
-                if (!printError("Object literal property name must be id, string, integer or float")) {
-                    return;
-                }
+                printError("Object literal property name must be id, string, integer or float");
             } else {
                 int32_t index = objectValue->addProperty(name);
                 if (index < 0) {
                     String s = "Invalid property '";
                     s += Program::stringFromAtom(name);
                     s += "' for Object literal";
-                    if (!printError(s.c_str())) {
-                        return;
-                    }
+                    printError(s.c_str());
                 }
                 objectValue->setProperty(index, _stack.top());
             }
@@ -544,9 +530,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.pop();
         DISPATCH;
     L_DEREF:
-        if (!deref(program, _stack.top(-1), _stack.top())) {
-            return;
-        }
+        deref(program, _stack.top(-1), _stack.top());
         _stack.pop();
         DISPATCH;
     L_OPCODE:

@@ -49,7 +49,10 @@ public:
     
     virtual void print(const char* s) const override
     {
-        [_document outputMessage:[NSString stringWithUTF8String:s] toBuild: _isBuild];
+        NSString* string = [NSString stringWithUTF8String:s];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_document outputMessage:string toBuild: _isBuild];
+        });
     }
     
     void setToBuild(bool b) { _isBuild = b; }
@@ -208,7 +211,7 @@ private:
     
     [consoleOutput setString: @""];
     [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
-    dispatch_queue_t queue = dispatch_queue_create("Run Queue", NULL);
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
         _printer->setToBuild(false);
         NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];

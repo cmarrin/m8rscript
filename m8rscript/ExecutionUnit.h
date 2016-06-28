@@ -129,7 +129,7 @@ private:
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
     Printer* _printer;
-    bool _terminate = false;
+    mutable bool _terminate = false;
 };
     
 }
