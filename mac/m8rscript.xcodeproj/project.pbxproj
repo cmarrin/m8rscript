@@ -38,14 +38,12 @@
 		494BA18E1D20440C00E72725 /* Value.h in Headers */ = {isa = PBXBuildFile; fileRef = 4942EA851D0AEAC600E02088 /* Value.h */; };
 		494BA18F1D20442B00E72725 /* liblibm8rscript.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 494BA16D1D2043B200E72725 /* liblibm8rscript.dylib */; };
 		494BA1971D207B6700E72725 /* liblibm8rscript.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 494BA16D1D2043B200E72725 /* liblibm8rscript.dylib */; };
-		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
-		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
-		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
-		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
-		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
-		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
+		49562F6F1D1D7A9C001AFAEE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.swift */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4966A41E1D230D72008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
+		4966A4451D23376F008951F4 /* M8RScript.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4966A4441D23376F008951F4 /* M8RScript.mm */; };
+		4966A4481D2339A8008951F4 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4966A4471D2339A8008951F4 /* Document.swift */; };
+		4966A44D1D23415C008951F4 /* LineNumberRulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4966A44C1D23415C008951F4 /* LineNumberRulerView.swift */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
@@ -90,15 +88,17 @@
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
 		494BA1A51D20B26100E72725 /* NoodleLineNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberView.h; path = "NSTextView+JSDExtensions/NoodleLineNumberView.h"; sourceTree = "<group>"; };
 		494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberView.m; path = "NSTextView+JSDExtensions/NoodleLineNumberView.m"; sourceTree = "<group>"; };
-		494BA1A71D20B26100E72725 /* NSTextView+JSDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextView+JSDExtensions.h"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.h"; sourceTree = "<group>"; };
-		494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextView+JSDExtensions.m"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.m"; sourceTree = "<group>"; };
-		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		49562F6C1D1D7A9C001AFAEE /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		49562F6E1D1D7A9C001AFAEE /* Document.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
+		49562F6E1D1D7A9C001AFAEE /* xxxDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = xxxDocument.mm; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../m8rscript/CodePrinter.h; sourceTree = "<group>"; };
+		4966A4441D23376F008951F4 /* M8RScript.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = M8RScript.mm; sourceTree = "<group>"; };
+		4966A4461D2337AD008951F4 /* M8RScript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M8RScript.h; sourceTree = "<group>"; };
+		4966A4471D2339A8008951F4 /* Document.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		4966A4491D234057008951F4 /* NSTextView+JSDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextView+JSDExtensions.h"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.h"; sourceTree = "<group>"; };
+		4966A44A1D234057008951F4 /* NSTextView+JSDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextView+JSDExtensions.m"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.m"; sourceTree = "<group>"; };
+		4966A44C1D23415C008951F4 /* LineNumberRulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineNumberRulerView.swift; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
 		4984E82F1D1336AE00D0ABA6 /* timing.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.lua; path = ../timing.lua; sourceTree = "<group>"; };
@@ -206,12 +206,12 @@
 		494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */ = {
 			isa = PBXGroup;
 			children = (
+				4966A4491D234057008951F4 /* NSTextView+JSDExtensions.h */,
+				4966A44A1D234057008951F4 /* NSTextView+JSDExtensions.m */,
 				494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */,
 				494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */,
 				494BA1A51D20B26100E72725 /* NoodleLineNumberView.h */,
 				494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */,
-				494BA1A71D20B26100E72725 /* NSTextView+JSDExtensions.h */,
-				494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */,
 			);
 			name = "NSTextView+JSDExtensions";
 			sourceTree = "<group>";
@@ -220,11 +220,13 @@
 			isa = PBXGroup;
 			children = (
 				494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */,
-				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
-				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
+				49562F6C1D1D7A9C001AFAEE /* AppDelegate.swift */,
+				4966A4471D2339A8008951F4 /* Document.swift */,
 				49562F6D1D1D7A9C001AFAEE /* Document.h */,
-				49562F6E1D1D7A9C001AFAEE /* Document.mm */,
-				49562F691D1D7A75001AFAEE /* main.m */,
+				4966A44C1D23415C008951F4 /* LineNumberRulerView.swift */,
+				4966A4461D2337AD008951F4 /* M8RScript.h */,
+				4966A4441D23376F008951F4 /* M8RScript.mm */,
+				49562F6E1D1D7A9C001AFAEE /* xxxDocument.mm */,
 				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
@@ -472,12 +474,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
-				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
-				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
-				49562F701D1D7A9C001AFAEE /* Document.mm in Sources */,
-				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
-				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
+				4966A4451D23376F008951F4 /* M8RScript.mm in Sources */,
+				49562F6F1D1D7A9C001AFAEE /* AppDelegate.swift in Sources */,
+				4966A44D1D23415C008951F4 /* LineNumberRulerView.swift in Sources */,
+				4966A4481D2339A8008951F4 /* Document.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -540,6 +540,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
@@ -556,6 +557,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
@@ -587,6 +589,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -632,6 +635,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

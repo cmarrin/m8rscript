@@ -10,15 +10,6 @@
 
 #import "NSTextView+JSDExtensions.h"
 
-#import "Parser.h"
-#import "CodePrinter.h"
-#import "Printer.h"
-
-#include <iostream>
-#import <sstream>
-
-class MyPrinter;
-
 @interface Document ()
 {
     IBOutlet NSTextView* sourceEditor;
@@ -32,35 +23,11 @@ class MyPrinter;
     
     NSString* _source;
     NSFont* _font;
-    MyPrinter* _printer;
-    m8r::ExecutionUnit* _eu;
-    m8r::Program* _program;
-    bool _running;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
 
 @end
-
-class MyPrinter : public m8r::Printer
-{
-public:
-    MyPrinter(Document* document) : _document(document), _isBuild(true) { }
-    
-    virtual void print(const char* s) const override
-    {
-        NSString* string = [NSString stringWithUTF8String:s];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_document outputMessage:string toBuild: _isBuild];
-        });
-    }
-    
-    void setToBuild(bool b) { _isBuild = b; }
-    
-private:
-    Document* _document;
-    bool _isBuild;
-};
 
 @implementation Document
 
@@ -189,7 +156,6 @@ private:
     } else {
         [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
         _program = parser.program();
-        runButton.enabled = YES;
 
         m8r::CodePrinter codePrinter(_printer);
         m8r::String codeString = codePrinter.generateCodeString(_program);
@@ -221,8 +187,6 @@ private:
         dispatch_async(dispatch_get_main_queue(), ^{
             [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)\n", timeInSeconds * 1000] toBuild:NO];
             _running = false;
-            runButton.enabled = YES;
-            stopButton.enabled = NO;
         });
     });
 }
