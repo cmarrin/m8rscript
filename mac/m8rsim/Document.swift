@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Document: NSDocument, NSTextStorageDelegate {
+@objc class Document: NSDocument, NSTextStorageDelegate {
 
     @IBOutlet var sourceEditor: NSTextView!
     @IBOutlet var consoleOutput: NSTextView!
@@ -21,16 +21,18 @@ class Document: NSDocument, NSTextStorageDelegate {
     
     var _source = ""
     let _font = NSFont(name:"Menlo Regular", size:12)
+    var _script: M8RScript? = nil
 
     override init() {
         super.init()
+        _script = M8RScript(document: self)
     }
 
     override func awakeFromNib() {
         sourceEditor.font = _font
-        consoleOutput.font = _font;
-        buildOutput.font = _font;
-        sourceEditor.lnv_setUpLineNumberView();
+        consoleOutput.font = _font
+        buildOutput.font = _font
+        sourceEditor.lnv_setUpLineNumberView()
         sourceEditor.textStorage?.delegate = self
         if (!_source.isEmpty) {
             sourceEditor.string = _source
@@ -47,18 +49,31 @@ class Document: NSDocument, NSTextStorageDelegate {
         return "Document"
     }
 
-    override func data(ofType typeName: String) throws -> NSData {
-        return (sourceEditor.string?.data(usingEncoding: NSUTF8StringEncoding))!
+    override func data(ofType typeName: String) throws -> Data {
+        return (sourceEditor.string?.data(using: String.Encoding.utf8))!
     }
 
-    override func read(from data: NSData, ofType typeName: String) throws {
-        _source = String(data: data, encoding:NSUTF8StringEncoding)!
+    override func read(from data: Data, ofType typeName: String) throws {
+        _source = String(data: data as Data, encoding:String.Encoding.utf8)!
         if ((sourceEditor) != nil) {
             sourceEditor.string = _source;
         }
     }
 
-    override func textStorageDidProcessEditing(notification: NSNotification) {
+    override func validateToolbarItem(_ item: NSToolbarItem?) -> Bool {
+        if item == runButton {
+            return _script!.canRun();
+        }
+        if item == pauseButton {
+            return _script!.canPause();
+        }
+        if item == stopButton {
+            return _script!.canStop();
+        }
+        return true;
+    }
+
+    func textStorageDidProcessEditing(notification: NSNotification!){
         let textStorage = notification.object
         textStorage!.removeAttribute(NSForegroundColorAttributeName, range:NSMakeRange(0, textStorage!.length));
 //        for (NSUInteger i = 0; i < n; i++) {
@@ -74,16 +89,36 @@ class Document: NSDocument, NSTextStorageDelegate {
 //        }
 }
 
-    @IBAction func run(sender: AnyObject) {
-    }
-
-    @IBAction func build(sender: AnyObject) {
+    @IBAction func build(_ sender: AnyObject) {
+        _script?.build(sourceEditor.string)
     }
     
-    @IBAction func pause(sender: AnyObject) {
+    @IBAction func run(_ sender: AnyObject) {
+        _script?.run()
     }
 
-    @IBAction func stop(sender: AnyObject) {
+    @IBAction func pause(_ sender: AnyObject) {
+        _script?.pause()
     }
+
+    @IBAction func stop(_ sender: AnyObject) {
+        _script?.stop()
+    }
+    
+    func output(message: String, isBuild: Bool)
+    {
+        if isBuild {
+            outputView.tabViewItem(at: 1)
+        } else {
+            outputView.tabViewItem(at: 0)
+        }
+        let view = isBuild ? buildOutput : consoleOutput
+        let string = "\(view?.string)\(message)"
+        view?.string = string
+        view?.scrollRangeToVisible(NSMakeRange((view!.string?.characters.count)!, 0));
+        view?.needsDisplay = true;
+    }
+
 }
+
 

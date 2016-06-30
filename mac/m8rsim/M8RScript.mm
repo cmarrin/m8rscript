@@ -36,7 +36,7 @@ public:
     {
         NSString* string = [NSString stringWithUTF8String:s];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_document outputMessage:string toBuild: _isBuild];
+            [_document outputWithMessage:string isBuild: _isBuild];
         });
     }
     
@@ -49,12 +49,25 @@ private:
 
 @implementation M8RScript
 
+- (instancetype)initWithDocument:(Document*) document {
+    _printer = new MyPrinter(document);
+    return self;
+}
+
+- (void)dealloc {
+    delete _printer;
+}
+
+- (BOOL)canRun { return _program && !_running; }
+- (BOOL)canStop { return _program && _running; }
+- (BOOL)canPause { return NO; }
+
 - (void)build:(NSString*)string {
     _program = nullptr;
     _running = false;
     _printer->setToBuild(true);
-    
-    //[self outputMessage:[NSString stringWithFormat:@"Building %@\n", [self displayName]] toBuild:YES];
+     
+    _printer->print([[NSString stringWithFormat:@"Building %@\n", [self displayName]] UTF8String]);
 
     m8r::StringStream stream([string UTF8String]);
     m8r::Parser parser(&stream, _printer);

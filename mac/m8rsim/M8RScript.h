@@ -9,12 +9,22 @@
 #ifndef M8RScript_h
 #define M8RScript_h
 
-@interface M8RScriptz
+#import <Cocoa/Cocoa.h>
 
-- (void) build:(NSString*)string;
-- (void) run;
-- (void) pause;
-- (void) stop;
+@class Document;
+
+@interface M8RScript
+
+- (instancetype)initWithDocument:(Document*) document;
+
+- (BOOL)canRun;
+- (BOOL)canStop;
+- (BOOL)canPause;
+
+- (void)build:(NSString*)string;
+- (void)run;
+- (void)pause;
+- (void)stop;
 
 @end
 

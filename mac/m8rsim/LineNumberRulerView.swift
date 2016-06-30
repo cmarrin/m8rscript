@@ -26,6 +26,7 @@
 import AppKit
 import Foundation
 import ObjectiveC
+import ObjectiveC
 
 var LineNumberViewAssocObjKey: UInt8 = 0
 
@@ -39,6 +40,16 @@ extension NSTextView {
 		}
 	}
 	
+	func lnv_framDidChange(notification: NSNotification) {
+		
+		lineNumberView.needsDisplay = true
+	}
+	
+	func lnv_textDidChange(notification: NSNotification) {
+		
+		lineNumberView.needsDisplay = true
+	}
+
 	func lnv_setUpLineNumberView() {
 		if font == nil {
 			font = NSFont.systemFont(ofSize: 16)
@@ -53,18 +64,8 @@ extension NSTextView {
 		}
 		
 		postsFrameChangedNotifications = true
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(NSTextView.lnv_framDidChange(_:)), name: NSViewFrameDidChangeNotification, object: self)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(NSTextView.lnv_textDidChange(_:)), name: NSTextDidChangeNotification, object: self)
-	}
-	
-	func lnv_framDidChange(notification: NSNotification) {
-		
-		lineNumberView.needsDisplay = true
-	}
-	
-	func lnv_textDidChange(notification: NSNotification) {
-		
-		lineNumberView.needsDisplay = true
+		NotificationCenter.default().addObserver(self, selector: #selector(NSTextView.lnv_framDidChange(notification:)), name: NSNotification.Name.NSViewFrameDidChange, object: self)
+		NotificationCenter.default().addObserver(self, selector: #selector(NSTextView.lnv_framDidChange(notification:)), name: NSNotification.Name.NSTextDidChange, object: self)
 	}
 }
 
@@ -96,7 +97,7 @@ class LineNumberRulerView: NSRulerView {
 				let relativePoint = self.convert(NSZeroPoint, from: textView)
 				let lineNumberAttributes = [NSFontAttributeName: textView.font!, NSForegroundColorAttributeName: NSColor.gray()]
 				let drawLineNumber = { (lineNumberString:String, y:CGFloat) -> Void in
-					let attString = NSAttributedString(string: lineNumberString, attributes: lineNumberAttributes)
+					let attString = AttributedString(string: lineNumberString, attributes: lineNumberAttributes)
 					let x = 35 - attString.size().width
 					attString.draw(at:NSPoint(x: x, y: relativePoint.y + y))
 				}
@@ -104,7 +105,7 @@ class LineNumberRulerView: NSRulerView {
 				let visibleGlyphRange = layoutManager.glyphRange(forBoundingRect: textView.visibleRect, in: textView.textContainer!)
 				let firstVisibleGlyphCharacterIndex = layoutManager.characterIndexForGlyph(at: visibleGlyphRange.location)
 				
-				let newLineRegex = try! NSRegularExpression(pattern: "\n", options: [])
+				let newLineRegex = try! RegularExpression(pattern: "\n", options: [])
 				// The line number for the first visible line
 				var lineNumber = newLineRegex.numberOfMatches(in: textView.string!, options: [ ], range: NSMakeRange(0, firstVisibleGlyphCharacterIndex)) + 1
 				var glyphIndexForStringLine = visibleGlyphRange.location
@@ -129,7 +130,7 @@ class LineNumberRulerView: NSRulerView {
 						
 						// Range of current "line of glyphs". If a line is wrapped,
 						// then it will have more than one "line of glyphs"
-						let lineRect = layoutManager.lineFragmentRectForGlyph(at: glyphIndexForGlyphLine, effectiveRange:  &effectiveRange, withoutAdditionalLayout: true)
+						let lineRect = layoutManager.lineFragmentRect(forGlyphAt: glyphIndexForGlyphLine, effectiveRange: &effectiveRange, withoutAdditionalLayout: true)
 						
 						if glyphLineCount > 0 {
 							drawLineNumber("-", lineRect.minY)
