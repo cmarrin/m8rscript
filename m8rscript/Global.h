@@ -56,13 +56,31 @@ public:
     virtual size_t propertyCount() const override;
     virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
 
-    virtual int32_t callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams) override;
+    virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
 
 private:
     uint64_t currentTime() const;
-
-    enum class Property : uint8_t { Date, Date_now, print };
+        
+    enum class Property : uint8_t
+    {
+        None = 0,
+        print = 1,
+        System = 10, System_delay, 
+        Date = 20, Date_now,
+        GPIO = 30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_HIGH, GPIO_LOW,
+        Serial = 40, Serial_begin, Serial_println, 
+    };
     static Map<Atom, Property> _properties;
+    
+    static Atom _nowAtom;
+    static Atom _delayAtom;
+    static Atom _pinModeAtom;
+    static Atom _digitalWriteAtom;
+    static Atom _OUTPUTAtom;
+    static Atom _LOWAtom;
+    static Atom _HIGHAtom;
+    static Atom _beginAtom;
+    static Atom _printlnAtom;
     
     uint64_t _startTime;
 

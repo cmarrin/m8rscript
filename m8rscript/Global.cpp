@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Program.h"
 #include "Printer.h"
+#include "ExecutionUnit.h"
+
 #ifdef __APPLE__
 #include <ctime>
 #else
@@ -47,6 +49,16 @@ extern "C" {
 
 using namespace m8r;
 
+Atom Global::_nowAtom;
+Atom Global::_delayAtom;
+Atom Global::_pinModeAtom;
+Atom Global::_digitalWriteAtom;
+Atom Global::_OUTPUTAtom;
+Atom Global::_LOWAtom;
+Atom Global::_HIGHAtom;
+Atom Global::_beginAtom;
+Atom Global::_printlnAtom;
+
 Map<Atom, Global::Property> Global::_properties;
 
 Global::Global(Printer* printer) : _printer(printer)
@@ -55,9 +67,21 @@ Global::Global(Printer* printer) : _printer(printer)
     _startTime = currentTime();
 
     if (_properties.empty()) {
+        _nowAtom = Program::atomizeString("now");
+        _delayAtom = Program::atomizeString("delay");
+        _pinModeAtom = Program::atomizeString("pinMode");
+        _digitalWriteAtom = Program::atomizeString("digitalWrite");
+        _OUTPUTAtom = Program::atomizeString("OUTPUT");
+        _LOWAtom = Program::atomizeString("LOW");
+        _HIGHAtom = Program::atomizeString("HIGH");
+        _beginAtom = Program::atomizeString("begin");
+        _printlnAtom = Program::atomizeString("println");
+
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
-        _properties.emplace(Program::atomizeString("now"), Property::Date_now);
         _properties.emplace(Program::atomizeString("print"), Property::print);
+        _properties.emplace(Program::atomizeString("System"), Property::System);
+        _properties.emplace(Program::atomizeString("Serial"), Property::Serial);
+        _properties.emplace(Program::atomizeString("GPIO"), Property::GPIO);
     }
 }
 
@@ -69,11 +93,7 @@ int32_t Global::propertyIndex(const Atom& name, bool canExist)
 
 Value Global::propertyRef(int32_t index)
 {
-    switch(static_cast<Property>(index)) {
-        case Property::Date: return Value(this, static_cast<uint32_t>(Property::Date), true);
-        case Property::print: return Value(this, static_cast<uint32_t>(Property::print), true);
-        default: return Value();
-    }
+    return Value(this, index, true);
 }
 
 const Value Global::property(int32_t index) const
@@ -110,29 +130,57 @@ size_t Global::propertyCount() const
 
 Value Global::appendPropertyRef(uint32_t index, const Atom& name)
 {
-    Property property;
-    if (!_properties.find(name, property)) {
-        return Value();
+    Property newProperty = Property::None;
+    switch(static_cast<Property>(index)) {
+        case Property::Date:
+            if (name == _nowAtom) {
+                newProperty = Property::Date_now;
+            }
+            break;
+        case Property::System:
+            if (name == _delayAtom) {
+                newProperty = Property::System_delay;
+            }
+            break;
+        case Property::Serial:
+            if (name == _beginAtom) {
+                newProperty = Property::Serial_begin;
+            } else if (name == _printlnAtom) {
+                newProperty = Property::Serial_println;
+            }
+            break;
+        case Property::GPIO:
+            if (name == _OUTPUTAtom) {
+                newProperty = Property::GPIO_OUTPUT;
+            } else if (name == _LOWAtom) {
+                newProperty = Property::GPIO_LOW;
+            } else if (name == _HIGHAtom) {
+                newProperty = Property::GPIO_HIGH;
+            } else if (name == _pinModeAtom) {
+                newProperty = Property::GPIO_pinMode;
+            } else if (name == _digitalWriteAtom) {
+                newProperty = Property::GPIO_digitalWrite;
+            }
+            break;
+        default:
+            break;
     }
-    
-    if (index == static_cast<uint32_t>(Property::Date) && property == Property::Date_now) {
-        return Value(this, static_cast<uint16_t>(Property::Date_now), true);
-    }
-    return Value();    
+
+    return (newProperty == Property::None) ? Value() : Value(this, static_cast<uint16_t>(newProperty), true);
 }
 
-int32_t Global::callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams)
+int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
 {
     switch(static_cast<Property>(index)) {
         case Property::Date_now: {
             uint64_t t = currentTime();
-            stack.push(Float(static_cast<int32_t>(t), -6));
+            eu->stack().push(Float(static_cast<int32_t>(t), -6));
             return 1;
         }
         case Property::print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_printer) {
-                    _printer->print(stack.top(i).toStringValue().c_str());
+                    _printer->print(eu->stack().top(i).toStringValue().c_str());
                 }
             }
         default: return -1;

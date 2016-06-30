@@ -135,7 +135,7 @@ public:
     
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
-	size_t length() const { return _size - 1; }
+	size_t length() const { return _size ? (_size - 1) : 0; }
 	String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
@@ -384,7 +384,6 @@ public:
     void restoreFrame(size_t frame)
     {
         assert(frame <= size() && frame <= _frame);
-        super::resize(_frame);
         _frame = frame;
     }
     

@@ -206,7 +206,6 @@ private:
         return;
     }
     
-    [buildOutput setString: @""];
     _running = true;
     
     [consoleOutput setString: @""];

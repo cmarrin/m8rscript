@@ -22,10 +22,12 @@ while (count < 1000) {
 function blink()
 {
     GPIO.digitalWrite(0x0002, GPIO.HIGH);
-    Serial.println("Blink on");
+    //Serial.println("Blink on");
+    print("Blink on\n");
     System.delay(200);
     GPIO.digitalWrite(2, GPIO.LOW);
-    Serial.println("Blink off");
+    //Serial.println("Blink off");
+    print("Blink off\n");
     System.delay(200); // wait a bit
 }
 
@@ -37,7 +39,7 @@ function add(x, y, z)
 	};
 }
 
-add(1, 2, 3);
+//add(1, 2, 3);
 
 var a = b * c + d * e;
 

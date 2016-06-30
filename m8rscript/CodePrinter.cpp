@@ -144,7 +144,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xC0 */      OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -184,17 +184,15 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     outputString += ")\n";
     
     _nestingLevel++;
-    if (obj->propertyCount()) {
-        for (int32_t i = 0; i < obj->propertyCount(); ++i) {
-            const Value& value = obj->property(i);
-            if (value.isNone()) {
-                continue;
-            }
-            if (value.asObjectValue() && value.asObjectValue()->code()) {
-                Atom name = obj->propertyName(i);
-                outputString += generateCodeString(program, value.asObjectValue(), program->stringFromAtom(name).c_str(), _nestingLevel);
-                outputString += "\n";
-            }
+    for (int32_t i = 0; i < obj->propertyCount(); ++i) {
+        const Value& value = obj->property(i);
+        if (value.isNone()) {
+            continue;
+        }
+        if (value.asObjectValue() && value.asObjectValue()->code()) {
+            Atom name = obj->propertyName(i);
+            outputString += generateCodeString(program, value.asObjectValue(), program->stringFromAtom(name).c_str(), _nestingLevel);
+            outputString += "\n";
         }
     }
     
@@ -392,6 +390,8 @@ static CodeMap opcodes[] = {
     OP(NEW)
     OP(RET)
     OP(PUSHL)
+    
+    OP(PUSHLITA) OP(PUSHLITO)
     
     OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
     OP(DEREF) OP(DEL) OP(POP) OP(STOPOP)

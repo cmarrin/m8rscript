@@ -42,6 +42,9 @@ namespace m8r {
 
 typedef Vector<uint8_t> Code;
 
+class ExecutionUnit;
+class Program;
+
 class Object {
 public:
     typedef Vector<Value::Map::Pair> Properties;
@@ -60,7 +63,7 @@ public:
     virtual int32_t addProperty(const Atom&) { return -1; }
     virtual size_t propertyCount() const { return 0; }
     virtual Value appendPropertyRef(uint32_t index, const Atom&) { return Value(); }
-    virtual int32_t callProperty(uint32_t index, Stack<Value>& stack, uint32_t nparams) { return -1; }
+    virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
     
     virtual Value elementRef(int32_t index) { return Value(); }
     virtual const Value element(uint32_t index) const { return Value(); }
@@ -76,7 +79,7 @@ public:
 
     virtual bool setValue(const Value&) { return false; }
     virtual Value* value() { return nullptr; }
-    virtual int32_t call(Stack<Value>& stack, uint32_t nparams) { return -1; }
+    virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
 };
     
 class MaterObject : public Object {

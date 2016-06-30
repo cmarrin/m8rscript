@@ -43,6 +43,8 @@ namespace m8r {
 
 class Object;
 class Value;
+class ExecutionUnit;
+class Program;
 
 typedef union {
     void* v;
@@ -146,7 +148,7 @@ public:
     bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
     
     Value appendPropertyRef(const Value& value) const;
-    uint32_t call(Stack<Value>& stack, uint32_t nparams);
+    uint32_t call(Program*, ExecutionUnit*, uint32_t nparams);
     
     bool isInteger() const
     {

@@ -84,11 +84,11 @@ uint32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bo
 
     Value callee = _stack.top(-nparams);
     if (callee.type() == Value::Type::Id) {
-        callee = deref(program, program->global(), callee);
+        callee = deref(program, nullptr, callee);
     }
     
     // FIXME: when error occurs (return < 0) log an error or something
-    int32_t returnCount = callee.call(_stack, nparams);
+    int32_t returnCount = callee.call(program, this, nparams);
     if (returnCount < 0) {
         returnCount = 0;
     }
@@ -106,6 +106,29 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
     if (derefValue.isInteger()) {
         return Value();
     }
+    
+    if (!obj && derefValue.type() == Value::Type::Id) {
+        // First see if this is a callable property of the main function
+        // FIXME: Need to walk up the function chain
+        Atom name = derefValue.asIdValue();
+        Object* testObj = program->main();
+        for (int32_t i = 0; i < testObj->propertyCount(); ++i) {
+            const Value& value = testObj->property(i);
+            if (value.isNone()) {
+                continue;
+            }
+            if (value.asObjectValue() && value.asObjectValue()->code()) {
+                if (testObj->propertyName(i) == name) {
+                    return value;
+                }
+            }
+        }
+    }
+    
+    if (!obj) {
+        obj = program->global();
+    }
+
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
         String s = "no property '";
@@ -177,6 +200,14 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
 
 void ExecutionUnit::run(Program* program)
 {
+    _terminate = false;
+    _nerrors = 0;
+    _stack.clear();
+    run(program, program->main());
+}
+
+int32_t ExecutionUnit::run(Program* program, Object* obj)
+{
     #undef OP
     #define OP(op) &&L_ ## op,
     
@@ -217,7 +248,7 @@ void ExecutionUnit::run(Program* program)
         /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xC0 */      OP(PUSHLITA) OP(PUSHLITO) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
@@ -240,21 +271,16 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    _terminate = false;
-    _nerrors = 0;
-    
-    Object* obj = program->main();
     if (!obj) {
-        return;
+        return -1;
     }
     
     const Code* codeObj = obj->code();
     if (!codeObj) {
-        return;
+        return -1;
     }
     const uint8_t* code = &(codeObj->at(0));
     
-    _stack.clear();
     size_t previousFrame = _stack.setLocalFrame(obj->localSize());
     size_t previousSize = _stack.size();
     int i = 0;
@@ -277,7 +303,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     L_UNKNOWN:
         assert(0);
-        return;
+        return 0;
     L_PUSHID:
         _stack.push(Atom(uintFromCode(code, i, 2)));
         i += 2;
@@ -321,6 +347,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             i += size;
         }
         _stack.push(_stack.elementRef(intValue));
+        DISPATCH;
+    L_PUSHLITA:
+        _stack.push(new Array());
+        DISPATCH;
+    L_PUSHLITO:
+        _stack.push(new MaterObject());
         DISPATCH;
     L_JMP:
     L_JT:
@@ -541,5 +573,5 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             assert(_stack.size() == previousSize);
         }
         _stack.restoreFrame(previousFrame);
-        return;
+        return 0;
 }

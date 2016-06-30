@@ -495,7 +495,7 @@ bool ParseEngine::primaryExpression()
         case Token::String: _parser->emit(_tokenValue.string); popToken(); break;
         case Token::LBracket:
             popToken();
-            _parser->emitArrayLiteral();
+            _parser->emit(Op::PUSHLITA);
             if (expression()) {
                 _parser->emit(m8r::Op::STOA);
                 while (_token == Token::Comma) {
@@ -510,7 +510,7 @@ bool ParseEngine::primaryExpression()
             break;
         case Token::LBrace:
             popToken();
-            _parser->emitObjectLiteral();
+            _parser->emit(Op::PUSHLITO);
             if (propertyAssignment()) {
                 _parser->emit(m8r::Op::STOO);
                 while (_token == Token::Comma) {

@@ -290,13 +290,13 @@ Value Value::appendPropertyRef(const Value& value) const
     return (_type == Type::PropertyRef) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
 }
 
-uint32_t Value::call(Stack<Value>& stack, uint32_t nparams)
+uint32_t Value::call(Program* program, ExecutionUnit* eu, uint32_t nparams)
 {
     if (_type == Type::PropertyRef) {
-        return objFromValue()->callProperty(_id, stack, nparams);
+        return objFromValue()->callProperty(_id, program, eu, nparams);
     }
     if (_type == Type::Object) {
-        return objFromValue()->call(stack, nparams);
+        return objFromValue()->call(program, eu, nparams);
     }
     return -1;
 }
