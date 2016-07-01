@@ -39,14 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Printer.h"
 #include "ExecutionUnit.h"
 
-#ifdef __APPLE__
-#include <ctime>
-#else
-extern "C" {
-#include<user_interface.h>
-}
-#endif
-
 using namespace m8r;
 
 Atom Global::_nowAtom;
@@ -57,14 +49,13 @@ Atom Global::_OUTPUTAtom;
 Atom Global::_LOWAtom;
 Atom Global::_HIGHAtom;
 Atom Global::_beginAtom;
-Atom Global::_printlnAtom;
+Atom Global::_printAtom;
 
 Map<Atom, Global::Property> Global::_properties;
 
 Global::Global(Printer* printer) : _printer(printer)
 {
     _startTime = 0;
-    _startTime = currentTime();
 
     if (_properties.empty()) {
         _nowAtom = Program::atomizeString("now");
@@ -75,14 +66,17 @@ Global::Global(Printer* printer) : _printer(printer)
         _LOWAtom = Program::atomizeString("LOW");
         _HIGHAtom = Program::atomizeString("HIGH");
         _beginAtom = Program::atomizeString("begin");
-        _printlnAtom = Program::atomizeString("println");
+        _printAtom = Program::atomizeString("print");
 
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
-        _properties.emplace(Program::atomizeString("print"), Property::print);
         _properties.emplace(Program::atomizeString("System"), Property::System);
         _properties.emplace(Program::atomizeString("Serial"), Property::Serial);
         _properties.emplace(Program::atomizeString("GPIO"), Property::GPIO);
     }
+}
+
+Global::~Global()
+{
 }
 
 int32_t Global::propertyIndex(const Atom& name, bool canExist)
@@ -145,8 +139,8 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
         case Property::Serial:
             if (name == _beginAtom) {
                 newProperty = Property::Serial_begin;
-            } else if (name == _printlnAtom) {
-                newProperty = Property::Serial_println;
+            } else if (name == _printAtom) {
+                newProperty = Property::Serial_print;
             }
             break;
         case Property::GPIO:
@@ -177,7 +171,7 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
             eu->stack().push(Float(static_cast<int32_t>(t), -6));
             return 1;
         }
-        case Property::print:
+        case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_printer) {
                     _printer->print(eu->stack().top(i).toStringValue().c_str());
@@ -185,13 +179,4 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
             }
         default: return -1;
     }
-}
-
-uint64_t Global::currentTime() const
-{
-#ifdef __APPLE__
-    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime;
-#else
-    return system_get_time() - _startTime;
-#endif
 }

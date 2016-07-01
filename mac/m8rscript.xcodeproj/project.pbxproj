@@ -46,6 +46,9 @@
 		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4966A41E1D230D72008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
+		499499D21D26DBBB003F8D84 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499499D01D26DBBB003F8D84 /* PlatformGlobal.cpp */; };
+		499499D51D26DBD5003F8D84 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499499D31D26DBD5003F8D84 /* PlatformGlobal.cpp */; };
+		499499D61D26E284003F8D84 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499499D31D26DBD5003F8D84 /* PlatformGlobal.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
@@ -107,6 +110,10 @@
 		4984E8331D1492ED00D0ABA6 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stream.h; path = ../m8rscript/Stream.h; sourceTree = "<group>"; };
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../m8rscript/ParseEngine.cpp; sourceTree = "<group>"; };
 		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../m8rscript/ParseEngine.h; sourceTree = "<group>"; };
+		499499D01D26DBBB003F8D84 /* PlatformGlobal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlatformGlobal.cpp; path = ../esp/PlatformGlobal.cpp; sourceTree = "<group>"; };
+		499499D11D26DBBB003F8D84 /* PlatformGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlatformGlobal.h; path = ../esp/PlatformGlobal.h; sourceTree = "<group>"; };
+		499499D31D26DBD5003F8D84 /* PlatformGlobal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformGlobal.cpp; sourceTree = "<group>"; };
+		499499D41D26DBD5003F8D84 /* PlatformGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformGlobal.h; sourceTree = "<group>"; };
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
@@ -190,6 +197,8 @@
 			isa = PBXGroup;
 			children = (
 				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
+				499499D31D26DBD5003F8D84 /* PlatformGlobal.cpp */,
+				499499D41D26DBD5003F8D84 /* PlatformGlobal.h */,
 			);
 			name = mac;
 			sourceTree = "<group>";
@@ -199,6 +208,8 @@
 			children = (
 				494BA1931D207B1700E72725 /* Makefile */,
 				494BA1941D207B1700E72725 /* m8rscript.cpp */,
+				499499D01D26DBBB003F8D84 /* PlatformGlobal.cpp */,
+				499499D11D26DBBB003F8D84 /* PlatformGlobal.h */,
 			);
 			name = esp;
 			sourceTree = "<group>";
@@ -454,6 +465,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				499499D61D26E284003F8D84 /* PlatformGlobal.cpp in Sources */,
 				4966A41E1D230D72008951F4 /* CodePrinter.cpp in Sources */,
 				494BA18A1D20440C00E72725 /* Scanner.cpp in Sources */,
 				494BA17B1D20440C00E72725 /* ExecutionUnit.cpp in Sources */,
@@ -486,7 +498,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
+				499499D51D26DBD5003F8D84 /* PlatformGlobal.cpp in Sources */,
 				4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */,
+				499499D21D26DBBB003F8D84 /* PlatformGlobal.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

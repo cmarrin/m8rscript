@@ -35,59 +35,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Object.h"
+#include "Global.h"
 
 namespace m8r {
 
-class Printer;
-
-class Global : public Object {
+class PlatformGlobal : public Global {
 public:
-    Global(Printer*);
+    PlatformGlobal(Printer* printer)
+        : Global(printer)
+    {
+        _startTime = currentTime();
+    }
     
-    virtual ~Global();
-    
-    virtual const char* typeName() const override { return "Global"; }
-
-    // Global has built-in properties. Handle those here
-    virtual int32_t propertyIndex(const Atom& s, bool canExist) override;
-    virtual Value propertyRef(int32_t index) override;
-    virtual const Value property(int32_t index) const override;
-    virtual bool setProperty(int32_t index, const Value&) override;
-    virtual Atom propertyName(uint32_t index) const override;
-    virtual size_t propertyCount() const override;
-    virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
-
-    virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
+    virtual ~PlatformGlobal() { }
 
 protected:
-    virtual uint64_t currentTime() const = 0;
-
-    uint64_t _startTime;
-
-private:        
-    enum class Property : uint8_t
-    {
-        None = 0,
-        print = 1,
-        System = 10, System_delay, 
-        Date = 20, Date_now,
-        GPIO = 30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_HIGH, GPIO_LOW,
-        Serial = 40, Serial_begin, Serial_print, 
-    };
-    static Map<Atom, Property> _properties;
-    
-    static Atom _nowAtom;
-    static Atom _delayAtom;
-    static Atom _pinModeAtom;
-    static Atom _digitalWriteAtom;
-    static Atom _OUTPUTAtom;
-    static Atom _LOWAtom;
-    static Atom _HIGHAtom;
-    static Atom _beginAtom;
-    static Atom _printAtom;
-
-    Printer* _printer;
+    virtual uint64_t currentTime() const override;
 };
     
 }

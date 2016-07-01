@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Function.h"
-#include "Global.h"
+#include "PlatformGlobal.h"
 
 namespace m8r {
 
@@ -98,7 +98,7 @@ private:
     Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;
-    Global _global;
+    PlatformGlobal _global;
 };
     
 }

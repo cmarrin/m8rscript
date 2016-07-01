@@ -4,7 +4,7 @@
 
 function add(a, b, c)
 {
-    print("Total is " + (a + b + c) + "\n");
+    Serial.print("Total is " + (a + b + c) + "\n");
 }
 
 add(1, 2, 3);
@@ -13,9 +13,9 @@ var flt = 0.100000001;
 
 if (0)
     if (1)
-        print("In innermost if\n");
+        Serial.print("In innermost if\n");
     else
-        print("In innermost else\n");
+        Serial.print("In innermost else\n");
 
 var x = 5;
 ++x++;
@@ -36,10 +36,10 @@ for (var i = 0; i < 10; i++) {
     } else {
         q = -1;
     }
-    print(i + " squared times " + q + " * " + c + " is " + (i * i * (q * c)) + "\n");
+    Serial.print(i + " squared times " + q + " * " + c + " is " + (i * i * (q * c)) + "\n");
 }
 
 {
     var t = Date.now() - startTime;
-    print("Run time: " + (t * 1000) + "ms\n");
+    Serial.print("Run time: " + (t * 1000) + "ms\n");
 }

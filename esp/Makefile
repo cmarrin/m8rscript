@@ -18,19 +18,18 @@
 #====================================================================================
 
 #=== Project specific definitions
-SRC_DIR = ../m8rscript
-
 MAIN_SRC ?= m8rscript.cpp
-SRC ?= Array.cpp \
-		Atom.cpp \
-		ExecutionUnit.cpp \
-		Function.cpp \
-		Global.cpp \
-		ParseEngine.cpp \
-		Parser.cpp \
-		Program.cpp \
-		Scanner.cpp \
-		Value.cpp
+SRC ?= ../m8rscript/Array.cpp \
+		../m8rscript/Atom.cpp \
+		../m8rscript/ExecutionUnit.cpp \
+		../m8rscript/Function.cpp \
+		../m8rscript/Global.cpp \
+		../m8rscript/ParseEngine.cpp \
+		../m8rscript/Parser.cpp \
+		../m8rscript/Program.cpp \
+		../m8rscript/Scanner.cpp \
+		../m8rscript/Value.cpp \
+		PlatformGlobal.cpp
 
 # Esp8266 Arduino git location
 ESP_ROOT ?= $(HOME)/esp8266
@@ -110,7 +109,8 @@ CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # User defined compilation units
-USER_SRC = $(SRC_DIR)/$(MAIN_SRC) $(shell find $(addprefix $(SRC_DIR)/, $(SRC)) -name "*.S" -o -name "*.c" -o -name "*.cpp")
+USER_SRC = $(MAIN_SRC) $(SRC)
+
 # Object file suffix seems to be significant for the linker...
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
