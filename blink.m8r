@@ -2,6 +2,16 @@
     This is a test program
 */
 
+function add(x, y, z)
+{
+	return function(y)
+	{
+		return x+y;
+	};
+}
+
+add(1, 2, 3);
+
 var b = [ 1, 2, 3 ];
 var c = 12.5;
 var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
@@ -30,16 +40,6 @@ function blink()
     print("Blink off\n");
     System.delay(200); // wait a bit
 }
-
-function add(x, y, z)
-{
-	return function(y)
-	{
-		return x+y;
-	};
-}
-
-//add(1, 2, 3);
 
 var a = b * c + d * e;
 

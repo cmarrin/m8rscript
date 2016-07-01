@@ -69,7 +69,7 @@ public:
     ExecutionUnit(Printer* printer = nullptr) : _stack(10), _printer(printer) { }
     
     void run(Program* program);
-    int32_t run(Program*, Object*);
+    int32_t run(Program*, Object*, uint32_t nparams);
     ExecutionStack& stack() { return _stack; }
 
     void requestTermination() { _terminate = true; }

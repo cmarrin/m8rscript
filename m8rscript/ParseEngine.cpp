@@ -441,6 +441,7 @@ bool ParseEngine::leftHandSideExpression()
         popToken();
         Function* f = function();
         _parser->emit(f);
+        return true;
     }
     
     if (!primaryExpression()) {

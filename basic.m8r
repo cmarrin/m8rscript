@@ -2,6 +2,14 @@
 //Loop and Print
 //
 
+function add(a, b, c)
+{
+    print("Total is " + (a + b + c));
+    print("\n");
+}
+
+add(1, 2, 3);
+
 var flt = 0.100000001;
 
 if (0)

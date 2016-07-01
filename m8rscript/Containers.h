@@ -374,16 +374,17 @@ public:
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
     
-    size_t setLocalFrame(size_t localSize)
+    size_t setLocalFrame(size_t nparams, size_t localSize)
     {
         size_t oldFrame = _frame;
-        _frame = size();
+        _frame = size() - nparams;
         super::resize(size() + localSize);
         return oldFrame;
     }
-    void restoreFrame(size_t frame)
+    void restoreFrame(size_t frame, size_t localSize)
     {
         assert(frame <= size() && frame <= _frame);
+        super::resize(size() - localSize);
         _frame = frame;
     }
     

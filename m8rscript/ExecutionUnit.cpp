@@ -203,10 +203,10 @@ void ExecutionUnit::run(Program* program)
     _terminate = false;
     _nerrors = 0;
     _stack.clear();
-    run(program, program->main());
+    run(program, program->main(), 0);
 }
 
-int32_t ExecutionUnit::run(Program* program, Object* obj)
+int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams)
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -281,7 +281,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     }
     const uint8_t* code = &(codeObj->at(0));
     
-    size_t previousFrame = _stack.setLocalFrame(obj->localSize());
+    size_t previousFrame = _stack.setLocalFrame(nparams, obj->localSize());
     size_t previousSize = _stack.size();
     int i = 0;
     
@@ -297,7 +297,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
-    int32_t returnCount;
+    int32_t callReturnCount;
+    int32_t retCount = 0;
 
     DISPATCH;
     
@@ -385,12 +386,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             op = maskOp(op, 0x0f);
         }
 
-        returnCount = call(program, uintValue, obj, op == Op::CALL || op == Op::CALLX);
+        callReturnCount = call(program, uintValue, obj, op == Op::CALL || op == Op::CALLX);
     
         // Call/new is an expression. It needs to leave one item on the stack. If no values were
         // returned, push a null Value. Otherwise push the first returned value
-        returnedValue = (returnCount > 0) ? _stack.top(1-returnCount) : Value();
-        _stack.pop(returnCount + uintValue + 1);
+        
+        // On return the stack still has the passed params and the callee. Pop those too
+        returnedValue = (callReturnCount > 0) ? _stack.top(1-callReturnCount) : Value();
+        _stack.pop(callReturnCount + uintValue + 1);
         _stack.push(returnedValue);
         DISPATCH;
     L_RET:
@@ -401,7 +404,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         } else {
             uintValue = uintFromOp(op, 0x07);
         }
-        DISPATCH;
+        retCount = uintValue;
+        goto L_END;
     L_ADD:
         rightValue = _stack.top().bakeValue();
         _stack.pop();
@@ -570,8 +574,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_END:
         if (!_terminate) {
-            assert(_stack.size() == previousSize);
+            assert(_stack.size() == previousSize + retCount);
         }
-        _stack.restoreFrame(previousFrame);
-        return 0;
+        _stack.restoreFrame(previousFrame, obj->localSize());
+        return retCount;
 }
