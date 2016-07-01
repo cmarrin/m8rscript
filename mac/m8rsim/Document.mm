@@ -118,6 +118,7 @@ private:
     [consoleOutput setFont:_font];
     [buildOutput setFont:_font];
     sourceEditor.ShowsLineNumbers = YES;
+    sourceEditor.automaticQuoteSubstitutionEnabled = NO;
     [[sourceEditor textStorage] setDelegate:(id) self];
     if (_source) {
         [sourceEditor setString:_source];

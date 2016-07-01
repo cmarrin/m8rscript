@@ -4,8 +4,7 @@
 
 function add(a, b, c)
 {
-    print("Total is " + (a + b + c));
-    print("\n");
+    print("Total is " + (a + b + c) + "\n");
 }
 
 add(1, 2, 3);
