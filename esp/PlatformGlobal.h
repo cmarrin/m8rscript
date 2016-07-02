@@ -41,8 +41,8 @@ namespace m8r {
 
 class PlatformGlobal : public Global {
 public:
-    PlatformGlobal(Printer* printer)
-        : Global(printer)
+    PlatformGlobal(SystemInterface* system)
+        : Global(system)
     {
         _startTime = currentTime();
     }
