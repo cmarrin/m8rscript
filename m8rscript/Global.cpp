@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Global.h"
 
 #include "Program.h"
-#include "Printer.h"
+#include "SystemInterface.h"
 #include "ExecutionUnit.h"
 
 using namespace m8r;
@@ -46,14 +46,19 @@ Atom Global::_delayAtom;
 Atom Global::_pinModeAtom;
 Atom Global::_digitalWriteAtom;
 Atom Global::_OUTPUTAtom;
+Atom Global::_INPUTAtom;
 Atom Global::_LOWAtom;
 Atom Global::_HIGHAtom;
+Atom Global::_FLOATAtom;
+Atom Global::_PULLUPAtom;
+Atom Global::_INTAtom;
+Atom Global::_OPENDRAINAtom;
 Atom Global::_beginAtom;
 Atom Global::_printAtom;
 
 Map<Atom, Global::Property> Global::_properties;
 
-Global::Global(Printer* printer) : _printer(printer)
+Global::Global(SystemInterface* system) : _system(system)
 {
     _startTime = 0;
 
@@ -63,8 +68,13 @@ Global::Global(Printer* printer) : _printer(printer)
         _pinModeAtom = Program::atomizeString("pinMode");
         _digitalWriteAtom = Program::atomizeString("digitalWrite");
         _OUTPUTAtom = Program::atomizeString("OUTPUT");
+        _INPUTAtom = Program::atomizeString("INPUT");
         _LOWAtom = Program::atomizeString("LOW");
         _HIGHAtom = Program::atomizeString("HIGH");
+        _FLOATAtom = Program::atomizeString("FLOAT");
+        _PULLUPAtom = Program::atomizeString("PULLUP");
+        _INTAtom = Program::atomizeString("INT");
+        _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
         _beginAtom = Program::atomizeString("begin");
         _printAtom = Program::atomizeString("print");
 
@@ -94,6 +104,14 @@ const Value Global::property(int32_t index) const
 {
     switch(static_cast<Property>(index)) {
         case Property::Date: return Value(0);
+        case Property::GPIO_OUTPUT: return Value(PLATFORM_GPIO_OUTPUT);
+        case Property::GPIO_INPUT: return Value(PLATFORM_GPIO_INPUT);
+        case Property::GPIO_HIGH: return Value(PLATFORM_GPIO_HIGH);
+        case Property::GPIO_LOW: return Value(PLATFORM_GPIO_LOW);
+        case Property::GPIO_FLOAT: return Value(PLATFORM_GPIO_FLOAT);
+        case Property::GPIO_PULLUP: return Value(PLATFORM_GPIO_PULLUP);
+        case Property::GPIO_INT: return Value(PLATFORM_GPIO_INT);
+        case Property::GPIO_OPENDRAIN: return Value(PLATFORM_GPIO_OPENDRAIN);
         default: return Value();
     }
 }
@@ -173,8 +191,8 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
         }
         case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
-                if (_printer) {
-                    _printer->print(eu->stack().top(i).toStringValue().c_str());
+                if (_system) {
+                    _system->print(eu->stack().top(i).toStringValue().c_str());
                 }
             }
         default: return -1;

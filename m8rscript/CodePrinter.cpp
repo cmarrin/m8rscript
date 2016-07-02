@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Float.h"
 #include "Parser.h"
-#include "Printer.h"
+#include "SystemInterface.h"
 #include <cassert>
 
 using namespace m8r;
@@ -45,14 +45,14 @@ using namespace m8r;
 bool CodePrinter::printError(const char* s) const
 {
     ++_nerrors;
-    if (_printer) {
-        _printer->print("Runtime error: ");
-        _printer->print(s);
-        _printer->print("\n");
+    if (_system) {
+        _system->print("Runtime error: ");
+        _system->print(s);
+        _system->print("\n");
     }
     if (_nerrors > 10) {
-        if (_printer) {
-            _printer->print("\n\nToo many runtime errors, exiting...\n");
+        if (_system) {
+            _system->print("\n\nToo many runtime errors, exiting...\n");
         }
         return false;
     }

@@ -47,11 +47,11 @@ namespace m8r {
 class Parser;
 class Function;
 class Program;
-class Printer;
+class SystemInterface;
 
 class CodePrinter {
 public:
-    CodePrinter(Printer* printer = nullptr) : _printer(printer) { }
+    CodePrinter(SystemInterface* system = nullptr) : _system(system) { }
     
     m8r::String generateCodeString(const Program* program) const;
     
@@ -123,7 +123,7 @@ private:
     mutable Annotations annotations;
     
     mutable uint32_t _nerrors = 0;
-    Printer* _printer;
+    SystemInterface* _system;
 };
     
 }

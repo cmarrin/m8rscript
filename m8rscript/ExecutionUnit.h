@@ -47,7 +47,7 @@ namespace m8r {
 class Parser;
 class Function;
 class Program;
-class Printer;
+class SystemInterface;
 
 class ExecutionStack : public Stack<Value>, public Object
 {
@@ -66,7 +66,7 @@ public:
 
 class ExecutionUnit {
 public:
-    ExecutionUnit(Printer* printer = nullptr) : _stack(10), _printer(printer) { }
+    ExecutionUnit(SystemInterface* system = nullptr) : _stack(10), _system(system) { }
     
     void run(Program* program);
     int32_t run(Program*, Object*, uint32_t nparams);
@@ -130,7 +130,7 @@ private:
 
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
-    Printer* _printer;
+    SystemInterface* _system;
     mutable bool _terminate = false;
 };
     

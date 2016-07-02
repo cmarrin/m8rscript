@@ -45,3 +45,12 @@ uint64_t PlatformGlobal::currentTime() const
 {
     return system_get_time() - _startTime;
 }
+
+const Value PlatformGlobal::property(int32_t index) const
+{
+    switch(static_cast<Property>(index)) {
+        case Property::Date: return Value(0);
+        default: return Value();
+    }
+}
+

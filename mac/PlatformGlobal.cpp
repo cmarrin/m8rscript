@@ -35,7 +35,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "PlatformGlobal.h"
 
+#include "ExecutionUnit.h"
+#include "SystemInterface.h"
+
 #include <ctime>
+#include <thread>
+#include <chrono>
 
 using namespace m8r;
 
@@ -43,3 +48,36 @@ uint64_t PlatformGlobal::currentTime() const
 {
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime;
 }
+
+int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
+{
+    int32_t result = Global::callProperty(index, program, eu, nparams);
+    if (result >= 0) {
+        return result;
+    }
+    
+    switch(static_cast<Property>(index)) {
+        case Property::GPIO_pinMode: {
+            uint32_t pin = eu->stack().top(-1).toUIntValue();
+            uint32_t mode = eu->stack().top().toUIntValue();
+            _pinio = (_pinio & ~(1 << pin)) | ((mode == PLATFORM_GPIO_OUTPUT) ? (1 << pin) : 0);
+            _system->updateGPIOState(_pinio, _pinstate);
+            return 0;
+        }
+        case Property::GPIO_digitalWrite: {
+            uint8_t pin = eu->stack().top(-1).toUIntValue();
+            uint8_t state = eu->stack().top().toUIntValue();
+            _pinstate = (_pinstate & ~(1 << pin)) | ((state == PLATFORM_GPIO_HIGH) ? (1 << pin) : 0);
+            _system->updateGPIOState(_pinio, _pinstate);
+            return 0;
+        }
+        case Property::System_delay: {
+            uint32_t ms = eu->stack().top().toUIntValue();
+            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+            return 0;
+        }
+
+        default: return -1;
+    }
+}
+

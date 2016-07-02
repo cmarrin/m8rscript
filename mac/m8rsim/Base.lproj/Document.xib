@@ -11,6 +11,9 @@
                 <outlet property="buildButton" destination="fRb-eR-XFZ" id="uv4-xd-UdH"/>
                 <outlet property="buildOutput" destination="SlE-A2-biS" id="Trc-jL-umk"/>
                 <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
+                <outlet property="led0" destination="k7B-qr-GCg" id="L7a-Qh-0dY"/>
+                <outlet property="led1" destination="LtY-HL-FDX" id="ywk-0U-enw"/>
+                <outlet property="led2" destination="Shf-9f-9JX" id="05P-pJ-IuJ"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
                 <outlet property="pauseButton" destination="7ed-ZA-LTG" id="ZFe-iA-0tc"/>
                 <outlet property="runButton" destination="PTc-iU-bNL" id="Ila-kZ-taU"/>
@@ -75,19 +78,27 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k7B-qr-GCg">
-                                                    <rect key="frame" x="20" y="375" width="70" height="30"/>
+                                                    <rect key="frame" x="20" y="387" width="70" height="20"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <buttonCell key="cell" type="square" title="LED 0" alternateTitle="asdfasdf" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-off-md" state="on" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="aGk-hj-opU">
-                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                        <font key="font" metaFont="system"/>
+                                                    <buttonCell key="cell" type="square" title="LED 0" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="aGk-hj-opU">
+                                                        <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                                                        <font key="font" metaFont="smallSystem"/>
                                                     </buttonCell>
                                                 </button>
                                                 <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LtY-HL-FDX">
-                                                    <rect key="frame" x="20" y="335" width="70" height="30"/>
+                                                    <rect key="frame" x="20" y="357" width="70" height="20"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <buttonCell key="cell" type="square" title="LED 1" bezelStyle="shadowlessSquare" image="green-led-on-md" imagePosition="left" alignment="left" alternateImage="green-led-off-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="u4C-hk-CJ9">
-                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                        <font key="font" metaFont="system"/>
+                                                    <buttonCell key="cell" type="square" title="LED 1" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="u4C-hk-CJ9">
+                                                        <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                    </buttonCell>
+                                                </button>
+                                                <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Shf-9f-9JX" userLabel="Led2">
+                                                    <rect key="frame" x="20" y="327" width="70" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <buttonCell key="cell" type="square" title="LED 2" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="w4h-dp-UGY" userLabel="LED 2">
+                                                        <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                                                        <font key="font" metaFont="smallSystem"/>
                                                     </buttonCell>
                                                 </button>
                                             </subviews>

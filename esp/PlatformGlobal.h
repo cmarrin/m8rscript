@@ -49,6 +49,8 @@ public:
     
     virtual ~PlatformGlobal() { }
 
+    virtual const Value property(int32_t index) const override;
+
 protected:
     virtual uint64_t currentTime() const override;
 };

@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Printer;
+class SystemInterface;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -55,7 +55,7 @@ class Printer;
 
 class Parser  {
 public:
-	Parser(m8r::Stream* istream, Printer* printer = nullptr);
+	Parser(m8r::Stream* istream, SystemInterface* system = nullptr);
     
     ~Parser()
     {
@@ -147,7 +147,7 @@ private:
     Code _deferredCode;
     bool _deferred = false;
     
-    Printer* _printer;
+    SystemInterface* _system;
 
     static uint32_t _nextLabelId;
     

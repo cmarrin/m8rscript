@@ -39,11 +39,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Printer;
+class SystemInterface;
 
 class Global : public Object {
 public:
-    Global(Printer*);
+    static constexpr uint32_t PLATFORM_GPIO_FLOAT = 0;
+    static constexpr uint32_t PLATFORM_GPIO_PULLUP = 1;
+
+    static constexpr uint32_t PLATFORM_GPIO_INT = 2;
+    static constexpr uint32_t PLATFORM_GPIO_OUTPUT = 1;
+    static constexpr uint32_t PLATFORM_GPIO_OPENDRAIN = 3;
+    static constexpr uint32_t PLATFORM_GPIO_INPUT = 0;
+
+    static constexpr uint32_t PLATFORM_GPIO_HIGH = 1;
+    static constexpr uint32_t PLATFORM_GPIO_LOW = 0;
+
+    Global(SystemInterface*);
     
     virtual ~Global();
     
@@ -65,29 +76,35 @@ protected:
 
     uint64_t _startTime;
 
-private:        
     enum class Property : uint8_t
     {
         None = 0,
         print = 1,
         System = 10, System_delay, 
         Date = 20, Date_now,
-        GPIO = 30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_HIGH, GPIO_LOW,
+        GPIO = 30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_INPUT, GPIO_HIGH, GPIO_LOW,
+            GPIO_FLOAT, GPIO_PULLUP, GPIO_INT, GPIO_OPENDRAIN,
         Serial = 40, Serial_begin, Serial_print, 
     };
     static Map<Atom, Property> _properties;
     
+    SystemInterface* _system;
+
+private:        
     static Atom _nowAtom;
     static Atom _delayAtom;
     static Atom _pinModeAtom;
     static Atom _digitalWriteAtom;
     static Atom _OUTPUTAtom;
+    static Atom _INPUTAtom;
     static Atom _LOWAtom;
     static Atom _HIGHAtom;
+    static Atom _FLOATAtom;
+    static Atom _PULLUPAtom;
+    static Atom _INTAtom;
+    static Atom _OPENDRAINAtom;
     static Atom _beginAtom;
     static Atom _printAtom;
-
-    Printer* _printer;
 };
     
 }

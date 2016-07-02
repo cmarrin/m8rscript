@@ -22,9 +22,9 @@ Serial.print("Object a.b = " + a.b + "\n");
 
 GPIO.pinMode(0x2, GPIO.OUTPUT);
 Serial.begin(9600);
-Serial.print("Started Blink\n");
+Serial.println("Started Blink\n");
 var count = 0;
-while (count < 100) {
+while (count < 1000) {
     blink();
     count++;
 }
@@ -42,7 +42,7 @@ function blink()
 var a = b * c + d * e;
 
 // add2 = add(2);
-// Serial.print(add2(5));
+// print(add2(5));
 // 
 // function multi(x)
 // {
@@ -50,5 +50,5 @@ var a = b * c + d * e;
 // }
 // 
 // a = multi(4);
-// Serial.print("a=" + a);
+// Serial.println("a=" + a);
  

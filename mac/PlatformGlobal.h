@@ -41,16 +41,23 @@ namespace m8r {
 
 class PlatformGlobal : public Global {
 public:
-    PlatformGlobal(Printer* printer)
-        : Global(printer)
+    PlatformGlobal(SystemInterface* system)
+        : Global(system)
     {
         _startTime = currentTime();
     }
     
     virtual ~PlatformGlobal() { }
 
+    virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*u, uint32_t nparams) override;
+
 protected:
     virtual uint64_t currentTime() const override;
+    
+private:
+    // 0 = input, 1 = output
+    uint16_t _pinio = 0;
+    uint16_t _pinstate = 0;
 };
     
 }

@@ -39,7 +39,7 @@ using namespace m8r;
 
 AtomTable Program::_atomTable;
 
-Program::Program(Printer* printer) : _global(printer)
+Program::Program(SystemInterface* system) : _global(system)
 {
     _main = new Function();
 }

@@ -12,12 +12,12 @@
 
 #import "Parser.h"
 #import "CodePrinter.h"
-#import "Printer.h"
+#import "SystemInterface.h"
 
 #include <iostream>
 #import <sstream>
 
-class MyPrinter;
+class MySystemInterface;
 
 @interface Document ()
 {
@@ -29,29 +29,40 @@ class MyPrinter;
     __weak IBOutlet NSToolbarItem *buildButton;
     __weak IBOutlet NSToolbarItem *pauseButton;
     __weak IBOutlet NSToolbarItem *stopButton;
+    __weak IBOutlet NSButton *led0;
+    __weak IBOutlet NSButton *led1;
+    __weak IBOutlet NSButton *led2;
     
     NSString* _source;
     NSFont* _font;
-    MyPrinter* _printer;
+    MySystemInterface* _system;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
     bool _running;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
+- (void)updateLEDs:(uint16_t) state;
 
 @end
 
-class MyPrinter : public m8r::Printer
+class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MyPrinter(Document* document) : _document(document), _isBuild(true) { }
+    MySystemInterface(Document* document) : _document(document), _isBuild(true) { }
     
     virtual void print(const char* s) const override
     {
         NSString* string = [NSString stringWithUTF8String:s];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_document outputMessage:string toBuild: _isBuild];
+        });
+    }
+
+    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_document updateLEDs:state];
         });
     }
     
@@ -99,8 +110,8 @@ private:
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _printer = new MyPrinter(self);
-        _eu = new m8r::ExecutionUnit(_printer);
+        _system = new MySystemInterface(self);
+        _eu = new m8r::ExecutionUnit(_system);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
     }
     return self;
@@ -109,7 +120,7 @@ private:
 - (void)dealloc
 {
     delete _eu;
-    delete _printer;
+    delete _system;
 }
 
 - (void)awakeFromNib
@@ -171,17 +182,27 @@ private:
     [view setNeedsDisplay:YES];
 }
 
+- (void)updateLEDs:(uint16_t) state
+{
+    [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
+    [led0 setNeedsDisplay:YES];
+    [led1 setState: (state & 0x02) ? NSOnState : NSOffState];
+    [led1 setNeedsDisplay:YES];
+    [led2 setState: (state & 0x04) ? NSOnState : NSOffState];
+    [led2 setNeedsDisplay:YES];
+}
+
 - (IBAction)build:(id)sender {
     _program = nullptr;
     _running = false;
     
     [buildOutput setString: @""];
     
-    _printer->setToBuild(true);
+    _system->setToBuild(true);
     [self outputMessage:[NSString stringWithFormat:@"Building %@\n", [self displayName]] toBuild:YES];
 
     m8r::StringStream stream([sourceEditor.string UTF8String]);
-    m8r::Parser parser(&stream, _printer);
+    m8r::Parser parser(&stream, _system);
     [self outputMessage:@"Parsing finished...\n" toBuild:YES];
 
     if (parser.nerrors()) {
@@ -192,7 +213,7 @@ private:
         _program = parser.program();
         runButton.enabled = YES;
 
-        m8r::CodePrinter codePrinter(_printer);
+        m8r::CodePrinter codePrinter(_system);
         m8r::String codeString = codePrinter.generateCodeString(_program);
         
         [self outputMessage:@"\n*** Start Generated Code ***\n\n" toBuild:YES];
@@ -213,7 +234,7 @@ private:
     [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        _printer->setToBuild(false);
+        _system->setToBuild(false);
         NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
         _eu->run(_program);
         timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;

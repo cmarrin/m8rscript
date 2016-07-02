@@ -43,7 +43,7 @@ namespace m8r {
 
 class Object;
 class Function;
-class Printer;
+class SystemInterface;
 
 typedef Id<uint32_t> ObjectId;
 
@@ -51,7 +51,7 @@ class Program {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
 
-    Program(Printer* printer);
+    Program(SystemInterface* system);
     ~Program();
     
     const Function* main() const { return _main; }
