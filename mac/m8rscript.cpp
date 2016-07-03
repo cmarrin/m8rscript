@@ -15,12 +15,6 @@
 #include "CodePrinter.h"
 #include "SystemInterface.h"
 
-#define Root $(SRCROOT)
-
-#ifdef YYDEBUG
-extern int yydebug;
-#endif
-
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
@@ -30,17 +24,6 @@ public:
 
 int main(int argc, const char* argv[])
 {
-m8r::FloatDouble f1(1234, -2);
-m8r::FloatDouble f2(456, 1);
-m8r::FloatDouble f3 = f1 + f2;
-int32_t man, exp;
-f3.decompose(man, exp);
-std::cout << "FPF: " << man << ":" << exp << "\n";
-
-#ifdef YYDEBUG
-    yydebug = 0;
-#endif
-    
     if (argc < 2) {
         std::cout << "No file specified, exiting\n";
         return 0;

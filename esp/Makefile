@@ -102,8 +102,8 @@ LD_FLAGS ?= -flto -g -w -Os -nostdlib -Wl,--no-check-sections -u call_user_start
 LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
 
 # Core source files
-CORE_DIR = ./cores
-# CORE_DIR = $(ESP_ROOT)/cores-min
+#CORE_DIR = ./core
+CORE_DIR = $(ESP_ROOT)/cores/esp8266
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar

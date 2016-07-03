@@ -279,6 +279,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     if (!codeObj) {
         return -1;
     }
+    if (!codeObj->size()) {
+        return -1;
+    }
+    
     const uint8_t* code = &(codeObj->at(0));
     
     size_t previousFrame = _stack.setLocalFrame(nparams, obj->localSize());
