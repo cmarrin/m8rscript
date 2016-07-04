@@ -196,7 +196,7 @@ m8r::String Value::toStringValue() const
         case Type::Id: return m8r::String(Program::stringFromAtom(asIdValue()));
         case Type::PropertyRef: return objFromValue()->property(_id).toStringValue();
         case Type::ElementRef: return objFromValue()->element(_id).toStringValue();
-        case Type::Return: assert(0); return m8r::String();
+        default: assert(0); return m8r::String();
     }
 }
 
@@ -221,7 +221,7 @@ bool Value::toBoolValue() const
         case Type::Id: return false;
         case Type::PropertyRef: return objFromValue()->property(_id).toBoolValue();
         case Type::ElementRef: return objFromValue()->element(_id).toBoolValue();
-        case Type::Return: assert(0); return false;
+        default: assert(0); return false;
     }
 }
 

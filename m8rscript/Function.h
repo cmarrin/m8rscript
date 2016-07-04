@@ -51,7 +51,7 @@ public:
 
     virtual int32_t addLocal(const Atom& name) override;
     virtual int32_t localIndex(const Atom& name) const override;
-    virtual Atom localName(int32_t index) const override { return (index < _locals.size()) ? _locals[index] : Atom(); }
+    virtual Atom localName(int32_t index) const override { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
     virtual size_t localSize() const override { return _locals.size(); }
     virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) override;
 

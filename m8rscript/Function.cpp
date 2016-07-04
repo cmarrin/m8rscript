@@ -57,7 +57,7 @@ int32_t Function::addLocal(const Atom& atom)
 
 int32_t Function::localIndex(const Atom& name) const
 {
-    for (int i = 0; i < _locals.size(); ++i) {
+    for (int32_t i = 0; i < static_cast<int32_t>(_locals.size()); ++i) {
         if (_locals[i] == name) {
             return i;
         }

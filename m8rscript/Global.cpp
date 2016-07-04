@@ -128,7 +128,7 @@ Atom Global::propertyName(uint32_t index) const
 {
     // Find it the hard way
     for (const auto& entry : _properties) {
-        if (static_cast<int32_t>(entry.value) == index) {
+        if (static_cast<uint32_t>(entry.value) == index) {
             return entry.key;
         }
     }
@@ -195,6 +195,7 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
                     _system->print(eu->stack().top(i).toStringValue().c_str());
                 }
             }
+            return 0;
         default: return -1;
     }
 }

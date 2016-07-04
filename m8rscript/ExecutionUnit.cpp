@@ -112,7 +112,7 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
         // FIXME: Need to walk up the function chain
         Atom name = derefValue.asIdValue();
         Object* testObj = program->main();
-        for (int32_t i = 0; i < testObj->propertyCount(); ++i) {
+        for (uint32_t i = 0; i < testObj->propertyCount(); ++i) {
             const Value& value = testObj->property(i);
             if (value.isNone()) {
                 continue;

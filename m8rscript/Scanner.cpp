@@ -91,7 +91,7 @@ static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
 {
-	for (int i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
+	for (size_t i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
 		if (strcmp(keywords[i].word, s) == 0) {
 			return keywords[i].token;
 		}

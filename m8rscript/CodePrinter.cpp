@@ -184,7 +184,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     outputString += ")\n";
     
     _nestingLevel++;
-    for (int32_t i = 0; i < obj->propertyCount(); ++i) {
+    for (uint32_t i = 0; i < obj->propertyCount(); ++i) {
         const Value& value = obj->property(i);
         if (value.isNone()) {
             continue;
@@ -200,7 +200,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
-    int i = 0;
+    size_t i = 0;
     for ( ; ; ) {
         if (i >= obj->code()->size()) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
@@ -417,7 +417,7 @@ const char* CodePrinter::stringFromOp(Op op)
 
 void CodePrinter::indentCode(m8r::String& s) const
 {
-    for (int i = 0; i < _nestingLevel; ++i) {
+    for (uint32_t i = 0; i < _nestingLevel; ++i) {
         s += "    ";
     }
 }

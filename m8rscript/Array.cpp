@@ -84,7 +84,7 @@ Atom Array::propertyName(uint32_t index) const
         case Property::Length:
             // Find it the hard way
             for (const auto& entry : _properties) {
-                if (static_cast<int32_t>(entry.value) == index) {
+                if (static_cast<uint32_t>(entry.value) == index) {
                     return entry.key;
                 }
             }

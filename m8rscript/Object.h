@@ -121,7 +121,7 @@ public:
 private:
     int32_t findPropertyIndex(const Atom& name) const
     {
-        for (int32_t i = 0; i < _properties.size(); ++i) {
+        for (size_t i = 0; i < _properties.size(); ++i) {
             if (_properties[i].key == name) {
                 return i;
             }

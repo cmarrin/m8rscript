@@ -109,7 +109,7 @@ private:
     static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
     {
         uint32_t value = 0;
-        for (int i = 0; i < size; ++i) {
+        for (uint32_t i = 0; i < size; ++i) {
             value <<= 8;
             value |= code[index + i];
         }
