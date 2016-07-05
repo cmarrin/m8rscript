@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Float.h"
 #include "Parser.h"
 #include "SystemInterface.h"
-#include <cassert>
 
 using namespace m8r;
 
@@ -200,7 +199,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
-    size_t i = 0;
+    uint32_t i = 0;
     for ( ; ; ) {
         if (i >= obj->code()->size()) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
@@ -213,7 +212,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         Op op = maskOp(static_cast<Op>(c), 0x03);
         
         if (op < Op::PUSHI) {
-            int count = sizeFromOp(op);
+            uint32_t count = sizeFromOp(op);
             int nexti = i + count;
             
             c &= 0xfc;

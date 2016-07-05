@@ -35,8 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <assert.h>
-
 #include "Stream.h"
 #include "Float.h"
 #include "Atom.h"

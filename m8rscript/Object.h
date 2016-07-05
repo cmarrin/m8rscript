@@ -123,7 +123,7 @@ private:
     {
         for (size_t i = 0; i < _properties.size(); ++i) {
             if (_properties[i].key == name) {
-                return i;
+                return static_cast<int32_t>(i);
             }
         }
         return -1;
