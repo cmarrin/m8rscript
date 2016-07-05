@@ -61,7 +61,10 @@ inline static const char* duplicateString(const char* s)
 {
     size_t length = strlen(s) + 1;
     char* newString = static_cast<char*>(malloc(length));
-    memcpy(newString, s, length);
+    assert(newString);
+    if (newString) {
+        memcpy(newString, s, length);
+    }
     return newString;
 }
 

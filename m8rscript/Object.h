@@ -51,6 +51,14 @@ public:
 
     virtual ~Object() { }
     
+    static void* operator new (size_t size)
+    {
+        void *p = malloc(size);
+        assert(p);
+        return p;
+    }
+    static void operator delete (void *p) { free(p); }
+    
     virtual const char* typeName() const = 0;
     
     virtual const Code* code() const { return nullptr; }

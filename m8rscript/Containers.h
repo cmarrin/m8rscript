@@ -126,9 +126,18 @@ public:
         }
         _size = other._size;
         _capacity = other._capacity;
-        _data = other._data ? static_cast<char *>(malloc(_capacity)) : nullptr;
-        if (other._data) {
+        if (!other._data) {
+            _data = nullptr;
+            return *this;
+        }
+        
+        _data = static_cast<char *>(malloc(_capacity));
+        assert(_data);
+        if (_data) {
             memcpy(_data, other._data, _size);
+        } else {
+            _capacity = 0;
+            _size = 1;
         }
         return *this;
     }
@@ -177,8 +186,14 @@ private:
             _capacity = size;
         }
         char *newData = static_cast<char *>(malloc(_capacity));
+        assert(newData);
         if (_data) {
-            memcpy(newData, _data, _size);
+            if (newData) {
+                memcpy(newData, _data, _size);
+            } else {
+                _capacity = 0;
+                _size = 1;
+            }
             free(_data);
         }
         _data = newData;
@@ -216,7 +231,13 @@ public:
         _size = other._size;
         _capacity = other._capacity;
         _data = static_cast<type *>(malloc(_capacity*sizeof(type)));
-        memcpy(_data, other._data, _size * sizeof(type));
+        assert(_data);
+        if (_data) {
+            memcpy(_data, other._data, _size * sizeof(type));
+        } else {
+            _capacity = 0;
+            _size = 0;
+        }
         return *this;
     };
 
@@ -267,8 +288,16 @@ private:
             _capacity = size;
         }
         type *newData = static_cast<type *>(malloc(_capacity * sizeof(type)));
-        memcpy(newData, _data, _size * sizeof(type));
-        free(_data);
+        assert(newData);
+        if (_data) {
+            if (newData) {
+                memcpy(newData, _data, _size * sizeof(type));
+            } else {
+                _capacity = 0;
+                _size = 0;
+            }
+            free(_data);
+        }
         _data = newData;
     };
 
