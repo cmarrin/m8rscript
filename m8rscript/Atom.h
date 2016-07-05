@@ -57,7 +57,7 @@ public:
     m8r::String stringFromAtom(const Atom atom) const
     {
         uint16_t index = atom.raw();
-        return m8r::String(&(_table[index + 1]), -_table[index]);
+        return m8r::String(&(_table[index + 1]), -static_cast<int8_t>(_table[index]));
     }
 
 private:

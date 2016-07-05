@@ -34,7 +34,6 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
 #include "Atom.h"
-#include <cassert>
 
 using namespace m8r;
 
@@ -51,9 +50,9 @@ Atom AtomTable::atomizeString(const char* s)
         p++;
         p = strstr(p, s);
         assert(p != start); // Since the first string is preceded by a length, this should never happen
-        if (p && p[-1] < 0) {
+        if (p && static_cast<int8_t>(p[-1]) < 0) {
             // The next char either needs to be negative (meaning the start of the next word) or the end of the string
-            if (p[len] <= 0) {
+            if (static_cast<int8_t>(p[len]) <= 0) {
                 return Atom(p - start - 1);
             }
         }
