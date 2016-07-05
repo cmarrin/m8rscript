@@ -1,6 +1,7 @@
 # MaterScript For ESP8266
 ### Howto
 MaterScript for the ESP currently uses the [Sming framework](https://github.com/SmingHub/Sming). To build on Mac:
+
 1. Setup Sming using the instructions [Here](https://github.com/SmingHub/Sming/wiki/MacOS-Quickstart). 
 2. cd esp
 3. make clean
