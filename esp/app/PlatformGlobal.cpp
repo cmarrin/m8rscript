@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer.
-    
+	  this list of conditions and the following disclaimer.
+	  
     - Redistributions in binary form must reproduce the above copyright 
-    notice, this list of conditions and the following disclaimer in the 
-    documentation and/or other materials provided with the distribution.
-    
+	  notice, this list of conditions and the following disclaimer in the 
+	  documentation and/or other materials provided with the distribution.
+	  
     - Neither the name of the <ORGANIZATION> nor the names of its 
-    contributors may be used to endorse or promote products derived from 
-    this software without specific prior written permission.
-    
+	  contributors may be used to endorse or promote products derived from 
+	  this software without specific prior written permission.
+	  
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -33,26 +33,40 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#pragma once
+#include "PlatformGlobal.h"
 
-#include "Global.h"
+#include <SmingCore/SmingCore.h>
 
-namespace m8r {
+using namespace m8r;
 
-class PlatformGlobal : public Global {
-public:
-    PlatformGlobal(SystemInterface* system)
-        : Global(system)
-    {
-        _startTime = currentTime();
+uint64_t PlatformGlobal::currentTime() const
+{
+    return system_get_time() - _startTime;
+}
+
+int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
+{
+    int32_t result = Global::callProperty(index, program, eu, nparams);
+    if (result >= 0) {
+        return result;
     }
     
-    virtual ~PlatformGlobal() { }
+    switch(static_cast<Property>(index)) {
+        case Property::GPIO_pinMode: {
+            //uint32_t pin = eu->stack().top(-1).toUIntValue();
+            //uint32_t mode = eu->stack().top().toUIntValue();
+            return 0;
+        }
+        case Property::GPIO_digitalWrite: {
+            //uint8_t pin = eu->stack().top(-1).toUIntValue();
+            //uint8_t state = eu->stack().top().toUIntValue();
+            return 0;
+        }
+        case Property::System_delay: {
+            //uint32_t ms = eu->stack().top().toUIntValue();
+            return 0;
+        }
 
-    virtual const Value property(int32_t index) const override;
-
-protected:
-    virtual uint64_t currentTime() const override;
-};
-    
+        default: return -1;
+    }
 }

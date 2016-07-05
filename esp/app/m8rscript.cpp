@@ -1,10 +1,24 @@
+#include <SmingCore/SmingCore.h>
+
 #include "Parser.h"
 #include "Stream.h"
 #include "CodePrinter.h"
 #include "SystemInterface.h"
 
-#include "Arduino.h"
-//#include "GDBStub.h"
+void __assert_func(const char *file, int line, const char *func, const char *what)
+{
+    SYSTEM_ERROR("Assertion failed: (%s), function %s, file %s, line %d", what, func, file, line);
+    while (1) ;
+}
+
+Timer procTimer;
+bool state = true;
+
+void blink()
+{
+	digitalWrite(2, state);
+	state = !state;
+}
 
 static m8r::String insertCR(const char* s)
 {
@@ -28,9 +42,8 @@ public:
     }
 };
 
-void setup() {
+void init() {
     pinMode(2, OUTPUT);
-    Serial.begin(9600);
 
     const char* filename = "simple.m8r";
     
@@ -46,7 +59,7 @@ void setup() {
 //        abort();
 //    }
 
-    m8r::StringStream istream("Serial.print(\"It's Happening!!!\n\");");
+    m8r::StringStream istream("var a = 4 + 7; Serial.print(\"It's Happening!!!\" + a + \"\n\");");
     systemInterface.print("Parsing...\n");
     m8r::Parser parser(&istream, &systemInterface);
     
@@ -62,12 +75,6 @@ void setup() {
         eu.run(parser.program());
         systemInterface.print("\n***** End of Program Output *****\n\n");
     }
-}
 
-void loop() {
-    Serial.println("Hello!!!");
-    digitalWrite(2, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(500);              // wait for a second
-    digitalWrite(2, LOW);    // turn the LED off by making the voltage LOW
-    delay(500);              // wait for a second
+	procTimer.initializeMs(1000, blink).start();
 }
