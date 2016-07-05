@@ -98,7 +98,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
         }
 	}
     
-    outputString += generateCodeString(program, program->main(), "main", 0);
+    outputString += generateCodeString(program, program, "main", 0);
     return outputString;
 }
 

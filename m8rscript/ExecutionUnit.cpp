@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Float.h"
 #include "Parser.h"
 #include "SystemInterface.h"
-#include <cassert>
 
 using namespace m8r;
 
@@ -111,7 +110,7 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
         // First see if this is a callable property of the main function
         // FIXME: Need to walk up the function chain
         Atom name = derefValue.asIdValue();
-        Object* testObj = program->main();
+        Object* testObj = program;
         for (uint32_t i = 0; i < testObj->propertyCount(); ++i) {
             const Value& value = testObj->property(i);
             if (value.isNone()) {
@@ -203,7 +202,7 @@ void ExecutionUnit::run(Program* program)
     _terminate = false;
     _nerrors = 0;
     _stack.clear();
-    run(program, program->main(), 0);
+    run(program, program, 0);
 }
 
 int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams)

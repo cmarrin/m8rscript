@@ -47,15 +47,13 @@ class SystemInterface;
 
 typedef Id<uint32_t> ObjectId;
 
-class Program {
+class Program : public Function {
 public:
     typedef Map<ObjectId, Object*> ObjectMap;
 
     Program(SystemInterface* system);
     ~Program();
     
-    const Function* main() const { return _main; }
-    Function* main() { return _main; }
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
     
@@ -95,7 +93,6 @@ private:
     static AtomTable _atomTable;
     
     Vector<char> _stringTable;
-    Function* _main;
     ObjectMap _objects;
     uint32_t _nextId = 1;
     PlatformGlobal _global;

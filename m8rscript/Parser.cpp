@@ -55,7 +55,7 @@ Parser::Parser(m8r::Stream* istream, SystemInterface* system)
     , _program(new Program(system))
     , _system(system)
 {
-    _currentFunction = _program->main();
+    _currentFunction = _program;
 
 #if USE_PARSE_ENGINE
     ParseEngine p(this);

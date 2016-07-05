@@ -41,7 +41,6 @@ AtomTable Program::_atomTable;
 
 Program::Program(SystemInterface* system) : _global(system)
 {
-    _main = new Function();
 }
 
 Program::~Program()
