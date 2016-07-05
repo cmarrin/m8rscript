@@ -156,7 +156,13 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
     
     if (objectValue.type() == Value::Type::PropertyRef) {
         objectValue = objectValue.appendPropertyRef(derefValue);
-        return !objectValue.isNone();
+        if (objectValue.isNone()) {
+            String s = "'";
+            s += derefValue.toStringValue();
+            s += "' property does not exist";
+            return printError(s.c_str());
+        }
+        return true;
     }
     
     Object* obj = objectValue.toObjectValue();
