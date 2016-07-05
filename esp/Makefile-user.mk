@@ -7,7 +7,7 @@ MODULES = app ../m8rscript
 EXTRA_INCDIR = include ../m8rscript
 
 ESP_HOME = /opt/esp-open-sdk
-SMING_HOME = /Volumes/Personal/Projects/git/Sming/Sming/
+SMING_HOME = /opt/Sming/Sming/
 ESPTOOL2 = /opt/esp-open-sdk/utils/esptool2
 ESPTOOL = /opt/esp-open-sdk/utils/esptool.py
 
