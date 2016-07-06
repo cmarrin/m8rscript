@@ -43,6 +43,7 @@ public:
 };
 
 void init() {
+    ets_delay_us(2000000);
     pinMode(2, OUTPUT);
 
     const char* filename = "simple.m8r";
