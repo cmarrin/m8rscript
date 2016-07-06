@@ -38,17 +38,57 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ParseEngine.h"
 #include "SystemInterface.h"
 
-#ifndef USE_PARSE_ENGINE
-#define USE_PARSE_ENGINE 1
-#endif
-
 using namespace m8r;
 
-#if !USE_PARSE_ENGINE
-extern int yyparse(Parser*);
-#endif
-
 uint32_t Parser::_nextLabelId = 1;
+
+class InteractiveStream : public Stream
+{
+public:
+    InteractiveStream(Parser* parser, SystemInterface* system) : _parser(parser), _system(system) { }
+
+    virtual ~InteractiveStream() { }
+	
+	virtual int available() override
+    {
+        return 1;
+    }
+    virtual int read() override;
+	virtual void flush() override { }
+    
+    void interactive();
+	
+private:
+    Parser* _parser;
+    SystemInterface* _system;
+};
+
+int InteractiveStream::read()
+{
+    return _system->read();
+//
+//    int c;
+//    char buf[2] = " ";
+//    while ((c = _system->read()) != -1) {
+//        buf[0] = static_cast<char>(c);
+//        _system->print("char '");
+//        _system->print(buf);
+//        _system->print("'\n");
+//    }
+}
+
+Parser::Parser(SystemInterface* system)
+    : _scanner(this)
+    , _program(new Program(system))
+    , _system(system)
+{
+    InteractiveStream stream(this, _system);
+    _scanner.setStream(&stream);
+    _currentFunction = _program;
+
+    ParseEngine p(this);
+    p.program();
+}
 
 Parser::Parser(m8r::Stream* istream, SystemInterface* system)
     : _scanner(this, istream)
@@ -57,12 +97,8 @@ Parser::Parser(m8r::Stream* istream, SystemInterface* system)
 {
     _currentFunction = _program;
 
-#if USE_PARSE_ENGINE
     ParseEngine p(this);
     p.program();
-#else
-	yyparse(this);
-#endif
 }
 
 void Parser::printError(const char* s)

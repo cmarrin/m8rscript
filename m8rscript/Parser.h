@@ -55,6 +55,7 @@ class SystemInterface;
 
 class Parser  {
 public:
+	Parser(SystemInterface* system = nullptr);
 	Parser(m8r::Stream* istream, SystemInterface* system = nullptr);
     
     ~Parser()

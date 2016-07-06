@@ -52,6 +52,7 @@ public:
     virtual ~SystemInterface() { }
     
     virtual void print(const char*) const = 0;
+    virtual int read() const = 0;
     
     // 16 GPIO pins. mode = 1 for output, 0 for input. state = 1 for high, 0 for low
     virtual void updateGPIOState(uint16_t mode, uint16_t state) { }

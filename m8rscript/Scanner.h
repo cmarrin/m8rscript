@@ -73,7 +73,7 @@ public:
         uint32_t            argcount;
     } TokenType;
 
-  	Scanner(Parser* parser, m8r::Stream* istream)
+  	Scanner(Parser* parser, m8r::Stream* istream = nullptr)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
@@ -84,6 +84,8 @@ public:
   	~Scanner()
   	{
     }
+    
+    void setStream(m8r::Stream* istream) { _istream = istream; }
   
   	Token getToken(TokenType& token);
     

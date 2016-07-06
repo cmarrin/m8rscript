@@ -19,13 +19,17 @@ class MySystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void print(const char* s) const override { std::cout << s; }
+    virtual int read() const override  { return std::cin.get(); }
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override { std::cout << "mode=" << std::hex << mode << " state=" << std::hex << state << "\n"; }
 };
 
 int main(int argc, const char* argv[])
 {
+    MySystemInterface system;
+
     if (argc < 2) {
-        std::cout << "No file specified, exiting\n";
+        std::cout << "No file specified, entering interactive mode\n";
+        m8r::Parser parser(&system);
         return 0;
     }
     
@@ -36,9 +40,7 @@ int main(int argc, const char* argv[])
         std::cout << "File not found, exiting\n";
         return 0;
     }
-    
-    MySystemInterface system;
-    
+        
     std::cout << "Parsing...\n";
     
     std::clock_t startTime = std::clock();

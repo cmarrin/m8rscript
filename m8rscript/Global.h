@@ -71,6 +71,8 @@ public:
 
     virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
 
+    static void interactive();
+    
 protected:
     virtual uint64_t currentTime() const = 0;
 

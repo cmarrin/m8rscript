@@ -41,6 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Containers.h"
 
+#include "SystemInterface.h"
+
 namespace m8r {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,7 +57,6 @@ class Stream {
 public:
 	virtual int available() = 0;
     virtual int read() = 0;
-    virtual int peek() = 0;
 	virtual void flush() = 0;
 	
 private:
@@ -96,12 +97,6 @@ public:
     {
         return fgetc(_file);
     }
-    virtual int peek() override
-    {
-        int c = fgetc(_file);
-        ungetc(c, _file);
-        return c;
-    }
 	virtual void flush() override { }
 	
 private:
@@ -122,10 +117,6 @@ public:
         return 0;
     }
     virtual int read() override
-    {
-        return 0;
-    }
-    virtual int peek() override
     {
         return 0;
     }
@@ -159,10 +150,6 @@ public:
     virtual int read() override
     {
         return (_index < _string.length()) ? _string[_index++] : -1;
-    }
-    virtual int peek() override
-    {
-        return (_index < _string.length()) ? _string[_index] : -1;
     }
 	virtual void flush() override { }
 	
