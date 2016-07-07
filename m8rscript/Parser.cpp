@@ -68,13 +68,20 @@ private:
 
 int InteractiveStream::read()
 {
-    if (_index < 0 || _string[_index] == '\0') {
+    while (1) {
+        if (_index >= 0) {
+            if (_string[_index] != '\0') {
+                return _string[_index++];
+            } else {
+                _index = -1;
+                return '\n';
+            }
+        }
         _index = 0;
         if (!_system->read(_string, 99)) {
             return EOF;
         }
     }
-    return _string[_index++];
 //
 //    int c;
 //    char buf[2] = " ";
@@ -108,13 +115,16 @@ Parser::Parser(m8r::Stream* istream, SystemInterface* system)
 void Parser::parse(ExecutionUnit* eu)
 {
     ParseEngine p(this);
-    while(p.sourceElement()) {
+    while(1) {
+        bool r = p.sourceElement();
         if (eu) {
-_system->print("Before interactiveRun\n");
             Value value = eu->interactiveRun(_program);
-_system->print("After interactiveRun\n");
             _system->print(value.toStringValue().c_str());
             _system->print("\n>>> ");
+        } else {
+            if (!r) {
+                break;
+            }
         }
     }
     programEnd();

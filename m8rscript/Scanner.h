@@ -90,7 +90,6 @@ public:
   	Token getToken(TokenType& token);
     
     uint32_t lineno() const { return _lineno; }
-    bool lastCharIsLineFeed() const { return _lastCharIsLineFeed; }
   	
 private:
     uint8_t get() const;
@@ -115,7 +114,6 @@ private:
   	m8r::Stream* _istream;
     mutable uint32_t _lineno;
     Parser* _parser;
-    mutable bool _lastCharIsLineFeed = false;
 };
 
 }

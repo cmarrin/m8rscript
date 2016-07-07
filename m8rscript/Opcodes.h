@@ -124,7 +124,7 @@ enum class Token : uint8_t {
     New = 2,
     Delete = 3,
     Var = 4,
-    Do = 10,
+    NewLine = 10,
     While = 11,
     For = 12,
     If = 13,
@@ -137,6 +137,7 @@ enum class Token : uint8_t {
     Return = 20,
     Unknown = 21,
     Comment = 22,
+    Do = 23,
     
     Bang = 33, 
     Percent = 37,
@@ -195,7 +196,7 @@ enum class Token : uint8_t {
     
     Expr = 0xe0,
     PropertyAssignment = 0xe1,
-    
+
     Error = 0xfe,
     EndOfFile = 0xff,
 };

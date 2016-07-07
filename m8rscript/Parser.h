@@ -65,7 +65,6 @@ public:
 	void printError(const char* s);
     void print(const char* s);
     uint32_t nerrors() const { return _nerrors; }
-    bool lastCharIsLineFeed() const { return _scanner.lastCharIsLineFeed(); }
     Program* program() { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }

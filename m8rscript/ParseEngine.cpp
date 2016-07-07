@@ -88,6 +88,11 @@ void ParseEngine::syntaxError(Error error, Token token)
     uint8_t c = static_cast<uint8_t>(token);
     
     switch(error) {
+        case Error::Unknown:
+            s = "unknown token: (";
+            s += Value::toString(c);
+            s += ")";
+            break;
         case Error::Expected:
             s = "syntax error: expected ";
             if (c < 0x80) {
@@ -113,7 +118,7 @@ void ParseEngine::syntaxError(Error error, Token token)
 bool ParseEngine::expect(Token token)
 {
     if (_token != token) {
-        if (token != Token::Semicolon || !_parser->lastCharIsLineFeed()) {
+        if (token != Token::Semicolon || _token != Token::NewLine) {
             syntaxError(Error::Expected, token);
             return false;
         }
@@ -162,8 +167,14 @@ bool ParseEngine::statement()
         _parser->emit(m8r::Op::POP);
         expect(Token::Semicolon);
         return true;
+    } else if (_token == Token::NewLine) {
+        popToken();
+        return true;
+    } else {
+        syntaxError(Error::Unknown, _token);
+        popToken();
+        return false;
     }
-    return false;
 }
 
 bool ParseEngine::functionDeclaration()

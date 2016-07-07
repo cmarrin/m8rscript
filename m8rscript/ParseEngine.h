@@ -56,7 +56,7 @@ class Value;
 
 class ParseEngine  {
 public:
-    enum class Error : uint8_t { Expected };
+    enum class Error : uint8_t { Expected, Unknown };
     
   	ParseEngine(Parser* parser);
   	

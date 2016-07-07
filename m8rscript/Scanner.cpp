@@ -86,7 +86,7 @@ static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
 static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
 static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
 static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
-static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
+static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
@@ -492,7 +492,6 @@ Token Scanner::scanComment()
 
 uint8_t Scanner::get() const
 {
-    _lastCharIsLineFeed = false;
     if (_lastChar != C_EOF) {
         uint8_t c = _lastChar;
         _lastChar = C_EOF;
@@ -504,7 +503,6 @@ uint8_t Scanner::get() const
     uint8_t c = _istream->read();
     if (c == '\n') {
         ++_lineno;
-        _lastCharIsLineFeed = true;
     }
     return c;
 }
@@ -519,6 +517,7 @@ Token Scanner::getToken(TokenType& tokenValue)
             continue;
         }
 		switch(c) {
+            case '\n': return Token::NewLine;
 			case '/':
 				token = scanComment();
 				if (token == Token::Comment) {
