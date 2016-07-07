@@ -43,6 +43,8 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class Function;
+class ExecutionUnit;
+class Value;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -62,7 +64,7 @@ public:
   	{
     }
   
-    void program();
+    bool sourceElement();
 
 private:
     struct OpInfo {
@@ -78,8 +80,6 @@ private:
     
     void popToken() { _token = _parser->getToken(_tokenValue); }
 
-    bool sourceElements();
-    bool sourceElement();
     bool statement();
     bool functionDeclaration();
     bool compoundStatement();
@@ -106,6 +106,8 @@ private:
     Parser* _parser;
     Token _token;
     Scanner::TokenType _tokenValue;
+    
+    ExecutionUnit* _eu = nullptr;
     
     struct CompareTokens
     {

@@ -203,15 +203,35 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     return Atom();
 }
 
+void ExecutionUnit::interactiveStart(Program* program)
+{
+    _terminate = false;
+    _nerrors = 0;
+    _interactivePC = 0;
+    _stack.clear();
+    _stack.setLocalFrame(0, program->localSize());
+}
+
+Value ExecutionUnit::interactiveRun(Program* program)
+{
+    run(program, program, 0, true);
+    return Value();
+}
+
 void ExecutionUnit::run(Program* program)
 {
     _terminate = false;
     _nerrors = 0;
     _stack.clear();
-    run(program, program, 0);
+    run(program, program, 0, false);
 }
 
 int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams)
+{
+    return run(program, obj, nparams, false);
+}
+
+int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams, bool interactive)
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -269,7 +289,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
-        if (_terminate) { \
+        if (_terminate || i >= codeObj->size()) { \
             goto L_END; \
         } \
         op = static_cast<Op>(code[i++]); \
@@ -290,9 +310,16 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     const uint8_t* code = &(codeObj->at(0));
     
-    size_t previousFrame = _stack.setLocalFrame(nparams, obj->localSize());
+    size_t previousFrame = 0;
+    int i;
+    
+    if (interactive) {
+        i = _interactivePC;
+    } else {
+        previousFrame = _stack.setLocalFrame(nparams, obj->localSize());
+        i = 0;
+    }
     size_t previousSize = _stack.size();
-    int i = 0;
     
     m8r::String strValue;
     uint32_t uintValue;
@@ -585,6 +612,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (!_terminate) {
             assert(_stack.size() == previousSize + retCount);
         }
-        _stack.restoreFrame(previousFrame, obj->localSize());
+        if (interactive) {
+            _interactivePC = i;
+        } else {
+            _stack.restoreFrame(previousFrame, obj->localSize());
+        }
         return retCount;
 }

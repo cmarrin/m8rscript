@@ -13,13 +13,18 @@
 #include "Stream.h"
 #include "Parser.h"
 #include "CodePrinter.h"
+#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void print(const char* s) const override { std::cout << s; }
-    virtual int read() const override  { return std::cin.get(); }
+    virtual bool read(char*s, int32_t size) const override
+    {
+        std::cin.getline(s, size);
+        return true;
+    }
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override { std::cout << "mode=" << std::hex << mode << " state=" << std::hex << state << "\n"; }
 };
 
@@ -29,7 +34,7 @@ int main(int argc, const char* argv[])
 
     if (argc < 2) {
         std::cout << "No file specified, entering interactive mode\n";
-        m8r::Parser parser(&system);
+        m8r::Parser parser(nullptr, &system);
         return 0;
     }
     

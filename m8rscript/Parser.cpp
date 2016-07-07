@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 
 #include "ParseEngine.h"
+#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 
 using namespace m8r;
@@ -61,11 +62,19 @@ public:
 private:
     Parser* _parser;
     SystemInterface* _system;
+    char _string[100];
+    int16_t _index = -1;
 };
 
 int InteractiveStream::read()
 {
-    return _system->read();
+    if (_index < 0 || _string[_index] == '\0') {
+        _index = 0;
+        if (!_system->read(_string, 99)) {
+            return EOF;
+        }
+    }
+    return _string[_index++];
 //
 //    int c;
 //    char buf[2] = " ";
@@ -77,19 +86,6 @@ int InteractiveStream::read()
 //    }
 }
 
-Parser::Parser(SystemInterface* system)
-    : _scanner(this)
-    , _program(new Program(system))
-    , _system(system)
-{
-    InteractiveStream stream(this, _system);
-    _scanner.setStream(&stream);
-    _currentFunction = _program;
-
-    ParseEngine p(this);
-    p.program();
-}
-
 Parser::Parser(m8r::Stream* istream, SystemInterface* system)
     : _scanner(this, istream)
     , _program(new Program(system))
@@ -97,8 +93,31 @@ Parser::Parser(m8r::Stream* istream, SystemInterface* system)
 {
     _currentFunction = _program;
 
+    if (!istream) {
+        system->print(">>> ");
+        InteractiveStream stream(this, _system);
+        _scanner.setStream(&stream);
+        ExecutionUnit eu(system);
+        eu.interactiveStart(_program);
+        parse(&eu);
+        return;
+    }
+    parse(nullptr);
+}
+
+void Parser::parse(ExecutionUnit* eu)
+{
     ParseEngine p(this);
-    p.program();
+    while(p.sourceElement()) {
+        if (eu) {
+_system->print("Before interactiveRun\n");
+            Value value = eu->interactiveRun(_program);
+_system->print("After interactiveRun\n");
+            _system->print(value.toStringValue().c_str());
+            _system->print("\n>>> ");
+        }
+    }
+    programEnd();
 }
 
 void Parser::printError(const char* s)
@@ -110,6 +129,13 @@ void Parser::printError(const char* s)
         _system->print(" on line ");
         _system->print(Value::toString(_scanner.lineno()).c_str());
         _system->print("\n");
+    }
+}
+
+void Parser::print(const char* s)
+{
+    if (_system)  {
+        _system->print(s);
     }
 }
 

@@ -77,6 +77,9 @@ ParseEngine::ParseEngine(Parser* parser)
         _opInfo.emplace(Token::Slash,       { 15, OpInfo::Assoc::Left, Op::DIV });
         _opInfo.emplace(Token::Percent,     { 15, OpInfo::Assoc::Left, Op::MOD });
     }
+
+    // Prime the pump
+    popToken();
 }
 
 void ParseEngine::syntaxError(Error error, Token token)
@@ -110,12 +113,13 @@ void ParseEngine::syntaxError(Error error, Token token)
 bool ParseEngine::expect(Token token)
 {
     if (_token != token) {
-        syntaxError(Error::Expected, token);
-        return false;
-    } else {
-        popToken();
-        return true;
+        if (token != Token::Semicolon || !_parser->lastCharIsLineFeed()) {
+            syntaxError(Error::Expected, token);
+            return false;
+        }
     }
+    popToken();
+    return true;
 }
 
 bool ParseEngine::expect(Token token, bool expected)
@@ -124,21 +128,6 @@ bool ParseEngine::expect(Token token, bool expected)
         syntaxError(Error::Expected, token);
     }
     return expected;
-}
-
-void ParseEngine::program()
-{
-    // Prime the pump
-    popToken();
-    
-    sourceElements();
-    _parser->programEnd();
-}
-
-bool ParseEngine::sourceElements()
-{
-    while(sourceElement()) ;
-    return false;
 }
 
 bool ParseEngine::sourceElement()
@@ -559,7 +548,7 @@ Function* ParseEngine::function()
     _parser->functionParamsEnd();
     expect(Token::RParen);
     expect(Token::LBrace);
-    sourceElements();
+    while(sourceElement()) { }
     expect(Token::RBrace);
     _parser->emit(m8r::Op::END);
     return _parser->functionEnd();

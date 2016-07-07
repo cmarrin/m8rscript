@@ -492,6 +492,7 @@ Token Scanner::scanComment()
 
 uint8_t Scanner::get() const
 {
+    _lastCharIsLineFeed = false;
     if (_lastChar != C_EOF) {
         uint8_t c = _lastChar;
         _lastChar = C_EOF;
@@ -503,6 +504,7 @@ uint8_t Scanner::get() const
     uint8_t c = _istream->read();
     if (c == '\n') {
         ++_lineno;
+        _lastCharIsLineFeed = true;
     }
     return c;
 }

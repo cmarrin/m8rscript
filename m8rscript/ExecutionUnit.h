@@ -72,9 +72,13 @@ public:
     int32_t run(Program*, Object*, uint32_t nparams);
     ExecutionStack& stack() { return _stack; }
 
+    void interactiveStart(Program*);
+    Value interactiveRun(Program*);
     void requestTermination() { _terminate = true; }
     
 private:
+    int32_t run(Program*, Object*, uint32_t nparams, bool interactive);
+
     bool printError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
@@ -132,6 +136,7 @@ private:
     mutable uint32_t _nerrors = 0;
     SystemInterface* _system;
     mutable bool _terminate = false;
+    uint32_t _interactivePC = 0;
 };
     
 }

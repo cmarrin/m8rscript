@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Stream.h"
 #include "Scanner.h"
-#include "ExecutionUnit.h"
 #include "Program.h"
 #include "Array.h"
 
@@ -55,8 +54,7 @@ class SystemInterface;
 
 class Parser  {
 public:
-	Parser(SystemInterface* system = nullptr);
-	Parser(m8r::Stream* istream, SystemInterface* system = nullptr);
+	Parser(m8r::Stream* istream = nullptr, SystemInterface* system = nullptr);
     
     ~Parser()
     {
@@ -65,7 +63,9 @@ public:
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
 	void printError(const char* s);
+    void print(const char* s);
     uint32_t nerrors() const { return _nerrors; }
+    bool lastCharIsLineFeed() const { return _scanner.lastCharIsLineFeed(); }
     Program* program() { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
@@ -121,6 +121,8 @@ public:
     void addVar(const Atom& name) { _currentFunction->addLocal(name); }
     
 private:
+    void parse(ExecutionUnit*);
+    
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
         assert(index < 8);
