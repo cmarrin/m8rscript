@@ -12,6 +12,7 @@
 
 #import "Parser.h"
 #import "CodePrinter.h"
+#import "ExecutionUnit.h"
 #import "SystemInterface.h"
 
 #include <iostream>
@@ -57,6 +58,11 @@ public:
         dispatch_async(dispatch_get_main_queue(), ^{
             [_document outputMessage:string toBuild: _isBuild];
         });
+    }
+
+    virtual bool read(char*, int32_t size) const override
+    {
+        return false;
     }
 
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override

@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "494BA16C1D2043B200E72725"
-               BuildableName = "liblibm8rscript.dylib"
+               BlueprintIdentifier = "494D254D1D2E9055003755DB"
+               BuildableName = "liblibm8rscript.a"
                BlueprintName = "libm8rscript"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
@@ -45,8 +45,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "494BA16C1D2043B200E72725"
-            BuildableName = "liblibm8rscript.dylib"
+            BlueprintIdentifier = "494D254D1D2E9055003755DB"
+            BuildableName = "liblibm8rscript.a"
             BlueprintName = "libm8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
@@ -63,8 +63,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "494BA16C1D2043B200E72725"
-            BuildableName = "liblibm8rscript.dylib"
+            BlueprintIdentifier = "494D254D1D2E9055003755DB"
+            BuildableName = "liblibm8rscript.a"
             BlueprintName = "libm8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
