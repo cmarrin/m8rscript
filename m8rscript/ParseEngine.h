@@ -64,7 +64,7 @@ public:
   	{
     }
   
-    bool sourceElement();
+    bool statement();
 
 private:
     struct OpInfo {
@@ -78,9 +78,24 @@ private:
     bool expect(Token token, bool expected);
     void syntaxError(Error, Token token);
     
-    void popToken() { _token = _parser->getToken(_tokenValue); }
+    Token getToken()
+    {
+        if (_currentToken == Token::None) {
+            _currentToken = _parser->getToken(_currentTokenValue);
+        }
+        return _currentToken;
+    }
+    
+    const Scanner::TokenType& getTokenValue()
+    {
+        if (_currentToken == Token::None) {
+            _currentToken = _parser->getToken(_currentTokenValue);
+        }
+        return _currentTokenValue;
+    }
+    
+    void retireToken() { _currentToken = Token::None; }
 
-    bool statement();
     bool functionDeclaration();
     bool compoundStatement();
     bool selectionStatement();
@@ -104,8 +119,8 @@ private:
     void formalParameterList();
     
     Parser* _parser;
-    Token _token;
-    Scanner::TokenType _tokenValue;
+    Token _currentToken = Token::None;
+    Scanner::TokenType _currentTokenValue;
     
     ExecutionUnit* _eu = nullptr;
     

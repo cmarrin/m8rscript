@@ -116,7 +116,7 @@ void Parser::parse(ExecutionUnit* eu)
 {
     ParseEngine p(this);
     while(1) {
-        bool r = p.sourceElement();
+        bool r = p.statement();
         if (eu) {
             Value value = eu->interactiveRun(_program);
             _system->print(value.toStringValue().c_str());

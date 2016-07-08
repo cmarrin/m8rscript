@@ -197,6 +197,7 @@ enum class Token : uint8_t {
     Expr = 0xe0,
     PropertyAssignment = 0xe1,
 
+    None = 0xfd,
     Error = 0xfe,
     EndOfFile = 0xff,
 };

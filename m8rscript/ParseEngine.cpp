@@ -77,9 +77,6 @@ ParseEngine::ParseEngine(Parser* parser)
         _opInfo.emplace(Token::Slash,       { 15, OpInfo::Assoc::Left, Op::DIV });
         _opInfo.emplace(Token::Percent,     { 15, OpInfo::Assoc::Left, Op::MOD });
     }
-
-    // Prime the pump
-    popToken();
 }
 
 void ParseEngine::syntaxError(Error error, Token token)
@@ -117,14 +114,26 @@ void ParseEngine::syntaxError(Error error, Token token)
 
 bool ParseEngine::expect(Token token)
 {
-    if (_token != token) {
-        if (token != Token::Semicolon || _token != Token::NewLine) {
-            syntaxError(Error::Expected, token);
-            return false;
+    bool passed = false;
+    
+    // If we're expecting a semicolon and we see a newline instead, accept it in its place
+    if (token == Token::Semicolon && (getToken() == Token::Semicolon || getToken() == Token::NewLine)) {
+        passed = true;
+    } else {
+        // If we're expecting anything else, first flush all the newlines
+        while (getToken() == Token::NewLine) {
+            retireToken();
+        }
+        if (getToken() == token) {
+            passed = true;
         }
     }
-    popToken();
-    return true;
+    
+    if (!passed) {
+        syntaxError(Error::Expected, token);
+    }
+    retireToken();
+    return passed;
 }
 
 bool ParseEngine::expect(Token token, bool expected)
@@ -135,55 +144,52 @@ bool ParseEngine::expect(Token token, bool expected)
     return expected;
 }
 
-bool ParseEngine::sourceElement()
-{
-    return functionDeclaration() || statement();
-}
-
 bool ParseEngine::statement()
 {
-    if (_token == Token::EndOfFile) {
-        return false;
-    }
-    if (_token == Token::Semicolon) {
-        popToken();
-        return true;
-    }
-    if (compoundStatement() || selectionStatement() || 
-        switchStatement() || iterationStatement() || jumpStatement()) {
-        return true;
-    }
-    if (_token == Token::Var) {
-        popToken();
-        variableDeclarationList();
-        expect(Token::Semicolon);
-        return true;
-    } else if (_token == Token::Delete) {
-        popToken();
-        leftHandSideExpression();
-        expect(Token::Semicolon);
-        return true;
-    } else if (expression()) {
-        _parser->emit(m8r::Op::POP);
-        expect(Token::Semicolon);
-        return true;
-    } else if (_token == Token::NewLine) {
-        popToken();
-        return true;
-    } else {
-        syntaxError(Error::Unknown, _token);
-        popToken();
-        return false;
+    while (1) {
+        if (functionDeclaration()) {
+            return true;
+        }
+        if (getToken() == Token::EndOfFile) {
+            return false;
+        }
+        if (getToken() == Token::Semicolon) {
+            retireToken();
+            return true;
+        }
+        if (compoundStatement() || selectionStatement() || 
+            switchStatement() || iterationStatement() || jumpStatement()) {
+            return true;
+        }
+        if (getToken() == Token::Var) {
+            retireToken();
+            variableDeclarationList();
+            expect(Token::Semicolon);
+            return true;
+        } else if (getToken() == Token::Delete) {
+            retireToken();
+            leftHandSideExpression();
+            expect(Token::Semicolon);
+            return true;
+        } else if (expression()) {
+            _parser->emit(m8r::Op::POP);
+            expect(Token::Semicolon);
+            return true;
+        } else if (getToken() == Token::NewLine) {
+            retireToken();
+        } else {
+            return false;
+        }
     }
 }
 
 bool ParseEngine::functionDeclaration()
 {
-    if (_token != Token::Function) {
+    if (getToken() != Token::Function) {
         return false;
     }
-    popToken();
-    Atom name = _tokenValue.atom;
+    retireToken();
+    Atom name = getTokenValue().atom;
     expect(Token::Identifier);
     Function* f = function();
     _parser->addNamedFunction(f, name);
@@ -192,10 +198,10 @@ bool ParseEngine::functionDeclaration()
 
 bool ParseEngine::compoundStatement()
 {
-    if (_token != Token::LBrace) {
+    if (getToken() != Token::LBrace) {
         return false;
     }
-    popToken();
+    retireToken();
     while (statement()) ;
     expect(Token::RBrace);
     return true;
@@ -203,10 +209,10 @@ bool ParseEngine::compoundStatement()
 
 bool ParseEngine::selectionStatement()
 {
-    if (_token != Token::If) {
+    if (getToken() != Token::If) {
         return false;
     }
-    popToken();
+    retireToken();
     expect(Token::LParen);
     expression();
     
@@ -217,8 +223,8 @@ bool ParseEngine::selectionStatement()
     expect(Token::RParen);
     statement();
 
-    if (_token == Token::Else) {
-        popToken();
+    if (getToken() == Token::Else) {
+        retireToken();
         _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
         statement();
@@ -256,12 +262,12 @@ void ParseEngine::forLoopCondAndIt()
 
 bool ParseEngine::iterationStatement()
 {
-    Token type = _token;
-    if (_token != Token::While && _token != Token::Do && _token != Token::For) {
+    Token type = getToken();
+    if (type != Token::While && type != Token::Do && type != Token::For) {
         return false;
     }
     
-    popToken();
+    retireToken();
     expect(Token::LParen);
     if (type == Token::While) {
         Label label = _parser->label();
@@ -281,25 +287,25 @@ bool ParseEngine::iterationStatement()
         expect(Token::RParen);
         expect(Token::Semicolon);
     } else if (type == Token::For) {
-        if (_token == Token::Var) {
-            popToken();
+        if (getToken() == Token::Var) {
+            retireToken();
             variableDeclarationList();
-            if (_token == Token::Colon) {
+            if (getToken() == Token::Colon) {
                 // for-in case with var
                 //FIXME: implement
                 // FIXME: We need a way to know if the above decl is a legit variable for for-in
-                popToken();
+                retireToken();
                 leftHandSideExpression();
             } else {
                 forLoopCondAndIt();
             }
         } else {
             if (expression()) {
-                if (_token == Token::Colon) {
+                if (getToken() == Token::Colon) {
                     // for-in case with left hand expr
                     // FIXME: We need a way to know if the above expression is a legit left hand expr
                     // FIXME: implement
-                    popToken();
+                    retireToken();
                     leftHandSideExpression();
                 } else {
                     forLoopCondAndIt();
@@ -314,13 +320,13 @@ bool ParseEngine::iterationStatement()
 
 bool ParseEngine::jumpStatement()
 {
-    if (_token == Token::Break || _token == Token::Continue) {
-        popToken();
+    if (getToken() == Token::Break || getToken() == Token::Continue) {
+        retireToken();
         expect(Token::Semicolon);
         return true;
     }
-    if (_token == Token::Return) {
-        popToken();
+    if (getToken() == Token::Return) {
+        retireToken();
         uint32_t count = 0;
         if (expression()) {
             count = 1;
@@ -335,27 +341,27 @@ bool ParseEngine::variableDeclarationList()
 {
     bool haveOne = false;
     while (variableDeclaration()) {
-        if (_token != Token::Comma) {
+        if (getToken() != Token::Comma) {
             return true;
         }
         haveOne = true;
-        popToken();
+        retireToken();
     }
     return haveOne;
 }
 
 bool ParseEngine::variableDeclaration()
 {
-    if (_token != Token::Identifier) {
+    if (getToken() != Token::Identifier) {
         return false;
     }
-    Atom name = _tokenValue.atom;
+    Atom name = getTokenValue().atom;
     _parser->addVar(name);
-    popToken();
-    if (_token != Token::STO) {
+    retireToken();
+    if (getToken() != Token::STO) {
         return true;
     }
-    popToken();
+    retireToken();
     _parser->emitId(name, Parser::IdType::MustBeLocal);
     if (!expect(Token::Expr, expression())) {
         return false;
@@ -367,15 +373,15 @@ bool ParseEngine::variableDeclaration()
 
 bool ParseEngine::arithmeticPrimary()
 {
-    if (_token == Token::LParen) {
-        popToken();
+    if (getToken() == Token::LParen) {
+        retireToken();
         expression();
         expect(Token::RParen);
         return true;
     }
     
     Op op;
-    switch(_token) {
+    switch(getToken()) {
         case Token::INC: op = Op::PREINC; break;
         case Token::DEC: op = Op::PREDEC; break;
         case Token::Plus: op = Op::UPLUS; break;
@@ -386,7 +392,7 @@ bool ParseEngine::arithmeticPrimary()
     }
     
     if (op != Op::UNKNOWN) {
-        popToken();
+        retireToken();
         arithmeticPrimary();
         if (op != Op::UPLUS) {
             _parser->emit(op);
@@ -397,14 +403,14 @@ bool ParseEngine::arithmeticPrimary()
     if (!leftHandSideExpression()) {
         return false;
     }
-    switch(_token) {
+    switch(getToken()) {
         case Token::INC: op = Op::POSTINC; break;
         case Token::DEC: op = Op::POSTDEC; break;
         default: op = Op::UNKNOWN; break;
     }
     
     if (op != Op::UNKNOWN) {
-        popToken();
+        retireToken();
         _parser->emit(op);
     }
     return true;
@@ -418,11 +424,11 @@ bool ParseEngine::expression(uint8_t minPrec)
 
     while(1) {
         OpInfo opInfo;            
-        if (!_opInfo.find(_token, opInfo) || opInfo.prec < minPrec) {
+        if (!_opInfo.find(getToken(), opInfo) || opInfo.prec < minPrec) {
             break;
         }
         uint8_t nextMinPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (opInfo.prec + 1) : opInfo.prec;
-        popToken();
+        retireToken();
         expression(nextMinPrec);
         _parser->emit(opInfo.op);
     }
@@ -431,14 +437,14 @@ bool ParseEngine::expression(uint8_t minPrec)
 
 bool ParseEngine::leftHandSideExpression()
 {
-    if (_token == Token::New) {
-        popToken();
+    if (getToken() == Token::New) {
+        retireToken();
         leftHandSideExpression();
         return true;
     }
     
-    if (_token == Token::Function) {
-        popToken();
+    if (getToken() == Token::Function) {
+        retireToken();
         Function* f = function();
         _parser->emit(f);
         return true;
@@ -448,19 +454,19 @@ bool ParseEngine::leftHandSideExpression()
         return false;
     }
     while(1) {
-        if (_token == Token::LParen) {
-            popToken();
+        if (getToken() == Token::LParen) {
+            retireToken();
             uint32_t argCount = argumentList();
             expect(Token::RParen);
             _parser->emitWithCount(m8r::Op::CALL, argCount);
-        } else if (_token == Token::LBracket) {
-            popToken();
+        } else if (getToken() == Token::LBracket) {
+            retireToken();
             expression();
             expect(Token::RBracket);
             _parser->emit(m8r::Op::DEREF);
-        } else if (_token == Token::Period) {
-            popToken();
-            Atom name = _tokenValue.atom;
+        } else if (getToken() == Token::Period) {
+            retireToken();
+            Atom name = getTokenValue().atom;
             if (expect(Token::Identifier)) {
                 _parser->emitId(name, Parser::IdType::NotLocal);
                 _parser->emit(m8r::Op::DEREF);
@@ -479,8 +485,8 @@ uint32_t ParseEngine::argumentList()
         return i;
     }
     ++i;
-    while (_token == Token::Comma) {
-        popToken();
+    while (getToken() == Token::Comma) {
+        retireToken();
         expression();
         ++i;
     }
@@ -489,18 +495,18 @@ uint32_t ParseEngine::argumentList()
 
 bool ParseEngine::primaryExpression()
 {
-    switch(_token) {
-        case Token::Identifier: _parser->emitId(_tokenValue.atom, Parser::IdType::MightBeLocal); popToken(); break;
-        case Token::Float: _parser->emit(_tokenValue.number); popToken(); break;
-        case Token::Integer: _parser->emit(_tokenValue.integer); popToken(); break;
-        case Token::String: _parser->emit(_tokenValue.string); popToken(); break;
+    switch(getToken()) {
+        case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::MightBeLocal); retireToken(); break;
+        case Token::Float: _parser->emit(getTokenValue().number); retireToken(); break;
+        case Token::Integer: _parser->emit(getTokenValue().integer); retireToken(); break;
+        case Token::String: _parser->emit(getTokenValue().string); retireToken(); break;
         case Token::LBracket:
-            popToken();
+            retireToken();
             _parser->emit(Op::PUSHLITA);
             if (expression()) {
                 _parser->emit(m8r::Op::STOA);
-                while (_token == Token::Comma) {
-                    popToken();
+                while (getToken() == Token::Comma) {
+                    retireToken();
                     if (!expect(Token::Expr, expression())) {
                         break;
                     }
@@ -510,12 +516,12 @@ bool ParseEngine::primaryExpression()
             expect(Token::RBracket);
             break;
         case Token::LBrace:
-            popToken();
+            retireToken();
             _parser->emit(Op::PUSHLITO);
             if (propertyAssignment()) {
                 _parser->emit(m8r::Op::STOO);
-                while (_token == Token::Comma) {
-                    popToken();
+                while (getToken() == Token::Comma) {
+                    retireToken();
                     if (!expect(Token::PropertyAssignment, propertyAssignment())) {
                         break;
                     }
@@ -542,11 +548,11 @@ bool ParseEngine::propertyAssignment()
 
 bool ParseEngine::propertyName()
 {
-    switch(_token) {
-        case Token::Identifier: _parser->emitId(_tokenValue.atom, Parser::IdType::NotLocal); popToken(); return true;
-        case Token::String: _parser->emit(_tokenValue.string); popToken(); return true;
-        case Token::Float: _parser->emit(_tokenValue.number); popToken(); return true;
-        case Token::Integer: _parser->emit(_tokenValue.integer); popToken(); return true;
+    switch(getToken()) {
+        case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::NotLocal); retireToken(); return true;
+        case Token::String: _parser->emit(getTokenValue().string); retireToken(); return true;
+        case Token::Float: _parser->emit(getTokenValue().number); retireToken(); return true;
+        case Token::Integer: _parser->emit(getTokenValue().integer); retireToken(); return true;
         default: return false;
     }
 }
@@ -559,7 +565,7 @@ Function* ParseEngine::function()
     _parser->functionParamsEnd();
     expect(Token::RParen);
     expect(Token::LBrace);
-    while(sourceElement()) { }
+    while(statement()) { }
     expect(Token::RBrace);
     _parser->emit(m8r::Op::END);
     return _parser->functionEnd();
@@ -567,17 +573,17 @@ Function* ParseEngine::function()
 
 void ParseEngine::formalParameterList()
 {
-    if (_token != Token::Identifier) {
+    if (getToken() != Token::Identifier) {
         return;
     }
     while (1) {
-        _parser->functionAddParam(_tokenValue.atom);
-        popToken();
-        if (_token != Token::Comma) {
+        _parser->functionAddParam(getTokenValue().atom);
+        retireToken();
+        if (getToken() != Token::Comma) {
             return;
         }
-        popToken();
-        if (_token != Token::Identifier) {
+        retireToken();
+        if (getToken() != Token::Identifier) {
             syntaxError(Error::Expected, Token::Identifier);
             return;
         }
