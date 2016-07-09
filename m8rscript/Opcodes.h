@@ -124,7 +124,6 @@ enum class Token : uint8_t {
     New = 2,
     Delete = 3,
     Var = 4,
-    NewLine = 10,
     While = 11,
     For = 12,
     If = 13,

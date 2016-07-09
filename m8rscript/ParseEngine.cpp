@@ -114,26 +114,12 @@ void ParseEngine::syntaxError(Error error, Token token)
 
 bool ParseEngine::expect(Token token)
 {
-    bool passed = false;
-    
-    // If we're expecting a semicolon and we see a newline instead, accept it in its place
-    if (token == Token::Semicolon && (getToken() == Token::Semicolon || getToken() == Token::NewLine)) {
-        passed = true;
-    } else {
-        // If we're expecting anything else, first flush all the newlines
-        while (getToken() == Token::NewLine) {
-            retireToken();
-        }
-        if (getToken() == token) {
-            passed = true;
-        }
-    }
-    
-    if (!passed) {
+    if (getToken() != token) {
         syntaxError(Error::Expected, token);
+        return false;
     }
     retireToken();
-    return passed;
+    return true;
 }
 
 bool ParseEngine::expect(Token token, bool expected)
@@ -175,8 +161,6 @@ bool ParseEngine::statement()
             _parser->emit(m8r::Op::POP);
             expect(Token::Semicolon);
             return true;
-        } else if (getToken() == Token::NewLine) {
-            retireToken();
         } else {
             return false;
         }
