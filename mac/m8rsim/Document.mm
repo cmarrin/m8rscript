@@ -60,9 +60,9 @@ public:
         });
     }
 
-    virtual bool read(char*, int32_t size) const override
+    virtual int read() const override
     {
-        return false;
+        return -1;
     }
 
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override

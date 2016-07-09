@@ -73,7 +73,7 @@ public:
     ExecutionStack& stack() { return _stack; }
 
     void interactiveStart(Program*);
-    Value interactiveRun(Program*);
+    void interactiveRun(Program*);
     void requestTermination() { _terminate = true; }
     
 private:

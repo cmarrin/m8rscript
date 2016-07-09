@@ -212,10 +212,9 @@ void ExecutionUnit::interactiveStart(Program* program)
     _stack.setLocalFrame(0, program->localSize());
 }
 
-Value ExecutionUnit::interactiveRun(Program* program)
+void ExecutionUnit::interactiveRun(Program* program)
 {
     run(program, program, 0, true);
-    return Value();
 }
 
 void ExecutionUnit::run(Program* program)

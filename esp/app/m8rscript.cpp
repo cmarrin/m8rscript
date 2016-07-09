@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "Stream.h"
 #include "CodePrinter.h"
+#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 
 void __assert_func(const char *file, int line, const char *func, const char *what)
@@ -20,26 +21,11 @@ void blink()
 	state = !state;
 }
 
-static m8r::String insertCR(const char* s)
-{
-    m8r::String ss;
-    while(*s != '\0') {
-        if (*s == '\n') {
-            ss += '\r';
-        }
-        ss += *s++;
-    }
-    return ss;
-}
-
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    virtual void print(const char* s) const override
-    {
-        m8r::String ss = insertCR(s);
-        Serial.print(ss.c_str());
-    }
+    virtual void print(const char* s) const override { Serial.print(s); }
+    virtual int read() const override { return Serial.read(); }
 };
 
 void init() {

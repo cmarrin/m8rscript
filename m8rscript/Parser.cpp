@@ -68,29 +68,7 @@ private:
 
 int InteractiveStream::read()
 {
-    while (1) {
-        if (_index >= 0) {
-            if (_string[_index] != '\0') {
-                return _string[_index++];
-            } else {
-                _index = -1;
-                return '\n';
-            }
-        }
-        _index = 0;
-        if (!_system->read(_string, 99)) {
-            return EOF;
-        }
-    }
-//
-//    int c;
-//    char buf[2] = " ";
-//    while ((c = _system->read()) != -1) {
-//        buf[0] = static_cast<char>(c);
-//        _system->print("char '");
-//        _system->print(buf);
-//        _system->print("'\n");
-//    }
+    return _system->read();
 }
 
 Parser::Parser(m8r::Stream* istream, SystemInterface* system)
@@ -118,8 +96,7 @@ void Parser::parse(ExecutionUnit* eu)
     while(1) {
         bool r = p.statement();
         if (eu) {
-            Value value = eu->interactiveRun(_program);
-            _system->print(value.toStringValue().c_str());
+            eu->interactiveRun(_program);
             _system->print("\n>>> ");
         } else {
             if (!r) {

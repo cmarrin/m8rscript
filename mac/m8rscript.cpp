@@ -20,10 +20,9 @@ class MySystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void print(const char* s) const override { std::cout << s; }
-    virtual bool read(char*s, int32_t size) const override
+    virtual int read() const override
     {
-        std::cin.getline(s, size);
-        return true;
+        return std::cin.get();
     }
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override { std::cout << "mode=" << std::hex << mode << " state=" << std::hex << state << "\n"; }
 };
