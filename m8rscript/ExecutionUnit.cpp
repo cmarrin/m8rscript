@@ -45,13 +45,13 @@ bool ExecutionUnit::printError(const char* s) const
 {
     ++_nerrors;
     if (_system) {
-        _system->print("Runtime error: ");
-        _system->print(s);
-        _system->print("\n");
+        _system->printf("Runtime error: ");
+        _system->printf(s);
+        _system->printf("\n");
     }
     if (_nerrors >= 10) {
         if (_system) {
-            _system->print("\n\nToo many runtime errors, exiting...\n");
+            _system->printf("\n\nToo many runtime errors, exiting...\n");
             _terminate = true;
         }
         return false;

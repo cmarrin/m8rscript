@@ -58,6 +58,7 @@ Atom Global::_INTAtom;
 Atom Global::_OPENDRAINAtom;
 Atom Global::_beginAtom;
 Atom Global::_printAtom;
+Atom Global::_printfAtom;
 Atom Global::_encodeAtom;
 Atom Global::_decodeAtom;
 
@@ -82,6 +83,7 @@ Global::Global(SystemInterface* system) : _system(system)
         _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
         _beginAtom = Program::atomizeString("begin");
         _printAtom = Program::atomizeString("print");
+        _printfAtom = Program::atomizeString("printf");
         _encodeAtom = Program::atomizeString("encode");
         _decodeAtom = Program::atomizeString("decode");
 
@@ -167,6 +169,8 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
                 newProperty = Property::Serial_begin;
             } else if (name == _printAtom) {
                 newProperty = Property::Serial_print;
+            } else if (name == _printfAtom) {
+                newProperty = Property::Serial_printf;
             }
             break;
         case Property::GPIO:
@@ -207,7 +211,14 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
         case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
-                    _system->print(eu->stack().top(i).toStringValue().c_str());
+                    _system->printf(eu->stack().top(i).toStringValue().c_str());
+                }
+            }
+            return 0;
+        case Property::Serial_printf:
+            for (int i = 1 - nparams; i <= 0; ++i) {
+                if (_system) {
+                    _system->printf(eu->stack().top(i).toStringValue().c_str());
                 }
             }
             return 0;

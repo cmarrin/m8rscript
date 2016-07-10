@@ -65,7 +65,6 @@ public:
     void parse(m8r::Stream* stream);
     
 	void printError(const char* s);
-    void print(const char* s);
     uint32_t nerrors() const { return _nerrors; }
     Program* program() { return _program; }
     

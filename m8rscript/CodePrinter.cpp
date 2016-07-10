@@ -45,13 +45,11 @@ bool CodePrinter::printError(const char* s) const
 {
     ++_nerrors;
     if (_system) {
-        _system->print("Runtime error: ");
-        _system->print(s);
-        _system->print("\n");
+        _system->printf("Runtime error: %s\n", s);
     }
     if (_nerrors > 10) {
         if (_system) {
-            _system->print("\n\nToo many runtime errors, exiting...\n");
+            _system->printf("\n\nToo many runtime errors, exiting...\n");
         }
         return false;
     }

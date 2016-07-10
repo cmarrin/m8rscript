@@ -28,8 +28,10 @@
 		494D255D1D2E90A9003755DB /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
 		494D25621D2E911F003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
 		494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
-		494D25751D31B9A2003755DB /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25731D31B9A2003755DB /* base64.cpp */; };
-		494D25761D31B9A2003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25741D31B9A2003755DB /* base64.h */; };
+		494D25871D32AFA4003755DB /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25851D32AFA4003755DB /* base64.cpp */; };
+		494D25881D32AFA4003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25861D32AFA4003755DB /* base64.h */; };
+		494D25941D3309A6003755DB /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25921D3309A6003755DB /* printf.cpp */; };
+		494D25951D3309A6003755DB /* printf.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25931D3309A6003755DB /* printf.h */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
@@ -96,8 +98,13 @@
 		494BA1A71D20B26100E72725 /* NSTextView+JSDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextView+JSDExtensions.h"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.h"; sourceTree = "<group>"; };
 		494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextView+JSDExtensions.m"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.m"; sourceTree = "<group>"; };
 		494D254E1D2E9055003755DB /* liblibm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		494D25731D31B9A2003755DB /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base64.cpp; sourceTree = "<group>"; };
-		494D25741D31B9A2003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		494D25851D32AFA4003755DB /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../m8rscript/base64.cpp; sourceTree = "<group>"; };
+		494D25861D32AFA4003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../m8rscript/base64.h; sourceTree = "<group>"; };
+		494D258C1D32B301003755DB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../m8rscript/main.cpp; sourceTree = "<group>"; };
+		494D258D1D32B301003755DB /* m8rscript.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
+		494D25901D32B73A003755DB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
+		494D25921D3309A6003755DB /* printf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = printf.cpp; path = ../m8rscript/printf.cpp; sourceTree = "<group>"; };
+		494D25931D3309A6003755DB /* printf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = printf.h; path = ../m8rscript/printf.h; sourceTree = "<group>"; };
 		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -181,6 +188,7 @@
 		494BA1901D207A9B00E72725 /* m8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				494D25891D32B2E6003755DB /* esp */,
 				494BA1911D207AB700E72725 /* mac */,
 			);
 			name = m8rscript;
@@ -207,6 +215,16 @@
 				494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */,
 			);
 			name = "NSTextView+JSDExtensions";
+			sourceTree = "<group>";
+		};
+		494D25891D32B2E6003755DB /* esp */ = {
+			isa = PBXGroup;
+			children = (
+				494D25901D32B73A003755DB /* Makefile */,
+				494D258C1D32B301003755DB /* main.cpp */,
+				494D258D1D32B301003755DB /* m8rscript.ino */,
+			);
+			name = esp;
 			sourceTree = "<group>";
 		};
 		49D9B8191D1C854700724911 /* m8rsim */ = {
@@ -269,8 +287,8 @@
 				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
 				49E6482B1D01F279005F5059 /* Atom.h */,
-				494D25731D31B9A2003755DB /* base64.cpp */,
-				494D25741D31B9A2003755DB /* base64.h */,
+				494D25851D32AFA4003755DB /* base64.cpp */,
+				494D25861D32AFA4003755DB /* base64.h */,
 				4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */,
 				4966A41C1D22F8C4008951F4 /* CodePrinter.h */,
 				49E648221D00CB57005F5059 /* Containers.h */,
@@ -287,6 +305,8 @@
 				498ACA771D17503C0039E1CD /* ParseEngine.h */,
 				49E648181D00C088005F5059 /* Parser.cpp */,
 				49E648191D00C088005F5059 /* Parser.h */,
+				494D25921D3309A6003755DB /* printf.cpp */,
+				494D25931D3309A6003755DB /* printf.h */,
 				4942EA821D070C9B00E02088 /* Program.cpp */,
 				4942EA7F1D07009E00E02088 /* Program.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
@@ -306,7 +326,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				494D25761D31B9A2003755DB /* base64.h in Headers */,
+				494D25881D32AFA4003755DB /* base64.h in Headers */,
+				494D25951D3309A6003755DB /* printf.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,13 +459,14 @@
 			files = (
 				494D25521D2E90A9003755DB /* PlatformGlobal.cpp in Sources */,
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
+				494D25941D3309A6003755DB /* printf.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
-				494D25751D31B9A2003755DB /* base64.cpp in Sources */,
+				494D25871D32AFA4003755DB /* base64.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
@@ -534,6 +556,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
@@ -550,6 +573,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
@@ -680,6 +704,7 @@
 				494D25511D2E9055003755DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		49D9B8271D1C854700724911 /* Build configuration list for PBXNativeTarget "m8rsim" */ = {
 			isa = XCConfigurationList;

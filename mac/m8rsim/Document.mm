@@ -16,6 +16,7 @@
 #import "SystemInterface.h"
 
 #include <iostream>
+#include <stdarg.h>
 #import <sstream>
 
 class MySystemInterface;
@@ -52,9 +53,11 @@ class MySystemInterface : public m8r::SystemInterface
 public:
     MySystemInterface(Document* document) : _document(document), _isBuild(true) { }
     
-    virtual void print(const char* s) const override
+    virtual void printf(const char* s, ...) const override
     {
-        NSString* string = [NSString stringWithUTF8String:s];
+        va_list args;
+        va_start(args, s);
+        NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_document outputMessage:string toBuild: _isBuild];
         });

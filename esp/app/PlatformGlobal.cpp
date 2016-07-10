@@ -35,13 +35,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "PlatformGlobal.h"
 
-#include <SmingCore/SmingCore.h>
+#include "Arduino.h"
 
 using namespace m8r;
 
 uint64_t PlatformGlobal::currentTime() const
 {
-    return system_get_time() - _startTime;
+    return millis() - _startTime;
 }
 
 int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
