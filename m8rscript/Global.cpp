@@ -38,8 +38,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "SystemInterface.h"
 #include "ExecutionUnit.h"
+#include "base64.h"
 
 using namespace m8r;
+
+static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 Atom Global::_nowAtom;
 Atom Global::_delayAtom;
@@ -55,6 +58,8 @@ Atom Global::_INTAtom;
 Atom Global::_OPENDRAINAtom;
 Atom Global::_beginAtom;
 Atom Global::_printAtom;
+Atom Global::_encodeAtom;
+Atom Global::_decodeAtom;
 
 Map<Atom, Global::Property> Global::_properties;
 
@@ -77,11 +82,14 @@ Global::Global(SystemInterface* system) : _system(system)
         _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
         _beginAtom = Program::atomizeString("begin");
         _printAtom = Program::atomizeString("print");
+        _encodeAtom = Program::atomizeString("encode");
+        _decodeAtom = Program::atomizeString("decode");
 
         _properties.emplace(Program::atomizeString("Date"), Property::Date);
         _properties.emplace(Program::atomizeString("System"), Property::System);
         _properties.emplace(Program::atomizeString("Serial"), Property::Serial);
         _properties.emplace(Program::atomizeString("GPIO"), Property::GPIO);
+        _properties.emplace(Program::atomizeString("Base64"), Property::Base64);
     }
 }
 
@@ -174,6 +182,13 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
                 newProperty = Property::GPIO_digitalWrite;
             }
             break;
+        case Property::Base64:
+            if (name == _encodeAtom) {
+                newProperty = Property::Base64_encode;
+            } else if (name == _decodeAtom) {
+                newProperty = Property::Base64_decode;
+            }
+            break;
         default:
             break;
     }
@@ -196,6 +211,40 @@ int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu
                 }
             }
             return 0;
+        case Property::Base64_encode: {
+            String inString = eu->stack().top().toStringValue();
+            size_t inLength = inString.length();
+            size_t outLength = (inLength * 4 + 2) / 3 + 1;
+            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
+                char outString[BASE64_STACK_ALLOC_LIMIT];
+                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
+                                                 BASE64_STACK_ALLOC_LIMIT, outString);
+                eu->stack().push(Value(outString, actualLength));
+            } else {
+                char* outString = static_cast<char*>(malloc(outLength));
+                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
+                                                 BASE64_STACK_ALLOC_LIMIT, outString);
+                eu->stack().push(Value(outString, actualLength));
+                free(outString);
+            }
+            return 1;
+        }
+        case Property::Base64_decode: {
+            String inString = eu->stack().top().toStringValue();
+            size_t inLength = inString.length();
+            size_t outLength = (inLength * 3 + 3) / 4 + 1;
+            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
+                unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
+                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
+                eu->stack().push(Value(reinterpret_cast<char*>(outString), actualLength));
+            } else {
+                unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
+                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
+                eu->stack().push(Value(reinterpret_cast<char*>(outString), actualLength));
+                free(outString);
+            }
+            return 1;
+        }
         default: return -1;
     }
 }

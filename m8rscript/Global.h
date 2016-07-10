@@ -81,12 +81,13 @@ protected:
     enum class Property : uint8_t
     {
         None = 0,
-        print = 1,
-        System = 10, System_delay, 
-        Date = 20, Date_now,
-        GPIO = 30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_INPUT, GPIO_HIGH, GPIO_LOW,
+        print = 0x01,
+        System = 0x10, System_delay, 
+        Date = 0x20, Date_now,
+        GPIO = 0x30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_INPUT, GPIO_HIGH, GPIO_LOW,
             GPIO_FLOAT, GPIO_PULLUP, GPIO_INT, GPIO_OPENDRAIN,
-        Serial = 40, Serial_begin, Serial_print, 
+        Serial = 0x40, Serial_begin, Serial_print,
+        Base64 = 0x50, Base64_encode, Base64_decode,
     };
     static Map<Atom, Property> _properties;
     
@@ -107,6 +108,8 @@ private:
     static Atom _OPENDRAINAtom;
     static Atom _beginAtom;
     static Atom _printAtom;
+    static Atom _encodeAtom;
+    static Atom _decodeAtom;
 };
     
 }
