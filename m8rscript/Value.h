@@ -57,9 +57,9 @@ typedef union {
     Value* val;
 } U;
 
-inline static const char* duplicateString(const char* s)
+inline static const char* duplicateString(const char* s, int32_t len = -1)
 {
-    size_t length = strlen(s) + 1;
+    size_t length = ((len < 0) ? strlen(s) : static_cast<size_t>(len)) + 1;
     char* newString = static_cast<char*>(malloc(length));
     assert(newString);
     if (newString) {
@@ -84,7 +84,10 @@ public:
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
     Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
-    Value(const char* value) : _value(valueFromStr(duplicateString(value))) , _type(Type::String), _id(0) { }
+    Value(const char* value, int32_t length = -1)
+        : _value(valueFromStr(duplicateString(value, length)))
+        , _type(Type::String), _id(0)
+    { }
     
     // Steals the value pointer
     Value& operator=(Value&& other)

@@ -72,8 +72,6 @@ public:
     int32_t run(Program*, Object*, uint32_t nparams);
     ExecutionStack& stack() { return _stack; }
 
-    void interactiveStart(Program*);
-    void interactiveRun(Program*);
     void requestTermination() { _terminate = true; }
     
 private:

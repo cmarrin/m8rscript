@@ -203,20 +203,6 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     return Atom();
 }
 
-void ExecutionUnit::interactiveStart(Program* program)
-{
-    _terminate = false;
-    _nerrors = 0;
-    _interactivePC = 0;
-    _stack.clear();
-    _stack.setLocalFrame(0, program->localSize());
-}
-
-void ExecutionUnit::interactiveRun(Program* program)
-{
-    run(program, program, 0, true);
-}
-
 void ExecutionUnit::run(Program* program)
 {
     _terminate = false;

@@ -208,7 +208,8 @@ private:
     [self outputMessage:[NSString stringWithFormat:@"Building %@\n", [self displayName]] toBuild:YES];
 
     m8r::StringStream stream([sourceEditor.string UTF8String]);
-    m8r::Parser parser(&stream, _system);
+    m8r::Parser parser(_system);
+    parser.parse(&stream);
     [self outputMessage:@"Parsing finished...\n" toBuild:YES];
 
     if (parser.nerrors()) {

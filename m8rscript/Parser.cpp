@@ -43,65 +43,21 @@ using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
-class InteractiveStream : public Stream
-{
-public:
-    InteractiveStream(Parser* parser, SystemInterface* system) : _parser(parser), _system(system) { }
-
-    virtual ~InteractiveStream() { }
-	
-	virtual int available() override
-    {
-        return 1;
-    }
-    virtual int read() override;
-	virtual void flush() override { }
-    
-    void interactive();
-	
-private:
-    Parser* _parser;
-    SystemInterface* _system;
-    char _string[100];
-    int16_t _index = -1;
-};
-
-int InteractiveStream::read()
-{
-    return _system->read();
-}
-
-Parser::Parser(m8r::Stream* istream, SystemInterface* system)
-    : _scanner(this, istream)
+Parser::Parser(SystemInterface* system)
+    : _scanner(this)
     , _program(new Program(system))
     , _system(system)
 {
     _currentFunction = _program;
-
-    if (!istream) {
-        system->print(">>> ");
-        InteractiveStream stream(this, _system);
-        _scanner.setStream(&stream);
-        ExecutionUnit eu(system);
-        eu.interactiveStart(_program);
-        parse(&eu);
-        return;
-    }
-    parse(nullptr);
 }
 
-void Parser::parse(ExecutionUnit* eu)
+void Parser::parse(m8r::Stream* istream)
 {
+    _scanner.setStream(istream);
     ParseEngine p(this);
     while(1) {
-        bool r = p.statement();
-        if (eu) {
-            eu->interactiveRun(_program);
-            _system->print("\n>>> ");
-        } else {
-            if (!r) {
-                break;
-            }
+        if (!p.statement()) {
+            break;
         }
     }
     programEnd();

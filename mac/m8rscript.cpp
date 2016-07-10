@@ -27,31 +27,56 @@ public:
     virtual void updateGPIOState(uint16_t mode, uint16_t state) override { std::cout << "mode=" << std::hex << mode << " state=" << std::hex << state << "\n"; }
 };
 
+class InputStream : public m8r::Stream
+{
+public:
+    InputStream(m8r::SystemInterface* system) : _system(system) { }
+
+    virtual ~InputStream() { }
+	
+	virtual int available() override
+    {
+        return 1;
+    }
+    virtual int read() override { return _system->read(); }
+	virtual void flush() override { }
+    
+    void interactive();
+	
+private:
+    m8r::SystemInterface* _system;
+};
+
 int main(int argc, const char* argv[])
 {
     MySystemInterface system;
+    std::clock_t startTime;
+    std::clock_t parseTime;
+    m8r::Parser parser(&system);
 
     if (argc < 2) {
-        std::cout << "No file specified, entering interactive mode\n";
-        m8r::Parser parser(nullptr, &system);
-        return 0;
-    }
-    
-    m8r::FileStream istream(argv[1]);
-    std::cout << "Opening '" << argv[1] << "'\n";
+        std::cout << "No file specified, using stdin\n";
+        InputStream istream(&system);
+        std::clock_t startTime = std::clock();
+        parser.parse(&istream);
+        parseTime = std::clock() - startTime;
+    } else {
+        m8r::FileStream istream(argv[1]);
+        std::cout << "Opening '" << argv[1] << "'\n";
 
-    if (!istream.loaded()) {
-        std::cout << "File not found, exiting\n";
-        return 0;
-    }
+        if (!istream.loaded()) {
+            std::cout << "File not found, exiting\n";
+            return 0;
+        }
+            
+        std::cout << "Parsing...\n";
         
-    std::cout << "Parsing...\n";
+        startTime = std::clock();
+        parser.parse(&istream);
+        parseTime = std::clock() - startTime;
+    }
     
-    std::clock_t startTime = std::clock();
-    m8r::Parser parser(&istream, &system);
-    std::clock_t parseTime = std::clock() - startTime;
     std::cout << "Finished. " << parser.nerrors() << " error" << ((parser.nerrors() == 1) ? "" : "s") << "\n\n";
-
     std::clock_t printTime = 0;
     std::clock_t runTime = 0;
     

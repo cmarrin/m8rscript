@@ -53,14 +53,16 @@ class SystemInterface;
 //////////////////////////////////////////////////////////////////////////////
 
 class Parser  {
+    friend class ParseEngine;
+    
 public:
-	Parser(m8r::Stream* istream = nullptr, SystemInterface* system = nullptr);
+	Parser(SystemInterface* system = nullptr);
     
     ~Parser()
     {
     }
-
-  	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
+    
+    void parse(m8r::Stream* stream);
     
 	void printError(const char* s);
     void print(const char* s);
@@ -120,7 +122,7 @@ public:
     void addVar(const Atom& name) { _currentFunction->addLocal(name); }
     
 private:
-    void parse(ExecutionUnit*);
+  	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
