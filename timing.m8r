@@ -2,14 +2,8 @@
 // Timing test
 //
 
-var q, r;
-var q;
-var r;
-var x = [ 1, 1.5, 7 + q * r ];
-
 var a = [ ];
 var n = 2000;
-a.length = n;
 
 var startTime = Date.now();
 

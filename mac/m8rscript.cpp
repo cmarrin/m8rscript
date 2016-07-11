@@ -42,6 +42,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
+#include "printf.h"
+
+void tfp_putchar(char c)
+{
+    std::cout << c;
+}
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -50,7 +56,7 @@ public:
     {
         va_list args;
         va_start(args, s);
-        vprintf(s, args);
+        tfp_vprintf(s, args);
     }
     virtual int read() const override
     {
@@ -93,14 +99,42 @@ int main(int argc, const char* argv[])
         parser.parse(&istream);
         parseTime = std::clock() - startTime;
     } else {
-        m8r::FileStream istream(argv[1]);
-        system.printf("Opening '%s'\n", argv[1]);
-
-        if (!istream.loaded()) {
-            system.printf("File not found, exiting\n");
-            return 0;
-        }
+//        m8r::FileStream istream(argv[1]);
+//        system.printf("Opening '%s'\n", argv[1]);
+//
+//        if (!istream.loaded()) {
+//            system.printf("File not found, exiting\n");
+//            return 0;
+//        }
             
+
+
+
+
+
+    m8r::String fileString = 
+"var a = [ ]; \n \
+var n = 100; \n \
+ \n \
+var startTime = Date.now(); \n \
+ \n \
+for (var i = 0; i < n; ++i) { \n \
+    for (var j = 0; j < n; ++j) { \n \
+        var f = 1.5; \n \
+        a[j] = 1.5 * j * (j + 1) / 2; \n \
+    } \n \
+} \n \
+ \n \
+var t = Date.now() - startTime; \n \
+Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
+";
+    
+    m8r::StringStream istream(fileString);
+
+
+
+
+
         system.printf("Parsing...\n");
         
         startTime = std::clock();

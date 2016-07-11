@@ -84,7 +84,24 @@ void runScript() {
 //        abort();
 //    }
 
-    m8r::StringStream istream("var a = 4 + 7; Serial.print(\"It's Happening!!!\" + a + \"\n\");");
+    m8r::String fileString = 
+"var a = [ ]; \n \
+var n = 140; \n \
+ \n \
+var startTime = Date.now(); \n \
+ \n \
+for (var i = 0; i < n; ++i) { \n \
+    for (var j = 0; j < n; ++j) { \n \
+        var f = 1.5; \n \
+        a[j] = 1.5 * j * (j + 1) / 2; \n \
+    } \n \
+} \n \
+ \n \
+var t = Date.now() - startTime; \n \
+Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
+";
+    
+    m8r::StringStream istream(fileString);
     systemInterface.printf("Parsing...\n");
     m8r::Parser parser(&systemInterface);
     parser.parse(&istream);

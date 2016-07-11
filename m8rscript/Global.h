@@ -76,7 +76,7 @@ public:
 protected:
     virtual uint64_t currentTime() const = 0;
 
-    uint64_t _startTime;
+    uint64_t _startTime = 0;
 
     enum class Property : uint8_t
     {
