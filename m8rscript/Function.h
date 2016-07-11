@@ -47,6 +47,8 @@ public:
 
     virtual ~Function() { }
 
+    virtual const char* typeName() const override { return "Function"; }
+
     virtual const Code* code() const override { return &_code; }
 
     virtual int32_t addLocal(const Atom& name) override;
@@ -59,6 +61,11 @@ public:
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
+
+protected:
+    virtual bool serialize(Stream*) const override;
+    
+    bool serializeCode(Stream*) const;
 
 private:
     Code _code;

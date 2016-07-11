@@ -62,6 +62,12 @@ public:
     virtual bool appendElement(const Value&) override { assert(0); return false; }
     virtual size_t elementCount() const override { assert(0); return 0; }
     virtual void setElementCount(size_t) override { assert(0); }
+
+protected:
+    virtual bool serialize(Stream*) const override
+    {
+        return true;
+    }
 };
 
 class ExecutionUnit {

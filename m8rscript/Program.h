@@ -54,6 +54,8 @@ public:
     Program(SystemInterface* system);
     ~Program();
     
+    virtual const char* typeName() const override { return "Program"; }
+
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
     
@@ -88,6 +90,9 @@ public:
     }
     
     uint32_t currentTime() const;
+
+protected:
+    virtual bool serialize(Stream*) const override;
 
 private:
     static AtomTable _atomTable;

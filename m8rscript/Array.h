@@ -67,6 +67,13 @@ public:
     virtual Atom propertyName(uint32_t index) const override;
     virtual size_t propertyCount() const override;
 
+protected:
+    virtual bool serialize(Stream*) const override
+    {
+        // FIXME: Implement
+        return false;
+    }
+
 private:
     enum class Property : uint8_t { Length };
     static Map<Atom, Property> _properties;

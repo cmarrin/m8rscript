@@ -78,8 +78,6 @@ public:
     }
     virtual int read() override { return _system->read(); }
 	virtual void flush() override { }
-    
-    void interactive();
 	
 private:
     m8r::SystemInterface* _system;

@@ -285,7 +285,7 @@ private:
             NSURL*  url = [panel URL];
             m8r::FileStream stream([url fileSystemRepresentation], "w");
             if (_program) {
-                _program->serialize(&stream);
+                _program->serializeObject(&stream);
             }
         }
     }];

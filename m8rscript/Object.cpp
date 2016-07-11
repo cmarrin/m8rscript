@@ -60,7 +60,7 @@ bool Object::serializeWrite(Stream* stream, uint16_t value) const
     return stream->write(c) == c;
 }
 
-bool Object::serialize(Stream* stream) const
+bool Object::serializeObject(Stream* stream) const
 {
     if (!serializeWrite(stream, ObjectDataType::Version)) {
         return false;
@@ -86,7 +86,11 @@ bool Object::serialize(Stream* stream) const
             return false;
         }
     }
-    if (!serializeWrite(stream, static_cast<uint8_t>('\0'))) {
+    
+    if (!serialize(stream)) {
+        return false;
+    }
+    if (!serializeWrite(stream, ObjectDataType::End)) {
         return false;
     }
     return true;

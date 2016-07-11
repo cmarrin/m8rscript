@@ -210,7 +210,7 @@ void Parser::emit(Op value)
     addCodeByte(value);
 }
 
-void Parser::emit(Object* obj)
+void Parser::emit(Function* obj)
 {
     addCodeByte(Op::PUSHO, 0x02);
     addCodeInt(_program->addObject(obj).raw(), 4);

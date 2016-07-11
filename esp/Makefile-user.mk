@@ -11,7 +11,7 @@ SMING_HOME = /opt/Sming/Sming/
 ESPTOOL2 = /opt/esp-open-sdk/utils/esptool2
 ESPTOOL = /opt/esp-open-sdk/utils/esptool.py
 
-COM_PORT = /dev/tty.usbserial-AD02CUJ5
+COM_PORT ?= /dev/tty.usbserial-AD02CUJ5
 COM_SPEED	= 115200
 
 ## Configure flash parameters (for ESP12-E and other new boards):

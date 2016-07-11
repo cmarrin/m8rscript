@@ -46,3 +46,42 @@ Program::Program(SystemInterface* system) : _global(system)
 Program::~Program()
 {
 }
+
+bool Program::serialize(Stream* stream) const
+{
+    // Write the atom table
+    if (!serializeWrite(stream, ObjectDataType::AtomTable)) {
+        return false;
+    }
+    const String& atomTableString = _atomTable.stringTable();
+    size_t size = atomTableString.length();
+    assert(size < 65536);
+    uint16_t ssize = static_cast<uint16_t>(size);
+    if (!serializeWrite(stream, ssize)) {
+        return false;
+    }
+    for (uint16_t i = 0; i < ssize; ++i) {
+        if (!serializeWrite(stream, static_cast<uint8_t>(atomTableString[i]))) {
+            return false;
+        }
+    }
+        
+    // Write the string table
+    if (!serializeWrite(stream, ObjectDataType::StringTable)) {
+        return false;
+    }
+    size = _stringTable.size();
+    assert(size < 65536);
+    ssize = static_cast<uint16_t>(size);
+    if (!serializeWrite(stream, ssize)) {
+        return false;
+    }
+    for (uint16_t i = 0; i < ssize; ++i) {
+        if (!serializeWrite(stream, static_cast<uint8_t>(_stringTable[i]))) {
+            return false;
+        }
+    }
+
+    Function::serialize(stream);
+    return true;
+}

@@ -208,8 +208,17 @@ enum class ObjectDataType : uint8_t {
     End = 0x00,
     Version = 0x01,     // { uint8_t major, uint8_t minor }
     Name = 0x02,        // { uint8_t size, char name[size] }
+
+    // Program
+    AtomTable = 0x10,       // { uint16_t size, uint8_t data[size] }
+    StringTable = 0x11,     // { uint16_t size, uint8_t data[size] }
     
-    // The remainder of types are followed by { uint16_t size, uint8_t data[size] }
+    // Function
+    FunctionStart = 0x20,   // Indicates start of a function (can be nested)
+    Locals = 0x21,          // { uint8_t nparams, uint16_t atoms[nparams] }
+    ParamEnd = 0x22,        // { uint16_t size = 2, uint16_t paramEnd }
+    Code = 0x23,            // { uint16_t size, uint8_t code[size] }
+    FunctionEnd = 0x2f,     // Indicates end of a function
     
 };
 

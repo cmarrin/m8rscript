@@ -64,3 +64,28 @@ int32_t Function::localIndex(const Atom& name) const
     }
     return -1;
 }
+
+bool Function::serialize(Stream* stream) const
+{
+    // FIXME: Finish implementation
+    return serializeCode(stream);
+}
+
+bool Function::serializeCode(Stream* stream) const
+{
+    if (!serializeWrite(stream, ObjectDataType::Code)) {
+        return false;
+    }
+    size_t size = _code.size();
+    assert(size < 65536);
+    uint16_t ssize = static_cast<uint16_t>(size);
+    if (!serializeWrite(stream, ssize)) {
+        return false;
+    }
+    for (uint16_t i = 0; i < ssize; ++i) {
+        if (!serializeWrite(stream, static_cast<uint8_t>(_code[i]))) {
+            return false;
+        }
+    }
+    return true;
+}

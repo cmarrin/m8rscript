@@ -41,6 +41,8 @@ namespace m8r {
 
 typedef Id<uint16_t> Atom;
 
+class Stream;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: AtomTable
@@ -59,6 +61,8 @@ public:
         uint16_t index = atom.raw();
         return m8r::String(&(_table[index + 1]), -static_cast<int8_t>(_table[index]));
     }
+    
+    const m8r::String& stringTable() const { return _table; }
 
 private:
     static constexpr uint8_t MaxAtomSize = 127;

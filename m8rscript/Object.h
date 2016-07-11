@@ -90,9 +90,11 @@ public:
     virtual bool setValue(const Value&) { return false; }
     virtual Value* value() { return nullptr; }
     virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
-    
-    virtual bool serialize(Stream*) const;
 
+    bool serializeObject(Stream*) const;
+
+protected:
+    virtual bool serialize(Stream*) const = 0;
     bool serializeWrite(Stream*, ObjectDataType) const;
     bool serializeWrite(Stream*, uint8_t) const;
     bool serializeWrite(Stream*, uint16_t) const;
@@ -133,6 +135,13 @@ public:
     }
 
     virtual size_t propertyCount() const override { return _properties.size(); }
+
+protected:
+    virtual bool serialize(Stream*) const override
+    {
+        // FIXME: Implement
+        return false;
+    }
 
 private:
     int32_t findPropertyIndex(const Atom& name) const

@@ -70,9 +70,13 @@ public:
     virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
 
     virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
-
-    static void interactive();
     
+protected:
+    virtual bool serialize(Stream*) const override
+    {
+        return true;
+    }
+
 protected:
     virtual uint64_t currentTime() const = 0;
 

@@ -45,6 +45,7 @@ class Object;
 class Value;
 class ExecutionUnit;
 class Program;
+class Stream;
 
 typedef union {
     void* v;
@@ -121,6 +122,12 @@ public:
         }
     }
     
+    bool serialize(Stream*) const
+    {
+        // FIXME: Implement
+        return false;
+    }
+
     Type type() const { return _type; }
     
     //

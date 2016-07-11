@@ -115,7 +115,7 @@ public:
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
     
-    void emit(Object* obj);
+    void emit(Function* obj);
     void addNamedFunction(Function* value, const Atom& name);
     void emitWithCount(Op value, uint32_t count);
     void addVar(const Atom& name) { _currentFunction->addLocal(name); }
