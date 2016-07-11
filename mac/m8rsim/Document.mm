@@ -272,4 +272,10 @@ private:
     return;
 }
 
+- (IBAction)exportBinary:(id)sender
+{
+    NSLog(@"*** Exporting...\n");
+}
+
+
 @end

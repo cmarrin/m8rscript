@@ -10,5 +10,6 @@
 
 @interface Document : NSDocument
 
+- (IBAction)exportBinary:(id)sender;
 @end
 

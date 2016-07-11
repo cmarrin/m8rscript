@@ -116,6 +116,12 @@
                                     <action selector="doImport:" target="-1" id="KjF-c4-CTu"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Export Binary..." id="C5j-Sz-Ih8">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="exportBinary:" target="-1" id="IzY-ag-3Po"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="rj2-Hq-OMa"/>
                             <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
