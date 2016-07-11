@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
+#include "Opcodes.h"
 #include "Value.h"
 
 namespace m8r {
@@ -44,6 +45,7 @@ typedef Vector<uint8_t> Code;
 
 class ExecutionUnit;
 class Program;
+class Stream;
 
 class Object {
 public:
@@ -88,6 +90,12 @@ public:
     virtual bool setValue(const Value&) { return false; }
     virtual Value* value() { return nullptr; }
     virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
+    
+    virtual bool serialize(Stream*) const;
+
+    bool serializeWrite(Stream*, ObjectDataType) const;
+    bool serializeWrite(Stream*, uint8_t) const;
+    bool serializeWrite(Stream*, uint16_t) const;
 };
     
 class MaterObject : public Object {

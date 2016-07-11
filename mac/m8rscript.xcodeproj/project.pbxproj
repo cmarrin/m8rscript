@@ -32,6 +32,7 @@
 		494D25881D32AFA4003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25861D32AFA4003755DB /* base64.h */; };
 		494D25941D3309A6003755DB /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25921D3309A6003755DB /* printf.cpp */; };
 		494D25951D3309A6003755DB /* printf.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25931D3309A6003755DB /* printf.h */; };
+		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.mm */; };
@@ -105,6 +106,7 @@
 		494D25901D32B73A003755DB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		494D25921D3309A6003755DB /* printf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = printf.cpp; path = ../m8rscript/printf.cpp; sourceTree = "<group>"; };
 		494D25931D3309A6003755DB /* printf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = printf.h; path = ../m8rscript/printf.h; sourceTree = "<group>"; };
+		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../m8rscript/Object.cpp; sourceTree = "<group>"; };
 		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				4942EA811D07043C00E02088 /* Function.h */,
 				4984E8301D1370A500D0ABA6 /* Global.cpp */,
 				4984E8311D1370A500D0ABA6 /* Global.h */,
+				494D25961D33D33E003755DB /* Object.cpp */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
 				4942EA8C1D0D950100E02088 /* Opcodes.h */,
 				498ACA761D17503C0039E1CD /* ParseEngine.cpp */,
@@ -465,6 +468,7 @@
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
+				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				494D25871D32AFA4003755DB /* base64.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,

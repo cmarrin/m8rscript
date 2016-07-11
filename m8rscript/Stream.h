@@ -55,8 +55,9 @@ namespace m8r {
 
 class Stream {
 public:
-	virtual int available() = 0;
-    virtual int read() = 0;
+	virtual int available() const = 0;
+    virtual int read() const = 0;
+    virtual int write(uint8_t) = 0;
 	virtual void flush() = 0;
 	
 private:
@@ -73,9 +74,9 @@ private:
 class FileStream : public m8r::Stream {
 #ifdef __APPLE__
 public:
-	FileStream(const char* file)
+	FileStream(const char* file, const char* mode = "r")
     {
-        _file = fopen(file, "r");
+        _file = fopen(file, mode);
         if (!_file) {
             _size = 0;
             return;
@@ -84,18 +85,29 @@ public:
         _size = ftell(_file);
         rewind(_file);
     }
+    ~FileStream()
+    {
+        if (_file) {
+            fclose(_file);
+            _file = nullptr;
+        }
+    }
 	
     bool loaded()
     {
         return _file;
     }
-	virtual int available() override
+	virtual int available() const override
     {
         return static_cast<int>(_size - ftell(_file));
     }
-    virtual int read() override
+    virtual int read() const override
     {
         return fgetc(_file);
+    }
+    virtual int write(uint8_t c) override
+    {
+        return fputc(c, _file);
     }
 	virtual void flush() override { }
 	
@@ -112,11 +124,15 @@ public:
     {
         return false;
     }
-	virtual int available() override
+	virtual int available() const override
     {
         return 0;
     }
-    virtual int read() override
+    virtual int read() const override
+    {
+        return 0;
+    }
+    virtual int write(uint8_t c) override
     {
         return 0;
     }
@@ -143,19 +159,29 @@ public:
     virtual ~StringStream() { }
 	
     bool loaded() { return true; }
-	virtual int available() override
+	virtual int available() const override
     {
         return static_cast<int>(_string.length() - _index);
     }
-    virtual int read() override
+    virtual int read() const override
     {
         return (_index < _string.length()) ? _string[_index++] : -1;
+    }
+    virtual int write(uint8_t c) override
+    {
+        // Only allow writing to the end of the string
+        if (_index != _string.length()) {
+            return -1;
+        }
+        _string += c;
+        _index++;
+        return c;
     }
 	virtual void flush() override { }
 	
 private:
     String _string;
-    uint32_t _index;
+    mutable uint32_t _index;
 };
 
 }

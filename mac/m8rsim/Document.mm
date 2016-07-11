@@ -274,7 +274,21 @@ private:
 
 - (IBAction)exportBinary:(id)sender
 {
-    NSLog(@"*** Exporting...\n");
+    NSString *filename = [[self.fileURL absoluteString] lastPathComponent];
+    NSString* newName = [[filename stringByDeletingPathExtension]
+                                   stringByAppendingPathExtension:@"m8rp"];
+    
+    NSSavePanel* panel = [NSSavePanel savePanel];
+    [panel setNameFieldStringValue:newName];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL*  url = [panel URL];
+            m8r::FileStream stream([url fileSystemRepresentation], "w");
+            if (_program) {
+                _program->serialize(&stream);
+            }
+        }
+    }];
 }
 
 

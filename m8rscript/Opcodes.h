@@ -201,4 +201,16 @@ enum class Token : uint8_t {
     EndOfFile = 0xff,
 };
 
+static const uint8_t MajorVersion = 0;
+static const uint8_t MinorVersion = 1;
+
+enum class ObjectDataType : uint8_t {
+    End = 0x00,
+    Version = 0x01,     // { uint8_t major, uint8_t minor }
+    Name = 0x02,        // { uint8_t size, char name[size] }
+    
+    // The remainder of types are followed by { uint16_t size, uint8_t data[size] }
+    
+};
+
 }
