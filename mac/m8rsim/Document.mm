@@ -167,16 +167,6 @@ private:
     return YES;
 }
 
-- (void)doImport:(id)sender {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [[panel URLs] objectAtIndex:0];
-            sourceEditor.string = [NSString stringWithContentsOfURL:url encoding:kUnicodeUTF8Format error:nil];
-        }
-    }];
-}
-
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild
 {
     if (isBuild) {
@@ -270,6 +260,19 @@ private:
     _running = false;
     [self outputMessage:@"*** Stopped\n" toBuild:NO];
     return;
+}
+
+- (IBAction)importBinary:(id)sender {
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    [panel setAllowedFileTypes:@[@"m8rp"]];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL*  url = [[panel URLs] objectAtIndex:0];
+            m8r::FileStream stream([url fileSystemRepresentation], "r");
+            _program = new m8r::Program(_system);
+            _program->deserializeObject(&stream);
+        }
+    }];
 }
 
 - (IBAction)exportBinary:(id)sender
