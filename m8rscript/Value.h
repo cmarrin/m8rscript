@@ -128,6 +128,12 @@ public:
         return false;
     }
 
+    bool deserialize(Stream*)
+    {
+        // FIXME: Implement
+        return false;
+    }
+
     Type type() const { return _type; }
     
     //

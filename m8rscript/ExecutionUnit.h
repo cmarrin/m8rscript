@@ -68,6 +68,12 @@ protected:
     {
         return true;
     }
+
+    virtual bool deserialize(Stream*) override
+    {
+        // FIXME: Implement
+        return false;
+    }
 };
 
 class ExecutionUnit {

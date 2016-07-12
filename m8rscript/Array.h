@@ -74,6 +74,12 @@ protected:
         return false;
     }
 
+    virtual bool deserialize(Stream*) override
+    {
+        // FIXME: Implement
+        return false;
+    }
+
 private:
     enum class Property : uint8_t { Length };
     static Map<Atom, Property> _properties;

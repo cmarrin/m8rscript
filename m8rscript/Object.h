@@ -92,12 +92,24 @@ public:
     virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
 
     bool serializeObject(Stream*) const;
+    bool deserializeObject(Stream*);
 
 protected:
     virtual bool serialize(Stream*) const = 0;
+    virtual bool deserialize(Stream*) = 0;
+    
+    bool serializeBuffer(Stream*, ObjectDataType, const uint8_t* buffer, size_t size) const;
+    
     bool serializeWrite(Stream*, ObjectDataType) const;
     bool serializeWrite(Stream*, uint8_t) const;
     bool serializeWrite(Stream*, uint16_t) const;
+
+    bool deserializeBufferSize(Stream*, ObjectDataType, uint16_t& size) const;
+    bool deserializeBuffer(Stream* stream, uint8_t* buffer, uint16_t size) const;
+
+    bool deserializeRead(Stream*, ObjectDataType&) const;
+    bool deserializeRead(Stream*, uint8_t&) const;
+    bool deserializeRead(Stream*, uint16_t&) const;
 };
     
 class MaterObject : public Object {
@@ -138,6 +150,12 @@ public:
 
 protected:
     virtual bool serialize(Stream*) const override
+    {
+        // FIXME: Implement
+        return false;
+    }
+
+    virtual bool deserialize(Stream*) override
     {
         // FIXME: Implement
         return false;

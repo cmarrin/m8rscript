@@ -50,38 +50,46 @@ Program::~Program()
 bool Program::serialize(Stream* stream) const
 {
     // Write the atom table
-    if (!serializeWrite(stream, ObjectDataType::AtomTable)) {
+    const Vector<int8_t>& atomTableString = _atomTable.stringTable();
+    if (!serializeBuffer(stream, ObjectDataType::AtomTable, reinterpret_cast<const uint8_t*>(&(atomTableString[0])), atomTableString.size())) {
         return false;
-    }
-    const String& atomTableString = _atomTable.stringTable();
-    size_t size = atomTableString.length();
-    assert(size < 65536);
-    uint16_t ssize = static_cast<uint16_t>(size);
-    if (!serializeWrite(stream, ssize)) {
-        return false;
-    }
-    for (uint16_t i = 0; i < ssize; ++i) {
-        if (!serializeWrite(stream, static_cast<uint8_t>(atomTableString[i]))) {
-            return false;
-        }
     }
         
     // Write the string table
-    if (!serializeWrite(stream, ObjectDataType::StringTable)) {
+    if (!serializeBuffer(stream, ObjectDataType::StringTable, reinterpret_cast<const uint8_t*>(&(_stringTable[0])), _stringTable.size())) {
         return false;
-    }
-    size = _stringTable.size();
-    assert(size < 65536);
-    ssize = static_cast<uint16_t>(size);
-    if (!serializeWrite(stream, ssize)) {
-        return false;
-    }
-    for (uint16_t i = 0; i < ssize; ++i) {
-        if (!serializeWrite(stream, static_cast<uint8_t>(_stringTable[i]))) {
-            return false;
-        }
     }
 
-    Function::serialize(stream);
-    return true;
+    return Function::serialize(stream);
+}
+
+bool Program::deserialize(Stream* stream)
+{
+    // Read the atom table
+    Vector<int8_t>& atomTableString = _atomTable.stringTable();
+    atomTableString.clear();
+
+    uint16_t size;
+    if (!deserializeBufferSize(stream, ObjectDataType::AtomTable, size)) {
+        return false;
+    }
+    
+    atomTableString.resize(size);
+    if (!deserializeBuffer(stream, reinterpret_cast<uint8_t*>(&(atomTableString[0])), size)) {
+        return false;
+    }
+    
+    // Read the string table
+    _stringTable.clear();
+
+    if (!deserializeBufferSize(stream, ObjectDataType::StringTable, size)) {
+        return false;
+    }
+    
+    _stringTable.resize(size);
+    if (!deserializeBuffer(stream, reinterpret_cast<uint8_t*>(&(_stringTable[0])), size)) {
+        return false;
+    }
+    
+    return Function::deserialize(stream);
 }

@@ -39,6 +39,43 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+bool Object::serializeBuffer(Stream* stream, ObjectDataType type, const uint8_t* buffer, size_t size) const
+{
+    if (!serializeWrite(stream, type)) {
+        return false;
+    }
+    assert(size < 65536);
+    uint16_t ssize = static_cast<uint16_t>(size);
+    if (!serializeWrite(stream, ssize)) {
+        return false;
+    }
+    for (uint16_t i = 0; i < ssize; ++i) {
+        if (!serializeWrite(stream, buffer[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Object::deserializeBufferSize(Stream* stream, ObjectDataType expectedType, uint16_t& size) const
+{
+    ObjectDataType type;
+    if (!deserializeRead(stream, type) || type != expectedType) {
+        return false;
+    }
+    return deserializeRead(stream, size);
+}
+
+bool Object::deserializeBuffer(Stream* stream, uint8_t* buffer, uint16_t size) const
+{
+    for (uint16_t i = 0; i < size; ++i) {
+        if (!deserializeRead(stream, buffer[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Object::serializeWrite(Stream* stream, ObjectDataType value) const
 {
     uint8_t c = static_cast<uint8_t>(value);
@@ -60,6 +97,41 @@ bool Object::serializeWrite(Stream* stream, uint16_t value) const
     return stream->write(c) == c;
 }
 
+bool Object::deserializeRead(Stream* stream, ObjectDataType& value) const
+{
+    int c = stream->read();
+    if (c < 0) {
+        return false;
+    }
+    value = static_cast<ObjectDataType>(c);
+    return true;
+}
+
+bool Object::deserializeRead(Stream* stream, uint8_t& value) const
+{
+    int c = stream->read();
+    if (c < 0) {
+        return false;
+    }
+    value = static_cast<uint8_t>(c);
+    return true;
+}
+
+bool Object::deserializeRead(Stream* stream, uint16_t& value) const
+{
+    int c = stream->read();
+    if (c < 0) {
+        return false;
+    }
+    value = (static_cast<uint16_t>(c) & 0xff) << 8;
+    c = stream->read();
+    if (c < 0) {
+        return false;
+    }
+    value |= static_cast<uint16_t>(c) & 0xff;
+    return true;
+}
+
 bool Object::serializeObject(Stream* stream) const
 {
     if (!serializeWrite(stream, ObjectDataType::Version)) {
@@ -71,26 +143,52 @@ bool Object::serializeObject(Stream* stream) const
     if (!serializeWrite(stream, MinorVersion)) {
         return false;
     }
-    if (!serializeWrite(stream, ObjectDataType::Name)) {
-        return false;
-    }
     const char* name = typeName();
-    size_t size = strlen(name);
-    assert(size < 256);
-    uint8_t csize = static_cast<uint8_t>(size);
-    if (!serializeWrite(stream, csize)) {
+    if (!serializeBuffer(stream, ObjectDataType::Name, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
         return false;
-    }
-    for (uint8_t i = 0; i < csize; ++i) {
-        if (!serializeWrite(stream, static_cast<uint8_t>(name[i]))) {
-            return false;
-        }
     }
     
     if (!serialize(stream)) {
         return false;
     }
     if (!serializeWrite(stream, ObjectDataType::End)) {
+        return false;
+    }
+    return true;
+}
+
+bool Object::deserializeObject(Stream* stream)
+{
+    ObjectDataType type;
+    if (!deserializeRead(stream, type) || type != ObjectDataType::Version) {
+        return false;
+    }
+    uint8_t majorVersion, minorVersion;
+    if (!deserializeRead(stream, majorVersion) || majorVersion != MajorVersion) {
+        return false;
+    }
+    if (!deserializeRead(stream, minorVersion) || minorVersion != MinorVersion) {
+        return false;
+    }
+    
+    uint16_t size;
+    if (!deserializeBufferSize(stream, ObjectDataType::Name, size)) {
+        return false;
+    }
+    
+    uint8_t* typeName = static_cast<uint8_t*>(malloc(size));
+    if (!deserializeBuffer(stream, typeName, size)) {
+        return false;
+    }
+
+    // FIXME: Do something with the typeName;
+    free(typeName);
+    
+    if (!deserialize(stream)) {
+        return false;
+    }
+    
+    if (!deserializeRead(stream, type) || type != ObjectDataType::End) {
         return false;
     }
     return true;

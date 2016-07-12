@@ -54,20 +54,25 @@ class Stream;
 //////////////////////////////////////////////////////////////////////////////
 
 class AtomTable {
+    friend class Program;
+    
 public:
     Atom atomizeString(const char*);
     m8r::String stringFromAtom(const Atom atom) const
     {
         uint16_t index = atom.raw();
-        return m8r::String(&(_table[index + 1]), -static_cast<int8_t>(_table[index]));
+        
+        return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    const m8r::String& stringTable() const { return _table; }
+    const Vector<int8_t>& stringTable() const { return _table; }
 
 private:
+    Vector<int8_t>& stringTable() { return _table; }
+
     static constexpr uint8_t MaxAtomSize = 127;
 
-    m8r::String _table;
+    Vector<int8_t> _table;
 };
 
 }

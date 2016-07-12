@@ -207,7 +207,7 @@ static const uint8_t MinorVersion = 1;
 enum class ObjectDataType : uint8_t {
     End = 0x00,
     Version = 0x01,     // { uint8_t major, uint8_t minor }
-    Name = 0x02,        // { uint8_t size, char name[size] }
+    Name = 0x02,        // { uint16_t size, uint8_t name[size] }
 
     // Program
     AtomTable = 0x10,       // { uint16_t size, uint8_t data[size] }

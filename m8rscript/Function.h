@@ -64,8 +64,10 @@ public:
 
 protected:
     virtual bool serialize(Stream*) const override;
+    virtual bool deserialize(Stream*) override;
     
     bool serializeCode(Stream*) const;
+    bool deserializeCode(Stream*);
 
 private:
     Code _code;

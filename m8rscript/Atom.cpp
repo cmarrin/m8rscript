@@ -44,22 +44,26 @@ Atom AtomTable::atomizeString(const char* s)
         return Atom();
     }
     
-    const char* start = _table.c_str();
-    const char* p = start;
-    while(p && *p != '\0') {
-        p++;
-        p = strstr(p, s);
-        assert(p != start); // Since the first string is preceded by a length, this should never happen
-        if (p && static_cast<int8_t>(p[-1]) < 0) {
-            // The next char either needs to be negative (meaning the start of the next word) or the end of the string
-            if (static_cast<int8_t>(p[len]) <= 0) {
-                return Atom(p - start - 1);
+    if (_table.size() > 0) {
+        const char* start = reinterpret_cast<const char*>(&(_table[0]));
+        const char* p = start;
+        while(p && *p != '\0') {
+            p++;
+            p = strstr(p, s);
+            assert(p != start); // Since the first string is preceded by a length, this should never happen
+            if (p && static_cast<int8_t>(p[-1]) < 0) {
+                // The next char either needs to be negative (meaning the start of the next word) or the end of the string
+                if (static_cast<int8_t>(p[len]) <= 0) {
+                    return Atom(p - start - 1);
+                }
             }
         }
     }
     
-    Atom a(_table.length());
-    _table += -static_cast<int8_t>(len);
-    _table += s;
+    Atom a(_table.size());
+    _table.push_back(-static_cast<int8_t>(len));
+    for (size_t i = 0; i < len; ++i) {
+        _table.push_back(s[i]);
+    }
     return a;
 }

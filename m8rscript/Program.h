@@ -93,6 +93,7 @@ public:
 
 protected:
     virtual bool serialize(Stream*) const override;
+    virtual bool deserialize(Stream*) override;
 
 private:
     static AtomTable _atomTable;

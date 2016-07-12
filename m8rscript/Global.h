@@ -77,6 +77,11 @@ protected:
         return true;
     }
 
+    virtual bool deserialize(Stream*) override
+    {
+        return true;
+    }
+
 protected:
     virtual uint64_t currentTime() const = 0;
 
