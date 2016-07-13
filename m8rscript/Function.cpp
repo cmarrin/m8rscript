@@ -67,20 +67,38 @@ int32_t Function::localIndex(const Atom& name) const
 
 bool Function::serialize(Stream* stream, Error& error) const
 {
-    // FIXME: Finish implementation
+    if (!serializeBuffer(stream, error, ObjectDataType::Locals, 
+                         _locals.size() ? reinterpret_cast<const uint8_t*>(&(_locals[0])) : nullptr, 
+                         _locals.size() * sizeof(uint16_t))) {
+        return false;
+    }
     return serializeCode(stream, error);
 }
 
 bool Function::deserialize(Stream* stream, Error& error)
 {
-    // FIXME: Finish implementation
+    _locals.clear();
+
+    uint16_t size;
+    if (!deserializeBufferSize(stream, error, ObjectDataType::Locals, size)) {
+        return false;
+    }
+    
+    assert((size & 1) == 0);
+    _locals.resize(size / 2);
+    if (!deserializeBuffer(stream, error, 
+                           _locals.size() ? reinterpret_cast<uint8_t*>(&(_locals[0])) : nullptr, size)) {
+        return false;
+    }
+    
     return deserializeCode(stream, error);
 }
 
 bool Function::serializeCode(Stream* stream, Error& error) const
 {
     size_t size = _code.size();
-    return serializeBuffer(stream, error, ObjectDataType::Code, &(_code[0]), size);
+    return serializeBuffer(stream, error, ObjectDataType::Code, 
+                            _code.size() ? &(_code[0]) : nullptr, size);
 }
 
 bool Function::deserializeCode(Stream* stream, Error& error)

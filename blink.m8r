@@ -22,7 +22,7 @@ Serial.print("Object a.b = " + a.b + "\n");
 
 GPIO.pinMode(0x2, GPIO.OUTPUT);
 Serial.begin(9600);
-Serial.println("Started Blink\n");
+Serial.print("Started Blink\n");
 var count = 0;
 while (count < 1000) {
     blink();

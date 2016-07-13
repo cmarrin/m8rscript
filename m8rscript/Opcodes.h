@@ -215,7 +215,7 @@ enum class ObjectDataType : uint8_t {
     
     // Function
     FunctionStart = 0x20,   // Indicates start of a function (can be nested)
-    Locals = 0x21,          // { uint8_t nparams, uint16_t atoms[nparams] }
+    Locals = 0x21,          // { uint16_t nparams, uint16_t atoms[nparams] }
     ParamEnd = 0x22,        // { uint16_t size = 2, uint16_t paramEnd }
     Code = 0x23,            // { uint16_t size, uint8_t code[size] }
     FunctionEnd = 0x2f,     // Indicates end of a function
