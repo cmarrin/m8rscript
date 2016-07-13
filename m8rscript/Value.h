@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Containers.h"
+#include "Error.h"
 #include "Float.h"
 
 namespace m8r {
@@ -122,13 +123,13 @@ public:
         }
     }
     
-    bool serialize(Stream*) const
+    bool serialize(Stream*, Error&) const
     {
         // FIXME: Implement
         return false;
     }
 
-    bool deserialize(Stream*)
+    bool deserialize(Stream*, Error&)
     {
         // FIXME: Implement
         return false;

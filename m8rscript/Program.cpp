@@ -47,49 +47,49 @@ Program::~Program()
 {
 }
 
-bool Program::serialize(Stream* stream) const
+bool Program::serialize(Stream* stream, Error& error) const
 {
     // Write the atom table
     const Vector<int8_t>& atomTableString = _atomTable.stringTable();
-    if (!serializeBuffer(stream, ObjectDataType::AtomTable, reinterpret_cast<const uint8_t*>(&(atomTableString[0])), atomTableString.size())) {
+    if (!serializeBuffer(stream, error, ObjectDataType::AtomTable, reinterpret_cast<const uint8_t*>(&(atomTableString[0])), atomTableString.size())) {
         return false;
     }
         
     // Write the string table
-    if (!serializeBuffer(stream, ObjectDataType::StringTable, reinterpret_cast<const uint8_t*>(&(_stringTable[0])), _stringTable.size())) {
+    if (!serializeBuffer(stream, error, ObjectDataType::StringTable, reinterpret_cast<const uint8_t*>(&(_stringTable[0])), _stringTable.size())) {
         return false;
     }
 
-    return Function::serialize(stream);
+    return Function::serialize(stream, error);
 }
 
-bool Program::deserialize(Stream* stream)
+bool Program::deserialize(Stream* stream, Error& error)
 {
     // Read the atom table
     Vector<int8_t>& atomTableString = _atomTable.stringTable();
     atomTableString.clear();
 
     uint16_t size;
-    if (!deserializeBufferSize(stream, ObjectDataType::AtomTable, size)) {
+    if (!deserializeBufferSize(stream, error, ObjectDataType::AtomTable, size)) {
         return false;
     }
     
     atomTableString.resize(size);
-    if (!deserializeBuffer(stream, reinterpret_cast<uint8_t*>(&(atomTableString[0])), size)) {
+    if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(&(atomTableString[0])), size)) {
         return false;
     }
     
     // Read the string table
     _stringTable.clear();
 
-    if (!deserializeBufferSize(stream, ObjectDataType::StringTable, size)) {
+    if (!deserializeBufferSize(stream, error, ObjectDataType::StringTable, size)) {
         return false;
     }
     
     _stringTable.resize(size);
-    if (!deserializeBuffer(stream, reinterpret_cast<uint8_t*>(&(_stringTable[0])), size)) {
+    if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(&(_stringTable[0])), size)) {
         return false;
     }
     
-    return Function::deserialize(stream);
+    return Function::deserialize(stream, error);
 }

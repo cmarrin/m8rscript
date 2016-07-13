@@ -33,65 +33,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Function.h"
+#include "Error.h"
 
-#include "ExecutionUnit.h"
+#include "SystemInterface.h"
 
 using namespace m8r;
 
-int32_t Function::call(Program* program, ExecutionUnit* eu, uint32_t nparams)
+void Error::showError(SystemInterface* system) const
 {
-    return eu->run(program, this, nparams);
-}
-
-int32_t Function::addLocal(const Atom& atom)
-{
-    for (auto name : _locals) {
-        if (name == atom) {
-            return -1;
-        }
+    const char* codeString = "unknown";
+    switch(_code) {
+        default: break;
     }
-    _locals.push_back(atom);
-    return static_cast<int32_t>(_locals.size()) - 1;
-}
-
-int32_t Function::localIndex(const Atom& name) const
-{
-    for (int32_t i = 0; i < static_cast<int32_t>(_locals.size()); ++i) {
-        if (_locals[i] == name) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-bool Function::serialize(Stream* stream, Error& error) const
-{
-    // FIXME: Finish implementation
-    return serializeCode(stream, error);
-}
-
-bool Function::deserialize(Stream* stream, Error& error)
-{
-    // FIXME: Finish implementation
-    return deserializeCode(stream, error);
-}
-
-bool Function::serializeCode(Stream* stream, Error& error) const
-{
-    size_t size = _code.size();
-    return serializeBuffer(stream, error, ObjectDataType::Code, &(_code[0]), size);
-}
-
-bool Function::deserializeCode(Stream* stream, Error& error)
-{
-    _code.clear();
-
-    uint16_t size;
-    if (!deserializeBufferSize(stream, error, ObjectDataType::Code, size)) {
-        return false;
-    }
-    
-    _code.resize(size);
-    return deserializeBuffer(stream, error, &(_code[0]), size);
+    system->printf("Error: %s\n", codeString);
 }

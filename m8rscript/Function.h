@@ -63,11 +63,11 @@ public:
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
 
 protected:
-    virtual bool serialize(Stream*) const override;
-    virtual bool deserialize(Stream*) override;
+    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool deserialize(Stream*, Error&) override;
     
-    bool serializeCode(Stream*) const;
-    bool deserializeCode(Stream*);
+    bool serializeCode(Stream*, Error&) const;
+    bool deserializeCode(Stream*, Error&);
 
 private:
     Code _code;

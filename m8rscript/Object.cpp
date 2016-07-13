@@ -39,55 +39,55 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool Object::serializeBuffer(Stream* stream, ObjectDataType type, const uint8_t* buffer, size_t size) const
+bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
 {
-    if (!serializeWrite(stream, type)) {
+    if (!serializeWrite(stream, error, type)) {
         return false;
     }
     assert(size < 65536);
     uint16_t ssize = static_cast<uint16_t>(size);
-    if (!serializeWrite(stream, ssize)) {
+    if (!serializeWrite(stream, error, ssize)) {
         return false;
     }
     for (uint16_t i = 0; i < ssize; ++i) {
-        if (!serializeWrite(stream, buffer[i])) {
+        if (!serializeWrite(stream, error, buffer[i])) {
             return false;
         }
     }
     return true;
 }
 
-bool Object::deserializeBufferSize(Stream* stream, ObjectDataType expectedType, uint16_t& size) const
+bool Object::deserializeBufferSize(Stream* stream, Error& error, ObjectDataType expectedType, uint16_t& size) const
 {
     ObjectDataType type;
-    if (!deserializeRead(stream, type) || type != expectedType) {
+    if (!deserializeRead(stream, error, type) || type != expectedType) {
         return false;
     }
-    return deserializeRead(stream, size);
+    return deserializeRead(stream, error, size);
 }
 
-bool Object::deserializeBuffer(Stream* stream, uint8_t* buffer, uint16_t size) const
+bool Object::deserializeBuffer(Stream* stream, Error& error, uint8_t* buffer, uint16_t size) const
 {
     for (uint16_t i = 0; i < size; ++i) {
-        if (!deserializeRead(stream, buffer[i])) {
+        if (!deserializeRead(stream, error, buffer[i])) {
             return false;
         }
     }
     return true;
 }
 
-bool Object::serializeWrite(Stream* stream, ObjectDataType value) const
+bool Object::serializeWrite(Stream* stream, Error& error, ObjectDataType value) const
 {
     uint8_t c = static_cast<uint8_t>(value);
     return stream->write(c) == c;
 }
 
-bool Object::serializeWrite(Stream* stream, uint8_t value) const
+bool Object::serializeWrite(Stream* stream, Error& error, uint8_t value) const
 {
     return stream->write(value) == value;
 }
 
-bool Object::serializeWrite(Stream* stream, uint16_t value) const
+bool Object::serializeWrite(Stream* stream, Error& error, uint16_t value) const
 {
     uint8_t c = static_cast<uint8_t>(value >> 8);
     if (stream->write(c) != c) {
@@ -97,7 +97,7 @@ bool Object::serializeWrite(Stream* stream, uint16_t value) const
     return stream->write(c) == c;
 }
 
-bool Object::deserializeRead(Stream* stream, ObjectDataType& value) const
+bool Object::deserializeRead(Stream* stream, Error& error, ObjectDataType& value) const
 {
     int c = stream->read();
     if (c < 0) {
@@ -107,7 +107,7 @@ bool Object::deserializeRead(Stream* stream, ObjectDataType& value) const
     return true;
 }
 
-bool Object::deserializeRead(Stream* stream, uint8_t& value) const
+bool Object::deserializeRead(Stream* stream, Error& error, uint8_t& value) const
 {
     int c = stream->read();
     if (c < 0) {
@@ -117,7 +117,7 @@ bool Object::deserializeRead(Stream* stream, uint8_t& value) const
     return true;
 }
 
-bool Object::deserializeRead(Stream* stream, uint16_t& value) const
+bool Object::deserializeRead(Stream* stream, Error& error, uint16_t& value) const
 {
     int c = stream->read();
     if (c < 0) {
@@ -132,63 +132,63 @@ bool Object::deserializeRead(Stream* stream, uint16_t& value) const
     return true;
 }
 
-bool Object::serializeObject(Stream* stream) const
+bool Object::serializeObject(Stream* stream, Error& error) const
 {
-    if (!serializeWrite(stream, ObjectDataType::Version)) {
+    if (!serializeWrite(stream, error, ObjectDataType::Version)) {
         return false;
     }
-    if (!serializeWrite(stream, MajorVersion)) {
+    if (!serializeWrite(stream, error, MajorVersion)) {
         return false;
     }
-    if (!serializeWrite(stream, MinorVersion)) {
+    if (!serializeWrite(stream, error, MinorVersion)) {
         return false;
     }
     const char* name = typeName();
-    if (!serializeBuffer(stream, ObjectDataType::Name, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
+    if (!serializeBuffer(stream, error, ObjectDataType::Name, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
         return false;
     }
     
-    if (!serialize(stream)) {
+    if (!serialize(stream, error)) {
         return false;
     }
-    if (!serializeWrite(stream, ObjectDataType::End)) {
+    if (!serializeWrite(stream, error, ObjectDataType::End)) {
         return false;
     }
     return true;
 }
 
-bool Object::deserializeObject(Stream* stream)
+bool Object::deserializeObject(Stream* stream, Error& error)
 {
     ObjectDataType type;
-    if (!deserializeRead(stream, type) || type != ObjectDataType::Version) {
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::Version) {
         return false;
     }
     uint8_t majorVersion, minorVersion;
-    if (!deserializeRead(stream, majorVersion) || majorVersion != MajorVersion) {
+    if (!deserializeRead(stream, error, majorVersion) || majorVersion != MajorVersion) {
         return false;
     }
-    if (!deserializeRead(stream, minorVersion) || minorVersion != MinorVersion) {
+    if (!deserializeRead(stream, error, minorVersion) || minorVersion != MinorVersion) {
         return false;
     }
     
     uint16_t size;
-    if (!deserializeBufferSize(stream, ObjectDataType::Name, size)) {
+    if (!deserializeBufferSize(stream, error, ObjectDataType::Name, size)) {
         return false;
     }
     
     uint8_t* typeName = static_cast<uint8_t*>(malloc(size));
-    if (!deserializeBuffer(stream, typeName, size)) {
+    if (!deserializeBuffer(stream, error, typeName, size)) {
         return false;
     }
 
     // FIXME: Do something with the typeName;
     free(typeName);
     
-    if (!deserialize(stream)) {
+    if (!deserialize(stream, error)) {
         return false;
     }
     
-    if (!deserializeRead(stream, type) || type != ObjectDataType::End) {
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::End) {
         return false;
     }
     return true;

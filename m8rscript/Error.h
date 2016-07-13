@@ -35,55 +35,29 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Object.h"
+#include "Containers.h"
 
 namespace m8r {
 
-class Array : public Object {
+class SystemInterface;
+
+class Error
+{
 public:
-    Array();
-
-    virtual const char* typeName() const override { return "Array"; }
-
-    virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
-    virtual const Value element(uint32_t index) const override { return (index < _array.size()) ? _array[index] : Value(); }
-    virtual bool setElement(uint32_t index, const Value& value) override
-    {
-        if (index >= _array.size()) {
-            return false;
-        }
-        _array[index] = value;
-        return true;
-    }
-    virtual bool appendElement(const Value& value) override { _array.push_back(value); return true; }
-    virtual size_t elementCount() const override { return _array.size(); }
-    virtual void setElementCount(size_t size) override { _array.resize(size); }
-
-    // Array has built-in properties. Handle those here
-    virtual int32_t propertyIndex(const Atom& s, bool canExist) override;
-    virtual Value propertyRef(int32_t index) override;
-    virtual const Value property(int32_t index) const override;
-    virtual bool setProperty(int32_t index, const Value&) override;
-    virtual Atom propertyName(uint32_t index) const override;
-    virtual size_t propertyCount() const override;
-
-protected:
-    virtual bool serialize(Stream*, Error&) const override
-    {
-        // FIXME: Implement
-        return false;
-    }
-
-    virtual bool deserialize(Stream*, Error&) override
-    {
-        // FIXME: Implement
-        return false;
-    }
-
-private:
-    enum class Property : uint8_t { Length };
-    static Map<Atom, Property> _properties;
-    Vector<Value> _array;
-};
+    enum class Code {
+        None,
+        Unknown,
+    };
     
+    Error() { }
+    ~Error() { }
+    
+    void setError(Code code, const String& s) { _code = code; _string = s; }
+    void showError(SystemInterface*) const;
+    
+private:
+    Code _code = Code::None;
+    String _string;
+};
+
 }

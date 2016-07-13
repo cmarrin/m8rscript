@@ -270,7 +270,10 @@ private:
             NSURL*  url = [[panel URLs] objectAtIndex:0];
             m8r::FileStream stream([url fileSystemRepresentation], "r");
             _program = new m8r::Program(_system);
-            _program->deserializeObject(&stream);
+            m8r::Error error;
+            if (!_program->deserializeObject(&stream, error)) {
+                error.showError(_system);
+            }
         }
     }];
 }
@@ -288,7 +291,10 @@ private:
             NSURL*  url = [panel URL];
             m8r::FileStream stream([url fileSystemRepresentation], "w");
             if (_program) {
-                _program->serializeObject(&stream);
+                m8r::Error error;
+                if (!_program->serializeObject(&stream, error)) {
+                    error.showError(_system);
+                }
             }
         }
     }];

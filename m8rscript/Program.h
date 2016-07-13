@@ -92,8 +92,8 @@ public:
     uint32_t currentTime() const;
 
 protected:
-    virtual bool serialize(Stream*) const override;
-    virtual bool deserialize(Stream*) override;
+    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool deserialize(Stream*, Error&) override;
 
 private:
     static AtomTable _atomTable;

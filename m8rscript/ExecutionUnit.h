@@ -64,15 +64,14 @@ public:
     virtual void setElementCount(size_t) override { assert(0); }
 
 protected:
-    virtual bool serialize(Stream*) const override
+    virtual bool serialize(Stream*, Error&) const override
     {
         return true;
     }
 
-    virtual bool deserialize(Stream*) override
+    virtual bool deserialize(Stream*, Error&) override
     {
-        // FIXME: Implement
-        return false;
+        return true;
     }
 };
 

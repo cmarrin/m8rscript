@@ -72,12 +72,12 @@ public:
     virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
     
 protected:
-    virtual bool serialize(Stream*) const override
+    virtual bool serialize(Stream*, Error&) const override
     {
         return true;
     }
 
-    virtual bool deserialize(Stream*) override
+    virtual bool deserialize(Stream*, Error&) override
     {
         return true;
     }

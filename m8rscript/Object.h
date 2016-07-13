@@ -43,6 +43,7 @@ namespace m8r {
 
 typedef Vector<uint8_t> Code;
 
+class Error;
 class ExecutionUnit;
 class Program;
 class Stream;
@@ -91,25 +92,25 @@ public:
     virtual Value* value() { return nullptr; }
     virtual int32_t call(Program*, ExecutionUnit*, uint32_t nparams) { return -1; }
 
-    bool serializeObject(Stream*) const;
-    bool deserializeObject(Stream*);
+    bool serializeObject(Stream*, Error&) const;
+    bool deserializeObject(Stream*, Error&);
 
 protected:
-    virtual bool serialize(Stream*) const = 0;
-    virtual bool deserialize(Stream*) = 0;
+    virtual bool serialize(Stream*, Error&) const = 0;
+    virtual bool deserialize(Stream*, Error&) = 0;
     
-    bool serializeBuffer(Stream*, ObjectDataType, const uint8_t* buffer, size_t size) const;
+    bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
     
-    bool serializeWrite(Stream*, ObjectDataType) const;
-    bool serializeWrite(Stream*, uint8_t) const;
-    bool serializeWrite(Stream*, uint16_t) const;
+    bool serializeWrite(Stream*, Error&, ObjectDataType) const;
+    bool serializeWrite(Stream*, Error&, uint8_t) const;
+    bool serializeWrite(Stream*, Error&, uint16_t) const;
 
-    bool deserializeBufferSize(Stream*, ObjectDataType, uint16_t& size) const;
-    bool deserializeBuffer(Stream* stream, uint8_t* buffer, uint16_t size) const;
+    bool deserializeBufferSize(Stream*, Error&, ObjectDataType, uint16_t& size) const;
+    bool deserializeBuffer(Stream* stream, Error&, uint8_t* buffer, uint16_t size) const;
 
-    bool deserializeRead(Stream*, ObjectDataType&) const;
-    bool deserializeRead(Stream*, uint8_t&) const;
-    bool deserializeRead(Stream*, uint16_t&) const;
+    bool deserializeRead(Stream*, Error&, ObjectDataType&) const;
+    bool deserializeRead(Stream*, Error&, uint8_t&) const;
+    bool deserializeRead(Stream*, Error&, uint16_t&) const;
 };
     
 class MaterObject : public Object {
@@ -149,13 +150,13 @@ public:
     virtual size_t propertyCount() const override { return _properties.size(); }
 
 protected:
-    virtual bool serialize(Stream*) const override
+    virtual bool serialize(Stream*, Error&) const override
     {
         // FIXME: Implement
         return false;
     }
 
-    virtual bool deserialize(Stream*) override
+    virtual bool deserialize(Stream*, Error&) override
     {
         // FIXME: Implement
         return false;
