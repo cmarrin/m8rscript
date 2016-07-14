@@ -95,10 +95,10 @@ public:
     bool serializeObject(Stream*, Error&) const;
     bool deserializeObject(Stream*, Error&);
 
-protected:
     virtual bool serialize(Stream*, Error&) const = 0;
     virtual bool deserialize(Stream*, Error&) = 0;
-    
+
+protected:    
     bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
     
     bool serializeWrite(Stream*, Error&, ObjectDataType) const;

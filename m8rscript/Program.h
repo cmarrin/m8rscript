@@ -45,7 +45,7 @@ class Object;
 class Function;
 class SystemInterface;
 
-typedef Id<uint32_t> ObjectId;
+typedef Id<uint16_t> ObjectId;
 
 class Program : public Function {
 public:

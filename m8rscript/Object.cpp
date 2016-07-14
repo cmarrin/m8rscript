@@ -134,6 +134,19 @@ bool Object::deserializeRead(Stream* stream, Error& error, uint16_t& value) cons
 
 bool Object::serializeObject(Stream* stream, Error& error) const
 {
+    if (!serializeWrite(stream, error, ObjectDataType::Type)) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint8_t>('m'))) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint8_t>('8'))) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint8_t>('r'))) {
+        return false;
+    }
+    
     if (!serializeWrite(stream, error, ObjectDataType::Version)) {
         return false;
     }
@@ -143,14 +156,11 @@ bool Object::serializeObject(Stream* stream, Error& error) const
     if (!serializeWrite(stream, error, MinorVersion)) {
         return false;
     }
-    const char* name = typeName();
-    if (!serializeBuffer(stream, error, ObjectDataType::Name, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
-        return false;
-    }
-    
+
     if (!serialize(stream, error)) {
         return false;
     }
+
     if (!serializeWrite(stream, error, ObjectDataType::End)) {
         return false;
     }
@@ -160,6 +170,20 @@ bool Object::serializeObject(Stream* stream, Error& error) const
 bool Object::deserializeObject(Stream* stream, Error& error)
 {
     ObjectDataType type;
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::Type) {
+        return false;
+    }
+    uint8_t c;
+    if (!deserializeRead(stream, error, c) || c != 'm') {
+        return false;
+    }
+    if (!deserializeRead(stream, error, c) || c != '8') {
+        return false;
+    }
+    if (!deserializeRead(stream, error, c) || c != 'r') {
+        return false;
+    }
+    
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::Version) {
         return false;
     }
@@ -170,19 +194,6 @@ bool Object::deserializeObject(Stream* stream, Error& error)
     if (!deserializeRead(stream, error, minorVersion) || minorVersion != MinorVersion) {
         return false;
     }
-    
-    uint16_t size;
-    if (!deserializeBufferSize(stream, error, ObjectDataType::Name, size)) {
-        return false;
-    }
-    
-    uint8_t* typeName = static_cast<uint8_t*>(malloc(size));
-    if (!deserializeBuffer(stream, error, typeName, size)) {
-        return false;
-    }
-
-    // FIXME: Do something with the typeName;
-    free(typeName);
     
     if (!deserialize(stream, error)) {
         return false;

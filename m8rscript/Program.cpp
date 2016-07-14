@@ -59,7 +59,36 @@ bool Program::serialize(Stream* stream, Error& error) const
     if (!serializeBuffer(stream, error, ObjectDataType::StringTable, reinterpret_cast<const uint8_t*>(&(_stringTable[0])), _stringTable.size())) {
         return false;
     }
-
+    
+    // Write the objects
+    if (!serializeWrite(stream, error, ObjectDataType::ObjectCount)) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint16_t>(_objects.size()))) {
+        return false;
+    }
+    for (auto entry : _objects) {
+        // Only store functions
+        if (!entry.value->code()) {
+            continue;
+        }
+        if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {
+            return false;
+        }
+        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+            return false;
+        }
+        if (!serializeWrite(stream, error, entry.key.raw())) {
+            return false;
+        }
+        if (!entry.value->serialize(stream, error)) {
+            return false;
+        }
+    }
+    
     return Function::serialize(stream, error);
 }
 
@@ -89,6 +118,37 @@ bool Program::deserialize(Stream* stream, Error& error)
     _stringTable.resize(size);
     if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(&(_stringTable[0])), size)) {
         return false;
+    }
+    
+    // Read the objects
+    ObjectDataType type;
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectCount) {
+        return false;
+    }
+    uint16_t count;
+    if (!deserializeRead(stream, error, count) || count != 2) {
+        return false;
+    }
+    if (!deserializeRead(stream, error, count)) {
+        return false;
+    }
+    while (count-- > 0) {
+        if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectId) {
+            return false;
+        }
+        uint16_t id;
+        if (!deserializeRead(stream, error, id) || id != 2) {
+            return false;
+        }
+        if (!deserializeRead(stream, error, id)) {
+            return false;
+        }
+        Function* function = new Function();
+        if (!function->deserialize(stream, error)) {
+            delete function;
+            return false;
+        }
+        _objects.emplace(id, function);
     }
     
     return Function::deserialize(stream, error);

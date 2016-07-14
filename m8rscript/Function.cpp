@@ -67,15 +67,69 @@ int32_t Function::localIndex(const Atom& name) const
 
 bool Function::serialize(Stream* stream, Error& error) const
 {
+    if (!serializeWrite(stream, error, ObjectDataType::ObjectStart)) {
+        return false;
+    }
+
+    const char* name = typeName();
+    if (!serializeBuffer(stream, error, ObjectDataType::ObjectName, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
+        return false;
+    }
+    
+    if (!serializeContents(stream, error)) {
+        return false;
+    }
+
+    return serializeWrite(stream, error, ObjectDataType::ObjectEnd);
+}
+
+bool Function::deserialize(Stream* stream, Error& error)
+{
+    ObjectDataType type;
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectStart) {
+        return false;
+    }
+
+    uint16_t size;
+    if (!deserializeBufferSize(stream, error, ObjectDataType::ObjectName, size)) {
+        return false;
+    }
+    
+    uint8_t* name = static_cast<uint8_t*>(malloc(size));
+    if (!deserializeBuffer(stream, error, name, size)) {
+        return false;
+    }
+
+    if (strcmp(reinterpret_cast<const char*>(name), typeName()) != 0) {
+        free(name);
+        return false;
+    }
+    free(name);
+    
+    if (!deserializeContents(stream, error)) {
+        return false;
+    }
+
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectEnd) {
+        return false;
+    }
+    return true;
+}
+
+bool Function::serializeContents(Stream* stream, Error& error) const
+{
     if (!serializeBuffer(stream, error, ObjectDataType::Locals, 
                          _locals.size() ? reinterpret_cast<const uint8_t*>(&(_locals[0])) : nullptr, 
                          _locals.size() * sizeof(uint16_t))) {
         return false;
     }
-    return serializeCode(stream, error);
+
+    size_t size = _code.size();
+    return serializeBuffer(stream, error, ObjectDataType::Code, 
+                            _code.size() ? &(_code[0]) : nullptr, size);
 }
 
-bool Function::deserialize(Stream* stream, Error& error)
+bool Function::deserializeContents(Stream* stream, Error& error)
 {
     _locals.clear();
 
@@ -91,21 +145,9 @@ bool Function::deserialize(Stream* stream, Error& error)
         return false;
     }
     
-    return deserializeCode(stream, error);
-}
-
-bool Function::serializeCode(Stream* stream, Error& error) const
-{
-    size_t size = _code.size();
-    return serializeBuffer(stream, error, ObjectDataType::Code, 
-                            _code.size() ? &(_code[0]) : nullptr, size);
-}
-
-bool Function::deserializeCode(Stream* stream, Error& error)
-{
     _code.clear();
 
-    uint16_t size;
+    size;
     if (!deserializeBufferSize(stream, error, ObjectDataType::Code, size)) {
         return false;
     }
