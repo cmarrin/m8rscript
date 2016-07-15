@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Atom.h"
 #include "Containers.h"
 #include "Parser.h"
-#include "Opcodes.h"
 
 namespace m8r {
 

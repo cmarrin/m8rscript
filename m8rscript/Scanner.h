@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Stream.h"
 #include "Float.h"
 #include "Atom.h"
-#include "Opcodes.h"
+#include "Defines.h"
 
 namespace m8r {
     class Function;

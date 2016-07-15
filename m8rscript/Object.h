@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
-#include "Opcodes.h"
+#include "Defines.h"
 #include "Value.h"
 
 namespace m8r {
@@ -150,17 +150,8 @@ public:
     virtual size_t propertyCount() const override { return _properties.size(); }
 
 protected:
-    virtual bool serialize(Stream*, Error&) const override
-    {
-        // FIXME: Implement
-        return false;
-    }
-
-    virtual bool deserialize(Stream*, Error&) override
-    {
-        // FIXME: Implement
-        return false;
-    }
+    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool deserialize(Stream*, Error&) override;
 
 private:
     int32_t findPropertyIndex(const Atom& name) const

@@ -221,7 +221,8 @@ enum class ObjectDataType : uint8_t {
     // Object
     ObjectStart = 0x10,     // Indicates start of object data
     ObjectName = 0x11,      // { uint16_t size, uint8_t name[size] }
-    PropertyId = 0x12,      // { uint16_t size = 2, uint16_t id }
+    PropertyCount = 0x12,   // { uint16_t size = 2, uint16_t count }
+    PropertyId = 0x13,      // { uint16_t size = 2, uint16_t id }
                             // Must be immediately followed by object
     ObjectEnd = 0x1f,       // Indicates end of object data
 

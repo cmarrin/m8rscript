@@ -95,10 +95,11 @@ bool Function::deserialize(Stream* stream, Error& error)
         return false;
     }
     
-    uint8_t* name = static_cast<uint8_t*>(malloc(size));
+    uint8_t* name = static_cast<uint8_t*>(malloc(size + 1));
     if (!deserializeBuffer(stream, error, name, size)) {
         return false;
     }
+    name[size] = '\0';
 
     if (strcmp(reinterpret_cast<const char*>(name), typeName()) != 0) {
         free(name);
@@ -118,6 +119,9 @@ bool Function::deserialize(Stream* stream, Error& error)
 
 bool Function::serializeContents(Stream* stream, Error& error) const
 {
+    if (!MaterObject::serialize(stream, error)) {
+        return false;
+    }
     if (!serializeBuffer(stream, error, ObjectDataType::Locals, 
                          _locals.size() ? reinterpret_cast<const uint8_t*>(&(_locals[0])) : nullptr, 
                          _locals.size() * sizeof(uint16_t))) {
@@ -131,6 +135,10 @@ bool Function::serializeContents(Stream* stream, Error& error) const
 
 bool Function::deserializeContents(Stream* stream, Error& error)
 {
+    if (!MaterObject::deserialize(stream, error)) {
+        return false;
+    }
+
     _locals.clear();
 
     uint16_t size;
@@ -147,7 +155,6 @@ bool Function::deserializeContents(Stream* stream, Error& error)
     
     _code.clear();
 
-    size;
     if (!deserializeBufferSize(stream, error, ObjectDataType::Code, size)) {
         return false;
     }

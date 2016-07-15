@@ -56,7 +56,9 @@ bool Program::serialize(Stream* stream, Error& error) const
     }
         
     // Write the string table
-    if (!serializeBuffer(stream, error, ObjectDataType::StringTable, reinterpret_cast<const uint8_t*>(&(_stringTable[0])), _stringTable.size())) {
+    if (!serializeBuffer(stream, error, ObjectDataType::StringTable, 
+                        _stringTable.size() ? reinterpret_cast<const uint8_t*>(&(_stringTable[0])) : nullptr, 
+                        _stringTable.size())) {
         return false;
     }
     

@@ -40,7 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Atom.h"
 #include "Function.h"
 #include "Program.h"
-#include "Opcodes.h"
 
 namespace m8r {
 

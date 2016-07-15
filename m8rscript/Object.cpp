@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Object.h"
 
+#include "Function.h"
 #include "Stream.h"
 
 using namespace m8r;
@@ -42,16 +43,16 @@ using namespace m8r;
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
 {
     if (!serializeWrite(stream, error, type)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     assert(size < 65536);
     uint16_t ssize = static_cast<uint16_t>(size);
     if (!serializeWrite(stream, error, ssize)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     for (uint16_t i = 0; i < ssize; ++i) {
         if (!serializeWrite(stream, error, buffer[i])) {
-            return false;
+            return error.setError(Error::Code::Write);
         }
     }
     return true;
@@ -61,16 +62,19 @@ bool Object::deserializeBufferSize(Stream* stream, Error& error, ObjectDataType 
 {
     ObjectDataType type;
     if (!deserializeRead(stream, error, type) || type != expectedType) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
-    return deserializeRead(stream, error, size);
+    if (!deserializeRead(stream, error, size)) {
+        return error.setError(Error::Code::Read);
+    }
+    return true;
 }
 
 bool Object::deserializeBuffer(Stream* stream, Error& error, uint8_t* buffer, uint16_t size) const
 {
     for (uint16_t i = 0; i < size; ++i) {
         if (!deserializeRead(stream, error, buffer[i])) {
-            return false;
+            return error.setError(Error::Code::Read);
         }
     }
     return true;
@@ -79,29 +83,38 @@ bool Object::deserializeBuffer(Stream* stream, Error& error, uint8_t* buffer, ui
 bool Object::serializeWrite(Stream* stream, Error& error, ObjectDataType value) const
 {
     uint8_t c = static_cast<uint8_t>(value);
-    return stream->write(c) == c;
+    if (stream->write(c) != c) {
+        return error.setError(Error::Code::Write);
+    }
+    return true;
 }
 
 bool Object::serializeWrite(Stream* stream, Error& error, uint8_t value) const
 {
-    return stream->write(value) == value;
+    if (stream->write(value) != value) {
+        return error.setError(Error::Code::Write);
+    }
+    return true;
 }
 
 bool Object::serializeWrite(Stream* stream, Error& error, uint16_t value) const
 {
     uint8_t c = static_cast<uint8_t>(value >> 8);
     if (stream->write(c) != c) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     c = static_cast<uint8_t>(value);
-    return stream->write(c) == c;
+    if (stream->write(c) != c) {
+        return error.setError(Error::Code::Write);
+    }
+    return true;
 }
 
 bool Object::deserializeRead(Stream* stream, Error& error, ObjectDataType& value) const
 {
     int c = stream->read();
     if (c < 0) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     value = static_cast<ObjectDataType>(c);
     return true;
@@ -111,7 +124,7 @@ bool Object::deserializeRead(Stream* stream, Error& error, uint8_t& value) const
 {
     int c = stream->read();
     if (c < 0) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     value = static_cast<uint8_t>(c);
     return true;
@@ -121,12 +134,12 @@ bool Object::deserializeRead(Stream* stream, Error& error, uint16_t& value) cons
 {
     int c = stream->read();
     if (c < 0) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     value = (static_cast<uint16_t>(c) & 0xff) << 8;
     c = stream->read();
     if (c < 0) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     value |= static_cast<uint16_t>(c) & 0xff;
     return true;
@@ -135,26 +148,26 @@ bool Object::deserializeRead(Stream* stream, Error& error, uint16_t& value) cons
 bool Object::serializeObject(Stream* stream, Error& error) const
 {
     if (!serializeWrite(stream, error, ObjectDataType::Type)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     if (!serializeWrite(stream, error, static_cast<uint8_t>('m'))) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     if (!serializeWrite(stream, error, static_cast<uint8_t>('8'))) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     if (!serializeWrite(stream, error, static_cast<uint8_t>('r'))) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     
     if (!serializeWrite(stream, error, ObjectDataType::Version)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     if (!serializeWrite(stream, error, MajorVersion)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     if (!serializeWrite(stream, error, MinorVersion)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
 
     if (!serialize(stream, error)) {
@@ -162,7 +175,7 @@ bool Object::serializeObject(Stream* stream, Error& error) const
     }
 
     if (!serializeWrite(stream, error, ObjectDataType::End)) {
-        return false;
+        return error.setError(Error::Code::Write);
     }
     return true;
 }
@@ -171,36 +184,109 @@ bool Object::deserializeObject(Stream* stream, Error& error)
 {
     ObjectDataType type;
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::Type) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     uint8_t c;
     if (!deserializeRead(stream, error, c) || c != 'm') {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     if (!deserializeRead(stream, error, c) || c != '8') {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     if (!deserializeRead(stream, error, c) || c != 'r') {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::Version) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     uint8_t majorVersion, minorVersion;
     if (!deserializeRead(stream, error, majorVersion) || majorVersion != MajorVersion) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     if (!deserializeRead(stream, error, minorVersion) || minorVersion != MinorVersion) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     
     if (!deserialize(stream, error)) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::End) {
-        return false;
+        return error.setError(Error::Code::Read);
     }
     return true;
 }
+
+bool MaterObject::serialize(Stream* stream, Error& error) const
+{
+    // Write the Function properties
+    if (!serializeWrite(stream, error, ObjectDataType::PropertyCount)) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+        return false;
+    }
+    if (!serializeWrite(stream, error, static_cast<uint16_t>(_properties.size()))) {
+        return false;
+    }
+    for (auto entry : _properties) {
+        Object* obj = entry.value.toObjectValue();
+        // Only store functions
+        if (!obj || !obj->code()) {
+            continue;
+        }
+        if (!serializeWrite(stream, error, ObjectDataType::PropertyId)) {
+            return false;
+        }
+        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+            return false;
+        }
+        if (!serializeWrite(stream, error, entry.key.raw())) {
+            return false;
+        }
+        if (!obj->serialize(stream, error)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool MaterObject::deserialize(Stream* stream, Error& error)
+{
+    // Read the Function Properties
+    ObjectDataType type;
+    if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyCount) {
+        return false;
+    }
+    uint16_t count;
+    if (!deserializeRead(stream, error, count) || count != 2) {
+        return false;
+    }
+    if (!deserializeRead(stream, error, count)) {
+        return false;
+    }
+    _properties.clear();
+    while (count-- > 0) {
+        if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyId) {
+            return false;
+        }
+        uint16_t id;
+        if (!deserializeRead(stream, error, id) || id != 2) {
+            return false;
+        }
+        if (!deserializeRead(stream, error, id)) {
+            return false;
+        }
+        Function* function = new Function();
+        if (!function->deserialize(stream, error)) {
+            delete function;
+            return false;
+        }
+        _properties.push_back({ id, function });
+    }
+    
+    return true;
+}
+

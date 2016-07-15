@@ -47,17 +47,22 @@ public:
     enum class Code {
         None,
         Unknown,
+        Write,
+        Read,
     };
     
     Error() { }
     ~Error() { }
     
-    void setError(Code code, const String& s) { _code = code; _string = s; }
+    bool setError(Code code)
+    {
+        _code = code;
+        return false;
+    }
     void showError(SystemInterface*) const;
     
 private:
     Code _code = Code::None;
-    String _string;
 };
 
 }
