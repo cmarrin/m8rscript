@@ -72,11 +72,12 @@ public:
 
     virtual ~InputStream() { }
 	
-	virtual int available() override
+	virtual int available() const override
     {
         return 1;
     }
-    virtual int read() override { return _system->read(); }
+    virtual int read() const override { return _system->read(); }
+    virtual int write(uint8_t) override { return -1; }
 	virtual void flush() override { }
 	
 private:

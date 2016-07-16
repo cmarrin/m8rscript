@@ -64,9 +64,8 @@ int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, Execution
             return 0;
         }
         case Property::System_delay: {
-            //uint32_t ms = eu->stack().top().toUIntValue();
-            //delay(ms);
-            yield();
+            uint32_t ms = eu->stack().top().toUIntValue();
+            delay(ms);
             return 0;
         }
 
