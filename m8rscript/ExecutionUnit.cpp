@@ -39,6 +39,14 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 #include "SystemInterface.h"
 
+#ifdef __APPLE__
+    #define YIELD
+#else
+    #include "Arduino.h"
+    #define YIELD yield()
+#endif
+
+
 using namespace m8r;
 
 bool ExecutionUnit::printError(const char* s) const
@@ -277,6 +285,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (_terminate || i >= codeObj->size()) { \
             goto L_END; \
         } \
+        if (yieldCounter++ == 0) { \
+            YIELD; \
+        } \
         op = static_cast<Op>(code[i++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
@@ -320,6 +331,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     Value returnedValue;
     int32_t callReturnCount;
     int32_t retCount = 0;
+    
+    uint8_t yieldCounter = 0;
 
     DISPATCH;
     

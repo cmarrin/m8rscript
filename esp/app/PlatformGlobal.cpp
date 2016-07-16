@@ -35,13 +35,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "PlatformGlobal.h"
 
+#include "ExecutionUnit.h"
 #include "Arduino.h"
 
 using namespace m8r;
 
 uint64_t PlatformGlobal::currentTime() const
 {
-    return millis() - _startTime;
+    return static_cast<uint64_t>(millis()) * 1000 - _startTime;
 }
 
 int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
@@ -64,6 +65,8 @@ int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, Execution
         }
         case Property::System_delay: {
             //uint32_t ms = eu->stack().top().toUIntValue();
+            //delay(ms);
+            yield();
             return 0;
         }
 

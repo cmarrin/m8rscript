@@ -17,16 +17,18 @@
 # User editable area
 #====================================================================================
 
-#DEBUG_FLAGS = -Os
-DEBUG_FLAGS = -Og
+DEBUG_FLAGS = -Os
+#DEBUG_FLAGS = -Og
 
 #=== Project specific definitions
 MAIN_SRC ?= ../m8rscript/m8rscript.cpp
 SRC ?= ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
+		../m8rscript/Error.cpp \
 		../m8rscript/ExecutionUnit.cpp \
 		../m8rscript/Function.cpp \
 		../m8rscript/Global.cpp \
+		../m8rscript/Object.cpp \
 		../m8rscript/ParseEngine.cpp \
 		../m8rscript/Parser.cpp \
 		../m8rscript/printf.cpp \

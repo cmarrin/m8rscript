@@ -86,7 +86,7 @@ void runScript() {
 
     m8r::String fileString = 
 "var a = [ ]; \n \
-var n = 140; \n \
+var n = 500; \n \
  \n \
 var startTime = Date.now(); \n \
  \n \
