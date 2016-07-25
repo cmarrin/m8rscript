@@ -4,10 +4,6 @@
 #ifndef BASE64_H
 #define BASE64_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stddef.h>
 
 /* used to encode 3 bytes into 4 base64 digits */
@@ -21,9 +17,5 @@ int base64_encode(size_t in_len, const unsigned char *in, size_t out_len, char *
 
 /* decode base64 digits with MIME style === pads into binary data */
 int base64_decode(size_t in_len, const char *in, size_t out_len, unsigned char *out);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* BASE64_H */

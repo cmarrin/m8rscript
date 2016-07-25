@@ -33,49 +33,51 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "PlatformGlobal.h"
-
-#include "ExecutionUnit.h"
-
-extern "C" {
-    #include <user_interface.h>
-    void ets_delay_us(uint32_t us);
+extern "C"{
+    #include "ets_sys.h"
+    #include "osapi.h"
+    #include "gpio.h"
+    #include "os_type.h"
+    #include "uart.h"
 }
 
+#include "HardwareSerial.h"
+#include "Esp.h"
 
-using namespace m8r;
+extern void runScript();
+static const int pin = 2;
+static volatile os_timer_t some_timer;
 
-uint64_t PlatformGlobal::currentTime() const
+void setup()
 {
-    return static_cast<uint64_t>(system_get_time()) * 1000000 - _startTime;
-}
+    // init gpio sussytem
+    gpio_init();
 
-int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
-{
-    int32_t result = Global::callProperty(index, program, eu, nparams);
-    if (result >= 0) {
-        return result;
-    }
+    //Serial.begin(230400);
+    delay(2000);
     
-    switch(static_cast<Property>(index)) {
-        case Property::GPIO_pinMode: {
-            //uint32_t pin = eu->stack().top(-1).toUIntValue();
-            //uint32_t mode = eu->stack().top().toUIntValue();
-            return 0;
-        }
-        case Property::GPIO_digitalWrite: {
-            //uint8_t pin = eu->stack().top(-1).toUIntValue();
-            //uint8_t state = eu->stack().top().toUIntValue();
-            return 0;
-        }
-        case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toUIntValue();
-            while (ms--) {
-                ets_delay_us(1000);
-            }
-            return 0;
-        }
+    //Serial.print("Hello World!\n");
 
-        default: return -1;
+    // configure UART TXD to be GPIO1, set as output
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_GPIO1); 
+    gpio_output_set(0, 0, (1 << pin), 0);
+
+    runScript();
+}
+
+void loop()
+{
+    //Do blinky stuff
+    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
+    {
+        // set gpio low
+        gpio_output_set(0, (1 << pin), 0, 0);
+        //Serial.print("Blink Off!\n");
+    }
+    else
+    {
+        // set gpio high
+        gpio_output_set((1 << pin), 0, 0, 0);
+        //Serial.print("Blink On!\n");
     }
 }

@@ -42,10 +42,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifdef __APPLE__
     #define YIELD
 #else
-    #include "Arduino.h"
-    #define YIELD yield()
+    extern "C" void system_soft_wdt_feed();
+    #define YIELD system_soft_wdt_feed()
 #endif
-
 
 using namespace m8r;
 

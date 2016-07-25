@@ -21,8 +21,8 @@ DEBUG_FLAGS = -Os
 #DEBUG_FLAGS = -Og
 
 #=== Project specific definitions
-MAIN_SRC ?= ../m8rscript/m8rscript.cpp
-SRC ?= ../m8rscript/Array.cpp \
+MAIN_SRC ?= app/m8rscript.cpp
+SRC ?=  ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Error.cpp \
 		../m8rscript/ExecutionUnit.cpp \
@@ -49,9 +49,10 @@ FLASH_SIZE ?= 4M
 FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
 FLASH_LAYOUT ?= eagle.flash.4m.ld
+#FLASH_LAYOUT ?= eagle.app.v6.ld 
 
 # Upload parameters
-UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 115200
 UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
@@ -97,7 +98,7 @@ LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(SDK_ROOT)/lwip/include $(CORE_DIR) $(ESP_ROOT)/variants/generic $(OBJ_DIR)
+INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) 
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -g -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
@@ -107,11 +108,11 @@ LD_FLAGS ?= -flto -g -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call
 # LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
 # LD_STD_LIBS = $(LIBS)
 
-LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+#LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+LD_STD_LIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcrypto -Wl,--end-group -lgcc
 
 # Core source files
-#CORE_DIR = ./core
-CORE_DIR = $(ESP_ROOT)/cores/esp8266
+CORE_DIR = ./core
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
@@ -123,7 +124,7 @@ USER_SRC = $(MAIN_SRC) $(SRC)
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(shell find $(CORE_DIR) -type d) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(USER_DIRS)
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -153,7 +154,7 @@ $(OBJ_DIR)/%.cpp$(OBJ_EXT): %.cpp $(BUILD_INFO_H)
 
 $(OBJ_DIR)/%.cpp$(OBJ_EXT): %.ino $(BUILD_INFO_H)
 	echo  $(<F)
-	$(CPP) -x c++ -include $(CORE_DIR)/Arduino.h $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $< -o $@
+	$(CPP) -x c++ -include $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $< -o $@
 
 $(OBJ_DIR)/%.c$(OBJ_EXT): %.c
 	echo  $(<F)

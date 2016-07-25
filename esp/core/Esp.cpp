@@ -36,8 +36,6 @@ static const char* s_panic_func = 0;
     abort();
 }
 
-#define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
-
 extern "C" {
 
 #include <ets_sys.h>

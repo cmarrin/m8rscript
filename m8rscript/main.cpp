@@ -40,15 +40,14 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 #include "printf.h"
 
-#include <Arduino.h>
-
 extern "C" {
+#include "uart.h"
 #include <user_interface.h>
 }
 
 void tfp_putchar(char c)
 {
-    Serial.print(c);
+    //uart_tx_one_char(0, c);
 }
 
 class MySystemInterface : public m8r::SystemInterface
@@ -60,7 +59,7 @@ public:
         va_start(args, s);
         tfp_vprintf(s, args);
     }
-    virtual int read() const override { return Serial.read(); }
+    virtual int read() const override { return /*Serial.read();*/ 0; }
     
 private:
     mutable char* _buffer = nullptr;
@@ -86,7 +85,7 @@ void runScript() {
 
     m8r::String fileString = 
 "var a = [ ]; \n \
-var n = 500; \n \
+var n = 10; \n \
  \n \
 var startTime = Date.now(); \n \
  \n \
@@ -111,7 +110,7 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
 
     if (!parser.nerrors()) {
         systemInterface.printf("\n***** Start of Program Output *****\n\n");
-        Serial.flush();
+        //Serial.flush();
         m8r::ExecutionUnit eu(&systemInterface);
         eu.run(parser.program());
         systemInterface.printf("\n***** End of Program Output *****\n\n");

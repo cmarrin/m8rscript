@@ -17,27 +17,12 @@
 # User editable area
 #====================================================================================
 
-DEBUG_FLAGS = -Os
-#DEBUG_FLAGS = -Og
-
-#=== Project specific definitions
-MAIN_SRC ?= ../m8rscript/m8rscript.cpp
-SRC ?= ../m8rscript/Array.cpp \
-		../m8rscript/Atom.cpp \
-		../m8rscript/Error.cpp \
-		../m8rscript/ExecutionUnit.cpp \
-		../m8rscript/Function.cpp \
-		../m8rscript/Global.cpp \
-		../m8rscript/Object.cpp \
-		../m8rscript/ParseEngine.cpp \
-		../m8rscript/Parser.cpp \
-		../m8rscript/printf.cpp \
-		../m8rscript/Program.cpp \
-		../m8rscript/Scanner.cpp \
-		../m8rscript/Value.cpp \
-		../m8rscript/base64.cpp \
-		app/PlatformGlobal.cpp \
-        ../m8rscript/main.cpp
+#=== Project specific definitions: sketch and list of needed libraries
+SKETCH ?= $(ESP_LIBS)/ESP8266WebServer/examples/HelloServer/HelloServer.ino
+LIBS ?= $(ESP_LIBS)/Wire \
+        $(ESP_LIBS)/ESP8266WiFi \
+        $(ESP_LIBS)/ESP8266mDNS \
+        $(ESP_LIBS)/ESP8266WebServer
 
 # Esp8266 Arduino git location
 ESP_ROOT ?= $(HOME)/esp8266
@@ -52,7 +37,7 @@ FLASH_LAYOUT ?= eagle.flash.4m.ld
 
 # Upload parameters
 UPLOAD_SPEED ?= 230400
-UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
+UPLOAD_PORT ?= /dev/ttyUSB0
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
 
@@ -60,6 +45,13 @@ UPLOAD_RESET ?= ck
 ESP_ADDR ?= ESP_DA6ABC
 ESP_PORT ?= 8266
 ESP_PWD ?= 123
+
+# HTTP update parameters
+HTTP_ADDR ?= ESP_DA6ABC
+HTTP_URI ?= /update
+HTTP_PWD ?= user
+HTTP_USR ?= password
+
 #====================================================================================
 # The area below should normally not need to be edited
 #====================================================================================
@@ -68,13 +60,14 @@ MKESPARD_VERSION = 1.0.0
 
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
-MAIN_NAME = $(basename $(notdir $(MAIN_SRC)))
+MAIN_NAME = $(basename $(notdir $(SKETCH)))
 MAIN_EXE = $(BUILD_ROOT)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
-SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
+SRC_GIT_VERSION = $(call git_description,$(dir $(SKETCH)))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
+ESP_LIBS = $(ESP_ROOT)/libraries
 TOOLS_ROOT = $(ESP_ROOT)/tools
 TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
 SDK_ROOT = $(ESP_ROOT)/tools/sdk
@@ -91,34 +84,30 @@ LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
 ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 OTA_TOOL = $(TOOLS_ROOT)/espota.py
+HTTP_TOOL = curl
 
-LIBS = c gcc hal pp phy net80211 lwip wpa main hal
-LIBS := $(addprefix -l,$(LIBS))
-
-USE_PARSE_ENGINE ?= 1
-FIXED_POINT_FLOAT ?= 1
 INCLUDE_DIRS += $(SDK_ROOT)/include $(SDK_ROOT)/lwip/include $(CORE_DIR) $(ESP_ROOT)/variants/generic $(OBJ_DIR)
-C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
+C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
-C_FLAGS ?= -c $(DEBUG_FLAGS) -g -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
-CPP_FLAGS ?= -c $(DEBUG_FLAGS) -g -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
+C_FLAGS ?= -c -Os -g -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
+CPP_FLAGS ?= -c -Os -g -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -g -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -g -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
-# LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
-# LD_STD_LIBS = $(LIBS)
-
-LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+LD_FLAGS ?= -g -w -Os -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
+LD_STD_LIBS ?= -lm -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+# stdc++ used in later versions of esp8266 Arduino
+LD_STD_CPP = lstdc++
+ifneq ($(shell grep $(LD_STD_CPP) $(ESP_ROOT)/platform.txt),)
+	LD_STD_LIBS += -$(LD_STD_CPP)
+endif
 
 # Core source files
-#CORE_DIR = ./core
 CORE_DIR = $(ESP_ROOT)/cores/esp8266
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # User defined compilation units
-USER_SRC = $(MAIN_SRC) $(SRC)
-
+USER_SRC = $(SKETCH) $(shell find $(LIBS) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 # Object file suffix seems to be significant for the linker...
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
@@ -184,10 +173,13 @@ $(MAIN_EXE): $(CORE_LIB) $(USER_OBJ)
 
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
-	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
 ota: all
 	$(OTA_TOOL) -i $(ESP_ADDR) -p $(ESP_PORT) -a $(ESP_PWD) -f $(MAIN_EXE)
+
+http: all
+	$(HTTP_TOOL) --verbose -F image=@$(MAIN_EXE) --user $(HTTP_USR):$(HTTP_PWD)  http://$(HTTP_ADDR)$(HTTP_URI)
+	echo "\n"
 
 clean:
 	echo Removing all intermediate build files...

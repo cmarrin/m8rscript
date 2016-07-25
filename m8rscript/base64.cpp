@@ -4,7 +4,8 @@
 #include "base64.h"
 
 #include <cstdint>
-#include <cctype>
+
+static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
 static const uint8_t base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -58,7 +59,7 @@ int base64_decode(size_t in_len, const char *in, size_t out_len, unsigned char *
 
 	for(io=0,ii=0,v=0,rem=0;ii<in_len;ii++) {
 		unsigned char ch;
-		if(isspace(in[ii])) continue;
+		if(isWhitespace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
 		ch=base64dec_tab[(unsigned)in[ii]];
 		if(ch==255) break; /* stop at a parse error */
