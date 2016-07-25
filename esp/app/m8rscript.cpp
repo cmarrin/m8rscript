@@ -49,39 +49,32 @@ extern "C" int vprintf(const char*, __gnuc_va_list) { return 0; }
 extern "C" int sprintf(char*, const char*, ...) { return 0; }
 
 extern void runScript();
-static const int pin = 2;
-static volatile os_timer_t some_timer;
+
+static const int ledPin = 2;
 
 void setup()
 {
-    // init gpio sussytem
-    gpio_init();
+	pinMode(ledPin, OUTPUT);
 
-    //Serial.begin(230400);
+    Serial.begin(230400);
     delay(2000);
     
-    //Serial.print("Hello World!\n");
-
-    // configure UART TXD to be GPIO1, set as output
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_GPIO1); 
-    gpio_output_set(0, 0, (1 << pin), 0);
+    Serial.print("Hello World!\n");
 
     runScript();
 }
 
 void loop()
 {
-    //Do blinky stuff
-    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
+    if (digitalRead(ledPin))
     {
-        // set gpio low
-        gpio_output_set(0, (1 << pin), 0, 0);
-        //Serial.print("Blink Off!\n");
+        digitalWrite(ledPin, LOW);
+        Serial.print("Blink Off!\n");
     }
     else
     {
-        // set gpio high
-        gpio_output_set((1 << pin), 0, 0, 0);
-        //Serial.print("Blink On!\n");
+        digitalWrite(ledPin, HIGH);
+        Serial.print("Blink On!\n");
     }
+    delay(1000);
 }

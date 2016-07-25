@@ -39,15 +39,20 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "printf.h"
+#include "HardwareSerial.h"
 
 extern "C" {
 #include "uart.h"
 #include <user_interface.h>
 }
 
+#define PARSE_FILE 0
+#define PARSE_STRING 1
+#define EXECUTE 1
+
 void tfp_putchar(char c)
 {
-    //uart_tx_one_char(0, c);
+    Serial.write(c);
 }
 
 class MySystemInterface : public m8r::SystemInterface
@@ -59,11 +64,7 @@ public:
         va_start(args, s);
         tfp_vprintf(s, args);
     }
-    virtual int read() const override { return /*Serial.read();*/ 0; }
-    
-private:
-    mutable char* _buffer = nullptr;
-    mutable size_t _size = 0;
+    virtual int read() const override { return Serial.read(); }
 };
 
 void runScript() {
@@ -74,15 +75,16 @@ void runScript() {
 
     systemInterface.printf("***** start - free ram:%d\n", system_get_free_heap_size());
 
-//    systemInterface.print("Opening '");
-//    systemInterface.print(filename);
-//    systemInterface.print("'\n");
-//    m8r::FileStream istream(filename);
-//    if (!istream.loaded()) {
-//        systemInterface.print("File not found, exiting\n");
-//        abort();
-//    }
-
+    m8r::Program* program = nullptr;
+    
+#if PARSE_FILE
+    systemInterface.printf("Opening '%s'\n", filename);
+    m8r::FileStream istream(filename);
+    if (!istream.loaded()) {
+        systemInterface.printf("File not found, exiting\n");
+        abort();
+    }
+#elif PARSE_STRING
     m8r::String fileString = 
 "var a = [ ]; \n \
 var n = 10; \n \
@@ -101,6 +103,9 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
 ";
     
     m8r::StringStream istream(fileString);
+#endif
+
+#if PARSE_FILE || PARSE_STRING
     systemInterface.printf("Parsing...\n");
     m8r::Parser parser(&systemInterface);
     parser.parse(&istream);
@@ -109,11 +114,19 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
     systemInterface.printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
 
     if (!parser.nerrors()) {
+        program = parser.program();
+#elif EXECUTE
+        m8r::Program _program(&systemInterface);
+        program = &_program;
+#endif
+#if EXECUTE
         systemInterface.printf("\n***** Start of Program Output *****\n\n");
-        //Serial.flush();
         m8r::ExecutionUnit eu(&systemInterface);
-        eu.run(parser.program());
+        eu.run(program);
         systemInterface.printf("\n***** End of Program Output *****\n\n");
+#endif
+#if PARSE_FILE || PARSE_STRING
     }
+#endif
     systemInterface.printf("***** after run - free ram:%d\n", system_get_free_heap_size());
 }

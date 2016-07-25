@@ -27,6 +27,9 @@
 extern "C" {
 #endif
 
+#define HIGH 0x1
+#define LOW  0x0
+
 //GPIO FUNCTIONS
 #define INPUT             0x00
 #define INPUT_PULLUP      0x02
@@ -79,10 +82,19 @@ void loop(void);
 
 void yield(void);
 void optimistic_yield(uint32_t interval_us);
-unsigned long millis(void);
-unsigned long micros(void);
-void delay(unsigned long);
-void delayMicroseconds(unsigned int us);
+uint64_t millis(void);
+uint64_t micros(void);
+void delay(uint32_t ms);
+void delayMicroseconds(uint16_t us);
+
+void pinMode(uint8_t pin, uint8_t mode);
+void digitalWrite(uint8_t pin, uint8_t val);
+int digitalRead(uint8_t pin);
+int analogRead(uint8_t pin);
+void analogReference(uint8_t mode);
+void analogWrite(uint8_t pin, int val);
+void analogWriteFreq(uint32_t freq);
+void analogWriteRange(uint32_t range);
 
 // these low level routines provide a replacement for SREG interrupt save that AVR uses
 // but are esp8266 specific. A normal use pattern is like

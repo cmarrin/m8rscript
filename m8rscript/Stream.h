@@ -122,7 +122,7 @@ public:
 	
     bool loaded()
     {
-        return false;
+        return true;
     }
 	virtual int available() const override
     {
