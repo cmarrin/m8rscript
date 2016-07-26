@@ -42,12 +42,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "printf.h"
-
-void tfp_putchar(char c)
-{
-    std::cout << c;
-}
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -56,7 +50,7 @@ public:
     {
         va_list args;
         va_start(args, s);
-        tfp_vprintf(s, args);
+        vprintf(s, args);
     }
     virtual int read() const override
     {

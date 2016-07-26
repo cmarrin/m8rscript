@@ -42,8 +42,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifdef __APPLE__
     #define YIELD
 #else
-    extern "C" void system_soft_wdt_feed();
-    #define YIELD system_soft_wdt_feed()
+    #include "ESP.h"
+    #define YIELD yield()
 #endif
 
 using namespace m8r;

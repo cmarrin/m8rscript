@@ -38,10 +38,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "printf.h"
 #include "HardwareSerial.h"
 
 extern "C" {
+#include "stdio.h"
 #include "uart.h"
 #include <user_interface.h>
 }
@@ -50,11 +50,6 @@ extern "C" {
 #define PARSE_STRING 1
 #define EXECUTE 1
 
-void tfp_putchar(char c)
-{
-    Serial.write(c);
-}
-
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
@@ -62,7 +57,7 @@ public:
     {
         va_list args;
         va_start(args, s);
-        tfp_vprintf(s, args);
+        vprintf(s, args);
     }
     virtual int read() const override { return Serial.read(); }
 };
@@ -87,7 +82,7 @@ void runScript() {
 #elif PARSE_STRING
     m8r::String fileString = 
 "var a = [ ]; \n \
-var n = 10; \n \
+var n = 500; \n \
  \n \
 var startTime = Date.now(); \n \
  \n \

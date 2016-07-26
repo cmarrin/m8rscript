@@ -74,6 +74,7 @@ extern void abort();
 #endif
 
 void __assert_func(const char *file, int line, const char *func, const char *what);
+#undef assert
 #define assert(expr) { if (expr) __assert_func(__FILE__, __LINE__, __func__, __STRINGIFY(expr)); }
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 

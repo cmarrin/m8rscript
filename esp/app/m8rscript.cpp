@@ -44,9 +44,9 @@ extern "C"{
 #include "HardwareSerial.h"
 #include "Esp.h"
 
-extern "C" int printf(const char*, ...) { return 0; }
-extern "C" int vprintf(const char*, __gnuc_va_list) { return 0; }
-extern "C" int sprintf(char*, const char*, ...) { return 0; }
+//extern "C" int printf(const char*, ...) { return 0; }
+//extern "C" int vprintf(const char*, __gnuc_va_list) { return 0; }
+//extern "C" int sprintf(char*, const char*, ...) { return 0; }
 
 extern void runScript();
 
