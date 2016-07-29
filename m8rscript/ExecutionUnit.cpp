@@ -41,6 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __APPLE__
     #define YIELD
+    #define ICACHE_RODATA_ATTR
 #else
     #include "ESP.h"
     #define YIELD yield()
@@ -228,7 +229,7 @@ int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams, bool
     #undef OP
     #define OP(op) &&L_ ## op,
     
-    static const void* dispatchTable[] {
+    static const void* ICACHE_RODATA_ATTR dispatchTable[] {
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)

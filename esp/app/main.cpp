@@ -57,7 +57,7 @@ public:
     {
         va_list args;
         va_start(args, s);
-        vprintf(s, args);
+        ets_vprintf(ets_putc, s, args);
     }
     virtual int read() const override { return Serial.read(); }
 };

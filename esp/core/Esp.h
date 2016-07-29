@@ -72,6 +72,9 @@ extern void abort();
 #ifndef __STRINGIFY
 #define __STRINGIFY(a) #a
 #endif
+#define ICACHE_FLASH_ATTR   __attribute__((section(".irom0.text")))
+#define ICACHE_RAM_ATTR     __attribute__((section(".iram.text")))
+#define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
 
 void __assert_func(const char *file, int line, const char *func, const char *what);
 #undef assert
