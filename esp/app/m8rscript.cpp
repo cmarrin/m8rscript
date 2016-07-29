@@ -44,9 +44,27 @@ extern "C"{
 #include "HardwareSerial.h"
 #include "Esp.h"
 
-//extern "C" int printf(const char*, ...) { return 0; }
-//extern "C" int vprintf(const char*, __gnuc_va_list) { return 0; }
-//extern "C" int sprintf(char*, const char*, ...) { return 0; }
+int ICACHE_RAM_ATTR printf(const char* format, ...) {
+    va_list arglist;
+    va_start(arglist, format);
+    int ret = ets_vprintf(ets_putc, format, arglist);
+    va_end(arglist);
+    return ret;
+}
+
+int ICACHE_RAM_ATTR vprintf(const char * format, va_list arg) {
+    return ets_vprintf(ets_putc, format, arg);
+}
+
+extern "C" int ets_vsprintf(char *str, const char *format, va_list argptr);
+int ICACHE_RAM_ATTR sprintf(char* buffer, const char* format, ...) {
+    int ret;
+    va_list arglist;
+    va_start(arglist, format);
+    ret = ets_vsprintf(buffer, format, arglist);
+    va_end(arglist);
+    return ret;
+}
 
 extern void runScript();
 
