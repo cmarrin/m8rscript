@@ -38,9 +38,14 @@ SRC ?=  ../m8rscript/Array.cpp \
 		app/PlatformGlobal.cpp \
         ../m8rscript/main.cpp
 
-# Esp8266 Arduino git location
-#ESP_ROOT ?= $(HOME)/esp8266
-ESP_ROOT ?= $(HOME)/esp-open-sdk
+# Esp8266 location
+ESP_ROOT ?= $(HOME)/esp8266/tools
+FLASH_LAYOUT ?= eagle.flash.4m.ld
+ESP_TOOL = PATH=$(TOOLS_BIN):$(PATH) && ./esptool.py
+
+#ESP_ROOT ?= $(HOME)/esp-open-sdk
+#FLASH_LAYOUT ?= eagle.app.v6.ld 
+#ESP_TOOL ?= PATH=$(TOOLS_BIN):$(PATH) && $(TOOLS_BIN)/esptool.py
 
 # Output directory
 BUILD_BASE	= build
@@ -50,8 +55,6 @@ FW_BASE		= firmware
 FLASH_SIZE ?= 4M
 FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
-#FLASH_LAYOUT ?= eagle.flash.4m.ld
-FLASH_LAYOUT ?= eagle.app.v6.ld 
 
 # Upload parameters
 UPLOAD_SPEED ?= 115200
@@ -79,9 +82,6 @@ SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
 
-#TOOLS_ROOT = $(ESP_ROOT)/tools
-#TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
-#SDK_ROOT = $(ESP_ROOT)/tools/sdk
 TOOLS_BIN = $(ESP_ROOT)/xtensa-lx106-elf/bin
 SDK_ROOT = $(ESP_ROOT)/sdk
 
@@ -95,7 +95,6 @@ CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
 CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
-ESP_TOOL ?= PATH=$(TOOLS_BIN):$(PATH) && $(TOOLS_BIN)/esptool.py
 
 FW_FILE_1_ADDR	= 0x00000
 FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
@@ -183,7 +182,7 @@ BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
 $(FW_BASE)/%.bin: $(MAIN_ELF) | $(FW_BASE)
-	$(ESP_TOOL) elf2image -o $(FW_BASE)/ $(MAIN_ELF)
+	$(ESP_TOOL) elf2image --version=2 -o $(MAIN_EXE) $(MAIN_ELF)
 
 $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
@@ -196,7 +195,7 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
 flash: all $(FW_FILE_1) $(FW_FILE_2)
-	$(ESP_TOOL) --port $(UPLOAD_PORT) write_flash $(FW_FILE_1_ADDR) $(FW_FILE_1) $(FW_FILE_2_ADDR) $(FW_FILE_2)
+	$(ESP_TOOL) --port $(UPLOAD_PORT) write_flash 0 $(MAIN_EXE)
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
 upload: all

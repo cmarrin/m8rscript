@@ -11,6 +11,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "umm_malloc_cfg.h"   /* user-dependent */
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
