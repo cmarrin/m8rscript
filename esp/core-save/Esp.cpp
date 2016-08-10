@@ -23,7 +23,7 @@
 #include <c_types.h>
 #include <cxxabi.h>
 #include <osapi.h>
-#include "user_interface.h"
+#include "umm_malloc.h"
 
 static const char* s_panic_file = 0;
 static int s_panic_line = 0;
@@ -39,11 +39,44 @@ static const char* s_panic_func = 0;
 extern "C" {
 
 #include <ets_sys.h>
+    
+extern void __real_system_restart_local();
+void __wrap_system_restart_local() { __real_system_restart_local(); }
+
+extern int __real_register_chipv6_phy(uint8_t* init_data);
+extern int __wrap_register_chipv6_phy(uint8_t* init_data) { return __real_register_chipv6_phy(init_data); }
 
 extern void* malloc(size_t size);
 extern void free(void* ptr);
 
 void abort() { while(1) ; }
+
+void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
+{
+	return malloc(size);
+}
+
+void ICACHE_RAM_ATTR vPortFree(void *ptr, const char* file, int line)
+{
+    free(ptr);
+}
+
+void* ICACHE_RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
+{
+	void* m = malloc(size);
+    os_memset(m, 0, size);
+    return m;
+}
+
+size_t xPortGetFreeHeapSize(void)
+{
+	return umm_free_heap_size();
+}
+
+size_t ICACHE_RAM_ATTR xPortWantedSizeAlign(size_t size)
+{
+    return (size + 3) & ~((size_t) 3);
+}
 
 } // extern "C"
 

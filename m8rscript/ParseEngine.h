@@ -67,9 +67,10 @@ public:
 
 private:
     struct OpInfo {
-        enum class Assoc : uint8_t { Left, Right };
-        uint8_t prec;
-        Assoc assoc;
+        static const uint8_t LeftAssoc = 0;
+        static const uint8_t RightAssoc = 1;
+        uint8_t prec : 7;
+        uint8_t assoc : 1;
         Op op;
     };
         

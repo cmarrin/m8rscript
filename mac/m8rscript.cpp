@@ -48,9 +48,9 @@ class MySystemInterface : public m8r::SystemInterface
 public:
     virtual void printf(const char* s, ...) const override
     {
-        va_list args;
-        va_start(args, s);
-        vprintf(s, args);
+        //va_list args;
+        //va_start(args, s);
+        //vprintf(s, args);
     }
     virtual int read() const override
     {

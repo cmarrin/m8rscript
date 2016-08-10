@@ -1,5 +1,5 @@
 #====================================================================================
-# makeESPArduino
+# rawMakefile.mk
 #
 # A makefile for ESP8286 Arduino projects.
 # Edit the contents of this file to suit your project
@@ -39,16 +39,19 @@ SRC ?=  ../m8rscript/Array.cpp \
         ../m8rscript/main.cpp
 
 # Esp8266 Arduino git location
-ESP_ROOT ?= $(HOME)/esp8266
+#ESP_ROOT ?= $(HOME)/esp8266
+ESP_ROOT ?= $(HOME)/esp-open-sdk
+
 # Output directory
-BUILD_ROOT ?= /tmp/$(MAIN_NAME)
+BUILD_BASE	= build
+FW_BASE		= firmware
 
 # Board definitions
 FLASH_SIZE ?= 4M
 FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
-FLASH_LAYOUT ?= eagle.flash.4m.ld
-#FLASH_LAYOUT ?= eagle.app.v6.ld 
+#FLASH_LAYOUT ?= eagle.flash.4m.ld
+FLASH_LAYOUT ?= eagle.app.v6.ld 
 
 # Upload parameters
 UPLOAD_SPEED ?= 115200
@@ -69,18 +72,21 @@ MKESPARD_VERSION = 1.0.0
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
 MAIN_NAME = $(basename $(notdir $(MAIN_SRC)))
-MAIN_EXE = $(BUILD_ROOT)/$(MAIN_NAME).bin
+MAIN_EXE = $(BUILD_BASE)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
 SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
-TOOLS_ROOT = $(ESP_ROOT)/tools
-TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
-SDK_ROOT = $(ESP_ROOT)/tools/sdk
+
+#TOOLS_ROOT = $(ESP_ROOT)/tools
+#TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
+#SDK_ROOT = $(ESP_ROOT)/tools/sdk
+TOOLS_BIN = $(ESP_ROOT)/xtensa-lx106-elf/bin
+SDK_ROOT = $(ESP_ROOT)/sdk
 
 # Directory for intermedite build files
-OBJ_DIR = $(BUILD_ROOT)/obj
+OBJ_DIR = $(BUILD_BASE)/obj
 OBJ_EXT = .o
 DEP_EXT = .d
 
@@ -89,8 +95,12 @@ CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
 CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
-ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
-OTA_TOOL = $(TOOLS_ROOT)/espota.py
+ESP_TOOL ?= PATH=$(TOOLS_BIN):$(PATH) && $(TOOLS_BIN)/esptool.py
+
+FW_FILE_1_ADDR	= 0x00000
+FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
+FW_FILE_2_ADDR	= 0x40000
+FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
 LIBS = c gcc hal pp phy net80211 lwip wpa main hal
 LIBS := $(addprefix -l,$(LIBS))
@@ -103,7 +113,7 @@ C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections
 # LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
 # LD_STD_LIBS = $(LIBS)
 
@@ -111,6 +121,7 @@ LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_us
 LD_STD_LIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcrypto -Wl,--end-group -lgcc
 
 # Core source files
+#CORE_DIR =
 CORE_DIR = ./core
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
@@ -171,16 +182,22 @@ $(CORE_LIB): $(CORE_OBJ)
 BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
-$(MAIN_EXE): $(CORE_LIB) $(USER_OBJ)
+$(FW_BASE)/%.bin: $(MAIN_ELF) | $(FW_BASE)
+	$(ESP_TOOL) elf2image -o $(FW_BASE)/ $(MAIN_ELF)
+
+$(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
 	echo "  Versions: $(SRC_GIT_VERSION), $(ESP_GIT_VERSION)"
 	echo 	'#include <buildinfo.h>' >$(BUILD_INFO_CPP)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)
-	$(ESP_TOOL) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 	$(TOOLS_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
+
+flash: all $(FW_FILE_1) $(FW_FILE_2)
+	$(ESP_TOOL) --port $(UPLOAD_PORT) write_flash $(FW_FILE_1_ADDR) $(FW_FILE_1) $(FW_FILE_2_ADDR) $(FW_FILE_2)
+	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
@@ -197,7 +214,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 .PHONY: all
-all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE)
+all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(FW_FILE_1) $(FW_FILE_2)
 
 
 # Include all available dependencies

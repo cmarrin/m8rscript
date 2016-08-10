@@ -35,8 +35,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#ifdef __APPLE__
+    #define YIELD
+    #define ICACHE_RODATA_ATTR
+    #define ICACHE_STORE_ATTR
+    #define ICACHE_FLASH_ATTR
+    static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }    
+#else
+    #include "c_types.h"
+    #undef max
+    #define YIELD /*yield()*/
+    #define ICACHE_STORE_ATTR __attribute__((aligned(4)))
+
+    static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
+    {
+        uint32_t bytes;
+        bytes = *(uint32_t*)((uint32_t)addr & ~3);
+        return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
+    }
+#endif
+
 namespace m8r {
-    
+
 struct Label {
     int32_t label : 20;
     uint32_t uniqueID : 12;

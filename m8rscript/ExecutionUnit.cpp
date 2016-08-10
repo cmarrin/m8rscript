@@ -39,14 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 #include "SystemInterface.h"
 
-#ifdef __APPLE__
-    #define YIELD
-    #define ICACHE_RODATA_ATTR
-#else
-    #include "ESP.h"
-    #define YIELD yield()
-#endif
-
 using namespace m8r;
 
 bool ExecutionUnit::printError(const char* s) const
@@ -229,7 +221,7 @@ int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams, bool
     #undef OP
     #define OP(op) &&L_ ## op,
     
-    static const void* ICACHE_RODATA_ATTR dispatchTable[] {
+    static const void* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR dispatchTable[] {
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)

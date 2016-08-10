@@ -45,37 +45,37 @@ ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
     if (!_opInfo.size()) {
-        _opInfo.emplace(Token::STO,         { 1, OpInfo::Assoc::Right, Op::STO });
-        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::Assoc::Right, Op::STOADD });
-        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::Assoc::Right, Op::STOSUB });
-        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::Assoc::Right, Op::STOMUL });
-        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::Assoc::Right, Op::STODIV });
-        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::Assoc::Right, Op::STOMOD });
-        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::Assoc::Right, Op::STOSHL });
-        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::Assoc::Right, Op::STOSHR });
-        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::Assoc::Right, Op::STOSAR });
-        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::Assoc::Right, Op::STOAND });
-        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::Assoc::Right, Op::STOOR });
-        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::Assoc::Right, Op::STOXOR });
-        _opInfo.emplace(Token::LOR,         { 6, OpInfo::Assoc::Left, Op::LOR });
-        _opInfo.emplace(Token::LAND,        { 7, OpInfo::Assoc::Left, Op::LAND });
-        _opInfo.emplace(Token::OR,          { 8, OpInfo::Assoc::Left, Op::OR });
-        _opInfo.emplace(Token::XOR,         { 9, OpInfo::Assoc::Left, Op::XOR });
-        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::Assoc::Left, Op::AND });
-        _opInfo.emplace(Token::EQ,          { 11, OpInfo::Assoc::Left, Op::EQ });
-        _opInfo.emplace(Token::NE,          { 11, OpInfo::Assoc::Left, Op::NE });
-        _opInfo.emplace(Token::LT,          { 12, OpInfo::Assoc::Left, Op::LT });
-        _opInfo.emplace(Token::GT,          { 12, OpInfo::Assoc::Left, Op::GT });
-        _opInfo.emplace(Token::GE,          { 12, OpInfo::Assoc::Left, Op::GE });
-        _opInfo.emplace(Token::LE,          { 12, OpInfo::Assoc::Left, Op::LE });
-        _opInfo.emplace(Token::SHL,         { 13, OpInfo::Assoc::Left, Op::SHL });
-        _opInfo.emplace(Token::SHR,         { 13, OpInfo::Assoc::Left, Op::SHR });
-        _opInfo.emplace(Token::SAR,         { 13, OpInfo::Assoc::Left, Op::SAR });
-        _opInfo.emplace(Token::Plus,        { 14, OpInfo::Assoc::Left, Op::ADD });
-        _opInfo.emplace(Token::Minus,       { 14, OpInfo::Assoc::Left, Op::SUB });
-        _opInfo.emplace(Token::Star,        { 15, OpInfo::Assoc::Left, Op::MUL });
-        _opInfo.emplace(Token::Slash,       { 15, OpInfo::Assoc::Left, Op::DIV });
-        _opInfo.emplace(Token::Percent,     { 15, OpInfo::Assoc::Left, Op::MOD });
+        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, Op::STO });
+        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, Op::STOADD });
+        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, Op::STOSUB });
+        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, Op::STOMUL });
+        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::RightAssoc, Op::STODIV });
+        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::RightAssoc, Op::STOMOD });
+        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::RightAssoc, Op::STOSHL });
+        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::RightAssoc, Op::STOSHR });
+        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::RightAssoc, Op::STOSAR });
+        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::RightAssoc, Op::STOAND });
+        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::RightAssoc, Op::STOOR });
+        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::RightAssoc, Op::STOXOR });
+        _opInfo.emplace(Token::LOR,         { 6, OpInfo::LeftAssoc, Op::LOR });
+        _opInfo.emplace(Token::LAND,        { 7, OpInfo::LeftAssoc, Op::LAND });
+        _opInfo.emplace(Token::OR,          { 8, OpInfo::LeftAssoc, Op::OR });
+        _opInfo.emplace(Token::XOR,         { 9, OpInfo::LeftAssoc, Op::XOR });
+        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::LeftAssoc, Op::AND });
+        _opInfo.emplace(Token::EQ,          { 11, OpInfo::LeftAssoc, Op::EQ });
+        _opInfo.emplace(Token::NE,          { 11, OpInfo::LeftAssoc, Op::NE });
+        _opInfo.emplace(Token::LT,          { 12, OpInfo::LeftAssoc, Op::LT });
+        _opInfo.emplace(Token::GT,          { 12, OpInfo::LeftAssoc, Op::GT });
+        _opInfo.emplace(Token::GE,          { 12, OpInfo::LeftAssoc, Op::GE });
+        _opInfo.emplace(Token::LE,          { 12, OpInfo::LeftAssoc, Op::LE });
+        _opInfo.emplace(Token::SHL,         { 13, OpInfo::LeftAssoc, Op::SHL });
+        _opInfo.emplace(Token::SHR,         { 13, OpInfo::LeftAssoc, Op::SHR });
+        _opInfo.emplace(Token::SAR,         { 13, OpInfo::LeftAssoc, Op::SAR });
+        _opInfo.emplace(Token::Plus,        { 14, OpInfo::LeftAssoc, Op::ADD });
+        _opInfo.emplace(Token::Minus,       { 14, OpInfo::LeftAssoc, Op::SUB });
+        _opInfo.emplace(Token::Star,        { 15, OpInfo::LeftAssoc, Op::MUL });
+        _opInfo.emplace(Token::Slash,       { 15, OpInfo::LeftAssoc, Op::DIV });
+        _opInfo.emplace(Token::Percent,     { 15, OpInfo::LeftAssoc, Op::MOD });
     }
 }
 
@@ -411,7 +411,7 @@ bool ParseEngine::expression(uint8_t minPrec)
         if (!_opInfo.find(getToken(), opInfo) || opInfo.prec < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (opInfo.assoc == OpInfo::Assoc::Left) ? (opInfo.prec + 1) : opInfo.prec;
+        uint8_t nextMinPrec = (opInfo.assoc == OpInfo::LeftAssoc) ? (opInfo.prec + 1) : opInfo.prec;
         retireToken();
         expression(nextMinPrec);
         _parser->emit(opInfo.op);

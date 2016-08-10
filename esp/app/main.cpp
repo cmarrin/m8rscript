@@ -38,12 +38,18 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "HardwareSerial.h"
+//#include "HardwareSerial.h"
 
 extern "C" {
-#include "stdio.h"
-#include "uart.h"
+//#include "uart.h"
 #include <user_interface.h>
+}
+
+#include <cstdarg>
+
+extern "C" {
+    int ets_putc(int);
+    int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
 #define PARSE_FILE 0
@@ -59,7 +65,7 @@ public:
         va_start(args, s);
         ets_vprintf(ets_putc, s, args);
     }
-    virtual int read() const override { return Serial.read(); }
+    virtual int read() const override { return 0; /*Serial.read();*/ }
 };
 
 void runScript() {
@@ -82,7 +88,7 @@ void runScript() {
 #elif PARSE_STRING
     m8r::String fileString = 
 "var a = [ ]; \n \
-var n = 500; \n \
+var n = 100; \n \
  \n \
 var startTime = Date.now(); \n \
  \n \

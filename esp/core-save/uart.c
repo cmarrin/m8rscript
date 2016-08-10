@@ -19,10 +19,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
  */
- 
- //// Modified to be malloc/free less by Chris Marrin, 7/25/16
- //// Statically allocate 2 uart_t structures
- //// Fix size of receive buffer to 1
 
 
 /**
@@ -44,10 +40,15 @@
  * NC = Not Connected to Module Pads --> No Access
  *
  */
+
 #include "uart.h"
+
+#include "Esp.h"
+#include "umm_malloc.h"
 #include "esp8266_peri.h"
 #include "user_interface.h"
-#include "ESP.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 static int s_uart_debug_nr = UART0;
 
@@ -68,9 +69,32 @@ struct uart_ {
     struct uart_rx_buffer_ * rx_buffer;
 };
 
-static struct uart_ _uart[2];
-static struct uart_rx_buffer_ _rx_buffer_struct[2];
-static uint8_t _rx_buffer[2];
+size_t uart_resize_rx_buffer(uart_t* uart, size_t new_size)
+{
+    if(uart == NULL || !uart->rx_enabled) {
+        return 0;
+    }
+    if(uart->rx_buffer->size == new_size) {
+        return uart->rx_buffer->size;
+    }
+    uint8_t * new_buf = (uint8_t*)malloc(new_size);
+    if(!new_buf) {
+        return uart->rx_buffer->size;
+    }
+    size_t new_wpos = 0;
+    ETS_UART_INTR_DISABLE();
+    while(uart_rx_available(uart) && new_wpos < new_size) {
+        new_buf[new_wpos++] = uart_read_char(uart);
+    }
+    uint8_t * old_buf = uart->rx_buffer->buffer;
+    uart->rx_buffer->rpos = 0;
+    uart->rx_buffer->wpos = new_wpos;
+    uart->rx_buffer->size = new_size;
+    uart->rx_buffer->buffer = new_buf;
+    free(old_buf);
+    ETS_UART_INTR_ENABLE();
+    return uart->rx_buffer->size;
+}
 
 int uart_peek_char(uart_t* uart)
 {
@@ -187,6 +211,14 @@ void uart_write(uart_t* uart, const char* buf, size_t size)
     }
 }
 
+size_t uart_tx_free(uart_t* uart)
+{
+    if(uart == NULL || !uart->tx_enabled) {
+        return 0;
+    }
+    return UART_TX_FIFO_SIZE - ((USS(uart->uart_nr) >> USTXC) & 0xff);
+}
+
 void uart_wait_tx_empty(uart_t* uart)
 {
     if(uart == NULL || !uart->tx_enabled) {
@@ -239,10 +271,10 @@ int uart_get_baudrate(uart_t* uart)
 
 uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin, size_t rx_size)
 {
-    assert(uart_nr == UART0 || uart_nr == UART1);
-    assert(rx_size == 1);
-        
-    uart_t* uart = &(_uart[uart_nr]);
+    uart_t* uart = (uart_t*) malloc(sizeof(uart_t));
+    if(uart == NULL) {
+        return NULL;
+    }
 
     uart->uart_nr = uart_nr;
 
@@ -254,11 +286,20 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin, s
         uart->tx_enabled = (mode != UART_RX_ONLY);
         uart->rx_pin = (uart->rx_enabled)?3:255;
         if(uart->rx_enabled) {
-            struct uart_rx_buffer_ * rx_buffer = &(_rx_buffer_struct[uart_nr]);
+            struct uart_rx_buffer_ * rx_buffer = (struct uart_rx_buffer_ *)malloc(sizeof(struct uart_rx_buffer_));
+            if(rx_buffer == NULL) {
+              free(uart);
+              return NULL;
+            }
             rx_buffer->size = rx_size;//var this
             rx_buffer->rpos = 0;
             rx_buffer->wpos = 0;
-            rx_buffer->buffer = &(_rx_buffer[uart_nr]);
+            rx_buffer->buffer = (uint8_t *)malloc(rx_buffer->size);
+            if(rx_buffer->buffer == NULL) {
+              free(rx_buffer);
+              free(uart);
+              return NULL;
+            }
             uart->rx_buffer = rx_buffer;
             pinMode(uart->rx_pin, SPECIAL);
         }
@@ -287,6 +328,8 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin, s
         break;
     case UART_NO:
     default:
+        // big fail!
+        free(uart);
         return NULL;
     }
 
@@ -331,8 +374,11 @@ void uart_uninit(uart_t* uart)
     }
 
     if(uart->rx_enabled){
+        free(uart->rx_buffer->buffer);
+        free(uart->rx_buffer);
         uart_stop_isr(uart);
     }
+    free(uart);
 }
 
 void uart_swap(uart_t* uart, int tx_pin)

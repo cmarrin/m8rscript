@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ParseEngine.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
+#include <limits>
 
 using namespace m8r;
 

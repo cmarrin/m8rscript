@@ -34,65 +34,92 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
 extern "C"{
-    #include "ets_sys.h"
+    #include "Esp.h"
     #include "osapi.h"
     #include "gpio.h"
     #include "os_type.h"
-    #include "uart.h"
+    #include "user_interface.h"
+    //#include "uart.h"
 }
 
-#include "HardwareSerial.h"
-#include "Esp.h"
-
-int ICACHE_RAM_ATTR printf(const char* format, ...) {
-    va_list arglist;
-    va_start(arglist, format);
-    int ret = ets_vprintf(ets_putc, format, arglist);
-    va_end(arglist);
-    return ret;
-}
-
-int ICACHE_RAM_ATTR vprintf(const char * format, va_list arg) {
-    return ets_vprintf(ets_putc, format, arg);
-}
-
-extern "C" int ets_vsprintf(char *str, const char *format, va_list argptr);
-int ICACHE_RAM_ATTR sprintf(char* buffer, const char* format, ...) {
-    int ret;
-    va_list arglist;
-    va_start(arglist, format);
-    ret = ets_vsprintf(buffer, format, arglist);
-    va_end(arglist);
-    return ret;
-}
+//#include "HardwareSerial.h"
 
 extern void runScript();
 
-static const int ledPin = 2;
+#define user_procTaskPrio        0
+#define user_procTaskQueueLen    1
+os_event_t    user_procTaskQueue[user_procTaskQueueLen];
+static void user_procTask(os_event_t *events);
 
-void setup()
+static volatile os_timer_t some_timer;
+
+void some_timerfunc(void *arg)
 {
-	pinMode(ledPin, OUTPUT);
-
-    Serial.begin(230400);
-    delay(2000);
-    
-    Serial.print("Hello World!\n");
-
-    runScript();
+    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
+    {
+        gpio_output_set(0, BIT2, BIT2, 0);
+        os_printf("Blink Off(%d)\n", 3);
+    } else {
+        gpio_output_set(BIT2, 0, BIT2, 0);
+        os_printf("%s", "Blink On\n");
+    }
 }
 
-void loop()
+static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 {
-    if (digitalRead(ledPin))
-    {
-        digitalWrite(ledPin, LOW);
-        Serial.print("Blink Off!\n");
-    }
-    else
-    {
-        digitalWrite(ledPin, HIGH);
-        Serial.print("Blink On!\n");
-    }
-    delay(1000);
+    os_delay_us(10);
 }
+
+extern "C" void ICACHE_FLASH_ATTR user_init()
+{
+    uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
+
+    // init gpio sussytem
+    gpio_init();
+
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
+    gpio_output_set(0, BIT2, BIT2, 0);
+
+    os_timer_setfn((os_timer_t*) &some_timer, (os_timer_func_t *)some_timerfunc, NULL);
+    os_timer_arm((os_timer_t*) &some_timer, 1000, 1);
+
+    system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
+    //runScript();
+}
+
+//void ICACHE_FLASH_ATTR user_init()
+//{
+//    //Serial.begin(115200);
+//    //delay(2000);
+//    
+//    Serial.print("Hello World!\n");
+//
+//    runScript();
+//}
+
+//void setup()
+//{
+//	pinMode(ledPin, OUTPUT);
+//
+//    Serial.begin(230400);
+//    delay(2000);
+//    
+//    Serial.print("Hello World!\n");
+//
+//    runScript();
+//}
+//
+//void loop()
+//{
+//    if (digitalRead(ledPin))
+//    {
+//        digitalWrite(ledPin, LOW);
+//        Serial.print("Blink Off!\n");
+//    }
+//    else
+//    {
+//        digitalWrite(ledPin, HIGH);
+//        Serial.print("Blink On!\n");
+//    }
+//    delay(1000);
+//}

@@ -116,6 +116,7 @@ extern "C" void gdb_do_break(void) __attribute__ ((weak, alias("__gdb_do_break")
 
 void init_done() {
     system_set_os_print(1);
+    os_printf("******** init_done...\n");
     gdb_init();
     do_global_ctors();
     esp_schedule();
@@ -128,12 +129,16 @@ extern "C" void user_init(void) {
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     
     uart_div_modify(0, UART_CLK_FREQ / (115200));
+    delay(1000);
+    os_printf("******** user_init(1)...\n");
     
     init();
-    
-    ets_task(loop_task,
-         LOOP_TASK_PRIORITY, g_loop_queue,
-         LOOP_QUEUE_SIZE);
+     os_printf("******** user_init(2)...\n");
+   
+    // ets_task(loop_task,
+    //      LOOP_TASK_PRIORITY, g_loop_queue,
+    //      LOOP_QUEUE_SIZE);
         
+    os_printf("******** user_init(3)...\n");
     system_init_done_cb(&init_done);
 }
