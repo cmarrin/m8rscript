@@ -67,15 +67,25 @@ void some_timerfunc(void *arg)
 
 static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 {
-    os_printf("TASK CALLED\n");
-    os_delay_us(10);
+    static int counter = 1000;
+    static int holdoff = 3;
+    
+    if (--counter == 0) {
+        counter = 1000;
+        some_timerfunc(0);
+        if (holdoff-- == 0) {
+            os_printf("Before runScript\n");
+            runScript();
+            os_printf("After runScript\n");
+        }
+    }
+    os_delay_us(1000);
+    system_os_post(user_procTaskPrio, 0, 0 );
 }
 
 extern "C" void ICACHE_FLASH_ATTR user_init()
 {
     uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
-    os_delay_us(60000);
-    os_delay_us(60000);
 
     // init gpio sussytem
     gpio_init();
@@ -83,14 +93,11 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
     gpio_output_set(0, BIT2, BIT2, 0);
 
-    os_timer_setfn((os_timer_t*) &some_timer, (os_timer_func_t *)some_timerfunc, NULL);
-    os_timer_arm((os_timer_t*) &some_timer, 1000, 1);
+    //os_timer_setfn((os_timer_t*) &some_timer, (os_timer_func_t *)some_timerfunc, NULL);
+    //os_timer_arm((os_timer_t*) &some_timer, 1000, 1);
 
     system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
-    os_printf("Before runScript\n");
-    runScript();
-    os_printf("After runScript\n");
-    system_os_post(user_procTaskPrio, 1, 1 );
+    system_os_post(user_procTaskPrio, 0, 0 );
 }
 
 //void ICACHE_FLASH_ATTR user_init()

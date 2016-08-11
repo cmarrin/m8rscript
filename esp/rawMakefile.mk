@@ -199,6 +199,9 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
+    
+term:
+	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
 ota: all
 	$(OTA_TOOL) -i $(ESP_ADDR) -p $(ESP_PORT) -a $(ESP_PWD) -f $(MAIN_EXE)
