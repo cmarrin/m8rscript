@@ -39,9 +39,10 @@ SRC ?=  ../m8rscript/Array.cpp \
         ../m8rscript/main.cpp
 
 # Esp8266 location
-ESP_ROOT ?= $(HOME)/esp8266/tools
+ESP_ROOT ?= $(HOME)/esp8266
+TOOLS_ROOT ?= $(ESP_ROOT)/tools
 FLASH_LAYOUT ?= eagle.flash.4m.ld
-ESP_TOOL = PATH=$(TOOLS_BIN):$(PATH) && ./esptool.py
+ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 
 #ESP_ROOT ?= $(HOME)/esp-open-sdk
 #FLASH_LAYOUT ?= eagle.app.v6.ld 
@@ -82,8 +83,8 @@ SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
 
-TOOLS_BIN = $(ESP_ROOT)/xtensa-lx106-elf/bin
-SDK_ROOT = $(ESP_ROOT)/sdk
+TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
+SDK_ROOT = $(TOOLS_ROOT)/sdk
 
 # Directory for intermedite build files
 OBJ_DIR = $(BUILD_BASE)/obj
@@ -182,7 +183,7 @@ BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
 $(FW_BASE)/%.bin: $(MAIN_ELF) | $(FW_BASE)
-	$(ESP_TOOL) elf2image --version=2 -o $(MAIN_EXE) $(MAIN_ELF)
+	$(ESP_TOOL) elf2image -o $(FW_BASE)/ $(MAIN_ELF)
 
 $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
@@ -191,12 +192,9 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)
+	$(ESP_TOOL) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 	$(TOOLS_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
-
-flash: all $(FW_FILE_1) $(FW_FILE_2)
-	$(ESP_TOOL) --port $(UPLOAD_PORT) write_flash 0 $(MAIN_EXE)
-	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
@@ -213,7 +211,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 .PHONY: all
-all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(FW_FILE_1) $(FW_FILE_2)
+all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(MAIN_ELF)
 
 
 # Include all available dependencies

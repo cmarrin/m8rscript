@@ -67,12 +67,15 @@ void some_timerfunc(void *arg)
 
 static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 {
+    os_printf("TASK CALLED\n");
     os_delay_us(10);
 }
 
 extern "C" void ICACHE_FLASH_ATTR user_init()
 {
     uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
+    os_delay_us(60000);
+    os_delay_us(60000);
 
     // init gpio sussytem
     gpio_init();
@@ -84,7 +87,10 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
     os_timer_arm((os_timer_t*) &some_timer, 1000, 1);
 
     system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
-    //runScript();
+    os_printf("Before runScript\n");
+    runScript();
+    os_printf("After runScript\n");
+    system_os_post(user_procTaskPrio, 1, 1 );
 }
 
 //void ICACHE_FLASH_ATTR user_init()
