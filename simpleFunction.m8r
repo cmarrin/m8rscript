@@ -1,0 +1,6 @@
+function foo()
+{
+	Serial.printf("Hello\n");
+}
+
+foo();
