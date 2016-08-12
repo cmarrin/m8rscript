@@ -82,6 +82,14 @@ extern void abort();
 #define ICACHE_FLASH_ATTR   __attribute__((section(".irom0.text")))
 #define ICACHE_RAM_ATTR     __attribute__((section(".iram.text")))
 #define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
+#define ICACHE_STORE_ATTR   __attribute__((aligned(4)))
+
+static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
+{
+    uint32_t bytes;
+    bytes = *(uint32_t*)((uint32_t)addr & ~3);
+    return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
+}
 
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 

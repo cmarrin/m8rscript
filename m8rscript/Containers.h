@@ -410,11 +410,17 @@ public:
         super::resize(size() + localSize);
         return oldFrame;
     }
-    void restoreFrame(size_t frame, size_t localSize)
+    void restoreFrame(size_t frame)
     {
         assert(frame <= size() && frame <= _frame);
-        super::resize(size() - localSize);
+        super::resize(_frame);
         _frame = frame;
+    }
+    
+    // Ensure that current frame equals passed frame and the the stack has localSize values on it
+    bool validateFrame(size_t frame, size_t localSize)
+    {
+        return frame == _frame && size() == localSize;
     }
     
     type& inFrame(int32_t index) { return super::at(_frame + index); }

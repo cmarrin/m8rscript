@@ -78,19 +78,19 @@ class ExecutionUnit {
 public:
     ExecutionUnit(SystemInterface* system = nullptr) : _stack(10), _system(system) { }
     
-    void run(Program* program);
-    int32_t run(Program*, Object*, uint32_t nparams);
+    void startExecution(Program*);
+    void startFunction(Function *, uint32_t nparams);
+    bool continueExecution();
+    
     ExecutionStack& stack() { return _stack; }
 
     void requestTermination() { _terminate = true; }
     
 private:
-    int32_t run(Program*, Object*, uint32_t nparams, bool interactive);
-
     bool printError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
-    uint32_t call(Program* program, uint32_t nparams, Object*, bool isNew);
+    int32_t call(Program* program, uint32_t nparams, Object*, bool isNew);
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);
     Atom propertyNameFromValue(Program*, const Value&);
@@ -140,11 +140,14 @@ private:
         return 8;
     }
 
+    uint32_t _pc = 0;
+    Program* _program = nullptr;
+    Object* _object = nullptr;
+    
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
     SystemInterface* _system;
     mutable bool _terminate = false;
-    uint32_t _interactivePC = 0;
 };
     
 }

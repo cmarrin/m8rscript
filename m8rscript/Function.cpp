@@ -39,9 +39,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-int32_t Function::call(Program* program, ExecutionUnit* eu, uint32_t nparams)
+int32_t Function::call(ExecutionUnit* eu, uint32_t nparams)
 {
-    return eu->run(program, this, nparams);
+    eu->startFunction(this, nparams);
+    return 0;
 }
 
 int32_t Function::addLocal(const Atom& atom)

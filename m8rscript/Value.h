@@ -74,13 +74,18 @@ class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type : uint8_t { None = 0, Object, Float, Integer, String, Id, ElementRef, PropertyRef, Return };
+    enum class Type : uint8_t {
+        None = 0,
+        Object, Float, Integer, String, Id,
+        ElementRef, PropertyRef,
+        PreviousFrame, PreviousPC, PreviousObject,
+    };
 
     Value() : _value(nullptr), _type(Type::None), _id(0) { }
     Value(const Value& other) { *this = other; }
     Value(Value& other) { *this = other; }
     
-    Value(Object* obj) : _value(valueFromObj(obj)) , _type(Type::Object), _id(0) { }
+    Value(Object* obj, Type type = Type::Object) : _value(valueFromObj(obj)) , _type(type), _id(0) { }
     Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
@@ -168,7 +173,7 @@ public:
     bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
     
     Value appendPropertyRef(const Value& value) const;
-    uint32_t call(Program*, ExecutionUnit*, uint32_t nparams);
+    uint32_t call(ExecutionUnit*, uint32_t nparams);
     
     bool isInteger() const
     {

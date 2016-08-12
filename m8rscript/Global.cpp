@@ -200,7 +200,7 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
     return (newProperty == Property::None) ? Value() : Value(this, static_cast<uint16_t>(newProperty), true);
 }
 
-int32_t Global::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
+int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
 {
     switch(static_cast<Property>(index)) {
         case Property::Date_now: {

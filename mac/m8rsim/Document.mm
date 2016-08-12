@@ -236,7 +236,10 @@ private:
     dispatch_async(queue, ^() {
         _system->setToBuild(false);
         NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
-        _eu->run(_program);
+        
+        _eu->startExecution(_program);
+        while (_eu->continueExecution()) ;
+        
         timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;
         
         dispatch_async(dispatch_get_main_queue(), ^{

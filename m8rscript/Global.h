@@ -69,7 +69,7 @@ public:
     virtual size_t propertyCount() const override;
     virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
 
-    virtual int32_t callProperty(uint32_t index, Program*, ExecutionUnit*, uint32_t nparams) override;
+    virtual int32_t callProperty(uint32_t index, ExecutionUnit*, uint32_t nparams) override;
     
 protected:
     virtual bool serialize(Stream*, Error&) const override

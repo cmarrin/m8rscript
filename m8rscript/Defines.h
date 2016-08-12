@@ -36,27 +36,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #ifdef __APPLE__
-    #define YIELD
     #define ICACHE_RODATA_ATTR
     #define ICACHE_STORE_ATTR
     #define ICACHE_FLASH_ATTR
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }    
 #else
-    extern "C" {
-        #include "c_types.h"
-        #include "osapi.h"
-        #include "Esp.h"
-    }
-    #undef max
-    #define YIELD /*os_delay_us(10)*/
-    #define ICACHE_STORE_ATTR __attribute__((aligned(4)))
-
-    static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
-    {
-        uint32_t bytes;
-        bytes = *(uint32_t*)((uint32_t)addr & ~3);
-        return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
-    }
+    #include "Esp.h"
 #endif
 
 namespace m8r {

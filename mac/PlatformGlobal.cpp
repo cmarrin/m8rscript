@@ -49,9 +49,9 @@ uint64_t PlatformGlobal::currentTime() const
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime;
 }
 
-int32_t PlatformGlobal::callProperty(uint32_t index, Program* program, ExecutionUnit* eu, uint32_t nparams)
+int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
 {
-    int32_t result = Global::callProperty(index, program, eu, nparams);
+    int32_t result = Global::callProperty(index, eu, nparams);
     if (result >= 0) {
         return result;
     }

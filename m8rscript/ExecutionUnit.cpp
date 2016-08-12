@@ -65,7 +65,7 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
-uint32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
+int32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
 {
 // On entry the stack has:
 //      tos           ==> nparams values
@@ -86,12 +86,7 @@ uint32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bo
         callee = deref(program, nullptr, callee);
     }
     
-    // FIXME: when error occurs (return < 0) log an error or something
-    int32_t returnCount = callee.call(program, this, nparams);
-    if (returnCount < 0) {
-        returnCount = 0;
-    }
-    return returnCount;
+    return callee.call(this, nparams);
 //
 // On return the return address has:
 //      tos       ==> count returned values
@@ -203,20 +198,27 @@ Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
     return Atom();
 }
 
-void ExecutionUnit::run(Program* program)
+void ExecutionUnit::startExecution(Program* program)
 {
     _terminate = false;
     _nerrors = 0;
+    _pc = 0;
+    _program = program;
+    _object = program;
     _stack.clear();
-    run(program, program, 0, false);
+    _stack.setLocalFrame(0, _object->localSize());
 }
 
-int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams)
+void ExecutionUnit::startFunction(Function* function, uint32_t nparams)
 {
-    return run(program, obj, nparams, false);
+    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, _object->localSize())), Value::Type::PreviousFrame));
+    _stack.push(Value(_pc, Value::Type::PreviousPC));
+    _pc = 0;
+    _stack.push(Value(_object, Value::Type::PreviousObject));
+    _object = function;
 }
 
-int32_t ExecutionUnit::run(Program* program, Object* obj, uint32_t nparams, bool interactive)
+bool ExecutionUnit::continueExecution()
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -274,21 +276,23 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
-        if (_terminate || i >= codeObj->size()) { \
+        if (_terminate || _pc >= codeObj->size()) { \
             goto L_END; \
         } \
         if (yieldCounter++ == 0) { \
-            YIELD; \
+            return false; \
         } \
-        op = static_cast<Op>(code[i++]); \
+        op = static_cast<Op>(code[_pc++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
-    
-    if (!obj) {
+
+    uint8_t yieldCounter = 0;
+        
+    if (!_object) {
         return -1;
     }
     
-    const Code* codeObj = obj->code();
+    const Code* codeObj = _object->code();
     if (!codeObj) {
         return -1;
     }
@@ -297,17 +301,6 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     }
     
     const uint8_t* code = &(codeObj->at(0));
-    
-    size_t previousFrame = 0;
-    int i;
-    
-    if (interactive) {
-        i = _interactivePC;
-    } else {
-        previousFrame = _stack.setLocalFrame(nparams, obj->localSize());
-        i = 0;
-    }
-    size_t previousSize = _stack.size();
     
     m8r::String strValue;
     uint32_t uintValue;
@@ -321,25 +314,23 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
-    int32_t callReturnCount;
-    int32_t retCount = 0;
+    int32_t callReturnCount = 0;
+    uint32_t previousFrame;
     
-    uint8_t yieldCounter = 0;
-
     DISPATCH;
     
     L_UNKNOWN:
         assert(0);
         return 0;
     L_PUSHID:
-        _stack.push(Atom(uintFromCode(code, i, 2)));
-        i += 2;
+        _stack.push(Atom(uintFromCode(code, _pc, 2)));
+        _pc += 2;
         DISPATCH;
     L_PUSHF:
         size = sizeFromOp(op);
-        floatValue = Float::make(uintFromCode(code, i, sizeFromOp(op)));
+        floatValue = Float::make(uintFromCode(code, _pc, sizeFromOp(op)));
         _stack.push(Value(floatValue));
-        i += size;
+        _pc += size;
         DISPATCH;
     L_PUSHI:
     L_PUSHIX:
@@ -347,21 +338,21 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = sizeFromOp(op);
-            uintValue = uintFromCode(code, i, size);
-            i += size;
+            uintValue = uintFromCode(code, _pc, size);
+            _pc += size;
         }
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
         size = sizeFromOp(op);
-        uintValue = uintFromCode(code, i, size);
-        i += size;
-        _stack.push(Value(program->stringFromStringLiteral(StringLiteral(uintValue))));
+        uintValue = uintFromCode(code, _pc, size);
+        _pc += size;
+        _stack.push(Value(_program->stringFromStringLiteral(StringLiteral(uintValue))));
         DISPATCH;
     L_PUSHO:
-        uintValue = uintFromCode(code, i, 4);
-        i += 4;
-        _stack.push(program->objectFromObjectId(ObjectId(uintValue)));
+        uintValue = uintFromCode(code, _pc, 4);
+        _pc += 4;
+        _stack.push(_program->objectFromObjectId(ObjectId(uintValue)));
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
@@ -370,8 +361,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
             assert(size <= 2);
-            intValue = intFromCode(code, i, size);
-            i += size;
+            intValue = intFromCode(code, _pc, size);
+            _pc += size;
         }
         _stack.push(_stack.elementRef(intValue));
         DISPATCH;
@@ -385,9 +376,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(code, i, size);
+        intValue = intFromCode(code, _pc, size);
         op = maskOp(op, 0x01);
-        i += size;
+        _pc += size;
         if (op != Op::JMP) {
             boolValue = _stack.top().toBoolValue() != 0;
             _stack.pop();
@@ -398,22 +389,28 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                 DISPATCH;
             }
         }
-        i += intValue - size;
+        _pc += intValue - size;
         DISPATCH;
     L_NEW:
     L_NEWX:
     L_CALL:
     L_CALLX:
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(code, i, 1);
-            i += 1;
+            uintValue = uintFromCode(code, _pc, 1);
+            _pc += 1;
         } else {
             uintValue = uintFromOp(op, 0x0f);
             op = maskOp(op, 0x0f);
         }
 
-        callReturnCount = call(program, uintValue, obj, op == Op::CALL || op == Op::CALLX);
-    
+        callReturnCount = call(_program, uintValue, _object, op == Op::CALL || op == Op::CALLX);
+
+        // If the callReturnCount is -1 it means we've called a Function and it just
+        // setup the EU to execute it. In that case just continue
+        if (callReturnCount < 0) {
+            DISPATCH;
+        }
+
         // Call/new is an expression. It needs to leave one item on the stack. If no values were
         // returned, push a null Value. Otherwise push the first returned value
         
@@ -425,13 +422,44 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_RET:
     L_RETX:
         if (op == Op::RETX) {
-            uintValue = uintFromCode(code, i, 1);
-            i += 1;
+            callReturnCount = uintFromCode(code, _pc, 1);
+            _pc += 1;
+        } else if (maskOp(op, 0xf) == Op::RET) {
+            callReturnCount = uintFromOp(op, 0x0f);
         } else {
-            uintValue = uintFromOp(op, 0x07);
+            callReturnCount = 0;
         }
-        retCount = uintValue;
-        goto L_END;
+        
+        // The stack now contains:
+        //
+        //        tos-> [retCount Values]
+        //              <previous Object>
+        //              <previous PC>
+        //              <previous Frame>
+        //              [locals]
+        //      frame-> [params]
+        returnedValue = (callReturnCount > 0) ? _stack.top(1-callReturnCount) : Value();
+        _stack.pop(callReturnCount);
+        
+        assert(_stack.top().type() == Value::Type::PreviousObject);
+        _object = _stack.top().asObjectValue();
+        _stack.pop();
+        
+        assert(_stack.top().type() == Value::Type::PreviousPC);
+        _pc = _stack.top().asUIntValue();
+        _stack.pop();
+        
+        assert(_stack.top().type() == Value::Type::PreviousFrame);
+        previousFrame = _stack.top().asUIntValue();
+       
+        _stack.push(returnedValue);
+        DISPATCH;
+    L_END:
+        if (!_terminate) {
+            assert(_program == _object && _stack.validateFrame(0, _program->localSize()));
+        }
+        _stack.clear();
+        return true;
     L_ADD:
         rightValue = _stack.top().bakeValue();
         _stack.pop();
@@ -566,7 +594,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (!objectValue) {
             printError("target of STOO must be an Object");
         } else {
-            Atom name = propertyNameFromValue(program, _stack.top(-1));
+            Atom name = propertyNameFromValue(_program, _stack.top(-1));
             if (!name) {
                 printError("Object literal property name must be id, string, integer or float");
             } else {
@@ -592,20 +620,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.pop();
         DISPATCH;
     L_DEREF:
-        deref(program, _stack.top(-1), _stack.top());
+        deref(_program, _stack.top(-1), _stack.top());
         _stack.pop();
         DISPATCH;
     L_OPCODE:
         assert(0);
         DISPATCH;
-    L_END:
-        if (!_terminate) {
-            assert(_stack.size() == previousSize + retCount);
-        }
-        if (interactive) {
-            _interactivePC = i;
-        } else {
-            _stack.restoreFrame(previousFrame, obj->localSize());
-        }
-        return retCount;
 }
