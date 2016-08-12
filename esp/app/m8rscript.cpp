@@ -67,7 +67,7 @@ void some_timerfunc(void *arg)
 
 static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 {
-    static int counter = 1000;
+    static uint32_t counter = 1000;
     static int holdoff = 3;
     
     if (--counter == 0) {
