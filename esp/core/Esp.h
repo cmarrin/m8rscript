@@ -20,15 +20,17 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "user_config.h"
 #include "umm_malloc.h"
+#include "osapi.h"
 
 #include <stdint.h>
 #include <stdarg.h>
 #include <ets_sys.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define HIGH 0x1
 #define LOW  0x0
@@ -81,9 +83,6 @@ extern void abort();
 #define ICACHE_RAM_ATTR     __attribute__((section(".iram.text")))
 #define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
 
-void __assert_func(const char *file, int line, const char *func, const char *what);
-#undef assert
-#define assert(expr) { if (expr) __assert_func(__FILE__, __LINE__, __func__, __STRINGIFY(expr)); }
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 
 void yield(void);

@@ -42,9 +42,13 @@ POSSIBILITY OF SUCH DAMAGE.
     #define ICACHE_FLASH_ATTR
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }    
 #else
-    #include "c_types.h"
+    extern "C" {
+        #include "c_types.h"
+        #include "osapi.h"
+        #include "Esp.h"
+    }
     #undef max
-    #define YIELD /*yield()*/
+    #define YIELD /*os_delay_us(10)*/
     #define ICACHE_STORE_ATTR __attribute__((aligned(4)))
 
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)

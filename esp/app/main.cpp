@@ -88,7 +88,7 @@ void runScript() {
 #elif PARSE_STRING
     m8r::String fileString = 
 "var a = [ ]; \n \
-var n = 10; \n \
+var n = 200; \n \
  \n \
 var startTime = Date.now(); \n \
  \n \
