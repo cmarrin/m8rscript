@@ -276,31 +276,18 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
 
     #undef DISPATCH
     #define DISPATCH { \
-        if (_terminate || _pc >= codeObj->size()) { \
+        if (_terminate || _pc >= _codeSize) { \
             goto L_END; \
         } \
         if (yieldCounter++ == 0) { \
-            return false; \
+            return true; \
         } \
-        op = static_cast<Op>(code[_pc++]); \
+        op = static_cast<Op>(_code[_pc++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
 
-    uint8_t yieldCounter = 0;
-        
-    if (!_object) {
-        return -1;
-    }
-    
-    const Code* codeObj = _object->code();
-    if (!codeObj) {
-        return -1;
-    }
-    if (!codeObj->size()) {
-        return -1;
-    }
-    
-    const uint8_t* code = &(codeObj->at(0));
+    uint8_t yieldCounter = 1;
+    updateCodePointer();
     
     m8r::String strValue;
     uint32_t uintValue;
@@ -308,14 +295,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     Float floatValue;
     bool boolValue;
     uint32_t size;
-    Op op;
+    Op op = Op::END;
     Value leftValue, rightValue;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
     int32_t callReturnCount = 0;
-    uint32_t previousFrame;
     
     DISPATCH;
     
@@ -323,12 +309,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         assert(0);
         return 0;
     L_PUSHID:
-        _stack.push(Atom(uintFromCode(code, _pc, 2)));
+        _stack.push(Atom(uintFromCode(2)));
         _pc += 2;
         DISPATCH;
     L_PUSHF:
         size = sizeFromOp(op);
-        floatValue = Float::make(uintFromCode(code, _pc, sizeFromOp(op)));
+        floatValue = Float::make(uintFromCode(sizeFromOp(op)));
         _stack.push(Value(floatValue));
         _pc += size;
         DISPATCH;
@@ -338,19 +324,19 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = sizeFromOp(op);
-            uintValue = uintFromCode(code, _pc, size);
+            uintValue = uintFromCode(size);
             _pc += size;
         }
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
         size = sizeFromOp(op);
-        uintValue = uintFromCode(code, _pc, size);
+        uintValue = uintFromCode(size);
         _pc += size;
         _stack.push(Value(_program->stringFromStringLiteral(StringLiteral(uintValue))));
         DISPATCH;
     L_PUSHO:
-        uintValue = uintFromCode(code, _pc, 4);
+        uintValue = uintFromCode(4);
         _pc += 4;
         _stack.push(_program->objectFromObjectId(ObjectId(uintValue)));
         DISPATCH;
@@ -361,7 +347,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
             assert(size <= 2);
-            intValue = intFromCode(code, _pc, size);
+            intValue = intFromCode(size);
             _pc += size;
         }
         _stack.push(_stack.elementRef(intValue));
@@ -376,7 +362,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(code, _pc, size);
+        intValue = intFromCode(size);
         op = maskOp(op, 0x01);
         _pc += size;
         if (op != Op::JMP) {
@@ -396,7 +382,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_CALL:
     L_CALLX:
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(code, _pc, 1);
+            uintValue = uintFromCode(1);
             _pc += 1;
         } else {
             uintValue = uintFromOp(op, 0x0f);
@@ -408,6 +394,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         // If the callReturnCount is -1 it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue
         if (callReturnCount < 0) {
+            updateCodePointer();
             DISPATCH;
         }
 
@@ -421,13 +408,23 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_RET:
     L_RETX:
-        if (op == Op::RETX) {
-            callReturnCount = uintFromCode(code, _pc, 1);
-            _pc += 1;
-        } else if (maskOp(op, 0xf) == Op::RET) {
-            callReturnCount = uintFromOp(op, 0x0f);
-        } else {
+    L_END:
+        if (_terminate || op == Op::END) {
+            if (_terminate || _program == _object) {
+                // We've hit the end of the program
+                if (!_terminate) {
+                    assert(_stack.validateFrame(0, _program->localSize()));
+                }
+                _stack.clear();
+                return false;
+            }
             callReturnCount = 0;
+        }
+        else if (op == Op::RETX) {
+            callReturnCount = uintFromCode(1);
+            _pc += 1;
+        } else {
+            callReturnCount = uintFromOp(op, 0x0f);
         }
         
         // The stack now contains:
@@ -438,6 +435,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         //              <previous Frame>
         //              [locals]
         //      frame-> [params]
+        //              <callee>
         returnedValue = (callReturnCount > 0) ? _stack.top(1-callReturnCount) : Value();
         _stack.pop(callReturnCount);
         
@@ -450,16 +448,15 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _stack.pop();
         
         assert(_stack.top().type() == Value::Type::PreviousFrame);
-        previousFrame = _stack.top().asUIntValue();
+        _stack.restoreFrame(_stack.top().asUIntValue());
+    
+        // Pop callee
+        _stack.pop();
+        
+        updateCodePointer();
        
         _stack.push(returnedValue);
         DISPATCH;
-    L_END:
-        if (!_terminate) {
-            assert(_program == _object && _stack.validateFrame(0, _program->localSize()));
-        }
-        _stack.clear();
-        return true;
     L_ADD:
         rightValue = _stack.top().bakeValue();
         _stack.pop();

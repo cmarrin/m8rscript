@@ -108,9 +108,9 @@ private:
     }
     static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
 
-    static int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size)
+    int32_t intFromCode(uint32_t size)
     {
-        uint32_t num = uintFromCode(code, index, size);
+        uint32_t num = uintFromCode(size);
         uint32_t mask = 0x80 << (8 * (size - 1));
         if (num & mask) {
             return num | ~(mask - 1);
@@ -118,12 +118,12 @@ private:
         return static_cast<int32_t>(num);
     }
     
-    static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
+    uint32_t uintFromCode(uint32_t size)
     {
         uint32_t value = 0;
         for (uint32_t i = 0; i < size; ++i) {
             value <<= 8;
-            value |= code[index + i];
+            value |= _code[_pc + i];
         }
         return value;
     }
@@ -139,10 +139,21 @@ private:
         }
         return 8;
     }
+    
+    void updateCodePointer()
+    {
+        assert(_object);
+        assert(_object->code());
+        _codeSize = _object->code()->size();
+        assert(_codeSize);
+        _code = &(_object->code()->at(0));
+    }
 
     uint32_t _pc = 0;
     Program* _program = nullptr;
     Object* _object = nullptr;
+    const uint8_t* _code;
+    size_t _codeSize;
     
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;

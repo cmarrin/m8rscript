@@ -146,9 +146,9 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Object* asObjectValue() const { return (_type == Type::Object) ? objFromValue() : nullptr; }
+    Object* asObjectValue() const { return (_type == Type::Object || _type == Type::PreviousObject) ? objFromValue() : nullptr; }
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
-    uint32_t asUIntValue() const { return (_type == Type::Integer) ? uintFromValue() : 0; }
+    uint32_t asUIntValue() const { return (_type == Type::Integer || _type == Type::PreviousPC || _type == Type::PreviousFrame) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (_type == Type::Id) ? Atom(_id) : Atom(); }
 

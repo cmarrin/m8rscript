@@ -42,7 +42,7 @@ using namespace m8r;
 int32_t Function::call(ExecutionUnit* eu, uint32_t nparams)
 {
     eu->startFunction(this, nparams);
-    return 0;
+    return -1;
 }
 
 int32_t Function::addLocal(const Atom& atom)
