@@ -53,7 +53,6 @@ extern "C" {
 
 #define PARSE_FILE 0
 #define PARSE_STRING 1
-#define EXECUTE 1
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -67,21 +66,29 @@ public:
     virtual int read() const override { return 0; /*Serial.read();*/ }
 };
 
-#if EXECUTE
 os_timer_t gExecutionTimer;
+static const uint32_t ExecutionTaskPrio = 0;
+static const uint32_t ExecutionTaskQueueLen = 1;
+os_event_t gExecutionTaskQueue[ExecutionTaskQueueLen];
 
-void executionTimerTick(void* data)
+void ICACHE_FLASH_ATTR executionTask(os_event_t *event)
 {
-    m8r::ExecutionUnit* eu = static_cast<m8r::ExecutionUnit*>(data);
+    m8r::ExecutionUnit* eu = reinterpret_cast<m8r::ExecutionUnit*>(event->par);
     int32_t delay = eu->continueExecution();
-    if (delay >= 0) {
-        os_timer_arm(&gExecutionTimer, (delay < 1) ? 1 : delay, false);
+    if (delay == 0) {
+        system_os_post(ExecutionTaskPrio, 0, event->par);
+    } else if (delay > 0) {
+        os_timer_arm(&gExecutionTimer, delay, false);
     } else {
         eu->system()->printf("\n***** End of Program Output *****\n\n");
         eu->system()->printf("***** after run - free ram:%d\n", system_get_free_heap_size());
     }
 }
-#endif
+
+void ICACHE_FLASH_ATTR executionTimerTick(void* data)
+{
+    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(data));
+}
 
 void runScript()
 {
@@ -134,24 +141,24 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
 
     if (!parser.nerrors()) {
         program = parser.program();
-#elif EXECUTE
+#else
         m8r::Program _program(&systemInterface);
         program = &_program;
 #endif
-#if EXECUTE
         systemInterface->printf("\n***** Start of Program Output *****\n\n");
         m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(systemInterface);
+        eu->startExecution(program);
+
         os_timer_disarm(&gExecutionTimer);
         os_timer_setfn(&gExecutionTimer, (os_timer_func_t*) &executionTimerTick, eu);
-        eu->startExecution(program);
+
+        // Fire the execution task directly (0 timeout)
+        system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(eu));
+        
         os_timer_arm(&gExecutionTimer, 10, false);
-#endif
 #if PARSE_FILE || PARSE_STRING
     }
-#endif
-#if !EXECUTE
     systemInterface->printf("***** after run - free ram:%d\n", system_get_free_heap_size());
-    delete systemInterface
 #endif
 }
 
@@ -198,5 +205,7 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
     os_timer_disarm((os_timer_t*) &gBlinkTimer);
     os_timer_setfn((os_timer_t*) &gBlinkTimer, (os_timer_func_t *)blinkTimerfunc, NULL);
     os_timer_arm((os_timer_t*) &gBlinkTimer, 1000, 1);
+
+    system_os_task(executionTask, ExecutionTaskPrio, gExecutionTaskQueue, ExecutionTaskQueueLen);
 }
 
