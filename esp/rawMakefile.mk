@@ -21,7 +21,8 @@ DEBUG_FLAGS = -Os
 #DEBUG_FLAGS = -Og -g
 
 #=== Project specific definitions
-MAIN_SRC ?= app/m8rscript.cpp
+MAIN_NAME = m8rscript
+
 SRC ?=  ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Error.cpp \
@@ -75,10 +76,9 @@ MKESPARD_VERSION = 1.0.0
 
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
-MAIN_NAME = $(basename $(notdir $(MAIN_SRC)))
 MAIN_EXE = $(BUILD_BASE)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
-SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
+SRC_GIT_VERSION = $(call git_description,$(dir .))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
@@ -128,7 +128,7 @@ CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # User defined compilation units
-USER_SRC = $(MAIN_SRC) $(SRC)
+USER_SRC = $(SRC)
 
 # Object file suffix seems to be significant for the linker...
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))

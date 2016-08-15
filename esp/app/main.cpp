@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 
 extern "C" {
+#include <gpio.h>
 #include <user_interface.h>
 }
 
@@ -153,3 +154,49 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
     delete systemInterface
 #endif
 }
+
+static volatile os_timer_t gBlinkTimer;
+
+void blinkTimerfunc(void *)
+{
+    static int holdoff = 2;
+
+    if (holdoff != 0) {
+        if (--holdoff == 0) {
+//            struct softap_config config;
+//            if (wifi_softap_get_config_default(&config)) {
+//                os_printf("wifi_softap_get_config:\n");
+//                os_printf("    ssid = %s\n", config.ssid);
+//                os_printf("    password = %s\n", config.password);
+//                os_printf("    channel = %d\n", config.channel);
+//            } else {
+//                os_printf("wifi_softap_get_config FAILED\n");
+//            }
+            
+            runScript();
+        }
+    }
+
+    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
+    {
+        gpio_output_set(0, BIT2, BIT2, 0);
+    } else {
+        gpio_output_set(BIT2, 0, BIT2, 0);
+    }
+}
+
+extern "C" void ICACHE_FLASH_ATTR user_init()
+{
+    uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
+
+    // init gpio subsystem
+    gpio_init();
+    
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
+    gpio_output_set(0, BIT2, BIT2, 0);
+
+    os_timer_disarm((os_timer_t*) &gBlinkTimer);
+    os_timer_setfn((os_timer_t*) &gBlinkTimer, (os_timer_func_t *)blinkTimerfunc, NULL);
+    os_timer_arm((os_timer_t*) &gBlinkTimer, 1000, 1);
+}
+
