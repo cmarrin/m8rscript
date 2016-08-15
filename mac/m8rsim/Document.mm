@@ -15,9 +15,11 @@
 #import "ExecutionUnit.h"
 #import "SystemInterface.h"
 
-#include <iostream>
-#include <stdarg.h>
+#import <iostream>
+#import <stdarg.h>
 #import <sstream>
+#import <thread>
+#import <chrono>
 
 class MySystemInterface;
 
@@ -238,7 +240,15 @@ private:
         NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
         
         _eu->startExecution(_program);
-        while (_eu->continueExecution()) ;
+        while (1) {
+            int32_t delay = _eu->continueExecution();
+            if (delay < 0) {
+                break;
+            }
+            if (delay > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            }
+        }
         
         timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;
         

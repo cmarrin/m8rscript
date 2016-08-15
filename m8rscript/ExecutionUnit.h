@@ -80,11 +80,15 @@ public:
     
     void startExecution(Program*);
     void startFunction(Function *, uint32_t nparams);
-    bool continueExecution();
+    
+    // Return -1 when finished. Otherwise return value is number of milliseconds to delay before calling again
+    int32_t continueExecution();
     
     ExecutionStack& stack() { return _stack; }
 
     void requestTermination() { _terminate = true; }
+    
+    SystemInterface* system() const { return _system; }
     
 private:
     bool printError(const char* s) const;

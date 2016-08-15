@@ -218,7 +218,7 @@ void ExecutionUnit::startFunction(Function* function, uint32_t nparams)
     _object = function;
 }
 
-bool ExecutionUnit::continueExecution()
+int32_t ExecutionUnit::continueExecution()
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -274,19 +274,22 @@ bool ExecutionUnit::continueExecution()
     
 static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is wrong size");
 
+static const uint16_t YieldCount = 2000;
+
     #undef DISPATCH
     #define DISPATCH { \
         if (_terminate || _pc >= _codeSize) { \
             goto L_END; \
         } \
-        if (yieldCounter++ == 0) { \
-            return true; \
+        if (--yieldCounter == 0) { \
+            yieldCounter = YieldCount; \
+            return 0; \
         } \
         op = static_cast<Op>(_code[_pc++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
 
-    uint8_t yieldCounter = 1;
+    uint16_t yieldCounter = YieldCount;
     updateCodePointer();
     
     m8r::String strValue;
@@ -307,7 +310,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     
     L_UNKNOWN:
         assert(0);
-        return 0;
+        return -1;
     L_PUSHID:
         _stack.push(Atom(uintFromCode(2)));
         _pc += 2;
@@ -416,7 +419,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
                     assert(_stack.validateFrame(0, _program->localSize()));
                 }
                 _stack.clear();
-                return false;
+                return -1;
             }
             callReturnCount = 0;
         }

@@ -34,6 +34,10 @@ static const char* s_panic_file = 0;
 static int s_panic_line = 0;
 static const char* s_panic_func = 0;
 
+static os_timer_t micros_overflow_timer;
+static uint32_t micros_at_last_overflow_tick = 0;
+static uint32_t micros_overflow_count = 0;
+
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
     s_panic_file = file;
     s_panic_line = line;
@@ -45,6 +49,38 @@ extern void* malloc(size_t size);
 extern void free(void* ptr);
 
 void abort() { while(1) ; }
+
+void micros_overflow_tick(void* arg) {
+    uint32_t m = system_get_time();
+    if(m < micros_at_last_overflow_tick) {
+        ++micros_overflow_count;
+    }
+    micros_at_last_overflow_tick = m;
+}
+
+extern void (*__init_array_start)(void);
+extern void (*__init_array_end)(void);
+
+static void do_global_ctors(void) {
+    void (**p)(void) = &__init_array_end;
+    while (p != &__init_array_start)
+        (*--p)();
+}
+
+void initializeSystem()
+{
+    do_global_ctors();
+    os_timer_disarm(&micros_overflow_timer);
+    os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, 0);
+    os_timer_arm(&micros_overflow_timer, 60000, 1 /* REPEAT */);
+}
+
+uint64_t currentMicroseconds()
+{
+    uint32_t m = system_get_time();
+    uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
+    return (c << 32) + m;
+}
 
 void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {

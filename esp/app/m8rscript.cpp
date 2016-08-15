@@ -58,25 +58,33 @@ void some_timerfunc(void *arg)
     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
     {
         gpio_output_set(0, BIT2, BIT2, 0);
-        os_printf("Blink Off(%d)\n", 3);
     } else {
         gpio_output_set(BIT2, 0, BIT2, 0);
-        os_printf("%s", "Blink On\n");
     }
 }
 
+static uint32_t CounterTime = 400;
+
 static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 {
-    static uint32_t counter = 1000;
-    static int holdoff = 3;
+    static uint32_t counter = CounterTime;
+    static int holdoff = 10;
     
     if (--counter == 0) {
-        counter = 1000;
+        counter = CounterTime;
         some_timerfunc(0);
         if (holdoff-- == 0) {
-            os_printf("Before runScript\n");
+            struct softap_config config;
+            if (wifi_softap_get_config_default(&config)) {
+                os_printf("wifi_softap_get_config:\n");
+                os_printf("    ssid = %s\n", config.ssid);
+                os_printf("    password = %s\n", config.password);
+                os_printf("    channel = %d\n", config.channel);
+            } else {
+                os_printf("wifi_softap_get_config FAILED\n");
+            }
+            
             runScript();
-            os_printf("After runScript\n");
         }
     }
     os_delay_us(1000);

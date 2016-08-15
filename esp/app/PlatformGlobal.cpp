@@ -38,8 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 
 extern "C" {
-    #include <user_interface.h>
-    void ets_delay_us(uint32_t us);
+    #include "Esp.h"
 }
 
 
@@ -47,7 +46,7 @@ using namespace m8r;
 
 uint64_t PlatformGlobal::currentTime() const
 {
-    return static_cast<uint64_t>(system_get_time()) * 1000000 - _startTime;
+    return currentMicroseconds() - _startTime;
 }
 
 int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
