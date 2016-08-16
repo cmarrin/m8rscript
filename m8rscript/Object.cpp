@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Object.h"
 
 #include "Function.h"
-#include "Stream.h"
+#include "MStream.h"
 
 using namespace m8r;
 

@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Stream.h"
+#include "MStream.h"
 #include "Scanner.h"
 #include "Program.h"
 #include "Array.h"

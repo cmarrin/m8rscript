@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <ctime>
 
-#include "Stream.h"
+#include "MStream.h"
 #include "Parser.h"
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"

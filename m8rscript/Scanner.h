@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Stream.h"
+#include "MStream.h"
 #include "Float.h"
 #include "Atom.h"
 #include "Defines.h"
