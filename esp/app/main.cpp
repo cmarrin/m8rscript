@@ -33,6 +33,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
+#include "Esp.h"
 #include "Parser.h"
 #include "MStream.h"
 #include "CodePrinter.h"
@@ -63,7 +64,7 @@ public:
         va_start(args, s);
         ets_vprintf(ets_putc, s, args);
     }
-    virtual int read() const override { return 0; /*Serial.read();*/ }
+    virtual int read() const override { return readSerialChar(); }
 };
 
 os_timer_t gExecutionTimer;
@@ -192,7 +193,11 @@ void blinkTimerfunc(void *)
     }
 }
 
+#ifdef USE_SMING
+void ICACHE_FLASH_ATTR init()
+#else
 extern "C" void ICACHE_FLASH_ATTR user_init()
+#endif
 {
     uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
 

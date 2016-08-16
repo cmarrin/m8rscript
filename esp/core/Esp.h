@@ -34,6 +34,7 @@ extern "C" {
 
 void initializeSystem();
 uint64_t currentMicroseconds();
+static inline int readSerialChar() { return 0; }
 
 #define HIGH 0x1
 #define LOW  0x0

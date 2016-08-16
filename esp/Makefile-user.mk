@@ -3,7 +3,7 @@
 ## Uncomment and change examples:
 
 ## Add your source directories here separated by space
-MODULES = app ../m8rscript
+MODULES = core-sming app ../m8rscript
 EXTRA_INCDIR = include ../m8rscript
 
 ESP_HOME = /opt/esp-open-sdk
