@@ -102,7 +102,7 @@ FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
 FW_FILE_2_ADDR	= 0x40000
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
-LIBS = c gcc hal pp phy net80211 lwip wpa main hal
+LIBS = c gcc hal pp phy net80211 lwip wpa main hal smartconfig
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
@@ -118,7 +118,7 @@ LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_us
 # LD_STD_LIBS = $(LIBS)
 
 #LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
-LD_STD_LIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcrypto -Wl,--end-group -lgcc
+LD_STD_LIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcrypto -lsmartconfig -Wl,--end-group -lgcc
 
 # Core source files
 #CORE_DIR =

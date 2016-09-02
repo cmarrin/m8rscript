@@ -18,7 +18,25 @@ COM_SPEED	= 115200
 # SPI_MODE = dio
 
 ## SPIFFS options
-DISABLE_SPIFFS = 1
-# SPIFF_FILES = files
+#DISABLE_SPIFFS = 1
+SPIFF_FILES = files
 
 ENABLE_GDB=0
+
+MEM_USAGE = \
+  'while (<>) { \
+      $$r += $$1 if /^\.(?:data|rodata|bss)\s+(\d+)/;\
+		  $$f += $$1 if /^\.(?:irom0\.text|text|data|rodata)\s+(\d+)/;\
+	 }\
+	 print "\nMemory usage\n";\
+	 print sprintf("  %-6s %6d bytes\n" x 2 ."\n", "Ram:", $$r, "Flash:", $$f);'
+
+# Include main Sming Makefile
+ifeq ($(RBOOT_ENABLED), 1)
+include $(SMING_HOME)/Makefile-rboot.mk
+else
+include $(SMING_HOME)/Makefile-project.mk
+endif
+
+size: $(MAIN_ELF)
+	$(XTENSA_TOOLS_ROOT)/xtensa-lx106-elf-size -A $(TARGET_OUT) | perl -e $(MEM_USAGE)

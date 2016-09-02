@@ -27,8 +27,13 @@ extern "C" {
 #include <osapi.h>
 #include "user_interface.h"
 #include <ets_sys.h>
+#include <espconn.h>
+#include <smartconfig.h>
 
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
+
+static const char* WIFIAP_SSID = "ESP8266";
+static const char* WIFIAP_PWD = "m8rscript";
 
 static const char* s_panic_file = 0;
 static int s_panic_line = 0;
@@ -67,12 +72,164 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
+// Interface is STATION_IF or SOFTAP_IF
+void setIP(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t interface)
+{
+    struct ip_info info;
+    IP4_ADDR(&info.ip, a, b, c, d);
+    IP4_ADDR(&info.gw, a, b, c, d);
+    IP4_ADDR(&info.netmask, 255, 255, 255, 0);
+    wifi_set_ip_info(interface, &info);
+}
+
+void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
+{
+    switch(status) {
+        case SC_STATUS_WAIT:
+            os_printf("SC_STATUS_WAIT\n");
+            break;
+        case SC_STATUS_FIND_CHANNEL:
+            os_printf("SC_STATUS_FIND_CHANNEL\n");
+            break;
+        case SC_STATUS_GETTING_SSID_PSWD: {
+            os_printf("SC_STATUS_GETTING_SSID_PSWD\n");
+            sc_type* type = (sc_type*) pdata;
+            if (*type == SC_TYPE_ESPTOUCH) {
+                os_printf("SC_TYPE:SC_TYPE_ESPTOUCH\n");
+            } else {
+                os_printf("SC_TYPE:SC_TYPE_AIRKISS\n");
+            }
+            break;
+        }
+        case SC_STATUS_LINK: {
+            os_printf("SC_STATUS_LINK\n");
+            struct station_config* sta_conf = (struct station_config*) pdata;
+            wifi_station_set_config(sta_conf);
+            wifi_station_disconnect();
+            wifi_station_connect();
+            break;
+        }
+        case SC_STATUS_LINK_OVER:
+            os_printf("SC_STATUS_LINK_OVER\n");
+            if (pdata != NULL) {
+                uint8 phone_ip[4] = {0};
+                memcpy(phone_ip, (uint8*)pdata, 4);
+                os_printf("Phone ip: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
+            }
+            smartconfig_stop();
+            break;
+    }
+}
+
+void smartConfig()
+{
+    wifi_set_opmode(STATION_MODE);
+    smartconfig_start(smartconfigDone);
+}
+
+void initmdns(const char* hostname, uint8_t interface)
+{
+    struct mdns_info mdnsInfo;
+    struct ip_info ipconfig;
+    wifi_get_ip_info(interface, &ipconfig);
+    os_memset(&mdnsInfo, 0, sizeof(mdnsInfo));
+    mdnsInfo.host_name = (char*) hostname; 
+    mdnsInfo.server_name = (char*) "m8rscript_server";
+    mdnsInfo.ipAddr = ipconfig.ip.addr;
+    mdnsInfo.server_port = 80; 
+    mdnsInfo.txt_data[0] = (char*) "version = now"; 
+    mdnsInfo.txt_data[1] = (char*) "user1 = data1"; 
+    mdnsInfo.txt_data[2] = (char*) "user2 = data2";
+    espconn_mdns_init(&mdnsInfo);
+    espconn_mdns_enable();
+    os_printf("The mDNS responder is running at %s.local.\n", hostname);
+}
+
+void initSoftAP()
+{
+	wifi_softap_dhcps_stop();
+    struct softap_config apConfig;
+	wifi_softap_get_config(&apConfig);
+    apConfig.channel = 7;
+    apConfig.ssid_hidden = 0;
+    os_memset(apConfig.ssid, 0, sizeof(apConfig.ssid));
+    strcpy((char*) apConfig.ssid, WIFIAP_SSID);
+    apConfig.ssid_len = 10;
+    os_memset(apConfig.password, 0, sizeof(apConfig.password));
+    strcpy((char*) apConfig.password, WIFIAP_PWD);
+    apConfig.authmode = AUTH_WPA2_PSK;
+    apConfig.max_connection = 4;
+	apConfig.beacon_interval = 200;
+    wifi_softap_set_config(&apConfig);
+}
+
+static const uint8_t NumWifiTries = 10;
+static uint8_t gNumWifiTries = 0;
+void wifiEventHandler(System_Event_t *evt)
+{
+    switch(evt->event) {
+        case EVENT_STAMODE_DISCONNECTED: {
+            gNumWifiTries++;
+            os_printf("Wifi failed to connect %d time%s\n", gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
+            if (gNumWifiTries >= NumWifiTries) {
+                os_printf("Wifi connection failed, starting smartconfig\n");
+                smartConfig();
+            }
+            break;
+        case EVENT_STAMODE_GOT_IP:
+            initmdns("m8rscript", STATION_IF);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void initializeSystem()
 {
+    uart_div_modify(0, UART_CLK_FREQ /115200);
+    
     do_global_ctors();
+
+    // Set DHCP Name
+    uint8_t hwaddr[6] = { 0 };
+	wifi_get_macaddr(STATION_IF, hwaddr);
+    char hostname[8];
+    static const char* hex = "0123456789ABCDEF";
+    hostname[0] = 'E';
+    hostname[1] = 'S';
+    hostname[2] = 'P';
+    hostname[3] = hex[hwaddr[4] >> 4];
+    hostname[4] = hex[hwaddr[4] && 0x0f];
+    hostname[5] = hex[hwaddr[5] >> 4];
+    hostname[6] = hex[hwaddr[5] && 0x0f];
+    hostname[7] = '\0';
+    wifi_station_set_hostname(hostname);
+
+    //initSoftAP();
+    
+    //setIP(192, 168, 22, 1, SOFTAP_IF);
+
+//    struct dhcps_lease dhcp_lease;
+//    IP4_ADDR(&dhcp_lease.start_ip, 192, 168, 22, 2);
+//    IP4_ADDR(&dhcp_lease.end_ip, 192, 168, 22, 5);
+//    wifi_softap_set_dhcps_lease(&dhcp_lease);
+//
+//    wifi_softap_dhcps_start();
+    
+    //initmdns("m8rscript", SOFTAP_IF);
+    
+    gNumWifiTries = 0;
+
+    wifi_softap_dhcps_stop();
+    wifi_set_opmode(STATION_MODE);
+    wifi_set_event_handler_cb(wifiEventHandler);
+
     os_timer_disarm(&micros_overflow_timer);
     os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, 0);
     os_timer_arm(&micros_overflow_timer, 60000, 1 /* REPEAT */);
+
+    //spiffs_mount();
 }
 
 uint64_t currentMicroseconds()
@@ -81,6 +238,7 @@ uint64_t currentMicroseconds()
     uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
     return (c << 32) + m;
 }
+
 
 void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {

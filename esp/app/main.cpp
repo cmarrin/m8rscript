@@ -193,14 +193,10 @@ void blinkTimerfunc(void *)
     }
 }
 
-#ifdef USE_SMING
-void ICACHE_FLASH_ATTR init()
-#else
-extern "C" void ICACHE_FLASH_ATTR user_init()
-#endif
+void initDone()
 {
-    uart_div_modify( 0, UART_CLK_FREQ / ( 115200 ) );
-
+    initializeSystem();
+    
     // init gpio subsystem
     gpio_init();
     
@@ -214,3 +210,11 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
     system_os_task(executionTask, ExecutionTaskPrio, gExecutionTaskQueue, ExecutionTaskQueueLen);
 }
 
+#ifdef USE_SMING
+void ICACHE_FLASH_ATTR maininit()
+#else
+extern "C" void ICACHE_FLASH_ATTR user_init()
+#endif
+{
+    system_init_done_cb(initDone);
+}

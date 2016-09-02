@@ -92,9 +92,10 @@
 		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		4942EA8C1D0D950100E02088 /* Defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Defines.h; path = ../m8rscript/Defines.h; sourceTree = "<group>"; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
-		4945DD851D63705B006945BC /* Makefile-user.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = "Makefile-user.mk"; path = "../esp/Makefile-user.mk"; sourceTree = "<group>"; };
-		4945DD861D63705B006945BC /* Makefile-sming */ = {isa = PBXFileReference; lastKnownFileType = text; name = "Makefile-sming"; path = "../esp/Makefile-sming"; sourceTree = "<group>"; };
+		4945DD851D63705B006945BC /* smingMakefile.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = smingMakefile.mk; path = ../esp/smingMakefile.mk; sourceTree = "<group>"; };
 		4945DD871D63707F006945BC /* core-sming */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "core-sming"; path = "../esp/core-sming"; sourceTree = "<group>"; };
+		4945DD881D666DFB006945BC /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../esp/include; sourceTree = "<group>"; };
+		4945DD891D69130F006945BC /* files */ = {isa = PBXFileReference; lastKnownFileType = folder; name = files; path = ../esp/files; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../m8rscript/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
@@ -226,12 +227,13 @@
 		494D25891D32B2E6003755DB /* esp */ = {
 			isa = PBXGroup;
 			children = (
+				4945DD891D69130F006945BC /* files */,
+				4945DD881D666DFB006945BC /* include */,
 				4945DD831D5ACE12006945BC /* core */,
 				4945DD871D63707F006945BC /* core-sming */,
 				497B449E1D469B3200BC1B57 /* app */,
 				494D25901D32B73A003755DB /* Makefile */,
-				4945DD851D63705B006945BC /* Makefile-user.mk */,
-				4945DD861D63705B006945BC /* Makefile-sming */,
+				4945DD851D63705B006945BC /* smingMakefile.mk */,
 				497B449F1D469BB000BC1B57 /* rawMakefile.mk */,
 			);
 			name = esp;
