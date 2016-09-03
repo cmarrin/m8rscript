@@ -21,6 +21,7 @@
 extern "C" {
 
 #include "Esp.h"
+#include "spiffsAPI.h"
 #include <assert.h>
 #include <c_types.h>
 #include <cxxabi.h>
@@ -190,6 +191,8 @@ void initializeSystem()
     uart_div_modify(0, UART_CLK_FREQ /115200);
     
     do_global_ctors();
+
+    spiffs_mount(); 
 
     // Set DHCP Name
     uint8_t hwaddr[6] = { 0 };

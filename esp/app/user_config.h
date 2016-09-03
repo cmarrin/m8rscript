@@ -1,1 +1,1 @@
-//#define USE_OPTIMIZE_PRINTF
+#define USE_OPTIMIZE_PRINTF

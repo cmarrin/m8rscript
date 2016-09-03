@@ -107,7 +107,7 @@ LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) 
+INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
@@ -121,11 +121,15 @@ LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_us
 LD_STD_LIBS = -nostdlib -Wl,--start-group -lmain -lnet80211 -lwpa -llwip -lpp -lphy -lcrypto -lsmartconfig -Wl,--end-group -lgcc
 
 # Core source files
-#CORE_DIR =
 CORE_DIR = ./core
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
+
+# Spiffs source files
+SPIFFS_DIR = ./spiffs/src
+SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
+SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
 
 # User defined compilation units
 USER_SRC = $(SRC)
@@ -134,7 +138,7 @@ USER_SRC = $(SRC)
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(CORE_DIR) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(USER_DIRS)
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -174,7 +178,7 @@ $(OBJ_DIR)/%.S$(OBJ_EXT): %.S
 	echo  $(<F)
 	$(CC) $(C_DEFINES) $(C_INCLUDES) $(S_FLAGS) $< -o $@
 
-$(CORE_LIB): $(CORE_OBJ)
+$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ)
 	echo  Creating core archive
 	rm -f $@
 	$(AR) cru $@  $^
