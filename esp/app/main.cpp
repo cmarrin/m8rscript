@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
+#include "FS.h"
 
 extern "C" {
 #include <gpio.h>
@@ -81,8 +82,8 @@ void ICACHE_FLASH_ATTR executionTask(os_event_t *event)
     } else if (delay > 0) {
         os_timer_arm(&gExecutionTimer, delay, false);
     } else {
-        eu->system()->printf("\n***** End of Program Output *****\n\n");
-        eu->system()->printf("***** after run - free ram:%d\n", system_get_free_heap_size());
+        os_printf("\n***** End of Program Output *****\n\n");
+        os_printf("***** after run - free ram:%d\n", system_get_free_heap_size());
     }
 }
 
@@ -94,21 +95,35 @@ void ICACHE_FLASH_ATTR executionTimerTick(void* data)
 void runScript()
 {
     initializeSystem();
+
+
+esp::FS* fs = esp::FS::sharedFS();
+os_printf("Files {\n");
+esp::DirectoryEntry* entry = fs->directory();
+while (entry && entry->valid()) {
+    os_printf("    '%s':%d bytes\n", entry->name(), entry->size());
+    entry->next();
+}
+os_printf("}\n");
+if (entry) {
+    delete entry;
+}
+    
     MySystemInterface* systemInterface = new MySystemInterface();
 
     const char* filename = "simple.m8r";
 
-    systemInterface->printf("\n*** m8rscript v0.1\n\n");
+    os_printf("\n*** m8rscript v0.1\n\n");
 
-    systemInterface->printf("***** start - free ram:%d\n", system_get_free_heap_size());
+    os_printf("***** start - free ram:%d\n", system_get_free_heap_size());
 
     m8r::Program* program = nullptr;
     
 #if PARSE_FILE
-    systemInterface->printf("Opening '%s'\n", filename);
+    os_printf("Opening '%s'\n", filename);
     m8r::FileStream istream(filename);
     if (!istream.loaded()) {
-        systemInterface->printf("File not found, exiting\n");
+        os_printf("File not found, exiting\n");
         abort();
     }
 #elif PARSE_STRING
@@ -136,9 +151,9 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
     systemInterface->printf("Parsing...\n");
     m8r::Parser parser(systemInterface);
     parser.parse(&istream);
-    systemInterface->printf("***** after parse - free ram:%d\n", system_get_free_heap_size());
+    os_printf("***** after parse - free ram:%d\n", system_get_free_heap_size());
 
-    systemInterface->printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+    os_printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
 
     if (!parser.nerrors()) {
         program = parser.program();
@@ -146,7 +161,7 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
         m8r::Program _program(&systemInterface);
         program = &_program;
 #endif
-        systemInterface->printf("\n***** Start of Program Output *****\n\n");
+        os_printf("\n***** Start of Program Output *****\n\n");
         m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(systemInterface);
         eu->startExecution(program);
 
@@ -159,7 +174,7 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
         os_timer_arm(&gExecutionTimer, 10, false);
 #if PARSE_FILE || PARSE_STRING
     }
-    systemInterface->printf("***** after run - free ram:%d\n", system_get_free_heap_size());
+    os_printf("***** after run - free ram:%d\n", system_get_free_heap_size());
 #endif
 }
 

@@ -32,19 +32,19 @@ typedef unsigned char u8_t;
 
 // Set generic spiffs debug output call.
 #ifndef SPIFFS_DBG
-#define SPIFFS_DBG(...) //printf(__VA_ARGS__)
+#define SPIFFS_DBG(...) os_printf(__VA_ARGS__)
 #endif
 // Set spiffs debug output call for garbage collecting.
 #ifndef SPIFFS_GC_DBG
-#define SPIFFS_GC_DBG(...) //printf(__VA_ARGS__)
+#define SPIFFS_GC_DBG(...) os_printf(__VA_ARGS__)
 #endif
 // Set spiffs debug output call for caching.
 #ifndef SPIFFS_CACHE_DBG
-#define SPIFFS_CACHE_DBG(...) //printf(__VA_ARGS__)
+#define SPIFFS_CACHE_DBG(...) os_printf(__VA_ARGS__)
 #endif
 // Set spiffs debug output call for system consistency checks.
 #ifndef SPIFFS_CHECK_DBG
-#define SPIFFS_CHECK_DBG(...) //printf(__VA_ARGS__)
+#define SPIFFS_CHECK_DBG(...) os_printf(__VA_ARGS__)
 #endif
 
 // Enable/disable API functions to determine exact number of bytes
@@ -128,7 +128,7 @@ typedef unsigned char u8_t;
 // not on mount point. If not, SPIFFS_format must be called prior to mounting
 // again.
 #ifndef SPIFFS_USE_MAGIC
-#define SPIFFS_USE_MAGIC                (0)
+#define SPIFFS_USE_MAGIC                (1)
 #endif
 
 #if SPIFFS_USE_MAGIC
@@ -138,7 +138,7 @@ typedef unsigned char u8_t;
 // be accepted for mounting with a configuration defining the filesystem as 2
 // megabytes.
 #ifndef SPIFFS_USE_MAGIC_LENGTH
-#define SPIFFS_USE_MAGIC_LENGTH         (0)
+#define SPIFFS_USE_MAGIC_LENGTH         (1)
 #endif
 #endif
 
@@ -158,26 +158,36 @@ typedef unsigned char u8_t;
 // on the target. This will reduce calculations, flash and memory accesses.
 // Parts of configuration must be defined below instead of at time of mount.
 #ifndef SPIFFS_SINGLETON
-#define SPIFFS_SINGLETON 0
+#define SPIFFS_SINGLETON 1
 #endif
 
 #if SPIFFS_SINGLETON
 // Instead of giving parameters in config struct, singleton build must
 // give parameters in defines below.
+extern uint32_t _SPIFFS_start;
+extern uint32_t _SPIFFS_end;
+extern uint32_t _SPIFFS_page;
+extern uint32_t _SPIFFS_block;
+
+#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
+#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
+#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
+#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
+
 #ifndef SPIFFS_CFG_PHYS_SZ
-#define SPIFFS_CFG_PHYS_SZ(ignore)        (1024*1024*2)
+#define SPIFFS_CFG_PHYS_SZ(ignore)        (SPIFFS_PHYS_SIZE)
 #endif
 #ifndef SPIFFS_CFG_PHYS_ERASE_SZ
-#define SPIFFS_CFG_PHYS_ERASE_SZ(ignore)  (65536)
+#define SPIFFS_CFG_PHYS_ERASE_SZ(ignore)  (SPI_FLASH_SEC_SIZE)
 #endif
 #ifndef SPIFFS_CFG_PHYS_ADDR
-#define SPIFFS_CFG_PHYS_ADDR(ignore)      (0)
+#define SPIFFS_CFG_PHYS_ADDR(ignore)      (SPIFFS_PHYS_ADDR)
 #endif
 #ifndef SPIFFS_CFG_LOG_PAGE_SZ
-#define SPIFFS_CFG_LOG_PAGE_SZ(ignore)    (256)
+#define SPIFFS_CFG_LOG_PAGE_SZ(ignore)    (SPIFFS_PHYS_PAGE)
 #endif
 #ifndef SPIFFS_CFG_LOG_BLOCK_SZ
-#define SPIFFS_CFG_LOG_BLOCK_SZ(ignore)   (65536)
+#define SPIFFS_CFG_LOG_BLOCK_SZ(ignore)   (SPIFFS_PHYS_BLOCK)
 #endif
 #endif
 

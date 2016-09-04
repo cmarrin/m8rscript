@@ -31,6 +31,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdarg.h>
 #include <ets_sys.h>
+#include <assert.h>
 
 void initializeSystem();
 uint64_t currentMicroseconds();

@@ -4,7 +4,7 @@
 // Based on NodeMCU platform_flash
 // https://github.com/nodemcu/nodemcu-firmware
 
-extern char _flash_code_end[];
+extern char _SPIFFS_start[];
 
 uint32_t flashmem_write( const void *from, uint32_t toaddr, uint32_t size )
 {
@@ -21,10 +21,14 @@ uint32_t flashmem_write( const void *from, uint32_t toaddr, uint32_t size )
     rest = toaddr & blkmask;
     temp = toaddr & ~blkmask; // this is the actual aligned address
     // c_memcpy( tmpdata, ( const void* )temp, blksize );
-    flashmem_read_internal( tmpdata, temp, blksize );
+    if (flashmem_read_internal( tmpdata, temp, blksize ) != blksize) {
+        return 0;
+    }
     for( i = rest; size && ( i < blksize ); i ++, size --, pfrom ++ )
       tmpdata[ i ] = *pfrom;
-    flashmem_write_internal( tmpdata, temp, blksize );
+    if (flashmem_write_internal( tmpdata, temp, blksize ) != blksize) {
+        return 0;
+    }
     if( size == 0 )
       return ssize;
     toaddr = temp + blksize;
@@ -36,7 +40,9 @@ uint32_t flashmem_write( const void *from, uint32_t toaddr, uint32_t size )
   // Program the blocks now
   if( temp )
   {
-	flashmem_write_internal( pfrom, toaddr, temp );
+	if (flashmem_write_internal( pfrom, toaddr, temp ) != temp) {
+        return 0;
+    }
     toaddr += temp;
     pfrom += temp;
   }
@@ -44,10 +50,14 @@ uint32_t flashmem_write( const void *from, uint32_t toaddr, uint32_t size )
   if( rest )
   {
     // c_memcpy( tmpdata, ( const void* )toaddr, blksize );
-	flashmem_read_internal( tmpdata, toaddr, blksize );
+	if (flashmem_read_internal( tmpdata, toaddr, blksize ) != blksize) {
+        return 0;
+    }
     for( i = 0; size && ( i < rest ); i ++, size --, pfrom ++ )
       tmpdata[ i ] = *pfrom;
-    flashmem_write_internal( tmpdata, toaddr, blksize );
+    if (flashmem_write_internal( tmpdata, toaddr, blksize ) != blksize) {
+        return 0;
+    }
   }
   return ssize;
 }
@@ -66,7 +76,9 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
   {
     rest = fromaddr & blkmask;
     temp = fromaddr & ~blkmask; // this is the actual aligned address
-    flashmem_read_internal( tmpdata, temp, blksize );
+    if (flashmem_read_internal( tmpdata, temp, blksize ) != blksize) {
+        return 0;
+    }
     for( i = rest; size && ( i < blksize ); i ++, size --, pto ++ )
       *pto = tmpdata[ i ];
 
@@ -81,14 +93,18 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
   // Program the blocks now
   if( temp )
   {
-	flashmem_read_internal( pto, fromaddr, temp );
+	if (flashmem_read_internal( pto, fromaddr, temp ) != temp) {
+        return 0;
+    }
     fromaddr += temp;
     pto += temp;
   }
   // And the final part of a block if needed
   if( rest )
   {
-	flashmem_read_internal( tmpdata, fromaddr, blksize );
+	if (flashmem_read_internal( tmpdata, fromaddr, blksize ) != blksize) {
+        return 0;
+    }
     for( i = 0; size && ( i < rest ); i ++, size --, pto ++ )
       *pto = tmpdata[ i ];
   }
@@ -199,28 +215,29 @@ uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t si
 
 uint32_t flashmem_read_internal( void *to, uint32_t fromaddr, uint32_t size )
 {
-  fromaddr -= INTERNAL_FLASH_START_ADDRESS;
+  assert(size);
+  //fromaddr -= INTERNAL_FLASH_START_ADDRESS;
   SpiFlashOpResult r;
   WRITE_PERI_REG(0x60000914, 0x73);
   r = spi_flash_read(fromaddr, (uint32 *)to, size);
   if(SPI_FLASH_RESULT_OK == r)
     return size;
   else{
-	SYSTEM_ERROR( "ERROR in flash_read: r=%d at %08X\n", ( int )r, ( unsigned )fromaddr+INTERNAL_FLASH_START_ADDRESS );
+	SYSTEM_ERROR( "ERROR in flash_read: r=%d at %08X, size=%d\n", ( int )r, ( unsigned )fromaddr/*+INTERNAL_FLASH_START_ADDRESS*/, size );
     return 0;
   }
 }
 
 uint32_t flashmem_get_first_free_block_address()
 {
-  if (_flash_code_end == NULL)
+  if (_SPIFFS_start == NULL)
   {
-	  debugf("_flash_code_end:%08x\n", (uint32_t)_flash_code_end);
+	  debugf("_SPIFFS_start:%08x\n", (uint32_t)_SPIFFS_start);
 	  return 0;
   }
 
   // Round the total used flash size to the closest flash block address
   uint32_t end;
-  flashmem_find_sector( ( uint32_t )_flash_code_end - 1, NULL, &end);
+  flashmem_find_sector( ( uint32_t )_SPIFFS_start - 1, NULL, &end);
   return end + 1;
 }
