@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __APPLE__
 #include <cstdio>
+#else
+#include "FS.h"
 #endif
 
 #include "Containers.h"
@@ -55,7 +57,7 @@ namespace m8r {
 
 class Stream {
 public:
-	virtual int available() const = 0;
+	virtual bool eof() const = 0;
     virtual int read() const = 0;
     virtual int write(uint8_t) = 0;
 	virtual void flush() = 0;
@@ -77,13 +79,6 @@ public:
 	FileStream(const char* file, const char* mode = "r")
     {
         _file = fopen(file, mode);
-        if (!_file) {
-            _size = 0;
-            return;
-        }
-        fseek(_file, 0, SEEK_END);
-        _size = ftell(_file);
-        rewind(_file);
     }
     ~FileStream()
     {
@@ -97,9 +92,9 @@ public:
     {
         return _file;
     }
-	virtual int available() const override
+	virtual bool eof() const override
     {
-        return static_cast<int>(_size - ftell(_file));
+        return feof(_file) != 0;
     }
     virtual int read() const override
     {
@@ -113,33 +108,54 @@ public:
 	
 private:
     FILE* _file;
-    size_t _size;
 #else
 public:
-	FileStream(const char* file)
+    // Supported modes 
+	FileStream(const char* file, const char* mode = "r")
     {
+        _file = esp::FS::sharedFS()->open(file, mode);
     }
-	
+
+    ~FileStream()
+    {
+        if (_file) {
+            delete _file;
+        }
+    }
+    
     bool loaded()
     {
-        return true;
+        return _file && _file->valid();
     }
-	virtual int available() const override
+	virtual bool eof() const override
     {
-        return 0;
+        return !_file || _file->eof();
     }
     virtual int read() const override
     {
-        return 0;
+        if (!_file) {
+            return -1;
+        }
+        char c;
+        if (_file->read(&c, 1) != 1) {
+            return -1;
+        }
+        return c;
     }
     virtual int write(uint8_t c) override
     {
-        return 0;
+        if (!_file) {
+            return -1;
+        }
+        if (_file->write(reinterpret_cast<char*>(&c), 1) != 1) {
+            return -1;
+        }
+        return c;
     }
 	virtual void flush() override { }
 	
 private:
-
+    esp::File* _file = nullptr;
 #endif
 };
 
@@ -159,9 +175,9 @@ public:
     virtual ~StringStream() { }
 	
     bool loaded() { return true; }
-	virtual int available() const override
+	virtual bool eof() const override
     {
-        return static_cast<int>(_string.length() - _index);
+        return _string.length() <= _index;
     }
     virtual int read() const override
     {

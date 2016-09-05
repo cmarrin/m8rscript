@@ -187,6 +187,7 @@ void wifiEventHandler(System_Event_t *evt)
 
 void initializeSystem()
 {
+    system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
     
     do_global_ctors();

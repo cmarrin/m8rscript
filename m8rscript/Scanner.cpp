@@ -497,7 +497,7 @@ uint8_t Scanner::get() const
         _lastChar = C_EOF;
         return c;
     }
-    if (!_istream->available()) {
+    if (_istream->eof()) {
         return C_EOF;
     }
     uint8_t c = _istream->read();

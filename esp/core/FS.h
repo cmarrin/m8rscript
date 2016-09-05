@@ -65,16 +65,22 @@ class File {
     friend class FS;
     
 public:
+    enum class SeekWhence { Set, Cur, End };
+    
     ~File();
   
     int32_t read(char* buf, uint32_t size);
     int32_t write(const char* buf, uint32_t size);
+
+    bool seek(int32_t offset, SeekWhence whence);
+    int32_t tell() const;
+    bool eof() const;
     
     bool valid() const { return _file > 0; }
     int32_t error() const { return (_file > 0) ? SPIFFS_OK : _file; }
     
 private:
-    File(const char* name, spiffs_flags);
+    File(const char* name, const char* mode);
 
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
@@ -94,7 +100,8 @@ public:
     void unmount();
     bool format();
     
-    File* open(const char* name, spiffs_flags);
+    File* open(const char* name, const char* mode);
+    bool remove(const char* name);
 
 private:
     static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);

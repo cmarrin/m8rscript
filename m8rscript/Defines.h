@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __APPLE__
     #define ICACHE_RODATA_ATTR
-    #define STORE_ATTR
+    #define ICACHE_STORE_ATTR
     #define ICACHE_FLASH_ATTR
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }    
 #else

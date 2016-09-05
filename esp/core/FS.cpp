@@ -130,9 +130,14 @@ bool FS::format()
     return true;
 }
 
-File* FS::open(const char* name, spiffs_flags flags)
+File* FS::open(const char* name, const char* mode)
 {
-    return new File(name, flags);
+    return new File(name, mode);
+}
+
+bool FS::remove(const char* name)
+{
+    return SPIFFS_remove(&_spiffsFileSystem, name) == SPIFFS_OK;
 }
 
 int32_t FS::internalMount()
@@ -185,8 +190,34 @@ bool DirectoryEntry::next()
     return _valid;
 }
 
-File::File(const char* name, spiffs_flags flags)
+struct FileModeEntry {
+    const char* _mode;
+    spiffs_flags _flags;
+};
+
+static const FileModeEntry _fileModeMap[] = {
+    { "r",  SPIFFS_RDONLY },
+    { "r+", SPIFFS_RDWR },
+    { "w",  SPIFFS_WRONLY },
+    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
+    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
+    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
+};
+
+File::File(const char* name, const char* mode)
 {
+    spiffs_flags flags = 0;
+    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
+        if (os_strcmp(mode, _fileModeMap[i]._mode) == 0) {
+            flags = _fileModeMap[i]._flags;
+            break;
+        }
+    }
+    if (!flags) {
+        os_printf("ERROR: invalid mode '%s' for open\n", mode);
+        _file = SPIFFS_ERR_FILE_CLOSED;
+        return;
+    }
     _file = SPIFFS_open(&(FS::sharedFS()->_spiffsFileSystem), name, flags, 0);
 }
 
@@ -204,3 +235,26 @@ int32_t File::write(const char* buf, uint32_t size)
 {
     return SPIFFS_write(&(FS::sharedFS()->_spiffsFileSystem), _file, const_cast<char*>(buf), size);
 }
+
+bool File::seek(int32_t offset, SeekWhence whence)
+{
+    int whenceFlag = SPIFFS_SEEK_SET;
+    if (whence == SeekWhence::Cur) {
+        whenceFlag = SPIFFS_SEEK_CUR;
+    } else if (whence == SeekWhence::End) {
+        whenceFlag = SPIFFS_SEEK_END;
+    }
+    return SPIFFS_lseek(&(FS::sharedFS()->_spiffsFileSystem), _file, offset, whenceFlag) == SPIFFS_OK;
+}
+
+int32_t File::tell() const
+{
+    return SPIFFS_tell(&(FS::sharedFS()->_spiffsFileSystem), _file);
+}
+
+bool File::eof() const
+{
+    return SPIFFS_eof(&(FS::sharedFS()->_spiffsFileSystem), _file) > 0;
+}
+
+

@@ -41,6 +41,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 #include "FS.h"
 
+#define WRITE_SOURCE_FILE 0
+#define TEST_SOURCE_FILE 0
+
 extern "C" {
 #include <gpio.h>
 #include <user_interface.h>
@@ -53,8 +56,8 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-#define PARSE_FILE 0
-#define PARSE_STRING 1
+#define PARSE_FILE 1
+#define PARSE_STRING 0
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -92,6 +95,27 @@ void ICACHE_FLASH_ATTR executionTimerTick(void* data)
     system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(data));
 }
 
+#if WRITE_SOURCE_FILE == 1
+static const char* timingTestString = 
+"var a = [ ]; \n \
+var n = 200; \n \
+ \n \
+var startTime = Date.now(); \n \
+ \n \
+for (var i = 0; i < n; ++i) { \n \
+    for (var j = 0; j < n; ++j) { \n \
+        var f = 1.5; \n \
+        a[j] = 1.5 * j * (j + 1) / 2; \n \
+    } \n \
+} \n \
+ \n \
+var t = Date.now() - startTime; \n \
+Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
+";
+#endif
+
+static const char* timingTestName = "timing.m8r";
+
 void runScript()
 {
     initializeSystem();
@@ -103,34 +127,42 @@ void runScript()
         fs->mount();
     }
     if (fs->mounted()) {
-//        esp::File* f = fs->open("FileA", SPIFFS_CREAT | SPIFFS_WRONLY);
-//        if (!f->valid()) {
-//            os_printf("ERROR: Failed to open 'FileA' for write, error=%d\n", f->error());
-//        }
-//        if (!f->write("abc", 3)) {
-//            os_printf("ERROR: Failed to write to 'FileA', error=%d\n", f->error());
-//        }
-//        delete f;
+        int32_t result, size;
+
+#if WRITE_SOURCE_FILE == 1        
+        esp::File* f = fs->open(timingTestName, SPIFFS_CREAT | SPIFFS_WRONLY);
+        if (!f->valid()) {
+            os_printf("ERROR: Failed to open '%s' for write, error=%d\n", timingTestName, f->error());
+        } else {
+            size = strlen(timingTestString);
+            result = f->write(timingTestString, size);
+            if (result != size) {
+                os_printf("ERROR: Failed to write to '%s', error=%d\n", timingTestName, result);
+            }
+        }
+        delete f;
+#endif
+#if TEST_SOURCE_FILE == 1        
         os_printf("Files {\n");
         esp::DirectoryEntry* entry = fs->directory();
         while (entry && entry->valid()) {
-            uint32_t size = entry->size();
+            size = entry->size();
             os_printf("    '%s':%d bytes\n", entry->name(), size);
             
-            esp::File* f = fs->open("FileA", SPIFFS_RDONLY);
+            esp::File* f = fs->open(timingTestName, SPIFFS_RDONLY);
             if (!f->valid()) {
-                os_printf("ERROR: Failed to open 'FileA' for read, error=%d\n", f->error());
+                os_printf("ERROR: Failed to open '%s' for read, error=%d\n", timingTestName, f->error());
             } else {
                 char* buf = new char[size];
-                int32_t result = f->read(buf, size);
+                result = f->read(buf, size);
                 if (result != size) {
-                    os_printf("ERROR: Failed to read from 'FileA', error=%d\n", result);
+                    os_printf("ERROR: Failed to read from '%s', error=%d\n", timingTestName, result);
                 } else {
-                    os_printf("        bytes:");
-                    for (int i = 0; i < size; ++i) {
-                        os_printf("0x%02x ", buf[i]);
-                    }
-                    os_printf("\n");
+//                    os_printf("        bytes:");
+//                    for (int i = 0; i < size; ++i) {
+//                        os_printf("0x%02x ", buf[i]);
+//                    }
+//                    os_printf("\n");
                 }
                 delete buf;
             }
@@ -143,11 +175,10 @@ void runScript()
         if (entry) {
             delete entry;
         }
+#endif
     }
     
     MySystemInterface* systemInterface = new MySystemInterface();
-
-    const char* filename = "simple.m8r";
 
     os_printf("\n*** m8rscript v0.1\n\n");
 
@@ -156,8 +187,8 @@ void runScript()
     m8r::Program* program = nullptr;
     
 #if PARSE_FILE
-    os_printf("Opening '%s'\n", filename);
-    m8r::FileStream istream(filename);
+    os_printf("Opening '%s'\n", timingTestName);
+    m8r::FileStream istream(timingTestName);
     if (!istream.loaded()) {
         os_printf("File not found, exiting\n");
         abort();
