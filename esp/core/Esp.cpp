@@ -43,6 +43,7 @@ static os_timer_t startupTimer;
 static os_timer_t micros_overflow_timer;
 static uint32_t micros_at_last_overflow_tick = 0;
 static uint32_t micros_overflow_count = 0;
+static void (*_initializedCB)();
 
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
     s_panic_file = file;
@@ -179,6 +180,9 @@ void wifiEventHandler(System_Event_t *evt)
             break;
         case EVENT_STAMODE_GOT_IP:
             initmdns("m8rscript", STATION_IF);
+            if (_initializedCB) {
+                _initializedCB();
+            }
             break;
         }
         default:
@@ -190,7 +194,6 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 
 void initNetwork()
 {
-os_printf("******** enter initNetwork\n");
     // Set DHCP Name
     uint8_t hwaddr[6] = { 0 };
 	wifi_get_macaddr(STATION_IF, hwaddr);
@@ -213,12 +216,9 @@ os_printf("******** enter initNetwork\n");
     wifi_set_event_handler_cb(wifiEventHandler);
 }
 
-void startupTimerFired(void* arg)
+void startupTimerFired()
 {
     initNetwork();
-    if (arg) {
-        reinterpret_cast<void (*)()>(arg)();
-    }
 }
 
 void initDone()
@@ -228,6 +228,7 @@ void initDone()
 
 void initializeSystem(void (*initializedCB)())
 {
+    _initializedCB = initializedCB;
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
     do_global_ctors();
@@ -237,7 +238,7 @@ void initializeSystem(void (*initializedCB)())
     os_timer_arm(&micros_overflow_timer, 60000, true);
     
     os_timer_disarm(&startupTimer);
-    os_timer_setfn(&startupTimer, (os_timer_func_t*) &startupTimerFired, reinterpret_cast<void*>(initializedCB));
+    os_timer_setfn(&startupTimer, (os_timer_func_t*) &startupTimerFired, nullptr);
     os_timer_arm(&startupTimer, 2000, false);
     
     system_init_done_cb(initDone);
