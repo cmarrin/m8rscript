@@ -171,14 +171,13 @@ uint16_t flashmem_get_size_sectors()
 // Return the sector number, as well as the start and end address of the sector
 uint32_t flashmem_find_sector( uint32_t address, uint32_t *pstart, uint32_t *pend )
 {
-  address -= INTERNAL_FLASH_START_ADDRESS;
   // All the sectors in the flash have the same size, so just align the address
   uint32_t sect_id = address / INTERNAL_FLASH_SECTOR_SIZE;
 
   if( pstart )
-    *pstart = sect_id * INTERNAL_FLASH_SECTOR_SIZE + INTERNAL_FLASH_START_ADDRESS;
+    *pstart = sect_id * INTERNAL_FLASH_SECTOR_SIZE;
   if( pend )
-    *pend = ( sect_id + 1 ) * INTERNAL_FLASH_SECTOR_SIZE + INTERNAL_FLASH_START_ADDRESS - 1;
+    *pend = ( sect_id + 1 ) * INTERNAL_FLASH_SECTOR_SIZE - 1;
   return sect_id;
 }
 
@@ -191,7 +190,6 @@ uint32_t flashmem_get_sector_of_address( uint32_t addr )
 
 uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t size )
 {
-  toaddr -= INTERNAL_FLASH_START_ADDRESS;
   SpiFlashOpResult r;
   const uint32_t blkmask = INTERNAL_FLASH_WRITE_UNIT_SIZE - 1;
   uint32_t *apbuf = NULL;
@@ -208,7 +206,7 @@ uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t si
   if(SPI_FLASH_RESULT_OK == r)
     return size;
   else{
-	SYSTEM_ERROR( "ERROR in flash_write: r=%d at %08X\n", ( int )r, ( unsigned )toaddr+INTERNAL_FLASH_START_ADDRESS );
+	SYSTEM_ERROR( "ERROR in flash_write: r=%d at %08X\n", ( int )r, ( unsigned )toaddr );
     return 0;
   }
 }
@@ -216,14 +214,13 @@ uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t si
 uint32_t flashmem_read_internal( void *to, uint32_t fromaddr, uint32_t size )
 {
   assert(size);
-  //fromaddr -= INTERNAL_FLASH_START_ADDRESS;
   SpiFlashOpResult r;
   WRITE_PERI_REG(0x60000914, 0x73);
   r = spi_flash_read(fromaddr, (uint32 *)to, size);
   if(SPI_FLASH_RESULT_OK == r)
     return size;
   else{
-	SYSTEM_ERROR( "ERROR in flash_read: r=%d at %08X, size=%d\n", ( int )r, ( unsigned )fromaddr/*+INTERNAL_FLASH_START_ADDRESS*/, size );
+	SYSTEM_ERROR( "ERROR in flash_read: r=%d at %08X, size=%d\n", ( int )r, ( unsigned )fromaddr, size );
     return 0;
   }
 }

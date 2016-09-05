@@ -51,36 +51,14 @@ FS* FS::sharedFS()
 
 FS::FS()
 {
+    memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));
     _spiffsWorkBuf = new uint8_t[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
     assert(_spiffsWorkBuf);
 
+    memset(&_config, 0, sizeof(_config));
     _config.hal_read_f = spiffsRead;
     _config.hal_write_f = spiffsWrite;
     _config.hal_erase_f = spiffsErase;
-
-    os_printf("Mounting SPIFFS...\n");
-    int32_t result = SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
-                 _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
-    if (result != SPIFFS_OK) {
-        if (result == SPIFFS_ERR_NOT_A_FS) {
-            os_printf("ERROR: Not a valid SPIFFS filesystem. Please format.\n");
-        } else {
-            os_printf("ERROR: SPIFFS mount failed, error=%d\n", result);
-        }
-        return;
-    }
-    if (!SPIFFS_mounted(&_spiffsFileSystem)) {
-        os_printf("ERROR: SPIFFS filesystem failed to mount\n");
-        return;
-    }
-
-    os_printf("Checking file system...\n");
-    result = SPIFFS_check(&_spiffsFileSystem);
-    if (result != SPIFFS_OK) {
-        os_printf("ERROR: Consistency check failed during SPIFFS mount, error=%d\n", result);
-    } else {
-        os_printf("SPIFFS mounted successfully\n");
-    }
 }
 
 FS::~FS()
@@ -91,15 +69,76 @@ FS::~FS()
 
 DirectoryEntry* FS::directory()
 {
-    if (!SPIFFS_mounted(&_spiffsFileSystem)) {
+    if (!mounted()) {
         return nullptr;
     }
     return new DirectoryEntry(&_spiffsFileSystem);
 }
 
-void FS::format()
+bool FS::mount()
 {
-    SPIFFS_format(&_spiffsFileSystem);
+    os_printf("Mounting SPIFFS...\n");
+    int32_t result = internalMount();
+    if (result != SPIFFS_OK) {
+        if (result == SPIFFS_ERR_NOT_A_FS) {
+            os_printf("ERROR: Not a valid SPIFFS filesystem. Please format.\n");
+        } else {
+            os_printf("ERROR: SPIFFS mount failed, error=%d\n", result);
+        }
+        return false;
+    }
+    if (!mounted()) {
+        os_printf("ERROR: SPIFFS filesystem failed to mount\n");
+        return false;
+    }
+
+    os_printf("Checking file system...\n");
+    result = SPIFFS_check(&_spiffsFileSystem);
+    if (result != SPIFFS_OK) {
+        os_printf("ERROR: Consistency check failed during SPIFFS mount, error=%d\n", result);
+        return false;
+    } else {
+        os_printf("SPIFFS mounted successfully\n");
+    }
+    return true;
+}
+
+bool FS::mounted() const
+{
+    return SPIFFS_mounted(const_cast<spiffs_t*>(&_spiffsFileSystem));
+}
+
+void FS::unmount()
+{
+    if (mounted()) {
+        SPIFFS_unmount(&_spiffsFileSystem);
+    }
+}
+
+bool FS::format()
+{
+    if (!mounted()) {
+        internalMount();
+    }
+    unmount();
+    
+    int32_t result = SPIFFS_format(&_spiffsFileSystem);
+    if (result != SPIFFS_OK) {
+        os_printf("ERROR: SPIFFS format failed, error=%d\n", result);
+        return false;
+    }
+    return true;
+}
+
+File* FS::open(const char* name, spiffs_flags flags)
+{
+    return new File(name, flags);
+}
+
+int32_t FS::internalMount()
+{
+    return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
+                        _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
 }
 
 int32_t FS::spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst)
@@ -144,4 +183,24 @@ bool DirectoryEntry::next()
         _size = entry.size;
     }
     return _valid;
+}
+
+File::File(const char* name, spiffs_flags flags)
+{
+    _file = SPIFFS_open(&(FS::sharedFS()->_spiffsFileSystem), name, flags, 0);
+}
+
+File::~File()
+{
+    SPIFFS_close(&(FS::sharedFS()->_spiffsFileSystem), _file);
+}
+  
+int32_t File::read(char* buf, uint32_t size)
+{
+    return SPIFFS_read(&(FS::sharedFS()->_spiffsFileSystem), _file, buf, size);
+}
+
+int32_t File::write(const char* buf, uint32_t size)
+{
+    return SPIFFS_write(&(FS::sharedFS()->_spiffsFileSystem), _file, const_cast<char*>(buf), size);
 }

@@ -478,7 +478,7 @@ s32_t spiffs_lookup_consistency_check(spiffs *fs, u8_t check_all_objects) {
 
   CHECK_CB(fs, SPIFFS_CHECK_LOOKUP, SPIFFS_CHECK_PROGRESS, 0, 0);
 
-  res = spiffs_obj_lu_find_entry_visitor(fs, 0, 0, 0, 0, spiffs_lookup_check_v, 0, 0, 0, 0);
+  res = SPIFFS_VIS_END; //spiffs_obj_lu_find_entry_visitor(fs, 0, 0, 0, 0, spiffs_lookup_check_v, 0, 0, 0, 0);
 
   if (res == SPIFFS_VIS_END) {
     res = SPIFFS_OK;

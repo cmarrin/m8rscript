@@ -29,22 +29,29 @@ typedef unsigned char u8_t;
 #endif /* __ets__ */
 
 // compile time switches
+#define DEBUG_SPIFFS 0
+
+#if DEBUG_SPIFFS == 1
+#define SPIFFS_DEBUG_PRINTF os_printf(__VA_ARGS__)
+#else
+#define SPIFFS_DEBUG_PRINTF
+#endif
 
 // Set generic spiffs debug output call.
 #ifndef SPIFFS_DBG
-#define SPIFFS_DBG(...) os_printf(__VA_ARGS__)
+#define SPIFFS_DBG(...) SPIFFS_DEBUG_PRINTF
 #endif
 // Set spiffs debug output call for garbage collecting.
 #ifndef SPIFFS_GC_DBG
-#define SPIFFS_GC_DBG(...) os_printf(__VA_ARGS__)
+#define SPIFFS_GC_DBG(...) SPIFFS_DEBUG_PRINTF
 #endif
 // Set spiffs debug output call for caching.
 #ifndef SPIFFS_CACHE_DBG
-#define SPIFFS_CACHE_DBG(...) os_printf(__VA_ARGS__)
+#define SPIFFS_CACHE_DBG(...) SPIFFS_DEBUG_PRINTF
 #endif
 // Set spiffs debug output call for system consistency checks.
 #ifndef SPIFFS_CHECK_DBG
-#define SPIFFS_CHECK_DBG(...) os_printf(__VA_ARGS__)
+#define SPIFFS_CHECK_DBG(...) SPIFFS_DEBUG_PRINTF
 #endif
 
 // Enable/disable API functions to determine exact number of bytes
@@ -280,7 +287,7 @@ extern uint32_t _SPIFFS_block;
 #endif
 #if SPIFFS_TEST_VISUALISATION
 #ifndef spiffs_printf
-#define spiffs_printf(...)                os_printf(__VA_ARGS__)
+#define spiffs_printf(...) os_printf(__VA_ARGS__)
 #endif
 // spiffs_printf argument for a free page
 #ifndef SPIFFS_TEST_VIS_FREE_STR

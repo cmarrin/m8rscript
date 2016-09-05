@@ -61,7 +61,27 @@ private:
     uint32_t _size = 0;
 };
 
+class File {
+    friend class FS;
+    
+public:
+    ~File();
+  
+    int32_t read(char* buf, uint32_t size);
+    int32_t write(const char* buf, uint32_t size);
+    
+    bool valid() const { return _file > 0; }
+    int32_t error() const { return (_file > 0) ? SPIFFS_OK : _file; }
+    
+private:
+    File(const char* name, spiffs_flags);
+
+    spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
+};
+
 class FS {
+    friend class File;
+    
 public:
     FS();
     ~FS();
@@ -69,12 +89,19 @@ public:
     static FS* sharedFS();
     
     DirectoryEntry* directory();
-    void format();
+    bool mount();
+    bool mounted() const;
+    void unmount();
+    bool format();
+    
+    File* open(const char* name, spiffs_flags);
 
 private:
     static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);
     static int32_t spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src);
     static int32_t spiffsErase(uint32_t addr, uint32_t size);
+    
+    int32_t internalMount();
 
     static FS* _sharedFS;
     

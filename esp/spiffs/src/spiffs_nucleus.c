@@ -183,6 +183,7 @@ s32_t spiffs_obj_lu_find_entry_visitor(
                 user_var_p);
             if (res == SPIFFS_VIS_COUNTINUE || res == SPIFFS_VIS_COUNTINUE_RELOAD) {
               if (res == SPIFFS_VIS_COUNTINUE_RELOAD) {
+os_printf("******** before spiffs_rd: cur_block_addr=0x%08x, addr used=0x%08x\n", cur_block_addr, cur_block_addr + SPIFFS_PAGE_TO_PADDR(fs, obj_lookup_page));
                 res = _spiffs_rd(fs, SPIFFS_OP_T_OBJ_LU | SPIFFS_OP_C_READ,
                     0, cur_block_addr + SPIFFS_PAGE_TO_PADDR(fs, obj_lookup_page), SPIFFS_CFG_LOG_PAGE_SZ(fs), fs->lu_work);
                 SPIFFS_CHECK_RES(res);
@@ -233,7 +234,8 @@ s32_t spiffs_erase_block(
   // here we ignore res, just try erasing the block
   while (size > 0) {
     SPIFFS_DBG("erase %08x:%08x\n", addr,  SPIFFS_CFG_PHYS_ERASE_SZ(fs));
-    SPIFFS_HAL_ERASE(fs, addr, SPIFFS_CFG_PHYS_ERASE_SZ(fs));
+    res = SPIFFS_HAL_ERASE(fs, addr, SPIFFS_CFG_PHYS_ERASE_SZ(fs));
+    SPIFFS_CHECK_RES(res);
 
     addr += SPIFFS_CFG_PHYS_ERASE_SZ(fs);
     size -= SPIFFS_CFG_PHYS_ERASE_SZ(fs);

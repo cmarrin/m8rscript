@@ -96,18 +96,54 @@ void runScript()
 {
     initializeSystem();
 
-
-esp::FS* fs = esp::FS::sharedFS();
-os_printf("Files {\n");
-esp::DirectoryEntry* entry = fs->directory();
-while (entry && entry->valid()) {
-    os_printf("    '%s':%d bytes\n", entry->name(), entry->size());
-    entry->next();
-}
-os_printf("}\n");
-if (entry) {
-    delete entry;
-}
+    esp::FS* fs = esp::FS::sharedFS();
+    if (!fs->mount()) {
+        os_printf("ERROR: Mount failed, trying to format.\n");
+        fs->format();
+        fs->mount();
+    }
+    if (fs->mounted()) {
+//        esp::File* f = fs->open("FileA", SPIFFS_CREAT | SPIFFS_WRONLY);
+//        if (!f->valid()) {
+//            os_printf("ERROR: Failed to open 'FileA' for write, error=%d\n", f->error());
+//        }
+//        if (!f->write("abc", 3)) {
+//            os_printf("ERROR: Failed to write to 'FileA', error=%d\n", f->error());
+//        }
+//        delete f;
+        os_printf("Files {\n");
+        esp::DirectoryEntry* entry = fs->directory();
+        while (entry && entry->valid()) {
+            uint32_t size = entry->size();
+            os_printf("    '%s':%d bytes\n", entry->name(), size);
+            
+            esp::File* f = fs->open("FileA", SPIFFS_RDONLY);
+            if (!f->valid()) {
+                os_printf("ERROR: Failed to open 'FileA' for read, error=%d\n", f->error());
+            } else {
+                char* buf = new char[size];
+                int32_t result = f->read(buf, size);
+                if (result != size) {
+                    os_printf("ERROR: Failed to read from 'FileA', error=%d\n", result);
+                } else {
+                    os_printf("        bytes:");
+                    for (int i = 0; i < size; ++i) {
+                        os_printf("0x%02x ", buf[i]);
+                    }
+                    os_printf("\n");
+                }
+                delete buf;
+            }
+            
+            delete f;
+      
+            entry->next();
+        }
+        os_printf("}\n");
+        if (entry) {
+            delete entry;
+        }
+    }
     
     MySystemInterface* systemInterface = new MySystemInterface();
 

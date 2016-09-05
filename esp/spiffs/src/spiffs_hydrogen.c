@@ -983,7 +983,7 @@ s32_t SPIFFS_check(spiffs *fs) {
 
   res = spiffs_object_index_consistency_check(fs);
 
-  res = spiffs_page_consistency_check(fs);
+  //res = spiffs_page_consistency_check(fs);
 
   res = spiffs_obj_lu_scan(fs);
 

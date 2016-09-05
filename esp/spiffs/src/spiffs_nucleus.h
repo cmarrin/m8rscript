@@ -462,6 +462,7 @@ typedef struct __attribute(( packed )) {
   spiffs_span_ix span_ix;
   // flags
   u8_t flags;
+  u8_t dummy[3];
 } spiffs_page_header;
 
 // object index header page header
