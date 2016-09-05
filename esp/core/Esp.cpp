@@ -39,6 +39,7 @@ static const char* s_panic_file = 0;
 static int s_panic_line = 0;
 static const char* s_panic_func = 0;
 
+static os_timer_t startupTimer;
 static os_timer_t micros_overflow_timer;
 static uint32_t micros_at_last_overflow_tick = 0;
 static uint32_t micros_overflow_count = 0;
@@ -185,52 +186,61 @@ void wifiEventHandler(System_Event_t *evt)
     }
 }
 
-void initializeSystem()
-{
-    system_update_cpu_freq(160);
-    uart_div_modify(0, UART_CLK_FREQ /115200);
-    
-    do_global_ctors();
+static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A') : (b + '0'); }
 
+void initNetwork()
+{
+os_printf("******** enter initNetwork\n");
     // Set DHCP Name
     uint8_t hwaddr[6] = { 0 };
 	wifi_get_macaddr(STATION_IF, hwaddr);
     char hostname[8];
-    static const char* hex = "0123456789ABCDEF";
     hostname[0] = 'E';
     hostname[1] = 'S';
     hostname[2] = 'P';
-    hostname[3] = hex[hwaddr[4] >> 4];
-    hostname[4] = hex[hwaddr[4] && 0x0f];
-    hostname[5] = hex[hwaddr[5] >> 4];
-    hostname[6] = hex[hwaddr[5] && 0x0f];
+    hostname[3] = nibbleToHexChar(hwaddr[4] >> 4);
+    hostname[4] = nibbleToHexChar(hwaddr[4] && 0x0f);
+    hostname[5] = nibbleToHexChar(hwaddr[5] >> 4);
+    hostname[6] = nibbleToHexChar(hwaddr[5] && 0x0f);
     hostname[7] = '\0';
+    os_printf("setting DHCP name to '%s'\n", hostname);
     wifi_station_set_hostname(hostname);
-
-    //initSoftAP();
-    
-    //setIP(192, 168, 22, 1, SOFTAP_IF);
-
-//    struct dhcps_lease dhcp_lease;
-//    IP4_ADDR(&dhcp_lease.start_ip, 192, 168, 22, 2);
-//    IP4_ADDR(&dhcp_lease.end_ip, 192, 168, 22, 5);
-//    wifi_softap_set_dhcps_lease(&dhcp_lease);
-//
-//    wifi_softap_dhcps_start();
-    
-    //initmdns("m8rscript", SOFTAP_IF);
     
     gNumWifiTries = 0;
 
     wifi_softap_dhcps_stop();
     wifi_set_opmode(STATION_MODE);
     wifi_set_event_handler_cb(wifiEventHandler);
+}
+
+void startupTimerFired(void* arg)
+{
+    initNetwork();
+    if (arg) {
+        reinterpret_cast<void (*)()>(arg)();
+    }
+}
+
+void initDone()
+{
+    os_timer_arm(&startupTimer, 2000, false);
+}
+
+void initializeSystem(void (*initializedCB)())
+{
+    system_update_cpu_freq(160);
+    uart_div_modify(0, UART_CLK_FREQ /115200);
+    do_global_ctors();
 
     os_timer_disarm(&micros_overflow_timer);
-    os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, 0);
-    os_timer_arm(&micros_overflow_timer, 60000, 1 /* REPEAT */);
-
-    //spiffs_mount();
+    os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, nullptr);
+    os_timer_arm(&micros_overflow_timer, 60000, true);
+    
+    os_timer_disarm(&startupTimer);
+    os_timer_setfn(&startupTimer, (os_timer_func_t*) &startupTimerFired, reinterpret_cast<void*>(initializedCB));
+    os_timer_arm(&startupTimer, 2000, false);
+    
+    system_init_done_cb(initDone);
 }
 
 uint64_t currentMicroseconds()
@@ -239,7 +249,6 @@ uint64_t currentMicroseconds()
     uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
     return (c << 32) + m;
 }
-
 
 void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {

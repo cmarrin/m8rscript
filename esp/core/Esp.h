@@ -33,7 +33,7 @@ extern "C" {
 #include <ets_sys.h>
 #include <assert.h>
 
-void initializeSystem();
+void initializeSystem(void (*)());
 uint64_t currentMicroseconds();
 static inline int readSerialChar() { return 0; }
 

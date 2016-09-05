@@ -118,8 +118,6 @@ static const char* timingTestName = "timing.m8r";
 
 void runScript()
 {
-    initializeSystem();
-
     esp::FS* fs = esp::FS::sharedFS();
     if (!fs->mount()) {
         os_printf("ERROR: Mount failed, trying to format.\n");
@@ -249,24 +247,6 @@ static volatile os_timer_t gBlinkTimer;
 
 void blinkTimerfunc(void *)
 {
-    static int holdoff = 2;
-
-    if (holdoff != 0) {
-        if (--holdoff == 0) {
-//            struct softap_config config;
-//            if (wifi_softap_get_config_default(&config)) {
-//                os_printf("wifi_softap_get_config:\n");
-//                os_printf("    ssid = %s\n", config.ssid);
-//                os_printf("    password = %s\n", config.password);
-//                os_printf("    channel = %d\n", config.channel);
-//            } else {
-//                os_printf("wifi_softap_get_config FAILED\n");
-//            }
-            
-            runScript();
-        }
-    }
-
     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
     {
         gpio_output_set(0, BIT2, BIT2, 0);
@@ -275,9 +255,14 @@ void blinkTimerfunc(void *)
     }
 }
 
-void initDone()
+void systemInitialized()
 {
-    initializeSystem();
+    runScript();
+}
+
+extern "C" void ICACHE_FLASH_ATTR user_init()
+{
+    initializeSystem(systemInitialized);
     
     // init gpio subsystem
     gpio_init();
@@ -290,13 +275,4 @@ void initDone()
     os_timer_arm((os_timer_t*) &gBlinkTimer, 1000, 1);
 
     system_os_task(executionTask, ExecutionTaskPrio, gExecutionTaskQueue, ExecutionTaskQueueLen);
-}
-
-#ifdef USE_SMING
-void ICACHE_FLASH_ATTR maininit()
-#else
-extern "C" void ICACHE_FLASH_ATTR user_init()
-#endif
-{
-    system_init_done_cb(initDone);
 }
