@@ -92,120 +92,6 @@ typedef Id<uint32_t> StringLiteral;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Class: String
-//
-//  Wrapper String class that works on both Mac and ESP
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class String {
-public:
-	String() : _size(1), _capacity(0), _data(nullptr) { }
-	String(const char* s, int32_t len = -1) : _size(1), _capacity(0), _data(nullptr)
-    {
-        if (len == -1) {
-            len = static_cast<int32_t>(strlen(s));
-        }
-        ensureCapacity(len + 1);
-        memcpy(_data, s, len);
-        _size = len + 1;
-        _data[_size - 1] = '\0';
-    }
-    
-    String(const String& other) : _data(nullptr)
-    {
-        *this = other;
-    };
-    
-    ~String() { free(_data); };
-
-    String& operator=(const String& other)
-    {
-        if (_data) {
-            free(_data);
-        }
-        _size = other._size;
-        _capacity = other._capacity;
-        if (!other._data) {
-            _data = nullptr;
-            return *this;
-        }
-        
-        _data = static_cast<char *>(malloc(_capacity));
-        assert(_data);
-        if (_data) {
-            memcpy(_data, other._data, _size);
-        } else {
-            _capacity = 0;
-            _size = 1;
-        }
-        return *this;
-    }
-    
-    const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
-    char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
-	size_t length() const { return _size ? (_size - 1) : 0; }
-	String& operator+=(uint8_t c)
-    {
-        ensureCapacity(_size + 1);
-        _data[_size - 1] = c;
-        _data[_size++] = '\0';
-        return *this;
-    }
-    
-	String& operator+=(const char* s)
-    {
-        size_t len = strlen(s);
-        ensureCapacity(_size + len);
-        memcpy(_data + _size - 1, s, len + 1);
-        _size += len;
-        return *this;
-    }
-    
-    String& operator+=(const String& s) { return *this += s.c_str(); }
-    
-    bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
-
-    const char* c_str() const { return _data ? _data : ""; }
-    void erase()
-    {
-        _size = 1;
-        if (_data) {
-            _data[0] = '\0';
-        }
-    }
-	
-private:
-    void ensureCapacity(size_t size)
-    {
-        if (_capacity >= size) {
-            return;
-        }
-        _capacity = _capacity ? _capacity * 2 : 1;
-        if (_capacity < size) {
-            _capacity = size;
-        }
-        char *newData = static_cast<char *>(malloc(_capacity));
-        assert(newData);
-        if (_data) {
-            if (newData) {
-                memcpy(newData, _data, _size);
-            } else {
-                _capacity = 0;
-                _size = 1;
-            }
-            free(_data);
-        }
-        _data = newData;
-    };
-
-    size_t _size;
-    size_t _capacity;
-    char *_data;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
 //  Class: Vector
 //
 //  Wrapper Vector class that works on both Mac and ESP
@@ -304,6 +190,147 @@ private:
     size_t _size;
     size_t _capacity;
     type *_data;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: String
+//
+//  Wrapper String class that works on both Mac and ESP
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class String {
+public:
+	String() : _size(1), _capacity(0), _data(nullptr) { }
+	String(const char* s, int32_t len = -1) : _size(1), _capacity(0), _data(nullptr)
+    {
+        if (len == -1) {
+            len = static_cast<int32_t>(strlen(s));
+        }
+        ensureCapacity(len + 1);
+        memcpy(_data, s, len);
+        _size = len + 1;
+        _data[_size - 1] = '\0';
+    }
+    
+    String(const String& other) : _data(nullptr)
+    {
+        *this = other;
+    };
+    
+    ~String() { free(_data); };
+
+    String& operator=(const String& other)
+    {
+        if (_data) {
+            free(_data);
+        }
+        _size = other._size;
+        _capacity = other._capacity;
+        if (!other._data) {
+            _data = nullptr;
+            return *this;
+        }
+        
+        _data = static_cast<char *>(malloc(_capacity));
+        assert(_data);
+        if (_data) {
+            memcpy(_data, other._data, _size);
+        } else {
+            _capacity = 0;
+            _size = 1;
+        }
+        return *this;
+    }
+    
+    const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
+    char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
+	size_t length() const { return _size ? (_size - 1) : 0; }
+	String& operator+=(uint8_t c)
+    {
+        ensureCapacity(_size + 1);
+        _data[_size - 1] = c;
+        _data[_size++] = '\0';
+        return *this;
+    }
+    
+	String& operator+=(const char* s)
+    {
+        size_t len = strlen(s);
+        ensureCapacity(_size + len);
+        memcpy(_data + _size - 1, s, len + 1);
+        _size += len;
+        return *this;
+    }
+    
+    String& operator+=(const String& s) { return *this += s.c_str(); }
+    
+    friend String operator +(const String& s1 , const String& s2) { String s = s1; s += s2; return s; }
+    friend String operator +(const String& s1 , const char* s2) { String s = s1; s += s2; return s; }
+    friend String operator +(const char* s1 , const String& s2) { String s = s1; s += s2; return s; }
+    
+    bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
+
+    const char* c_str() const { return _data ? _data : ""; }
+    void erase()
+    {
+        _size = 1;
+        if (_data) {
+            _data[0] = '\0';
+        }
+    }
+    
+    String slice(int32_t start, int32_t end)
+    {
+        // FIXME: deal with negative start and end
+        // FIXME: deal with end before start
+        // FIXME: do range checking
+        return String(_data + start, end - start);
+    }
+    
+    // If skipEmpty is true, substrings of zero length are not added to the array
+    Vector<String> split(const String& separator, bool skipEmpty = false)
+    {
+        Vector<String> array;
+        char* p = _data;
+        while (p && *p != '\0') {
+            char* n = strstr(p, separator.c_str());
+            if (!n || n - p != 0 || !skipEmpty) {
+                array.push_back(String(p, n ? (n - p) : 0));
+            }
+            p = n + separator.length();
+        }
+        return array;
+    }
+	
+private:
+    void ensureCapacity(size_t size)
+    {
+        if (_capacity >= size) {
+            return;
+        }
+        _capacity = _capacity ? _capacity * 2 : 1;
+        if (_capacity < size) {
+            _capacity = size;
+        }
+        char *newData = static_cast<char *>(malloc(_capacity));
+        assert(newData);
+        if (_data) {
+            if (newData) {
+                memcpy(newData, _data, _size);
+            } else {
+                _capacity = 0;
+                _size = 1;
+            }
+            free(_data);
+        }
+        _data = newData;
+    };
+
+    size_t _size;
+    size_t _capacity;
+    char *_data;
 };
 
 //////////////////////////////////////////////////////////////////////////////
