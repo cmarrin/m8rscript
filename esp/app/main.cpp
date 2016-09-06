@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "FS.h"
+#include "TCP.h"
 
 #define WRITE_SOURCE_FILE 0
 #define TEST_SOURCE_FILE 0
@@ -255,8 +256,36 @@ void blinkTimerfunc(void *)
     }
 }
 
+static esp::TCP* _tcp = nullptr;
+
+class MyTCP : public esp::TCP {
+public:
+    MyTCP(uint16_t port) : esp::TCP(port) { }
+    
+    virtual void connected() override;
+    
+    virtual void disconnected() override
+    {
+    }
+    
+    virtual void receivedData(const char* data, uint16_t length) override;
+};
+
+void MyTCP::connected()
+{
+    send("\nWelcome to m8rscript\n\n> ");
+}
+
+void MyTCP::receivedData(const char* data, uint16_t length)
+{
+    m8r::String s = m8r::String("You typed '") + data + "'\n";
+    send(s.c_str());
+}
+
+
 void systemInitialized()
 {
+    _tcp = new MyTCP(22);
     runScript();
 }
 
