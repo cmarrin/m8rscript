@@ -40,11 +40,15 @@ using namespace m8r;
 Atom AtomTable::atomizeString(const char* s)
 {
     size_t len = strlen(s);
-    if (len > MaxAtomSize) {
+    if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
     
-    if (_table.size() > 0) {
+    if (_table.size() == 0) {
+        _table.push_back('\0');
+    }
+    
+    if (_table.size() > 1) {
         const char* start = reinterpret_cast<const char*>(&(_table[0]));
         const char* p = start;
         while(p && *p != '\0') {
@@ -60,10 +64,11 @@ Atom AtomTable::atomizeString(const char* s)
         }
     }
     
-    Atom a(_table.size());
-    _table.push_back(-static_cast<int8_t>(len));
+    Atom a(_table.size() - 1);
+    _table[_table.size() - 1] = -static_cast<int8_t>(len);
     for (size_t i = 0; i < len; ++i) {
         _table.push_back(s[i]);
     }
+    _table.push_back('\0');
     return a;
 }
