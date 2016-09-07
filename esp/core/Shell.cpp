@@ -45,7 +45,7 @@ void Shell::connected()
 
 bool Shell::received(const char* data, uint16_t size)
 {
-    m8r::Vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
+    std::vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
     return executeCommand(array);
 }
 
@@ -80,7 +80,7 @@ void Shell::sendComplete()
     }
 }
 
-bool Shell::executeCommand(const m8r::Vector<m8r::String>& array)
+bool Shell::executeCommand(const std::vector<m8r::String>& array)
 {
     if (array.size() == 0) {
         return true;

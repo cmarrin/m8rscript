@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-typedef Vector<uint8_t> Code;
+typedef std::vector<uint8_t> Code;
 
 class Error;
 class ExecutionUnit;
@@ -50,7 +50,7 @@ class Stream;
 
 class Object {
 public:
-    typedef Vector<Value::Map::Pair> Properties;
+    typedef std::vector<Value::Map::Pair> Properties;
 
     virtual ~Object() { }
     

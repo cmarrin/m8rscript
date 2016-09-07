@@ -50,7 +50,7 @@ Program::~Program()
 bool Program::serialize(Stream* stream, Error& error) const
 {
     // Write the atom table
-    const Vector<int8_t>& atomTableString = _atomTable.stringTable();
+    const std::vector<int8_t>& atomTableString = _atomTable.stringTable();
     if (!serializeBuffer(stream, error, ObjectDataType::AtomTable, reinterpret_cast<const uint8_t*>(&(atomTableString[0])), atomTableString.size())) {
         return false;
     }
@@ -97,7 +97,7 @@ bool Program::serialize(Stream* stream, Error& error) const
 bool Program::deserialize(Stream* stream, Error& error)
 {
     // Read the atom table
-    Vector<int8_t>& atomTableString = _atomTable.stringTable();
+    std::vector<int8_t>& atomTableString = _atomTable.stringTable();
     atomTableString.clear();
 
     uint16_t size;

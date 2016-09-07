@@ -65,14 +65,14 @@ public:
         return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    const Vector<int8_t>& stringTable() const { return _table; }
+    const std::vector<int8_t>& stringTable() const { return _table; }
 
 private:
-    Vector<int8_t>& stringTable() { return _table; }
+    std::vector<int8_t>& stringTable() { return _table; }
 
     static constexpr uint8_t MaxAtomSize = 127;
 
-    Vector<int8_t> _table;
+    std::vector<int8_t> _table;
 };
 
 }

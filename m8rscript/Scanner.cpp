@@ -76,18 +76,6 @@ static Keyword keywords[] = {
 	{ "while",		Token::While },
 };
 
-static inline bool isDigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
-static inline bool isOctal(uint8_t c)       { return c >= '0' && c <= '7'; }
-static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
-static inline bool isUCHex(uint8_t c)       { return c >= 'A' && c <= 'F'; }
-static inline bool isHex(uint8_t c)         { return isUCHex(c) || isLCHex(c); }
-static inline bool isUpper(uint8_t c)		{ return (c >= 'A' && c <= 'Z'); }
-static inline bool isLower(uint8_t c)		{ return (c >= 'a' && c <= 'z'); }
-static inline bool isLetter(uint8_t c)		{ return isUpper(c) || isLower(c); }
-static inline bool isIdFirst(uint8_t c)		{ return isLetter(c) || c == '$' || c == '_'; }
-static inline bool isIdOther(uint8_t c)		{ return isDigit(c) || isIdFirst(c); }
-static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
-
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
 {

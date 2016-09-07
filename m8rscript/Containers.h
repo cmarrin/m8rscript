@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <vector>
 #include "Defines.h"
 
 namespace m8r {
@@ -90,108 +91,6 @@ private:
 };
 
 typedef Id<uint32_t> StringLiteral;
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: Vector
-//
-//  Wrapper Vector class that works on both Mac and ESP
-//
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename type>
-class Vector {
-public:
-    Vector() : _size(0), _capacity(0), _data(nullptr) { }
-    Vector(Vector const &other) : _data(nullptr)
-    {
-        *this = other;
-    };
-    
-    ~Vector() { free(_data); };
-    
-    Vector &operator=(Vector const &other)
-    {
-        if (_data) {
-            free(_data);
-        }
-        _size = other._size;
-        _capacity = other._capacity;
-        _data = static_cast<type *>(malloc(_capacity*sizeof(type)));
-        assert(_data);
-        if (_data) {
-            memcpy(_data, other._data, _size * sizeof(type));
-        } else {
-            _capacity = 0;
-            _size = 0;
-        }
-        return *this;
-    };
-
-    void push_back(type const &x)
-    {
-        ensureCapacity(_size + 1);
-        _data[_size++] = x;
-    };
-    
-    void pop_back() { _size--; }
-    
-    bool empty() const { return !_size; }
-    void clear() { resize(0); }
-    size_t size() const { return _size; };
-    void reserve(size_t size) { ensureCapacity(size); }
-    void resize(size_t size)
-    {
-        ensureCapacity(size);
-        if (size > _size) {
-            memset(_data + _size, 0, (size - _size) * sizeof(type));
-        }
-        _size = size;
-    }
-    
-    type& operator[](size_t i) { return at(i); };
-    const type& operator[](size_t i) const { return at(i); };
-    
-    type& at(size_t i) { assert(i >= 0 && i < _size); return _data[i]; };
-    const type& at(size_t i) const { assert(i >= 0 && i < _size); return _data[i]; };
-    
-    type& back() { return _data[_size - 1]; }
-    const type& back() const { return _data[_size - 1]; }
-    
-    type* begin() { return _data; }
-    const type* begin() const { return _data; }
-    type* end() { return _data + _size; }
-    const type* end() const { return _data + _size; }
-    
-private:
-    void ensureCapacity(size_t size) { if (_capacity >= size) return; _ensureCapacity(size); }
-    void _ensureCapacity(size_t size)
-    {
-        if (_capacity >= size) {
-            return;
-        }
-        _capacity = _capacity ? _capacity * 2 : 1;
-        if (_capacity < size) {
-            _capacity = size;
-        }
-        type *newData = static_cast<type *>(malloc(_capacity * sizeof(type)));
-        assert(newData);
-        if (_data) {
-            if (newData) {
-                memcpy(newData, _data, _size * sizeof(type));
-            } else {
-                _capacity = 0;
-                _size = 0;
-            }
-            free(_data);
-        }
-        _data = newData;
-    };
-
-    size_t _size;
-    size_t _capacity;
-    type *_data;
-};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -422,7 +321,7 @@ private:
         return -(first + 1);    // failed to find key
     }
     
-    Vector<Pair> _list;
+    std::vector<Pair> _list;
     Compare _compare;
 };
 
@@ -435,8 +334,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename type>
-class Stack : Vector<type> {
-    typedef Vector<type> super;
+class Stack : std::vector<type> {
+    typedef std::vector<type> super;
     
 public:
     Stack() { }

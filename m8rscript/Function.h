@@ -71,7 +71,7 @@ protected:
 
 private:
     Code _code;
-    Vector<Atom> _locals;
+    std::vector<Atom> _locals;
     uint32_t _paramEnd = 0;
 };
     

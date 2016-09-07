@@ -83,7 +83,7 @@ protected:
 private:
     enum class Property : uint8_t { Length };
     static Map<Atom, Property> _properties;
-    Vector<Value> _array;
+    std::vector<Value> _array;
 };
     
 }

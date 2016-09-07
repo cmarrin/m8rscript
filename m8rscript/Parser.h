@@ -144,9 +144,9 @@ private:
     Scanner _scanner;
     Program* _program;
     Function* _currentFunction;
-    Vector<Function*> _functions;
+    std::vector<Function*> _functions;
     uint32_t _nerrors = 0;
-    Vector<size_t> _deferredCodeBlocks;
+    std::vector<size_t> _deferredCodeBlocks;
     Code _deferredCode;
     bool _deferred = false;
     

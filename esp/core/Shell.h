@@ -59,7 +59,7 @@ public:
     void sendComplete();
     
 private:
-    bool executeCommand(const m8r::Vector<m8r::String>& array);
+    bool executeCommand(const std::vector<m8r::String>& array);
 
     ShellOutput* _output = nullptr;
     esp::DirectoryEntry* _directoryEntry = nullptr;

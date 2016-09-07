@@ -98,7 +98,7 @@ protected:
 private:
     static AtomTable _atomTable;
     
-    Vector<char> _stringTable;
+    std::vector<char> _stringTable;
     ObjectMap _objects;
     uint32_t _nextId = 1;
     PlatformGlobal _global;
