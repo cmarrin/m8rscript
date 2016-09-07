@@ -35,21 +35,35 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "MStream.h"
+#include "FS.h"
+#include "Containers.h"
 
-namespace m8r {
+namespace esp {
+
+class ShellOutput {
+public:
+    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
+};
 
 class Shell {
 public:
-    Shell(Stream* stream)
-        : _stream(stream)
+    enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles };
+    
+    Shell(ShellOutput* output)
+        : _output(output)
     { }
     
-    void received(const char* data);
-    void received(const uint8_t* data, uint16_t size);
+    void connected();
+    void disconnected() { }
+    bool received(const char* data, uint16_t size);
+    void sendComplete();
     
 private:
-    Stream* _stream = nullptr;
+    bool executeCommand(const m8r::Vector<m8r::String>& array);
+
+    ShellOutput* _output = nullptr;
+    esp::DirectoryEntry* _directoryEntry = nullptr;
+    State _state = State::Init;
 };
 
 }

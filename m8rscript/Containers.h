@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include "Defines.h"
 
 namespace m8r {
 
@@ -209,7 +210,9 @@ public:
             len = static_cast<int32_t>(strlen(s));
         }
         ensureCapacity(len + 1);
-        memcpy(_data, s, len);
+        if (len) {
+            memcpy(_data, s, len);
+        }
         _size = len + 1;
         _data[_size - 1] = '\0';
     }
@@ -271,6 +274,7 @@ public:
     friend String operator +(const char* s1 , const String& s2) { String s = s1; s += s2; return s; }
     
     bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
+    bool operator==(const String& other) const { return strcmp(c_str(), other.c_str()) == 0; }
 
     const char* c_str() const { return _data ? _data : ""; }
     void erase()
@@ -289,17 +293,34 @@ public:
         return String(_data + start, end - start);
     }
     
-    // If skipEmpty is true, substrings of zero length are not added to the array
-    Vector<String> split(const String& separator, bool skipEmpty = false)
+    String trim()
     {
-        Vector<String> array;
+        if (_size < 2 || !_data) {
+            return String();
+        }
+        size_t l = _size - 1;
+        char* s = _data;
+        while (isWhitespace(s[l - 1])) {
+            --l;
+        }
+        while (*s && isWhitespace(*s)) {
+            ++s;
+            --l;
+        }
+        return String(s, static_cast<int32_t>(l));
+    }
+    
+    // If skipEmpty is true, substrings of zero length are not added to the array
+    std::vector<String> split(const String& separator, bool skipEmpty = false)
+    {
+        std::vector<String> array;
         char* p = _data;
         while (p && *p != '\0') {
             char* n = strstr(p, separator.c_str());
             if (!n || n - p != 0 || !skipEmpty) {
-                array.push_back(String(p, n ? (n - p) : 0));
+                array.push_back(String(p, static_cast<int32_t>(n ? (n - p) : -1)));
             }
-            p = n + separator.length();
+            p = n ? (n + separator.length()) : nullptr;
         }
         return array;
     }

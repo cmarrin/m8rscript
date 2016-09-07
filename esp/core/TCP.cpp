@@ -76,6 +76,11 @@ void TCP::send(const char* data, uint16_t length)
     }
 }
 
+void TCP::disconnect()
+{
+    espconn_disconnect(&_conn);
+}
+
 void TCP::connectCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
@@ -119,6 +124,5 @@ void TCP::receiveCB(void* arg, char* data, uint16_t length)
 void TCP::sentCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-
-    os_printf("TCP: data sent port %d\n", conn->proto.tcp->local_port);
+    reinterpret_cast<TCP*>(conn->reverse)->sentData();
 }

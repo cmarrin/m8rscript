@@ -35,39 +35,66 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Shell.h"
 
-using namespace m8r;
+using namespace esp;
 
-void Shell::received(const char* data)
+void Shell::connected()
 {
-    Vector<String> array = String(data).split(" ", true);
-    executeCommand(array);
-        
+    _state = State::Init;
+    sendComplete();
+}
+
+bool Shell::received(const char* data, uint16_t size)
+{
+    m8r::Vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
+    return executeCommand(array);
+}
+
+void Shell::sendComplete()
+{
+    switch(_state) {
+        case State::Init:
+            _output->shellSend("\nWelcome to m8rscript\n");
+            _state = State::NeedPrompt;
+            break;
+        case State::NeedPrompt:
+            _output->shellSend("\n> ");
+            _state = State::ShowingPrompt;
+            break;
+        case State::ShowingPrompt:
+            break;
+        case State::ListFiles:
+            if (_directoryEntry && _directoryEntry->valid()) {
+                char buf[60];
+                os_sprintf(buf, "File:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                _output->shellSend(buf);
+                _directoryEntry->next();
+            } else {
+                if (_directoryEntry) {
+                    delete _directoryEntry;
+                    _directoryEntry = nullptr;
+                }
+                _state = State::NeedPrompt;
+                sendComplete();
+            }
+            break;
     }
 }
 
-void Shell::received(const uint8_t* data, uint16_t size)
-{
-}
-
-void executeCommand(const Vector<String>& array)
+bool Shell::executeCommand(const m8r::Vector<m8r::String>& array)
 {
     if (array.size() == 0) {
-        return;
+        return true;
     }
     if (array[0] == "ls") {
-        esp::DirectoryEntry* entry = fs->directory();
-        while (entry && entry->valid()) {
-            size = entry->size();
-            os_printf("    '%s':%d bytes\n", entry->name(), size);
-            entry->next();
-        }
-        if (entry) {
-            delete entry;
-        }
+        _directoryEntry = esp::FS::sharedFS()->directory();
+        _state = State::ListFiles;
+        sendComplete();
     } else if (array[0] == "t") {
     } else if (array[0] == "b") {
     } else if (array[0] == "get") {
     } else if (array[0] == "put") {
     } else if (array[0] == "quit") {
+        return false;
     }
+    return true;
 }

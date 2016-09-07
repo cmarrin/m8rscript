@@ -50,10 +50,12 @@ public:
     ~TCP();
     
     void send(const char* data, uint16_t length = 0);
+    void disconnect();
     
     virtual void connected() { }
     virtual void disconnected() { }
     virtual void receivedData(const char* data, uint16_t length) { }
+    virtual void sentData() { }
 
 private:
     static void connectCB(void*);

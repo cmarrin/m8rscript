@@ -43,8 +43,6 @@
 		49D9B8251D1C854700724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8231D1C854700724911 /* MainMenu.xib */; };
 		49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B82B1D1C8CD300724911 /* green-led-off-md.png */; };
 		49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B82C1D1C8CD300724911 /* green-led-on-md.png */; };
-		49DD773A1D7F0CE500D7C374 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD77381D7F0CE500D7C374 /* Shell.cpp */; };
-		49DD773B1D7F0CE500D7C374 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD77391D7F0CE500D7C374 /* Shell.h */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 /* End PBXBuildFile section */
@@ -139,8 +137,6 @@
 		49D9B8261D1C854700724911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49D9B82B1D1C8CD300724911 /* green-led-off-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-off-md.png"; sourceTree = "<group>"; };
 		49D9B82C1D1C8CD300724911 /* green-led-on-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-on-md.png"; sourceTree = "<group>"; };
-		49DD77381D7F0CE500D7C374 /* Shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../m8rscript/Shell.cpp; sourceTree = "<group>"; };
-		49DD77391D7F0CE500D7C374 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -325,8 +321,6 @@
 				4942EA7F1D07009E00E02088 /* Program.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
-				49DD77381D7F0CE500D7C374 /* Shell.cpp */,
-				49DD77391D7F0CE500D7C374 /* Shell.h */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
@@ -343,7 +337,6 @@
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				494D25881D32AFA4003755DB /* base64.h in Headers */,
-				49DD773B1D7F0CE500D7C374 /* Shell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -475,7 +468,6 @@
 			files = (
 				494D25521D2E90A9003755DB /* PlatformGlobal.cpp in Sources */,
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
-				49DD773A1D7F0CE500D7C374 /* Shell.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,

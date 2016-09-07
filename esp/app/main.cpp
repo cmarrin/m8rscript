@@ -41,6 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 #include "FS.h"
 #include "TCP.h"
+#include "Shell.h"
 
 #define WRITE_SOURCE_FILE 0
 #define TEST_SOURCE_FILE 0
@@ -258,30 +259,29 @@ void blinkTimerfunc(void *)
 
 static esp::TCP* _tcp = nullptr;
 
-class MyTCP : public esp::TCP {
+class MyTCP : public esp::TCP, public esp::ShellOutput {
 public:
-    MyTCP(uint16_t port) : esp::TCP(port) { }
+    MyTCP(uint16_t port) : esp::TCP(port), _shell(this) { }
     
-    virtual void connected() override;
+    virtual void connected() override { _shell.connected(); }
     
-    virtual void disconnected() override
-    {
-    }
+    virtual void disconnected() override { _shell.disconnected(); }
     
     virtual void receivedData(const char* data, uint16_t length) override;
-};
+    virtual void sentData() override { _shell.sendComplete(); }
 
-void MyTCP::connected()
-{
-    send("\nWelcome to m8rscript\n\n> ");
-}
+    virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
+
+private:
+    esp::Shell _shell;
+};
 
 void MyTCP::receivedData(const char* data, uint16_t length)
 {
-    m8r::String s = m8r::String("You typed '") + data + "'\n";
-    send(s.c_str());
+    if (!_shell.received(data, length)) {
+        disconnect();
+    }
 }
-
 
 void systemInitialized()
 {
