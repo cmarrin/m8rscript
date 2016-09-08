@@ -42,6 +42,9 @@ SRC ?=  ../m8rscript/Array.cpp \
 # Esp8266 location
 ESP_ROOT ?= $(HOME)/esp8266
 TOOLS_ROOT ?= $(ESP_ROOT)/tools
+SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
+#SDK_ROOT = $(TOOLS_ROOT)/sdk
+
 FLASH_LAYOUT ?= eagle.flash.4m.ld
 ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 
@@ -84,7 +87,6 @@ SRC_GIT_VERSION = $(call git_description,$(dir .))
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
 
 TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
-SDK_ROOT = $(TOOLS_ROOT)/sdk
 
 # Directory for intermedite build files
 OBJ_DIR = $(BUILD_BASE)/obj
@@ -102,7 +104,7 @@ FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
 FW_FILE_2_ADDR	= 0x40000
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
-LIBS = main net80211 wpa lwip pp phy crypto hal smartconfig
+LIBS = main net80211 wpa lwip pp phy crypto smartconfig
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
@@ -113,9 +115,7 @@ C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections
-# LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
-# LD_STD_LIBS = $(LIBS)
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections
 
 LD_STD_LIBS = -nostdlib -Wl,--start-group $(LIBS) -Wl,--end-group -lgcc
 

@@ -125,6 +125,12 @@ void ets_delay_us(uint32_t);
 #define interrupts() xt_rsil(0)
 #define noInterrupts() xt_rsil(15)
 
+void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
+void ets_timer_disarm(ETSTimer *a);
+void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
+void uart_div_modify(int no, int freq);
+int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

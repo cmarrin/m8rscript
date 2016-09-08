@@ -57,6 +57,63 @@ extern void free(void* ptr);
 
 void abort() { while(1) ; }
 
+/******************************************************************************
+ * FunctionName : user_rf_cal_sector_set
+ * Description  : SDK just reversed 4 sectors, used for rf init data and paramters.
+ *                We add this function to force users to set rf cal sector, since
+ *                we don't know which sector is free in user's application.
+ *                sector map for last several sectors : ABBBCDDD
+ *                A : rf cal
+ *                B : at parameters
+ *                C : rf init data
+ *                D : sdk parameters
+ * Parameters   : none
+ * Returns      : rf cal sector
+*******************************************************************************/
+uint32 ICACHE_FLASH_ATTR
+user_rf_cal_sector_set(void)
+{
+    enum flash_size_map size_map = system_get_flash_size_map();
+    uint32 rf_cal_sec = 0;
+
+    switch (size_map) {
+        case FLASH_SIZE_4M_MAP_256_256:
+            rf_cal_sec = 128 - 8;
+            break;
+
+        case FLASH_SIZE_8M_MAP_512_512:
+            rf_cal_sec = 256 - 5;
+            break;
+
+        case FLASH_SIZE_16M_MAP_512_512:
+        case FLASH_SIZE_16M_MAP_1024_1024:
+            rf_cal_sec = 512 - 5;
+            break;
+
+        case FLASH_SIZE_32M_MAP_512_512:
+        case FLASH_SIZE_32M_MAP_1024_1024:
+            rf_cal_sec = 1024 - 5;
+            break;
+
+        default:
+            rf_cal_sec = 0;
+            break;
+    }
+
+    return rf_cal_sec;
+}
+
+void *memchr(const void *s, int c, size_t n)
+{
+    unsigned char *p = (unsigned char*)s;
+    while( n-- )
+        if( *p != (unsigned char)c )
+            p++;
+        else
+            return p;
+    return 0;
+}
+
 void micros_overflow_tick(void* arg) {
     uint32_t m = system_get_time();
     if(m < micros_at_last_overflow_tick) {
@@ -134,7 +191,7 @@ void initmdns(const char* hostname, uint8_t interface)
     struct mdns_info mdnsInfo;
     struct ip_info ipconfig;
     wifi_get_ip_info(interface, &ipconfig);
-    os_memset(&mdnsInfo, 0, sizeof(mdnsInfo));
+    memset(&mdnsInfo, 0, sizeof(mdnsInfo));
     mdnsInfo.host_name = (char*) hostname; 
     mdnsInfo.server_name = (char*) "m8rscript_server";
     mdnsInfo.ipAddr = ipconfig.ip.addr;
@@ -154,10 +211,10 @@ void initSoftAP()
 	wifi_softap_get_config(&apConfig);
     apConfig.channel = 7;
     apConfig.ssid_hidden = 0;
-    os_memset(apConfig.ssid, 0, sizeof(apConfig.ssid));
+    memset(apConfig.ssid, 0, sizeof(apConfig.ssid));
     strcpy((char*) apConfig.ssid, WIFIAP_SSID);
     apConfig.ssid_len = 10;
-    os_memset(apConfig.password, 0, sizeof(apConfig.password));
+    memset(apConfig.password, 0, sizeof(apConfig.password));
     strcpy((char*) apConfig.password, WIFIAP_PWD);
     apConfig.authmode = AUTH_WPA2_PSK;
     apConfig.max_connection = 4;
@@ -264,7 +321,7 @@ void ICACHE_RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 void* ICACHE_RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
 	void* m = malloc(size);
-    os_memset(m, 0, size);
+    memset(m, 0, size);
     return m;
 }
 

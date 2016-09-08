@@ -67,7 +67,7 @@ TCP::~TCP()
 void TCP::send(const char* data, uint16_t length)
 {
     if (!length) {
-        length = os_strlen(data);
+        length = strlen(data);
     }
 
     int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(data)), length);

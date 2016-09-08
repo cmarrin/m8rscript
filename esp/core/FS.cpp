@@ -184,7 +184,7 @@ bool DirectoryEntry::next()
     spiffs_dirent entry;
     _valid = SPIFFS_readdir(&_dir, &entry);
     if (_valid) {
-        os_strcpy(_name, reinterpret_cast<const char*>(&(entry.name[0])));
+        strcpy(_name, reinterpret_cast<const char*>(&(entry.name[0])));
         _size = entry.size;
     }
     return _valid;
@@ -208,7 +208,7 @@ File::File(const char* name, const char* mode)
 {
     spiffs_flags flags = 0;
     for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
-        if (os_strcmp(mode, _fileModeMap[i]._mode) == 0) {
+        if (strcmp(mode, _fileModeMap[i]._mode) == 0) {
             flags = _fileModeMap[i]._flags;
             break;
         }
