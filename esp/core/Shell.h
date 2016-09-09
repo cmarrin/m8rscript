@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "FS.h"
 #include "Containers.h"
 
-namespace esp {
+namespace m8r {
 
 class ShellOutput {
 public:

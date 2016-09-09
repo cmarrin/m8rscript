@@ -20,6 +20,7 @@
 #import <sstream>
 #import <thread>
 #import <chrono>
+#import <cstdio>
 
 class MySystemInterface;
 
@@ -43,6 +44,7 @@ class MySystemInterface;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
     bool _running;
+    NSString* _fileSystemPath;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -118,13 +120,40 @@ private:
     }
 }
 
+static inline NSString* fileSystemPath()
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSArray* possibleURLs = [fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
+    NSURL* appSupportDir;
+    
+    if ([possibleURLs count] >= 1) {
+        appSupportDir = [possibleURLs objectAtIndex:0];
+    }
+
+    if (!appSupportDir) {
+        return nil;
+    }
+    
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+
+    NSString* path = [appSupportDir.path stringByAppendingFormat:@"/%@/Files/", bundleId];
+ 
+    NSError *error = nil;
+    if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error]) {
+        NSLog(@"Failed to create directory \"%@\". Error: %@", path, error);
+    }
+    
+    return path;
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
         _system = new MySystemInterface(self);
         _eu = new m8r::ExecutionUnit(_system);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-    }
+        _fileSystemPath = fileSystemPath();
+     }
     return self;
 }
 

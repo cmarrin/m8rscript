@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdarg>
 
-using namespace esp;
+using namespace m8r;
 
 void Shell::connected()
 {
