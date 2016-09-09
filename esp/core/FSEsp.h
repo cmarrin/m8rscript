@@ -35,73 +35,59 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "FS.h"
+
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 
-namespace esp {
+namespace m8r {
 
-class DirectoryEntry {
-    friend class FS;
+class EspDirectoryEntry : public DirectoryEntry {
+    friend class EspFS;
     
 public:
-    ~DirectoryEntry();
-
-    const char* name() const { return _name; }
-    uint32_t size() const { return _size; }
-    bool valid() const { return _valid; }
+    virtual ~EspDirectoryEntry();
     
-    bool next();
+    virtual bool next();
     
 private:
-    DirectoryEntry(spiffs* fs);
+    EspDirectoryEntry(spiffs* fs);
     
-    bool _valid = false;
     spiffs_DIR _dir;
-    char _name[SPIFFS_OBJ_NAME_LEN];
-    uint32_t _size = 0;
 };
 
-class File {
-    friend class FS;
+class EspFile {
+    friend class EspFS;
     
 public:
-    enum class SeekWhence { Set, Cur, End };
-    
-    ~File();
+    virtual ~File();
   
-    int32_t read(char* buf, uint32_t size);
-    int32_t write(const char* buf, uint32_t size);
+    virtual int32_t read(char* buf, uint32_t size);
+    virtual int32_t write(const char* buf, uint32_t size);
 
-    bool seek(int32_t offset, SeekWhence whence);
-    int32_t tell() const;
-    bool eof() const;
-    
-    bool valid() const { return _file > 0; }
-    int32_t error() const { return (_file > 0) ? SPIFFS_OK : _file; }
+    virtual bool seek(int32_t offset, SeekWhence whence);
+    virtual int32_t tell() const;
+    virtual bool eof() const;
     
 private:
-    File(const char* name, const char* mode);
+    EspFile(const char* name, const char* mode);
 
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
-class FS {
-    friend class File;
-    
+class EspFS {
 public:
-    FS();
-    ~FS();
+    EspFS();
+    virtual ~EspFS();
     
-    static FS* sharedFS();
+    virtual DirectoryEntry* directory();
+    virtual bool mount();
+    virtual bool mounted() const;
+    virtual void unmount();
+    virtual bool format();
     
-    DirectoryEntry* directory();
-    bool mount();
-    bool mounted() const;
-    void unmount();
-    bool format();
-    
-    File* open(const char* name, const char* mode);
-    bool remove(const char* name);
+    virtual File* open(const char* name, const char* mode);
+    virtual bool remove(const char* name);
 
 private:
     static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);
