@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cstdint>
+
 namespace m8r {
 
 const uint32_t FilenameLength = 32;
@@ -43,15 +45,16 @@ class DirectoryEntry {
     friend class FS;
     
 public:
-    virtual  ~DirectoryEntry();
+    DirectoryEntry() { }
+    virtual  ~DirectoryEntry() { }
 
     const char* name() const { return _name; }
     uint32_t size() const { return _size; }
     bool valid() const { return _valid; }
     
-    virtual bool next();
+    virtual bool next() = 0;
     
-private:
+protected:
     bool _valid = false;
     char _name[FilenameLength];
     uint32_t _size = 0;
@@ -63,19 +66,19 @@ class File {
 public:
     enum class SeekWhence { Set, Cur, End };
     
-    virtual ~File();
+    virtual ~File() { }
   
     virtual int32_t read(char* buf, uint32_t size) = 0;
     virtual int32_t write(const char* buf, uint32_t size) = 0;
 
     virtual  bool seek(int32_t offset, SeekWhence whence) = 0;
-    virtual int32_t tell() const = 0
+    virtual int32_t tell() const = 0;
     virtual bool eof() const = 0;
     
-    bool valid() const { return _error != 0; }
+    bool valid() const { return _error == 0; }
     uint32_t error() const { return _error; }
     
-private:
+protected:
     uint32_t _error = 0;
 };
 
@@ -83,7 +86,7 @@ class FS {
     friend class File;
     
 public:
-    FS();
+    FS() { }
     virtual ~FS() { }
     
     static FS* sharedFS();
@@ -96,6 +99,9 @@ public:
     
     virtual File* open(const char* name, const char* mode) = 0;
     virtual bool remove(const char* name) = 0;
+    
+private:
+    static FS* _sharedFS;
 };
 
 }

@@ -118,9 +118,9 @@ Serial.print(\"Run time: \" + (t * 1000.) + \"ms\n\"); \n \
 
 static const char* timingTestName = "timing.m8r";
 
-void runScript()
+void ICACHE_FLASH_ATTR runScript()
 {
-    esp::FS* fs = esp::FS::sharedFS();
+    m8r::FS* fs = m8r::FS::sharedFS();
     if (!fs->mount()) {
         os_printf("ERROR: Mount failed, trying to format.\n");
         fs->format();

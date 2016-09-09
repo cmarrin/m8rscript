@@ -48,26 +48,26 @@ class EspDirectoryEntry : public DirectoryEntry {
 public:
     virtual ~EspDirectoryEntry();
     
-    virtual bool next();
+    virtual bool next() override;
     
 private:
-    EspDirectoryEntry(spiffs* fs);
+    EspDirectoryEntry();
     
     spiffs_DIR _dir;
 };
 
-class EspFile {
+class EspFile : public File {
     friend class EspFS;
     
 public:
-    virtual ~File();
+    virtual ~EspFile();
   
-    virtual int32_t read(char* buf, uint32_t size);
-    virtual int32_t write(const char* buf, uint32_t size);
+    virtual int32_t read(char* buf, uint32_t size) override;
+    virtual int32_t write(const char* buf, uint32_t size) override;
 
-    virtual bool seek(int32_t offset, SeekWhence whence);
-    virtual int32_t tell() const;
-    virtual bool eof() const;
+    virtual bool seek(int32_t offset, File::SeekWhence whence) override;
+    virtual int32_t tell() const override;
+    virtual bool eof() const override;
     
 private:
     EspFile(const char* name, const char* mode);
@@ -75,25 +75,30 @@ private:
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
-class EspFS {
+class EspFS : public FS {
 public:
     EspFS();
     virtual ~EspFS();
     
-    virtual DirectoryEntry* directory();
-    virtual bool mount();
-    virtual bool mounted() const;
-    virtual void unmount();
-    virtual bool format();
+    virtual DirectoryEntry* directory() override;
+    virtual bool mount() override;
+    virtual bool mounted() const override;
+    virtual void unmount() override;
+    virtual bool format() override;
     
-    virtual File* open(const char* name, const char* mode);
-    virtual bool remove(const char* name);
+    virtual File* open(const char* name, const char* mode) override;
+    virtual bool remove(const char* name) override;
 
+    static spiffs* sharedSpiffs()
+    {
+        return &(reinterpret_cast<EspFS*>(FS::sharedFS())->_spiffsFileSystem);
+    }
+    
 private:
     static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);
     static int32_t spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src);
     static int32_t spiffsErase(uint32_t addr, uint32_t size);
-    
+
     int32_t internalMount();
 
     static FS* _sharedFS;

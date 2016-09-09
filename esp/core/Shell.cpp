@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Shell.h"
 
+#include <cstdarg>
+
 using namespace esp;
 
 void Shell::connected()
@@ -64,9 +66,8 @@ void Shell::sendComplete()
             break;
         case State::ListFiles:
             if (_directoryEntry && _directoryEntry->valid()) {
-                char buf[60];
-                os_sprintf(buf, "File:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
-                _output->shellSend(buf);
+                os_sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                _output->shellSend(_buffer);
                 _directoryEntry->next();
             } else {
                 if (_directoryEntry) {
@@ -77,6 +78,24 @@ void Shell::sendComplete()
                 sendComplete();
             }
             break;
+        case State::GetFile: {
+            if (!_file) {
+                _state = State::NeedPrompt;
+                _output->shellSend("\04");
+                break;
+            }
+            int32_t result = _file->read(_buffer, BufferSize);
+            if (result < 0) {
+                showError(3, "reading file");
+                break;
+            }
+            if (result < BufferSize) {
+                delete _file;
+                _file = nullptr;
+            }
+            _output->shellSend(_buffer, result);
+            break;
+        }
     }
 }
 
@@ -86,15 +105,49 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         return true;
     }
     if (array[0] == "ls") {
-        _directoryEntry = esp::FS::sharedFS()->directory();
+        _directoryEntry = m8r::FS::sharedFS()->directory();
         _state = State::ListFiles;
         sendComplete();
     } else if (array[0] == "t") {
+        _binary = false;
+        _state = State::NeedPrompt;
+        _output->shellSend("text: Setting text transfer mode\n");
     } else if (array[0] == "b") {
+        _binary = true;
+        _state = State::NeedPrompt;
+        _output->shellSend("binary: Setting binary transfer mode\n");
     } else if (array[0] == "get") {
+        if (array.size() < 2) {
+            showError(1, "'get' requires a filename");
+        } else {
+            _file = m8r::FS::sharedFS()->open(array[1].c_str(), "r");
+            if (!_file) {
+                showError(2, "could not open file for 'get'");
+            } else {
+                _state = State::GetFile;
+                sendComplete();
+            }
+        }
     } else if (array[0] == "put") {
+        if (array.size() < 2) {
+            showError(1, "'put' requires a filename");
+        } else {
+            _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
+            if (!_file) {
+                showError(2, "could not open file for 'put'");
+            } else {
+                _state = State::PutFile;
+            }
+        }
     } else if (array[0] == "quit") {
         return false;
     }
     return true;
+}
+
+void Shell::showError(uint8_t code, const char* msg)
+{
+    _state = State::NeedPrompt;
+    ets_sprintf(_buffer, "error:%d: %s\n", code, msg);
+    _output->shellSend(_buffer);
 }

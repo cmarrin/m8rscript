@@ -113,7 +113,7 @@ public:
     // Supported modes 
 	FileStream(const char* file, const char* mode = "r")
     {
-        _file = esp::FS::sharedFS()->open(file, mode);
+        _file = FS::sharedFS()->open(file, mode);
     }
 
     ~FileStream()
@@ -155,7 +155,7 @@ public:
 	virtual void flush() override { }
 	
 private:
-    esp::File* _file = nullptr;
+    File* _file = nullptr;
 #endif
 };
 

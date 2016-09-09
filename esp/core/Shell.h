@@ -47,7 +47,9 @@ public:
 
 class Shell {
 public:
-    enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles };
+    static const uint16_t BufferSize = 60;
+    
+    enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
     Shell(ShellOutput* output)
         : _output(output)
@@ -60,10 +62,15 @@ public:
     
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
+    void showError(uint8_t code, const char* msg);
 
     ShellOutput* _output = nullptr;
-    esp::DirectoryEntry* _directoryEntry = nullptr;
+    m8r::DirectoryEntry* _directoryEntry = nullptr;
     State _state = State::Init;
+    bool _binary = false;
+    m8r::File* _file = nullptr;
+    
+    char _buffer[BufferSize];
 };
 
 }

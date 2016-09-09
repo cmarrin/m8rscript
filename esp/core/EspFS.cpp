@@ -33,23 +33,23 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "FS.h"
+#include "EspFS.h"
 
 #include "Esp.h"
 
-using namespace esp;
+using namespace m8r;
 
 FS* FS::_sharedFS = nullptr;
 
 FS* FS::sharedFS()
 {
     if (!_sharedFS) {
-        _sharedFS = new FS();
+        _sharedFS = new EspFS();
     }
     return _sharedFS;
 }
 
-FS::FS()
+EspFS::EspFS()
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));
     _spiffsWorkBuf = new uint8_t[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
@@ -61,21 +61,21 @@ FS::FS()
     _config.hal_erase_f = spiffsErase;
 }
 
-FS::~FS()
+EspFS::~EspFS()
 {
     SPIFFS_unmount(&_spiffsFileSystem);
     delete _spiffsWorkBuf;
 }
 
-DirectoryEntry* FS::directory()
+DirectoryEntry* EspFS::directory()
 {
     if (!mounted()) {
         return nullptr;
     }
-    return new DirectoryEntry(&_spiffsFileSystem);
+    return new EspDirectoryEntry();
 }
 
-bool FS::mount()
+bool EspFS::mount()
 {
     os_printf("Mounting SPIFFS...\n");
     int32_t result = internalMount();
@@ -103,19 +103,19 @@ bool FS::mount()
     return true;
 }
 
-bool FS::mounted() const
+bool EspFS::mounted() const
 {
     return SPIFFS_mounted(const_cast<spiffs_t*>(&_spiffsFileSystem));
 }
 
-void FS::unmount()
+void EspFS::unmount()
 {
     if (mounted()) {
         SPIFFS_unmount(&_spiffsFileSystem);
     }
 }
 
-bool FS::format()
+bool EspFS::format()
 {
     if (!mounted()) {
         internalMount();
@@ -130,33 +130,33 @@ bool FS::format()
     return true;
 }
 
-File* FS::open(const char* name, const char* mode)
+File* EspFS::open(const char* name, const char* mode)
 {
-    return new File(name, mode);
+    return new EspFile(name, mode);
 }
 
-bool FS::remove(const char* name)
+bool EspFS::remove(const char* name)
 {
     return SPIFFS_remove(&_spiffsFileSystem, name) == SPIFFS_OK;
 }
 
-int32_t FS::internalMount()
+int32_t EspFS::internalMount()
 {
     return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
                         _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
 }
 
-int32_t FS::spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst)
+int32_t EspFS::spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst)
 {
     return (flashmem_read(dst, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_READABLE;
 }
 
-int32_t FS::spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src)
+int32_t EspFS::spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src)
 {
     return (flashmem_write(src, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_WRITABLE;
 }
 
-int32_t FS::spiffsErase(uint32_t addr, uint32_t size)
+int32_t EspFS::spiffsErase(uint32_t addr, uint32_t size)
 {
     u32_t firstSector = flashmem_get_sector_of_address(addr);
     u32_t lastSector = firstSector;
@@ -168,18 +168,18 @@ int32_t FS::spiffsErase(uint32_t addr, uint32_t size)
     return SPIFFS_OK;
 }
 
-DirectoryEntry::DirectoryEntry(spiffs* fs)
+EspDirectoryEntry::EspDirectoryEntry()
 {
-	SPIFFS_opendir(fs, "/", &_dir);
+	SPIFFS_opendir(EspFS::sharedSpiffs(), "/", &_dir);
     next();
 }
 
-DirectoryEntry::~DirectoryEntry()
+EspDirectoryEntry::~EspDirectoryEntry()
 {
     SPIFFS_closedir(&_dir);
 }
 
-bool DirectoryEntry::next()
+bool EspDirectoryEntry::next()
 {
     spiffs_dirent entry;
     _valid = SPIFFS_readdir(&_dir, &entry);
@@ -204,7 +204,7 @@ static const FileModeEntry _fileModeMap[] = {
     { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
 };
 
-File::File(const char* name, const char* mode)
+EspFile::EspFile(const char* name, const char* mode)
 {
     spiffs_flags flags = 0;
     for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
@@ -218,25 +218,26 @@ File::File(const char* name, const char* mode)
         _file = SPIFFS_ERR_FILE_CLOSED;
         return;
     }
-    _file = SPIFFS_open(&(FS::sharedFS()->_spiffsFileSystem), name, flags, 0);
+    _file = SPIFFS_open(EspFS::sharedSpiffs(), name, flags, 0);
+    _error = (_file < 0) ? static_cast<uint32_t>(-_file) : 0;
 }
 
-File::~File()
+EspFile::~EspFile()
 {
-    SPIFFS_close(&(FS::sharedFS()->_spiffsFileSystem), _file);
+    SPIFFS_close(EspFS::sharedSpiffs(), _file);
 }
   
-int32_t File::read(char* buf, uint32_t size)
+int32_t EspFile::read(char* buf, uint32_t size)
 {
-    return SPIFFS_read(&(FS::sharedFS()->_spiffsFileSystem), _file, buf, size);
+    return SPIFFS_read(EspFS::sharedSpiffs(), _file, buf, size);
 }
 
-int32_t File::write(const char* buf, uint32_t size)
+int32_t EspFile::write(const char* buf, uint32_t size)
 {
-    return SPIFFS_write(&(FS::sharedFS()->_spiffsFileSystem), _file, const_cast<char*>(buf), size);
+    return SPIFFS_write(EspFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
 }
 
-bool File::seek(int32_t offset, SeekWhence whence)
+bool EspFile::seek(int32_t offset, SeekWhence whence)
 {
     int whenceFlag = SPIFFS_SEEK_SET;
     if (whence == SeekWhence::Cur) {
@@ -244,17 +245,17 @@ bool File::seek(int32_t offset, SeekWhence whence)
     } else if (whence == SeekWhence::End) {
         whenceFlag = SPIFFS_SEEK_END;
     }
-    return SPIFFS_lseek(&(FS::sharedFS()->_spiffsFileSystem), _file, offset, whenceFlag) == SPIFFS_OK;
+    return SPIFFS_lseek(EspFS::sharedSpiffs(), _file, offset, whenceFlag) == SPIFFS_OK;
 }
 
-int32_t File::tell() const
+int32_t EspFile::tell() const
 {
-    return SPIFFS_tell(&(FS::sharedFS()->_spiffsFileSystem), _file);
+    return SPIFFS_tell(EspFS::sharedSpiffs(), _file);
 }
 
-bool File::eof() const
+bool EspFile::eof() const
 {
-    return SPIFFS_eof(&(FS::sharedFS()->_spiffsFileSystem), _file) > 0;
+    return SPIFFS_eof(EspFS::sharedSpiffs(), _file) > 0;
 }
 
 
