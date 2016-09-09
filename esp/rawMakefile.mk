@@ -34,6 +34,7 @@ SRC ?=  ../m8rscript/Array.cpp \
 		../m8rscript/Parser.cpp \
 		../m8rscript/Program.cpp \
 		../m8rscript/Scanner.cpp \
+		../m8rscript/Shell.cpp \
 		../m8rscript/Value.cpp \
 		../m8rscript/base64.cpp \
 		app/PlatformGlobal.cpp \

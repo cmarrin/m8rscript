@@ -66,7 +66,7 @@ void Shell::sendComplete()
             break;
         case State::ListFiles:
             if (_directoryEntry && _directoryEntry->valid()) {
-                os_sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
                 _output->shellSend(_buffer);
                 _directoryEntry->next();
             } else {
@@ -94,6 +94,9 @@ void Shell::sendComplete()
                 _file = nullptr;
             }
             _output->shellSend(_buffer, result);
+            break;
+        }
+        case State::PutFile: {
             break;
         }
     }
@@ -148,6 +151,6 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
 void Shell::showError(uint8_t code, const char* msg)
 {
     _state = State::NeedPrompt;
-    ets_sprintf(_buffer, "error:%d: %s\n", code, msg);
+    sprintf(_buffer, "error:%d: %s\n", code, msg);
     _output->shellSend(_buffer);
 }

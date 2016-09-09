@@ -40,6 +40,8 @@
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
 		49AE34F41D82321300C4E680 /* MacFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F21D82321300C4E680 /* MacFS.cpp */; };
 		49AE34F51D82321300C4E680 /* MacFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F31D82321300C4E680 /* MacFS.h */; };
+		49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F61D8330CA00C4E680 /* Shell.cpp */; };
+		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
 		49D9B8251D1C854700724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8231D1C854700724911 /* MainMenu.xib */; };
@@ -133,6 +135,8 @@
 		49AE34F11D8231BF00C4E680 /* FS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FS.h; path = ../m8rscript/FS.h; sourceTree = "<group>"; };
 		49AE34F21D82321300C4E680 /* MacFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacFS.cpp; sourceTree = "<group>"; };
 		49AE34F31D82321300C4E680 /* MacFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFS.h; sourceTree = "<group>"; };
+		49AE34F61D8330CA00C4E680 /* Shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../m8rscript/Shell.cpp; sourceTree = "<group>"; };
+		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -329,6 +333,8 @@
 				4942EA7F1D07009E00E02088 /* Program.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
+				49AE34F61D8330CA00C4E680 /* Shell.cpp */,
+				49AE34F71D8330CA00C4E680 /* Shell.h */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
@@ -344,6 +350,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
+				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				494D25881D32AFA4003755DB /* base64.h in Headers */,
 			);
@@ -478,6 +485,7 @@
 				494D25521D2E90A9003755DB /* PlatformGlobal.cpp in Sources */,
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
+				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
 				49AE34F41D82321300C4E680 /* MacFS.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,

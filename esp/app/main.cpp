@@ -259,7 +259,7 @@ void blinkTimerfunc(void *)
 
 static esp::TCP* _tcp = nullptr;
 
-class MyTCP : public esp::TCP, public esp::ShellOutput {
+class MyTCP : public esp::TCP, public m8r::ShellOutput {
 public:
     MyTCP(uint16_t port) : esp::TCP(port), _shell(this) { }
     
@@ -273,7 +273,7 @@ public:
     virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
 
 private:
-    esp::Shell _shell;
+    m8r::Shell _shell;
 };
 
 void MyTCP::receivedData(const char* data, uint16_t length)
