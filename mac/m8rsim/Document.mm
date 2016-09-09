@@ -14,6 +14,7 @@
 #import "CodePrinter.h"
 #import "ExecutionUnit.h"
 #import "SystemInterface.h"
+#import "MacFS.h"
 
 #import <iostream>
 #import <stdarg.h>
@@ -44,7 +45,6 @@ class MySystemInterface;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
     bool _running;
-    NSString* _fileSystemPath;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -120,7 +120,7 @@ private:
     }
 }
 
-static inline NSString* fileSystemPath()
+static inline void setFileSystemPath()
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray* possibleURLs = [fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
@@ -131,7 +131,7 @@ static inline NSString* fileSystemPath()
     }
 
     if (!appSupportDir) {
-        return nil;
+        return;
     }
     
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
@@ -143,7 +143,7 @@ static inline NSString* fileSystemPath()
         NSLog(@"Failed to create directory \"%@\". Error: %@", path, error);
     }
     
-    return path;
+    m8r::MacFS::setFileSystemPath([path UTF8String]);
 }
 
 - (instancetype)init {
@@ -152,7 +152,7 @@ static inline NSString* fileSystemPath()
         _system = new MySystemInterface(self);
         _eu = new m8r::ExecutionUnit(_system);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-        _fileSystemPath = fileSystemPath();
+        setFileSystemPath();
      }
     return self;
 }
