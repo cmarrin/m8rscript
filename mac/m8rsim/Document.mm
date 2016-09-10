@@ -31,10 +31,15 @@ class MySystemInterface;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
+    __weak IBOutlet NSTabView *simView;
+    __weak IBOutlet NSTableView *fileListView;
+    
     __weak IBOutlet NSToolbarItem *runButton;
     __weak IBOutlet NSToolbarItem *buildButton;
     __weak IBOutlet NSToolbarItem *pauseButton;
     __weak IBOutlet NSToolbarItem *stopButton;
+    __weak IBOutlet NSToolbarItem *uploadButton;
+    __weak IBOutlet NSToolbarItem *reloadFilesButton;
     __weak IBOutlet NSButton *led0;
     __weak IBOutlet NSButton *led1;
     __weak IBOutlet NSButton *led2;
@@ -45,6 +50,7 @@ class MySystemInterface;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
     bool _running;
+    NSMutableArray* _fileList;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -99,6 +105,9 @@ private:
     if (item == stopButton) {
         return _program && _running;
     }
+    if (item == uploadButton || item == reloadFilesButton) {
+        return [[simView selectedTabViewItem].identifier isEqualToString:@"files"];
+    }
     return YES;
 }
 
@@ -146,13 +155,32 @@ static inline void setFileSystemPath()
     m8r::MacFS::setFileSystemPath([path UTF8String]);
 }
 
+static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
+{
+    [list addObject:@{ @"name" : [NSString stringWithUTF8String:name], @"size" : [NSNumber numberWithInt:size] }];
+}
+
+- (void)reloadFiles
+{
+    [_fileList removeAllObjects];
+    m8r::DirectoryEntry* entry = m8r::FS::sharedFS()->directory();
+    while (entry && entry->valid()) {
+        addFileToList(_fileList, entry->name(), entry->size());
+        entry->next();
+    }
+    [fileListView setNeedsDisplay];
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
         _system = new MySystemInterface(self);
         _eu = new m8r::ExecutionUnit(_system);
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
+        
         setFileSystemPath();
+        _fileList = [[NSMutableArray alloc] init];
+        [self reloadFiles];
      }
     return self;
 }
@@ -304,6 +332,12 @@ static inline void setFileSystemPath()
     return;
 }
 
+- (IBAction)upload:(id)sender {
+}
+
+- (IBAction)reloadFiles:(id)sender {
+}
+
 - (IBAction)importBinary:(id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
     [panel setAllowedFileTypes:@[@"m8rp"]];
@@ -342,5 +376,30 @@ static inline void setFileSystemPath()
     }];
 }
 
+// simView delegate
+- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
+{
+}
+
+// fileListView dataSource
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
+{
+    return [_fileList count];
+}
+
+- (id)tableView:(NSTableView *)aTableView
+objectValueForTableColumn:(NSTableColumn *)aTableColumn
+            row:(NSInteger)rowIndex
+{
+    return [[_fileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
+}
+
+- (void)tableView:(NSTableView *)aTableView
+   setObjectValue:(id)anObject
+   forTableColumn:(NSTableColumn *)aTableColumn
+              row:(NSInteger)rowIndex
+{
+    return;
+}
 
 @end

@@ -119,17 +119,25 @@ MacDirectoryEntry::~MacDirectoryEntry()
 bool MacDirectoryEntry::next()
 {
     struct dirent* entry = readdir(_dir);
-    if (entry) {
-        strncpy(_name, entry->d_name, FilenameLength - 1);
-        String path = String(MacFS::_basePath) + _name;
-        struct stat statEntry;
-        if (stat(path.c_str(), &statEntry) != 0) {
-            _valid = false;
-            return false;
-        }
-        _size = static_cast<uint32_t>(statEntry.st_size);
+    if (!entry) {
+        _valid = false;
+        return false;
     }
-    return _valid;
+    
+    if (entry->d_type != DT_REG || entry->d_name[0] == '.') {
+        return next();
+    }
+    
+    strncpy(_name, entry->d_name, FilenameLength - 1);
+    String path = String(MacFS::_basePath) + _name;
+    struct stat statEntry;
+    if (stat(path.c_str(), &statEntry) != 0) {
+        _valid = false;
+        return false;
+    }
+    _size = static_cast<uint32_t>(statEntry.st_size);
+    _valid = true;
+    return true;
 }
 
 MacFile::MacFile(const char* name, const char* mode)
