@@ -70,6 +70,17 @@ public:
   
     virtual int32_t read(char* buf, uint32_t size) = 0;
     virtual int32_t write(const char* buf, uint32_t size) = 0;
+    
+    int32_t read()
+    {
+        char buf;
+        return (read(&buf, 1) <= 0) ? -1 : static_cast<int>(buf);
+    }
+    
+    int32_t write(uint8_t c)
+    {
+        return (write(reinterpret_cast<const char*>(&c), 1) <= 0) ? -1 : c;
+    }
 
     virtual  bool seek(int32_t offset, SeekWhence whence) = 0;
     virtual int32_t tell() const = 0;

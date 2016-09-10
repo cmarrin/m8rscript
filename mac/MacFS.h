@@ -77,6 +77,7 @@ private:
 
 class MacFS : public FS {
     friend class MacDirectoryEntry;
+    friend class MacFile;
     
 public:
     static void setFileSystemPath(const char* path);

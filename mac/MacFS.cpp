@@ -102,23 +102,24 @@ File* MacFS::open(const char* name, const char* mode)
 
 bool MacFS::remove(const char* name)
 {
-    return remove(name) == 0;
+    String path = String(_basePath) + name;
+    return ::remove(path.c_str()) == 0;
 }
 
 MacDirectoryEntry::MacDirectoryEntry()
 {
-	_dir = opendir(MacFS::_basePath);
+	_dir = ::opendir(MacFS::_basePath);
     next();
 }
 
 MacDirectoryEntry::~MacDirectoryEntry()
 {
-    closedir(_dir);
+    ::closedir(_dir);
 }
 
 bool MacDirectoryEntry::next()
 {
-    struct dirent* entry = readdir(_dir);
+    struct dirent* entry = ::readdir(_dir);
     if (!entry) {
         _valid = false;
         return false;
@@ -131,7 +132,7 @@ bool MacDirectoryEntry::next()
     strncpy(_name, entry->d_name, FilenameLength - 1);
     String path = String(MacFS::_basePath) + _name;
     struct stat statEntry;
-    if (stat(path.c_str(), &statEntry) != 0) {
+    if (::stat(path.c_str(), &statEntry) != 0) {
         _valid = false;
         return false;
     }
@@ -142,23 +143,24 @@ bool MacDirectoryEntry::next()
 
 MacFile::MacFile(const char* name, const char* mode)
 {
-    _file = fopen(name, mode);
+    String path = String(MacFS::_basePath) + name;
+    _file = ::fopen(path.c_str(), mode);
     _error = _file ? 0 : errno;
 }
 
 MacFile::~MacFile()
 {
-    fclose(_file);
+    ::fclose(_file);
 }
   
 int32_t MacFile::read(char* buf, uint32_t size)
 {
-    return static_cast<int32_t>(fread(buf, 1, size, _file));
+    return static_cast<int32_t>(::fread(buf, 1, size, _file));
 }
 
 int32_t MacFile::write(const char* buf, uint32_t size)
 {
-    return static_cast<int32_t>(fwrite(buf, 1, size, _file));
+    return static_cast<int32_t>(::fwrite(buf, 1, size, _file));
 }
 
 bool MacFile::seek(int32_t offset, SeekWhence whence)
@@ -169,17 +171,17 @@ bool MacFile::seek(int32_t offset, SeekWhence whence)
     } else if (whence == SeekWhence::End) {
         whenceFlag = SEEK_END;
     }
-    return fseek(_file, offset, whenceFlag) == 0;
+    return ::fseek(_file, offset, whenceFlag) == 0;
 }
 
 int32_t MacFile::tell() const
 {
-    return static_cast<int32_t>(ftell(_file));
+    return static_cast<int32_t>(::ftell(_file));
 }
 
 bool MacFile::eof() const
 {
-    return feof(_file) != 0;
+    return ::feof(_file) != 0;
 }
 
 

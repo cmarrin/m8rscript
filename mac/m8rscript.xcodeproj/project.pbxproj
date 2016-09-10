@@ -51,6 +51,8 @@
 		49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD773E1D83E14B00D7C374 /* ReloadFiles3.png */; };
 		49DD77421D83E14B00D7C374 /* ReloadFIles2.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD773F1D83E14B00D7C374 /* ReloadFIles2.png */; };
 		49DD77431D83E14B00D7C374 /* ReloadFiles1.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77401D83E14B00D7C374 /* ReloadFiles1.png */; };
+		49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77441D8467C100D7C374 /* DeleteFile.png */; };
+		49DD77471D84689100D7C374 /* AddFile.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77461D84689100D7C374 /* AddFile.png */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 /* End PBXBuildFile section */
@@ -154,6 +156,8 @@
 		49DD773E1D83E14B00D7C374 /* ReloadFiles3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReloadFiles3.png; sourceTree = "<group>"; };
 		49DD773F1D83E14B00D7C374 /* ReloadFIles2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReloadFIles2.png; sourceTree = "<group>"; };
 		49DD77401D83E14B00D7C374 /* ReloadFiles1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReloadFiles1.png; sourceTree = "<group>"; };
+		49DD77441D8467C100D7C374 /* DeleteFile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DeleteFile.png; sourceTree = "<group>"; };
+		49DD77461D84689100D7C374 /* AddFile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AddFile.png; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -276,6 +280,8 @@
 			isa = PBXGroup;
 			children = (
 				493C9EDA1D2191E60062152D /* build.png */,
+				49DD77461D84689100D7C374 /* AddFile.png */,
+				49DD77441D8467C100D7C374 /* DeleteFile.png */,
 				493C9ED41D218F100062152D /* stop.png */,
 				493C9ED51D218F100062152D /* pause.png */,
 				493C9ED61D218F100062152D /* play.png */,
@@ -480,6 +486,8 @@
 				493C9ED91D218F100062152D /* play.png in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
+				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
+				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,
 				493C9ED81D218F100062152D /* pause.png in Resources */,
 				49DD77431D83E14B00D7C374 /* ReloadFiles1.png in Resources */,

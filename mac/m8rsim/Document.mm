@@ -39,6 +39,8 @@ class MySystemInterface;
     __weak IBOutlet NSToolbarItem *pauseButton;
     __weak IBOutlet NSToolbarItem *stopButton;
     __weak IBOutlet NSToolbarItem *uploadButton;
+    __weak IBOutlet NSToolbarItem *addFileButton;
+    __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;
     __weak IBOutlet NSButton *led0;
     __weak IBOutlet NSButton *led1;
@@ -105,8 +107,11 @@ private:
     if (item == stopButton) {
         return _program && _running;
     }
-    if (item == uploadButton || item == reloadFilesButton) {
+    if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
         return [[simView selectedTabViewItem].identifier isEqualToString:@"files"];
+    }
+    if (item == uploadButton) {
+        return NO;
     }
     return YES;
 }
@@ -168,7 +173,7 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         addFileToList(_fileList, entry->name(), entry->size());
         entry->next();
     }
-    [fileListView setNeedsDisplay];
+    [fileListView reloadData];
 }
 
 - (instancetype)init {
@@ -332,10 +337,66 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     return;
 }
 
-- (IBAction)upload:(id)sender {
+- (IBAction)addFile:(id)sender {
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    [panel setPrompt:@"Upload"];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL*  url = [[panel URLs] objectAtIndex:0];
+            
+            m8r::FileStream fromStream([url fileSystemRepresentation], "r");
+            NSString* toName = url.lastPathComponent;
+            m8r::File* toFile = m8r::FS::sharedFS()->open([toName UTF8String], "w");
+            while(!fromStream.eof()) {
+                int c = fromStream.read();
+                if (c < 0) {
+                    break;
+                }
+                toFile->write(c);
+            }
+            delete toFile;
+            [self reloadFiles];
+        }
+    }];
+}
+
+- (IBAction)removeFile:(id)sender {
+    NSIndexSet* indexes = fileListView.selectedRowIndexes;
+    if (!indexes.count) {
+        return;
+    }
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert addButtonWithTitle:@"Cancel"];
+    if (indexes.count == 1) {
+        [alert setMessageText:@"Delete this file?"];
+    } else {
+        [alert setMessageText:@"Delete these files?"];
+    }
+    [alert setInformativeText:@"This operation cannot be undone."];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert beginSheetModalForWindow:fileListView.window completionHandler:^(NSInteger result){
+        if (result != NSAlertFirstButtonReturn) {
+            return;
+        }
+
+        NSUInteger i = 0;
+        for (NSDictionary* entry in _fileList) {
+            if ([indexes containsIndex:i++]) {
+                m8r::FS::sharedFS()->remove([[entry objectForKey:@"name"] UTF8String]);
+            }
+        }
+        [fileListView deselectAll:self];
+        [self reloadFiles];
+    }];
 }
 
 - (IBAction)reloadFiles:(id)sender {
+    [self reloadFiles];
+}
+
+- (IBAction)upload:(id)sender {
 }
 
 - (IBAction)importBinary:(id)sender {

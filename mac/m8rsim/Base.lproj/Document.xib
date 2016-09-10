@@ -8,15 +8,18 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="m8rsim" customModuleProvider="target">
             <connections>
+                <outlet property="addFileButton" destination="UOH-qv-SMd" id="B34-qi-dQl"/>
                 <outlet property="buildButton" destination="fRb-eR-XFZ" id="uv4-xd-UdH"/>
                 <outlet property="buildOutput" destination="SlE-A2-biS" id="Trc-jL-umk"/>
                 <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
+                <outlet property="fileListView" destination="9a0-Cf-dzx" id="S6G-Z1-6r0"/>
                 <outlet property="led0" destination="k7B-qr-GCg" id="L7a-Qh-0dY"/>
                 <outlet property="led1" destination="LtY-HL-FDX" id="ywk-0U-enw"/>
                 <outlet property="led2" destination="Shf-9f-9JX" id="05P-pJ-IuJ"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
                 <outlet property="pauseButton" destination="7ed-ZA-LTG" id="ZFe-iA-0tc"/>
                 <outlet property="reloadFilesButton" destination="ewM-ZG-vnX" id="k9u-M3-uSw"/>
+                <outlet property="removeFileButton" destination="dzK-IS-fxg" id="YZZ-Wx-0pg"/>
                 <outlet property="runButton" destination="PTc-iU-bNL" id="Ila-kZ-taU"/>
                 <outlet property="simView" destination="Q2b-al-Hth" id="SI6-Se-dQA"/>
                 <outlet property="sourceEditor" destination="T2A-LY-iQw" id="7o2-4Q-tqO"/>
@@ -131,7 +134,7 @@
                                                                 <rect key="frame" x="1" y="0.0" width="317" height="397"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
-                                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Fyr-3l-4is" id="9a0-Cf-dzx">
+                                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" headerView="Fyr-3l-4is" id="9a0-Cf-dzx">
                                                                         <rect key="frame" x="0.0" y="0.0" width="317" height="374"/>
                                                                         <autoresizingMask key="autoresizingMask"/>
                                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -328,29 +331,47 @@
                             <action selector="upload:" target="-2" id="prl-ww-f45"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="F9B1BC00-4883-414B-B136-112F5D8819A0" label="Reload Files" paletteLabel="Reload Files" tag="-1" image="ReloadFiles3" id="ewM-ZG-vnX" userLabel="Reload Files Button">
+                    <toolbarItem implicitItemIdentifier="F9B1BC00-4883-414B-B136-112F5D8819A0" label="Reload" paletteLabel="Reload" tag="-1" image="ReloadFiles3" id="ewM-ZG-vnX" userLabel="Reload Files Button">
                         <connections>
                             <action selector="reloadFiles:" target="-2" id="eGT-bz-1VV"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="35DE10B2-945E-4861-AAB4-BF8CC135775D" label="Remove" paletteLabel="Remove" tag="-1" image="DeleteFile" id="dzK-IS-fxg" userLabel="Remove File Button">
+                        <connections>
+                            <action selector="removeFile:" target="-2" id="dKB-S4-XGg"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="931E84B2-D432-4A60-B97B-6D68B866F415" label="Add" paletteLabel="Add" tag="-1" image="AddFile" id="UOH-qv-SMd" userLabel="Add File Button">
+                        <connections>
+                            <action selector="addFile:" target="-2" id="Zjc-9V-flc"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
+                    <toolbarItem reference="UOH-qv-SMd"/>
+                    <toolbarItem reference="dzK-IS-fxg"/>
+                    <toolbarItem reference="ewM-ZG-vnX"/>
+                    <toolbarItem reference="0UH-cz-m8w"/>
+                    <toolbarItem reference="0UH-cz-m8w"/>
+                    <toolbarItem reference="0UH-cz-m8w"/>
+                    <toolbarItem reference="0UH-cz-m8w"/>
                     <toolbarItem reference="fRb-eR-XFZ"/>
                     <toolbarItem reference="PTc-iU-bNL"/>
                     <toolbarItem reference="8JM-U9-YKY"/>
                     <toolbarItem reference="7ed-ZA-LTG"/>
-                    <toolbarItem reference="0UH-cz-m8w"/>
+                    <toolbarItem reference="QGa-QJ-f5Z"/>
                     <toolbarItem reference="anh-eu-bM3"/>
-                    <toolbarItem reference="ewM-ZG-vnX"/>
                 </defaultToolbarItems>
             </toolbar>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-310" y="220"/>
+            <point key="canvasLocation" x="-37" y="220"/>
         </window>
     </objects>
     <resources>
+        <image name="AddFile" width="128" height="128"/>
+        <image name="DeleteFile" width="128" height="128"/>
         <image name="ReloadFiles3" width="229" height="229"/>
         <image name="build" width="300" height="282"/>
         <image name="green-led-off-md" width="20" height="20"/>
