@@ -150,21 +150,27 @@ MacFile::MacFile(const char* name, const char* mode)
 
 MacFile::~MacFile()
 {
-    ::fclose(_file);
+    if (_file) {
+        ::fclose(_file);
+    }
 }
   
 int32_t MacFile::read(char* buf, uint32_t size)
 {
-    return static_cast<int32_t>(::fread(buf, 1, size, _file));
+    return _file ? static_cast<int32_t>(::fread(buf, 1, size, _file)) : -1;
 }
 
 int32_t MacFile::write(const char* buf, uint32_t size)
 {
-    return static_cast<int32_t>(::fwrite(buf, 1, size, _file));
+    return _file ? static_cast<int32_t>(::fwrite(buf, 1, size, _file)) : -1;
 }
 
 bool MacFile::seek(int32_t offset, SeekWhence whence)
 {
+    if (!_file) {
+        return false;
+    }
+    
     int whenceFlag = SEEK_SET;
     if (whence == SeekWhence::Cur) {
         whenceFlag = SEEK_CUR;
@@ -176,12 +182,12 @@ bool MacFile::seek(int32_t offset, SeekWhence whence)
 
 int32_t MacFile::tell() const
 {
-    return static_cast<int32_t>(::ftell(_file));
+    return _file ? static_cast<int32_t>(::ftell(_file)) : -1;
 }
 
 bool MacFile::eof() const
 {
-    return ::feof(_file) != 0;
+    return !_file || ::feof(_file) != 0;
 }
 
 

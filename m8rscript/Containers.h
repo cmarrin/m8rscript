@@ -186,10 +186,22 @@ public:
     
     String slice(int32_t start, int32_t end)
     {
-        // FIXME: deal with negative start and end
-        // FIXME: deal with end before start
-        // FIXME: do range checking
+        int32_t size = static_cast<int32_t>(length());
+        if (start < 0) {
+            start = size + start;
+        }
+        if (end < 0) {
+            end = size + end;
+        }
+        if (start >= end || end > size) {
+            return String();
+        }
         return String(_data + start, end - start);
+    }
+    
+    String slice(int32_t start)
+    {
+        return slice(start, static_cast<int32_t>(length()));
     }
     
     String trim()

@@ -206,7 +206,7 @@ void ExecutionUnit::startExecution(Program* program)
     _program = program;
     _object = program;
     _stack.clear();
-    _stack.setLocalFrame(0, _object->localSize());
+    _stack.setLocalFrame(0, _object ? _object->localSize() : 0);
 }
 
 void ExecutionUnit::startFunction(Function* function, uint32_t nparams)
@@ -287,6 +287,10 @@ static const uint16_t YieldCount = 2000;
         } \
         op = static_cast<Op>(_code[_pc++]); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
+    }
+    
+    if (!_program) {
+        return -1;
     }
 
     uint16_t yieldCounter = YieldCount;

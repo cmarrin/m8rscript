@@ -71,6 +71,8 @@ public:
 
     virtual int32_t callProperty(uint32_t index, ExecutionUnit*, uint32_t nparams) override;
     
+    SystemInterface* system() const { return _system; }
+    
 protected:
     virtual bool serialize(Stream*, Error&) const override
     {

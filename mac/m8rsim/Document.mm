@@ -10,6 +10,7 @@
 
 #import "NSTextView+JSDExtensions.h"
 
+#import "Application.h"
 #import "Parser.h"
 #import "CodePrinter.h"
 #import "ExecutionUnit.h"
@@ -39,6 +40,7 @@ class MySystemInterface;
     __weak IBOutlet NSToolbarItem *pauseButton;
     __weak IBOutlet NSToolbarItem *stopButton;
     __weak IBOutlet NSToolbarItem *uploadButton;
+    __weak IBOutlet NSToolbarItem *simulateButton;
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;
@@ -51,6 +53,7 @@ class MySystemInterface;
     MySystemInterface* _system;
     m8r::ExecutionUnit* _eu;
     m8r::Program* _program;
+    m8r::Application* _application;
     bool _running;
     NSMutableArray* _fileList;
 }
@@ -98,11 +101,11 @@ private:
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
+    if (item == buildButton || item == simulateButton) {
+        return YES;
+    }
     if (item == runButton) {
         return _program && !_running;
-    }
-    if (item == pauseButton) {
-        return NO;
     }
     if (item == stopButton) {
         return _program && _running;
@@ -110,10 +113,7 @@ private:
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
         return [[simView selectedTabViewItem].identifier isEqualToString:@"files"];
     }
-    if (item == uploadButton) {
-        return NO;
-    }
-    return YES;
+    return NO;
 }
 
 - (void)textStorageDidProcessEditing:(NSNotification *)notification {
@@ -275,7 +275,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     } else {
         [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
         _program = parser.program();
-        runButton.enabled = YES;
 
         m8r::CodePrinter codePrinter(_system);
         m8r::String codeString = codePrinter.generateCodeString(_program);
@@ -317,8 +316,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         dispatch_async(dispatch_get_main_queue(), ^{
             [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)\n", timeInSeconds * 1000] toBuild:NO];
             _running = false;
-            runButton.enabled = YES;
-            stopButton.enabled = NO;
         });
     });
 }
@@ -339,21 +336,22 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 
 - (IBAction)addFile:(id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel setPrompt:@"Upload"];
+    [panel setPrompt:@"Add"];
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL*  url = [[panel URLs] objectAtIndex:0];
             
-            m8r::FileStream fromStream([url fileSystemRepresentation], "r");
+            FILE* fromFile = fopen([url fileSystemRepresentation], "r");
             NSString* toName = url.lastPathComponent;
             m8r::File* toFile = m8r::FS::sharedFS()->open([toName UTF8String], "w");
-            while(!fromStream.eof()) {
-                int c = fromStream.read();
+            while(!feof(fromFile)) {
+                int c = fgetc(fromFile);
                 if (c < 0) {
                     break;
                 }
                 toFile->write(c);
             }
+            fclose(fromFile);
             delete toFile;
             [self reloadFiles];
         }
@@ -397,6 +395,12 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 }
 
 - (IBAction)upload:(id)sender {
+}
+
+- (IBAction)simulate:(id)sender {
+    _application = new m8r::Application(_system);
+    _program = _application->program();
+    [self run:self];
 }
 
 - (IBAction)importBinary:(id)sender {

@@ -59,6 +59,8 @@ public:
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
     
+    SystemInterface* system() const { return _global.system(); }
+    
     static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
     static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
     

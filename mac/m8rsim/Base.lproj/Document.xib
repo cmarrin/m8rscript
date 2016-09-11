@@ -22,6 +22,7 @@
                 <outlet property="removeFileButton" destination="dzK-IS-fxg" id="YZZ-Wx-0pg"/>
                 <outlet property="runButton" destination="PTc-iU-bNL" id="Ila-kZ-taU"/>
                 <outlet property="simView" destination="Q2b-al-Hth" id="SI6-Se-dQA"/>
+                <outlet property="simulateButton" destination="FGO-rL-12M" id="MS9-57-XlF"/>
                 <outlet property="sourceEditor" destination="T2A-LY-iQw" id="7o2-4Q-tqO"/>
                 <outlet property="stopButton" destination="8JM-U9-YKY" id="hjX-W4-mFh"/>
                 <outlet property="uploadButton" destination="anh-eu-bM3" id="uvA-dW-2HU"/>
@@ -346,6 +347,11 @@
                             <action selector="addFile:" target="-2" id="Zjc-9V-flc"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="4F79AF07-6EF4-46A5-A8C0-5F022CF2E722" label="Simulate" paletteLabel="Simulate" tag="-1" image="Simulate" id="FGO-rL-12M" userLabel="Simulat4e Button">
+                        <connections>
+                            <action selector="simulate:" target="-2" id="8IB-Vx-VLZ"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="UOH-qv-SMd"/>
@@ -359,6 +365,8 @@
                     <toolbarItem reference="PTc-iU-bNL"/>
                     <toolbarItem reference="8JM-U9-YKY"/>
                     <toolbarItem reference="7ed-ZA-LTG"/>
+                    <toolbarItem reference="0UH-cz-m8w"/>
+                    <toolbarItem reference="FGO-rL-12M"/>
                     <toolbarItem reference="QGa-QJ-f5Z"/>
                     <toolbarItem reference="anh-eu-bM3"/>
                 </defaultToolbarItems>
@@ -373,6 +381,7 @@
         <image name="AddFile" width="128" height="128"/>
         <image name="DeleteFile" width="128" height="128"/>
         <image name="ReloadFiles3" width="229" height="229"/>
+        <image name="Simulate" width="225" height="225"/>
         <image name="build" width="300" height="282"/>
         <image name="green-led-off-md" width="20" height="20"/>
         <image name="green-led-on-md" width="20" height="20"/>

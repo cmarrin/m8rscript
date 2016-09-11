@@ -23,7 +23,8 @@ DEBUG_FLAGS = -Os
 #=== Project specific definitions
 MAIN_NAME = m8rscript
 
-SRC ?=  ../m8rscript/Array.cpp \
+SRC ?=  ../m8rscript/Application.cpp \
+        ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Error.cpp \
 		../m8rscript/ExecutionUnit.cpp \

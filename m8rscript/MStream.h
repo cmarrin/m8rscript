@@ -35,14 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#ifdef __APPLE__
-#include <cstdio>
-#else
 #include "FS.h"
-#endif
-
 #include "Containers.h"
-
 #include "SystemInterface.h"
 
 namespace m8r {
@@ -74,43 +68,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 class FileStream : public m8r::Stream {
-#ifdef __APPLE__
 public:
-	FileStream(const char* file, const char* mode = "r")
-    {
-        _file = fopen(file, mode);
-    }
-    ~FileStream()
-    {
-        if (_file) {
-            fclose(_file);
-            _file = nullptr;
-        }
-    }
-	
-    bool loaded()
-    {
-        return _file;
-    }
-	virtual bool eof() const override
-    {
-        return feof(_file) != 0;
-    }
-    virtual int read() const override
-    {
-        return fgetc(_file);
-    }
-    virtual int write(uint8_t c) override
-    {
-        return fputc(c, _file);
-    }
-	virtual void flush() override { }
-	
-private:
-    FILE* _file;
-#else
-public:
-    // Supported modes 
 	FileStream(const char* file, const char* mode = "r")
     {
         _file = FS::sharedFS()->open(file, mode);
@@ -156,7 +114,6 @@ public:
 	
 private:
     File* _file = nullptr;
-#endif
 };
 
 //////////////////////////////////////////////////////////////////////////////
