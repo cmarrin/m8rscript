@@ -191,16 +191,14 @@ void initmdns(const char* hostname, uint8_t interface)
     struct mdns_info mdnsInfo;
     struct ip_info ipconfig;
     wifi_get_ip_info(interface, &ipconfig);
-    memset(&mdnsInfo, 0, sizeof(mdnsInfo));
     mdnsInfo.host_name = (char*) hostname; 
     mdnsInfo.server_name = (char*) "m8rscript_server";
     mdnsInfo.ipAddr = ipconfig.ip.addr;
-    mdnsInfo.server_port = 80; 
+    mdnsInfo.server_port = 22; 
     mdnsInfo.txt_data[0] = (char*) "version = now"; 
     mdnsInfo.txt_data[1] = (char*) "user1 = data1"; 
     mdnsInfo.txt_data[2] = (char*) "user2 = data2";
     espconn_mdns_init(&mdnsInfo);
-    espconn_mdns_enable();
     os_printf("The mDNS responder is running at %s.local.\n", hostname);
 }
 
@@ -222,6 +220,15 @@ void initSoftAP()
     wifi_softap_set_config(&apConfig);
 }
 
+void gotStationIP()
+{
+    if (_initializedCB && !_calledInitializeCB) {
+        initmdns("m8rscript", STATION_IF);
+        _initializedCB();
+        _calledInitializeCB = true;
+    }
+}
+
 static const uint8_t NumWifiTries = 10;
 static uint8_t gNumWifiTries = 0;
 void wifiEventHandler(System_Event_t *evt)
@@ -236,69 +243,38 @@ void wifiEventHandler(System_Event_t *evt)
             }
             break;
         case EVENT_STAMODE_GOT_IP:
-            initmdns("m8rscript", STATION_IF);
-            if (_initializedCB) {
-                _initializedCB();
-            }
+            gotStationIP();
             break;
         }
         default:
+            os_printf("******** wifiEventHandler got %d event\n", evt->event);
             break;
     }
 }
 
 static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A') : (b + '0'); }
 
-void initNetwork()
-{
-    // Set DHCP Name
-    uint8_t hwaddr[6] = { 0 };
-	wifi_get_macaddr(STATION_IF, hwaddr);
-    char hostname[8];
-    hostname[0] = 'E';
-    hostname[1] = 'S';
-    hostname[2] = 'P';
-    hostname[3] = nibbleToHexChar(hwaddr[4] >> 4);
-    hostname[4] = nibbleToHexChar(hwaddr[4] && 0x0f);
-    hostname[5] = nibbleToHexChar(hwaddr[5] >> 4);
-    hostname[6] = nibbleToHexChar(hwaddr[5] && 0x0f);
-    hostname[7] = '\0';
-    os_printf("setting DHCP name to '%s'\n", hostname);
-    wifi_station_set_hostname(hostname);
-    
-    gNumWifiTries = 0;
-
-    wifi_softap_dhcps_stop();
-    wifi_set_opmode(STATION_MODE);
-    wifi_set_event_handler_cb(wifiEventHandler);
-}
-
-void startupTimerFired()
-{
-    initNetwork();
-}
-
-void initDone()
-{
-    os_timer_arm(&startupTimer, 2000, false);
-}
-
 void initializeSystem(void (*initializedCB)())
 {
+    _calledInitializeCB = false;
     _initializedCB = initializedCB;
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
     do_global_ctors();
 
+    gNumWifiTries = 0;
+    wifi_set_opmode(STATION_MODE);
+    
+    // If we already have our IP we won't get EVENT_STAMODE_GOT_IP since we haven't set
+    // up the callback yet. So call it here:
+    wifi_set_event_handler_cb(wifiEventHandler);
+    if (wifi_station_get_connect_status() == STATION_GOT_IP) {
+        gotStationIP();
+    }
+
     os_timer_disarm(&micros_overflow_timer);
     os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, nullptr);
     os_timer_arm(&micros_overflow_timer, 60000, true);
-    
-    os_timer_disarm(&startupTimer);
-    os_timer_setfn(&startupTimer, (os_timer_func_t*) &startupTimerFired, nullptr);
-    os_timer_arm(&startupTimer, 2000, false);
-    
-    system_init_done_cb(initDone);
 }
 
 uint64_t currentMicroseconds()
