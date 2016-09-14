@@ -56,6 +56,7 @@ class MySystemInterface;
     m8r::Application* _application;
     bool _running;
     NSMutableArray* _fileList;
+    NSNetServiceBrowser* _netServiceBrowser;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -186,6 +187,11 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         setFileSystemPath();
         _fileList = [[NSMutableArray alloc] init];
         [self reloadFiles];
+
+    
+        _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
+        [_netServiceBrowser setDelegate: (id) self];
+        [_netServiceBrowser searchForServicesOfType:@"_homekit._tcp." inDomain:@"local."];	
      }
     return self;
 }
@@ -452,6 +458,7 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     return [_fileList count];
 }
 
+// TableView delegagte
 - (id)tableView:(NSTableView *)aTableView
 objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex
@@ -465,6 +472,23 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
               row:(NSInteger)rowIndex
 {
     return;
+}
+
+// NSNetServiceBrowser delegate
+- (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)netServiceBrowser
+{
+    NSLog(@"*** netServiceBrowserWillSearch\n");
+}
+
+- (void)ne:(NSNetServiceBrowser *)netServiceBrowser
+           didFindService:(NSNetService *)netService
+               moreComing:(BOOL)moreServicesComing
+{
+    NSLog(@"*** Found service: %@\n", netService);
+}
+
+-(void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *,NSNumber *> *)errorDict {
+    NSLog(@"not search ");
 }
 
 @end

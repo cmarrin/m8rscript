@@ -44,6 +44,7 @@ static os_timer_t micros_overflow_timer;
 static uint32_t micros_at_last_overflow_tick = 0;
 static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
+static bool _calledInitializeCB = false;
 
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
     s_panic_file = file;
