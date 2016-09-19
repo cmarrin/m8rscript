@@ -20,18 +20,16 @@
 
 #pragma once
 
+#include <stdint.h>
+#include <stdarg.h>
+#include <assert.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "user_config.h"
-#include "umm_malloc.h"
-#include "osapi.h"
-
-#include <stdint.h>
-#include <stdarg.h>
+#include <osapi.h>
 #include <ets_sys.h>
-#include <assert.h>
 
 int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 2)));
 

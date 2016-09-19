@@ -23,13 +23,10 @@
 #include "MDNSResponder.h"
 
 extern "C" {
-#include <c_types.h>
 #include <cxxabi.h>
-#include <osapi.h>
 #include "user_interface.h"
-#include <ets_sys.h>
-#include <espconn.h>
 #include <smartconfig.h>
+#include "umm_malloc.h"
 
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 
@@ -102,9 +99,6 @@ static bool _calledInitializeCB = false;
     abort();
 }
 
-extern void* malloc(size_t size);
-extern void free(void* ptr);
-
 void abort() { while(1) ; }
 
 void *memchr(const void *s, int c, size_t n)
@@ -133,16 +127,6 @@ static void do_global_ctors(void) {
     void (**p)(void) = &__init_array_end;
     while (p != &__init_array_start)
         (*--p)();
-}
-
-// Interface is STATION_IF or SOFTAP_IF
-void setIP(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t interface)
-{
-    struct ip_info info;
-    IP4_ADDR(&info.ip, a, b, c, d);
-    IP4_ADDR(&info.gw, a, b, c, d);
-    IP4_ADDR(&info.netmask, 255, 255, 255, 0);
-    wifi_set_ip_info(interface, &info);
 }
 
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)

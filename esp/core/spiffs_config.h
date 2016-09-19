@@ -8,6 +8,8 @@
 #ifndef SPIFFS_CONFIG_H_
 #define SPIFFS_CONFIG_H_
 
+#include <stddef.h>
+
 #ifdef __ets__
 #include <user_config.h>
 #include "flashmem.h"
