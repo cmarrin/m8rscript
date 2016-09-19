@@ -39,9 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Containers.h"
 #include "UDP.h"
 
-#include <ip_addr.h>
-#include <espconn.h>
-
 namespace m8r {
 
 class MDNSResponder {
@@ -67,6 +64,8 @@ private:
        SRV = 0x0021,
        AAAA = 0x001c,
     };
+    
+    static const uint16_t QClassIN = 1;
 
     struct MDNSHeader {
        uint16_t    xid;
@@ -104,7 +103,31 @@ private:
     
     void receivedData(const char* data, uint16_t length);
 
-    void writeHeader();
+    bool matchesHostname(const String& s) const
+    {
+        size_t length = _hostname.length();
+        if (s.length() != length + 6) {
+            return false;
+        }
+        return strncmp(_hostname.c_str(), s.c_str(), length) == 0 && strcmp(s.c_str() + length, ".local") == 0;
+    }
+    
+    void write(uint32_t value)
+    {
+        write(static_cast<uint16_t>(value >> 16));
+        write(static_cast<uint16_t>(value));
+    }
+
+    void write(uint16_t value)
+    {
+        _replyBuffer.push_back(static_cast<uint8_t>(value >> 8));
+        _replyBuffer.push_back(static_cast<uint8_t>(value));
+    }
+
+    void write(const char* s, size_t length);
+    
+    void writeHostname(bool terminate);
+    void writeHeader(uint8_t count);
     void writeA();
     void writePTR();
     void writeSRV();

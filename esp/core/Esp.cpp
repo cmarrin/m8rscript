@@ -92,6 +92,13 @@ static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
 static bool _calledInitializeCB = false;
 
+IPAddr IPAddr::myIPAddr()
+{
+    struct ip_info info;
+    wifi_get_ip_info(STATION_IF, &info);
+    return IPAddr(info.ip.addr);
+}
+
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
     s_panic_file = file;
     s_panic_line = line;

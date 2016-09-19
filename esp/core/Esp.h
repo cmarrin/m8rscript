@@ -61,7 +61,11 @@ public:
     operator uint32_t() const { return _addr; }
     uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
     
+    static IPAddr myIPAddr();
+    
 private:
+    IPAddr(uint32_t addr) : _addr(addr) { }
+    
     uint32_t _addr;
 };
 #endif
@@ -69,6 +73,7 @@ private:
 void initializeSystem(void (*)());
 uint64_t currentMicroseconds();
 static inline int readSerialChar() { return 0; }
+
 
 #define HIGH 0x1
 #define LOW  0x0

@@ -39,11 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdlib>
 
 extern "C" {
-#include <ets_sys.h>
-#include <osapi.h>
-#include <os_type.h>
-#include <mem.h>
-#include <gpio.h>
 #include "user_interface.h"
 }
 
@@ -57,7 +52,6 @@ MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint3
 {
 	_ttl = ttl;
     _hostname = name;
-    _hostname += ".local";
     
     esp::UDP::joinMulticastGroup({ 224,0,0,251 });
     _udp = new MyUDP(5353, this);
@@ -75,49 +69,6 @@ MDNSResponder::~MDNSResponder()
     delete _udp;
     esp::UDP::leaveMulticastGroup({ 224,0,0,251 });
 }
-
-
-//uint8_t* MDNSResponder::encodeResp(uint32_t ip, const char *name, int *len)
-//{
-//        *len = 12+strlen(name)+16;
-//        unsigned char *data = (unsigned char *)malloc(*len);
-//        memset(data, 0, *len);
-//
-//        data[2] = 0x84;
-//        data[7] = 1;
-//
-//        unsigned char *p = data+12;
-//        const char *np = name;
-//        char *i;
-//        while(i = ets_strstr(np,"."))
-//        {
-//                *p = i - np;
-//                p++;
-//                memcpy(p,np,i-np);
-//                p += i - np;
-//                np = i + 1;
-//        }
-//        *p = strlen(np);
-//        p++;
-//        memcpy(p,np,strlen(np));
-//        p += strlen(np);
-//        *p++ = 0; // terminate string sequence
-//
-//        *p++ = 0; *p++ = 1; // type 0001 (A)
-//
-//        *p++ = 0x80; *p++ = 1; // class code (IPV4)
-//
-//        *p++ = _ttl >> 24;
-//        *p++ = _ttl >> 16;
-//        *p++ = _ttl >> 8;
-//        *p++ = _ttl;
-//
-//        *p++ = 0; *p++ = 4; // length (of ip)
-//
-//        memcpy(p, &ip, 4);
-//
-//        return data;
-//}
 
 const char* decodeNameStrings(const char* data, uint32_t dataLen, String& name, const char* p)
 {
@@ -145,21 +96,6 @@ const char* decodeNameStrings(const char* data, uint32_t dataLen, String& name, 
     return p;
 }
 
-//void MDNSResponder::sendOne(struct _host *h)
-//{
-//	_conn.proto.udp->remote_ip[0] = 224;
-//	_conn.proto.udp->remote_ip[1] = 0;
-//	_conn.proto.udp->remote_ip[2] = 0;
-//	_conn.proto.udp->remote_ip[3] = 251;
-//	_conn.proto.udp->remote_port = 5353;
-//	_conn.proto.udp->local_port = 5353;
-//#ifdef MDNSRESP_DEBUG
-//	hexdump("sending",h->mdnsresp, h->len);
-//#endif
-//	espconn_send(&_conn,h->mdnsresp, h->len);
-//
-//}
-
 static inline uint16_t uint16FromBuf(const char* buf)
 {
     return (static_cast<uint16_t>(buf[0]) << 8) | static_cast<uint16_t>(buf[1]);
@@ -182,26 +118,37 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
         uint16_t qclass = uint16FromBuf(p + 2);
         p += 4;
         
-        if ((qclass & 0x7fff) != 1 || name != _hostname) {
+        if ((qclass & 0x7fff) != 1 || !matchesHostname(name)) {
             continue;
         }
         
 #ifdef MDNSRESP_DEBUG
 		os_printf ("decoded our hostname qtype=%d qclass=%d\n", qtype, qclass);
 #endif
-        _replyBuffer.clear();
-        
-		if (qtype == QuestionType::A || qtype == QuestionType::SRV || qtype == QuestionType::PTR) {
-            writeA();
+        uint8_t count = 0;
+        switch(qtype) {
+            case QuestionType::A: count = 1; break;
+            case QuestionType::TXT: count = 1; break;
+            case QuestionType::SRV: count = 2; break;
+            case QuestionType::PTR: count = 4; break;
         }
+        if (!count) {
+            return;
+        }
+        
+        writeHeader(count);
+        
         if (qtype == QuestionType::PTR) {
             writePTR();
+        }
+        if (qtype == QuestionType::TXT || qtype == QuestionType::PTR) {
+            writeTXT();
         }
         if (qtype == QuestionType::SRV || qtype == QuestionType::PTR) {
             writeSRV();
         }
-        if (qtype == QuestionType::TXT || qtype == QuestionType::PTR) {
-            writeTXT();
+		if (qtype == QuestionType::A || qtype == QuestionType::SRV || qtype == QuestionType::PTR) {
+            writeA();
         }
         
         sendReply();
@@ -210,7 +157,7 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
 
 void MDNSResponder::broadcast()
 {
-    _replyBuffer.clear();
+    writeHeader(4);
     writePTR();
     writeTXT();
     writeSRV();
@@ -223,8 +170,49 @@ void MDNSResponder::addService(uint16_t port, const char* instance, const char* 
     _services.emplace_back(port, instance, serviceType, protocol, text);
 }
 
+void MDNSResponder::writeHeader(uint8_t count)
+{
+    _replyBuffer.clear();
+    
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0x84); // Response + Authoritative Answer
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(count); // Answer count
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(0);
+}
+
+void MDNSResponder::write(const char* s, size_t length)
+{
+    _replyBuffer.push_back(length);
+    for (size_t i = 0; i < length; ++i) {
+        _replyBuffer.push_back(s[i]);
+    }
+}
+
+void MDNSResponder::writeHostname(bool terminate)
+{
+    write(_hostname.c_str(), _hostname.length());
+    write("local", 5);
+    if (terminate) {
+        _replyBuffer.push_back(0);
+    }
+}
+
 void MDNSResponder::writeA()
 {
+    writeHostname(true);
+    write(static_cast<uint16_t>(QuestionType::A));
+    write(QClassIN);
+    write(_ttl);
+    write(static_cast<uint16_t>(4)); // length of IP
+    write(static_cast<uint32_t>(IPAddr::myIPAddr()));
 }
 
 void MDNSResponder::writePTR()
