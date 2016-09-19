@@ -54,8 +54,6 @@ TCP::TCP(uint16_t port)
         os_printf("ERROR: espconn_accept (%d)\n", result);
         return;
     }
-    
-    os_printf("TCP: accepting connections on port %d\n", port);
 }
 
 TCP::~TCP()
@@ -115,8 +113,6 @@ void TCP::reconnectCB(void* arg, int8_t error)
 void TCP::receiveCB(void* arg, char* data, uint16_t length)
 {
     struct espconn* conn = (struct espconn *) arg;
-
-    os_printf("TCP: received %d bytes from port %d\n", length, conn->proto.tcp->local_port);
 
     reinterpret_cast<TCP*>(conn->reverse)->receivedData(data, length);
 }

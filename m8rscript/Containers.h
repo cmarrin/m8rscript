@@ -174,6 +174,7 @@ public:
     
     bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
     bool operator==(const String& other) const { return strcmp(c_str(), other.c_str()) == 0; }
+    bool operator!=(const String& other) const { return strcmp(c_str(), other.c_str()) != 0; }
 
     const char* c_str() const { return _data ? _data : ""; }
     void erase()

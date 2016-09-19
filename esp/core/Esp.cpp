@@ -18,10 +18,11 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-extern "C" {
-
 #include "Esp.h"
 #include "FS.h"
+#include "MDNSResponder.h"
+
+extern "C" {
 #include <c_types.h>
 #include <cxxabi.h>
 #include <osapi.h>
@@ -31,32 +32,6 @@ extern "C" {
 #include <smartconfig.h>
 
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
-
-static const char* WIFIAP_SSID = "ESP8266";
-static const char* WIFIAP_PWD = "m8rscript";
-
-static const char* s_panic_file = 0;
-static int s_panic_line = 0;
-static const char* s_panic_func = 0;
-
-static os_timer_t startupTimer;
-static os_timer_t micros_overflow_timer;
-static uint32_t micros_at_last_overflow_tick = 0;
-static uint32_t micros_overflow_count = 0;
-static void (*_initializedCB)();
-static bool _calledInitializeCB = false;
-
-[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
-    s_panic_file = file;
-    s_panic_line = line;
-    s_panic_func = func;
-    abort();
-}
-
-extern void* malloc(size_t size);
-extern void free(void* ptr);
-
-void abort() { while(1) ; }
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -103,6 +78,34 @@ user_rf_cal_sector_set(void)
 
     return rf_cal_sec;
 }
+
+} // extern "C"
+
+static const char* WIFIAP_SSID = "ESP8266";
+static const char* WIFIAP_PWD = "m8rscript";
+
+static const char* s_panic_file = 0;
+static int s_panic_line = 0;
+static const char* s_panic_func = 0;
+
+static os_timer_t startupTimer;
+static os_timer_t micros_overflow_timer;
+static uint32_t micros_at_last_overflow_tick = 0;
+static uint32_t micros_overflow_count = 0;
+static void (*_initializedCB)();
+static bool _calledInitializeCB = false;
+
+[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
+    s_panic_file = file;
+    s_panic_line = line;
+    s_panic_func = func;
+    abort();
+}
+
+extern void* malloc(size_t size);
+extern void free(void* ptr);
+
+void abort() { while(1) ; }
 
 void *memchr(const void *s, int c, size_t n)
 {
@@ -187,20 +190,13 @@ void smartConfig()
     smartconfig_start(smartconfigDone);
 }
 
+m8r::MDNSResponder* _responder = nullptr;
+
 void initmdns(const char* hostname, uint8_t interface)
 {
-    struct mdns_info mdnsInfo;
-    struct ip_info ipconfig;
-    wifi_get_ip_info(interface, &ipconfig);
-    mdnsInfo.host_name = (char*) hostname; 
-    mdnsInfo.server_name = (char*) "m8rscript_server";
-    mdnsInfo.ipAddr = ipconfig.ip.addr;
-    mdnsInfo.server_port = 22; 
-    mdnsInfo.txt_data[0] = (char*) "version = now"; 
-    mdnsInfo.txt_data[1] = (char*) "user1 = data1"; 
-    mdnsInfo.txt_data[2] = (char*) "user2 = data2";
-    espconn_mdns_init(&mdnsInfo);
-    os_printf("The mDNS responder is running at %s.local.\n", hostname);
+    if (!_responder) {
+        _responder = new m8r::MDNSResponder("m8rscript");
+    }
 }
 
 void initSoftAP()
@@ -284,6 +280,8 @@ uint64_t currentMicroseconds()
     uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
     return (c << 32) + m;
 }
+
+extern "C" {
 
 void* ICACHE_RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {

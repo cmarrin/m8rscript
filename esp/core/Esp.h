@@ -33,6 +33,41 @@ extern "C" {
 #include <ets_sys.h>
 #include <assert.h>
 
+int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 2)));
+
+#define debugf os_printf
+#define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
+
+void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
+void ets_timer_disarm(ETSTimer *a);
+void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
+void uart_div_modify(int no, int freq);
+int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
+void ets_delay_us(uint32_t);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#ifdef __cplusplus
+class IPAddr {
+public:
+    IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+    {
+        _addr = static_cast<uint32_t>(a) |
+                static_cast<uint32_t>(b) << 8 |
+                static_cast<uint32_t>(c) << 16 |
+                static_cast<uint32_t>(d) << 24;
+    }
+    
+    operator uint32_t() const { return _addr; }
+    uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
+    
+private:
+    uint32_t _addr;
+};
+#endif
+
 void initializeSystem(void (*)());
 uint64_t currentMicroseconds();
 static inline int readSerialChar() { return 0; }
@@ -79,8 +114,6 @@ void timer1_attachInterrupt(timercallback userFunc);
 void timer1_detachInterrupt(void);
 void timer1_write(uint32_t ticks); //maximum ticks 8388607
 
-extern void abort();
-
 #ifndef __STRINGIFY
 #define __STRINGIFY(a) #a
 #endif
@@ -97,14 +130,7 @@ static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
     return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
 }
 
-int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 2)));
-
-#define debugf os_printf
-#define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
-
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
-
-void ets_delay_us(uint32_t);
 
 // these low level routines provide a replacement for SREG interrupt save that AVR uses
 // but are esp8266 specific. A normal use pattern is like
@@ -126,13 +152,3 @@ void ets_delay_us(uint32_t);
 #define noInterrupts() xt_rsil(15)
 
 #define sprintf os_sprintf
-
-void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
-void ets_timer_disarm(ETSTimer *a);
-void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
-void uart_div_modify(int no, int freq);
-int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
