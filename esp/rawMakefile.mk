@@ -106,18 +106,18 @@ FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
 FW_FILE_2_ADDR	= 0x40000
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
-LIBS = main net80211 wpa pp phy crypto smartconfig lwip_open
+LIBS = main net80211 wpa pp phy crypto smartconfig lwip
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) $(LWIP_INCLUDE_DIR)
+INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -L$(LWIP_LIB_DIR) -T$(FLASH_LAYOUT) -Wl,--gc-sections
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections
 
 LD_STD_LIBS = -nostdlib -Wl,--start-group $(LIBS) -Wl,--end-group -lgcc
 
@@ -126,11 +126,6 @@ CORE_DIR = ./core
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
-
-# Lwip source files
-LWIP_DIR = ./esp-open-lwip
-LWIP_LIB_DIR = $(LWIP_DIR)
-LWIP_INCLUDE_DIR = $(LWIP_DIR)/include
 
 # Spiffs source files
 SPIFFS_DIR = ./spiffs/src
@@ -144,7 +139,7 @@ USER_SRC = $(SRC)
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(LWIP_DIR) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(USER_DIRS)
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -184,7 +179,7 @@ $(OBJ_DIR)/%.S$(OBJ_EXT): %.S
 	echo  $(<F)
 	$(CC) $(C_DEFINES) $(C_INCLUDES) $(S_FLAGS) $< -o $@
 
-$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ) $(LWIP_OBJ)
+$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ)
 	echo  Creating core archive
 	rm -f $@
 	$(AR) cru $@  $^
