@@ -70,17 +70,16 @@ MDNSResponder::~MDNSResponder()
     esp::UDP::leaveMulticastGroup({ 224,0,0,251 });
 }
 
-const char* decodeNameStrings(const char* data, uint32_t dataLen, String& name, const char* p)
+const char* decodeNameStrings(const char* data, uint32_t dataLen, std::vector<String>& names, const char* p)
 {
-    name.erase();
+    names.clear();
+    
+    const char* pointerReturn = nullptr;
     while(1) {
-        if (name.length() != 0) {
-            name += ".";
-        }
         uint32_t size = static_cast<uint32_t>(*p++);
         if ((size & 0xc0) == 0) {
             // this is a direct label
-            name += String(reinterpret_cast<const char*>(p), size);
+            names.push_back(String(reinterpret_cast<const char*>(p), size));
             p += size;
             if (*p == 0) {
                 ++p;
@@ -88,12 +87,15 @@ const char* decodeNameStrings(const char* data, uint32_t dataLen, String& name, 
             }
         } else {
             // This is a pointer label
+            if (pointerReturn) {
+                break;
+            }
             uint32_t offset = ((size & ~0xc0) << 8) | *p++;
-            name += String(reinterpret_cast<const char*>(data + offset + 1), data[offset]);
-            break;
+            pointerReturn = p;
+            p = data + offset;
         }
     }
-    return p;
+    return pointerReturn ?: p;
 }
 
 static inline uint16_t uint16FromBuf(const char* buf)
@@ -110,20 +112,57 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
 
     int qcount = data[5]; // purposely ignore qcount > 255
     const char* p = data+12;
-    String name;
-    uint32_t len;
+    std::vector<String> names;
+    
     while(qcount-- > 0) {
-        p = decodeNameStrings(data, length, name, p);
+        p = decodeNameStrings(data, length, names, p);
         QuestionType qtype = static_cast<QuestionType>(uint16FromBuf(p));
         uint16_t qclass = uint16FromBuf(p + 2);
         p += 4;
         
-        if ((qclass & 0x7fff) != 1 || !matchesHostname(name)) {
+        if ((qclass & 0x7fff) != 1 || names.size() < 2) {
             continue;
         }
         
+        String serviceName;
+        bool haveService = false;
+        ServiceProtocol protocol;
+        
+        if (names[0][0] == '_') {
+            // this is a service name
+            serviceName = names[0].slice(1);
+            haveService = true;
+            if (names[1] == "_tcp") {
+                protocol = ServiceProtocol::TCP;
+            } else if (names[1] == "_udp") {
+                protocol = ServiceProtocol::UDP;
+            } else {
+                // not a recognized protocol
+                continue;
+            }
+        } else if (names[0] != _hostname || names[1] != "local") {
+            // This is a hostname and it's not ours
+            continue;
+        }
+        
+        int32_t serviceIndex = -1;
+        
+        if (haveService) {
+            for (int32_t i = 0; i < _services.size(); ++i) {
+                if (_services[i]._serviceType == serviceName && _services[i]._protocol == protocol) {
+                    serviceIndex = i;
+                    break;
+                }
+            }
+        }
+
 #ifdef MDNSRESP_DEBUG
-		os_printf ("decoded our hostname qtype=%d qclass=%d\n", qtype, qclass);
+        if (serviceIndex >= 0) {
+            os_printf ("Got one of our services: %s.%s", names[0].c_str(), names[1].c_str());
+        } else {
+            os_printf ("Got our hostname: %s.local", names[0].c_str());
+        }
+        os_printf (" - qtype=%d qclass=%d\n", qtype, qclass);
 #endif
         uint8_t count = 0;
         switch(qtype) {
