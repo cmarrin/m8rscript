@@ -48,6 +48,8 @@ class MySystemInterface;
     __weak IBOutlet NSButton *led1;
     __weak IBOutlet NSButton *led2;
     
+    __weak IBOutlet NSPopUpButton *fileSourceButton;
+    
     NSString* _source;
     NSFont* _font;
     MySystemInterface* _system;
@@ -113,7 +115,7 @@ private:
         return _program && _running;
     }
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
-        return [[simView selectedTabViewItem].identifier isEqualToString:@"files"];
+        return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
     }
     return NO;
 }
@@ -363,6 +365,9 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
             [self reloadFiles];
         }
     }];
+}
+
+- (IBAction)changeFileSource:(id)sender {
 }
 
 - (IBAction)removeFile:(id)sender {

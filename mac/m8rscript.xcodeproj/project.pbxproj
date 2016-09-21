@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -90,6 +91,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 		49D9B82A1D1C8C9000724911 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				492604A71D9354F000C5DF07 /* BonjourBW.png */,
 				493C9EDA1D2191E60062152D /* build.png */,
 				49DD77461D84689100D7C374 /* AddFile.png */,
 				49DD77441D8467C100D7C374 /* DeleteFile.png */,
@@ -504,6 +507,7 @@
 				49DD77431D83E14B00D7C374 /* ReloadFiles1.png in Resources */,
 				49D9B8201D1C854700724911 /* Document.xib in Resources */,
 				49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */,
+				492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */,
 				493C9EDB1D2191E60062152D /* build.png in Resources */,
 				49D9B8251D1C854700724911 /* MainMenu.xib in Resources */,
 				49DD77421D83E14B00D7C374 /* ReloadFIles2.png in Resources */,
