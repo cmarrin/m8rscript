@@ -223,7 +223,7 @@ all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(MAIN_ELF)
 
 
 # Include all available dependencies
-#-include $(wildcard $(OBJ_DIR)/*$(DEP_EXT))
+-include $(wildcard $(OBJ_DIR)/*$(DEP_EXT))
 
 .DEFAULT_GOAL = all
 

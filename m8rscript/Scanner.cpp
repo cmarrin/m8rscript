@@ -328,7 +328,7 @@ Token Scanner::scanIdentifier()
 		_tokenString += c;
 		first = false;
 	}
-    size_t len = _tokenString.length();
+    size_t len = _tokenString.size();
     if (len) {
         Token token = scanKeyword(_tokenString.c_str());
         return (token == Token::Unknown) ? Token::Identifier : token;

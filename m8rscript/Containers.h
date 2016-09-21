@@ -105,6 +105,9 @@ public:
 	String() : _size(1), _capacity(0), _data(nullptr) { }
 	String(const char* s, int32_t len = -1) : _size(1), _capacity(0), _data(nullptr)
     {
+        if (!s) {
+            return;
+        }
         if (len == -1) {
             len = static_cast<int32_t>(strlen(s));
         }
@@ -148,7 +151,8 @@ public:
     
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
-	size_t length() const { return _size ? (_size - 1) : 0; }
+	size_t size() const { return _size ? (_size - 1) : 0; }
+    bool empty() const { return _size <= 1; }
 	String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
@@ -185,27 +189,27 @@ public:
         }
     }
     
-    String slice(int32_t start, int32_t end)
+    String slice(int32_t start, int32_t end) const
     {
-        int32_t size = static_cast<int32_t>(length());
+        int32_t sz = static_cast<int32_t>(size());
         if (start < 0) {
-            start = size + start;
+            start = sz + start;
         }
         if (end < 0) {
-            end = size + end;
+            end = sz + end;
         }
-        if (start >= end || end > size) {
+        if (start >= end || end > sz) {
             return String();
         }
         return String(_data + start, end - start);
     }
     
-    String slice(int32_t start)
+    String slice(int32_t start) const
     {
-        return slice(start, static_cast<int32_t>(length()));
+        return slice(start, static_cast<int32_t>(size()));
     }
     
-    String trim()
+    String trim() const
     {
         if (_size < 2 || !_data) {
             return String();
@@ -232,7 +236,7 @@ public:
             if (!n || n - p != 0 || !skipEmpty) {
                 array.push_back(String(p, static_cast<int32_t>(n ? (n - p) : -1)));
             }
-            p = n ? (n + separator.length()) : nullptr;
+            p = n ? (n + separator.size()) : nullptr;
         }
         return array;
     }

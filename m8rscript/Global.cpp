@@ -224,7 +224,7 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
             return 0;
         case Property::Base64_encode: {
             String inString = eu->stack().top().toStringValue();
-            size_t inLength = inString.length();
+            size_t inLength = inString.size();
             size_t outLength = (inLength * 4 + 2) / 3 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
                 char outString[BASE64_STACK_ALLOC_LIMIT];
@@ -242,7 +242,7 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
         }
         case Property::Base64_decode: {
             String inString = eu->stack().top().toStringValue();
-            size_t inLength = inString.length();
+            size_t inLength = inString.size();
             size_t outLength = (inLength * 3 + 3) / 4 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
                 unsigned char outString[BASE64_STACK_ALLOC_LIMIT];

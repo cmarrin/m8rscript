@@ -70,6 +70,12 @@ MDNSResponder::~MDNSResponder()
     esp::UDP::leaveMulticastGroup({ 224,0,0,251 });
 }
 
+void MDNSResponder::addService(uint16_t port, const char* instance, const char* serviceType, ServiceProtocol protocol, const char* text)
+{
+    ServiceRecord service(port, instance, serviceType, protocol, text);
+    _services.push_back(service);
+}
+
 const char* decodeNameStrings(const char* data, uint32_t dataLen, std::vector<String>& names, const char* p)
 {
     names.clear();
@@ -103,6 +109,25 @@ static inline uint16_t uint16FromBuf(const char* buf)
     return (static_cast<uint16_t>(buf[0]) << 8) | static_cast<uint16_t>(buf[1]);
 }
 
+MDNSResponder::ParseServiceReturn MDNSResponder::parseService(
+                                    const String& serviceString, const String& protocolString, 
+                                    String& serviceName, ServiceProtocol& protocol)
+{
+    if (serviceString[0] == '_') {
+        // this is a service name
+        serviceName = serviceString.slice(1);
+        if (protocolString == "_tcp") {
+            protocol = ServiceProtocol::TCP;
+        } else if (protocolString == "_udp") {
+            protocol = ServiceProtocol::UDP;
+        } else {
+            return ParseServiceReturn::BadProtocol;
+        }
+        return ParseServiceReturn::OK;
+    }
+    return ParseServiceReturn::NotAService;
+}
+
 void MDNSResponder::receivedData(const char* data, uint16_t length)
 {
     if (data[0] != 0 || data[1] != 0 || data[2] != 0 || data[3] != 0) {
@@ -120,29 +145,52 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
         uint16_t qclass = uint16FromBuf(p + 2);
         p += 4;
         
-        if ((qclass & 0x7fff) != 1 || names.size() < 2) {
+        if ((qclass & 0x7fff) != 1 || names.size() < 2 || names[0].empty() || names[1].empty()) {
             continue;
         }
         
-        String serviceName;
-        bool haveService = false;
-        ServiceProtocol protocol;
+        // Supported formats:
+        //
+        //      1) <hostname>.local
+        //      2) _<serviceName>.{_tcp | _udp).local
+        //      3) <hostname>._<serviceName>.{_tcp | _udp).local
         
-        if (names[0][0] == '_') {
-            // this is a service name
-            serviceName = names[0].slice(1);
-            haveService = true;
-            if (names[1] == "_tcp") {
-                protocol = ServiceProtocol::TCP;
-            } else if (names[1] == "_udp") {
-                protocol = ServiceProtocol::UDP;
-            } else {
-                // not a recognized protocol
+        String serviceName;
+        ServiceProtocol protocol;
+        bool haveService = false;
+        bool haveHostname = false;
+                
+        ParseServiceReturn ret = parseService(names[0], names[1], serviceName, protocol);
+        if (ret == ParseServiceReturn::BadProtocol) {
+            continue;
+        } else if (ret == ParseServiceReturn::NotAService) {
+            // This is a hostname
+            haveHostname = true;
+            if (names[0] != _hostname) {
+                // But it's not ours
                 continue;
             }
-        } else if (names[0] != _hostname || names[1] != "local") {
-            // This is a hostname and it's not ours
-            continue;
+        } else {
+            haveService = true;
+            if (names.size() < 3 || names[2] != "local") {
+                continue;
+            }
+        }
+        
+        assert(haveHostname || haveService);
+        
+        if (haveHostname && names[1] != "local") {
+            if (names.size() < 4) {
+                continue;
+            }
+            ret = parseService(names[1], names[2], serviceName, protocol);
+            if (ret != ParseServiceReturn::OK) {
+                continue;
+            }
+            haveService = true;
+            if (names[3] != "local") {
+                continue;
+            }
         }
         
         int32_t serviceIndex = -1;
@@ -154,62 +202,70 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
                     break;
                 }
             }
+            if (serviceIndex < 0) {
+                continue;
+            }
         }
 
 #ifdef MDNSRESP_DEBUG
-        if (serviceIndex >= 0) {
-            os_printf ("Got one of our services: %s.%s", names[0].c_str(), names[1].c_str());
+        if (haveService) {
+            if (haveHostname) {
+                os_printf ("Got one of our instances: %s.%s.%s.%s",
+                            names[0].c_str(), names[1].c_str(), names[2].c_str(), names[3].c_str());
+            } else {
+                os_printf ("Got one of our services: %s.%s.%s", 
+                            names[0].c_str(), names[1].c_str(), names[2].c_str());
+            }
         } else {
-            os_printf ("Got our hostname: %s.local", names[0].c_str());
+            os_printf ("Got our hostname: %s.%s", names[0].c_str(), names[1].c_str());
         }
         os_printf (" - qtype=%d qclass=%d\n", qtype, qclass);
 #endif
-        uint8_t count = 0;
+        uint8_t additionalCount = 0;
         switch(qtype) {
-            case QuestionType::A: count = 1; break;
-            case QuestionType::TXT: count = 1; break;
-            case QuestionType::SRV: count = 2; break;
-            case QuestionType::PTR: count = 4; break;
-        }
-        if (!count) {
-            return;
+            case QuestionType::A:
+            case QuestionType::TXT: break;
+            case QuestionType::SRV: additionalCount = 1; break;
+            case QuestionType::PTR: additionalCount = 3; break;
+            default: continue;
         }
         
-        writeHeader(count);
+        writeHeader(1, additionalCount);
         
-        if (qtype == QuestionType::PTR) {
-            writePTR();
+        switch(qtype) {
+            case QuestionType::A:
+                writeA();
+                break;
+            case QuestionType::TXT:
+                writeTXT(serviceIndex);
+                break;
+            case QuestionType::SRV:
+                writeSRV(serviceIndex);
+                writeA();
+                break;
+            case QuestionType::PTR:
+                writePTR(serviceIndex);
+                writeSRV(serviceIndex);
+                writeTXT(serviceIndex);
+                writeA();
+                break;
         }
-        if (qtype == QuestionType::TXT || qtype == QuestionType::PTR) {
-            writeTXT();
-        }
-        if (qtype == QuestionType::SRV || qtype == QuestionType::PTR) {
-            writeSRV();
-        }
-		if (qtype == QuestionType::A || qtype == QuestionType::SRV || qtype == QuestionType::PTR) {
-            writeA();
-        }
-        
+
         sendReply();
 	}
 }
 
 void MDNSResponder::broadcast()
 {
-    writeHeader(4);
-    writePTR();
-    writeTXT();
-    writeSRV();
-    writeA();
-    sendReply();
+//    writeHeader(3);
+//    writePTR(0);
+//    //writeTXT(0);
+//    writeSRV(0);
+//    writeA();
+//    sendReply();
 }
 
-void MDNSResponder::addService(uint16_t port, const char* instance, const char* serviceType, ServiceProtocol protocol, const char* text)
-{
-    _services.emplace_back(port, instance, serviceType, protocol, text);
-}
-
-void MDNSResponder::writeHeader(uint8_t count)
+void MDNSResponder::writeHeader(uint8_t answerCount, uint8_t additionalCount)
 {
     _replyBuffer.clear();
     
@@ -220,50 +276,93 @@ void MDNSResponder::writeHeader(uint8_t count)
     _replyBuffer.push_back(0);
     _replyBuffer.push_back(0);
     _replyBuffer.push_back(0);
-    _replyBuffer.push_back(count); // Answer count
+    _replyBuffer.push_back(answerCount); // Answer count
     _replyBuffer.push_back(0);
     _replyBuffer.push_back(0);
     _replyBuffer.push_back(0);
-    _replyBuffer.push_back(0);
+    _replyBuffer.push_back(additionalCount);
 }
 
-void MDNSResponder::write(const char* s, size_t length)
+void MDNSResponder::write(const String& s)
 {
-    _replyBuffer.push_back(length);
-    for (size_t i = 0; i < length; ++i) {
+    if (s.empty()) {
+        return;
+    }
+    _replyBuffer.push_back(s.size());
+    for (size_t i = 0; i < s.size(); ++i) {
         _replyBuffer.push_back(s[i]);
     }
 }
 
-void MDNSResponder::writeHostname(bool terminate)
+void MDNSResponder::writeHostname()
 {
-    write(_hostname.c_str(), _hostname.length());
-    write("local", 5);
-    if (terminate) {
-        _replyBuffer.push_back(0);
-    }
+    write(_hostname);
+    write("local");
+    _replyBuffer.push_back(0);
+}
+
+void MDNSResponder::writeServiceName(int32_t serviceIndex)
+{
+    write("_" + _services[serviceIndex]._serviceType);
+    write((_services[serviceIndex]._protocol == ServiceProtocol::TCP) ? "_tcp" : "_udp");
+    write("local");
+    _replyBuffer.push_back(0);
+}
+
+void MDNSResponder::writeInstanceName(int32_t serviceIndex)
+{
+    write(_hostname);
+    writeServiceName(serviceIndex);
+}
+
+size_t MDNSResponder::writeAnswerHeader(QuestionType qtype, uint16_t qclass)
+{
+    write(static_cast<uint16_t>(qtype));
+    write(qclass);
+    write(_ttl);
+    write(static_cast<uint16_t>(0));
+    return _replyBuffer.size() - 2;
 }
 
 void MDNSResponder::writeA()
 {
-    writeHostname(true);
-    write(static_cast<uint16_t>(QuestionType::A));
-    write(QClassIN);
-    write(_ttl);
-    write(static_cast<uint16_t>(4)); // length of IP
-    write(static_cast<uint32_t>(IPAddr::myIPAddr()));
+    writeHostname();
+    size_t lengthIndex = writeAnswerHeader(QuestionType::A, QClassIN);
+    IPAddr addr = IPAddr::myIPAddr();
+    write(addr[0]);
+    write(addr[1]);
+    write(addr[2]);
+    write(addr[3]);
+    setAnswerLength(lengthIndex);
 }
 
-void MDNSResponder::writePTR()
+void MDNSResponder::writePTR(int32_t serviceIndex)
 {
+    writeServiceName(serviceIndex);
+    const ServiceRecord& service = _services[serviceIndex];
+    size_t lengthIndex = writeAnswerHeader(QuestionType::PTR, QClassIN);
+    writeInstanceName(serviceIndex);
+    setAnswerLength(lengthIndex);
 }
 
-void MDNSResponder::writeSRV()
+void MDNSResponder::writeSRV(int32_t serviceIndex)
 {
+    writeInstanceName(serviceIndex);
+    size_t lengthIndex = writeAnswerHeader(QuestionType::SRV, QClassIN);
+    write(static_cast<uint16_t>(0)); // Priority
+    write(static_cast<uint16_t>(0)); // Weight
+    write(_services[serviceIndex]._port);
+    writeHostname();
+    setAnswerLength(lengthIndex);
 }
 
-void MDNSResponder::writeTXT()
+void MDNSResponder::writeTXT(int32_t serviceIndex)
 {
+    writeInstanceName(serviceIndex);
+    size_t lengthIndex = writeAnswerHeader(QuestionType::TXT, QClassIN);
+    write(_services[serviceIndex]._text);
+    _replyBuffer.push_back(0);
+    setAnswerLength(lengthIndex);
 }
 
 void MDNSResponder::sendReply()
@@ -272,6 +371,7 @@ void MDNSResponder::sendReply()
         return;
     }
     
+    hexdump("reply", &(_replyBuffer[0]), _replyBuffer.size());
     _udp->send({ 224,0,0,251 }, 5353, reinterpret_cast<char*>(&(_replyBuffer[0])), _replyBuffer.size());
     _replyBuffer.clear();
 }

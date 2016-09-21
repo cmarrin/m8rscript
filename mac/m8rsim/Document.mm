@@ -57,6 +57,7 @@ class MySystemInterface;
     bool _running;
     NSMutableArray* _fileList;
     NSNetServiceBrowser* _netServiceBrowser;
+    NSNetService* _netService;
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
@@ -191,7 +192,7 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
-        [_netServiceBrowser searchForServicesOfType:@"_homekit._tcp." inDomain:@"local."];	
+        [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];	
      }
     return self;
 }
@@ -480,15 +481,34 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
     NSLog(@"*** netServiceBrowserWillSearch\n");
 }
 
-- (void)ne:(NSNetServiceBrowser *)netServiceBrowser
+- (void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser
            didFindService:(NSNetService *)netService
                moreComing:(BOOL)moreServicesComing
 {
+    _netService = netService;
+    [netService setDelegate:(id) self];
     NSLog(@"*** Found service: %@\n", netService);
+    [netService resolveWithTimeout:10];
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *,NSNumber *> *)errorDict {
     NSLog(@"not search ");
+}
+
+- (void)netServiceWillResolve:(NSNetService *)sender
+{
+    NSLog(@"********* Will resolve\n");
+}
+
+- (void)netServiceDidResolveAddress:(NSNetService *)sender
+{
+    NSLog(@"********* Did resolve\n");
+}
+
+- (void)netService:(NSNetService *)sender 
+     didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
+{
+    NSLog(@"********* Did not resolve: %@\n", errorDict);
 }
 
 @end

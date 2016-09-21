@@ -45,11 +45,11 @@ class MDNSResponder {
 public:
     enum class ServiceProtocol { TCP, UDP };
     
-    MDNSResponder(const char* name, uint32_t broadcastInterval = 60, uint32_t ttl = 120);
+    MDNSResponder(const char* name, uint32_t broadcastInterval = 30, uint32_t ttl = 120);
     ~MDNSResponder();
 
     void addService(uint16_t port, const char* instance, const char* serviceType, 
-                    ServiceProtocol protocol = ServiceProtocol::TCP, const char* text = nullptr);
+                    ServiceProtocol protocol = ServiceProtocol::TCP, const char* text = "");
     
 private:
     enum class QuestionType {
@@ -92,12 +92,13 @@ private:
             , _serviceType(String(serviceType))
             , _protocol(protocol)
             , _text(String(text))
-        { }
+        {
+        }
         
         uint16_t _port;
-        ServiceProtocol _protocol;
         String _instance;
         String _serviceType;
+        ServiceProtocol _protocol;
         String _text;
     };
     
@@ -105,12 +106,16 @@ private:
 
     bool matchesHostname(const String& s) const
     {
-        size_t length = _hostname.length();
-        if (s.length() != length + 6) {
+        size_t length = _hostname.size();
+        if (s.size() != length + 6) {
             return false;
         }
         return strncmp(_hostname.c_str(), s.c_str(), length) == 0 && strcmp(s.c_str() + length, ".local") == 0;
     }
+
+    enum class ParseServiceReturn { OK, NotAService, BadProtocol };
+    ParseServiceReturn parseService(const String& serviceString, const String& protocolString, 
+                                 String& serviceName, ServiceProtocol& protocol);
     
     void write(uint32_t value)
     {
@@ -120,18 +125,30 @@ private:
 
     void write(uint16_t value)
     {
-        _replyBuffer.push_back(static_cast<uint8_t>(value >> 8));
-        _replyBuffer.push_back(static_cast<uint8_t>(value));
+        write(static_cast<uint8_t>(value >> 8));
+        write(static_cast<uint8_t>(value));
     }
-
-    void write(const char* s, size_t length);
     
-    void writeHostname(bool terminate);
-    void writeHeader(uint8_t count);
+    void write(uint8_t value) { _replyBuffer.push_back(value); }
+
+    void write(const String& s);
+    
+    size_t writeAnswerHeader(QuestionType, uint16_t qclass);
+    void writeHostname();
+    void writeServiceName(int32_t serviceIndex);
+    void writeInstanceName(int32_t serviceIndex);
+    void setAnswerLength(size_t lengthIndex)
+    {
+        uint16_t size = _replyBuffer.size() - lengthIndex - 2;
+        _replyBuffer[lengthIndex] = static_cast<uint8_t>(size >> 8);
+        _replyBuffer[lengthIndex + 1] = static_cast<uint8_t>(size);
+    }
+    
+    void writeHeader(uint8_t answerCount, uint8_t additionalCount);
     void writeA();
-    void writePTR();
-    void writeSRV();
-    void writeTXT();
+    void writePTR(int32_t serviceIndex);
+    void writeSRV(int32_t serviceIndex);
+    void writeTXT(int32_t serviceIndex);
     
     void sendReply();
     

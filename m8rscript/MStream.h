@@ -134,16 +134,16 @@ public:
     bool loaded() { return true; }
 	virtual bool eof() const override
     {
-        return _string.length() <= _index;
+        return _string.size() <= _index;
     }
     virtual int read() const override
     {
-        return (_index < _string.length()) ? _string[_index++] : -1;
+        return (_index < _string.size()) ? _string[_index++] : -1;
     }
     virtual int write(uint8_t c) override
     {
         // Only allow writing to the end of the string
-        if (_index != _string.length()) {
+        if (_index != _string.size()) {
             return -1;
         }
         _string += c;

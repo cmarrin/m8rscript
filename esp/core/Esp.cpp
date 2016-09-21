@@ -136,6 +136,50 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
+void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
+{
+    int i;
+    unsigned char buff[17];
+    uint8_t* pc = addr;
+
+    // Output description if given.
+    if (desc != NULL)
+    	os_printf("%s:\n", desc);
+
+    // Process every byte in the data.
+    for (i = 0; i < len; i++) {
+        // Multiple of 16 means new line (with line offset).
+
+        if ((i % 16) == 0) {
+            // Just don't print ASCII for the zeroth line.
+            if (i != 0)
+            	os_printf("  %s\n", buff);
+
+            // Output the offset.
+            os_printf("  %04x ", i);
+        }
+
+        // Now the hex code for the specific character.
+        os_printf(" %02x", pc[i]);
+
+        // And store a printable ASCII character for later.
+        if ((pc[i] < 0x20) || (pc[i] > 0x7e))
+            buff[i % 16] = '.';
+        else
+            buff[i % 16] = pc[i];
+        buff[(i % 16) + 1] = '\0';
+    }
+
+    // Pad out last line if not exactly 16 characters.
+    while ((i % 16) != 0) {
+    	os_printf("   ");
+        i++;
+    }
+
+    // And print the final ASCII bit.
+    os_printf("  %s\n", buff);
+}
+
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {
     switch(status) {
@@ -188,6 +232,7 @@ void initmdns(const char* hostname, uint8_t interface)
     if (!_responder) {
         _responder = new m8r::MDNSResponder("m8rscript");
     }
+    _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
 }
 
 void initSoftAP()
@@ -235,7 +280,6 @@ void wifiEventHandler(System_Event_t *evt)
             break;
         }
         default:
-            os_printf("******** wifiEventHandler got %d event\n", evt->event);
             break;
     }
 }
