@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
+		492604AA1D943E8700C5DF07 /* Simulator.xib in Resources */ = {isa = PBXBuildFile; fileRef = 492604A91D943E8700C5DF07 /* Simulator.xib */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -94,6 +95,7 @@
 
 /* Begin PBXFileReference section */
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
+		492604A91D943E8700C5DF07 /* Simulator.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Simulator.xib; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -290,6 +292,7 @@
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
 				49D9B8231D1C854700724911 /* MainMenu.xib */,
 				49D9B8261D1C854700724911 /* Info.plist */,
+				492604A91D943E8700C5DF07 /* Simulator.xib */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -511,6 +514,7 @@
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
 				49DD77491D84D94900D7C374 /* Simulate.png in Resources */,
+				492604AA1D943E8700C5DF07 /* Simulator.xib in Resources */,
 				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,
 				493C9ED81D218F100062152D /* pause.png in Resources */,

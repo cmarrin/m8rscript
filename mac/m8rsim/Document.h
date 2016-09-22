@@ -13,7 +13,6 @@
 enum OutputType { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
 - (void)outputMessage:(NSString*) message to:(OutputType) output;
-- (void)updateLEDs:(uint16_t) state;
 
 @end
 

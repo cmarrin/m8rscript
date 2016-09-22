@@ -27,6 +27,10 @@ class MySystemInterface;
 
 @interface Simulator ()
 {
+    __weak IBOutlet NSButton *led0;
+    __weak IBOutlet NSButton *led1;
+    __weak IBOutlet NSButton *led2;
+
     Document* _document;
     MySystemInterface* _system;
     m8r::ExecutionUnit* _eu;
@@ -92,6 +96,16 @@ private:
     delete _system;
 }
 
+- (void)updateLEDs:(uint16_t) state
+{
+    [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
+    [led0 setNeedsDisplay:YES];
+    [led1 setState: (state & 0x02) ? NSOnState : NSOffState];
+    [led1 setNeedsDisplay:YES];
+    [led2 setState: (state & 0x04) ? NSOnState : NSOffState];
+    [led2 setNeedsDisplay:YES];
+}
+
 - (BOOL)canRun
 {
     return _program && !_running;
@@ -105,11 +119,6 @@ private:
 - (void)outputMessage:(NSString*) message to:(OutputType) output
 {
     [_document outputMessage:message to:output];
-}
-
-- (void)updateLEDs:(uint16_t) state
-{
-    [_document updateLEDs:state];
 }
 
 - (void)importBinary:(const char*)filename
@@ -133,15 +142,16 @@ private:
     }
 }
 
-- (IBAction)build:(id)sender {
+- (void)build:(const char*) source withName:(NSString*) name
+{
     _program = nullptr;
     _running = false;
     
     [_document clearOutput:CTBuild];
     _system->setToBuild(true);
-    [self outputMessage:[NSString stringWithFormat:@"Building %@\n", /*[self displayName]*/ @"XXXXXXX"] to:CTBuild];
+    [self outputMessage:[NSString stringWithFormat:@"Building %@\n", name] to:CTBuild];
 
-    m8r::StringStream stream(/*[sourceEditor.string UTF8String]*/"XXXXXXXX");
+    m8r::StringStream stream(source);
     m8r::Parser parser(_system);
     parser.parse(&stream);
     [self outputMessage:@"Parsing finished...\n" to:CTBuild];
@@ -162,7 +172,8 @@ private:
     }
 }
 
-- (IBAction)run:(id)sender {
+- (void)run
+{
     if (_running) {
         assert(0);
         return;
@@ -197,10 +208,12 @@ private:
     });
 }
 
-- (IBAction)pause:(id)sender {
+- (void)pause
+{
 }
 
-- (IBAction)stop:(id)sender {
+- (void)stop
+{
     if (!_running) {
         assert(0);
         return;
@@ -210,10 +223,11 @@ private:
     [self outputMessage:@"*** Stopped\n" to:CTConsole];
 }
 
-- (IBAction)simulate:(id)sender {
+- (void)simulate
+{
     _application = new m8r::Application(_system);
     _program = _application->program();
-    [self run:self];
+    [self run];
 }
 
 @end

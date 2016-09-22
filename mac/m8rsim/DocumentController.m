@@ -21,18 +21,18 @@
     return self;
 }
 
--(void)openDocument:(id)sender
-{
-    NSLog(@"Open");
-}
-
-- (void)openDocumentWithContentsOfURL:(NSURL *)url 
-                              display:(BOOL)displayDocument 
-                    completionHandler:(void (^)(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error))completionHandler
-{
-
-}
-
+//-(void)openDocument:(id)sender
+//{
+//    NSLog(@"Open");
+//}
+//
+//- (void)openDocumentWithContentsOfURL:(NSURL *)url
+//                              display:(BOOL)displayDocument 
+//                    completionHandler:(void (^)(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error))completionHandler
+//{
+//
+//}
+//
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
 }

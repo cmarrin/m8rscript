@@ -26,8 +26,8 @@
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
-    __weak IBOutlet NSTabView *simView;
     __weak IBOutlet NSTableView *fileListView;
+    __weak IBOutlet NSView *simContainer;
     
     __weak IBOutlet NSToolbarItem *runButton;
     __weak IBOutlet NSToolbarItem *buildButton;
@@ -37,9 +37,6 @@
     __weak IBOutlet NSToolbarItem *simulateButton;
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
-    __weak IBOutlet NSButton *led0;
-    __weak IBOutlet NSButton *led1;
-    __weak IBOutlet NSButton *led2;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
     __weak IBOutlet NSPopUpButton *fileSourceButton;
     
@@ -70,9 +67,7 @@
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
-        
-        _simulator = [[Simulator alloc] initWithDocument:self];
-     }
+    }
     return self;
 }
 
@@ -87,6 +82,12 @@
     if (_source) {
         [sourceEditor setString:_source];
     }
+    _simulator = [[Simulator alloc] initWithDocument:self];
+    [simContainer addSubview:_simulator.view];
+    
+    NSRect superFrame = simContainer.frame;
+    [_simulator.view setFrameSize:superFrame.size];
+    //[_simulator.view setFrameOrigin:CGPointMake(0, 0)];
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -106,6 +107,82 @@
     return NO;
 }
 
++ (BOOL)autosavesInPlace {
+    return YES;
+}
+
+//
+// Simulator Interface
+//
+- (IBAction)build:(id)sender
+{
+    [_simulator build:[sourceEditor.string UTF8String] withName:[self displayName]];
+}
+
+- (IBAction)run:(id)sender
+{
+    [_simulator run];
+}
+
+- (IBAction)pause:(id)sender
+{
+    [_simulator pause];
+}
+
+- (IBAction)stop:(id)sender
+{
+    [_simulator stop];
+}
+
+- (IBAction)simulate:(id)sender
+{
+    [_simulator simulate];
+}
+
+- (void)outputMessage:(NSString*) message to:(OutputType) output
+{
+    if (output == CTBuild) {
+        [outputView selectTabViewItemAtIndex:1];
+    } else {
+        [outputView selectTabViewItemAtIndex:0];
+    }
+    NSTextView* view = (output == CTBuild) ? buildOutput : consoleOutput;
+    NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
+    [view setString:string];
+    [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
+    [view setNeedsDisplay:YES];
+}
+
+- (IBAction)importBinary:(id)sender {
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    [panel setAllowedFileTypes:@[@"m8rp"]];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL*  url = [[panel URLs] objectAtIndex:0];
+            [_simulator importBinary:[url fileSystemRepresentation]];
+        }
+    }];
+}
+
+- (IBAction)exportBinary:(id)sender
+{
+    NSString *filename = [[self.fileURL absoluteString] lastPathComponent];
+    NSString* newName = [[filename stringByDeletingPathExtension]
+                                   stringByAppendingPathExtension:@"m8rp"];
+    
+    NSSavePanel* panel = [NSSavePanel savePanel];
+    [panel setNameFieldStringValue:newName];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL*  url = [panel URL];
+            [_simulator exportBinary:[url fileSystemRepresentation]];
+        }
+    }];
+}
+
+//
+// Text Content Interface
+//
 - (void)textStorageDidProcessEditing:(NSNotification *)notification {
     NSTextStorage *textStorage = notification.object;
     NSString *string = textStorage.string;
@@ -124,6 +201,9 @@
     }
 }
 
+//
+// File system interface
+//
 static inline void setFileSystemPath()
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -166,10 +246,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [fileListView reloadData];
 }
 
-+ (BOOL)autosavesInPlace {
-    return YES;
-}
-
 - (NSString *)windowNibName {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
@@ -191,30 +267,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 - (void)clearOutput:(OutputType)output
 {
     [((output == CTBuild) ? buildOutput : consoleOutput) setString: @""];
-}
-
-- (void)outputMessage:(NSString*) message to:(OutputType) output
-{
-    if (output == CTBuild) {
-        [outputView selectTabViewItemAtIndex:1];
-    } else {
-        [outputView selectTabViewItemAtIndex:0];
-    }
-    NSTextView* view = (output == CTBuild) ? buildOutput : consoleOutput;
-    NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
-    [view setString:string];
-    [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
-    [view setNeedsDisplay:YES];
-}
-
-- (void)updateLEDs:(uint16_t) state
-{
-    [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
-    [led0 setNeedsDisplay:YES];
-    [led1 setState: (state & 0x02) ? NSOnState : NSOffState];
-    [led1 setNeedsDisplay:YES];
-    [led2 setState: (state & 0x04) ? NSOnState : NSOffState];
-    [led2 setNeedsDisplay:YES];
 }
 
 - (IBAction)addFile:(id)sender {
@@ -281,33 +333,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 }
 
 - (IBAction)upload:(id)sender {
-}
-
-- (IBAction)importBinary:(id)sender {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel setAllowedFileTypes:@[@"m8rp"]];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [[panel URLs] objectAtIndex:0];
-            [_simulator importBinary:[url fileSystemRepresentation]];
-        }
-    }];
-}
-
-- (IBAction)exportBinary:(id)sender
-{
-    NSString *filename = [[self.fileURL absoluteString] lastPathComponent];
-    NSString* newName = [[filename stringByDeletingPathExtension]
-                                   stringByAppendingPathExtension:@"m8rp"];
-    
-    NSSavePanel* panel = [NSSavePanel savePanel];
-    [panel setNameFieldStringValue:newName];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [panel URL];
-            [_simulator exportBinary:[url fileSystemRepresentation]];
-        }
-    }];
 }
 
 // fileListView dataSource

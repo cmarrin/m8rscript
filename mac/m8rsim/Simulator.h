@@ -10,9 +10,15 @@
 
 @class Document;
 
-@interface Simulator : NSObject
+@interface Simulator : NSViewController
 
 - (instancetype)initWithDocument:(Document*) document;
+
+- (void)build:(const char*) source withName:(NSString*) name;
+- (void)run;
+- (void)pause;
+- (void)stop;
+- (void)simulate;
 
 - (BOOL)canRun;
 - (BOOL)canStop;
