@@ -7,7 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import "Document.h"
 
 @interface AppDelegate ()
 
@@ -16,15 +15,11 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+    NSLog(@"finish launch");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
-}
-
-- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)theApplication {
-    return NO;
+    NSLog(@"term");
 }
 
 @end

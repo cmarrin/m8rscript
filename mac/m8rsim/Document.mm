@@ -10,12 +10,8 @@
 
 #import "NSTextView+JSDExtensions.h"
 
-#import "Application.h"
-#import "Parser.h"
-#import "CodePrinter.h"
-#import "ExecutionUnit.h"
-#import "SystemInterface.h"
 #import "MacFS.h"
+#import "Simulator.h"
 
 #import <iostream>
 #import <stdarg.h>
@@ -23,8 +19,6 @@
 #import <thread>
 #import <chrono>
 #import <cstdio>
-
-class MySystemInterface;
 
 @interface Document ()
 {
@@ -43,65 +37,57 @@ class MySystemInterface;
     __weak IBOutlet NSToolbarItem *simulateButton;
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
-    __weak IBOutlet NSToolbarItem *reloadFilesButton;
     __weak IBOutlet NSButton *led0;
     __weak IBOutlet NSButton *led1;
     __weak IBOutlet NSButton *led2;
-    
+    __weak IBOutlet NSToolbarItem *reloadFilesButton;    
     __weak IBOutlet NSPopUpButton *fileSourceButton;
     
     NSString* _source;
     NSFont* _font;
-    MySystemInterface* _system;
-    m8r::ExecutionUnit* _eu;
-    m8r::Program* _program;
-    m8r::Application* _application;
-    bool _running;
     NSMutableArray* _fileList;
     NSNetServiceBrowser* _netServiceBrowser;
     NSNetService* _netService;
+    
+    NSURL* _folder;
+    
+    Simulator* _simulator;
 }
-
-- (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild;
-- (void)updateLEDs:(uint16_t) state;
 
 @end
 
-class MySystemInterface : public m8r::SystemInterface
-{
-public:
-    MySystemInterface(Document* document) : _document(document), _isBuild(true) { }
-    
-    virtual void printf(const char* s, ...) const override
-    {
-        va_list args;
-        va_start(args, s);
-        NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_document outputMessage:string toBuild: _isBuild];
-        });
-    }
-
-    virtual int read() const override
-    {
-        return -1;
-    }
-
-    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_document updateLEDs:state];
-        });
-    }
-    
-    void setToBuild(bool b) { _isBuild = b; }
-    
-private:
-    Document* _document;
-    bool _isBuild;
-};
-
 @implementation Document
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _font = [NSFont fontWithName:@"Menlo Regular" size:12];
+        
+        setFileSystemPath();
+        _fileList = [[NSMutableArray alloc] init];
+        [self reloadFiles];
+
+        _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
+        [_netServiceBrowser setDelegate: (id) self];
+        [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+        
+        _simulator = [[Simulator alloc] initWithDocument:self];
+     }
+    return self;
+}
+
+- (void)awakeFromNib
+{
+    [sourceEditor setFont:_font];
+    [consoleOutput setFont:_font];
+    [buildOutput setFont:_font];
+    sourceEditor.ShowsLineNumbers = YES;
+    sourceEditor.automaticQuoteSubstitutionEnabled = NO;
+    [[sourceEditor textStorage] setDelegate:(id) self];
+    if (_source) {
+        [sourceEditor setString:_source];
+    }
+}
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
@@ -109,10 +95,10 @@ private:
         return YES;
     }
     if (item == runButton) {
-        return _program && !_running;
+        return [_simulator canRun];
     }
     if (item == stopButton) {
-        return _program && _running;
+        return [_simulator canStop];
     }
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
         return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
@@ -180,44 +166,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [fileListView reloadData];
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _system = new MySystemInterface(self);
-        _eu = new m8r::ExecutionUnit(_system);
-        _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-        
-        setFileSystemPath();
-        _fileList = [[NSMutableArray alloc] init];
-        [self reloadFiles];
-
-    
-        _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
-        [_netServiceBrowser setDelegate: (id) self];
-        [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];	
-     }
-    return self;
-}
-
-- (void)dealloc
-{
-    delete _eu;
-    delete _system;
-}
-
-- (void)awakeFromNib
-{
-    [sourceEditor setFont:_font];
-    [consoleOutput setFont:_font];
-    [buildOutput setFont:_font];
-    sourceEditor.ShowsLineNumbers = YES;
-    sourceEditor.automaticQuoteSubstitutionEnabled = NO;
-    [[sourceEditor textStorage] setDelegate:(id) self];
-    if (_source) {
-        [sourceEditor setString:_source];
-    }
-}
-
 + (BOOL)autosavesInPlace {
     return YES;
 }
@@ -240,14 +188,19 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     return YES;
 }
 
-- (void)outputMessage:(NSString*) message toBuild:(BOOL) isBuild
+- (void)clearOutput:(OutputType)output
 {
-    if (isBuild) {
+    [((output == CTBuild) ? buildOutput : consoleOutput) setString: @""];
+}
+
+- (void)outputMessage:(NSString*) message to:(OutputType) output
+{
+    if (output == CTBuild) {
         [outputView selectTabViewItemAtIndex:1];
     } else {
         [outputView selectTabViewItemAtIndex:0];
     }
-    NSTextView* view = isBuild ? buildOutput : consoleOutput;
+    NSTextView* view = (output == CTBuild) ? buildOutput : consoleOutput;
     NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
     [view setString:string];
     [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
@@ -262,85 +215,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [led1 setNeedsDisplay:YES];
     [led2 setState: (state & 0x04) ? NSOnState : NSOffState];
     [led2 setNeedsDisplay:YES];
-}
-
-- (IBAction)build:(id)sender {
-    _program = nullptr;
-    _running = false;
-    
-    [buildOutput setString: @""];
-    
-    _system->setToBuild(true);
-    [self outputMessage:[NSString stringWithFormat:@"Building %@\n", [self displayName]] toBuild:YES];
-
-    m8r::StringStream stream([sourceEditor.string UTF8String]);
-    m8r::Parser parser(_system);
-    parser.parse(&stream);
-    [self outputMessage:@"Parsing finished...\n" toBuild:YES];
-
-    if (parser.nerrors()) {
-        [self outputMessage:[NSString stringWithFormat:@"***** %d error%s\n", 
-                            parser.nerrors(), (parser.nerrors() == 1) ? "" : "s"] toBuild:YES];
-    } else {
-        [self outputMessage:@"0 errors. Ready to run\n" toBuild:YES];
-        _program = parser.program();
-
-        m8r::CodePrinter codePrinter(_system);
-        m8r::String codeString = codePrinter.generateCodeString(_program);
-        
-        [self outputMessage:@"\n*** Start Generated Code ***\n\n" toBuild:YES];
-        [self outputMessage:[NSString stringWithUTF8String:codeString.c_str()] toBuild:YES];
-        [self outputMessage:@"\n*** End of Generated Code ***\n\n" toBuild:YES];
-    }
-}
-
-- (IBAction)run:(id)sender {
-    if (_running) {
-        assert(0);
-        return;
-    }
-    
-    _running = true;
-    
-    [consoleOutput setString: @""];
-    [self outputMessage:@"*** Program started...\n\n" toBuild:NO];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
-        _system->setToBuild(false);
-        NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
-        
-        _eu->startExecution(_program);
-        while (1) {
-            int32_t delay = _eu->continueExecution();
-            if (delay < 0) {
-                break;
-            }
-            if (delay > 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-            }
-        }
-        
-        timeInSeconds = [[NSDate date] timeIntervalSince1970] - timeInSeconds;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self outputMessage:[NSString stringWithFormat:@"\n\n*** Finished (run time:%fms)\n", timeInSeconds * 1000] toBuild:NO];
-            _running = false;
-        });
-    });
-}
-
-- (IBAction)pause:(id)sender {
-}
-
-- (IBAction)stop:(id)sender {
-    if (!_running) {
-        assert(0);
-        return;
-    }
-    _eu->requestTermination();
-    _running = false;
-    [self outputMessage:@"*** Stopped\n" toBuild:NO];
-    return;
 }
 
 - (IBAction)addFile:(id)sender {
@@ -409,24 +283,13 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 - (IBAction)upload:(id)sender {
 }
 
-- (IBAction)simulate:(id)sender {
-    _application = new m8r::Application(_system);
-    _program = _application->program();
-    [self run:self];
-}
-
 - (IBAction)importBinary:(id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
     [panel setAllowedFileTypes:@[@"m8rp"]];
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL*  url = [[panel URLs] objectAtIndex:0];
-            m8r::FileStream stream([url fileSystemRepresentation], "r");
-            _program = new m8r::Program(_system);
-            m8r::Error error;
-            if (!_program->deserializeObject(&stream, error)) {
-                error.showError(_system);
-            }
+            [_simulator importBinary:[url fileSystemRepresentation]];
         }
     }];
 }
@@ -442,20 +305,9 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL*  url = [panel URL];
-            m8r::FileStream stream([url fileSystemRepresentation], "w");
-            if (_program) {
-                m8r::Error error;
-                if (!_program->serializeObject(&stream, error)) {
-                    error.showError(_system);
-                }
-            }
+            [_simulator exportBinary:[url fileSystemRepresentation]];
         }
     }];
-}
-
-// simView delegate
-- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
-{
 }
 
 // fileListView dataSource
