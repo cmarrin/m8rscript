@@ -108,17 +108,23 @@ bool MacFS::remove(const char* name)
 
 MacDirectoryEntry::MacDirectoryEntry()
 {
-	_dir = ::opendir(MacFS::_basePath);
+	_dir = MacFS::_basePath ? ::opendir(MacFS::_basePath) : nullptr;
     next();
 }
 
 MacDirectoryEntry::~MacDirectoryEntry()
 {
-    ::closedir(_dir);
+    if (_dir) {
+        ::closedir(_dir);
+    }
 }
 
 bool MacDirectoryEntry::next()
 {
+    if (!_dir) {
+        return false;
+    }
+    
     struct dirent* entry = ::readdir(_dir);
     if (!entry) {
         _valid = false;
@@ -130,7 +136,7 @@ bool MacDirectoryEntry::next()
     }
     
     strncpy(_name, entry->d_name, FilenameLength - 1);
-    String path = String(MacFS::_basePath) + _name;
+    String path = String(MacFS::_basePath) + "/" + _name;
     struct stat statEntry;
     if (::stat(path.c_str(), &statEntry) != 0) {
         _valid = false;

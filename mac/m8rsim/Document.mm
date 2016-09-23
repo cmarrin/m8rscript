@@ -49,6 +49,8 @@
     NSURL* _folder;
     
     Simulator* _simulator;
+    
+    NSFileWrapper* _package;
 }
 
 @end
@@ -60,39 +62,13 @@
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
         
-        setFileSystemPath();
         _fileList = [[NSMutableArray alloc] init];
-        [self reloadFiles];
 
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
-        
-        
-        [self createPackage:[NSURL fileURLWithPath:@"/tmp/bar.m8rproj"]];
     }
     return self;
-}
-
-- (NSFileWrapper*)createPackage:(NSURL*)filename
-{
-    NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
-    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo }];
-    NSFileWrapper *documentFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
-
-    NSError *error = nil;
-    if ([documentFileWrapper writeToURL:filename options:0 originalContentsURL:nil error:&error]) {
-        return documentFileWrapper;
-    }
-
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:[NSString stringWithFormat: @"Failed to write file '%s'", filename.fileSystemRepresentation]];
-    [alert setInformativeText:error.localizedDescription];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert runModal];
-
-    return nil;
 }
 
 - (void)awakeFromNib
@@ -111,7 +87,6 @@
     
     NSRect superFrame = simContainer.frame;
     [_simulator.view setFrameSize:superFrame.size];
-    //[_simulator.view setFrameOrigin:CGPointMake(0, 0)];
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -228,29 +203,22 @@
 //
 // File system interface
 //
-static inline void setFileSystemPath()
+- (void)setFileSystemPath
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSArray* possibleURLs = [fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
-    NSURL* appSupportDir;
-    
-    if ([possibleURLs count] >= 1) {
-        appSupportDir = [possibleURLs objectAtIndex:0];
-    }
-
-    if (!appSupportDir) {
+    if (!_package || !_package.directory) {
+        NSLog(@"Error: Package is %s ", _package ? "not a directory" : "nil");
         return;
     }
     
-    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
-
-    NSString* path = [appSupportDir.path stringByAppendingFormat:@"/%@/Files/", bundleId];
- 
-    NSError *error = nil;
-    if(![fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error]) {
-        NSLog(@"Failed to create directory \"%@\". Error: %@", path, error);
+    NSFileWrapper* contents = [_package.fileWrappers valueForKey:@"Contents"];
+    if (!contents) {
+        NSLog(@"Error: Package has no Contents folder");
+        return;
     }
     
+    NSString* path = [NSString stringWithUTF8String:self.fileURL.fileSystemRepresentation];
+    path = [path stringByAppendingString:@"/Contents"];
+
     m8r::MacFS::setFileSystemPath([path UTF8String]);
 }
 
@@ -264,10 +232,33 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [_fileList removeAllObjects];
     m8r::DirectoryEntry* entry = m8r::FS::sharedFS()->directory();
     while (entry && entry->valid()) {
-        addFileToList(_fileList, entry->name(), entry->size());
+        if (strcmp(entry->name(), "PkgInfo") != 0) {
+            addFileToList(_fileList, entry->name(), entry->size());
+        }
         entry->next();
     }
     [fileListView reloadData];
+}
+
+- (NSFileWrapper*)createPackage:(NSURL*)filename
+{
+    NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
+    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo }];
+    NSFileWrapper *documentFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+
+    NSError *error = nil;
+    if ([documentFileWrapper writeToURL:filename options:0 originalContentsURL:nil error:&error]) {
+        return documentFileWrapper;
+    }
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:[NSString stringWithFormat: @"Failed to write file '%s'", filename.fileSystemRepresentation]];
+    [alert setInformativeText:error.localizedDescription];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert runModal];
+
+    return nil;
 }
 
 - (NSString *)windowNibName {
@@ -286,13 +277,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         [sourceEditor setString:_source];
     }
     return YES;
-}
-
-- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
-                     ofType:(NSString *)typeName 
-                      error:(NSError * _Nullable *)outError
-{
-    return NO;
 }
 
 - (void)clearOutput:(OutputType)output
@@ -364,6 +348,17 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 }
 
 - (IBAction)upload:(id)sender {
+}
+
+- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
+                     ofType:(NSString *)typeName 
+                      error:(NSError * _Nullable *)outError
+{
+    _package = fileWrapper;
+    [self setFileSystemPath];
+    [self reloadFiles];
+    
+    return YES;
 }
 
 // fileListView dataSource
