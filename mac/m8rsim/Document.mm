@@ -216,10 +216,9 @@
         return;
     }
     
-    NSString* path = [NSString stringWithUTF8String:self.fileURL.fileSystemRepresentation];
-    path = [path stringByAppendingString:@"/Contents"];
+    NSURL* path = [self.fileURL URLByAppendingPathComponent:@"Contents/Files/"];
 
-    m8r::MacFS::setFileSystemPath([path UTF8String]);
+    m8r::MacFS::setFileSystemPath(path.fileSystemRepresentation);
 }
 
 static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
@@ -243,7 +242,8 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 - (NSFileWrapper*)createPackage:(NSURL*)filename
 {
     NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
-    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo }];
+    NSFileWrapper* files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
+    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo, @"Files" : files }];
     NSFileWrapper *documentFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
 
     NSError *error = nil;
