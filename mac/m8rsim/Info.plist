@@ -9,6 +9,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>m8rproj</string>
 				<string>m8r</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>

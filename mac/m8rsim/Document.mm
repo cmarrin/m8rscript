@@ -67,8 +67,32 @@
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+        
+        
+        [self createPackage:[NSURL fileURLWithPath:@"/tmp/bar.m8rproj"]];
     }
     return self;
+}
+
+- (NSFileWrapper*)createPackage:(NSURL*)filename
+{
+    NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
+    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo }];
+    NSFileWrapper *documentFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+
+    NSError *error = nil;
+    if ([documentFileWrapper writeToURL:filename options:0 originalContentsURL:nil error:&error]) {
+        return documentFileWrapper;
+    }
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:[NSString stringWithFormat: @"Failed to write file '%s'", filename.fileSystemRepresentation]];
+    [alert setInformativeText:error.localizedDescription];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert runModal];
+
+    return nil;
 }
 
 - (void)awakeFromNib
@@ -262,6 +286,13 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         [sourceEditor setString:_source];
     }
     return YES;
+}
+
+- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
+                     ofType:(NSString *)typeName 
+                      error:(NSError * _Nullable *)outError
+{
+    return NO;
 }
 
 - (void)clearOutput:(OutputType)output
