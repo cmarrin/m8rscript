@@ -52,6 +52,10 @@ void MacFS::setFileSystemPath(const char* path)
         _basePath = nullptr;
     }
     
+    if (!path) {
+        return;
+    }
+    
     size_t size = strlen(path);
     if (path[size - 1] != '/') {
         _basePath = static_cast<char*>(malloc(size + 2));
@@ -100,6 +104,9 @@ void MacFS::unmount()
 
 bool MacFS::format()
 {
+    if (!_basePath) {
+        return false;
+    }
     DirectoryEntry* entry = directory();
     while (entry && entry->valid()) {
         String s = String(_basePath) + entry->name();
@@ -115,6 +122,9 @@ File* MacFS::open(const char* name, const char* mode)
 
 bool MacFS::remove(const char* name)
 {
+    if (!_basePath) {
+        return false;
+    }
     String path = String(_basePath) + name;
     return ::remove(path.c_str()) == 0;
 }
@@ -162,6 +172,11 @@ bool MacDirectoryEntry::next()
 
 MacFile::MacFile(const char* name, const char* mode)
 {
+    if (!MacFS::_basePath) {
+        _file = nullptr;
+        _error = ENODEV;
+        return;
+    }
     String path = String(MacFS::_basePath) + name;
     _file = ::fopen(path.c_str(), mode);
     _error = _file ? 0 : errno;

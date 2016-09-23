@@ -46,7 +46,7 @@
     NSNetServiceBrowser* _netServiceBrowser;
     NSNetService* _netService;
     
-    NSURL* _folder;
+    NSURL* _tmpURL;
     
     Simulator* _simulator;
     
@@ -56,6 +56,13 @@
 @end
 
 @implementation Document
+
+- (void)setPackage:(NSFileWrapper*) package
+{
+    _package = package;
+    [self setFileSystemPath];
+    [self reloadFiles];
+}
 
 - (instancetype)init {
     self = [super init];
@@ -73,6 +80,10 @@
 
 - (void)awakeFromNib
 {
+    if (!self.fileURL) {
+        self.package = [self createPackage];
+    }
+    
     [sourceEditor setFont:_font];
     [consoleOutput setFont:_font];
     [buildOutput setFont:_font];
@@ -104,6 +115,13 @@
         return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
     }
     return NO;
+}
+
+- (void)dealloc
+{
+    if (_tmpURL) {
+        [[NSFileManager defaultManager] removeItemAtPath:_tmpURL.path error:nil];
+    }
 }
 
 + (BOOL)autosavesInPlace {
@@ -216,9 +234,13 @@
         return;
     }
     
-    NSURL* path = [self.fileURL URLByAppendingPathComponent:@"Contents/Files/"];
+    NSURL* path = [self.fileURL ?: _tmpURL URLByAppendingPathComponent:@"Contents/Files/"];
 
     m8r::MacFS::setFileSystemPath(path.fileSystemRepresentation);
+}
+
+- (IBAction)fileSelected:(id)sender
+{
 }
 
 static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
@@ -239,7 +261,7 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     [fileListView reloadData];
 }
 
-- (NSFileWrapper*)createPackage:(NSURL*)filename
+- (NSFileWrapper*)createPackage
 {
     NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
     NSFileWrapper* files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
@@ -247,13 +269,16 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
     NSFileWrapper *documentFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
 
     NSError *error = nil;
-    if ([documentFileWrapper writeToURL:filename options:0 originalContentsURL:nil error:&error]) {
+    char* s = strdup("/tmp/m8rproj_XXXXXXXX");
+    _tmpURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:mktemp(s)]];
+    free(s);
+    if ([documentFileWrapper writeToURL:_tmpURL options:0 originalContentsURL:nil error:&error]) {
         return documentFileWrapper;
     }
 
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:[NSString stringWithFormat: @"Failed to write file '%s'", filename.fileSystemRepresentation]];
+    [alert setMessageText:[NSString stringWithFormat: @"Failed to write file '%s'", _tmpURL.fileSystemRepresentation]];
     [alert setInformativeText:error.localizedDescription];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert runModal];
@@ -277,6 +302,49 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
         [sourceEditor setString:_source];
     }
     return YES;
+}
+
+- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
+                     ofType:(NSString *)typeName 
+                      error:(NSError * _Nullable *)outError
+{
+    NSAssert(_package == nil, @"Package should not exist when readFromFileWrapper is called");
+    self.package = fileWrapper;
+    return YES;
+}
+
+- (BOOL)writeToURL:(NSURL *)url 
+            ofType:(NSString *)typeName 
+             error:(NSError * _Nullable *)outError
+{
+    NSLog(@"writeToURL");
+    return NO;
+}
+
+- (BOOL)writeToURL:(NSURL *)url 
+            ofType:(NSString *)typeName 
+  forSaveOperation:(NSSaveOperationType)saveOperation 
+originalContentsURL:(NSURL *)absoluteOriginalContentsURL 
+             error:(NSError * _Nullable *)outError
+{
+    if (_tmpURL) {
+        NSError* error;
+        if (![[NSFileManager defaultManager] moveItemAtURL:_tmpURL toURL:url error: &error]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:[NSString stringWithFormat: @"Failed to save to '%s'", url.fileSystemRepresentation]];
+            [alert setInformativeText:error.localizedDescription];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert runModal];
+            return NO;
+        }
+        return YES;
+    }
+    return [super writeToURL:url
+                      ofType:typeName
+            forSaveOperation:saveOperation
+         originalContentsURL:absoluteOriginalContentsURL
+                       error:outError];
 }
 
 - (void)clearOutput:(OutputType)output
@@ -348,17 +416,6 @@ static void addFileToList(NSMutableArray* list, const char* name, uint32_t size)
 }
 
 - (IBAction)upload:(id)sender {
-}
-
-- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
-                     ofType:(NSString *)typeName 
-                      error:(NSError * _Nullable *)outError
-{
-    _package = fileWrapper;
-    [self setFileSystemPath];
-    [self reloadFiles];
-    
-    return YES;
 }
 
 // fileListView dataSource

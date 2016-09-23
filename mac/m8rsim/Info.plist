@@ -7,10 +7,11 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>LSTypeIsPackage</key>
+			<true/>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>m8rproj</string>
-				<string>m8r</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string></string>
