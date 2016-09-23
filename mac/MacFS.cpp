@@ -47,7 +47,20 @@ char* MacFS::_basePath = nullptr;
 
 void MacFS::setFileSystemPath(const char* path)
 {
-    _basePath = strdup(path);
+    if (_basePath) {
+        free(_basePath);
+        _basePath = nullptr;
+    }
+    
+    size_t size = strlen(path);
+    if (path[size - 1] != '/') {
+        _basePath = static_cast<char*>(malloc(size + 2));
+        memcpy(_basePath, path, size);
+        _basePath[size] = '/';
+        _basePath[size + 1] = '\0';
+    } else {
+        _basePath = strdup(path);
+    }
 }
 
 FS* FS::sharedFS()
