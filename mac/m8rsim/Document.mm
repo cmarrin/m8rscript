@@ -213,11 +213,17 @@
 
 - (IBAction)fileSelected:(id)sender
 {
-}
-
-static void addFileToList(NSMutableArray* list, NSString* name, uint32_t size)
-{
-    [list addObject:@{ @"name" : name, @"size" : [NSNumber numberWithInt:size] }];
+    NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
+    if (indexes.count != 1) {
+        // clear text editor
+        _source = nil;
+    } else {
+        
+        NSString* name = _fileList[fileListView.selectedRow][@"name"];
+        _source = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
+    }
+    
+    [sourceEditor setString:_source];
 }
 
 - (void)reloadFiles
@@ -227,12 +233,15 @@ static void addFileToList(NSMutableArray* list, NSString* name, uint32_t size)
         return;
     }
     
-    for (NSString* name in _files.fileWrappers) {
+    NSArray* sortedKeys = [_files.fileWrappers.allKeys sortedArrayUsingSelector:@selector(compare:)];
+    
+    for (NSString* name in sortedKeys) {
         NSFileWrapper* file = _files.fileWrappers[name];
         if (file && file.regularFile) {
-            addFileToList(_fileList, name, (uint32_t) _files.fileWrappers[name].regularFileContents.length);
+            [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
         }
     }
+    
     [fileListView reloadData];
 }
 
@@ -260,6 +269,7 @@ static void addFileToList(NSMutableArray* list, NSString* name, uint32_t size)
 {
     NSAssert(_package == nil, @"Package should not exist when readFromFileWrapper is called");
     _package = fileWrapper;
+    _files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ? _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : nil;
     [self reloadFiles];
     return YES;
 }
