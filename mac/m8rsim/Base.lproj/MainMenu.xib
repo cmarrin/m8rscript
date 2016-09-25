@@ -676,6 +676,5 @@
             </items>
         </menu>
         <customObject id="6ie-Cs-Nsk" userLabel="AppDelegate" customClass="AppDelegate"/>
-        <customObject id="tNx-jm-PrM" userLabel="DocumentController" customClass="DocumentController"/>
     </objects>
 </document>

@@ -58,7 +58,6 @@
 		49DD77491D84D94900D7C374 /* Simulate.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77481D84D94900D7C374 /* Simulate.png */; };
 		49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD774A1D84DD7D00D7C374 /* Application.cpp */; };
 		49DD774D1D84DD7D00D7C374 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD774B1D84DD7D00D7C374 /* Application.h */; };
-		49DD77531D93750500D7C374 /* DocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 49DD77521D93750500D7C374 /* DocumentController.m */; };
 		49E5AB521D94195F00C6988D /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.mm */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
@@ -170,8 +169,6 @@
 		49DD77481D84D94900D7C374 /* Simulate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Simulate.png; sourceTree = "<group>"; };
 		49DD774A1D84DD7D00D7C374 /* Application.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../m8rscript/Application.cpp; sourceTree = "<group>"; };
 		49DD774B1D84DD7D00D7C374 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../m8rscript/Application.h; sourceTree = "<group>"; };
-		49DD77521D93750500D7C374 /* DocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DocumentController.m; sourceTree = "<group>"; };
-		49DD77541D93751D00D7C374 /* DocumentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocumentController.h; sourceTree = "<group>"; };
 		49E5AB501D94195F00C6988D /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
 		49E5AB511D94195F00C6988D /* Simulator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Simulator.mm; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -277,13 +274,11 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
-				494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */,
+				49E5AB531D981A6300C6988D /* UI */,
 				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
 				49562F6D1D1D7A9C001AFAEE /* Document.h */,
 				49562F6E1D1D7A9C001AFAEE /* Document.mm */,
-				49DD77521D93750500D7C374 /* DocumentController.m */,
-				49DD77541D93751D00D7C374 /* DocumentController.h */,
 				49E5AB501D94195F00C6988D /* Simulator.h */,
 				49E5AB511D94195F00C6988D /* Simulator.mm */,
 				49562F691D1D7A75001AFAEE /* main.m */,
@@ -317,6 +312,14 @@
 				49DD773C1D83CEA400D7C374 /* upload.png */,
 			);
 			name = Images;
+			sourceTree = "<group>";
+		};
+		49E5AB531D981A6300C6988D /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */,
+			);
+			name = UI;
 			sourceTree = "<group>";
 		};
 		49E647DF1D00B68F005F5059 = {
@@ -566,7 +569,6 @@
 				49562F701D1D7A9C001AFAEE /* Document.mm in Sources */,
 				49E5AB521D94195F00C6988D /* Simulator.mm in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
-				49DD77531D93750500D7C374 /* DocumentController.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
