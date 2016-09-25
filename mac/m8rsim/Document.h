@@ -13,6 +13,8 @@
 enum OutputType { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
 - (void)outputMessage:(NSString*) message to:(OutputType) output;
+- (void)markDirty;
+- (void)setSource:(NSString*)source;
 
 @end
 

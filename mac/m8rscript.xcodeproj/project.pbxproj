@@ -59,6 +59,8 @@
 		49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD774A1D84DD7D00D7C374 /* Application.cpp */; };
 		49DD774D1D84DD7D00D7C374 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD774B1D84DD7D00D7C374 /* Application.h */; };
 		49E5AB521D94195F00C6988D /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.mm */; };
+		49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49E5AB541D981D6100C6988D /* FileBrowser.xib */; };
+		49E5AB581D981DDB00C6988D /* FileBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.mm */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 /* End PBXBuildFile section */
@@ -171,6 +173,9 @@
 		49DD774B1D84DD7D00D7C374 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../m8rscript/Application.h; sourceTree = "<group>"; };
 		49E5AB501D94195F00C6988D /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
 		49E5AB511D94195F00C6988D /* Simulator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Simulator.mm; sourceTree = "<group>"; };
+		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
+		49E5AB561D981DDB00C6988D /* FileBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBrowser.h; sourceTree = "<group>"; };
+		49E5AB571D981DDB00C6988D /* FileBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileBrowser.mm; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -279,15 +284,18 @@
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
 				49562F6D1D1D7A9C001AFAEE /* Document.h */,
 				49562F6E1D1D7A9C001AFAEE /* Document.mm */,
+				49D9B81E1D1C854700724911 /* Document.xib */,
+				49E5AB561D981DDB00C6988D /* FileBrowser.h */,
+				49E5AB571D981DDB00C6988D /* FileBrowser.mm */,
+				49E5AB541D981D6100C6988D /* FileBrowser.xib */,
+				49D9B8231D1C854700724911 /* MainMenu.xib */,
 				49E5AB501D94195F00C6988D /* Simulator.h */,
 				49E5AB511D94195F00C6988D /* Simulator.mm */,
+				492604A91D943E8700C5DF07 /* Simulator.xib */,
 				49562F691D1D7A75001AFAEE /* main.m */,
 				49D9B82A1D1C8C9000724911 /* Images */,
-				49D9B81E1D1C854700724911 /* Document.xib */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
-				49D9B8231D1C854700724911 /* MainMenu.xib */,
 				49D9B8261D1C854700724911 /* Info.plist */,
-				492604A91D943E8700C5DF07 /* Simulator.xib */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -509,6 +517,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */,
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
 				49DD773D1D83CEA400D7C374 /* upload.png in Resources */,
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
@@ -565,6 +574,7 @@
 			files = (
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
+				49E5AB581D981DDB00C6988D /* FileBrowser.mm in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.mm in Sources */,
 				49E5AB521D94195F00C6988D /* Simulator.mm in Sources */,

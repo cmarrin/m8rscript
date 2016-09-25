@@ -12,6 +12,7 @@
 
 #import "MacFS.h"
 #import "Simulator.h"
+#import "FileBrowser.h"
 
 #import <iostream>
 #import <stdarg.h>
@@ -28,6 +29,7 @@
     __weak IBOutlet NSTabView *outputView;
     __weak IBOutlet NSTableView *fileListView;
     __weak IBOutlet NSView *simContainer;
+    __weak IBOutlet NSView *filesContainer;
     
     __weak IBOutlet NSToolbarItem *runButton;
     __weak IBOutlet NSToolbarItem *buildButton;
@@ -38,18 +40,16 @@
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
-    __weak IBOutlet NSPopUpButton *fileSourceButton;
     
     NSString* _source;
     NSFont* _font;
-    NSMutableArray* _fileList;
     NSNetServiceBrowser* _netServiceBrowser;
     NSNetService* _netService;
         
     Simulator* _simulator;
+    FileBrowser* _fileBrowser;
     
     NSFileWrapper* _package;
-    NSFileWrapper* _files;
 }
 
 @end
@@ -61,8 +61,6 @@
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
         
-        _fileList = [[NSMutableArray alloc] init];
-
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
@@ -83,9 +81,13 @@
     }
     _simulator = [[Simulator alloc] initWithDocument:self];
     [simContainer addSubview:_simulator.view];
-    
     NSRect superFrame = simContainer.frame;
     [_simulator.view setFrameSize:superFrame.size];
+
+    _fileBrowser = [[FileBrowser alloc] initWithDocument:self];
+    [filesContainer addSubview:_fileBrowser.view];
+    superFrame = filesContainer.frame;
+    [_fileBrowser.view setFrameSize:superFrame.size];   
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -100,7 +102,7 @@
         return [_simulator canStop];
     }
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
-        return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
+        return _fileBrowser.isFileSourceLocal;
     }
     return NO;
 }
@@ -178,6 +180,19 @@
     }];
 }
 
+- (void)markDirty
+{
+    [self updateChangeCount:NSChangeReadOtherContents];
+}
+
+- (void)setSource:(NSString*)source
+{
+    _source = source;
+    if (sourceEditor) {
+        [sourceEditor setString:_source];
+    }
+}
+
 //
 // Text Content Interface
 //
@@ -199,52 +214,6 @@
     }
 }
 
-//
-// File system interface
-//
-- (NSFileWrapper*)filesFileWrapper
-{
-    if (!_files) {
-        [self updateChangeCount:NSChangeReadOtherContents];
-        _files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
-    }
-    return _files;
-}
-
-- (IBAction)fileSelected:(id)sender
-{
-    NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
-    if (indexes.count != 1) {
-        // clear text editor
-        _source = nil;
-    } else {
-        
-        NSString* name = _fileList[fileListView.selectedRow][@"name"];
-        _source = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
-    }
-    
-    [sourceEditor setString:_source];
-}
-
-- (void)reloadFiles
-{
-    [_fileList removeAllObjects];
-    if (!_files) {
-        return;
-    }
-    
-    NSArray* sortedKeys = [_files.fileWrappers.allKeys sortedArrayUsingSelector:@selector(compare:)];
-    
-    for (NSString* name in sortedKeys) {
-        NSFileWrapper* file = _files.fileWrappers[name];
-        if (file && file.regularFile) {
-            [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
-        }
-    }
-    
-    [fileListView reloadData];
-}
-
 - (NSString *)windowNibName {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
@@ -256,10 +225,7 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    _source = [NSString stringWithUTF8String:(const char*)[data bytes]];
-    if (sourceEditor) {
-        [sourceEditor setString:_source];
-    }
+    [self setSource:[NSString stringWithUTF8String:(const char*)[data bytes]]];
     return YES;
 }
 
@@ -269,17 +235,19 @@
 {
     NSAssert(_package == nil, @"Package should not exist when readFromFileWrapper is called");
     _package = fileWrapper;
-    _files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ? _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : nil;
-    [self reloadFiles];
+    NSFileWrapper*files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
+                                _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
+                                nil;
+    [_fileBrowser setFiles: files];
     return YES;
 }
 
 - (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError **)outError
 {
     if (!_package) {
-        [self updateChangeCount:NSChangeReadOtherContents];
+        [self markDirty];
         NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
-        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo, @"Files" : self.filesFileWrapper }];
+        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo, @"Files" : _fileBrowser.files }];
         _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
     }
     return _package;
@@ -291,106 +259,19 @@
 }
 
 - (IBAction)addFile:(id)sender {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel setPrompt:@"Add"];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [[panel URLs] objectAtIndex:0];
-            NSString* toName = url.lastPathComponent;
-            
-            NSFileWrapper* files = self.filesFileWrapper;
-            if (files && files.fileWrappers[toName]) {
-                NSAlert *alert = [[NSAlert alloc] init];
-                [alert addButtonWithTitle:@"Cancel"];
-                [alert addButtonWithTitle:@"OK"];
-                [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", toName]];
-                [alert setInformativeText:@"This operation cannot be undone."];
-                [alert setAlertStyle:NSWarningAlertStyle];
-                if ([alert runModal] == NSModalResponseCancel) {
-                    return;
-                }
-                
-                [files removeFileWrapper:files.fileWrappers[toName]];
-            }
-            
-            [self updateChangeCount:NSChangeReadOtherContents];
-            NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData dataWithContentsOfURL:url]];
-            file.preferredFilename = toName;
-            [files addFileWrapper:file];
-            [self reloadFiles];
-        }
-    }];
-}
-
-- (IBAction)changeFileSource:(id)sender {
+    [_fileBrowser addFiles];
 }
 
 - (IBAction)removeFile:(id)sender {
-    NSIndexSet* indexes = fileListView.selectedRowIndexes;
-    if (!indexes.count) {
-        return;
-    }
-    
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
-    [alert addButtonWithTitle:@"Cancel"];
-    if (indexes.count == 1) {
-        [alert setMessageText:@"Delete this file?"];
-    } else {
-        [alert setMessageText:@"Delete these files?"];
-    }
-    [alert setInformativeText:@"This operation cannot be undone."];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSModalResponseCancel) {
-        return;
-    }
-
-    NSUInteger i = 0;
-    NSFileWrapper* files = self.filesFileWrapper;
-    if (!files) {
-        return;
-    }
-    
-    for (NSDictionary* entry in _fileList) {
-        if ([indexes containsIndex:i++]) {
-            NSFileWrapper* d = files.fileWrappers[[entry objectForKey:@"name"]];
-            if (d) {
-                [self updateChangeCount:NSChangeReadOtherContents];
-                [files removeFileWrapper:d];
-            }
-        }
-    }
-    [fileListView deselectAll:self];
-    [self reloadFiles];
+    [_fileBrowser removeFiles];
 }
 
 - (IBAction)reloadFiles:(id)sender {
-    [self reloadFiles];
+    [_fileBrowser reloadFiles];
 }
 
 - (IBAction)upload:(id)sender {
-}
-
-// fileListView dataSource
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
-{
-    return [_fileList count];
-}
-
-// TableView delegagte
-- (id)tableView:(NSTableView *)aTableView
-objectValueForTableColumn:(NSTableColumn *)aTableColumn
-            row:(NSInteger)rowIndex
-{
-    return [[_fileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
-}
-
-- (void)tableView:(NSTableView *)aTableView
-   setObjectValue:(id)anObject
-   forTableColumn:(NSTableColumn *)aTableColumn
-              row:(NSInteger)rowIndex
-{
-    return;
+    [_fileBrowser upload];
 }
 
 // NSNetServiceBrowser delegate
