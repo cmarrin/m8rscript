@@ -58,6 +58,7 @@
     self = [super init];
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
+        _source = @"";
     }
     return self;
 }
@@ -70,9 +71,7 @@
     sourceEditor.ShowsLineNumbers = YES;
     sourceEditor.automaticQuoteSubstitutionEnabled = NO;
     [[sourceEditor textStorage] setDelegate:(id) self];
-    if (_source) {
-        [sourceEditor setString:_source];
-    }
+    [sourceEditor setString:_source];
     _simulator = [[Simulator alloc] initWithDocument:self];
     [simContainer addSubview:_simulator.view];
     NSRect superFrame = simContainer.frame;
@@ -240,8 +239,7 @@
 {
     if (!_package) {
         [self markDirty];
-        NSFileWrapper* pkgInfo = [[NSFileWrapper alloc] initRegularFileWithContents: [NSData dataWithBytes:(void*)"????????" length:8]];
-        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"PkgInfo" : pkgInfo, @"Files" : _fileBrowser.files }];
+        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _fileBrowser.files }];
         _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
     }
     return _package;

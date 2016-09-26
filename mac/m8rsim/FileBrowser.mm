@@ -84,7 +84,7 @@
     NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
     if (indexes.count != 1) {
         // clear text editor
-        [_document setSource:nil];
+        [_document setSource:@""];
     } else {
         NSString* name = _fileList[fileListView.selectedRow][@"name"];
         [_document setSource:[[NSString alloc] initWithData:
