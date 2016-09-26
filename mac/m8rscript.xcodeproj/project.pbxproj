@@ -61,6 +61,7 @@
 		49E5AB521D94195F00C6988D /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.mm */; };
 		49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49E5AB541D981D6100C6988D /* FileBrowser.xib */; };
 		49E5AB581D981DDB00C6988D /* FileBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.mm */; };
+		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 /* End PBXBuildFile section */
@@ -176,6 +177,8 @@
 		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
 		49E5AB561D981DDB00C6988D /* FileBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBrowser.h; sourceTree = "<group>"; };
 		49E5AB571D981DDB00C6988D /* FileBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileBrowser.mm; sourceTree = "<group>"; };
+		49E5AB5C1D98C00600C6988D /* FastSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FastSocket.m; path = FastSocket/FastSocket.m; sourceTree = "<group>"; };
+		49E5AB5D1D98C00600C6988D /* FastSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FastSocket.h; path = FastSocket/FastSocket.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -279,6 +282,7 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
+				49E5AB5B1D98BFED00C6988D /* FastSocket */,
 				49E5AB531D981A6300C6988D /* UI */,
 				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
@@ -328,6 +332,15 @@
 				494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */,
 			);
 			name = UI;
+			sourceTree = "<group>";
+		};
+		49E5AB5B1D98BFED00C6988D /* FastSocket */ = {
+			isa = PBXGroup;
+			children = (
+				49E5AB5C1D98C00600C6988D /* FastSocket.m */,
+				49E5AB5D1D98C00600C6988D /* FastSocket.h */,
+			);
+			name = FastSocket;
 			sourceTree = "<group>";
 		};
 		49E647DF1D00B68F005F5059 = {
@@ -577,6 +590,7 @@
 				49E5AB581D981DDB00C6988D /* FileBrowser.mm in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.mm in Sources */,
+				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
 				49E5AB521D94195F00C6988D /* Simulator.mm in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,

@@ -9,6 +9,7 @@
 #import "FileBrowser.h"
 
 #import "Document.h"
+#import "FastSocket.h"
 
 @interface FileBrowser ()
 {
@@ -19,6 +20,10 @@
 
     NSMutableArray* _fileList;
     NSFileWrapper* _files;
+
+    NSNetServiceBrowser* _netServiceBrowser;
+    NSMutableArray<NSDictionary*>* _devices;
+    NSDictionary* _currentDevice;
 }
 
 @end
@@ -31,12 +36,27 @@
         _document = document;
 
         _fileList = [[NSMutableArray alloc] init];
+        _devices = [[NSMutableArray alloc] init];
      }
     return self;
 }
 
 - (void)dealloc
 {
+}
+
+- (void)awakeFromNib
+{
+    // Clear the fileSourceButton
+    assert(fileSourceButton.numberOfItems > 0);
+    [fileSourceButton selectItemAtIndex:0];
+    while (fileSourceButton.numberOfItems > 1) {
+        [fileSourceButton removeItemAtIndex:1];
+    }
+    
+    _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
+    [_netServiceBrowser setDelegate: (id) self];
+    [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
 }
 
 - (BOOL)isFileSourceLocal
@@ -72,22 +92,83 @@
     }
 }
 
+static void flushToPrompt(FastSocket* socket)
+{
+    while(1) {
+        char c;
+        long count = [socket receiveBytes:&c count:1];
+        if (count != 1 || c == '>') {
+            break;
+        }
+    }
+}
+
+static NSString* receiveToPrompt(FastSocket* socket)
+{
+    NSMutableString* s = [NSMutableString string];
+    char c[2];
+    c[1] = '\0';
+    while(1) {
+        long count = [socket receiveBytes:c count:1];
+        if (count != 1 || c[0] == '>') {
+            break;
+        }
+        [s appendString:[NSString stringWithUTF8String:c]];
+    }
+    return s;
+}
+
+- (NSString*)loadFileListFromHost:(NSString*)hostname port:(uint16_t) port
+{
+    NSString* portString = [NSNumber numberWithInt:port].stringValue;
+    FastSocket* socket = [[FastSocket alloc] initWithHost:hostname andPort:portString];
+    [socket connect];
+    [socket setTimeout:5];
+    flushToPrompt(socket);
+    NSData* data = [@"ls\r\n" dataUsingEncoding:NSUTF8StringEncoding];
+    long count = [socket sendBytes:data.bytes count:data.length];
+    assert(count == data.length);
+    
+    NSString* s = receiveToPrompt(socket);
+    return s;
+}
+
 - (void)reloadFiles
 {
     [_fileList removeAllObjects];
-    if (!_files) {
-        return;
-    }
-    
-    NSArray* sortedKeys = [_files.fileWrappers.allKeys sortedArrayUsingSelector:@selector(compare:)];
-    
-    for (NSString* name in sortedKeys) {
-        NSFileWrapper* file = _files.fileWrappers[name];
-        if (file && file.regularFile) {
-            [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+    if (_currentDevice) {
+        // load files from the device
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* fileString = [self loadFileListFromHost:service.hostName port:service.port];
+        if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+            fileString = [fileString substringFromIndex:1];
+        }
+        
+        NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
+        for (NSString* line in lines) {
+            NSArray* elements = [line componentsSeparatedByString:@":"];
+            if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
+                continue;
+            }
+            
+            [_fileList addObject:@{ @"name" : elements[1], @"size" : elements[2] }];
+        }
+    } else {
+        if (!_files) {
+            return;
+        }
+        
+        for (NSString* name in _files.fileWrappers) {
+            NSFileWrapper* file = _files.fileWrappers[name];
+            if (file && file.regularFile) {
+                [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+            }
         }
     }
     
+    [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
+        return [a[@"name"] compare:b[@"name"]];
+    }];
     [fileListView reloadData];
 }
 
@@ -124,7 +205,33 @@
     }];
 }
 
-- (IBAction)changeFileSource:(id)sender {
+- (NSString*)trimTrailingDot:(NSString*)s
+{
+    if ([s characterAtIndex:s.length - 1] == '.') {
+        return [s substringToIndex:s.length - 1];
+    }
+    return s;
+}
+
+- (NSNetService*)serviceFromDevice:(NSDictionary*)device
+{
+    return (NSNetService*) (device[@"service"]);
+}
+
+- (NSDictionary*) findService:(NSString*)hostname
+{
+    for (NSDictionary* service in _devices) {
+        if ([hostname isEqualToString:[self trimTrailingDot:[self serviceFromDevice:service].hostName]]) {
+            return service;
+        }
+    }
+    return nil;
+}
+
+- (IBAction)changeFileSource:(id)sender
+{
+    _currentDevice = [self findService:[(NSPopUpButton*)sender titleOfSelectedItem]];
+    [self reloadFiles];
 }
 
 - (void)removeFiles
@@ -191,6 +298,37 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
               row:(NSInteger)rowIndex
 {
     return;
+}
+
+// NSNetServiceBrowser delegate
+- (void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser
+           didFindService:(NSNetService *)netService
+               moreComing:(BOOL)moreServicesComing
+{
+    [_devices addObject:@{
+        @"service" : netService
+    }];
+        
+    [netService setDelegate:(id) self];
+    NSLog(@"*** Found service: %@\n", netService);
+    [netService resolveWithTimeout:10];
+}
+
+-(void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *,NSNumber *> *)errorDict {
+    NSLog(@"not search ");
+}
+
+- (void)netServiceDidResolveAddress:(NSNetService *)sender
+{
+    NSString* hostName = [self trimTrailingDot:sender.hostName];
+    [fileSourceButton addItemWithTitle:hostName];
+    [fileSourceButton setNeedsDisplay];
+}
+
+- (void)netService:(NSNetService *)sender 
+     didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
+{
+    NSLog(@"********* Did not resolve: %@\n", errorDict);
 }
 
 @end

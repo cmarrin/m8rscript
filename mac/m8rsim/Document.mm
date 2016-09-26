@@ -43,8 +43,6 @@
     
     NSString* _source;
     NSFont* _font;
-    NSNetServiceBrowser* _netServiceBrowser;
-    NSNetService* _netService;
         
     Simulator* _simulator;
     FileBrowser* _fileBrowser;
@@ -60,10 +58,6 @@
     self = [super init];
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-        
-        _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
-        [_netServiceBrowser setDelegate: (id) self];
-        [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
     }
     return self;
 }
@@ -272,42 +266,6 @@
 
 - (IBAction)upload:(id)sender {
     [_fileBrowser upload];
-}
-
-// NSNetServiceBrowser delegate
-- (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)netServiceBrowser
-{
-    NSLog(@"*** netServiceBrowserWillSearch\n");
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser
-           didFindService:(NSNetService *)netService
-               moreComing:(BOOL)moreServicesComing
-{
-    _netService = netService;
-    [netService setDelegate:(id) self];
-    NSLog(@"*** Found service: %@\n", netService);
-    [netService resolveWithTimeout:10];
-}
-
--(void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *,NSNumber *> *)errorDict {
-    NSLog(@"not search ");
-}
-
-- (void)netServiceWillResolve:(NSNetService *)sender
-{
-    NSLog(@"********* Will resolve\n");
-}
-
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
-{
-    NSLog(@"********* Did resolve\n");
-}
-
-- (void)netService:(NSNetService *)sender 
-     didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
-{
-    NSLog(@"********* Did not resolve: %@\n", errorDict);
 }
 
 @end
