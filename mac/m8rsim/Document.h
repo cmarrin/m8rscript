@@ -10,7 +10,7 @@
 
 @interface Document : NSDocument
 
-enum OutputType { CTBuild, CTConsole };
+typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
 - (void)outputMessage:(NSString*) message to:(OutputType) output;
 - (void)markDirty;

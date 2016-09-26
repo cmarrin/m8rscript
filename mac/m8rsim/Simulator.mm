@@ -14,14 +14,6 @@
 #import "CodePrinter.h"
 #import "ExecutionUnit.h"
 #import "SystemInterface.h"
-#import "MacFS.h"
-
-#import <iostream>
-#import <stdarg.h>
-#import <sstream>
-#import <thread>
-#import <chrono>
-#import <cstdio>
 
 class MySystemInterface;
 
@@ -195,7 +187,7 @@ private:
                 break;
             }
             if (delay > 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+                [NSThread sleepForTimeInterval:(NSTimeInterval) delay / 1000];
             }
         }
         

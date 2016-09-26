@@ -10,16 +10,10 @@
 
 #import "NSTextView+JSDExtensions.h"
 
-#import "MacFS.h"
 #import "Simulator.h"
 #import "FileBrowser.h"
 
-#import <iostream>
 #import <stdarg.h>
-#import <sstream>
-#import <thread>
-#import <chrono>
-#import <cstdio>
 
 @interface Document ()
 {
