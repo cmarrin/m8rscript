@@ -33,13 +33,12 @@
 		494D25871D32AFA4003755DB /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25851D32AFA4003755DB /* base64.cpp */; };
 		494D25881D32AFA4003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25861D32AFA4003755DB /* base64.h */; };
 		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
-		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
-		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
+		49A8E4F81D9AD69500238C4B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A8E4F71D9AD69500238C4B /* AppDelegate.swift */; };
 		49AE34F41D82321300C4E680 /* MacFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F21D82321300C4E680 /* MacFS.cpp */; };
 		49AE34F51D82321300C4E680 /* MacFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F31D82321300C4E680 /* MacFS.h */; };
 		49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F61D8330CA00C4E680 /* Shell.cpp */; };
@@ -128,9 +127,6 @@
 		494D25861D32AFA4003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../m8rscript/base64.h; sourceTree = "<group>"; };
 		494D25901D32B73A003755DB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../m8rscript/Object.cpp; sourceTree = "<group>"; };
-		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
 		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
@@ -148,6 +144,8 @@
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../m8rscript/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../m8rscript/Error.h; sourceTree = "<group>"; };
+		49A8E4F61D9AD68E00238C4B /* m8rsim-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "m8rsim-Bridging-Header.h"; sourceTree = "<group>"; };
+		49A8E4F71D9AD69500238C4B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
 		49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
 		49AE34F11D8231BF00C4E680 /* FS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FS.h; path = ../m8rscript/FS.h; sourceTree = "<group>"; };
@@ -285,16 +283,15 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
+				49A8E4F71D9AD69500238C4B /* AppDelegate.swift */,
 				49E5AB5B1D98BFED00C6988D /* FastSocket */,
 				49E5AB531D981A6300C6988D /* UI */,
-				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
-				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
-				49562F691D1D7A75001AFAEE /* main.m */,
 				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
 				49D9B8261D1C854700724911 /* Info.plist */,
 				49E5AB5F1D9AA67000C6988D /* Engine.cpp */,
 				49E5AB601D9AA67000C6988D /* Engine.h */,
+				49A8E4F61D9AD68E00238C4B /* m8rsim-Bridging-Header.h */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -590,8 +587,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
-				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
@@ -599,6 +594,7 @@
 				49E5AB521D94195F00C6988D /* Simulator.m in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
+				49A8E4F81D9AD69500238C4B /* AppDelegate.swift in Sources */,
 				49E5AB611D9AA67000C6988D /* Engine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -678,6 +674,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "m8rsim/m8rsim-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -694,6 +691,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "m8rsim/m8rsim-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 			};
