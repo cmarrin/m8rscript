@@ -8,7 +8,7 @@
 
 #import "FileBrowser.h"
 
-#import "m8rsim-Swift.h"
+#import "Document.h"
 #import "FastSocket.h"
 
 @interface FileBrowser ()
