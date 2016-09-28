@@ -20,7 +20,7 @@
                 <outlet property="runButton" destination="PTc-iU-bNL" id="Ila-kZ-taU"/>
                 <outlet property="simContainer" destination="IEu-ZQ-lxz" id="h6A-ja-I7u"/>
                 <outlet property="simulateButton" destination="FGO-rL-12M" id="MS9-57-XlF"/>
-                <outlet property="sourceEditor" destination="T2A-LY-iQw" id="7o2-4Q-tqO"/>
+                <outlet property="sourceEditor" destination="T2A-LY-iQw" id="nqY-kf-QY7"/>
                 <outlet property="stopButton" destination="8JM-U9-YKY" id="hjX-W4-mFh"/>
                 <outlet property="uploadButton" destination="anh-eu-bM3" id="uvA-dW-2HU"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
@@ -227,7 +227,7 @@
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="QGa-QJ-f5Z"/>
                     <toolbarItem implicitItemIdentifier="A71517BF-9955-4EA3-A060-2645350A844B" label="Build" paletteLabel="Build" tag="-1" image="build" id="fRb-eR-XFZ" userLabel="Build Button">
                         <connections>
-                            <action selector="build:" target="-2" id="cvz-67-DNf"/>
+                            <action selector="build:" target="-2" id="VP1-HD-WWv"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="D77AA80A-D445-4EB7-89F8-6E619B5E68C1" label="Pause" paletteLabel="Pause" tag="-1" image="pause" id="7ed-ZA-LTG">

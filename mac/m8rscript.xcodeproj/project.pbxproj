@@ -33,7 +33,7 @@
 		494D25871D32AFA4003755DB /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25851D32AFA4003755DB /* base64.cpp */; };
 		494D25881D32AFA4003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25861D32AFA4003755DB /* base64.h */; };
 		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
-		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
+		49562F701D1D7A9C001AFAEE /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.swift */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
@@ -127,8 +127,7 @@
 		494D25861D32AFA4003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../m8rscript/base64.h; sourceTree = "<group>"; };
 		494D25901D32B73A003755DB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../m8rscript/Object.cpp; sourceTree = "<group>"; };
-		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		49562F6E1D1D7A9C001AFAEE /* Document.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../m8rscript/CodePrinter.h; sourceTree = "<group>"; };
 		497B449E1D469B3200BC1B57 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../esp/app; sourceTree = "<group>"; };
@@ -321,8 +320,7 @@
 		49E5AB531D981A6300C6988D /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				49562F6D1D1D7A9C001AFAEE /* Document.h */,
-				49562F6E1D1D7A9C001AFAEE /* Document.m */,
+				49562F6E1D1D7A9C001AFAEE /* Document.swift */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
 				49E5AB561D981DDB00C6988D /* FileBrowser.h */,
 				49E5AB571D981DDB00C6988D /* FileBrowser.m */,
@@ -589,7 +587,7 @@
 			files = (
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
-				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
+				49562F701D1D7A9C001AFAEE /* Document.swift in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
 				49E5AB521D94195F00C6988D /* Simulator.m in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,

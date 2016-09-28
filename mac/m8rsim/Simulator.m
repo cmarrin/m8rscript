@@ -8,7 +8,7 @@
 
 #import "Simulator.h"
 
-#import "Document.h"
+#import "m8rsim-Swift.h"
 #import "Engine.h"
 
 @interface Simulator ()
@@ -33,7 +33,7 @@ void Simulator_vprintf(void* simulator, const char* s, va_list args, bool isBuil
     NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
     dispatch_async(dispatch_get_main_queue(), ^{
         Document* document = ((__bridge Simulator*) simulator)->_document;
-        [document outputMessage:string to:isBuild ? CTBuild : CTConsole];
+        [document outputMessage:string isBuild:isBuild];
     });
 }
 
@@ -90,13 +90,14 @@ void Simulator_updateGPIOState(void* simulator, uint16_t mode, uint16_t state)
 
 - (void)build:(const char*) source withName:(NSString*) name
 {
-    [_document clearOutput:CTBuild];
+    [_document clearOutputWithIsBuild:YES];
     Engine_build(_engine, source, name.UTF8String);
 }
 
 - (void)run
 {
-    [_document clearOutput:CTConsole];
+
+    [_document clearOutputWithIsBuild:NO];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
         Engine_run(_engine);
