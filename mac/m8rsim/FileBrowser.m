@@ -10,6 +10,9 @@
 
 #import "Document.h"
 #import "FastSocket.h"
+#import <sys/socket.h>
+#import <netinet/in.h>
+#import <arpa/inet.h>
 
 @interface FileBrowser ()
 {
@@ -106,10 +109,17 @@ static NSString* receiveToPrompt(FastSocket* socket)
     return s;
 }
 
-- (NSString*)sendCommand:(NSString*)command FromHost:(NSString*)hostname port:(uint16_t) port
+- (NSString*)sendCommand:(NSString*)command FromService:(NSNetService*)service
 {
-    NSString* portString = [NSNumber numberWithInt:port].stringValue;
-    FastSocket* socket = [[FastSocket alloc] initWithHost:hostname andPort:portString];
+    if (service.addresses.count == 0) {
+        return nil;
+    }
+    NSData* address = [service.addresses objectAtIndex:0];
+    struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
+    NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+    
+    NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
+    FastSocket* socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
     [socket connect];
     [socket setTimeout:5];
     flushToPrompt(socket);
@@ -132,7 +142,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
         dispatch_async(queue, ^() {
             // load files from the device
             NSNetService* service = _currentDevice[@"service"];
-            NSString* fileString = [self sendCommand:@"ls\r\n" FromHost:service.hostName port:service.port];
+            NSString* fileString = [self sendCommand:@"ls\r\n" FromService:service];
             if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
                 fileString = [fileString substringFromIndex:1];
             }
@@ -196,7 +206,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
                 NSNetService* service = _currentDevice[@"service"];
                 NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
                 
-                NSString* fileString = [self sendCommand:command FromHost:service.hostName port:service.port];
+                NSString* fileString = [self sendCommand:command FromService:service];
                 if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
                     fileString = [fileString substringFromIndex:1];
                 }
