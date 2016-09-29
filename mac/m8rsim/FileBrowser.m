@@ -80,19 +80,6 @@
     return _files;
 }
 
-- (IBAction)fileSelected:(id)sender
-{
-    NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
-    if (indexes.count != 1) {
-        // clear text editor
-        [_document setSource:@""];
-    } else {
-        NSString* name = _fileList[fileListView.selectedRow][@"name"];
-        [_document setSource:[[NSString alloc] initWithData:
-            _files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding]];
-    }
-}
-
 static void flushToPrompt(FastSocket* socket)
 {
     while(1) {
@@ -126,17 +113,12 @@ static NSString* receiveToPrompt(FastSocket* socket)
     [socket connect];
     [socket setTimeout:5];
     flushToPrompt(socket);
-    NSData* data = [@"ls\r\n" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
     long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     
     NSString* s = receiveToPrompt(socket);
     return s;
-}
-
-- (void)finishedLoadingRemoteFiles
-{
-
 }
 
 - (void)reloadFiles
@@ -193,6 +175,48 @@ static NSString* receiveToPrompt(FastSocket* socket)
         return [a[@"name"] compare:b[@"name"]];
     }];
     [fileListView reloadData];
+}
+
+- (IBAction)fileSelected:(id)sender
+{
+    NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
+    if (indexes.count != 1) {
+        // clear text editor
+        [_document setSource:@""];
+    } else {
+        NSString* name = _fileList[fileListView.selectedRow][@"name"];
+
+        if (_currentDevice) {
+            [busyIndicator setHidden:NO];
+            [busyIndicator startAnimation:nil];
+            
+            dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+            dispatch_async(queue, ^() {
+                // load files from the device
+                NSNetService* service = _currentDevice[@"service"];
+                NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
+                
+                NSString* fileString = [self sendCommand:command FromHost:service.hostName port:service.port];
+                if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+                    fileString = [fileString substringFromIndex:1];
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_document setSource:fileString];
+                    [busyIndicator stopAnimation:nil];
+                    busyIndicator.hidden = YES;
+                });
+            });
+            return;
+        }
+
+
+
+        
+        
+        [_document setSource:[[NSString alloc] initWithData:
+            _files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding]];
+    }
 }
 
 - (void)addFiles
