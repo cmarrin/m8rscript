@@ -8,6 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="FileBrowser">
             <connections>
+                <outlet property="busyIndicator" destination="NC4-JX-Gjp" id="CEO-xC-7xc"/>
                 <outlet property="fileListView" destination="79z-sB-AVC" id="ARf-4e-Yxd"/>
                 <outlet property="fileSourceButton" destination="Fit-bS-Y8O" id="KHI-5o-6hk"/>
                 <outlet property="view" destination="c22-O7-iKe" id="a2f-IA-z9E"/>
@@ -47,7 +48,7 @@
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J0D-TO-zJr">
                                 <rect key="frame" x="0.0" y="0.0" width="263" height="453"/>
                                 <clipView key="contentView" id="qGM-nX-q87">
-                                    <rect key="frame" x="1" y="23" width="261" height="429"/>
+                                    <rect key="frame" x="1" y="0.0" width="261" height="452"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" headerView="lA4-cy-sXf" id="79z-sB-AVC">
@@ -104,6 +105,10 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
+                            <progressIndicator hidden="YES" wantsLayer="YES" canDrawConcurrently="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="NC4-JX-Gjp" userLabel="Busy Indicator">
+                                <rect key="frame" x="123" y="243" width="16" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </progressIndicator>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Fit-bS-Y8O" secondAttribute="trailing" constant="4" id="0SV-VJ-kgW"/>

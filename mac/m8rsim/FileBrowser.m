@@ -13,6 +13,7 @@
 
 @interface FileBrowser ()
 {
+    __weak IBOutlet NSProgressIndicator *busyIndicator;
     __weak IBOutlet NSTableView *fileListView;
     __weak IBOutlet NSPopUpButton *fileSourceButton;
 
@@ -118,7 +119,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
     return s;
 }
 
-- (NSString*)loadFileListFromHost:(NSString*)hostname port:(uint16_t) port
+- (NSString*)sendCommand:(NSString*)command FromHost:(NSString*)hostname port:(uint16_t) port
 {
     NSString* portString = [NSNumber numberWithInt:port].stringValue;
     FastSocket* socket = [[FastSocket alloc] initWithHost:hostname andPort:portString];
@@ -133,36 +134,58 @@ static NSString* receiveToPrompt(FastSocket* socket)
     return s;
 }
 
+- (void)finishedLoadingRemoteFiles
+{
+
+}
+
 - (void)reloadFiles
 {
     [_fileList removeAllObjects];
     if (_currentDevice) {
-        // load files from the device
-        NSNetService* service = _currentDevice[@"service"];
-        NSString* fileString = [self loadFileListFromHost:service.hostName port:service.port];
-        if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-            fileString = [fileString substringFromIndex:1];
-        }
+        [busyIndicator setHidden:NO];
+        [busyIndicator startAnimation:nil];
         
-        NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
-        for (NSString* line in lines) {
-            NSArray* elements = [line componentsSeparatedByString:@":"];
-            if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
-                continue;
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+        dispatch_async(queue, ^() {
+            // load files from the device
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* fileString = [self sendCommand:@"ls\r\n" FromHost:service.hostName port:service.port];
+            if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+                fileString = [fileString substringFromIndex:1];
             }
             
-            [_fileList addObject:@{ @"name" : elements[1], @"size" : elements[2] }];
-        }
-    } else {
-        if (!_files) {
-            return;
-        }
-        
-        for (NSString* name in _files.fileWrappers) {
-            NSFileWrapper* file = _files.fileWrappers[name];
-            if (file && file.regularFile) {
-                [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+            NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
+            for (NSString* line in lines) {
+                NSArray* elements = [line componentsSeparatedByString:@":"];
+                if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
+                    continue;
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_fileList addObject:@{ @"name" : elements[1], @"size" : elements[2] }];
+                });
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
+                    return [a[@"name"] compare:b[@"name"]];
+                }];
+                [fileListView reloadData];
+                [busyIndicator stopAnimation:nil];
+                busyIndicator.hidden = YES;
+            });
+        });
+        return;
+    }
+    
+    if (!_files) {
+        return;
+    }
+    
+    for (NSString* name in _files.fileWrappers) {
+        NSFileWrapper* file = _files.fileWrappers[name];
+        if (file && file.regularFile) {
+            [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
         }
     }
     
