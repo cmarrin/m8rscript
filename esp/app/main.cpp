@@ -148,6 +148,7 @@ public:
     virtual void sentData() override { _shell.sendComplete(); }
 
     virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
+    virtual void setDeviceName(const char* name) { setUserData(name); }
 
 private:
     m8r::Shell _shell;

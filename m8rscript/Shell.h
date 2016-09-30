@@ -43,11 +43,12 @@ namespace m8r {
 class ShellOutput {
 public:
     virtual void shellSend(const char* data, uint16_t size = 0) = 0;
+    virtual void setDeviceName(const char* name) { }
 };
 
 class Shell {
 public:
-    static const uint16_t BufferSize = 60;
+    static const uint16_t BufferSize = 76;
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     

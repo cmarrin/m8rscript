@@ -48,16 +48,13 @@ void Shell::connected()
 bool Shell::received(const char* data, uint16_t size)
 {
     if (_state == State::PutFile) {
-        //os_printf("***** putfile received %d bytes\n", size);
         if (size == 0 || data[0] == '\04') {
-            //os_printf("***** putfile received EOT\n");
             delete _file;
             _file = nullptr;
             _state = State::NeedPrompt;
             sendComplete();
             return true;
         }
-        //os_printf("***** Writing %d bytes\n", size);
         _file->write(data, size);
         return true;
     }
@@ -116,6 +113,18 @@ void Shell::sendComplete()
     }
 }
 
+static bool validateBonjourName(const char* name)
+{
+    while(*name) {
+        char c = *name++;
+        if (c == '-' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z')) {
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+
 bool Shell::executeCommand(const std::vector<m8r::String>& array)
 {
     if (array.size() == 0) {
@@ -150,12 +159,23 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             showError(1, "'put' requires a filename");
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
-            //os_printf("Wrote to '%s', _file=%p\n", array[1].c_str(), _file);
             if (!_file) {
                 showError(2, "could not open file for 'put'");
             } else {
                 _state = State::PutFile;
             }
+        }
+    } else if (array[0] == "dev") {
+        if (array.size() < 2) {
+            showError(4, "'dev' requires a device name");
+        } else if (array[1].empty() || array[1].size() > 31) {
+            showError(5, "device name must be between 1 and 31 characters");
+        } else if (!validateBonjourName(array[1].c_str())) {
+            showError(6, "illegal character (only numbers, lowercase letters and hyphen");
+        } else {
+            _output->setDeviceName(array[1].c_str());
+            _state = State::NeedPrompt;
+            _output->shellSend("set dev name\n");
         }
     } else if (array[0] == "quit") {
         return false;

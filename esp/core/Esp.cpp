@@ -157,14 +157,14 @@ void setUserData(const char* name)
     memcpy(_gUserData.name, name, size);
     _gUserData.name[size] = '\0';
     m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "w");
-    file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
+    int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
 }
 
 void getUserData()
 {
     m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "r");
-    file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
+    int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
         _gUserData.magic[2] != 'r' || _gUserData.magic[3] != 's') {
@@ -333,7 +333,7 @@ void initializeSystem(void (*initializedCB)())
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
     
-    setUserData("mydevice");
+    m8r::FS::sharedFS()->mount();
     getUserData();
     do_global_ctors();
 
