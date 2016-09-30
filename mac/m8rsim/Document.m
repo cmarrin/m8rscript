@@ -74,7 +74,11 @@
     _fileBrowser = [[FileBrowser alloc] initWithDocument:self];
     [filesContainer addSubview:_fileBrowser.view];
     superFrame = filesContainer.frame;
-    [_fileBrowser.view setFrameSize:superFrame.size];   
+    [_fileBrowser.view setFrameSize:superFrame.size];
+    
+    if (_package) {
+        [self setFiles];
+    }
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -169,7 +173,7 @@
 
 - (void)markDirty
 {
-    [self updateChangeCount:NSChangeReadOtherContents];
+    [self updateChangeCount:NSChangeDone];
 }
 
 - (void)setSource:(NSString*)source
@@ -178,6 +182,18 @@
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
+}
+
+- (void)setFiles
+{
+    if (!_fileBrowser) {
+        return;
+    }
+    
+    NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
+                                _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
+                                nil;
+    [_fileBrowser setFiles: files];
 }
 
 //
@@ -220,12 +236,8 @@
                      ofType:(NSString *)typeName 
                       error:(NSError * _Nullable *)outError
 {
-    NSAssert(_package == nil, @"Package should not exist when readFromFileWrapper is called");
     _package = fileWrapper;
-    NSFileWrapper*files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
-                                _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
-                                nil;
-    [_fileBrowser setFiles: files];
+    [self setFiles];
     return YES;
 }
 
@@ -235,6 +247,7 @@
         [self markDirty];
         NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _fileBrowser.files }];
         _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+        [self setFiles];
     }
     return _package;
 }
