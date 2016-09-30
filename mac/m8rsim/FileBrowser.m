@@ -94,14 +94,14 @@ static void flushToPrompt(FastSocket* socket)
     }
 }
 
-static NSString* receiveToPrompt(FastSocket* socket)
+static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 {
     NSMutableString* s = [NSMutableString string];
     char c[2];
     c[1] = '\0';
     while(1) {
         long count = [socket receiveBytes:c count:1];
-        if (count != 1 || c[0] == '>') {
+        if (count != 1 || c[0] == terminator) {
             break;
         }
         [s appendString:[NSString stringWithUTF8String:c]];
@@ -109,7 +109,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
     return s;
 }
 
-- (NSString*)sendCommand:(NSString*)command FromService:(NSNetService*)service
+- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
 {
     if (service.addresses.count == 0) {
         return nil;
@@ -127,7 +127,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
     long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     
-    NSString* s = receiveToPrompt(socket);
+    NSString* s = receiveToTerminator(socket, terminator);
     return s;
 }
 
@@ -142,7 +142,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
         dispatch_async(queue, ^() {
             // load files from the device
             NSNetService* service = _currentDevice[@"service"];
-            NSString* fileString = [self sendCommand:@"ls\r\n" FromService:service];
+            NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
             if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
                 fileString = [fileString substringFromIndex:1];
             }
@@ -206,7 +206,7 @@ static NSString* receiveToPrompt(FastSocket* socket)
                 NSNetService* service = _currentDevice[@"service"];
                 NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
                 
-                NSString* fileString = [self sendCommand:command FromService:service];
+                NSString* fileString = [self sendCommand:command fromService:service withTerminator:'\04'];
                 if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
                     fileString = [fileString substringFromIndex:1];
                 }

@@ -198,7 +198,7 @@ struct FileModeEntry {
 static const FileModeEntry _fileModeMap[] = {
     { "r",  SPIFFS_RDONLY },
     { "r+", SPIFFS_RDWR },
-    { "w",  SPIFFS_WRONLY },
+    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
     { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
     { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
     { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
@@ -220,6 +220,7 @@ EspFile::EspFile(const char* name, const char* mode)
     }
     _file = SPIFFS_open(EspFS::sharedSpiffs(), name, flags, 0);
     _error = (_file < 0) ? static_cast<uint32_t>(-_file) : 0;
+    os_printf("***** open Spiffs file:'%s', mode='%s', error=%d\n", name, mode, _error);
 }
 
 EspFile::~EspFile()
@@ -234,7 +235,8 @@ int32_t EspFile::read(char* buf, uint32_t size)
 
 int32_t EspFile::write(const char* buf, uint32_t size)
 {
-    return SPIFFS_write(EspFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
+    int32_t count =  SPIFFS_write(EspFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
+    os_printf("Wrote %d bytes to SPIFFS file, count=%d\n", size, count);
 }
 
 bool EspFile::seek(int32_t offset, SeekWhence whence)

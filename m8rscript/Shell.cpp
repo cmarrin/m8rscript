@@ -47,6 +47,20 @@ void Shell::connected()
 
 bool Shell::received(const char* data, uint16_t size)
 {
+    if (_state == State::PutFile) {
+        //os_printf("***** putfile received %d bytes\n", size);
+        if (size == 0 || data[0] == '\04') {
+            //os_printf("***** putfile received EOT\n");
+            delete _file;
+            _file = nullptr;
+            _state = State::NeedPrompt;
+            sendComplete();
+            return true;
+        }
+        //os_printf("***** Writing %d bytes\n", size);
+        _file->write(data, size);
+        return true;
+    }
     std::vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
     return executeCommand(array);
 }
@@ -136,6 +150,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             showError(1, "'put' requires a filename");
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
+            //os_printf("Wrote to '%s', _file=%p\n", array[1].c_str(), _file);
             if (!_file) {
                 showError(2, "could not open file for 'put'");
             } else {

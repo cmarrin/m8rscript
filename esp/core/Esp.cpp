@@ -136,6 +136,42 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
+const uint16_t MaxBonjourNameSize = 31; // Not including trailing '\0'
+
+struct UserSaveData {
+    char magic[4];
+    char name[MaxBonjourNameSize + 1];
+} _gUserData;
+
+void setUserData(const char* name)
+{
+    _gUserData.magic[0] = 'm';
+    _gUserData.magic[1] = '8';
+    _gUserData.magic[2] = 'r';
+    _gUserData.magic[3] = 's';
+    // Max name size is 31 characters
+    uint16_t size = strlen(name);
+    if (size > MaxBonjourNameSize) {
+        size = MaxBonjourNameSize;
+    }
+    memcpy(_gUserData.name, name, size);
+    _gUserData.name[size] = '\0';
+    m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "w");
+    file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
+    delete file;
+}
+
+void getUserData()
+{
+    m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "r");
+    file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
+
+    if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
+        _gUserData.magic[2] != 'r' || _gUserData.magic[3] != 's') {
+        memset(&_gUserData, 0, sizeof(UserSaveData));
+    }
+}
+
 void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 {
     int i;
@@ -230,7 +266,11 @@ m8r::MDNSResponder* _responder = nullptr;
 void initmdns(const char* hostname, uint8_t interface)
 {
     if (!_responder) {
-        _responder = new m8r::MDNSResponder("m8rscript");
+        const char* name = _gUserData.name;
+        if (name[0] == '\0') {
+            name = "m8rscript";
+        }
+        _responder = new m8r::MDNSResponder(name);
     }
     _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
 }
@@ -292,6 +332,9 @@ void initializeSystem(void (*initializedCB)())
     _initializedCB = initializedCB;
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
+    
+    setUserData("mydevice");
+    getUserData();
     do_global_ctors();
 
     gNumWifiTries = 0;
