@@ -83,10 +83,10 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
-                                    <box title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="NwS-b5-0vz" userLabel="Files Container Box">
+                                    <box borderType="bezel" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="NwS-b5-0vz" userLabel="Files Container Box">
                                         <rect key="frame" x="830" y="-4" width="267" height="429"/>
                                         <view key="contentView" id="ITH-sx-5DT" userLabel="Files Container View">
-                                            <rect key="frame" x="2" y="2" width="263" height="425"/>
+                                            <rect key="frame" x="3" y="3" width="261" height="423"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </view>
                                         <constraints>

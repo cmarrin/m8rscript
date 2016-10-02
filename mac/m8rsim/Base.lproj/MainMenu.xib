@@ -636,6 +636,19 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Device" id="VhW-MB-ca6">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Device" id="yDH-fW-8Qj">
+                        <items>
+                            <menuItem title="Rename" id="7Mc-Gc-pmu">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="renameDevice:" target="-1" id="fDs-CY-bke"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">

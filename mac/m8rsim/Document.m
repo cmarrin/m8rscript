@@ -257,6 +257,11 @@
     [((output == CTBuild) ? buildOutput : consoleOutput) setString: @""];
 }
 
+- (IBAction)renameDevice:(id)sender
+{
+    [_fileBrowser renameDevice];
+}
+
 - (IBAction)addFile:(id)sender {
     [_fileBrowser addFiles];
 }

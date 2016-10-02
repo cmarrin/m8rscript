@@ -10,6 +10,7 @@
 
 #import "Document.h"
 #import "FastSocket.h"
+#import "Shell.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -28,6 +29,8 @@
     NSNetServiceBrowser* _netServiceBrowser;
     NSMutableArray<NSDictionary*>* _devices;
     NSDictionary* _currentDevice;
+    
+    NSTextField* renameDeviceTextField;
 }
 
 @end
@@ -50,7 +53,9 @@
 }
 
 - (void)awakeFromNib
-{
+{    
+    renameDeviceTextField = [[NSTextField alloc]initWithFrame:NSMakeRect(0, 0, 240, 22)];
+
     // Clear the fileSourceButton
     assert(fileSourceButton.numberOfItems > 0);
     [fileSourceButton selectItemAtIndex:0];
@@ -154,8 +159,16 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
                     continue;
                 }
                 
+                NSString* name = elements[1];
+                NSString* size = elements[2];
+                
+                // Ignore . files
+                if ([name length] == 0 || [name characterAtIndex:0] == '.') {
+                    continue;
+                }
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_fileList addObject:@{ @"name" : elements[1], @"size" : elements[2] }];
+                    [_fileList addObject:@{ @"name" : name, @"size" : size }];
                 });
             }
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -187,6 +200,10 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     [fileListView reloadData];
 }
 
+- (IBAction)reloadDevices:(id)sender
+{
+}
+
 - (IBAction)fileSelected:(id)sender
 {
     NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
@@ -205,7 +222,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
                 // load files from the device
                 NSNetService* service = _currentDevice[@"service"];
                 NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-                
+
                 NSString* fileString = [self sendCommand:command fromService:service withTerminator:'\04'];
                 if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
                     fileString = [fileString substringFromIndex:1];
@@ -289,6 +306,53 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 {
     _currentDevice = [self findService:[(NSPopUpButton*)sender titleOfSelectedItem]];
     [self reloadFiles];
+}
+
+- (IBAction)reloadDeviceList:(id)sender {
+}
+
+- (void)renameDevice
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:@"Rename device:"];
+    [alert setAccessoryView:renameDeviceTextField];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            return;
+        }
+        NSString* name = renameDeviceTextField.stringValue;
+        NSString* errorString;
+        if (name.length < 1 || name.length > 31) {
+            errorString = @"device name must be between 1 and 31 characters";
+        } else if (!validateBonjourName(name.UTF8String)) {
+            errorString = @"device name must only contain numbers, lowercase letters and hyphen";
+        }
+        if (errorString) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:errorString];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+            }];
+            return;
+        }
+
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+        dispatch_async(queue, ^() {
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* command = [NSString stringWithFormat:@"dev %@\r\n", name];
+            
+            NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
+            NSLog(@"renameDevice returned '%@'", s);
+                
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self reloadDevices:nil];
+            });
+        });
+    }];
 }
 
 - (void)removeFiles

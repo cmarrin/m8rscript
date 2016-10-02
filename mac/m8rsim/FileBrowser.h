@@ -16,6 +16,7 @@
 
 - (instancetype)initWithDocument:(Document*) document;
 
+- (void)renameDevice;
 - (void)upload;
 - (void)reloadFiles;
 - (void)addFiles;
