@@ -155,6 +155,8 @@ private:
     static void broadcastCB(void* arg) { reinterpret_cast<MDNSResponder*>(arg)->broadcast(); } 
     
     void broadcast();
+    
+    void sendAnswer(QuestionType, int32_t service);
 
     String _hostname;
     std::vector<ServiceRecord> _services;

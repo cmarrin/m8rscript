@@ -58,6 +58,7 @@ MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint3
 
 	os_timer_disarm(&bc_timer);
 	if (broadcastInterval > 0) {
+        broadcastCB(this);
 		os_timer_setfn(&bc_timer, (os_timer_func_t *)broadcastCB, this);
 		os_timer_arm(&bc_timer, broadcastInterval * 1000, true);
 	}
@@ -73,7 +74,11 @@ MDNSResponder::~MDNSResponder()
 void MDNSResponder::addService(uint16_t port, const char* instance, const char* serviceType, ServiceProtocol protocol, const char* text)
 {
     ServiceRecord service(port, instance, serviceType, protocol, text);
+    int32_t serviceIndex = _services.size();
     _services.push_back(service);
+    
+    // Announce this service
+    sendAnswer(QuestionType::PTR, serviceIndex);
 }
 
 const char* decodeNameStrings(const char* data, uint32_t dataLen, std::vector<String>& names, const char* p)
@@ -221,48 +226,14 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
         }
         os_printf (" - qtype=%d qclass=%d\n", qtype, qclass);
 #endif
-        uint8_t additionalCount = 0;
-        switch(qtype) {
-            case QuestionType::A:
-            case QuestionType::TXT: break;
-            case QuestionType::SRV: additionalCount = 1; break;
-            case QuestionType::PTR: additionalCount = 3; break;
-            default: continue;
-        }
-        
-        writeHeader(1, additionalCount);
-        
-        switch(qtype) {
-            case QuestionType::A:
-                writeA();
-                break;
-            case QuestionType::TXT:
-                writeTXT(serviceIndex);
-                break;
-            case QuestionType::SRV:
-                writeSRV(serviceIndex);
-                writeA();
-                break;
-            case QuestionType::PTR:
-                writePTR(serviceIndex);
-                writeSRV(serviceIndex);
-                writeTXT(serviceIndex);
-                writeA();
-                break;
-        }
 
-        sendReply();
+        sendAnswer(qtype, serviceIndex);
 	}
 }
 
 void MDNSResponder::broadcast()
 {
-//    writeHeader(3);
-//    writePTR(0);
-//    //writeTXT(0);
-//    writeSRV(0);
-//    writeA();
-//    sendReply();
+    // TBD
 }
 
 void MDNSResponder::writeHeader(uint8_t answerCount, uint8_t additionalCount)
@@ -375,3 +346,43 @@ void MDNSResponder::sendReply()
     _udp->send({ 224,0,0,251 }, 5353, reinterpret_cast<char*>(&(_replyBuffer[0])), _replyBuffer.size());
     _replyBuffer.clear();
 }
+
+void MDNSResponder::sendAnswer(QuestionType qtype, int32_t service)
+{
+    if (service < 0 || service >= _services.size()) {
+        return;
+    }
+    
+    uint8_t additionalCount = 0;
+    switch(qtype) {
+        case QuestionType::A:
+        case QuestionType::TXT: break;
+        case QuestionType::SRV: additionalCount = 1; break;
+        case QuestionType::PTR: additionalCount = 3; break;
+        default: return;
+    }
+    
+    writeHeader(1, additionalCount);
+    
+    switch(qtype) {
+        case QuestionType::A:
+            writeA();
+            break;
+        case QuestionType::TXT:
+            writeTXT(service);
+            break;
+        case QuestionType::SRV:
+            writeSRV(service);
+            writeA();
+            break;
+        case QuestionType::PTR:
+            writePTR(service);
+            writeSRV(service);
+            writeTXT(service);
+            writeA();
+            break;
+    }
+
+    sendReply();
+}
+
