@@ -92,6 +92,8 @@ static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
 static bool _calledInitializeCB = false;
 
+void initmdns();
+
 IPAddr IPAddr::myIPAddr()
 {
     struct ip_info info;
@@ -145,6 +147,7 @@ struct UserSaveData {
 
 void setUserData(const char* name)
 {
+    os_printf("Setting device name to '%s'\n", name);
     _gUserData.magic[0] = 'm';
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
@@ -159,6 +162,8 @@ void setUserData(const char* name)
     m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
+    
+    initmdns();
 }
 
 void getUserData()
@@ -263,15 +268,16 @@ void smartConfig()
 
 m8r::MDNSResponder* _responder = nullptr;
 
-void initmdns(const char* hostname, uint8_t interface)
+void initmdns()
 {
-    if (!_responder) {
-        const char* name = _gUserData.name;
-        if (name[0] == '\0') {
-            name = "m8rscript";
-        }
-        _responder = new m8r::MDNSResponder(name);
+    if (_responder) {
+        delete _responder;
     }
+    const char* name = _gUserData.name;
+    if (name[0] == '\0') {
+        name = "m8rscript";
+    }
+    _responder = new m8r::MDNSResponder(name);
     _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
 }
 
@@ -296,7 +302,7 @@ void initSoftAP()
 void gotStationIP()
 {
     if (_initializedCB && !_calledInitializeCB) {
-        initmdns("m8rscript", STATION_IF);
+        initmdns();
         _initializedCB();
         _calledInitializeCB = true;
     }
