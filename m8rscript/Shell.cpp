@@ -113,7 +113,7 @@ void Shell::sendComplete()
     }
 }
 
-static bool validateBonjourName(const char* name)
+bool validateBonjourName(const char* name)
 {
     while(*name) {
         char c = *name++;
@@ -171,7 +171,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         } else if (array[1].empty() || array[1].size() > 31) {
             showError(5, "device name must be between 1 and 31 characters");
         } else if (!validateBonjourName(array[1].c_str())) {
-            showError(6, "illegal character (only numbers, lowercase letters and hyphen");
+            showError(6, "illegal character (only numbers, lowercase letters and hyphen)");
         } else {
             _output->setDeviceName(array[1].c_str());
             _state = State::NeedPrompt;

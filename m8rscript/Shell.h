@@ -35,6 +35,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#ifndef __cplusplus
+extern bool validateBonjourName(const char* name);
+#else
+extern "C" bool validateBonjourName(const char* name);
+
 #include "FS.h"
 #include "Containers.h"
 
@@ -60,7 +65,7 @@ public:
     void disconnected() { }
     bool received(const char* data, uint16_t size);
     void sendComplete();
-    
+        
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
     void showError(uint8_t code, const char* msg);
@@ -75,3 +80,4 @@ private:
 };
 
 }
+#endif
