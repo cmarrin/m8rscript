@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "MacFS.h"
 
+#include "Application.h"
 #include "Containers.h"
 #include <cstring>
 #include <sys/stat.h>
@@ -172,6 +173,12 @@ bool MacDirectoryEntry::next()
 
 MacFile::MacFile(const char* name, const char* mode)
 {
+    if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
+        _file = nullptr;
+        _error = EBADF;
+        return;
+    }
+    
     if (!MacFS::_basePath) {
         _file = nullptr;
         _error = ENODEV;

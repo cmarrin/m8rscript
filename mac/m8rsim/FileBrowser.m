@@ -10,7 +10,7 @@
 
 #import "Document.h"
 #import "FastSocket.h"
-#import "Shell.h"
+#import "Engine.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -223,63 +223,6 @@
     }];
 }
 
-- (NSString*)trimTrailingDot:(NSString*)s
-{
-    if ([s characterAtIndex:s.length - 1] == '.') {
-        return [s substringToIndex:s.length - 1];
-    }
-    return s;
-}
-
-- (NSNetService*)serviceFromDevice:(NSDictionary*)device
-{
-    return (NSNetService*) (device[@"service"]);
-}
-
-- (IBAction)changeFileSource:(id)sender
-{
-    [_device setDevice:[(NSPopUpButton*)sender titleOfSelectedItem]];
-    [_document setSource:@""];
-    [fileListView deselectAll:self];
-    [self reloadFiles];
-}
-
-- (IBAction)reloadDeviceList:(id)sender {
-}
-
-- (void)renameDevice
-{
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Rename device:"];
-    [alert setAccessoryView:renameDeviceTextField];
-    [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            return;
-        }
-        NSString* name = renameDeviceTextField.stringValue;
-        NSString* errorString;
-        if (name.length < 1 || name.length > 31) {
-            errorString = @"device name must be between 1 and 31 characters";
-        } else if (!validateBonjourName(name.UTF8String)) {
-            errorString = @"device name must only contain numbers, lowercase letters and hyphen";
-        }
-        if (errorString) {
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:errorString];
-            [alert setAlertStyle:NSWarningAlertStyle];
-            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-            }];
-            return;
-        }
-        
-        [_device renameDevice:name];
-    }];
-}
-
 - (void)removeFiles
 {
     NSIndexSet* indexes = fileListView.selectedRowIndexes;
@@ -320,6 +263,64 @@
     
         [fileListView deselectAll:self];
         [self reloadFiles];
+    }];
+}
+
+- (NSString*)trimTrailingDot:(NSString*)s
+{
+    if ([s characterAtIndex:s.length - 1] == '.') {
+        return [s substringToIndex:s.length - 1];
+    }
+    return s;
+}
+
+- (NSNetService*)serviceFromDevice:(NSDictionary*)device
+{
+    return (NSNetService*) (device[@"service"]);
+}
+
+- (IBAction)changeFileSource:(id)sender
+{
+    [_device setDevice:[(NSPopUpButton*)sender titleOfSelectedItem]];
+    [_document setSource:@""];
+    [fileListView deselectAll:self];
+    [self reloadFiles];
+}
+
+- (IBAction)reloadDeviceList:(id)sender {
+}
+
+- (void)renameDevice
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:@"Rename device:"];
+    [alert setAccessoryView:renameDeviceTextField];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            return;
+        }
+        NSString* name = renameDeviceTextField.stringValue;
+        NSString* errorString;
+        int returnType = validateBonjourName(name.UTF8String);
+        if (returnType == NameValidationBadLength) {
+            errorString = @"device name must be between 1 and 31 characters";
+        } else if (returnType == NameValidationInvalidChar) {
+            errorString = @"device name must only contain numbers, lowercase letters and hyphen";
+        }
+        if (errorString) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:errorString];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+            }];
+            return;
+        }
+        
+        [_device renameDevice:name];
     }];
 }
 

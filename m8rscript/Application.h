@@ -48,6 +48,10 @@ public:
     
     Program* program() const { return _program; }
     
+    enum class NameValidationType { Ok, BadLength, InvalidChar };
+    static NameValidationType validateFileName(const char* name);
+    static NameValidationType validateBonjourName(const char* name);
+
 private:
     Program* _program = nullptr;
 };

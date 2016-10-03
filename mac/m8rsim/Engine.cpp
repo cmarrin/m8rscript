@@ -218,10 +218,6 @@ void Engine::simulate()
 }
 
 
-
-
-
-
 void* Engine_createEngine(void* simulator) { return new Engine(simulator); }
 void Engine_deleteEngine(void* engine) { delete reinterpret_cast<Engine*>(engine); }
 bool Engine_canRun(void* engine) { return reinterpret_cast<Engine*>(engine)->canRun(); }
@@ -247,3 +243,19 @@ void Engine_pause(void* engine) { reinterpret_cast<Engine*>(engine)->pause(); }
 void Engine_stop(void* engine) { reinterpret_cast<Engine*>(engine)->stop(); }
 void Engine_simulate(void* engine) { reinterpret_cast<Engine*>(engine)->simulate(); }
 
+int validateFileName(const char* name) {
+    switch(m8r::Application::validateFileName(name)) {
+        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
+        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
+        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
+    }
+}
+    
+int validateBonjourName(const char* name)
+{
+    switch(m8r::Application::validateBonjourName(name)) {
+        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
+        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
+        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
+    }
+}

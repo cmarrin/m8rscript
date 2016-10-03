@@ -56,9 +56,15 @@ extern void Engine_simulate(void*);
 extern bool Engine_canRun(void*);
 extern bool Engine_canStop(void*);
 
-
 extern void Simulator_vprintf(void* simulator, const char*, va_list, bool isBuild);
 extern void Simulator_updateGPIOState(void* simulator, uint16_t mode, uint16_t state);
+
+#define NameValidationOk 0
+#define NameValidationBadLength 1
+#define NameValidationInvalidChar 2
+
+extern int validateFileName(const char*);
+extern int validateBonjourName(const char*);
 
 #ifdef __cplusplus
 }

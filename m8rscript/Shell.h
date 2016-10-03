@@ -35,11 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#ifndef __cplusplus
-extern bool validateBonjourName(const char* name);
-#else
-extern "C" bool validateBonjourName(const char* name);
-
 #include "FS.h"
 #include "Containers.h"
 
@@ -80,4 +75,3 @@ private:
 };
 
 }
-#endif

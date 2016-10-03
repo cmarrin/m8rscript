@@ -92,3 +92,48 @@ Application::Application(SystemInterface* system)
         }
     }
 }
+
+Application::NameValidationType Application::validateFileName(const char* name)
+{
+    if (!name || name[0] == '\0') {
+        return NameValidationType::BadLength;
+    }
+    
+    for (size_t i = 0; name[i]; i++) {
+        if (i >= 31) {
+            return NameValidationType::BadLength;
+        }
+        
+        char c = name[i];
+        if (c == '-' || c == '.' || c == '_' || c == '+' ||
+            (c >= '0' && c <= '9') ||
+            (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z')) {
+            continue;
+        }
+        return NameValidationType::InvalidChar;
+    }
+    return NameValidationType::Ok;
+}
+
+Application::NameValidationType Application::validateBonjourName(const char* name)
+{
+    if (!name || name[0] == '\0') {
+        return NameValidationType::BadLength;
+    }
+    
+    for (size_t i = 0; name[i]; i++) {
+        if (i >= 31) {
+            return NameValidationType::BadLength;
+        }
+        
+        char c = name[i];
+        if (c == '-' ||
+            (c >= '0' && c <= '9') ||
+            (c >= 'a' && c <= 'z')) {
+            continue;
+        }
+        return NameValidationType::InvalidChar;
+    }
+    return NameValidationType::Ok;
+}

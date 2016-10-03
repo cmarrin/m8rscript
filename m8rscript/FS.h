@@ -88,7 +88,7 @@ public:
     
     bool valid() const { return _error == 0; }
     uint32_t error() const { return _error; }
-    
+
 protected:
     uint32_t _error = 0;
 };

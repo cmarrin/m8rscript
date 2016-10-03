@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EspFS.h"
 
+#include "Application.h"
 #include "Esp.h"
 
 using namespace m8r;
@@ -206,6 +207,12 @@ static const FileModeEntry _fileModeMap[] = {
 
 EspFile::EspFile(const char* name, const char* mode)
 {
+    if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
+        os_printf("ERROR: invalid filename '%s' for open\n", name);
+        _file = SPIFFS_ERR_NAME_TOO_LONG;
+        return;
+    }
+    
     spiffs_flags flags = 0;
     for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
         if (strcmp(mode, _fileModeMap[i]._mode) == 0) {
