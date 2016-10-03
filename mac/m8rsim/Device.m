@@ -75,7 +75,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     return s;
 }
 
-- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
+- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
 {
     if (service.addresses.count == 0) {
         return nil;
@@ -92,7 +92,27 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
     long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
-    
+    return socket;
+}
+
+- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service
+{
+    FastSocket* socket = [self sendCommand:command fromService:service];
+    if (!socket) {
+        return;
+    }
+    NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    long count = [socket sendBytes:data.bytes count:data.length];
+    assert(count == data.length);
+    flushToPrompt(socket);
+}
+
+- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
+{
+    FastSocket* socket = [self sendCommand:command fromService:service];
+    if (!socket) {
+        return nil;
+    }
     NSString* s = receiveToTerminator(socket, terminator);
     return s;
 }
@@ -158,6 +178,15 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
+    NSNetService* service = _currentDevice[@"service"];
+    NSString* contents = [[NSString alloc] initWithData:fileWrapper.regularFileContents encoding:NSUTF8StringEncoding]; 
+    NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
+    contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
+
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(queue, ^() {
+        [self sendCommand:command andString:contents fromService:service];
+    });
 }
 
 - (NSString*)trimTrailingDot:(NSString*)s

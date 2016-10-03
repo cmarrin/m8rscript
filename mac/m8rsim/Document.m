@@ -93,7 +93,7 @@
         return [_simulator canStop];
     }
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
-        return _fileBrowser.isFileSourceLocal;
+        return YES; //_fileBrowser.isFileSourceLocal;
     }
     return NO;
 }
