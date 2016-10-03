@@ -22,14 +22,12 @@
     __weak IBOutlet NSPopUpButton *fileSourceButton;
 
     Document* _document;
+    Device* _device;
 
-    NSMutableArray* _fileList;
+    FileList _localFileList;
+    FileList _deviceFileList;
     NSFileWrapper* _files;
 
-    NSNetServiceBrowser* _netServiceBrowser;
-    NSMutableArray<NSDictionary*>* _devices;
-    NSDictionary* _currentDevice;
-    
     NSTextField* renameDeviceTextField;
 }
 
@@ -41,9 +39,7 @@
     self = [super init];
     if (self) {
         _document = document;
-
-        _fileList = [[NSMutableArray alloc] init];
-        _devices = [[NSMutableArray alloc] init];
+        _localFileList = [[NSMutableArray alloc] init];
      }
     return self;
 }
@@ -63,14 +59,28 @@
         [fileSourceButton removeItemAtIndex:1];
     }
     
-    _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
-    [_netServiceBrowser setDelegate: (id) self];
-    [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+    _device = [[Device alloc] init];
+    _device.dataSource = self;
 }
 
 - (BOOL)isFileSourceLocal
 {
     return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
+}
+
+- (FileList)currentFileList
+{
+    return self.isFileSourceLocal ? _localFileList : _deviceFileList;
+}
+
+- (BOOL)fileListContains:(NSString*)name
+{
+    for (NSDictionary* entry in self.currentFileList) {
+        if ([entry[@"name"] isEqualToString:name]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)setFiles:(NSFileWrapper*)files
@@ -88,113 +98,33 @@
     return _files;
 }
 
-static void flushToPrompt(FastSocket* socket)
-{
-    while(1) {
-        char c;
-        long count = [socket receiveBytes:&c count:1];
-        if (count != 1 || c == '>') {
-            break;
-        }
-    }
-}
-
-static NSString* receiveToTerminator(FastSocket* socket, char terminator)
-{
-    NSMutableString* s = [NSMutableString string];
-    char c[2];
-    c[1] = '\0';
-    while(1) {
-        long count = [socket receiveBytes:c count:1];
-        if (count != 1 || c[0] == terminator) {
-            break;
-        }
-        [s appendString:[NSString stringWithUTF8String:c]];
-    }
-    return s;
-}
-
-- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
-{
-    if (service.addresses.count == 0) {
-        return nil;
-    }
-    NSData* address = [service.addresses objectAtIndex:0];
-    struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-    NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-    
-    NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
-    FastSocket* socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-    [socket connect];
-    [socket setTimeout:5];
-    flushToPrompt(socket);
-    NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
-    assert(count == data.length);
-    
-    NSString* s = receiveToTerminator(socket, terminator);
-    return s;
-}
-
 - (void)reloadFiles
 {
-    [_fileList removeAllObjects];
-    if (_currentDevice) {
+    if (!self.isFileSourceLocal) {
         [busyIndicator setHidden:NO];
         [busyIndicator startAnimation:nil];
-        
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-        dispatch_async(queue, ^() {
-            // load files from the device
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
-            if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-                fileString = [fileString substringFromIndex:1];
-            }
-            
-            NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
-            for (NSString* line in lines) {
-                NSArray* elements = [line componentsSeparatedByString:@":"];
-                if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
-                    continue;
-                }
-                
-                NSString* name = elements[1];
-                NSString* size = elements[2];
-                
-                // Ignore . files
-                if ([name length] == 0 || [name characterAtIndex:0] == '.') {
-                    continue;
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [_fileList addObject:@{ @"name" : name, @"size" : size }];
-                });
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
-                    return [a[@"name"] compare:b[@"name"]];
-                }];
-                [fileListView reloadData];
-                [busyIndicator stopAnimation:nil];
-                busyIndicator.hidden = YES;
-            });
-        });
+        [_device reloadFilesWithBlock:^(FileList fileList) {
+            _deviceFileList = fileList;
+            [fileListView reloadData];
+            [busyIndicator stopAnimation:nil];
+            busyIndicator.hidden = YES;
+        }];
         return;
     }
     
+    [_localFileList removeAllObjects];
     if (!_files) {
         return;
     }
-    
+
     for (NSString* name in _files.fileWrappers) {
         NSFileWrapper* file = _files.fileWrappers[name];
         if (file && file.regularFile) {
-            [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+            [_localFileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
         }
     }
     
-    [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
+    [_localFileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
         return [a[@"name"] compare:b[@"name"]];
     }];
     [fileListView reloadData];
@@ -211,36 +141,20 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
         // clear text editor
         [_document setSource:@""];
     } else {
-        NSString* name = _fileList[fileListView.selectedRow][@"name"];
+        NSString* name = self.currentFileList[fileListView.selectedRow][@"name"];
 
-        if (_currentDevice) {
+        if (!self.isFileSourceLocal) {
             [busyIndicator setHidden:NO];
             [busyIndicator startAnimation:nil];
             
-            dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-            dispatch_async(queue, ^() {
-                // load files from the device
-                NSNetService* service = _currentDevice[@"service"];
-                NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-
-                NSString* fileString = [self sendCommand:command fromService:service withTerminator:'\04'];
-                if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-                    fileString = [fileString substringFromIndex:1];
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [_document setSource:fileString];
-                    [busyIndicator stopAnimation:nil];
-                    busyIndicator.hidden = YES;
-                });
-            });
+            [_device selectFile:name withBlock:^(NSString* content) {
+                [_document setSource:content];
+                [busyIndicator stopAnimation:nil];
+                busyIndicator.hidden = YES;
+            }];
             return;
         }
 
-
-
-        
-        
         [_document setSource:[[NSString alloc] initWithData:
             _files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding]];
     }
@@ -252,28 +166,58 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     [panel setPrompt:@"Add"];
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [[panel URLs] objectAtIndex:0];
-            NSString* toName = url.lastPathComponent;
+            BOOL __block cancelAdd = NO;
+            BOOL __block skipAdd = NO;
             
-            NSFileWrapper* files = self.filesFileWrapper;
-            if (files && files.fileWrappers[toName]) {
-                NSAlert *alert = [[NSAlert alloc] init];
-                [alert addButtonWithTitle:@"Cancel"];
-                [alert addButtonWithTitle:@"OK"];
-                [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", toName]];
-                [alert setInformativeText:@"This operation cannot be undone."];
-                [alert setAlertStyle:NSWarningAlertStyle];
-                if ([alert runModal] == NSModalResponseCancel) {
-                    return;
+            for (NSURL* url in [panel URLs]) {
+                NSString* toName = url.lastPathComponent;
+                if ([self fileListContains:toName]) {
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert addButtonWithTitle:@"Cancel"];
+                    [alert addButtonWithTitle:@"Yes"];
+                    [alert addButtonWithTitle:@"Skip"];
+                    [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", toName]];
+                    [alert setInformativeText:@"This operation cannot be undone."];
+                    [alert setAlertStyle:NSWarningAlertStyle];
+
+                    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+                        if (returnCode == NSAlertFirstButtonReturn) {
+                            // Cancel
+                            cancelAdd = YES;
+                            return;
+                        }
+                        if (returnCode == NSAlertThirdButtonReturn) {
+                            // Skip
+                            skipAdd = YES;
+                            return;
+                        }
+                    }];
+                    
+                    if (cancelAdd) {
+                        return;
+                    }
+                    
+                    if (skipAdd) {
+                        skipAdd = NO;
+                        continue;
+                    }
                 }
-                
-                [files removeFileWrapper:files.fileWrappers[toName]];
+
+                NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData dataWithContentsOfURL:url]];
+                file.preferredFilename = toName;
+
+                if (self.isFileSourceLocal) {
+                    NSFileWrapper* files = self.filesFileWrapper;
+                    if (files && files.fileWrappers[toName]) {
+                        [files removeFileWrapper:files.fileWrappers[toName]];
+                    }
+                    [files addFileWrapper:file];
+                    [_document markDirty];
+                } else {
+                    [_device addFile:file];
+                }
             }
-            
-            [_document markDirty];
-            NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData dataWithContentsOfURL:url]];
-            file.preferredFilename = toName;
-            [files addFileWrapper:file];
+                
             [self reloadFiles];
         }
     }];
@@ -292,19 +236,11 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     return (NSNetService*) (device[@"service"]);
 }
 
-- (NSDictionary*) findService:(NSString*)hostname
-{
-    for (NSDictionary* service in _devices) {
-        if ([hostname isEqualToString:[self trimTrailingDot:[self serviceFromDevice:service].hostName]]) {
-            return service;
-        }
-    }
-    return nil;
-}
-
 - (IBAction)changeFileSource:(id)sender
 {
-    _currentDevice = [self findService:[(NSPopUpButton*)sender titleOfSelectedItem]];
+    [_device setDevice:[(NSPopUpButton*)sender titleOfSelectedItem]];
+    [_document setSource:@""];
+    [fileListView deselectAll:self];
     [self reloadFiles];
 }
 
@@ -339,19 +275,8 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
             }];
             return;
         }
-
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-        dispatch_async(queue, ^() {
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* command = [NSString stringWithFormat:@"dev %@\r\n", name];
-            
-            NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
-            NSLog(@"renameDevice returned '%@'", s);
-                
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self reloadDevices:nil];
-            });
-        });
+        
+        [_device renameDevice:name];
     }];
 }
 
@@ -363,8 +288,8 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     }
     
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
     [alert addButtonWithTitle:@"Cancel"];
+    [alert addButtonWithTitle:@"OK"];
     if (indexes.count == 1) {
         [alert setMessageText:@"Delete this file?"];
     } else {
@@ -372,27 +297,30 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     }
     [alert setInformativeText:@"This operation cannot be undone."];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSModalResponseCancel) {
-        return;
-    }
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            return;
+        }
 
-    NSUInteger i = 0;
-    NSFileWrapper* files = self.filesFileWrapper;
-    if (!files) {
-        return;
-    }
-    
-    for (NSDictionary* entry in _fileList) {
-        if ([indexes containsIndex:i++]) {
-            NSFileWrapper* d = files.fileWrappers[[entry objectForKey:@"name"]];
-            if (d) {
-                [_document markDirty];
-                [files removeFileWrapper:d];
+        NSUInteger i = 0;
+        for (NSDictionary* entry in self.currentFileList) {
+            if ([indexes containsIndex:i++]) {
+                if (self.isFileSourceLocal) {
+                    NSFileWrapper* files = self.filesFileWrapper;
+                    NSFileWrapper* d = files.fileWrappers[[entry objectForKey:@"name"]];
+                    if (d) {
+                        [_document markDirty];
+                        [files removeFileWrapper:d];
+                    }
+                } else {
+                    [_device removeFile:[entry objectForKey:@"name"]];
+                }
             }
         }
-    }
-    [fileListView deselectAll:self];
-    [self reloadFiles];
+    
+        [fileListView deselectAll:self];
+        [self reloadFiles];
+    }];
 }
 
 - (void)upload
@@ -402,7 +330,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 // fileListView dataSource
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return [_fileList count];
+    return [self.currentFileList count];
 }
 
 // TableView delegagte
@@ -410,7 +338,10 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex
 {
-    return [[_fileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
+    if (self.currentFileList.count <= rowIndex) {
+        return nil;
+    }
+    return [[self.currentFileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
 }
 
 - (void)tableView:(NSTableView *)aTableView
@@ -421,35 +352,15 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
     return;
 }
 
-// NSNetServiceBrowser delegate
-- (void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser
-           didFindService:(NSNetService *)netService
-               moreComing:(BOOL)moreServicesComing
+// Device methods
+- (void)clearDeviceList
 {
-    [_devices addObject:@{
-        @"service" : netService
-    }];
-        
-    [netService setDelegate:(id) self];
-    NSLog(@"*** Found service: %@\n", netService);
-    [netService resolveWithTimeout:10];
 }
 
--(void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *,NSNumber *> *)errorDict {
-    NSLog(@"not search ");
-}
-
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
+- (void)addDevice:(NSString*)name
 {
-    NSString* hostName = [self trimTrailingDot:sender.hostName];
-    [fileSourceButton addItemWithTitle:hostName];
+    [fileSourceButton addItemWithTitle:name];
     [fileSourceButton setNeedsDisplay];
-}
-
-- (void)netService:(NSNetService *)sender 
-     didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
-{
-    NSLog(@"********* Did not resolve: %@\n", errorDict);
 }
 
 @end

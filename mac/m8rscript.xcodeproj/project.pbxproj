@@ -63,6 +63,7 @@
 		49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.m */; };
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
 		49E5AB611D9AA67000C6988D /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5F1D9AA67000C6988D /* Engine.cpp */; };
+		49E5AB691DA1717300C6988D /* Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB681DA1717300C6988D /* Device.m */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 /* End PBXBuildFile section */
@@ -182,6 +183,8 @@
 		49E5AB5D1D98C00600C6988D /* FastSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FastSocket.h; path = FastSocket/FastSocket.h; sourceTree = "<group>"; };
 		49E5AB5F1D9AA67000C6988D /* Engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Engine.cpp; sourceTree = "<group>"; };
 		49E5AB601D9AA67000C6988D /* Engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Engine.h; sourceTree = "<group>"; };
+		49E5AB681DA1717300C6988D /* Device.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Device.m; sourceTree = "<group>"; };
+		49E5AB6A1DA1718900C6988D /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
@@ -295,6 +298,8 @@
 				49D9B8261D1C854700724911 /* Info.plist */,
 				49E5AB5F1D9AA67000C6988D /* Engine.cpp */,
 				49E5AB601D9AA67000C6988D /* Engine.h */,
+				49E5AB681DA1717300C6988D /* Device.m */,
+				49E5AB6A1DA1718900C6988D /* Device.h */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -597,6 +602,7 @@
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
 				49E5AB521D94195F00C6988D /* Simulator.m in Sources */,
+				49E5AB691DA1717300C6988D /* Device.m in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
 				49E5AB611D9AA67000C6988D /* Engine.cpp in Sources */,

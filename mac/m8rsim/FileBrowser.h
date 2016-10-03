@@ -8,9 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "Device.h"
+
 @class Document;
 
-@interface FileBrowser : NSViewController
+@interface FileBrowser : NSViewController <DeviceDataSource>
 
 @property (readonly, strong) NSFileWrapper* files;
 
