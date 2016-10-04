@@ -15,6 +15,7 @@ typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)outputMessage:(NSString*) message to:(OutputType) output;
 - (void)markDirty;
 - (void)setSource:(NSString*)source;
+- (void)setImage:(NSImage*)image;
 
 @end
 

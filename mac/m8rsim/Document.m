@@ -21,7 +21,6 @@
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
-    __weak IBOutlet NSTableView *fileListView;
     __weak IBOutlet NSView *simContainer;
     __weak IBOutlet NSView *filesContainer;
     
@@ -182,6 +181,15 @@
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
+}
+
+- (void)setImage:(NSImage*)image
+{
+    NSTextAttachmentCell *attachmentCell = [[NSTextAttachmentCell alloc] initImageCell:image];
+    NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+    [attachment setAttachmentCell: attachmentCell ];
+    NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
+    [[sourceEditor textStorage] setAttributedString:attributedString];
 }
 
 - (void)setFiles

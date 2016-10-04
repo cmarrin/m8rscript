@@ -155,8 +155,16 @@
             return;
         }
 
-        [_document setSource:[[NSString alloc] initWithData:
-            _files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding]];
+        NSString* content = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
+        if (content) {
+            [_document setSource:content];
+            return;
+        }
+        NSImage* image = [[NSImage alloc] initWithData:_files.fileWrappers[name].regularFileContents];
+        if (image) {
+            [_document setImage:image];
+            return;
+        }
     }
 }
 
