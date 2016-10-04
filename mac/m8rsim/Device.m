@@ -189,6 +189,16 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     });
 }
 
+- (void)removeFile:(NSString*)name
+{
+    NSNetService* service = _currentDevice[@"service"];
+    NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(queue, ^() {
+        [self sendCommand:command fromService:service withTerminator:'>'];
+    });
+}
+
 - (NSString*)trimTrailingDot:(NSString*)s
 {
     if ([s characterAtIndex:s.length - 1] == '.') {
@@ -231,11 +241,6 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
         NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
         NSLog(@"renameDevice returned '%@'", s);
     });
-}
-
-- (void)removeFile:(NSString*)name
-{
-    // FIXME: Implement
 }
 
 - (void)upload
