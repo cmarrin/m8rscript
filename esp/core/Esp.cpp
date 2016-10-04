@@ -30,19 +30,19 @@ extern "C" {
 
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 
-/******************************************************************************
- * FunctionName : user_rf_cal_sector_set
- * Description  : SDK just reversed 4 sectors, used for rf init data and paramters.
- *                We add this function to force users to set rf cal sector, since
- *                we don't know which sector is free in user's application.
- *                sector map for last several sectors : ABBBCDDD
- *                A : rf cal
- *                B : at parameters
- *                C : rf init data
- *                D : sdk parameters
- * Parameters   : none
- * Returns      : rf cal sector
-*******************************************************************************/
+//==================================================================================
+// * FunctionName : user_rf_cal_sector_set
+// * Description  : SDK just reversed 4 sectors, used for rf init data and paramters.
+// *                We add this function to force users to set rf cal sector, since
+// *                we don't know which sector is free in user's application.
+// *                sector map for last several sectors : ABBBCDDD
+// *                A : rf cal
+// *                B : at parameters
+// *                C : rf init data
+// *                D : sdk parameters
+// * Parameters   : none
+// * Returns      : rf cal sector
+//==================================================================================
 uint32 ICACHE_FLASH_ATTR
 user_rf_cal_sector_set(void)
 {
@@ -145,25 +145,28 @@ struct UserSaveData {
     char name[MaxBonjourNameSize + 1];
 } _gUserData;
 
-void setUserData(const char* name)
+void setDeviceName(const char* name)
 {
     os_printf("Setting device name to '%s'\n", name);
-    _gUserData.magic[0] = 'm';
-    _gUserData.magic[1] = '8';
-    _gUserData.magic[2] = 'r';
-    _gUserData.magic[3] = 's';
-    // Max name size is 31 characters
     uint16_t size = strlen(name);
     if (size > MaxBonjourNameSize) {
         size = MaxBonjourNameSize;
     }
     memcpy(_gUserData.name, name, size);
     _gUserData.name[size] = '\0';
+    writeUserData();
+    initmdns();
+}
+
+void writeUserData()
+{
+    _gUserData.magic[0] = 'm';
+    _gUserData.magic[1] = '8';
+    _gUserData.magic[2] = 'r';
+    _gUserData.magic[3] = 's';
     m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
-    
-    initmdns();
 }
 
 void getUserData()

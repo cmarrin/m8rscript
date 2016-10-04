@@ -43,7 +43,8 @@ void uart_div_modify(int no, int freq);
 int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
 void ets_delay_us(uint32_t);
 void hexdump (const char *desc, uint8_t* addr, size_t len);
-void setUserData(const char* name);
+void writeUserData();
+void setDeviceName(const char* name);
 
 #ifdef __cplusplus
 } // extern "C"

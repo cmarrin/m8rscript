@@ -154,6 +154,17 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
                 _state = State::PutFile;
             }
         }
+    } else if (array[0] == "rm") {
+        if (array.size() < 2) {
+            showError(1, "'rm' requires a filename");
+        } else {
+            if (!m8r::FS::sharedFS()->remove(array[1].c_str())) {
+                showError(2, "could not remove file");
+            } else {
+                _state = State::NeedPrompt;
+                _output->shellSend("removed file\n");
+            }
+        }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
             showError(4, "'dev' requires a device name");
@@ -170,6 +181,21 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
                 _output->shellSend("set dev name\n");
             }
         }
+    } else if (array[0] == "format") {
+        m8r::FS::sharedFS()->format();
+        _state = State::NeedPrompt;
+        _output->shellSend("formatted FS\n");
+    } else if (array[0] == "erase") {
+        m8r::FS* fs = m8r::FS::sharedFS();
+        m8r::DirectoryEntry* dir = fs->directory();
+        while (dir->valid()) {
+            if (strcmp(dir->name(), ".userdata") != 0) {
+                fs->remove(dir->name());
+            }
+            dir->next();
+        }
+        _state = State::NeedPrompt;
+        _output->shellSend("erased all files\n");
     } else if (array[0] == "quit") {
         return false;
     }

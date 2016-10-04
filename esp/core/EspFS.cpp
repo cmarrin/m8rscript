@@ -128,6 +128,8 @@ bool EspFS::format()
         os_printf("ERROR: SPIFFS format failed, error=%d\n", result);
         return false;
     }
+    mount();
+    writeUserData();
     return true;
 }
 

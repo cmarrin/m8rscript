@@ -100,7 +100,6 @@ void ICACHE_FLASH_ATTR runScript()
     if (!fs->mount()) {
         os_printf("ERROR: Mount failed, trying to format.\n");
         fs->format();
-        fs->mount();
     }
 
     MySystemInterface* systemInterface = new MySystemInterface();
@@ -148,7 +147,7 @@ public:
     virtual void sentData() override { _shell.sendComplete(); }
 
     virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
-    virtual void setDeviceName(const char* name) { setUserData(name); }
+    virtual void setDeviceName(const char* name) { setDeviceName(name); }
 
 private:
     m8r::Shell _shell;
