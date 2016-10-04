@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Shell.h"
 
 #include "Application.h"
+#include "base64.h"
 #include <cstdarg>
 
 using namespace m8r;
@@ -71,14 +72,18 @@ void Shell::sendComplete()
             _state = State::NeedPrompt;
             break;
         case State::NeedPrompt:
-            _output->shellSend("\n> ");
+            _output->shellSend("\n>");
             _state = State::ShowingPrompt;
             break;
         case State::ShowingPrompt:
             break;
         case State::ListFiles:
             if (_directoryEntry && _directoryEntry->valid()) {
-                sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                if (_binary) {
+                    sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                } else {
+                    sprintf(_buffer, "    %-32s %d\n", _directoryEntry->name(), _directoryEntry->size());
+                }
                 _output->shellSend(_buffer);
                 _directoryEntry->next();
             } else {
@@ -96,16 +101,38 @@ void Shell::sendComplete()
                 _output->shellSend("\04");
                 break;
             }
-            int32_t result = _file->read(_buffer, BufferSize);
-            if (result < 0) {
-                showError(3, "reading file");
-                break;
+            if (_binary) {
+                char binaryBuffer[StackAllocLimit];
+                int32_t result = _file->read(binaryBuffer, StackAllocLimit);
+                if (result < 0) {
+                    showError(3, "reading file");
+                    break;
+                }
+                if (result < StackAllocLimit) {
+                    delete _file;
+                    _file = nullptr;
+                }
+                int length = base64_encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
+                if (length < 0) {
+                    delete _file;
+                    _file = nullptr;
+                    break;
+                }
+                _buffer[length++] = '\r';
+                _buffer[length++] = '\n';
+                _output->shellSend(_buffer, length);
+            } else {
+                int32_t result = _file->read(_buffer, BufferSize);
+                if (result < 0) {
+                    showError(3, "reading file");
+                    break;
+                }
+                if (result < BufferSize) {
+                    delete _file;
+                    _file = nullptr;
+                }
+                _output->shellSend(_buffer, result);
             }
-            if (result < BufferSize) {
-                delete _file;
-                _file = nullptr;
-            }
-            _output->shellSend(_buffer, result);
             break;
         }
         case State::PutFile: {

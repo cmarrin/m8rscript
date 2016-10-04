@@ -29,6 +29,11 @@ static const uint8_t ICACHE_RODATA_ATTR base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 };
 
+size_t encodedLength(size_t decodedLength)
+{
+    return (decodedLength + 2) / 3 * 4 + 1;
+}
+
 void base64encode(const unsigned char in[3], unsigned char out[4], int count)
 {
 	out[0]=read_rom_uint8(&(base64enc_tab[(in[0]>>2)]));

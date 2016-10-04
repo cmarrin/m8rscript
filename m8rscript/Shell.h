@@ -49,6 +49,9 @@ public:
 class Shell {
 public:
     static const uint16_t BufferSize = 76;
+    static const uint16_t Base64MaxSize = (BufferSize - 3) / 4 * 3;
+    static const uint32_t StackAllocLimit = 32;
+    static_assert (StackAllocLimit < Base64MaxSize, "BufferSize too big");
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     

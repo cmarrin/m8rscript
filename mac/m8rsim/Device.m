@@ -49,12 +49,7 @@ static void flushToPrompt(FastSocket* socket)
     while(1) {
         char c;
         long count = [socket receiveBytes:&c count:1];
-        if (count != 1) {
-            break;
-        }
-        if (c == '>') {
-            // read the trailing space
-            [socket receiveBytes:&c count:1];
+        if (count != 1 || c == '>') {
             break;
         }
     }
@@ -89,8 +84,12 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     [socket connect];
     [socket setTimeout:5];
     flushToPrompt(socket);
+    
+    // Set to binary mode
+    long count = [socket sendBytes:(const void*)@"b\r\n" count:3];
+    
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
+    count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     return socket;
 }
