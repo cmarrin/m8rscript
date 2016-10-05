@@ -57,7 +57,24 @@ bool Shell::received(const char* data, uint16_t size)
             sendComplete();
             return true;
         }
-        _file->write(data, size);
+
+        if (_binary) {
+            // If incoming buffer is too large, error
+            if (size > BufferSize) {
+                showError(ErrorCode::BinaryPutTooLarge);
+            }
+
+            int length = base64_decode(size, data, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
+            if (length < 0) {
+                delete _file;
+                _file = nullptr;
+                showError(ErrorCode::BinaryDecodeFailed);
+                return false;
+            }
+            _file->write(_buffer, length);
+        } else {
+            _file->write(data, size);
+        }
         return true;
     }
     std::vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
@@ -105,7 +122,7 @@ void Shell::sendComplete()
                 char binaryBuffer[StackAllocLimit];
                 int32_t result = _file->read(binaryBuffer, StackAllocLimit);
                 if (result < 0) {
-                    showError(3, "reading file");
+                    showError(ErrorCode::ReadFailed);
                     break;
                 }
                 if (result < StackAllocLimit) {
@@ -114,6 +131,7 @@ void Shell::sendComplete()
                 }
                 int length = base64_encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
                 if (length < 0) {
+                showError(ErrorCode::BinaryEncodeFailed);
                     delete _file;
                     _file = nullptr;
                     break;
@@ -124,7 +142,7 @@ void Shell::sendComplete()
             } else {
                 int32_t result = _file->read(_buffer, BufferSize);
                 if (result < 0) {
-                    showError(3, "reading file");
+                    showError(ErrorCode::ReadFailed);
                     break;
                 }
                 if (result < BufferSize) {
@@ -160,11 +178,11 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _output->shellSend("binary: Setting binary transfer mode\n");
     } else if (array[0] == "get") {
         if (array.size() < 2) {
-            showError(1, "'get' requires a filename");
+            showError(ErrorCode::FileNameRequired);
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "r");
             if (!_file) {
-                showError(2, "could not open file for 'get'");
+                showError(ErrorCode::GetOpenFailed);
             } else {
                 _state = State::GetFile;
                 sendComplete();
@@ -172,21 +190,21 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
     } else if (array[0] == "put") {
         if (array.size() < 2) {
-            showError(1, "'put' requires a filename");
+            showError(ErrorCode::FileNameRequired);
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
             if (!_file) {
-                showError(2, "could not open file for 'put'");
+                showError(ErrorCode::PutOpenFailed);
             } else {
                 _state = State::PutFile;
             }
         }
     } else if (array[0] == "rm") {
         if (array.size() < 2) {
-            showError(1, "'rm' requires a filename");
+            showError(ErrorCode::FileNameRequired);
         } else {
             if (!m8r::FS::sharedFS()->remove(array[1].c_str())) {
-                showError(2, "could not remove file");
+                showError(ErrorCode::RemoveFailed);
             } else {
                 _state = State::NeedPrompt;
                 _output->shellSend("removed file\n");
@@ -194,14 +212,14 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
-            showError(4, "'dev' requires a device name");
+            showError(ErrorCode::DeviceNameRequired);
         } else {
             Application::NameValidationType type = Application::validateBonjourName(array[1].c_str());
 
             if (type == Application::NameValidationType::BadLength) {
-                showError(5, "device name must be between 1 and 31 characters");
+                showError(ErrorCode::BadDeviceNameLength);
             } else if (type == Application::NameValidationType::InvalidChar) {
-                showError(6, "illegal character (only numbers, lowercase letters and hyphen)");
+                showError(ErrorCode::IllegalDeviceName);
             } else {
                 _output->setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
@@ -229,9 +247,73 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     return true;
 }
 
-void Shell::showError(uint8_t code, const char* msg)
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR ReadFailed[ ] = "file read failed";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryPutTooLarge[ ] = "binary 'put' too large";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryEncodeFailed[ ] = "binary encode failed";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryDecodeFailed[ ] = "binary decode failed";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR FileNameRequired[ ] = "filename required";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR DeviceNameRequired[ ] = "device name required";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR GetOpenFailed[ ] = "could not open file for 'get'";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR PutOpenFailed[ ] = "could not open file for 'put'";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR RemoveFailed[ ] = "could not remove file";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BadDeviceNameLength[ ] = "device name must be between 1 and 31 characters";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR IllegalDeviceName[ ] = "illegal character (only numbers, lowercase letters and hyphen)";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR Format[ ] = "error:%d: %s\n";
+
+void Shell::showError(ErrorCode code)
 {
+    const char* msg = nullptr;
+    
+    switch(code) {
+        case ErrorCode::ReadFailed: {
+            msg = ReadFailed;
+            break;
+        }
+        case ErrorCode::BinaryPutTooLarge: {
+            msg = BinaryPutTooLarge;
+            break;
+        }
+        case ErrorCode::BinaryEncodeFailed: {
+            msg = BinaryEncodeFailed;
+            break;
+        }
+        case ErrorCode::BinaryDecodeFailed: {
+            msg = BinaryDecodeFailed;
+            break;
+        }
+        case ErrorCode::FileNameRequired: {
+            msg = FileNameRequired;
+            break;
+        }
+        case ErrorCode::DeviceNameRequired: {
+            msg = DeviceNameRequired;
+            break;
+        }
+        case ErrorCode::GetOpenFailed: {
+            msg = GetOpenFailed;
+            break;
+        }
+        case ErrorCode::PutOpenFailed: {
+            msg = PutOpenFailed;
+            break;
+        }
+        case ErrorCode::RemoveFailed: {
+            msg = RemoveFailed;
+            break;
+        }
+        case ErrorCode::BadDeviceNameLength: {
+            msg = BadDeviceNameLength;
+            break;
+        }
+        case ErrorCode::IllegalDeviceName: {
+            msg = IllegalDeviceName;
+            break;
+        }
+        default: return;
+    }
+    
     _state = State::NeedPrompt;
-    sprintf(_buffer, "error:%d: %s\n", code, msg);
+    sprintf(_buffer, Format, code, msg);
+    
     _output->shellSend(_buffer);
 }
