@@ -41,6 +41,8 @@ void ets_timer_disarm(ETSTimer *a);
 void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
 void uart_div_modify(int no, int freq);
 int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
+int ets_vsprintf(char *str, const char *format, va_list arg)  __attribute__ ((format (printf, 2, 0)));
+int ets_vsnprintf(char * s, size_t n, const char * format, va_list arg)  __attribute__ ((format (printf, 3, 0)));
 void ets_delay_us(uint32_t);
 void hexdump (const char *desc, uint8_t* addr, size_t len);
 void writeUserData();
@@ -136,6 +138,11 @@ static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
     return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
 }
 
+#define ROMSTR(s) (__extension__({static const char __c[] ICACHE_RODATA_ATTR = (s); &__c[0];}))
+
+void* memcpy_rom(void* dst, const void* src, size_t len);
+char* strcpy_rom(char* dst, const char* src);
+
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 
 // these low level routines provide a replacement for SREG interrupt save that AVR uses
@@ -158,3 +165,4 @@ static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
 #define noInterrupts() xt_rsil(15)
 
 #define sprintf os_sprintf
+#define vsnprintf ets_vsnprintf

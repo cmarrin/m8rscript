@@ -85,7 +85,7 @@ void Shell::sendComplete()
 {
     switch(_state) {
         case State::Init:
-            _output->shellSend("\nWelcome to m8rscript\n");
+            sendString(ROMSTR("\nWelcome to m8rscript\n"));
             _state = State::NeedPrompt;
             break;
         case State::NeedPrompt:
@@ -171,11 +171,11 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     } else if (array[0] == "t") {
         _binary = false;
         _state = State::NeedPrompt;
-        _output->shellSend("text: Setting text transfer mode\n");
+        sendString(ROMSTR("text: Setting text transfer mode\n"));
     } else if (array[0] == "b") {
         _binary = true;
         _state = State::NeedPrompt;
-        _output->shellSend("binary: Setting binary transfer mode\n");
+        sendString(ROMSTR("binary: Setting binary transfer mode\n"));
     } else if (array[0] == "get") {
         if (array.size() < 2) {
             showError(ErrorCode::FileNameRequired);
@@ -207,7 +207,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
                 showError(ErrorCode::RemoveFailed);
             } else {
                 _state = State::NeedPrompt;
-                _output->shellSend("removed file\n");
+                sendString(ROMSTR("removed file\n"));
             }
         }
     } else if (array[0] == "dev") {
@@ -223,13 +223,13 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             } else {
                 _output->setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
-                _output->shellSend("set dev name\n");
+                sendString(ROMSTR("set dev name\n"));
             }
         }
     } else if (array[0] == "format") {
         m8r::FS::sharedFS()->format();
         _state = State::NeedPrompt;
-        _output->shellSend("formatted FS\n");
+        sendString(ROMSTR("formatted FS\n"));
     } else if (array[0] == "erase") {
         m8r::FS* fs = m8r::FS::sharedFS();
         m8r::DirectoryEntry* dir = fs->directory();
@@ -240,7 +240,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             dir->next();
         }
         _state = State::NeedPrompt;
-        _output->shellSend("erased all files\n");
+        sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "quit") {
         return false;
     }
@@ -258,7 +258,7 @@ static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR PutOpenFailed[ ] = "could
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR RemoveFailed[ ] = "could not remove file";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BadDeviceNameLength[ ] = "device name must be between 1 and 31 characters";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR IllegalDeviceName[ ] = "illegal character (only numbers, lowercase letters and hyphen)";
-static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR Format[ ] = "error:%d: %s\n";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR E[ ] = "error:";
 
 void Shell::showError(ErrorCode code)
 {
@@ -313,7 +313,17 @@ void Shell::showError(ErrorCode code)
     }
     
     _state = State::NeedPrompt;
-    sprintf(_buffer, Format, code, msg);
+    
+    char* p = strcpy_rom(_buffer, E);
+    p = strcpy_rom(p, msg);
+    p = strcpy_rom(p, "\n");
     
     _output->shellSend(_buffer);
 }
+
+void Shell::sendString(const char* s)
+{
+    strcpy_rom(_buffer, s);
+    _output->shellSend(_buffer);
+}
+

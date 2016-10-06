@@ -81,6 +81,7 @@ public:
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
     void showError(ErrorCode);
+    void sendString(const char* s);
 
     ShellOutput* _output = nullptr;
     m8r::DirectoryEntry* _directoryEntry = nullptr;

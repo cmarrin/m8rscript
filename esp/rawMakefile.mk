@@ -106,7 +106,7 @@ FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
 FW_FILE_2_ADDR	= 0x40000
 FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
-LIBS = main net80211 wpa pp phy crypto smartconfig lwip
+LIBS = main net80211 wpa pp phy crypto smartconfig lwip gcc
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1

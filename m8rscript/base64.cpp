@@ -8,9 +8,9 @@
 
 static inline bool isWhitespace(uint8_t c)  { return c == ' ' || c == '\n' || c == '\r' || c == '\f' || c == '\t' || c == '\v'; }
 
-static const uint8_t base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const uint8_t ICACHE_RODATA_ATTR ICACHE_STORE_ATTR base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static const uint8_t ICACHE_RODATA_ATTR base64dec_tab[256]= {
+static const uint8_t ICACHE_RODATA_ATTR ICACHE_STORE_ATTR base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,
@@ -46,10 +46,10 @@ int base64decode(const char in[4], char out[3])
 {
 	uint8_t v[4];
 
-	v[0]=base64dec_tab[(unsigned)in[0]];
-	v[1]=base64dec_tab[(unsigned)in[1]];
-	v[2]=base64dec_tab[(unsigned)in[2]];
-	v[3]=base64dec_tab[(unsigned)in[3]];
+	v[0]=read_rom_uint8(&(base64dec_tab[(unsigned)in[0]]));
+	v[1]=read_rom_uint8(&(base64dec_tab[(unsigned)in[1]]));
+	v[2]=read_rom_uint8(&(base64dec_tab[(unsigned)in[2]]));
+	v[3]=read_rom_uint8(&(base64dec_tab[(unsigned)in[3]]));
 
 	out[0]=(v[0]<<2)|(v[1]>>4); 
 	out[1]=(v[1]<<4)|(v[2]>>2); 
@@ -67,7 +67,7 @@ int base64_decode(size_t in_len, const char *in, size_t out_len, unsigned char *
 		unsigned char ch;
 		if(isWhitespace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
-		ch=base64dec_tab[(unsigned)in[ii]];
+		ch=read_rom_uint8(&(base64dec_tab[(unsigned)in[ii]]));
 		if(ch==255) break; /* stop at a parse error */
 		v=(v<<6)|ch;
 		rem+=6;

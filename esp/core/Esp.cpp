@@ -121,6 +121,27 @@ void *memchr(const void *s, int c, size_t n)
     return 0;
 }
 
+void* memcpy_rom(void* dst, const void* src, size_t len)
+{
+    uint8_t* s = (uint8_t*) src;
+    uint8_t* d = (uint8_t*) dst;
+    while (len--) {
+        *d++ = read_rom_uint8(s++);
+    }
+    return dst;
+}
+
+char* strcpy_rom(char* dst, const char* src)
+{
+    uint8_t* s = (uint8_t*) src;
+    char c;
+    while ((c = (char) read_rom_uint8(s++))) {
+        *dst++ = c;
+    }
+    *dst = '\0';
+    return dst;
+}
+
 void micros_overflow_tick(void* arg) {
     uint32_t m = system_get_time();
     if(m < micros_at_last_overflow_tick) {
