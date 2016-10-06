@@ -70,7 +70,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     return s;
 }
 
-- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
+- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary
 {
     if (service.addresses.count == 0) {
         return nil;
@@ -85,18 +85,22 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     [socket setTimeout:5];
     flushToPrompt(socket);
     
-    // Set to binary mode
-    long count = [socket sendBytes:(const void*)@"b\r\n" count:3];
+    if (binary) {
+        // Set to binary mode
+        [socket sendBytes:(const void*)@"b\r\n" count:3];
+        [NSThread sleepForTimeInterval:1];
+        flushToPrompt(socket);
+    }
     
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    count = [socket sendBytes:data.bytes count:data.length];
+    long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     return socket;
 }
 
-- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service
+- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service asBinary:(BOOL)binary
 {
-    FastSocket* socket = [self sendCommand:command fromService:service];
+    FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
     if (!socket) {
         return;
     }
@@ -106,9 +110,9 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     flushToPrompt(socket);
 }
 
-- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
+- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary withTerminator:(char)terminator
 {
-    FastSocket* socket = [self sendCommand:command fromService:service];
+    FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
     if (!socket) {
         return nil;
     }
@@ -124,7 +128,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     dispatch_async(queue, ^() {
         // load files from the device
         NSNetService* service = _currentDevice[@"service"];
-        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
+        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
         if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
             fileString = [fileString substringFromIndex:1];
         }
@@ -168,7 +172,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
+        NSString* fileContents = [self sendCommand:command fromService:service asBinary:YES withTerminator:'\04'];
         dispatch_async(dispatch_get_main_queue(), ^{
             handler(fileContents);
         });
@@ -178,13 +182,16 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
     NSNetService* service = _currentDevice[@"service"];
-    NSString* contents = [[NSString alloc] initWithData:fileWrapper.regularFileContents encoding:NSUTF8StringEncoding]; 
+    NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
+                                                            NSDataBase64Encoding64CharacterLineLength |
+                                                            NSDataBase64EncodingEndLineWithCarriageReturn | 
+                                                            NSDataBase64EncodingEndLineWithLineFeed];
     NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
     contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
 
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        [self sendCommand:command andString:contents fromService:service];
+        [self sendCommand:command andString:contents fromService:service asBinary:YES];
     });
 }
 
@@ -194,7 +201,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
     });
 }
 
@@ -237,7 +244,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
         NSNetService* service = _currentDevice[@"service"];
         NSString* command = [NSString stringWithFormat:@"dev %@\r\n", name];
         
-        NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
+        NSString* s = [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
         NSLog(@"renameDevice returned '%@'", s);
     });
 }

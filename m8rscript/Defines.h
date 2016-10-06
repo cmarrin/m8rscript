@@ -41,6 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
     #define ICACHE_FLASH_ATTR
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }
     #define strcpy_rom strcpy
+    #define ROMSTR(s) s
 #else
     #include "Esp.h"
 #endif
