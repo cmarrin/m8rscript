@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #import "Parser.h"
 #import "CodePrinter.h"
 #import "ExecutionUnit.h"
+#import "Shell.h"
 #import "SystemInterface.h"
 
 #include <chrono>
@@ -48,41 +49,15 @@ using namespace m8r;
 
 class Engine;
 
-class MySystemInterface : public m8r::SystemInterface
-{
-public:
-    MySystemInterface(Engine* engine) : _engine(engine), _isBuild(true) { }
-    
-    virtual void printf(const char* s, ...) const override;
-    virtual void updateGPIOState(uint16_t mode, uint16_t state) override;
-
-    virtual int read() const override { return -1; }
-
-    void setToBuild(bool b) { _isBuild = b; }
-    
-private:
-    Engine* _engine;
-    bool _isBuild;
-};
-
-class Engine {
+class Engine : public SystemInterface, public ShellOutput {
 public:
     Engine(void* simulator)
         : _simulator(simulator)
-        , _system(this)
-        , _eu(&_system)
+        , _isBuild(true)
+        , _eu(this)
+        , _shell(this)
     { }
 
-    void vprintf(const char* s, va_list args, bool isBuild)
-    {
-        Simulator_vprintf(_simulator, s, args, isBuild);
-    }
-
-    void updateGPIOState(uint16_t mode, uint16_t state)
-    {
-        Simulator_updateGPIOState(_simulator, mode, state);
-    }
-    
     void importBinary(const char* filename);
     void exportBinary(const char* filename);
     void build(const char* source, const char* name);
@@ -94,34 +69,43 @@ public:
     bool canRun() { return _program && !_running; }
     bool canStop() { return _program && _running; }
 
+    // SystemInterface
+    virtual void printf(const char* s, ...) const override;
+    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
+    {
+        Simulator_updateGPIOState(_simulator, mode, state);
+    }
+    virtual int read() const override { return -1; }
+
+    // ShellOutput
+    virtual void shellSend(const char* data, uint16_t size = 0) override
+    {
+    }
+
 private:
     void* _simulator;
-    MySystemInterface _system;
+    bool _isBuild;
     ExecutionUnit _eu;
     m8r::Program* _program;
     m8r::Application* _application;
     bool _running = false;
+    Shell _shell;
 };
 
-void MySystemInterface::printf(const char* s, ...) const
+void Engine::printf(const char* s, ...) const
 {
     va_list args;
     va_start(args, s);
-    _engine->vprintf(s, args, _isBuild);
+    Simulator_vprintf(_simulator, s, args, _isBuild);
 }
 
-void MySystemInterface::updateGPIOState(uint16_t mode, uint16_t state)
-{
-    _engine->updateGPIOState(mode, state);
-}
-    
 void Engine::importBinary(const char* filename)
 {
     m8r::FileStream stream(filename, "r");
-    _program = new Program(&_system);
+    _program = new Program(this);
     m8r::Error error;
     if (!_program->deserializeObject(&stream, error)) {
-        error.showError(&_system);
+        error.showError(this);
     }
 }
 
@@ -131,7 +115,7 @@ void Engine::exportBinary(const char* filename)
     if (_program) {
         m8r::Error error;
         if (!_program->serializeObject(&stream, error)) {
-            error.showError(&_system);
+            error.showError(this);
         }
     }
 }
@@ -141,26 +125,26 @@ void Engine::build(const char* source, const char* name)
     _program = nullptr;
     _running = false;
     
-    _system.setToBuild(true);
-    _system.printf("Building %s\n", name);
+    _isBuild = true;
+    printf("Building %s\n", name);
 
     m8r::StringStream stream(source);
-    m8r::Parser parser(&_system);
+    m8r::Parser parser(this);
     parser.parse(&stream);
-    _system.printf("Parsing finished...\n");
+    printf("Parsing finished...\n");
 
     if (parser.nerrors()) {
-        _system.printf("***** %d error%s\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        printf("***** %d error%s\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     } else {
-        _system.printf("0 errors. Ready to run\n");
+        printf("0 errors. Ready to run\n");
         _program = parser.program();
 
-        m8r::CodePrinter codePrinter(&_system);
+        m8r::CodePrinter codePrinter(this);
         m8r::String codeString = codePrinter.generateCodeString(_program);
         
-        _system.printf("\n*** Start Generated Code ***\n\n");
-        _system.printf(codeString.c_str());
-        _system.printf("\n*** End of Generated Code ***\n\n");
+        printf("\n*** Start Generated Code ***\n\n");
+        printf(codeString.c_str());
+        printf("\n*** End of Generated Code ***\n\n");
     }
 }
 
@@ -173,8 +157,8 @@ void Engine::run()
     
     _running = true;
     
-    _system.setToBuild(false);
-    _system.printf("*** Program started...\n\n");
+    _isBuild = false;
+    printf("*** Program started...\n\n");
     
     auto start = std::chrono::system_clock::now();
         
@@ -191,7 +175,7 @@ void Engine::run()
     
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end - start;
-    _system.printf("\n\n*** Finished (run time:%fms)\n", diff * 1000);
+    printf("\n\n*** Finished (run time:%fms)\n", diff * 1000);
     _running = false;
 }
 
@@ -207,12 +191,12 @@ void Engine::stop()
     }
     _eu.requestTermination();
     _running = false;
-    _system.printf("*** Stopped\n");
+    printf("*** Stopped\n");
 }
 
 void Engine::simulate()
 {
-    _application = new m8r::Application(&_system);
+    _application = new m8r::Application(this);
     _program = _application->program();
     run();
 }
