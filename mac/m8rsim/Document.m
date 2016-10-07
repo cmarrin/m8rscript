@@ -10,6 +10,7 @@
 
 #import "NSTextView+JSDExtensions.h"
 
+#import "Device.h"
 #import "Simulator.h"
 #import "FileBrowser.h"
 
@@ -36,11 +37,13 @@
     
     NSString* _source;
     NSFont* _font;
-        
-    Simulator* _simulator;
+    
+    Device* _device;
+    SimulationView* _simulationView;
     FileBrowser* _fileBrowser;
     
     NSFileWrapper* _package;
+    NSFileWrapper* _files;
 }
 
 @end
@@ -65,6 +68,10 @@
     sourceEditor.automaticQuoteSubstitutionEnabled = NO;
     [[sourceEditor textStorage] setDelegate:(id) self];
     [sourceEditor setString:_source];
+    
+    _device = [[Device alloc]init];
+    _device.delegate = self;
+    
     _simulator = [[Simulator alloc] initWithDocument:self];
     [simContainer addSubview:_simulator.view];
     NSRect superFrame = simContainer.frame;
@@ -202,6 +209,26 @@
                                 _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
                                 nil;
     [_fileBrowser setFiles: files];
+}
+
+- (void)selectFile:(NSInteger)index
+{
+    [self setSource:@"");
+    if (index < 0) {
+        return;
+    }
+    
+    [busyIndicator setHidden:NO];
+    [busyIndicator startAnimation:nil];
+    [_device selectFile:name withBlock:^ {
+        [busyIndicator stopAnimation:nil];
+        busyIndicator.hidden = YES;
+    }];
+}
+
+- (void)addFile:(NSFileWrapper*)file
+{
+    [_device addFile:file];
 }
 
 //

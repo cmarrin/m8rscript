@@ -8,11 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "Device.h"
-
 @class Document;
+@class Device;
 
-@interface FileBrowser : NSViewController <DeviceDataSource>
+@interface FileBrowser : NSViewController
 
 @property (readonly, strong) NSFileWrapper* files;
 
@@ -20,11 +19,12 @@
 
 - (void)renameDevice;
 - (void)upload;
-- (void)reloadFiles;
 - (void)addFiles;
 - (void)removeFiles;
 - (void)setFiles:(NSFileWrapper*)files;
 - (BOOL)isFileSourceLocal;
+
+- (void)reloadFilesForDevice:(Device*)device;
 
 @end
 

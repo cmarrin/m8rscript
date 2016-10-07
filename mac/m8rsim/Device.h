@@ -10,25 +10,28 @@
 
 typedef NSMutableArray<NSDictionary*>* FileList;
 
-@protocol DeviceDataSource
+@protocol DeviceDelegate
 
 - (void)clearDeviceList;
 - (void)addDevice:(NSString*)name;
+- (void)setSource:(NSString*)source;
+- (void)setImage:(NSImage*)image;
 
 @end
 
 @interface Device : NSObject
 
-@property (weak) id <DeviceDataSource> dataSource;
+@property (weak) id <DeviceDelegate> delegate;
 @property (readonly) NSDictionary* currentDevice;
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler;
-- (void)selectFile:(NSString*)name withBlock:(void (^)(NSString*))handler;
-- (void)addFile:(NSFileWrapper*)fileWrapper;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)setDevice:(NSString*)device;
 - (void)renameDevice:(NSString*)name;
 - (void)removeFile:(NSString*)name;
+
+- (void)selectFile:(NSInteger)index withBlock:(void (^)())handler;
+- (void)addFile:(NSFileWrapper*)fileWrapper withBlock:(void (^)())handler;
 
 @end
 

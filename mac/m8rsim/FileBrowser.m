@@ -9,11 +9,7 @@
 #import "FileBrowser.h"
 
 #import "Document.h"
-#import "FastSocket.h"
-#import "Engine.h"
-#import <sys/socket.h>
-#import <netinet/in.h>
-#import <arpa/inet.h>
+#import "Device.h"
 
 @interface FileBrowser ()
 {
@@ -22,11 +18,8 @@
     __weak IBOutlet NSPopUpButton *fileSourceButton;
 
     Document* _document;
-    Device* _device;
-
-    FileList _localFileList;
-    FileList _deviceFileList;
-    NSFileWrapper* _files;
+    
+    FileList _currentFileList;
 
     NSTextField* renameDeviceTextField;
 }
@@ -39,7 +32,6 @@
     self = [super init];
     if (self) {
         _document = document;
-        _localFileList = [[NSMutableArray alloc] init];
      }
     return self;
 }
@@ -58,9 +50,6 @@
     while (fileSourceButton.numberOfItems > 1) {
         [fileSourceButton removeItemAtIndex:1];
     }
-    
-    _device = [[Device alloc] init];
-    _device.dataSource = self;
 }
 
 - (BOOL)isFileSourceLocal
@@ -68,14 +57,9 @@
     return [fileSourceButton.selectedItem.title isEqualToString:@"Local Files"];
 }
 
-- (FileList)currentFileList
-{
-    return self.isFileSourceLocal ? _localFileList : _deviceFileList;
-}
-
 - (BOOL)fileListContains:(NSString*)name
 {
-    for (NSDictionary* entry in self.currentFileList) {
+    for (NSDictionary* entry in _currentFileList) {
         if ([entry[@"name"] isEqualToString:name]) {
             return YES;
         }
@@ -83,51 +67,16 @@
     return NO;
 }
 
-- (void)setFiles:(NSFileWrapper*)files
+- (void)reloadFilesForDevice:(Device*)device;
 {
-    _files = files;
-    [self reloadFiles];
-}
-
-- (NSFileWrapper*)filesFileWrapper
-{
-    if (!_files) {
-        [_document markDirty];
-        _files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
-    }
-    return _files;
-}
-
-- (void)reloadFiles
-{
-    if (!self.isFileSourceLocal) {
-        [busyIndicator setHidden:NO];
-        [busyIndicator startAnimation:nil];
-        [_device reloadFilesWithBlock:^(FileList fileList) {
-            _deviceFileList = fileList;
-            [fileListView reloadData];
-            [busyIndicator stopAnimation:nil];
-            busyIndicator.hidden = YES;
-        }];
-        return;
-    }
-    
-    [_localFileList removeAllObjects];
-    if (!_files) {
-        return;
-    }
-
-    for (NSString* name in _files.fileWrappers) {
-        NSFileWrapper* file = _files.fileWrappers[name];
-        if (file && file.regularFile) {
-            [_localFileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
-        }
-    }
-    
-    [_localFileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
-        return [a[@"name"] compare:b[@"name"]];
+    [busyIndicator setHidden:NO];
+    [busyIndicator startAnimation:nil];
+    [device reloadFilesWithBlock:^(FileList fileList) {
+        _currentFileList = fileList;
+        [fileListView reloadData];
+        [busyIndicator stopAnimation:nil];
+        busyIndicator.hidden = YES;
     }];
-    [fileListView reloadData];
 }
 
 - (IBAction)reloadDevices:(id)sender
@@ -136,36 +85,12 @@
 
 - (IBAction)fileSelected:(id)sender
 {
+    NSInteger index = -1;
     NSIndexSet* indexes = ((NSTableView*) sender).selectedRowIndexes;
-    if (indexes.count != 1) {
-        // clear text editor
-        [_document setSource:@""];
-    } else {
-        NSString* name = self.currentFileList[fileListView.selectedRow][@"name"];
-
-        if (!self.isFileSourceLocal) {
-            [busyIndicator setHidden:NO];
-            [busyIndicator startAnimation:nil];
-            
-            [_device selectFile:name withBlock:^(NSString* content) {
-                [_document setSource:content];
-                [busyIndicator stopAnimation:nil];
-                busyIndicator.hidden = YES;
-            }];
-            return;
-        }
-
-        NSString* content = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
-        if (content) {
-            [_document setSource:content];
-            return;
-        }
-        NSImage* image = [[NSImage alloc] initWithData:_files.fileWrappers[name].regularFileContents];
-        if (image) {
-            [_document setImage:image];
-            return;
-        }
+    if (indexes.count == 1) {
+        index = fileListView.selectedRow;
     }
+    [_document selectFile:fileListView.selectedRow];
 }
 
 - (void)addFiles
@@ -339,7 +264,7 @@
 // fileListView dataSource
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return [self.currentFileList count];
+    return [_currentFileList count];
 }
 
 // TableView delegagte
@@ -347,10 +272,10 @@
 objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex
 {
-    if (self.currentFileList.count <= rowIndex) {
+    if (_currentFileList.count <= rowIndex) {
         return nil;
     }
-    return [[self.currentFileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
+    return [[_currentFileList objectAtIndex:rowIndex] objectForKey:aTableColumn.identifier];
 }
 
 - (void)tableView:(NSTableView *)aTableView

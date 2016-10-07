@@ -8,14 +8,19 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface Document : NSDocument
+#import "Device.h"
+
+@interface Document : NSDocument <DeviceDelegate>
 
 typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
 - (void)outputMessage:(NSString*) message to:(OutputType) output;
 - (void)markDirty;
+
 - (void)setSource:(NSString*)source;
 - (void)setImage:(NSImage*)image;
+- (void)selectFile:(NSInteger)index;
+- (void)addFile:(NSFileWrapper*)file;
 
 @end
 

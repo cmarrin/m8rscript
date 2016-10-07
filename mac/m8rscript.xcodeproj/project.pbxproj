@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
-		492604AA1D943E8700C5DF07 /* Simulator.xib in Resources */ = {isa = PBXBuildFile; fileRef = 492604A91D943E8700C5DF07 /* Simulator.xib */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -58,7 +57,7 @@
 		49DD77491D84D94900D7C374 /* Simulate.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77481D84D94900D7C374 /* Simulate.png */; };
 		49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD774A1D84DD7D00D7C374 /* Application.cpp */; };
 		49DD774D1D84DD7D00D7C374 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD774B1D84DD7D00D7C374 /* Application.h */; };
-		49E5AB521D94195F00C6988D /* Simulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.m */; };
+		49E5AB521D94195F00C6988D /* Simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.cpp */; };
 		49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49E5AB541D981D6100C6988D /* FileBrowser.xib */; };
 		49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.m */; };
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
@@ -66,6 +65,8 @@
 		49E5AB691DA1717300C6988D /* Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB681DA1717300C6988D /* Device.m */; };
 		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
+		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
+		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,7 +100,6 @@
 
 /* Begin PBXFileReference section */
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
-		492604A91D943E8700C5DF07 /* Simulator.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Simulator.xib; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -175,7 +175,7 @@
 		49DD774A1D84DD7D00D7C374 /* Application.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../m8rscript/Application.cpp; sourceTree = "<group>"; };
 		49DD774B1D84DD7D00D7C374 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../m8rscript/Application.h; sourceTree = "<group>"; };
 		49E5AB501D94195F00C6988D /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
-		49E5AB511D94195F00C6988D /* Simulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simulator.m; sourceTree = "<group>"; };
+		49E5AB511D94195F00C6988D /* Simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simulator.cpp; sourceTree = "<group>"; };
 		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
 		49E5AB561D981DDB00C6988D /* FileBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBrowser.h; sourceTree = "<group>"; };
 		49E5AB571D981DDB00C6988D /* FileBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileBrowser.m; sourceTree = "<group>"; };
@@ -197,6 +197,9 @@
 		49E6482C1D01F3CA005F5059 /* Atom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Atom.cpp; path = ../m8rscript/Atom.cpp; sourceTree = "<group>"; };
 		49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformGlobal.cpp; sourceTree = "<group>"; };
 		49E729F51D2ABD6500342B83 /* PlatformGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformGlobal.h; sourceTree = "<group>"; };
+		49F166F41DA7443100C07A1A /* SimulationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SimulationView.xib; sourceTree = "<group>"; };
+		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
+		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -300,6 +303,8 @@
 				49E5AB601D9AA67000C6988D /* Engine.h */,
 				49E5AB681DA1717300C6988D /* Device.m */,
 				49E5AB6A1DA1718900C6988D /* Device.h */,
+				49E5AB501D94195F00C6988D /* Simulator.h */,
+				49E5AB511D94195F00C6988D /* Simulator.cpp */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -329,6 +334,9 @@
 		49E5AB531D981A6300C6988D /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				49F166F41DA7443100C07A1A /* SimulationView.xib */,
+				49F166F51DA7443100C07A1A /* SimulationView.m */,
+				49F166F61DA7443100C07A1A /* SimulationView.h */,
 				49562F6D1D1D7A9C001AFAEE /* Document.h */,
 				49562F6E1D1D7A9C001AFAEE /* Document.m */,
 				49D9B81E1D1C854700724911 /* Document.xib */,
@@ -336,9 +344,6 @@
 				49E5AB571D981DDB00C6988D /* FileBrowser.m */,
 				49E5AB541D981D6100C6988D /* FileBrowser.xib */,
 				49D9B8231D1C854700724911 /* MainMenu.xib */,
-				49E5AB501D94195F00C6988D /* Simulator.h */,
-				49E5AB511D94195F00C6988D /* Simulator.m */,
-				492604A91D943E8700C5DF07 /* Simulator.xib */,
 				494BA1991D20B1BF00E72725 /* NSTextView+JSDExtensions */,
 			);
 			name = UI;
@@ -540,6 +545,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */,
 				49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */,
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
 				49DD773D1D83CEA400D7C374 /* upload.png in Resources */,
@@ -549,7 +555,6 @@
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
 				49DD77491D84D94900D7C374 /* Simulate.png in Resources */,
-				492604AA1D943E8700C5DF07 /* Simulator.xib in Resources */,
 				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,
 				493C9ED81D218F100062152D /* pause.png in Resources */,
@@ -601,7 +606,8 @@
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
-				49E5AB521D94195F00C6988D /* Simulator.m in Sources */,
+				49E5AB521D94195F00C6988D /* Simulator.cpp in Sources */,
+				49F166F81DA7443100C07A1A /* SimulationView.m in Sources */,
 				49E5AB691DA1717300C6988D /* Device.m in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,

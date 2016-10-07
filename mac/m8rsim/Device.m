@@ -9,6 +9,7 @@
 #import "Device.h"
 
 #import "FastSocket.h"
+#import "Simulator.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -19,6 +20,9 @@
     NSMutableArray<NSDictionary*>* _devices;
     NSDictionary* _currentDevice;
     FileList _fileList;
+    NSFileWrapper* _files;
+
+    void* _simulator;
 }
 
 @end
@@ -35,12 +39,15 @@
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+        
+        _simulator = Simulator_new((__bridge void *) self);
      }
     return self;
 }
 
 - (void)dealloc
 {
+    Simulator_delete(_simulator);
 }
 
 static void flushToPrompt(FastSocket* socket)
@@ -125,29 +132,38 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        // load files from the device
-        NSNetService* service = _currentDevice[@"service"];
-        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
-        if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-            fileString = [fileString substringFromIndex:1];
-        }
+        if (!_currentDevice) {
+            for (NSString* name in _files.fileWrappers) {
+                NSFileWrapper* file = _files.fileWrappers[name];
+                if (file && file.regularFile) {
+                    [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+                }
+            }
+        } else {
+            // load files from the device
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
+            if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+                fileString = [fileString substringFromIndex:1];
+            }
         
-        NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
-        for (NSString* line in lines) {
-            NSArray* elements = [line componentsSeparatedByString:@":"];
-            if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
-                continue;
+            NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
+            for (NSString* line in lines) {
+                NSArray* elements = [line componentsSeparatedByString:@":"];
+                if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
+                    continue;
+                }
+            
+                NSString* name = elements[1];
+                NSString* size = elements[2];
+            
+                // Ignore . files
+                if ([name length] == 0 || [name characterAtIndex:0] == '.') {
+                    continue;
+                }
+            
+                [_fileList addObject:@{ @"name" : name, @"size" : size }];
             }
-            
-            NSString* name = elements[1];
-            NSString* size = elements[2];
-            
-            // Ignore . files
-            if ([name length] == 0 || [name characterAtIndex:0] == '.') {
-                continue;
-            }
-            
-            [_fileList addObject:@{ @"name" : name, @"size" : size }];
         }
         
         [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
@@ -164,33 +180,64 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 {
 }
 
-- (void)selectFile:(NSString*)name withBlock:(void (^)(NSString*))handler
+- (void)selectFile:(NSInteger)index withBlock:(void (^)())handler
 {
-    NSNetService* service = _currentDevice[@"service"];
-    NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-
+    NSString* name = _fileList[index][@"name"];
+    
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
-        NSString* fileContents = [self sendCommand:command fromService:service asBinary:YES withTerminator:'\04'];
+    dispatch_async(queue, ^() {        
+        if (_currentDevice) {
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
+            NSString* fileContents = [self sendCommand:command fromService:service asBinary:YES withTerminator:'\04'];
+        
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate setSource:fileContents];
+            });
+        } else {
+            NSString* content = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
+            if (content) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate setSource:content];
+                });
+            } else {
+                NSImage* image = [[NSImage alloc] initWithData:_files.fileWrappers[name].regularFileContents];
+                if (image) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.delegate setImage:image];
+                    });
+                }
+            }
+        }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-            handler(fileContents);
+            handler();
         });
     });
 }
 
-- (void)addFile:(NSFileWrapper*)fileWrapper
+- (void)addFile:(NSFileWrapper*)fileWrapper withBlock:(void (^)())handler
 {
-    NSNetService* service = _currentDevice[@"service"];
-    NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
-                                                            NSDataBase64Encoding64CharacterLineLength |
-                                                            NSDataBase64EncodingEndLineWithCarriageReturn | 
-                                                            NSDataBase64EncodingEndLineWithLineFeed];
-    NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
-    contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
-
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
-        [self sendCommand:command andString:contents fromService:service asBinary:YES];
+    dispatch_async(queue, ^() {        
+        if (_currentDevice) {
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
+                                                                    NSDataBase64Encoding64CharacterLineLength |
+                                                                    NSDataBase64EncodingEndLineWithCarriageReturn | 
+                                                                    NSDataBase64EncodingEndLineWithLineFeed];
+            NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
+            contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
+
+            [self sendCommand:command andString:contents fromService:service asBinary:YES];
+        } else {
+                    NSFileWrapper* files = self.filesFileWrapper;
+                    if (files && files.fileWrappers[toName]) {
+                        [files removeFileWrapper:files.fileWrappers[toName]];
+                    }
+                    [files addFileWrapper:file];
+                    [_document markDirty];
+        }
     });
 }
 
@@ -273,7 +320,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 - (void)netServiceDidResolveAddress:(NSNetService *)sender
 {
     NSString* hostName = [self trimTrailingDot:sender.hostName];
-    [_dataSource addDevice:hostName];
+    [_delegate addDevice:hostName];
 }
 
 - (void)netService:(NSNetService *)sender 
