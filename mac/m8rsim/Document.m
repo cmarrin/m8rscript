@@ -11,7 +11,7 @@
 #import "NSTextView+JSDExtensions.h"
 
 #import "Device.h"
-#import "Simulator.h"
+#import "SimulationView.h"
 #import "FileBrowser.h"
 
 #import <stdarg.h>
@@ -72,10 +72,10 @@
     _device = [[Device alloc]init];
     _device.delegate = self;
     
-    _simulator = [[Simulator alloc] initWithDocument:self];
-    [simContainer addSubview:_simulator.view];
+    _simulationView = [[SimulationView alloc] init];
+    [simContainer addSubview:_simulationView.view];
     NSRect superFrame = simContainer.frame;
-    [_simulator.view setFrameSize:superFrame.size];
+    [_simulationView.view setFrameSize:superFrame.size];
 
     _fileBrowser = [[FileBrowser alloc] initWithDocument:self];
     [filesContainer addSubview:_fileBrowser.view];
@@ -93,10 +93,10 @@
         return YES;
     }
     if (item == runButton) {
-        return [_simulator canRun];
+        return [_device canRun];
     }
     if (item == stopButton) {
-        return [_simulator canStop];
+        return [_device canStop];
     }
     if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
         return YES;
@@ -113,37 +113,39 @@
 //
 - (IBAction)build:(id)sender
 {
-    [_simulator build:[sourceEditor.string UTF8String] withName:[self displayName]];
+    [self clearOutput:CTBuild];
+    [_device build:[sourceEditor.string UTF8String] withName:[self displayName]];
 }
 
 - (IBAction)run:(id)sender
 {
-    [_simulator run];
+    [self clearOutput:CTConsole];
+    [_device run];
 }
 
 - (IBAction)pause:(id)sender
 {
-    [_simulator pause];
+    [_device pause];
 }
 
 - (IBAction)stop:(id)sender
 {
-    [_simulator stop];
+    [_device stop];
 }
 
 - (IBAction)simulate:(id)sender
 {
-    [_simulator simulate];
+    [_device simulate];
 }
 
-- (void)outputMessage:(NSString*) message to:(OutputType) output
+- (void)outputMessage:(NSString*) message toBuild:(BOOL) build
 {
-    if (output == CTBuild) {
+    if (build) {
         [outputView selectTabViewItemAtIndex:1];
     } else {
         [outputView selectTabViewItemAtIndex:0];
     }
-    NSTextView* view = (output == CTBuild) ? buildOutput : consoleOutput;
+    NSTextView* view = build ? buildOutput : consoleOutput;
     NSString* string = [NSString stringWithFormat: @"%@%@", view.string, message];
     [view setString:string];
     [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
@@ -156,7 +158,7 @@
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL*  url = [[panel URLs] objectAtIndex:0];
-            [_simulator importBinary:[url fileSystemRepresentation]];
+            [_device importBinary:[url fileSystemRepresentation]];
         }
     }];
 }
@@ -172,14 +174,34 @@
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
             NSURL*  url = [panel URL];
-            [_simulator exportBinary:[url fileSystemRepresentation]];
+            [_device exportBinary:[url fileSystemRepresentation]];
         }
     }];
+}
+
+- (IBAction)addFiles:(id)sender
+{
+    [_fileBrowser addFiles];
+}
+
+- (IBAction)removeFiles:(id)sender
+{
+    [_fileBrowser removeFiles];
 }
 
 - (void)markDirty
 {
     [self updateChangeCount:NSChangeDone];
+}
+
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
+{
+    [_simulationView updateGPIOState:state withMode:mode];
+}
+
+- (void)addDevice:(NSString*)name
+{
+    [_fileBrowser addDevice:name];
 }
 
 - (void)setSource:(NSString*)source
@@ -208,27 +230,34 @@
     NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
                                 _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
                                 nil;
-    [_fileBrowser setFiles: files];
+    [_device setFiles: files];
 }
 
 - (void)selectFile:(NSInteger)index
 {
-    [self setSource:@"");
+    [self setSource:@""];
     if (index < 0) {
         return;
     }
     
-    [busyIndicator setHidden:NO];
-    [busyIndicator startAnimation:nil];
-    [_device selectFile:name withBlock:^ {
-        [busyIndicator stopAnimation:nil];
-        busyIndicator.hidden = YES;
-    }];
+    [_device selectFile:index];
 }
 
 - (void)addFile:(NSFileWrapper*)file
 {
     [_device addFile:file];
+}
+
+- (void)removeFile:(NSString*)name
+{
+    [_device removeFile:name];
+}
+
+- (void)setDevice:(NSString*)name
+{
+    [_device setDevice:name];
+    [self setSource:@""];
+    [self reloadFiles];
 }
 
 //
@@ -280,7 +309,7 @@
 {
     if (!_package) {
         [self markDirty];
-        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _fileBrowser.files }];
+        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _device.files }];
         _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
         [self setFiles];
     }
@@ -294,23 +323,22 @@
 
 - (IBAction)renameDevice:(id)sender
 {
-    [_fileBrowser renameDevice];
-}
-
-- (IBAction)addFile:(id)sender {
-    [_fileBrowser addFiles];
-}
-
-- (IBAction)removeFile:(id)sender {
-    [_fileBrowser removeFiles];
+    NSString* name = [_fileBrowser getNewDeviceName];
+    if (name) {
+        [_device renameDevice:name];
+    }
 }
 
 - (IBAction)reloadFiles:(id)sender {
-    [_fileBrowser reloadFiles];
+    [self reloadFiles];
+}
+
+- (void)reloadFiles
+{
+    [_fileBrowser reloadFilesForDevice:_device];
 }
 
 - (IBAction)upload:(id)sender {
-    [_fileBrowser upload];
 }
 
 @end

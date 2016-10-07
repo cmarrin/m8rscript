@@ -14,6 +14,8 @@
 #import <netinet/in.h>
 #import <arpa/inet.h>
 
+class DeviceSystemInterface;
+
 @interface Device ()
 {
     NSNetServiceBrowser* _netServiceBrowser;
@@ -22,10 +24,37 @@
     FileList _fileList;
     NSFileWrapper* _files;
 
-    void* _simulator;
+    DeviceSystemInterface* _system;
+    Simulator* _simulator;
 }
 
+- (void)outputMessage:(NSString*)msg;
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 @end
+
+class DeviceSystemInterface : public m8r::SystemInterface
+{
+public:
+    DeviceSystemInterface(Device* device) : _device(device) { }
+    
+    virtual void printf(const char* s, ...) const override
+    {
+        va_list args;
+        va_start(args, s);
+        NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
+        [_device outputMessage:string];
+    }
+    
+    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
+    {
+        [_device updateGPIOState:state withMode:mode];
+    }
+    
+    virtual int read() const override { return -1; }
+
+private:
+    Device* _device;
+};
 
 @implementation Device
 
@@ -35,19 +64,32 @@
     if (self) {
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
+        _system = new DeviceSystemInterface(self);
+        _simulator = new Simulator(_system);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
-        
-        _simulator = Simulator_new((__bridge void *) self);
      }
     return self;
 }
 
 - (void)dealloc
 {
-    Simulator_delete(_simulator);
+    delete _simulator;
+    delete _system;
+}
+
+- (void)outputMessage:(NSString*)msg
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate outputMessage:msg toBuild:_simulator->isBuild()];
+    });
+}
+
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
+{
+    [self.delegate updateGPIOState:state withMode:mode];
 }
 
 static void flushToPrompt(FastSocket* socket)
@@ -180,7 +222,12 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 {
 }
 
-- (void)selectFile:(NSInteger)index withBlock:(void (^)())handler
+- (void)setFiles:(NSFileWrapper*)files
+{
+    _files = files;
+}
+
+- (void)selectFile:(NSInteger)index
 {
     NSString* name = _fileList[index][@"name"];
     
@@ -209,15 +256,12 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
                 }
             }
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            handler();
-        });
     });
 }
 
-- (void)addFile:(NSFileWrapper*)fileWrapper withBlock:(void (^)())handler
+- (void)addFile:(NSFileWrapper*)fileWrapper
 {
+    NSString* name = fileWrapper.preferredFilename;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {        
         if (_currentDevice) {
@@ -231,23 +275,35 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 
             [self sendCommand:command andString:contents fromService:service asBinary:YES];
         } else {
-                    NSFileWrapper* files = self.filesFileWrapper;
-                    if (files && files.fileWrappers[toName]) {
-                        [files removeFileWrapper:files.fileWrappers[toName]];
-                    }
-                    [files addFileWrapper:file];
-                    [_document markDirty];
+            if (!_files) {
+                _files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
+            }
+            if (_files.fileWrappers[name]) {
+                [_files removeFileWrapper:_files.fileWrappers[name]];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_delegate markDirty];
+            });
+            [_files addFileWrapper:fileWrapper];
         }
     });
 }
 
 - (void)removeFile:(NSString*)name
 {
-    NSNetService* service = _currentDevice[@"service"];
-    NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
-        [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
+    dispatch_async(queue, ^() {        
+        if (_currentDevice) {
+            NSNetService* service = _currentDevice[@"service"];
+            NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
+            [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
+        } else {
+            NSFileWrapper* d = _files.fileWrappers[name];
+            if (d) {
+                [_files removeFileWrapper:d];
+                [_delegate markDirty];
+            }
+        }
     });
 }
 
@@ -299,6 +355,54 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 {
 }
 
+- (BOOL)canRun
+{
+    return YES;
+}
+
+- (BOOL)canStop
+{
+    return YES;
+}
+
+- (void)build:(const char*) source withName:(NSString*) name
+{
+    _simulator->build(source, name.UTF8String);
+}
+
+- (void)run
+{
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(queue, ^() {
+        _simulator->run();
+    });
+}
+
+- (void)pause
+{
+    _simulator->pause();
+}
+
+- (void)stop
+{
+    _simulator->stop();
+}
+
+- (void)simulate
+{
+    _simulator->simulate();
+}
+
+- (void)importBinary:(const char*)filename
+{
+    _simulator->importBinary(filename);
+}
+
+- (void)exportBinary:(const char*)filename
+{
+    _simulator->exportBinary(filename);
+}
+
 // NSNetServiceBrowser delegate
 - (void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser
            didFindService:(NSNetService *)netService
@@ -327,6 +431,23 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
      didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
 {
     NSLog(@"********* Did not resolve: %@\n", errorDict);
+}
+
+int validateFileName(const char* name) {
+    switch(m8r::Application::validateFileName(name)) {
+        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
+        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
+        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
+    }
+}
+    
+int validateBonjourName(const char* name)
+{
+    switch(m8r::Application::validateBonjourName(name)) {
+        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
+        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
+        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
+    }
 }
 
 @end

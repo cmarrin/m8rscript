@@ -90,7 +90,7 @@
     if (indexes.count == 1) {
         index = fileListView.selectedRow;
     }
-    [_document selectFile:fileListView.selectedRow];
+    [_document selectFile:index];
 }
 
 - (void)addFiles
@@ -138,20 +138,10 @@
 
                 NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData dataWithContentsOfURL:url]];
                 file.preferredFilename = toName;
-
-                if (self.isFileSourceLocal) {
-                    NSFileWrapper* files = self.filesFileWrapper;
-                    if (files && files.fileWrappers[toName]) {
-                        [files removeFileWrapper:files.fileWrappers[toName]];
-                    }
-                    [files addFileWrapper:file];
-                    [_document markDirty];
-                } else {
-                    [_device addFile:file];
-                }
+                [_document addFile:file];
             }
                 
-            [self reloadFiles];
+            [_document reloadFiles];
         }
     }];
 }
@@ -179,23 +169,14 @@
         }
 
         NSUInteger i = 0;
-        for (NSDictionary* entry in self.currentFileList) {
+        for (NSDictionary* entry in _currentFileList) {
             if ([indexes containsIndex:i++]) {
-                if (self.isFileSourceLocal) {
-                    NSFileWrapper* files = self.filesFileWrapper;
-                    NSFileWrapper* d = files.fileWrappers[[entry objectForKey:@"name"]];
-                    if (d) {
-                        [_document markDirty];
-                        [files removeFileWrapper:d];
-                    }
-                } else {
-                    [_device removeFile:[entry objectForKey:@"name"]];
-                }
+                [_document removeFile:entry[@"name"]];
             }
         }
     
         [fileListView deselectAll:self];
-        [self reloadFiles];
+        [_document reloadFiles];
     }];
 }
 
@@ -214,18 +195,18 @@
 
 - (IBAction)changeFileSource:(id)sender
 {
-    [_device setDevice:[(NSPopUpButton*)sender titleOfSelectedItem]];
-    [_document setSource:@""];
     [fileListView deselectAll:self];
-    [self reloadFiles];
+    [_document setDevice:[(NSPopUpButton*)sender titleOfSelectedItem]];
 }
 
 - (IBAction)reloadDeviceList:(id)sender {
 }
 
-- (void)renameDevice
+- (NSString*)getNewDeviceName
 {
     NSAlert *alert = [[NSAlert alloc] init];
+    NSString* __block name = nil;
+    
     [alert addButtonWithTitle:@"Cancel"];
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:@"Rename device:"];
@@ -235,7 +216,7 @@
         if (returnCode == NSAlertFirstButtonReturn) {
             return;
         }
-        NSString* name = renameDeviceTextField.stringValue;
+        name = renameDeviceTextField.stringValue;
         NSString* errorString;
         int returnType = validateBonjourName(name.UTF8String);
         if (returnType == NameValidationBadLength) {
@@ -244,21 +225,16 @@
             errorString = @"device name must only contain numbers, lowercase letters and hyphen";
         }
         if (errorString) {
+            name = nil;
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
             [alert setMessageText:errorString];
             [alert setAlertStyle:NSWarningAlertStyle];
-            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-            }];
-            return;
+            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) { }];
         }
-        
-        [_device renameDevice:name];
     }];
-}
-
-- (void)upload
-{
+    
+    return name;
 }
 
 // fileListView dataSource
@@ -284,11 +260,6 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
               row:(NSInteger)rowIndex
 {
     return;
-}
-
-// Device methods
-- (void)clearDeviceList
-{
 }
 
 - (void)addDevice:(NSString*)name

@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11163.2" systemVersion="15F18c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11173.2" systemVersion="16A323" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11163.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11173.2"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
@@ -11,6 +11,7 @@
                 <outlet property="led0" destination="nzZ-cC-BFe" id="G8t-lJ-b3e"/>
                 <outlet property="led1" destination="D5t-PZ-xK3" id="S4l-Vg-fbe"/>
                 <outlet property="led2" destination="Pqy-3p-FUK" id="Fng-jt-CTZ"/>
+                <outlet property="view" destination="c22-O7-iKe" id="9LK-os-jir"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -23,36 +24,36 @@
                     <rect key="frame" x="-3" y="-4" width="256" height="504"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <view key="contentView" id="ibU-ip-AwS">
-                        <rect key="frame" x="1" y="1" width="254" height="478"/>
+                        <rect key="frame" x="1" y="1" width="254" height="475"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nzZ-cC-BFe">
-                                <rect key="frame" x="51" y="420" width="70" height="20"/>
+                                <rect key="frame" x="20" y="435" width="70" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="square" title="LED 0" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="04p-It-QY8">
                                     <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" size="12" name="Menlo-Regular"/>
                                 </buttonCell>
                             </button>
                             <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="D5t-PZ-xK3">
-                                <rect key="frame" x="51" y="390" width="70" height="20"/>
+                                <rect key="frame" x="20" y="405" width="70" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="square" title="LED 1" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="fOh-Kk-gpN">
                                     <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" size="12" name="Menlo-Regular"/>
                                 </buttonCell>
                             </button>
                             <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pqy-3p-FUK">
-                                <rect key="frame" x="51" y="360" width="70" height="20"/>
+                                <rect key="frame" x="20" y="375" width="70" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="square" title="LED 2" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="left" alignment="left" alternateImage="green-led-on-md" focusRingType="none" imageScaling="proportionallyUpOrDown" inset="2" id="GYw-q9-GMb" userLabel="LED 2">
                                     <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="smallSystem"/>
+                                    <font key="font" size="12" name="Menlo-Regular"/>
                                 </buttonCell>
                             </button>
                         </subviews>
                     </view>
-                    <font key="titleFont" size="18" name="BankGothic-Medium"/>
+                    <font key="titleFont" size="18" name="Menlo-Regular"/>
                 </box>
             </subviews>
             <point key="canvasLocation" x="87" y="106"/>

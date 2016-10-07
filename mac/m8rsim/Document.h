@@ -14,13 +14,14 @@
 
 typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
-- (void)outputMessage:(NSString*) message to:(OutputType) output;
-- (void)markDirty;
 
 - (void)setSource:(NSString*)source;
 - (void)setImage:(NSImage*)image;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)file;
+- (void)removeFile:(NSString*)name;
+- (void)reloadFiles;
+- (void)setDevice:(NSString*)name;
 
 @end
 

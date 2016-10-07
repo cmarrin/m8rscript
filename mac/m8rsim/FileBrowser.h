@@ -13,18 +13,15 @@
 
 @interface FileBrowser : NSViewController
 
-@property (readonly, strong) NSFileWrapper* files;
-
 - (instancetype)initWithDocument:(Document*) document;
 
-- (void)renameDevice;
-- (void)upload;
 - (void)addFiles;
 - (void)removeFiles;
-- (void)setFiles:(NSFileWrapper*)files;
 - (BOOL)isFileSourceLocal;
 
 - (void)reloadFilesForDevice:(Device*)device;
+- (NSString*)getNewDeviceName;
+- (void)addDevice:(NSString*)name;
 
 @end
 

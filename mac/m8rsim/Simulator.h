@@ -8,34 +8,47 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern void* Simulator_new(void* device);
-extern void Simulator_delete(void*);
+#include "Application.h"
+#include "ExecutionUnit.h"
+#include "Shell.h"
+#include "SystemInterface.h"
 
-//extern void Engine_importBinary(void*, const char* filename);
-//extern void Engine_exportBinary(void*, const char* filename);
-//
-//extern void Engine_build(void*, const char* source, const char* name);
-//extern void Engine_run(void*);
-//extern void Engine_pause(void*);
-//extern void Engine_stop(void*);
-//extern void Engine_simulate(void*);
-//
-//extern bool Engine_canRun(void*);
-//extern bool Engine_canStop(void*);
-//
-//extern void Simulator_vprintf(void* simulator, const char*, va_list, bool isBuild);
-//extern void Simulator_updateGPIOState(void* simulator, uint16_t mode, uint16_t state);
-//
-//#define NameValidationOk 0
-//#define NameValidationBadLength 1
-//#define NameValidationInvalidChar 2
-//
-//extern int validateFileName(const char*);
-//extern int validateBonjourName(const char*);
+class Simulator : public m8r::ShellOutput
+{
+public:
+    Simulator(m8r::SystemInterface* system)
+        : _system(system)
+        , _isBuild(true)
+        , _eu(_system)
+        , _shell(this)
+    { }
+    
+    ~Simulator() { }
+    
+    void importBinary(const char* filename);
+    void exportBinary(const char* filename);
+    void build(const char* source, const char* name);
+    void run();
+    void pause();
+    void stop();
+    void simulate();
+    bool isBuild() const { return _isBuild; }
 
-#ifdef __cplusplus
-}
-#endif
+    bool canRun() { return _program && !_running; }
+    bool canStop() { return _program && _running; }
+
+    // ShellOutput
+    virtual void shellSend(const char* data, uint16_t size = 0) override
+    {
+    }
+
+private:
+    m8r::SystemInterface* _system;
+    bool _isBuild;
+    m8r::ExecutionUnit _eu;
+    m8r::Program* _program;
+    m8r::Application* _application;
+    bool _running = false;
+    m8r::Shell _shell;
+};
+

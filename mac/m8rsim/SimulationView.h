@@ -12,5 +12,7 @@
 
 @interface SimulationView : NSViewController
 
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
+
 @end
 

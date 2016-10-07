@@ -8,14 +8,29 @@
 
 #import <Cocoa/Cocoa.h>
 
+#define NameValidationOk 0
+#define NameValidationBadLength 1
+#define NameValidationInvalidChar 2
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int validateFileName(const char*);
+int validateBonjourName(const char*);
+#ifdef __cplusplus
+}
+#endif
+
 typedef NSMutableArray<NSDictionary*>* FileList;
 
 @protocol DeviceDelegate
 
-- (void)clearDeviceList;
 - (void)addDevice:(NSString*)name;
 - (void)setSource:(NSString*)source;
 - (void)setImage:(NSImage*)image;
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
+- (void)outputMessage:(NSString*) message toBuild:(BOOL) build;
+- (void)markDirty;
 
 @end
 
@@ -23,15 +38,28 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 
 @property (weak) id <DeviceDelegate> delegate;
 @property (readonly) NSDictionary* currentDevice;
+@property (readonly, strong) NSFileWrapper* files;
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler;
 - (NSDictionary*) findService:(NSString*)hostname;
-- (void)setDevice:(NSString*)device;
 - (void)renameDevice:(NSString*)name;
-- (void)removeFile:(NSString*)name;
 
-- (void)selectFile:(NSInteger)index withBlock:(void (^)())handler;
-- (void)addFile:(NSFileWrapper*)fileWrapper withBlock:(void (^)())handler;
+- (void)setFiles:(NSFileWrapper*)files;
+- (void)selectFile:(NSInteger)index;
+- (void)addFile:(NSFileWrapper*)fileWrapper;
+- (void)removeFile:(NSString*)name;
+- (void)setDevice:(NSString*)device;
+- (BOOL)canRun;
+- (BOOL)canStop;
+
+- (void)importBinary:(const char*)filename;
+- (void)exportBinary:(const char*)filename;
+- (void)build:(const char*) source withName:(NSString*) name;
+- (void)run;
+- (void)pause;
+- (void)stop;
+- (void)simulate;
+
 
 @end
 

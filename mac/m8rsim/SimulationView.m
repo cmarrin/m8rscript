@@ -8,9 +8,6 @@
 
 #import "SimulationView.h"
 
-#import "Document.h"
-#import "Engine.h"
-
 @interface SimulationView ()
 {
     __weak IBOutlet NSButton *led0;
@@ -18,13 +15,11 @@
     __weak IBOutlet NSButton *led2;
 }
 
-- (void)updateLEDs:(uint16_t) state;
-
 @end
 
 @implementation SimulationView
 
-- (void)updateLEDs:(uint16_t) state
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
 {
     [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
     [led0 setNeedsDisplay:YES];
