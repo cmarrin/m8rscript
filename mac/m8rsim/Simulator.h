@@ -56,13 +56,15 @@ public:
         }
         memcpy(data, _receivedString.c_str(), size);
         _receivedString = _receivedString.slice(static_cast<int32_t>(size));
-        uint32_t actualSize = std::min(static_cast<size_t>(size), _receivedString.size());
         return size;
     }
 
     // ShellOutput
     virtual void shellSend(const char* data, uint16_t size = 0) override
     {
+        if (!size) {
+            size = strlen(data);
+        }
         _receivedString += m8r::String(data, size);
     }
 

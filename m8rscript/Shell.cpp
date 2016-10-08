@@ -47,6 +47,21 @@ void Shell::connected()
     sendComplete();
 }
 
+void Shell::init()
+{
+    if (_directoryEntry) {
+        delete _directoryEntry;
+        _directoryEntry = nullptr;
+    }
+    _state = State::Init;
+    _binary = false;
+    if (_file) {
+        delete _file;
+        _file = nullptr;
+    }
+    sendComplete();
+}
+
 bool Shell::received(const char* data, uint16_t size)
 {
     if (_state == State::PutFile) {

@@ -179,39 +179,29 @@ private:
     
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-//        if (!_currentDevice) {
-//            for (NSString* name in _files.fileWrappers) {
-//                NSFileWrapper* file = _files.fileWrappers[name];
-//                if (file && file.regularFile) {
-//                    [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
-//                }
-//            }
-//        } else {
-            // load files from the device
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
-            if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-                fileString = [fileString substringFromIndex:1];
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
+        if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+            fileString = [fileString substringFromIndex:1];
+        }
+    
+        NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
+        for (NSString* line in lines) {
+            NSArray* elements = [line componentsSeparatedByString:@":"];
+            if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
+                continue;
             }
         
-            NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
-            for (NSString* line in lines) {
-                NSArray* elements = [line componentsSeparatedByString:@":"];
-                if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
-                    continue;
-                }
-            
-                NSString* name = elements[1];
-                NSString* size = elements[2];
-            
-                // Ignore . files
-                if ([name length] == 0 || [name characterAtIndex:0] == '.') {
-                    continue;
-                }
-            
-                [_fileList addObject:@{ @"name" : name, @"size" : size }];
+            NSString* name = elements[1];
+            NSString* size = elements[2];
+        
+            // Ignore . files
+            if ([name length] == 0 || [name characterAtIndex:0] == '.') {
+                continue;
             }
-//        }
+        
+            [_fileList addObject:@{ @"name" : name, @"size" : size }];
+        }
         
         [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
             return [a[@"name"] compare:b[@"name"]];
