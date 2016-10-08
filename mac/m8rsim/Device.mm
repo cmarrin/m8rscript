@@ -92,24 +92,24 @@ private:
     [self.delegate updateGPIOState:state withMode:mode];
 }
 
-static void flushToPrompt(FastSocket* socket)
+- (void)flushToPrompt:(FastSocket*) socket
 {
     while(1) {
         char c;
-        long count = [socket receiveBytes:&c count:1];
+        long count = socket ? [socket receiveBytes:&c count:1] : _simulator->receiveFromShell(&c, 1);
         if (count != 1 || c == '>') {
             break;
         }
     }
 }
 
-static NSString* receiveToTerminator(FastSocket* socket, char terminator)
+- (NSString*) receiveFrom:(FastSocket*) socket toTerminator:(char) terminator
 {
     NSMutableString* s = [NSMutableString string];
     char c[2];
     c[1] = '\0';
     while(1) {
-        long count = [socket receiveBytes:c count:1];
+        long count = socket ? [socket receiveBytes:c count:1] : _simulator->receiveFromShell(&c, 1);
         if (count != 1 || c[0] == terminator) {
             break;
         }
@@ -120,28 +120,39 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 
 - (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary
 {
-    if (service.addresses.count == 0) {
-        return nil;
-    }
-    NSData* address = [service.addresses objectAtIndex:0];
-    struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-    NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+    FastSocket* socket = nullptr;
     
-    NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
-    FastSocket* socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-    [socket connect];
-    [socket setTimeout:5];
-    flushToPrompt(socket);
+    if (!service) {
+        _simulator->initShell();
+    } else {
+        if (service.addresses.count == 0) {
+            return nil;
+        }
+        NSData* address = [service.addresses objectAtIndex:0];
+        struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
+        NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+    
+        NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
+        socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
+        [socket connect];
+        [socket setTimeout:5];
+    }
+    
+    [self flushToPrompt:socket];
     
     if (binary) {
         // Set to binary mode
-        [socket sendBytes:(const void*)@"b\r\n" count:3];
+        if (socket) {
+            [socket sendBytes:(const void*)@"b\r\n" count:3];
+        } else {
+            _simulator->sendToShell("b\r\n", 3);
+        }
         [NSThread sleepForTimeInterval:1];
-        flushToPrompt(socket);
+        [self flushToPrompt:socket];
     }
     
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
+    long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
     return socket;
 }
@@ -149,22 +160,16 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
 - (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service asBinary:(BOOL)binary
 {
     FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
-    if (!socket) {
-        return;
-    }
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
+    long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
-    flushToPrompt(socket);
+    [self flushToPrompt:socket];
 }
 
 - (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary withTerminator:(char)terminator
 {
     FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
-    if (!socket) {
-        return nil;
-    }
-    NSString* s = receiveToTerminator(socket, terminator);
+    NSString* s = [self receiveFrom:socket toTerminator:terminator];
     return s;
 }
 
@@ -174,14 +179,14 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
     
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(queue, ^() {
-        if (!_currentDevice) {
-            for (NSString* name in _files.fileWrappers) {
-                NSFileWrapper* file = _files.fileWrappers[name];
-                if (file && file.regularFile) {
-                    [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
-                }
-            }
-        } else {
+//        if (!_currentDevice) {
+//            for (NSString* name in _files.fileWrappers) {
+//                NSFileWrapper* file = _files.fileWrappers[name];
+//                if (file && file.regularFile) {
+//                    [_fileList addObject:@{ @"name" : name, @"size" : @(_files.fileWrappers[name].regularFileContents.length) }];
+//                }
+//            }
+//        } else {
             // load files from the device
             NSNetService* service = _currentDevice[@"service"];
             NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
@@ -206,7 +211,7 @@ static NSString* receiveToTerminator(FastSocket* socket, char terminator)
             
                 [_fileList addObject:@{ @"name" : name, @"size" : size }];
             }
-        }
+//        }
         
         [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
             return [a[@"name"] compare:b[@"name"]];

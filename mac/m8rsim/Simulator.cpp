@@ -116,4 +116,3 @@ void Simulator::simulate()
     _program = _application->program();
     run();
 }
-

@@ -77,6 +77,23 @@ public:
     void disconnected() { }
     bool received(const char* data, uint16_t size);
     void sendComplete();
+    
+    void init()
+    {
+        if (_directoryEntry) {
+            delete _directoryEntry;
+            _directoryEntry = nullptr;
+        }
+        _state = State::Init;
+        _binary = false;
+        if (_file) {
+            delete _file;
+            _file = nullptr;
+        }
+    }
+    
+    long send(const void* data, long size);
+    long receive(void* data, long size);
         
 private:
     bool executeCommand(const std::vector<m8r::String>& array);

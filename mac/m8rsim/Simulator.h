@@ -36,10 +36,34 @@ public:
 
     bool canRun() { return _program && !_running; }
     bool canStop() { return _program && _running; }
+    
+    void initShell() { _shell.init(); }
+    long sendToShell(const void* data, long size)
+    {
+        if (_shell.received(reinterpret_cast<const char*>(data), static_cast<uint16_t>(size))) {
+            return size;
+        }
+        return 0;
+    }
+    long receiveFromShell(void* data, long size)
+    {
+        if (_receivedString.empty()) {
+            return 0;
+        }
+        if (size >_receivedString.size()) {
+            strcpy(reinterpret_cast<char*>(data), _receivedString.c_str());
+            return _receivedString.size() + 1;
+        }
+        memcpy(data, _receivedString.c_str(), size);
+        _receivedString = _receivedString.slice(static_cast<int32_t>(size));
+        uint32_t actualSize = std::min(static_cast<size_t>(size), _receivedString.size());
+        return size;
+    }
 
     // ShellOutput
     virtual void shellSend(const char* data, uint16_t size = 0) override
     {
+        _receivedString += m8r::String(data, size);
     }
 
 private:
@@ -50,5 +74,6 @@ private:
     m8r::Application* _application;
     bool _running = false;
     m8r::Shell _shell;
+    m8r::String _receivedString;
 };
 
