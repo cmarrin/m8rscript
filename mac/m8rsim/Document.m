@@ -37,6 +37,7 @@
     
     NSString* _source;
     NSFont* _font;
+    NSString* _sourceFilename;
     
     Device* _device;
     SimulationView* _simulationView;
@@ -44,6 +45,7 @@
     
     NSFileWrapper* _package;
     NSFileWrapper* _files;
+    
 }
 
 @end
@@ -54,7 +56,7 @@
     self = [super init];
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-        _source = @"";
+        [self setSource:@"" withName:@""];
     }
     return self;
 }
@@ -114,7 +116,7 @@
 - (IBAction)build:(id)sender
 {
     [self clearOutput:CTBuild];
-    [_device build:[sourceEditor.string UTF8String] withName:[self displayName]];
+    [_device build:[sourceEditor.string UTF8String] withName:_sourceFilename];
 }
 
 - (IBAction)run:(id)sender
@@ -204,9 +206,10 @@
     [_fileBrowser addDevice:name];
 }
 
-- (void)setSource:(NSString*)source
+- (void)setSource:(NSString*)source withName:(NSString*)name
 {
     _source = source;
+    _sourceFilename = name;
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
@@ -231,11 +234,12 @@
                                 _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
                                 nil;
     [_device setFiles: files];
+    [self reloadFiles];
 }
 
 - (void)selectFile:(NSInteger)index
 {
-    [self setSource:@""];
+    [self setSource:@"" withName:@""];
     if (index < 0) {
         return;
     }
@@ -256,7 +260,7 @@
 - (void)setDevice:(NSString*)name
 {
     [_device setDevice:name];
-    [self setSource:@""];
+    [self setSource:@"" withName:@""];
     [self reloadFiles];
 }
 
@@ -285,15 +289,6 @@
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"Document";
-}
-
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
-    return [sourceEditor.string dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    [self setSource:[NSString stringWithUTF8String:(const char*)[data bytes]]];
-    return YES;
 }
 
 - (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper

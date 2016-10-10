@@ -40,6 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdio>
 #include <dirent.h>
 
+@class NSFileWrapper;
+
 namespace m8r {
 
 class MacDirectoryEntry : public DirectoryEntry {
@@ -53,7 +55,7 @@ public:
 private:
     MacDirectoryEntry();
     
-    DIR* _dir;
+    int32_t _index;
 };
 
 class MacFile : public File {
@@ -72,18 +74,21 @@ public:
 private:
     MacFile(const char* name, const char* mode);
 
-    FILE* _file = nullptr;
+    NSFileWrapper* _file = NULL;
+    bool _readable = true;
+    bool _writable = true;
+    size_t _offset = 0;
 };
 
 class MacFS : public FS {
     friend class MacDirectoryEntry;
     friend class MacFile;
     
-public:
-    static void setFileSystemPath(const char* path);
-    
+public:    
     MacFS();
     virtual ~MacFS();
+    
+    static void setFiles(NSFileWrapper* files) { _files = files; }
     
     virtual DirectoryEntry* directory() override;
     virtual bool mount() override;
@@ -95,8 +100,7 @@ public:
     virtual bool remove(const char* name) override;
 
 private:
-    static FS* _sharedFS;
-    static char* _basePath;
+    static NSFileWrapper* _files;
 };
 
 }

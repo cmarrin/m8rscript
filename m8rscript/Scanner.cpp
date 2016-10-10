@@ -317,7 +317,7 @@ Token Scanner::scanSpecial()
 Token Scanner::scanIdentifier()
 {
 	uint8_t c;
-	_tokenString.erase();
+	_tokenString.clear();
 
 	bool first = true;
 	while ((c = get()) != C_EOF) {
@@ -532,7 +532,7 @@ Token Scanner::getToken(TokenType& tokenValue)
 				if ((token = scanIdentifier()) != Token::EndOfFile) {
                     if (token == Token::Identifier) {
                         tokenValue.atom = _parser->atomizeString(_tokenString.c_str());
-                        _tokenString.erase();
+                        _tokenString.clear();
                     }
 					break;
 				}

@@ -54,7 +54,7 @@ void Shell::init()
         _directoryEntry = nullptr;
     }
     _state = State::Init;
-    _binary = false;
+    _binary = true;
     if (_file) {
         delete _file;
         _file = nullptr;
@@ -74,25 +74,39 @@ bool Shell::received(const char* data, uint16_t size)
         }
 
         if (_binary) {
-            // If incoming buffer is too large, error
-            if (size > BufferSize) {
-                showError(ErrorCode::BinaryPutTooLarge);
-            }
+            // Process line by line
+            const char* p = data;
+            uint16_t remainingSize = size;
+            
+            while (1) {
+                const char* next = reinterpret_cast<const char*>(memchr(p, '\n', remainingSize));
+                size_t lineSize = next ? (next - p + 1) : remainingSize;
+            
+                // If line is too large, error
+                if (lineSize > BufferSize) {
+                    showError(ErrorCode::BinaryPutTooLarge);
+                }
 
-            int length = base64_decode(size, data, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
-            if (length < 0) {
-                delete _file;
-                _file = nullptr;
-                showError(ErrorCode::BinaryDecodeFailed);
-                return false;
+                int length = base64_decode(lineSize, p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
+                if (length < 0) {
+                    delete _file;
+                    _file = nullptr;
+                    showError(ErrorCode::BinaryDecodeFailed);
+                    return false;
+                }
+                _file->write(_buffer, length);
+                if (!next) {
+                    break;
+                }
+                p += lineSize;
+                remainingSize -= lineSize;
             }
-            _file->write(_buffer, length);
         } else {
             _file->write(data, size);
         }
         return true;
     }
-    std::vector<m8r::String> array = m8r::String(data).trim().split(" ", true);
+    std::vector<m8r::String> array = m8r::String(data, size).trim().split(" ", true);
     return executeCommand(array);
 }
 
@@ -100,12 +114,12 @@ void Shell::sendComplete()
 {
     switch(_state) {
         case State::Init:
-            sendString(ROMSTR("\nWelcome to m8rscript\n"));
             _state = State::NeedPrompt;
+            sendString(ROMSTR("\nWelcome to m8rscript\n"));
             break;
         case State::NeedPrompt:
-            _output->shellSend("\n>");
             _state = State::ShowingPrompt;
+            _output->shellSend("\n>");
             break;
         case State::ShowingPrompt:
             break;

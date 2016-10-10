@@ -1,5 +1,5 @@
 //
-//  Device.m
+//  Device.mm
 //  m8rsim
 //
 //  Created by Chris Marrin on 6/24/16.
@@ -9,6 +9,7 @@
 #import "Device.h"
 
 #import "FastSocket.h"
+#import "MacFS.h"
 #import "Simulator.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
@@ -26,6 +27,9 @@ class DeviceSystemInterface;
 
     DeviceSystemInterface* _system;
     Simulator* _simulator;
+    
+    dispatch_queue_t _serialQueue;
+
 }
 
 - (void)outputMessage:(NSString*)msg;
@@ -64,8 +68,13 @@ private:
     if (self) {
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
+        [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
+
         _system = new DeviceSystemInterface(self);
         _simulator = new Simulator(_system);
+        
+        _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
+
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
@@ -118,7 +127,7 @@ private:
     return s;
 }
 
-- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary
+- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
 {
     FastSocket* socket = nullptr;
     
@@ -140,35 +149,24 @@ private:
     
     [self flushToPrompt:socket];
     
-    if (binary) {
-        // Set to binary mode
-        if (socket) {
-            [socket sendBytes:(const void*)@"b\r\n" count:3];
-        } else {
-            _simulator->sendToShell("b\r\n", 3);
-        }
-        [NSThread sleepForTimeInterval:1];
-        [self flushToPrompt:socket];
-    }
-    
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
     long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
     return socket;
 }
 
-- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service asBinary:(BOOL)binary
+- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service
 {
-    FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
+    FastSocket* socket = [self sendCommand:command fromService:service];
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
     long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
     [self flushToPrompt:socket];
 }
 
-- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service asBinary:(BOOL)binary withTerminator:(char)terminator
+- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
 {
-    FastSocket* socket = [self sendCommand:command fromService:service asBinary:binary];
+    FastSocket* socket = [self sendCommand:command fromService:service];
     NSString* s = [self receiveFrom:socket toTerminator:terminator];
     return s;
 }
@@ -177,10 +175,9 @@ private:
 {
     [_fileList removeAllObjects];
     
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
+    dispatch_async(_serialQueue, ^() {
         NSNetService* service = _currentDevice[@"service"];
-        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service asBinary:YES withTerminator:'>'];
+        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
         if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
             fileString = [fileString substringFromIndex:1];
         }
@@ -220,85 +217,55 @@ private:
 - (void)setFiles:(NSFileWrapper*)files
 {
     _files = files;
+    m8r::MacFS::setFiles(_files);
 }
 
 - (void)selectFile:(NSInteger)index
 {
     NSString* name = _fileList[index][@"name"];
     
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {        
-        if (_currentDevice) {
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-            NSString* fileContents = [self sendCommand:command fromService:service asBinary:YES withTerminator:'\04'];
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
+        NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
         
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate setSource:fileContents];
-            });
-        } else {
-            NSString* content = [[NSString alloc] initWithData:_files.fileWrappers[name].regularFileContents encoding:NSUTF8StringEncoding];
-            if (content) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate setSource:content];
-                });
-            } else {
-                NSImage* image = [[NSImage alloc] initWithData:_files.fileWrappers[name].regularFileContents];
-                if (image) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate setImage:image];
-                    });
-                }
-            }
-        }
+        NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        fileContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate setSource:fileContents withName:name];
+        });
     });
 }
 
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
-    NSString* name = fileWrapper.preferredFilename;
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {        
-        if (_currentDevice) {
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
-                                                                    NSDataBase64Encoding64CharacterLineLength |
-                                                                    NSDataBase64EncodingEndLineWithCarriageReturn | 
-                                                                    NSDataBase64EncodingEndLineWithLineFeed];
-            NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
-            contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
+                                                                NSDataBase64Encoding64CharacterLineLength |
+                                                                NSDataBase64EncodingEndLineWithCarriageReturn | 
+                                                                NSDataBase64EncodingEndLineWithLineFeed];
+        NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
+        contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
 
-            [self sendCommand:command andString:contents fromService:service asBinary:YES];
-        } else {
-            if (!_files) {
-                _files = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
-            }
-            if (_files.fileWrappers[name]) {
-                [_files removeFileWrapper:_files.fileWrappers[name]];
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [_delegate markDirty];
-            });
-            [_files addFileWrapper:fileWrapper];
-        }
+        [self sendCommand:command andString:contents fromService:service];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_delegate markDirty];
+        });
     });
 }
 
 - (void)removeFile:(NSString*)name
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {        
-        if (_currentDevice) {
-            NSNetService* service = _currentDevice[@"service"];
-            NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
-            [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
-        } else {
-            NSFileWrapper* d = _files.fileWrappers[name];
-            if (d) {
-                [_files removeFileWrapper:d];
-                [_delegate markDirty];
-            }
-        }
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_delegate markDirty];
+        });
     });
 }
 
@@ -336,12 +303,11 @@ private:
 
 - (void)renameDevice:(NSString*)name
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
+    dispatch_async(_serialQueue, ^() {
         NSNetService* service = _currentDevice[@"service"];
         NSString* command = [NSString stringWithFormat:@"dev %@\r\n", name];
         
-        NSString* s = [self sendCommand:command fromService:service asBinary:NO withTerminator:'>'];
+        NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
         NSLog(@"renameDevice returned '%@'", s);
     });
 }
@@ -367,8 +333,7 @@ private:
 
 - (void)run
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(queue, ^() {
+    dispatch_async(_serialQueue, ^() {
         _simulator->run();
     });
 }

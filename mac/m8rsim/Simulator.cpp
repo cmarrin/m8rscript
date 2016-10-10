@@ -116,3 +116,28 @@ void Simulator::simulate()
     _program = _application->program();
     run();
 }
+
+long Simulator::sendToShell(const void* data, long size)
+{
+    if (_shell.received(reinterpret_cast<const char*>(data), static_cast<uint16_t>(size))) {
+        return size;
+    }
+    return 0;
+}
+long Simulator::receiveFromShell(void* data, long size)
+{
+    if (_receivedString.empty()) {
+        return 0;
+    }
+    if (size >_receivedString.size()) {
+        strcpy(reinterpret_cast<char*>(data), _receivedString.c_str());
+        _receivedString.clear();
+        _shell.sendComplete();
+        return _receivedString.size() + 1;
+    }
+    memcpy(data, _receivedString.c_str(), size);
+    _receivedString.erase(0, size);
+    _shell.sendComplete();
+    return size;
+}
+

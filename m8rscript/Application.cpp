@@ -48,7 +48,7 @@ Application::Application(SystemInterface* system)
     String name = "main";
     FileStream mainstream(name.c_str());
     if (mainstream.loaded()) {
-        name.erase();
+        name.clear();
         while (!mainstream.eof()) {
             int c = mainstream.read();
             if (c < 0) { 

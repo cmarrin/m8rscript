@@ -15,7 +15,6 @@
 typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)clearOutput:(OutputType)output;
 
-- (void)setSource:(NSString*)source;
 - (void)setImage:(NSImage*)image;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)file;

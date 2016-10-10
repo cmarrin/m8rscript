@@ -26,7 +26,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 @protocol DeviceDelegate
 
 - (void)addDevice:(NSString*)name;
-- (void)setSource:(NSString*)source;
+- (void)setSource:(NSString*)source withName:(NSString*)name;
 - (void)setImage:(NSImage*)image;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build;

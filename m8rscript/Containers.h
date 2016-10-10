@@ -153,6 +153,7 @@ public:
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
 	size_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
+    void clear() { _size = 1; if (_data) _data[0] = '\0'; }
 	String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
@@ -181,12 +182,22 @@ public:
     bool operator!=(const String& other) const { return strcmp(c_str(), other.c_str()) != 0; }
 
     const char* c_str() const { return _data ? _data : ""; }
-    void erase()
+    String& erase(size_t pos, size_t len)
     {
-        _size = 1;
-        if (_data) {
-            _data[0] = '\0';
+        if (pos >= _size - 1) {
+            return *this;
         }
+        if (pos + len >= _size) {
+            len = _size - pos - 1;
+        }
+        memmove(_data + pos, _data + pos + len, _size - pos - len);
+        _size -= len;
+        return *this;
+    }
+
+    String& erase(size_t pos = 0)
+    {
+        return erase(pos, _size - pos);
     }
     
     String slice(int32_t start, int32_t end) const
