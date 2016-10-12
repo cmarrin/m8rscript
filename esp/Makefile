@@ -1,5 +1,5 @@
 #====================================================================================
-# makeESPArduino
+# rawMakefile.mk
 #
 # A makefile for ESP8286 Arduino projects.
 # Edit the contents of this file to suit your project
@@ -21,8 +21,10 @@ DEBUG_FLAGS = -Os
 #DEBUG_FLAGS = -Og -g
 
 #=== Project specific definitions
-MAIN_SRC ?= ../m8rscript/m8rscript.cpp
-SRC ?= ../m8rscript/Array.cpp \
+MAIN_NAME = m8rscript
+
+SRC ?=  ../m8rscript/Application.cpp \
+        ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Error.cpp \
 		../m8rscript/ExecutionUnit.cpp \
@@ -33,24 +35,36 @@ SRC ?= ../m8rscript/Array.cpp \
 		../m8rscript/Parser.cpp \
 		../m8rscript/Program.cpp \
 		../m8rscript/Scanner.cpp \
+		../m8rscript/Shell.cpp \
 		../m8rscript/Value.cpp \
 		../m8rscript/base64.cpp \
 		app/PlatformGlobal.cpp \
         ../m8rscript/main.cpp
 
-# Esp8266 Arduino git location
+# Esp8266 location
 ESP_ROOT ?= $(HOME)/esp8266
+TOOLS_ROOT ?= $(ESP_ROOT)/tools
+SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
+#SDK_ROOT = $(TOOLS_ROOT)/sdk
+
+FLASH_LAYOUT ?= eagle.flash.4m.ld
+ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
+
+#ESP_ROOT ?= $(HOME)/esp-open-sdk
+#FLASH_LAYOUT ?= eagle.app.v6.ld 
+#ESP_TOOL ?= PATH=$(TOOLS_BIN):$(PATH) && $(TOOLS_BIN)/esptool.py
+
 # Output directory
-BUILD_ROOT ?= /tmp/$(MAIN_NAME)
+BUILD_BASE	= build
+FW_BASE		= firmware
 
 # Board definitions
 FLASH_SIZE ?= 4M
 FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
-FLASH_LAYOUT ?= eagle.flash.4m.ld
 
 # Upload parameters
-UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 115200
 UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
@@ -67,19 +81,17 @@ MKESPARD_VERSION = 1.0.0
 
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
-MAIN_NAME = $(basename $(notdir $(MAIN_SRC)))
-MAIN_EXE = $(BUILD_ROOT)/$(MAIN_NAME).bin
+MAIN_EXE = $(BUILD_BASE)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
-SRC_GIT_VERSION = $(call git_description,$(dir $(MAIN_SRC)))
+SRC_GIT_VERSION = $(call git_description,$(dir .))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
-TOOLS_ROOT = $(ESP_ROOT)/tools
+
 TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
-SDK_ROOT = $(ESP_ROOT)/tools/sdk
 
 # Directory for intermedite build files
-OBJ_DIR = $(BUILD_ROOT)/obj
+OBJ_DIR = $(BUILD_BASE)/obj
 OBJ_EXT = .o
 DEP_EXT = .d
 
@@ -88,41 +100,46 @@ CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
 CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
-ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
-OTA_TOOL = $(TOOLS_ROOT)/espota.py
 
-LIBS = c gcc hal pp phy net80211 lwip wpa main hal
+FW_FILE_1_ADDR	= 0x00000
+FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
+FW_FILE_2_ADDR	= 0x40000
+FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
+
+LIBS = main net80211 wpa pp phy crypto smartconfig lwip gcc
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(SDK_ROOT)/lwip/include $(CORE_DIR) $(ESP_ROOT)/variants/generic $(OBJ_DIR)
+INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
-S_FLAGS ?= -c -g -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
-# LD_STD_LIBS = $(LIBS) -lm -lsmartconfig -lwps -lcrypto -laxtls
-# LD_STD_LIBS = $(LIBS)
+S_FLAGS ?= -c -x assembler-with-cpp -MMD
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections
 
-LD_STD_LIBS = -lgcc -lhal -lphy -lnet80211 -llwip -lwpa -lmain -lpp -lsmartconfig -lwps -lcrypto -laxtls
+LD_STD_LIBS = -nostdlib -Wl,--start-group $(LIBS) -Wl,--end-group -lgcc
 
 # Core source files
-#CORE_DIR = ./core
-CORE_DIR = $(ESP_ROOT)/cores/esp8266
+CORE_DIR = ./core
 CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
+# Spiffs source files
+SPIFFS_DIR = ./spiffs/src
+SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
+SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
+
 # User defined compilation units
-USER_SRC = $(MAIN_SRC) $(SRC)
+USER_SRC = $(SRC)
 
 # Object file suffix seems to be significant for the linker...
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(shell find $(CORE_DIR) -type d) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(USER_DIRS)
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -152,7 +169,7 @@ $(OBJ_DIR)/%.cpp$(OBJ_EXT): %.cpp $(BUILD_INFO_H)
 
 $(OBJ_DIR)/%.cpp$(OBJ_EXT): %.ino $(BUILD_INFO_H)
 	echo  $(<F)
-	$(CPP) -x c++ -include $(CORE_DIR)/Arduino.h $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $< -o $@
+	$(CPP) -x c++ -include $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $< -o $@
 
 $(OBJ_DIR)/%.c$(OBJ_EXT): %.c
 	echo  $(<F)
@@ -162,7 +179,7 @@ $(OBJ_DIR)/%.S$(OBJ_EXT): %.S
 	echo  $(<F)
 	$(CC) $(C_DEFINES) $(C_INCLUDES) $(S_FLAGS) $< -o $@
 
-$(CORE_LIB): $(CORE_OBJ)
+$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ)
 	echo  Creating core archive
 	rm -f $@
 	$(AR) cru $@  $^
@@ -170,7 +187,10 @@ $(CORE_LIB): $(CORE_OBJ)
 BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
-$(MAIN_EXE): $(CORE_LIB) $(USER_OBJ)
+$(FW_BASE)/%.bin: $(MAIN_ELF) | $(FW_BASE)
+	$(ESP_TOOL) elf2image -o $(FW_BASE)/ $(MAIN_ELF)
+
+$(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
 	echo "  Versions: $(SRC_GIT_VERSION), $(ESP_GIT_VERSION)"
 	echo 	'#include <buildinfo.h>' >$(BUILD_INFO_CPP)
@@ -184,7 +204,7 @@ $(MAIN_EXE): $(CORE_LIB) $(USER_OBJ)
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
-	
+    
 term:
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
 
@@ -199,7 +219,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 .PHONY: all
-all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE)
+all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(MAIN_ELF)
 
 
 # Include all available dependencies
