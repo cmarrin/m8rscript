@@ -76,6 +76,7 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
   {
     rest = fromaddr & blkmask;
     temp = fromaddr & ~blkmask; // this is the actual aligned address
+    assert((((int) tmpdata) & 0x03) == 0);
     if (flashmem_read_internal( tmpdata, temp, blksize ) != blksize) {
         return 0;
     }
@@ -93,6 +94,7 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
   // Program the blocks now
   if( temp )
   {
+    assert((((int) pto) & 0x03) == 0);
 	if (flashmem_read_internal( pto, fromaddr, temp ) != temp) {
         return 0;
     }
@@ -102,6 +104,7 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
   // And the final part of a block if needed
   if( rest )
   {
+    assert((((int) tmpdata) & 0x03) == 0);
 	if (flashmem_read_internal( tmpdata, fromaddr, blksize ) != blksize) {
         return 0;
     }
@@ -213,6 +216,7 @@ uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t si
 
 uint32_t flashmem_read_internal( void *to, uint32_t fromaddr, uint32_t size )
 {
+    assert((((int) to) & 0x03) == 0);
   assert(size);
   SpiFlashOpResult r;
   WRITE_PERI_REG(0x60000914, 0x73);
