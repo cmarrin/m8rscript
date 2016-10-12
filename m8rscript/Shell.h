@@ -67,6 +67,7 @@ public:
         RemoveFailed,
         BadDeviceNameLength,
         IllegalDeviceName,
+        UnrecognizedCommand,
     };
     
     Shell(ShellOutput* output)
@@ -84,7 +85,7 @@ public:
         
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
-    void showError(ErrorCode);
+    void showError(ErrorCode, ...);
     void sendString(const char* s);
 
     ShellOutput* _output = nullptr;

@@ -151,16 +151,19 @@ void Shell::sendComplete()
                 char binaryBuffer[StackAllocLimit];
                 int32_t result = _file->read(binaryBuffer, StackAllocLimit);
                 if (result < 0) {
-                    showError(ErrorCode::ReadFailed);
+                    showError(ErrorCode::ReadFailed, result);
+                    delete _file;
+                    _file = nullptr;
                     break;
                 }
                 if (result < StackAllocLimit) {
                     delete _file;
                     _file = nullptr;
+                    break;
                 }
                 int length = base64_encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
                 if (length < 0) {
-                showError(ErrorCode::BinaryEncodeFailed);
+                    showError(ErrorCode::BinaryEncodeFailed);
                     delete _file;
                     _file = nullptr;
                     break;
@@ -171,7 +174,7 @@ void Shell::sendComplete()
             } else {
                 int32_t result = _file->read(_buffer, BufferSize);
                 if (result < 0) {
-                    showError(ErrorCode::ReadFailed);
+                    showError(ErrorCode::ReadFailed, result);
                     break;
                 }
                 if (result < BufferSize) {
@@ -272,11 +275,14 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "quit") {
         return false;
+    } else {
+        _state = State::NeedPrompt;
+        showError(ErrorCode::UnrecognizedCommand);
     }
     return true;
 }
 
-static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR ReadFailed[ ] = "file read failed";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR ReadFailed[ ] = "file read failed (%d)";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryPutTooLarge[ ] = "binary 'put' too large";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryEncodeFailed[ ] = "binary encode failed";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BinaryDecodeFailed[ ] = "binary decode failed";
@@ -287,9 +293,10 @@ static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR PutOpenFailed[ ] = "could
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR RemoveFailed[ ] = "could not remove file";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR BadDeviceNameLength[ ] = "device name must be between 1 and 31 characters";
 static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR IllegalDeviceName[ ] = "illegal character (only numbers, lowercase letters and hyphen)";
-static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR E[ ] = "error:";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR UnrecognizedCommand[ ] = "unrecognized command";
+static const char ICACHE_RODATA_ATTR ICACHE_STORE_ATTR E[ ] = "Error:";
 
-void Shell::showError(ErrorCode code)
+void Shell::showError(ErrorCode code, ...)
 {
     const char* msg = nullptr;
     
@@ -338,14 +345,26 @@ void Shell::showError(ErrorCode code)
             msg = IllegalDeviceName;
             break;
         }
+        case ErrorCode::UnrecognizedCommand: {
+            msg = UnrecognizedCommand;
+            break;
+        }
         default: return;
     }
     
     _state = State::NeedPrompt;
     
+    va_list args;
+    va_start(args, code);
+    
+    char* buf = new char[64];
+    strcpy_rom(_buffer, msg);
+    vsnprintf(buf, 63, _buffer, args);
+    
     char* p = strcpy_rom(_buffer, E);
-    p = strcpy_rom(p, msg);
+    p = strcpy_rom(p, buf);
     p = strcpy_rom(p, "\n");
+    delete buf;
     
     _output->shellSend(_buffer);
 }

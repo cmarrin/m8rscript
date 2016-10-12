@@ -165,4 +165,5 @@ char* strcpy_rom(char* dst, const char* src);
 #define noInterrupts() xt_rsil(15)
 
 #define sprintf os_sprintf
+#define vsprintf ets_vsprintf
 #define vsnprintf ets_vsnprintf

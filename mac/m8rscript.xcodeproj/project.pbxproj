@@ -114,7 +114,6 @@
 		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		4942EA8C1D0D950100E02088 /* Defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Defines.h; path = ../m8rscript/Defines.h; sourceTree = "<group>"; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
-		4945DD851D63705B006945BC /* smingMakefile.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = smingMakefile.mk; path = ../esp/smingMakefile.mk; sourceTree = "<group>"; };
 		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../m8rscript/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
@@ -126,7 +125,6 @@
 		494D254E1D2E9055003755DB /* liblibm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		494D25851D32AFA4003755DB /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../m8rscript/base64.cpp; sourceTree = "<group>"; };
 		494D25861D32AFA4003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../m8rscript/base64.h; sourceTree = "<group>"; };
-		494D25901D32B73A003755DB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../m8rscript/Object.cpp; sourceTree = "<group>"; };
 		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -136,7 +134,7 @@
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../m8rscript/CodePrinter.h; sourceTree = "<group>"; };
 		497B449E1D469B3200BC1B57 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../esp/app; sourceTree = "<group>"; };
-		497B449F1D469BB000BC1B57 /* rawMakefile.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = rawMakefile.mk; path = ../esp/rawMakefile.mk; sourceTree = "<group>"; };
+		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
 		497F1F401D121B060045866E /* timing.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../timing.js; sourceTree = "<group>"; };
 		4984E82F1D1336AE00D0ABA6 /* timing.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.lua; path = ../timing.lua; sourceTree = "<group>"; };
@@ -278,9 +276,7 @@
 				4945DD8B1D795821006945BC /* spiffs */,
 				4945DD831D5ACE12006945BC /* core */,
 				497B449E1D469B3200BC1B57 /* app */,
-				494D25901D32B73A003755DB /* Makefile */,
-				4945DD851D63705B006945BC /* smingMakefile.mk */,
-				497B449F1D469BB000BC1B57 /* rawMakefile.mk */,
+				497B449F1D469BB000BC1B57 /* Makefile */,
 			);
 			name = esp;
 			sourceTree = "<group>";
