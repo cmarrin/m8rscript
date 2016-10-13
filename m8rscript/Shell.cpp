@@ -159,7 +159,6 @@ void Shell::sendComplete()
                 if (result < StackAllocLimit) {
                     delete _file;
                     _file = nullptr;
-                    break;
                 }
                 int length = base64_encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
                 if (length < 0) {
@@ -364,7 +363,7 @@ void Shell::showError(ErrorCode code, ...)
     char* p = strcpy_rom(_buffer, E);
     p = strcpy_rom(p, buf);
     p = strcpy_rom(p, "\n");
-    delete buf;
+    delete[ ] buf;
     
     _output->shellSend(_buffer);
 }

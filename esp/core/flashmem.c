@@ -87,19 +87,35 @@ uint32_t flashmem_read( void *to, uint32_t fromaddr, uint32_t size )
       return ssize;
     fromaddr = temp + blksize;
   }
-  // The start address is now a multiple of blksize
+  
   // Compute how many bytes we can read as multiples of blksize
   rest = size & blkmask;
   temp = size & ~blkmask;
   // Program the blocks now
   if( temp )
   {
-    assert((((int) pto) & 0x03) == 0);
-	if (flashmem_read_internal( pto, fromaddr, temp ) != temp) {
-        return 0;
+      // The start address is now a multiple of blksize
+      // flashmem_read_internal requires destination buffer to be 4 byte aligned. 
+      // If not, use a buffer and move into place
+      if ((((int) pto) & 0x03) != 0) {
+        while (temp) {
+            assert((((int) tmpdata) & 0x03) == 0);
+            if (flashmem_read_internal(tmpdata, fromaddr, blksize) != blksize) {
+                return 0;
+            }
+            memcpy(pto, tmpdata, blksize);
+            pto += blksize;
+            fromaddr += blksize;
+            temp -= blksize;
+        }
+    } else {
+        assert((((int) pto) & 0x03) == 0);
+        if (flashmem_read_internal( pto, fromaddr, temp ) != temp) {
+            return 0;
+        }
+        fromaddr += temp;
+        pto += temp;
     }
-    fromaddr += temp;
-    pto += temp;
   }
   // And the final part of a block if needed
   if( rest )
