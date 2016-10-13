@@ -36,6 +36,7 @@
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
+		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
@@ -133,6 +134,7 @@
 		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../m8rscript/CodePrinter.h; sourceTree = "<group>"; };
+		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
 		497B449E1D469B3200BC1B57 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../esp/app; sourceTree = "<group>"; };
 		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497F1F2F1D10D60C0045866E /* timing.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = timing.m8r; path = ../timing.m8r; sourceTree = "<group>"; };
@@ -307,6 +309,7 @@
 				493C9EDA1D2191E60062152D /* build.png */,
 				49DD77461D84689100D7C374 /* AddFile.png */,
 				49DD77441D8467C100D7C374 /* DeleteFile.png */,
+				4970FD121DB04DDD00521DF1 /* download.png */,
 				493C9ED41D218F100062152D /* stop.png */,
 				493C9ED51D218F100062152D /* pause.png */,
 				493C9ED61D218F100062152D /* play.png */,
@@ -541,6 +544,7 @@
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
 				49DD773D1D83CEA400D7C374 /* upload.png in Resources */,
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
+				4970FD131DB04DDD00521DF1 /* download.png in Resources */,
 				493C9ED91D218F100062152D /* play.png in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,

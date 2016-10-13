@@ -334,6 +334,7 @@
 }
 
 - (IBAction)upload:(id)sender {
+    [_device mirrorFiles];
 }
 
 @end

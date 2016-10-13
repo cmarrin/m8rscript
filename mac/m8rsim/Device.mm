@@ -171,33 +171,44 @@ private:
     return s;
 }
 
+- (NSArray*) fileListForDevice:(NSNetService*)service
+{
+    NSMutableArray* array = [[NSMutableArray alloc]init];
+    NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
+    if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
+        fileString = [fileString substringFromIndex:1];
+    }
+
+    NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
+    for (NSString* line in lines) {
+        NSArray* elements = [line componentsSeparatedByString:@":"];
+        if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
+            continue;
+        }
+    
+        NSString* name = elements[1];
+        NSString* size = elements[2];
+    
+        // Ignore . files
+        if ([name length] == 0 || [name characterAtIndex:0] == '.') {
+            continue;
+        }
+    
+        [array addObject:@{ @"name" : name, @"size" : size }];
+    }
+    
+    return array;
+}
+
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler
 {
     [_fileList removeAllObjects];
     
     dispatch_async(_serialQueue, ^() {
         NSNetService* service = _currentDevice[@"service"];
-        NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
-        if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
-            fileString = [fileString substringFromIndex:1];
-        }
-    
-        NSArray* lines = [fileString componentsSeparatedByString:@"\n"];
-        for (NSString* line in lines) {
-            NSArray* elements = [line componentsSeparatedByString:@":"];
-            if (elements.count != 3 || ![elements[0] isEqualToString:@"file"]) {
-                continue;
-            }
-        
-            NSString* name = elements[1];
-            NSString* size = elements[2];
-        
-            // Ignore . files
-            if ([name length] == 0 || [name characterAtIndex:0] == '.') {
-                continue;
-            }
-        
-            [_fileList addObject:@{ @"name" : name, @"size" : size }];
+        NSArray* fileList = [self fileListForDevice:service];
+        for (NSDictionary* fileEntry in fileList) {
+            [_fileList addObject:fileEntry];
         }
         
         [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
@@ -220,6 +231,15 @@ private:
     m8r::MacFS::setFiles(_files);
 }
 
+- (NSData*)contentsOfFile:(NSString*)name forDevice:(NSNetService*)service
+{
+    NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
+    NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
+    
+    NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return data;
+}
+
 - (void)selectFile:(NSInteger)index
 {
     NSString* name = _fileList[index][@"name"];
@@ -238,19 +258,66 @@ private:
     });
 }
 
+- (BOOL) isFile:(NSString*)name inFileList:(NSArray*)fileList
+{
+    for (NSDictionary* entry in fileList) {
+        if ([entry[@"name"] isEqualToString:name]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)addFile:(NSString*)name withContents:(NSData*)contents toDevice:(NSNetService*)service
+{
+    NSString* contentString = [contents base64EncodedStringWithOptions:
+                                                            NSDataBase64Encoding64CharacterLineLength |
+                                                            NSDataBase64EncodingEndLineWithCarriageReturn | 
+                                                            NSDataBase64EncodingEndLineWithLineFeed];
+    NSString* command = [NSString stringWithFormat:@"put %@\r\n", name];
+    contentString = [NSString stringWithFormat:@"%@\r\n\04\r\n", contentString];
+
+    [self sendCommand:command andString:contentString fromService:service];
+}
+
+- (void)mirrorFiles
+{
+    if (!_currentDevice) {
+        return;
+    }
+    
+    NSNetService* service = _currentDevice[@"service"];
+    NSArray* deviceFileList = [self fileListForDevice:service];
+    NSArray* localFileList = [self fileListForDevice:nil];
+    
+    // Delete files in device but not in local
+    for (NSDictionary* entry in deviceFileList) {
+        NSString* name = entry[@"name"];
+        if (![self isFile:name inFileList:localFileList]) {
+            [self removeFile:name];
+        }
+    }
+    
+    // Add files that are new or that have changed
+    for (NSDictionary* entry in localFileList) {
+        NSString* name = entry[@"name"];
+        NSData* contents = [self contentsOfFile:name forDevice:nil];
+        if ([self isFile:name inFileList:deviceFileList]) {
+            // If contents are different, replace
+            NSData* deviceContents = [self contentsOfFile:name forDevice:service];
+            if ([deviceContents isEqualToData:contents]) {
+                continue;
+            }
+        }
+
+        [self addFile:name withContents:contents toDevice:service];
+    }
+}
+
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
-        NSString* contents = [fileWrapper.regularFileContents base64EncodedStringWithOptions:
-                                                                NSDataBase64Encoding64CharacterLineLength |
-                                                                NSDataBase64EncodingEndLineWithCarriageReturn | 
-                                                                NSDataBase64EncodingEndLineWithLineFeed];
-        NSString* command = [NSString stringWithFormat:@"put %@\r\n", fileWrapper.preferredFilename];
-        contents = [NSString stringWithFormat:@"%@\r\n\04\r\n", contents];
-
-        [self sendCommand:command andString:contents fromService:service];
-        
+    dispatch_async(_serialQueue, ^() {
+        [self addFile:fileWrapper.preferredFilename withContents:fileWrapper.regularFileContents toDevice:_currentDevice[@"service"]];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });

@@ -44,6 +44,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)renameDevice:(NSString*)name;
 
+- (void)mirrorFiles;
 - (void)setFiles:(NSFileWrapper*)files;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
