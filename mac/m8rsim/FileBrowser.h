@@ -18,6 +18,7 @@
 - (void)addFiles;
 - (void)removeFiles;
 - (BOOL)isFileSourceLocal;
+- (NSInteger)selectedFileCount;
 
 - (void)reloadFilesForDevice:(Device*)device;
 - (NSString*)getNewDeviceName;

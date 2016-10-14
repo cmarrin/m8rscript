@@ -237,6 +237,12 @@
     return name;
 }
 
+- (NSInteger)selectedFileCount
+{
+    NSIndexSet* indexes = fileListView.selectedRowIndexes;
+    return indexes.count;
+}
+
 // fileListView dataSource
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {

@@ -29,7 +29,6 @@ class DeviceSystemInterface;
     Simulator* _simulator;
     
     dispatch_queue_t _serialQueue;
-
 }
 
 - (void)outputMessage:(NSString*)msg;
@@ -85,6 +84,10 @@ private:
 
 - (void)dealloc
 {
+    if (_simulator->isRunning()) {
+        _simulator->stop();
+        dispatch_sync(_serialQueue, ^{ });
+    }
     delete _simulator;
     delete _system;
 }
@@ -247,13 +250,11 @@ private:
     dispatch_async(_serialQueue, ^() {        
         NSNetService* service = _currentDevice[@"service"];
         NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-        NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
-        
+        NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];        
         NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        fileContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate setSource:fileContents withName:name];
+            [self.delegate setContents:data withName:name];
         });
     });
 }
@@ -379,18 +380,24 @@ private:
     });
 }
 
-- (void)upload
-{
-}
-
 - (BOOL)canRun
 {
-    return YES;
+    return _simulator->canRun();
 }
 
 - (BOOL)canStop
 {
-    return YES;
+    return _simulator->canStop();
+}
+
+- (BOOL)canUpload
+{
+    return _currentDevice != nil;
+}
+
+- (BOOL)canSimulate
+{
+    return _simulator->canRun();
 }
 
 - (void)build:(const char*) source withName:(NSString*) name

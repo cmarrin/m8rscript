@@ -26,8 +26,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 @protocol DeviceDelegate
 
 - (void)addDevice:(NSString*)name;
-- (void)setSource:(NSString*)source withName:(NSString*)name;
-- (void)setImage:(NSImage*)image;
+- (void)setContents:(NSData*)contents withName:(NSString*)name;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build;
 - (void)markDirty;
@@ -50,8 +49,11 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
 - (void)removeFile:(NSString*)name;
 - (void)setDevice:(NSString*)device;
+
 - (BOOL)canRun;
 - (BOOL)canStop;
+- (BOOL)canUpload;
+- (BOOL)canSimulate;
 
 - (void)importBinary:(const char*)filename;
 - (void)exportBinary:(const char*)filename;

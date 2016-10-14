@@ -56,7 +56,7 @@
     self = [super init];
     if (self) {
         _font = [NSFont fontWithName:@"Menlo Regular" size:12];
-        [self setSource:@"" withName:@""];
+        [self clearContents];
     }
     return self;
 }
@@ -91,8 +91,11 @@
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
-    if (item == buildButton || item == simulateButton) {
-        return YES;
+    if (item == buildButton) {
+        return [_source length];
+    }
+    if (item == simulateButton) {
+        return [_device canSimulate];
     }
     if (item == runButton) {
         return [_device canRun];
@@ -100,8 +103,14 @@
     if (item == stopButton) {
         return [_device canStop];
     }
-    if (item == addFileButton || item == removeFileButton || item == reloadFilesButton) {
+    if (item == addFileButton) {
         return YES;
+    }
+    if (item == removeFileButton) {
+        return [_fileBrowser selectedFileCount];
+    }
+    if (item == uploadButton) {
+        return [_device canUpload];
     }
     return NO;
 }
@@ -206,12 +215,32 @@
     [_fileBrowser addDevice:name];
 }
 
-- (void)setSource:(NSString*)source withName:(NSString*)name
+- (void)clearContents
 {
-    _source = source;
-    _sourceFilename = name;
+    _source = @"";
+    _sourceFilename = @"";
     if (sourceEditor) {
         [sourceEditor setString:_source];
+    }
+}
+
+- (void)setContents:(NSData*)contents withName:(NSString*)name;
+{
+    [self clearContents];
+    
+    NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
+    if (source) {
+        _source = source;
+        _sourceFilename = name;
+        if (sourceEditor) {
+            [sourceEditor setString:_source];
+        }
+        return;
+    }
+    
+    NSImage* image = [[NSImage alloc]initWithData:contents];
+    if (image) {
+        [self setImage:image];
     }
 }
 
@@ -239,7 +268,7 @@
 
 - (void)selectFile:(NSInteger)index
 {
-    [self setSource:@"" withName:@""];
+    [self clearContents];
     if (index < 0) {
         return;
     }
@@ -260,7 +289,7 @@
 - (void)setDevice:(NSString*)name
 {
     [_device setDevice:name];
-    [self setSource:@"" withName:@""];
+    [self clearContents];
     [self reloadFiles];
 }
 
