@@ -306,8 +306,10 @@ private:
         if ([self isFile:name inFileList:deviceFileList]) {
             // If contents are different, replace
             NSData* deviceContents = [self contentsOfFile:name forDevice:service];
-            if ([deviceContents isEqualToData:contents]) {
-                continue;
+            if (deviceContents.length == contents.length) {
+                if (memcmp(deviceContents.bytes, contents.bytes, contents.length) == 0) {
+                    continue;
+                }
             }
         }
 
