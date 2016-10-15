@@ -53,6 +53,7 @@ public:
     void disconnect();
     
     virtual void connected() { }
+    virtual void reconnected() { }
     virtual void disconnected() { }
     virtual void receivedData(const char* data, uint16_t length) { }
     virtual void sentData() { }
@@ -66,6 +67,7 @@ private:
 
     espconn _conn;
     esp_tcp _tcp;
+    bool _connected = false;
 };
 
 }

@@ -64,6 +64,9 @@ TCP::~TCP()
 
 void TCP::send(const char* data, uint16_t length)
 {
+    if (!_connected) {
+        return;
+    }
     if (!length) {
         length = strlen(data);
     }
@@ -76,13 +79,18 @@ void TCP::send(const char* data, uint16_t length)
 
 void TCP::disconnect()
 {
+    if (!_connected) {
+        return;
+    }
     espconn_disconnect(&_conn);
 }
 
 void TCP::connectCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
+    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_connected = true;
     os_printf("TCP: connection established to port %d\n", conn->proto.tcp->local_port);
 
     espconn_regist_time(conn, 60, 1);
@@ -91,23 +99,29 @@ void TCP::connectCB(void* arg)
     espconn_regist_disconcb(conn, disconnectCB);
     espconn_regist_sentcb(conn, sentCB);
     
-    reinterpret_cast<TCP*>(conn->reverse)->connected();
+    self->connected();
 }
 
 void TCP::disconnectCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
+    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_connected = false;
     os_printf("TCP: disconnected from port %d\n", conn->proto.tcp->local_port);
 
-    reinterpret_cast<TCP*>(conn->reverse)->disconnected();
+    self->disconnected();
 }
 
 void TCP::reconnectCB(void* arg, int8_t error)
 {
     struct espconn* conn = (struct espconn *) arg;
+    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_connected = true;
     os_printf("TCP: reconnected to port %d, error=%d\n", conn->proto.tcp->local_port, error);
+    
+    self->reconnected();
 }
 
 void TCP::receiveCB(void* arg, char* data, uint16_t length)

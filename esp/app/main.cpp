@@ -56,22 +56,30 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-#define PARSE_FILE 1
+static esp::TCP* _shellTCP = nullptr;
+static esp::TCP* _logTCP = nullptr;
 
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    virtual void printf(const char* s, ...) const override
-    {
-        va_list args;
-        va_start(args, s);
-        char* buf = new char[ROMstrlen(s) + 1];
-        ROMCopyString(buf, s);
-        ets_vprintf(ets_putc, buf, args);
-        delete [ ] buf;
-    }
+    virtual void printf(const char* s, ...) const override;
     virtual int read() const override { return readSerialChar(); }
 };
+
+void MySystemInterface::printf(const char* s, ...) const
+{
+    va_list args;
+    va_start(args, s);
+    char* buf = new char[ROMstrlen(s) + 1];
+    ROMCopyString(buf, s);
+    ets_vprintf(ets_putc, buf, args);
+    if (_logTCP) {
+        _logTCP->send(buf);
+    }
+    delete [ ] buf;
+}
+
+MySystemInterface _gSystemInterface;
 
 os_timer_t gExecutionTimer;
 static const uint32_t ExecutionTaskPrio = 0;
@@ -101,24 +109,22 @@ void ICACHE_FLASH_ATTR runScript()
 {
     m8r::FS* fs = m8r::FS::sharedFS();
     if (!fs->mount()) {
-        os_printf("ERROR: Mount failed, trying to format.\n");
+        _gSystemInterface.printf(ROMSTR("ERROR: Mount failed, trying to format.\n"));
         fs->format();
     }
 
-    MySystemInterface* systemInterface = new MySystemInterface();
-
-    os_printf("\n*** m8rscript v0.1\n\n");
-    os_printf("***** start - free ram:%d\n", system_get_free_heap_size());
+    _gSystemInterface.printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
+    _gSystemInterface.printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     
-    m8r::Application application(systemInterface);
+    m8r::Application application(&_gSystemInterface);
     m8r::Error error;
     if (!application.load(error)) {
-        error.showError(systemInterface);
+        error.showError(&_gSystemInterface);
     } else {
         m8r::Program* program = application.program();
     
-        os_printf("\n***** Start of Program Output *****\n\n");
-        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(systemInterface);
+        _gSystemInterface.printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
+        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(&_gSystemInterface);
         eu->startExecution(program);
 
         os_timer_disarm(&gExecutionTimer);
@@ -135,23 +141,28 @@ void blinkTimerfunc(void *)
 {
     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
     {
+        _gSystemInterface.printf("Blink\n");
         gpio_output_set(0, BIT2, BIT2, 0);
     } else {
         gpio_output_set(BIT2, 0, BIT2, 0);
     }
 }
 
-static esp::TCP* _tcp = nullptr;
-
-class MyTCP : public esp::TCP, public m8r::ShellOutput {
+class MyShellTCP : public esp::TCP, public m8r::ShellOutput {
 public:
-    MyTCP(uint16_t port) : esp::TCP(port), _shell(this) { }
+    MyShellTCP(uint16_t port) : esp::TCP(port), _shell(this) { }
     
     virtual void connected() override { _shell.connected(); }
     
     virtual void disconnected() override { _shell.disconnected(); }
     
-    virtual void receivedData(const char* data, uint16_t length) override;
+    virtual void receivedData(const char* data, uint16_t length) override
+    {
+        if (!_shell.received(data, length)) {
+            disconnect();
+        }
+    }
+
     virtual void sentData() override { _shell.sendComplete(); }
 
     virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
@@ -161,16 +172,23 @@ private:
     m8r::Shell _shell;
 };
 
-void MyTCP::receivedData(const char* data, uint16_t length)
-{
-    if (!_shell.received(data, length)) {
-        disconnect();
-    }
-}
+class MyLogTCP : public esp::TCP {
+public:
+    MyLogTCP(uint16_t port) : esp::TCP(port) { }
+    
+    virtual void connected() override { send("Start m8rscript Log\n\n"); }
+    
+    virtual void disconnected() override { }
+    
+    virtual void sentData() override { }
+
+private:
+};
 
 void systemInitialized()
 {
-    _tcp = new MyTCP(22);
+    _shellTCP = new MyShellTCP(22);
+    _logTCP = new MyLogTCP(23);
     runScript();
 }
 
