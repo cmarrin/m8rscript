@@ -17,8 +17,8 @@
 # User editable area
 #====================================================================================
 
-DEBUG_FLAGS = -Os
-#DEBUG_FLAGS = -Og -g
+DEBUG_FLAGS = -Os -DNDEBUG
+#DEBUG_FLAGS = -Og -g -DDEBUG
 
 #=== Project specific definitions
 MAIN_NAME = m8rscript
