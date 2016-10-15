@@ -44,7 +44,6 @@
     FileBrowser* _fileBrowser;
     
     NSFileWrapper* _package;
-    NSFileWrapper* _files;
     
 }
 
@@ -296,7 +295,8 @@
 //
 // Text Content Interface
 //
-- (void)textStorageDidProcessEditing:(NSNotification *)notification {
+- (void)textStorageDidProcessEditing:(NSNotification *)notification
+{
     NSTextStorage *textStorage = notification.object;
     NSString *string = textStorage.string;
     NSUInteger n = string.length;

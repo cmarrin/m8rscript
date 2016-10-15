@@ -43,8 +43,7 @@ using namespace m8r;
 
 void Shell::connected()
 {
-    _state = State::Init;
-    sendComplete();
+    init();
 }
 
 void Shell::init()
@@ -272,6 +271,9 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
         _state = State::NeedPrompt;
         sendString(ROMSTR("erased all files\n"));
+    } else if (array[0] == "run") {
+        if (array.size() < 2) {
+        }
     } else if (array[0] == "quit") {
         return false;
     } else {

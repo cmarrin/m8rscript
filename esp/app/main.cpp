@@ -108,17 +108,22 @@ void ICACHE_FLASH_ATTR runScript()
     os_printf("***** start - free ram:%d\n", system_get_free_heap_size());
     
     m8r::Application application(systemInterface);
-    m8r::Program* program = application.program();
+    m8r::Error error;
+    if (!application.load(error)) {
+        error.showError(systemInterface);
+    } else {
+        m8r::Program* program = application.program();
     
-    os_printf("\n***** Start of Program Output *****\n\n");
-    m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(systemInterface);
-    eu->startExecution(program);
+        os_printf("\n***** Start of Program Output *****\n\n");
+        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(systemInterface);
+        eu->startExecution(program);
 
-    os_timer_disarm(&gExecutionTimer);
-    os_timer_setfn(&gExecutionTimer, (os_timer_func_t*) &executionTimerTick, eu);
+        os_timer_disarm(&gExecutionTimer);
+        os_timer_setfn(&gExecutionTimer, (os_timer_func_t*) &executionTimerTick, eu);
 
-    // Fire the execution task directly (0 timeout)
-    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(eu));
+        // Fire the execution task directly (0 timeout)
+        system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(eu));
+    }
 }
 
 static volatile os_timer_t gBlinkTimer;

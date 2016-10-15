@@ -22,7 +22,7 @@ public:
         , _shell(this)
     { }
     
-    ~Simulator() { }
+    ~Simulator();
     
     void importBinary(const char* filename);
     void exportBinary(const char* filename);

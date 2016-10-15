@@ -43,7 +43,27 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Application::Application(SystemInterface* system)
+    : _system(system)
 {
+}
+
+bool Application::load(Error& error, const char* filename)
+{
+    if (filename && validateFileName(filename) == NameValidationType::Ok) {
+        FileStream stream(filename);
+        if (!stream.loaded()) {
+            error.setError(Error::Code::FileNotFound);
+            return false;
+        }
+        
+        // Is it a m8rb file?
+        _program = new m8r::Program(_system);
+        if (!_program->deserializeObject(&stream, error)) {
+            return false;
+        }
+        return true;
+    }
+    
     // See if there is a 'main' file (which contains the name of the program to run)
     String name = "main";
     FileStream mainstream(name.c_str());
@@ -57,40 +77,40 @@ Application::Application(SystemInterface* system)
             name += static_cast<char>(c);
         }
     } else {
-        system->printf("'main' not found in filesystem, trying default...\n");
+        _system->printf("'main' not found in filesystem, trying default...\n");
     }
     
     name += ".m8rb";
-    system->printf("Opening '%s'...\n", name.c_str());
+    _system->printf("Opening '%s'...\n", name.c_str());
 
     FileStream stream(name.c_str());
     
     if (!stream.loaded()) {
         name = name.slice(0, -1);
-        system->printf("File not found, trying '%s'...\n", name.c_str());
+        _system->printf("File not found, trying '%s'...\n", name.c_str());
         FileStream stream(name.c_str());
         
         if (!stream.loaded()) {
-            system->printf("Error: no files to open\n", name.c_str());
-            return;
+            error.setError(Error::Code::FileNotFound);
+            return false;
         }
 
-        system->printf("Parsing...\n");
-        Parser parser(system);
+        _system->printf("Parsing...\n");
+        Parser parser(_system);
         parser.parse(&stream);
         
-        system->printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        _system->printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
 
         if (!parser.nerrors()) {
             _program = parser.program();
         }
     } else {
-        _program = new m8r::Program(system);
-        m8r::Error error;
+        _program = new m8r::Program(_system);
         if (!_program->deserializeObject(&stream, error)) {
-            error.showError(system);
+            return false;
         }
     }
+    return true;
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)

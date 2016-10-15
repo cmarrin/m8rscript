@@ -15,6 +15,16 @@
 #include <chrono>
 #include <thread>
 
+Simulator::~Simulator()
+{
+    if (_program) {
+        delete _program;
+    }
+    if (_application) {
+        delete _application;
+    }
+}
+
 void Simulator::importBinary(const char* filename)
 {
     m8r::FileStream stream(filename, "r");
@@ -113,6 +123,11 @@ void Simulator::stop()
 void Simulator::simulate()
 {
     _application = new m8r::Application(_system);
+    m8r::Error error;
+    if (_application->load(error)) {
+        error.showError(_system);
+        return;
+    }
     _program = _application->program();
     run();
 }

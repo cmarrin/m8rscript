@@ -44,11 +44,17 @@ class SystemInterface;
 class Error
 {
 public:
+    enum class Level { Error, Warning, Info };
+    
     enum class Code {
         None,
         Unknown,
         Write,
         Read,
+        SerialHeader,
+        SerialType,
+        SerialVersion,
+        FileNotFound,
     };
     
     Error() { }

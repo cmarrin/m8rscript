@@ -41,10 +41,13 @@ static const char* MainFileName = "main";
 
 class SystemInterface;
 class Program;
+class Error;
 
 class Application {
 public:
     Application(SystemInterface*);
+    
+    bool load(Error&, const char* name = nullptr);
     
     Program* program() const { return _program; }
     
@@ -53,6 +56,7 @@ public:
     static NameValidationType validateBonjourName(const char* name);
 
 private:
+    SystemInterface* _system;
     Program* _program = nullptr;
 };
     

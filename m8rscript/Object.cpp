@@ -183,37 +183,63 @@ bool Object::serializeObject(Stream* stream, Error& error) const
 bool Object::deserializeObject(Stream* stream, Error& error)
 {
     ObjectDataType type;
-    if (!deserializeRead(stream, error, type) || type != ObjectDataType::Type) {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, type)) {
+        return false;
     }
+    if (type != ObjectDataType::Type) {
+        return error.setError(Error::Code::SerialHeader);
+    }
+    
     uint8_t c;
-    if (!deserializeRead(stream, error, c) || c != 'm') {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, c)) {
+        return false;
     }
-    if (!deserializeRead(stream, error, c) || c != '8') {
-        return error.setError(Error::Code::Read);
+    if (c != 'm') {
+        return error.setError(Error::Code::SerialHeader);
     }
-    if (!deserializeRead(stream, error, c) || c != 'r') {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, c)) {
+        return false;
+    }
+    if (c != '8') {
+        return error.setError(Error::Code::SerialHeader);
+    }
+    if (!deserializeRead(stream, error, c)) {
+        return false;
+    }
+    if (c != 'r') {
+        return error.setError(Error::Code::SerialHeader);
     }
     
-    if (!deserializeRead(stream, error, type) || type != ObjectDataType::Version) {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, type)) {
+        return false;
     }
+    if (type != ObjectDataType::Version) {
+        return error.setError(Error::Code::SerialType);
+    }
+    
     uint8_t majorVersion, minorVersion;
-    if (!deserializeRead(stream, error, majorVersion) || majorVersion != MajorVersion) {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, majorVersion)) {
+        return false;
     }
-    if (!deserializeRead(stream, error, minorVersion) || minorVersion != MinorVersion) {
-        return error.setError(Error::Code::Read);
+    if (majorVersion != MajorVersion) {
+        return error.setError(Error::Code::SerialVersion);
     }
-    
+    if (!deserializeRead(stream, error, minorVersion)) {
+        return false;
+    }
+    if (minorVersion != MinorVersion) {
+        return error.setError(Error::Code::SerialVersion);
+    }
+
     if (!deserialize(stream, error)) {
-        return error.setError(Error::Code::Read);
+        return false;
     }
     
-    if (!deserializeRead(stream, error, type) || type != ObjectDataType::End) {
-        return error.setError(Error::Code::Read);
+    if (!deserializeRead(stream, error, type)) {
+        return false;
+    }
+    if (type != ObjectDataType::End) {
+        return error.setError(Error::Code::SerialType);
     }
     return true;
 }
