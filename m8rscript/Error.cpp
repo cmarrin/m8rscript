@@ -45,5 +45,5 @@ void Error::showError(SystemInterface* system) const
     switch(_code) {
         default: break;
     }
-    system->printf("Error: %s\n", codeString);
+    system->printf(ROMSTR("Error: %s\n"), codeString);
 }

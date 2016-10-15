@@ -65,7 +65,10 @@ public:
     {
         va_list args;
         va_start(args, s);
-        ets_vprintf(ets_putc, s, args);
+        char* buf = new char[ROMstrlen(s) + 1];
+        ROMCopyString(buf, s);
+        ets_vprintf(ets_putc, buf, args);
+        delete [ ] buf;
     }
     virtual int read() const override { return readSerialChar(); }
 };

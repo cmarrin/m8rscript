@@ -52,25 +52,25 @@ void Simulator::build(const char* source, const char* name)
     _running = false;
     
     _isBuild = true;
-    _system->printf("Building %s\n", name);
+    _system->printf(ROMSTR("Building %s\n"), name);
 
     m8r::StringStream stream(source);
     m8r::Parser parser(_system);
     parser.parse(&stream);
-    _system->printf("Parsing finished...\n");
+    _system->printf(ROMSTR("Parsing finished...\n"));
 
     if (parser.nerrors()) {
-        _system->printf("***** %d error%s\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        _system->printf(ROMSTR("***** %d error%s\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     } else {
-        _system->printf("0 errors. Ready to run\n");
+        _system->printf(ROMSTR("0 errors. Ready to run\n"));
         _program = parser.program();
 
         m8r::CodePrinter codePrinter(_system);
         m8r::String codeString = codePrinter.generateCodeString(_program);
         
-        _system->printf("\n*** Start Generated Code ***\n\n");
+        _system->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
         _system->printf("%s", codeString.c_str());
-        _system->printf("\n*** End of Generated Code ***\n\n");
+        _system->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
     }
 }
 
@@ -84,7 +84,7 @@ void Simulator::run()
     _running = true;
     
     _isBuild = false;
-    _system->printf("*** Program started...\n\n");
+    _system->printf(ROMSTR("*** Program started...\n\n"));
     
     auto start = std::chrono::system_clock::now();
         
@@ -101,7 +101,7 @@ void Simulator::run()
     
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end - start;
-    _system->printf("\n\n*** Finished (run time:%fms)\n", diff.count() * 1000);
+    _system->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
     _running = false;
 }
 
@@ -117,7 +117,7 @@ void Simulator::stop()
     }
     _eu.requestTermination();
     _running = false;
-    _system->printf("*** Stopped\n");
+    _system->printf(ROMSTR("*** Stopped\n"));
 }
 
 void Simulator::simulate()

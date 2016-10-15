@@ -55,21 +55,6 @@ public:
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
-    enum class ErrorCode { Ok = 0,
-        ReadFailed,
-        BinaryPutTooLarge,
-        BinaryEncodeFailed,
-        BinaryDecodeFailed,
-        FileNameRequired,
-        DeviceNameRequired,
-        GetOpenFailed,
-        PutOpenFailed,
-        RemoveFailed,
-        BadDeviceNameLength,
-        IllegalDeviceName,
-        UnrecognizedCommand,
-    };
-    
     Shell(ShellOutput* output)
         : _output(output)
     { }
@@ -85,7 +70,7 @@ public:
         
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
-    void showError(ErrorCode, ...);
+    void showError(const char*, ...);
     void sendString(const char* s);
 
     ShellOutput* _output = nullptr;

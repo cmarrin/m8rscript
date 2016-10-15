@@ -77,17 +77,17 @@ bool Application::load(Error& error, const char* filename)
             name += static_cast<char>(c);
         }
     } else {
-        _system->printf("'main' not found in filesystem, trying default...\n");
+        _system->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
     }
     
     name += ".m8rb";
-    _system->printf("Opening '%s'...\n", name.c_str());
+    _system->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
 
     FileStream stream(name.c_str());
     
     if (!stream.loaded()) {
         name = name.slice(0, -1);
-        _system->printf("File not found, trying '%s'...\n", name.c_str());
+        _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
         FileStream stream(name.c_str());
         
         if (!stream.loaded()) {
@@ -99,7 +99,7 @@ bool Application::load(Error& error, const char* filename)
         Parser parser(_system);
         parser.parse(&stream);
         
-        _system->printf("Finished. %d error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        _system->printf(ROMSTR("Finished. %d error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
 
         if (!parser.nerrors()) {
             _program = parser.program();

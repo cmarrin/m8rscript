@@ -40,7 +40,10 @@ POSSIBILITY OF SUCH DAMAGE.
     #define ICACHE_STORE_ATTR
     #define ICACHE_FLASH_ATTR
     static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }
-    #define strcpy_rom strcpy
+    #define ROMmemcpy memcpy
+    #define ROMstrlen strlen
+    #include <cstring>
+    static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
     #define ROMSTR(s) s
 #else
     #include "Esp.h"

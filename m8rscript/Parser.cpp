@@ -68,11 +68,7 @@ void Parser::printError(const char* s)
 {
     ++_nerrors;
     if (_system) {
-        _system->printf("Error: ");
-        _system->printf(s);
-        _system->printf(" on line ");
-        _system->printf(Value::toString(_scanner.lineno()).c_str());
-        _system->printf("\n");
+        _system->printf(ROMSTR("Error: %s on line %d\n"), s, _scanner.lineno());
     }
 }
 

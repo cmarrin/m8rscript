@@ -138,10 +138,15 @@ static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
     return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
 }
 
-#define ROMSTR(s) (__extension__({static const char __c[] ICACHE_RODATA_ATTR = (s); &__c[0];}))
+#define ROMSTR(s) (__extension__({static const char __c[] ICACHE_RODATA_ATTR ICACHE_STORE_ATTR = (s); &__c[0];}))
 
-void* memcpy_rom(void* dst, const void* src, size_t len);
-char* strcpy_rom(char* dst, const char* src);
+// Returns dst, just like memcpy
+void* ROMmemcpy(void* dst, const void* src, size_t len);
+
+// Returns dst + strlen(src) to allow strings to be chained
+char* ROMCopyString(char* dst, const char* src);
+
+size_t ROMstrlen(const char* s);
 
 #define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
 

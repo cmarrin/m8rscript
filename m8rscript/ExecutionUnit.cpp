@@ -45,9 +45,7 @@ bool ExecutionUnit::printError(const char* s) const
 {
     ++_nerrors;
     if (_system) {
-        _system->printf("Runtime error: ");
-        _system->printf(s);
-        _system->printf("\n");
+        _system->printf("Runtime error: %s\n", s);
     }
     if (_nerrors >= 10) {
         if (_system) {
