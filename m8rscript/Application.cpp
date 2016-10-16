@@ -37,8 +37,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "MStream.h"
-#include "Parser.h"
 #include "SystemInterface.h"
+
+#ifndef NO_PARSER_SUPPORT
+#include "Parser.h"
+#endif
 
 using namespace m8r;
 
@@ -50,18 +53,36 @@ Application::Application(SystemInterface* system)
 bool Application::load(Error& error, const char* filename)
 {
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
-        FileStream stream(filename);
-        if (!stream.loaded()) {
-            error.setError(Error::Code::FileNotFound);
-            return false;
+        {
+            FileStream stream(filename);
+            if (!stream.loaded()) {
+                error.setError(Error::Code::FileNotFound);
+                return false;
+            }
+            
+            // Is it a m8rb file?
+            _program = new m8r::Program(_system);
+            if (_program->deserializeObject(&stream, error)) {
+                return true;
+            }
+            delete _program;
+            _program = nullptr;
         }
         
-        // Is it a m8rb file?
-        _program = new m8r::Program(_system);
-        if (!_program->deserializeObject(&stream, error)) {
+#ifdef NO_PARSER_SUPPORT
+        return false;
+#else
+        // See if we can parse it
+        FileStream stream(filename);
+        Parser parser(_system);
+        parser.parse(&stream);
+        if (parser.nerrors()) {
+            error.setError(Error::Code::ParseError);
             return false;
         }
+        _program = parser.program();
         return true;
+#endif
     }
     
     // See if there is a 'main' file (which contains the name of the program to run)
@@ -86,6 +107,9 @@ bool Application::load(Error& error, const char* filename)
     FileStream stream(name.c_str());
     
     if (!stream.loaded()) {
+#ifdef NO_PARSER_SUPPORT
+        return false;
+#else
         name = name.slice(0, -1);
         _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
         FileStream stream(name.c_str());
@@ -104,6 +128,7 @@ bool Application::load(Error& error, const char* filename)
         if (!parser.nerrors()) {
             _program = parser.program();
         }
+#endif
     } else {
         _program = new m8r::Program(_system);
         if (!_program->deserializeObject(&stream, error)) {

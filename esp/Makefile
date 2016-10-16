@@ -17,6 +17,8 @@
 # User editable area
 #====================================================================================
 
+PARSER_SUPPORT = 0
+
 DEBUG_FLAGS = -Os -DNDEBUG
 #DEBUG_FLAGS = -Og -g -DDEBUG
 
@@ -31,15 +33,19 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Function.cpp \
 		../m8rscript/Global.cpp \
 		../m8rscript/Object.cpp \
-		../m8rscript/ParseEngine.cpp \
-		../m8rscript/Parser.cpp \
 		../m8rscript/Program.cpp \
-		../m8rscript/Scanner.cpp \
 		../m8rscript/Shell.cpp \
 		../m8rscript/Value.cpp \
 		../m8rscript/base64.cpp \
 		app/PlatformGlobal.cpp \
         ../m8rscript/main.cpp
+
+ifeq ($(PARSER_SUPPORT), 1)
+    SRC += \
+		../m8rscript/ParseEngine.cpp \
+		../m8rscript/Parser.cpp \
+        ../m8rscript/Scanner.cpp
+endif
 
 # Esp8266 location
 ESP_ROOT ?= $(HOME)/esp8266
@@ -113,6 +119,11 @@ USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
 INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
+
+ifeq ($(PARSER_SUPPORT), 0)
+C_DEFINES += -DNO_PARSER_SUPPORT
+endif
+
 C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
