@@ -40,10 +40,8 @@ class DeviceSystemInterface : public m8r::SystemInterface
 public:
     DeviceSystemInterface(Device* device) : _device(device) { }
     
-    virtual void printf(const char* s, ...) const override
+    virtual void vprintf(const char* s, va_list args) const override
     {
-        va_list args;
-        va_start(args, s);
         NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
         [_device outputMessage:string];
     }

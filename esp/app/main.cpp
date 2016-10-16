@@ -34,9 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
 #include "Esp.h"
-#include "Parser.h"
 #include "MStream.h"
-#include "CodePrinter.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "Application.h"
@@ -62,16 +60,14 @@ static esp::TCP* _logTCP = nullptr;
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    virtual void printf(const char* s, ...) const override;
+    virtual void vprintf(const char* fmt, va_list) const override;
     virtual int read() const override { return readSerialChar(); }
 };
 
-void MySystemInterface::printf(const char* s, ...) const
+void MySystemInterface::vprintf(const char* fmt, va_list args) const
 {
-    va_list args;
-    va_start(args, s);
-    char* buf = new char[ROMstrlen(s) + 1];
-    ROMCopyString(buf, s);
+    char* buf = new char[ROMstrlen(fmt) + 1];
+    ROMCopyString(buf, fmt);
     ets_vprintf(ets_putc, buf, args);
     if (_logTCP) {
         _logTCP->send(buf);

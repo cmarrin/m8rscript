@@ -53,7 +53,14 @@ public:
     
     virtual ~SystemInterface() { }
     
-    virtual void printf(const char*, ...) const = 0;
+    void printf(const char* fmt, ...) const
+    {
+        va_list args;
+        va_start(args, fmt);
+        vprintf(fmt, args);
+    }
+    
+    virtual void vprintf(const char*, va_list) const = 0;
     virtual int read() const = 0;
     
     // 16 GPIO pins. mode = 1 for output, 0 for input. state = 1 for high, 0 for low
