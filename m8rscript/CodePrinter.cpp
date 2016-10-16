@@ -36,7 +36,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CodePrinter.h"
 
 #include "Float.h"
-#include "Parser.h"
 #include "SystemInterface.h"
 
 using namespace m8r;

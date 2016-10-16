@@ -35,8 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ParseEngine.h"
 
-#include "Parser.h"
-
 using namespace m8r;
 
 Map<Token, ParseEngine::OpInfo, ParseEngine::CompareTokens> ParseEngine::_opInfo;
