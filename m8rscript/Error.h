@@ -55,6 +55,8 @@ public:
         SerialType,
         SerialVersion,
         FileNotFound,
+        ParseError,
+        RuntimeError,
     };
     
     Error() { }
@@ -66,6 +68,8 @@ public:
         return false;
     }
     void showError(SystemInterface*) const;
+    
+    static void printError(SystemInterface*, Code, const char* format = nullptr, ...);
     
 private:
     Code _code = Code::None;
