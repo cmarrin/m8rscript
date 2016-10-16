@@ -46,6 +46,8 @@ namespace esp {
 
 class TCP {
 public:
+    static constexpr uint32_t DefaultTimeout = 7200;
+     
     TCP(uint16_t);
     ~TCP();
     

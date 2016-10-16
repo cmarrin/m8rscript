@@ -93,7 +93,7 @@ void TCP::connectCB(void* arg)
     self->_connected = true;
     os_printf("TCP: connection established to port %d\n", conn->proto.tcp->local_port);
 
-    espconn_regist_time(conn, 60, 1);
+    espconn_regist_time(conn, DefaultTimeout, 1);
     espconn_regist_recvcb(conn, receiveCB);
     espconn_regist_reconcb(conn, reconnectCB);
     espconn_regist_disconcb(conn, disconnectCB);
