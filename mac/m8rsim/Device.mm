@@ -27,6 +27,7 @@ class DeviceSystemInterface;
 
     DeviceSystemInterface* _system;
     Simulator* _simulator;
+    FastSocket* _logSocket;
     
     dispatch_queue_t _serialQueue;
 }
@@ -363,6 +364,21 @@ private:
 - (void)setDevice:(NSString*)device
 {
     _currentDevice = [self findService:device];
+    logSocket = nullptr;
+    if (_currentDevice && service.addresses.count) {
+        NSNetService* service = _currentDevice[@"service"];
+        if (service.addresses.count == 0) {
+            return;
+        }
+        NSData* address = [service.addresses objectAtIndex:0];
+        struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
+        NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+    
+        NSString* portString = [NSNumber numberWithInteger:service.port + 1].stringValue;
+        _logSocket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
+        [_logSocket connect];
+        [_logSocket setTimeout:7200];
+    }
 }
 
 - (void)reloadDeviceList
