@@ -162,6 +162,15 @@ public:
         return *this;
     }
     
+	String& operator+=(char c)
+    {
+        ensureCapacity(_size + 1);
+        _data[_size - 1] = c;
+        _data[_size] = '\0';
+        _size += 1;
+        return *this;
+    }
+    
 	String& operator+=(const char* s)
     {
         size_t len = strlen(s);
