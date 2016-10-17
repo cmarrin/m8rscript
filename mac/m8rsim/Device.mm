@@ -364,8 +364,8 @@ private:
 - (void)setDevice:(NSString*)device
 {
     _currentDevice = [self findService:device];
-    logSocket = nullptr;
-    if (_currentDevice && service.addresses.count) {
+    _logSocket = nullptr;
+    if (_currentDevice) {
         NSNetService* service = _currentDevice[@"service"];
         if (service.addresses.count == 0) {
             return;
