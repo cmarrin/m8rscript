@@ -42,7 +42,7 @@ extern "C" {
 #include "espconn.h"
 }
 
-namespace esp {
+namespace m8r {
 
 class UDP {
 public:

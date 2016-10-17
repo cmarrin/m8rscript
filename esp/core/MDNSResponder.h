@@ -163,7 +163,7 @@ private:
     uint32_t _ttl = 0;
     std::vector<uint8_t> _replyBuffer;
     
-    class MyUDP : public esp::UDP {
+    class MyUDP : public UDP {
     public:
         MyUDP(uint16_t port, MDNSResponder* responder)
             : UDP(port)

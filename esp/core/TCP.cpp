@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Esp.h"
 #include <stdlib.h>
 
-using namespace esp;
+using namespace m8r;
 
 TCP::TCP(uint16_t port)
 {
@@ -62,6 +62,23 @@ TCP::~TCP()
     espconn_disconnect(&_conn);
 }
 
+void TCP::send(char c)
+{
+    if (!_connected) {
+        return;
+    }
+    if (_sending) {
+        _buffer += c;
+        return;
+    }
+
+    _sending = true;
+    int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(&c), 1);
+    if (result != 0) {
+        os_printf("TCP ERROR: failed to send char to port %d\n", _conn.proto.tcp->local_port);
+    }
+}
+
 void TCP::send(const char* data, uint16_t length)
 {
     if (!_connected) {
@@ -71,6 +88,12 @@ void TCP::send(const char* data, uint16_t length)
         length = strlen(data);
     }
 
+    if (_sending) {
+        _buffer += String(data, length);
+        return;
+    }
+
+    _sending = true;
     int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(data)), length);
     if (result != 0) {
         os_printf("TCP ERROR: failed to send %d bytes to port %d\n", length, _conn.proto.tcp->local_port);
@@ -90,6 +113,7 @@ void TCP::connectCB(void* arg)
     struct espconn* conn = (struct espconn *) arg;
     TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_sending = false;
     self->_connected = true;
     os_printf("TCP: connection established to port %d\n", conn->proto.tcp->local_port);
 
@@ -107,6 +131,7 @@ void TCP::disconnectCB(void* arg)
     struct espconn* conn = (struct espconn *) arg;
     TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_sending = false;
     self->_connected = false;
     os_printf("TCP: disconnected from port %d\n", conn->proto.tcp->local_port);
 
@@ -118,6 +143,7 @@ void TCP::reconnectCB(void* arg, int8_t error)
     struct espconn* conn = (struct espconn *) arg;
     TCP* self = reinterpret_cast<TCP*>(conn->reverse);
 
+    self->_sending = false;
     self->_connected = true;
     os_printf("TCP: reconnected to port %d, error=%d\n", conn->proto.tcp->local_port, error);
     
@@ -134,5 +160,17 @@ void TCP::receiveCB(void* arg, char* data, uint16_t length)
 void TCP::sentCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-    reinterpret_cast<TCP*>(conn->reverse)->sentData();
+    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
+    assert(self->_sending);
+    if (!self->_buffer.empty()) {
+        int8_t result = espconn_send(&self->_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(self->_buffer.c_str())), self->_buffer.size());
+        if (result != 0) {
+            os_printf("TCP ERROR: failed to send %d bytes to port %d\n", self->_buffer.size(), self->_conn.proto.tcp->local_port);
+        }
+        self->_buffer.clear();
+        return;
+    }
+    
+    self->_sending = false;
+    self->sentData();
 }

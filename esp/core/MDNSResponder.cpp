@@ -53,7 +53,7 @@ MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint3
 	_ttl = ttl;
     _hostname = name;
     
-    esp::UDP::joinMulticastGroup({ 224,0,0,251 });
+    UDP::joinMulticastGroup({ 224,0,0,251 });
     _udp = new MyUDP(5353, this);
 
 	os_timer_disarm(&bc_timer);
@@ -68,7 +68,7 @@ MDNSResponder::~MDNSResponder()
 {
 	os_timer_disarm(&bc_timer);
     delete _udp;
-    esp::UDP::leaveMulticastGroup({ 224,0,0,251 });
+    UDP::leaveMulticastGroup({ 224,0,0,251 });
 }
 
 void MDNSResponder::addService(uint16_t port, const char* instance, const char* serviceType, ServiceProtocol protocol, const char* text)

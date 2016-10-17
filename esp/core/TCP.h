@@ -36,13 +36,14 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Esp.h"
+#include "Containers.h"
 
 extern "C" {
 #include "ip_addr.h"
 #include "espconn.h"
 }
 
-namespace esp {
+namespace m8r {
 
 class TCP {
 public:
@@ -51,6 +52,7 @@ public:
     TCP(uint16_t);
     ~TCP();
     
+    void send(char c);
     void send(const char* data, uint16_t length = 0);
     void disconnect();
     
@@ -70,6 +72,8 @@ private:
     espconn _conn;
     esp_tcp _tcp;
     bool _connected = false;
+    bool _sending = false;
+    String _buffer;
 };
 
 }
