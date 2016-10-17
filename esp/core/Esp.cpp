@@ -21,6 +21,7 @@
 #include "Esp.h"
 #include "FS.h"
 #include "MDNSResponder.h"
+#include "TCP.h"
 
 extern "C" {
 #include <cxxabi.h>
@@ -81,10 +82,6 @@ user_rf_cal_sector_set(void)
 static const char* WIFIAP_SSID = "ESP8266";
 static const char* WIFIAP_PWD = "m8rscript";
 
-static const char* s_panic_file = 0;
-static int s_panic_line = 0;
-static const char* s_panic_func = 0;
-
 static os_timer_t startupTimer;
 static os_timer_t micros_overflow_timer;
 static uint32_t micros_at_last_overflow_tick = 0;
@@ -94,6 +91,54 @@ static bool _calledInitializeCB = false;
 
 void initmdns();
 
+extern "C" {
+    int ets_putc(int);
+    int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
+}
+
+static m8r::TCP* _logTCP = nullptr;
+
+class MySystemInterface : public m8r::SystemInterface
+{
+public:
+    virtual void vprintf(const char* fmt, va_list) const override;
+    virtual int read() const override { return -1; }
+};
+
+void MySystemInterface::vprintf(const char* fmt, va_list args) const
+{
+    size_t fmtlen = ROMstrlen(fmt);
+    char* fmtbuf = new char[fmtlen + 1];
+    ROMCopyString(fmtbuf, fmt);
+    char* buf = new char[fmtlen + 100];
+    vsnprintf(buf, fmtlen + 100, fmtbuf, args);
+    delete [ ] fmtbuf;
+    
+    if (_logTCP) {
+        _logTCP->send(buf);
+    }
+    
+    os_printf_plus(buf);
+    delete [ ] buf;
+}
+
+static MySystemInterface _gSystemInterface;
+
+m8r::SystemInterface* esp_system() { return &_gSystemInterface; }
+
+class MyLogTCP : public m8r::TCP {
+public:
+    MyLogTCP(uint16_t port) : m8r::TCP(port) { }
+    
+    virtual void connected() override { send("Start m8rscript Log\n\n"); }
+    
+    virtual void disconnected() override { }
+    
+    virtual void sentData() override { }
+
+private:
+};
+
 IPAddr IPAddr::myIPAddr()
 {
     struct ip_info info;
@@ -102,9 +147,7 @@ IPAddr IPAddr::myIPAddr()
 }
 
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
-    s_panic_file = file;
-    s_panic_line = line;
-    s_panic_func = func;
+    os_printf("ASSERT:(%s) at %s:%d\n", what, func, line);
     abort();
 }
 
@@ -176,7 +219,7 @@ struct UserSaveData {
 
 void setDeviceName(const char* name)
 {
-    os_printf("Setting device name to '%s'\n", name);
+    esp_system()->printf("Setting device name to '%s'\n", name);
     uint16_t size = strlen(name);
     if (size > MaxBonjourNameSize) {
         size = MaxBonjourNameSize;
@@ -217,7 +260,7 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Output description if given.
     if (desc != NULL)
-    	os_printf("%s:\n", desc);
+    	esp_system()->printf("%s:\n", desc);
 
     // Process every byte in the data.
     for (i = 0; i < len; i++) {
@@ -226,14 +269,14 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
         if ((i % 16) == 0) {
             // Just don't print ASCII for the zeroth line.
             if (i != 0)
-            	os_printf("  %s\n", buff);
+            	esp_system()->printf("  %s\n", buff);
 
             // Output the offset.
-            os_printf("  %04x ", i);
+            esp_system()->printf("  %04x ", i);
         }
 
         // Now the hex code for the specific character.
-        os_printf(" %02x", pc[i]);
+        esp_system()->printf(" %02x", pc[i]);
 
         // And store a printable ASCII character for later.
         if ((pc[i] < 0x20) || (pc[i] > 0x7e))
@@ -245,35 +288,35 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Pad out last line if not exactly 16 characters.
     while ((i % 16) != 0) {
-    	os_printf("   ");
+    	esp_system()->printf("   ");
         i++;
     }
 
     // And print the final ASCII bit.
-    os_printf("  %s\n", buff);
+    esp_system()->printf("  %s\n", buff);
 }
 
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {
     switch(status) {
         case SC_STATUS_WAIT:
-            os_printf("SC_STATUS_WAIT\n");
+            esp_system()->printf("SC_STATUS_WAIT\n");
             break;
         case SC_STATUS_FIND_CHANNEL:
-            os_printf("SC_STATUS_FIND_CHANNEL\n");
+            esp_system()->printf("SC_STATUS_FIND_CHANNEL\n");
             break;
         case SC_STATUS_GETTING_SSID_PSWD: {
-            os_printf("SC_STATUS_GETTING_SSID_PSWD\n");
+            esp_system()->printf("SC_STATUS_GETTING_SSID_PSWD\n");
             sc_type* type = (sc_type*) pdata;
             if (*type == SC_TYPE_ESPTOUCH) {
-                os_printf("SC_TYPE:SC_TYPE_ESPTOUCH\n");
+                esp_system()->printf("SC_TYPE:SC_TYPE_ESPTOUCH\n");
             } else {
-                os_printf("SC_TYPE:SC_TYPE_AIRKISS\n");
+                esp_system()->printf("SC_TYPE:SC_TYPE_AIRKISS\n");
             }
             break;
         }
         case SC_STATUS_LINK: {
-            os_printf("SC_STATUS_LINK\n");
+            esp_system()->printf("SC_STATUS_LINK\n");
             struct station_config* sta_conf = (struct station_config*) pdata;
             wifi_station_set_config(sta_conf);
             wifi_station_disconnect();
@@ -281,11 +324,11 @@ void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
             break;
         }
         case SC_STATUS_LINK_OVER:
-            os_printf("SC_STATUS_LINK_OVER\n");
+            esp_system()->printf("SC_STATUS_LINK_OVER\n");
             if (pdata != NULL) {
                 uint8 phone_ip[4] = {0};
                 memcpy(phone_ip, (uint8*)pdata, 4);
-                os_printf("Phone ip: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
+                esp_system()->printf("Phone ip: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
             }
             smartconfig_stop();
             break;
@@ -338,6 +381,7 @@ void gotStationIP()
         _initializedCB();
         _calledInitializeCB = true;
     }
+    _logTCP = new MyLogTCP(23);
 }
 
 static const uint8_t NumWifiTries = 10;
@@ -347,9 +391,9 @@ void wifiEventHandler(System_Event_t *evt)
     switch(evt->event) {
         case EVENT_STAMODE_DISCONNECTED: {
             gNumWifiTries++;
-            os_printf("Wifi failed to connect %d time%s\n", gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
+            esp_system()->printf("Wifi failed to connect %d time%s\n", gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
             if (gNumWifiTries >= NumWifiTries) {
-                os_printf("Wifi connection failed, starting smartconfig\n");
+                esp_system()->printf("Wifi connection failed, starting smartconfig\n");
                 smartConfig();
             }
             break;
@@ -366,6 +410,7 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 
 void initializeSystem(void (*initializedCB)())
 {
+    do_global_ctors();
     _calledInitializeCB = false;
     _initializedCB = initializedCB;
     system_update_cpu_freq(160);
@@ -373,7 +418,6 @@ void initializeSystem(void (*initializedCB)())
     
     m8r::FS::sharedFS()->mount();
     getUserData();
-    do_global_ctors();
 
     gNumWifiTries = 0;
     wifi_set_opmode(STATION_MODE);

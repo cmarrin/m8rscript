@@ -44,6 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 extern "C" {
 #include <gpio.h>
+#include <osapi.h>
 #include <user_interface.h>
 }
 
@@ -54,28 +55,7 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-static esp::TCP* _shellTCP = nullptr;
-static esp::TCP* _logTCP = nullptr;
-
-class MySystemInterface : public m8r::SystemInterface
-{
-public:
-    virtual void vprintf(const char* fmt, va_list) const override;
-    virtual int read() const override { return readSerialChar(); }
-};
-
-void MySystemInterface::vprintf(const char* fmt, va_list args) const
-{
-    char* buf = new char[ROMstrlen(fmt) + 1];
-    ROMCopyString(buf, fmt);
-    ets_vprintf(ets_putc, buf, args);
-    if (_logTCP) {
-        _logTCP->send(buf);
-    }
-    delete [ ] buf;
-}
-
-MySystemInterface _gSystemInterface;
+static m8r::TCP* _shellTCP = nullptr;
 
 os_timer_t gExecutionTimer;
 static const uint32_t ExecutionTaskPrio = 0;
@@ -91,8 +71,8 @@ void ICACHE_FLASH_ATTR executionTask(os_event_t *event)
     } else if (delay > 0) {
         os_timer_arm(&gExecutionTimer, delay, false);
     } else {
-        os_printf("\n***** End of Program Output *****\n\n");
-        os_printf("***** after run - free ram:%d\n", system_get_free_heap_size());
+        esp_system()->printf(ROMSTR("\n***** End of Program Output *****\n\n"));
+        esp_system()->printf(ROMSTR("***** after run - free ram:%d\n"), system_get_free_heap_size());
     }
 }
 
@@ -105,22 +85,22 @@ void ICACHE_FLASH_ATTR runScript()
 {
     m8r::FS* fs = m8r::FS::sharedFS();
     if (!fs->mount()) {
-        _gSystemInterface.printf(ROMSTR("ERROR: Mount failed, trying to format.\n"));
+        esp_system()->printf(ROMSTR("ERROR: Mount failed, trying to format.\n"));
         fs->format();
     }
 
-    _gSystemInterface.printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    _gSystemInterface.printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
+    esp_system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
+    esp_system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     
-    m8r::Application application(&_gSystemInterface);
+    m8r::Application application(esp_system());
     m8r::Error error;
     if (!application.load(error)) {
-        error.showError(&_gSystemInterface);
+        error.showError(esp_system());
     } else {
         m8r::Program* program = application.program();
     
-        _gSystemInterface.printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(&_gSystemInterface);
+        esp_system()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
+        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(esp_system());
         eu->startExecution(program);
 
         os_timer_disarm(&gExecutionTimer);
@@ -137,16 +117,16 @@ void blinkTimerfunc(void *)
 {
     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
     {
-        _gSystemInterface.printf("Blink\n");
+        esp_system()->printf("Blink\n");
         gpio_output_set(0, BIT2, BIT2, 0);
     } else {
         gpio_output_set(BIT2, 0, BIT2, 0);
     }
 }
 
-class MyShellTCP : public esp::TCP, public m8r::ShellOutput {
+class MyShellTCP : public m8r::TCP, public m8r::ShellOutput {
 public:
-    MyShellTCP(uint16_t port) : esp::TCP(port), _shell(this) { }
+    MyShellTCP(uint16_t port) : m8r::TCP(port), _shell(this) { }
     
     virtual void connected() override { _shell.connected(); }
     
@@ -168,23 +148,9 @@ private:
     m8r::Shell _shell;
 };
 
-class MyLogTCP : public esp::TCP {
-public:
-    MyLogTCP(uint16_t port) : esp::TCP(port) { }
-    
-    virtual void connected() override { send("Start m8rscript Log\n\n"); }
-    
-    virtual void disconnected() override { }
-    
-    virtual void sentData() override { }
-
-private:
-};
-
 void systemInitialized()
 {
     _shellTCP = new MyShellTCP(22);
-    _logTCP = new MyLogTCP(23);
     runScript();
 }
 

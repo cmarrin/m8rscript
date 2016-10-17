@@ -78,28 +78,28 @@ DirectoryEntry* EspFS::directory()
 
 bool EspFS::mount()
 {
-    os_printf("Mounting SPIFFS...\n");
+    esp_system()->printf("Mounting SPIFFS...\n");
     int32_t result = internalMount();
     if (result != SPIFFS_OK) {
         if (result == SPIFFS_ERR_NOT_A_FS) {
-            os_printf("ERROR: Not a valid SPIFFS filesystem. Please format.\n");
+            esp_system()->printf("ERROR: Not a valid SPIFFS filesystem. Please format.\n");
         } else {
-            os_printf("ERROR: SPIFFS mount failed, error=%d\n", result);
+            esp_system()->printf("ERROR: SPIFFS mount failed, error=%d\n", result);
         }
         return false;
     }
     if (!mounted()) {
-        os_printf("ERROR: SPIFFS filesystem failed to mount\n");
+        esp_system()->printf("ERROR: SPIFFS filesystem failed to mount\n");
         return false;
     }
 
-    os_printf("Checking file system...\n");
+    esp_system()->printf("Checking file system...\n");
     result = SPIFFS_check(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        os_printf("ERROR: Consistency check failed during SPIFFS mount, error=%d\n", result);
+        esp_system()->printf("ERROR: Consistency check failed during SPIFFS mount, error=%d\n", result);
         return false;
     } else {
-        os_printf("SPIFFS mounted successfully\n");
+        esp_system()->printf("SPIFFS mounted successfully\n");
     }
     return true;
 }
@@ -125,7 +125,7 @@ bool EspFS::format()
     
     int32_t result = SPIFFS_format(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        os_printf("ERROR: SPIFFS format failed, error=%d\n", result);
+        esp_system()->printf("ERROR: SPIFFS format failed, error=%d\n", result);
         return false;
     }
     mount();
@@ -210,7 +210,7 @@ static const FileModeEntry _fileModeMap[] = {
 EspFile::EspFile(const char* name, const char* mode)
 {
     if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
-        os_printf("ERROR: invalid filename '%s' for open\n", name);
+        esp_system()->printf("ERROR: invalid filename '%s' for open\n", name);
         _file = SPIFFS_ERR_NAME_TOO_LONG;
         return;
     }
@@ -223,7 +223,7 @@ EspFile::EspFile(const char* name, const char* mode)
         }
     }
     if (!flags) {
-        os_printf("ERROR: invalid mode '%s' for open\n", mode);
+        esp_system()->printf("ERROR: invalid mode '%s' for open\n", mode);
         _file = SPIFFS_ERR_FILE_CLOSED;
         return;
     }
