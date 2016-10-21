@@ -53,29 +53,6 @@ void setDeviceName(const char* name);
 } // extern "C"
 #endif
 
-#ifdef __cplusplus
-class IPAddr {
-public:
-    IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
-    {
-        _addr = static_cast<uint32_t>(a) |
-                static_cast<uint32_t>(b) << 8 |
-                static_cast<uint32_t>(c) << 16 |
-                static_cast<uint32_t>(d) << 24;
-    }
-    
-    operator uint32_t() const { return _addr; }
-    uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
-    
-    static IPAddr myIPAddr();
-    
-private:
-    IPAddr(uint32_t addr) : _addr(addr) { }
-    
-    uint32_t _addr;
-};
-#endif
-
 void initializeSystem(void (*)());
 uint64_t currentMicroseconds();
 

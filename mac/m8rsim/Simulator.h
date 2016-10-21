@@ -13,7 +13,7 @@
 #include "Shell.h"
 #include "SystemInterface.h"
 
-class Simulator : public m8r::ShellOutput
+class Simulator : public m8r::ShellDelegate
 {
 public:
     Simulator(m8r::SystemInterface* system)
@@ -41,7 +41,7 @@ public:
     long sendToShell(const void* data, long size);
     long receiveFromShell(void* data, long size);
 
-    // ShellOutput
+    // ShellDelegate
     virtual void shellSend(const char* data, uint16_t size = 0) override
     {
         if (!size) {

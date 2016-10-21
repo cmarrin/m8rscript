@@ -35,51 +35,53 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "FS.h"
-#include "Containers.h"
+#include <cstdint>
 
 namespace m8r {
 
-class ShellDelegate {
+class IPAddr {
 public:
-    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
-    virtual void setDeviceName(const char* name) { }
+    IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+    {
+        _addr = static_cast<uint32_t>(a) |
+                static_cast<uint32_t>(b) << 8 |
+                static_cast<uint32_t>(c) << 16 |
+                static_cast<uint32_t>(d) << 24;
+    }
+    
+    operator uint32_t() const { return _addr; }
+    uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
+    
+    static IPAddr myIPAddr();
+    
+private:
+    IPAddr(uint32_t addr) : _addr(addr) { }
+    
+    uint32_t _addr;
 };
 
-class Shell {
+class UDPDelegate {
 public:
-    static const uint16_t BufferSize = 76;
-    static const uint16_t Base64MaxSize = (BufferSize - 3) / 4 * 3;
-    static const uint32_t StackAllocLimit = 33; // This must be divisible by 4/3
-    static_assert (StackAllocLimit < Base64MaxSize, "BufferSize too big");
-    
-    enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
-    
-    Shell(ShellDelegate* delegate)
-        : _delegate(delegate)
-    { }
-    
-    void connected();
-    void disconnected() { }
-    bool received(const char* data, uint16_t size);
-    void sendComplete();
-    void init();
-    
-    long send(const void* data, long size);
-    long receive(void* data, long size);
-        
-private:
-    bool executeCommand(const std::vector<m8r::String>& array);
-    void showError(const char*, ...);
-    void sendString(const char* s);
+    virtual void receivedData(const char* data, uint16_t length) { }
+    virtual void sentData() { }
+};
 
-    ShellDelegate* _delegate = nullptr;
-    m8r::DirectoryEntry* _directoryEntry = nullptr;
-    State _state = State::Init;
-    bool _binary = true;
-    m8r::File* _file = nullptr;
+class UDP {
+public:
+    UDP(uint16_t port) : 
+    virtual ~UDP();
     
-    char _buffer[BufferSize];
+    static void joinMulticastGroup(IPAddr);
+    static void leaveMulticastGroup(IPAddr);
+    
+    void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0);
+
+private:    
+    static void receiveCB(void* arg, char* data, uint16_t length);
+    static void sentCB(void*);
+
+    espconn _conn;
+    esp_udp _udp;
 };
 
 }

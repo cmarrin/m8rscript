@@ -173,6 +173,8 @@
 		49DD77481D84D94900D7C374 /* Simulate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Simulate.png; sourceTree = "<group>"; };
 		49DD774A1D84DD7D00D7C374 /* Application.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Application.cpp; path = ../m8rscript/Application.cpp; sourceTree = "<group>"; };
 		49DD774B1D84DD7D00D7C374 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Application.h; path = ../m8rscript/Application.h; sourceTree = "<group>"; };
+		49E190781DB99E270030DC89 /* TCP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TCP.h; path = ../m8rscript/TCP.h; sourceTree = "<group>"; };
+		49E190791DB99E270030DC89 /* UDP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UDP.h; path = ../m8rscript/UDP.h; sourceTree = "<group>"; };
 		49E5AB501D94195F00C6988D /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
 		49E5AB511D94195F00C6988D /* Simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simulator.cpp; sourceTree = "<group>"; };
 		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
@@ -412,6 +414,8 @@
 				49AE34F61D8330CA00C4E680 /* Shell.cpp */,
 				49AE34F71D8330CA00C4E680 /* Shell.h */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
+				49E190781DB99E270030DC89 /* TCP.h */,
+				49E190791DB99E270030DC89 /* UDP.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
 			);

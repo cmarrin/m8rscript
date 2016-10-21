@@ -35,51 +35,35 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "FS.h"
-#include "Containers.h"
+#include <cstdint>
 
 namespace m8r {
 
-class ShellDelegate {
+class TCPDelegate {
 public:
-    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
-    virtual void setDeviceName(const char* name) { }
+    virtual void connected() { }
+    virtual void reconnected() { }
+    virtual void disconnected() { }
+    virtual void receivedData(const char* data, uint16_t length) { }
+    virtual void sentData() { }
 };
 
-class Shell {
+class TCP {
 public:
-    static const uint16_t BufferSize = 76;
-    static const uint16_t Base64MaxSize = (BufferSize - 3) / 4 * 3;
-    static const uint32_t StackAllocLimit = 33; // This must be divisible by 4/3
-    static_assert (StackAllocLimit < Base64MaxSize, "BufferSize too big");
+    static constexpr uint32_t DefaultTimeout = 7200;
+     
+    TCP(TCPDelegate* delegate, uint16_t port) : _delegate(delegate), _ip(0), _port(port) { }
+    TCP(TCPDelegate* delegate, uint32_t ip, uint16_t port) : _delegate(delegate), _ip(ip), _port(port) { }
+    virtual ~TCP() { }
     
-    enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
-    
-    Shell(ShellDelegate* delegate)
-        : _delegate(delegate)
-    { }
-    
-    void connected();
-    void disconnected() { }
-    bool received(const char* data, uint16_t size);
-    void sendComplete();
-    void init();
-    
-    long send(const void* data, long size);
-    long receive(void* data, long size);
-        
-private:
-    bool executeCommand(const std::vector<m8r::String>& array);
-    void showError(const char*, ...);
-    void sendString(const char* s);
+    virtual void send(char c);
+    virtual void send(const char* data, uint16_t length = 0);
+    virtual void disconnect();
 
-    ShellDelegate* _delegate = nullptr;
-    m8r::DirectoryEntry* _directoryEntry = nullptr;
-    State _state = State::Init;
-    bool _binary = true;
-    m8r::File* _file = nullptr;
-    
-    char _buffer[BufferSize];
+private:
+    TCPDelegate* _delegate;
+    uint32_t _ip;
+    uint16_t _port;
 };
 
 }

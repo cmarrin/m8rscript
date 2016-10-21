@@ -39,6 +39,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+IPAddr IPAddr::myIPAddr()
+{
+    struct ip_info info;
+    wifi_get_ip_info(STATION_IF, &info);
+    return IPAddr(info.ip.addr);
+}
+
 void UDP::joinMulticastGroup(IPAddr addr)
 {
     struct ip_addr mDNSmulticast;

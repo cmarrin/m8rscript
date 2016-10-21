@@ -124,7 +124,42 @@ void blinkTimerfunc(void *)
     }
 }
 
-class MyShellTCP : public m8r::TCP, public m8r::ShellOutput {
+class MyShellTCPDelegate : public m8r::ShellDelegate, public m8r::TCP {
+public:
+    MyShellDelegate(m8r::TCP* tcp) : _tcp(tcp) { }
+    
+    virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(data, size); }
+    virtual void setDeviceName(const char* name) { setDeviceName(name); }
+
+private:
+    m8r::TCP* _tcp;
+};
+
+class MyShell : public m8r::Shell {
+public:
+    MyShell(uint16_t port) : m8r::TCP(port), _shell(this) { }
+    
+    virtual void connected() override { _shell.connected(); }
+    
+    virtual void disconnected() override { _shell.disconnected(); }
+    
+    virtual void receivedData(const char* data, uint16_t length) override
+    {
+        if (!_shell.received(data, length)) {
+            disconnect();
+        }
+    }
+
+    virtual void sentData() override { _shell.sendComplete(); }
+
+    virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
+    virtual void setDeviceName(const char* name) { setDeviceName(name); }
+
+private:
+    m8r::Shell _shell;
+};
+
+class MyShellTCP : public m8r::TCP, public m8r::ShellDelegate {
 public:
     MyShellTCP(uint16_t port) : m8r::TCP(port), _shell(this) { }
     
@@ -150,7 +185,7 @@ private:
 
 void systemInitialized()
 {
-    _shellTCP = new MyShellTCP(22);
+    _shellTCP = TCP::create(new MyShellTCPDelegate(), new MyShellDelegate22);
     runScript();
 }
 

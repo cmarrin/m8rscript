@@ -118,7 +118,7 @@ void Shell::sendComplete()
             break;
         case State::NeedPrompt:
             _state = State::ShowingPrompt;
-            _output->shellSend("\n>");
+            _delegate->shellSend("\n>");
             break;
         case State::ShowingPrompt:
             break;
@@ -129,7 +129,7 @@ void Shell::sendComplete()
                 } else {
                     sprintf(_buffer, "    %-32s %d\n", _directoryEntry->name(), _directoryEntry->size());
                 }
-                _output->shellSend(_buffer);
+                _delegate->shellSend(_buffer);
                 _directoryEntry->next();
             } else {
                 if (_directoryEntry) {
@@ -143,7 +143,7 @@ void Shell::sendComplete()
         case State::GetFile: {
             if (!_file) {
                 _state = State::NeedPrompt;
-                _output->shellSend("\04");
+                _delegate->shellSend("\04");
                 break;
             }
             if (_binary) {
@@ -168,7 +168,7 @@ void Shell::sendComplete()
                 }
                 _buffer[length++] = '\r';
                 _buffer[length++] = '\n';
-                _output->shellSend(_buffer, length);
+                _delegate->shellSend(_buffer, length);
             } else {
                 int32_t result = _file->read(_buffer, BufferSize);
                 if (result < 0) {
@@ -179,7 +179,7 @@ void Shell::sendComplete()
                     delete _file;
                     _file = nullptr;
                 }
-                _output->shellSend(_buffer, result);
+                _delegate->shellSend(_buffer, result);
             }
             break;
         }
@@ -251,7 +251,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             } else if (type == Application::NameValidationType::InvalidChar) {
                 showError(ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
-                _output->setDeviceName(array[1].c_str());
+                _delegate->setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
                 sendString(ROMSTR("set dev name\n"));
             }
@@ -300,12 +300,12 @@ void Shell::showError(const char* msg, ...)
     p = ROMCopyString(p, "\n");
     delete[ ] buf;
     
-    _output->shellSend(_buffer);
+    _delegate->shellSend(_buffer);
 }
 
 void Shell::sendString(const char* s)
 {
     ROMCopyString(_buffer, s);
-    _output->shellSend(_buffer);
+    _delegate->shellSend(_buffer);
 }
 
