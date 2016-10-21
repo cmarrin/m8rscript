@@ -35,32 +35,23 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Esp.h"
-#include "Containers.h"
+#include "TCP.h"
 
-extern "C" {
-#include "ip_addr.h"
-#include "espconn.h"
-}
+#include "EspUDP.h"
+#include "Containers.h"
 
 namespace m8r {
 
-class TCP {
+class EspTCP : public TCP {
 public:
-    static constexpr uint32_t DefaultTimeout = 7200;
-     
-    TCP(uint16_t);
-    ~TCP();
+    virtual ~EspTCP();
     
-    void send(char c);
-    void send(const char* data, uint16_t length = 0);
-    void disconnect();
+    virtual void send(char c) override;
+    virtual void send(const char* data, uint16_t length = 0) override;
+    virtual void disconnect() override;
     
-    virtual void connected() { }
-    virtual void reconnected() { }
-    virtual void disconnected() { }
-    virtual void receivedData(const char* data, uint16_t length) { }
-    virtual void sentData() { }
+    EspTCP(TCPDelegate*, IPAddr, uint16_t);
+    EspTCP(TCPDelegate*, uint16_t);
 
 private:
     static void connectCB(void*);

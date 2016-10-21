@@ -35,12 +35,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cassert>
 #include <cstdint>
+#include <cstddef>
 
 namespace m8r {
 
 class IPAddr {
 public:
+    IPAddr() : _addr(0) { }
     IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
     {
         _addr = static_cast<uint32_t>(a) |
@@ -60,28 +63,29 @@ private:
     uint32_t _addr;
 };
 
+class UDP;
+
 class UDPDelegate {
 public:
-    virtual void receivedData(const char* data, uint16_t length) { }
-    virtual void sentData() { }
+    virtual void UDPreceivedData(UDP*, const char* data, uint16_t length) { }
+    virtual void UDPsentData(UDP*) { }
 };
 
 class UDP {
 public:
-    UDP(uint16_t port) : 
-    virtual ~UDP();
-    
+    static UDP* create(UDPDelegate*, uint16_t port = 0);
+    virtual ~UDP() { }
+        
     static void joinMulticastGroup(IPAddr);
     static void leaveMulticastGroup(IPAddr);
     
-    void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0);
+    virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) = 0;
 
-private:    
-    static void receiveCB(void* arg, char* data, uint16_t length);
-    static void sentCB(void*);
+protected:
+    UDP(UDPDelegate* delegate, uint16_t port) : _delegate(delegate), _port(port) { }
 
-    espconn _conn;
-    esp_udp _udp;
+    UDPDelegate* _delegate;
+    uint16_t _port;
 };
 
 }

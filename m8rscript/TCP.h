@@ -35,34 +35,40 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "UDP.h"
 #include <cstdint>
 
 namespace m8r {
 
+class TCP;
+
 class TCPDelegate {
 public:
-    virtual void connected() { }
-    virtual void reconnected() { }
-    virtual void disconnected() { }
-    virtual void receivedData(const char* data, uint16_t length) { }
-    virtual void sentData() { }
+    virtual void TCPconnected(TCP*) { }
+    virtual void TCPreconnected(TCP*) { }
+    virtual void TCPdisconnected(TCP*) { }
+    virtual void TCPreceivedData(TCP*, const char* data, uint16_t length) { }
+    virtual void TCPsentData(TCP*) { }
 };
 
 class TCP {
 public:
     static constexpr uint32_t DefaultTimeout = 7200;
      
-    TCP(TCPDelegate* delegate, uint16_t port) : _delegate(delegate), _ip(0), _port(port) { }
-    TCP(TCPDelegate* delegate, uint32_t ip, uint16_t port) : _delegate(delegate), _ip(ip), _port(port) { }
+    static TCP* create(TCPDelegate*, uint16_t port);
+    static TCP* create(TCPDelegate*, IPAddr ip, uint16_t port);
     virtual ~TCP() { }
     
-    virtual void send(char c);
-    virtual void send(const char* data, uint16_t length = 0);
-    virtual void disconnect();
+    virtual void send(char c) = 0;
+    virtual void send(const char* data, uint16_t length = 0) = 0;
+    virtual void disconnect() = 0;
 
-private:
+protected:
+    TCP(TCPDelegate* delegate, uint16_t port) : _delegate(delegate), _port(port) { }
+    TCP(TCPDelegate* delegate, IPAddr ip, uint16_t port) : _delegate(delegate), _ip(ip), _port(port) { }
+
     TCPDelegate* _delegate;
-    uint32_t _ip;
+    IPAddr _ip;
     uint16_t _port;
 };
 

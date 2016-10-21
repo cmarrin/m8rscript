@@ -33,8 +33,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "UDP.h"
+#include "EspUDP.h"
 
+#include "Esp.h"
 #include <stdlib.h>
 
 using namespace m8r;
@@ -44,6 +45,11 @@ IPAddr IPAddr::myIPAddr()
     struct ip_info info;
     wifi_get_ip_info(STATION_IF, &info);
     return IPAddr(info.ip.addr);
+}
+
+UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
+{
+    return new EspUDP(delegate, port);
 }
 
 void UDP::joinMulticastGroup(IPAddr addr)
@@ -64,7 +70,8 @@ void UDP::leaveMulticastGroup(IPAddr addr)
 	espconn_igmp_leave(&any, &mDNSmulticast);
 }
 
-UDP::UDP(uint16_t port)
+EspUDP::EspUDP(UDPDelegate* delegate, uint16_t port)
+    : UDP(delegate, port)
 {
 	_conn.type = ESPCONN_UDP;
 	_conn.state = ESPCONN_NONE;
@@ -76,13 +83,13 @@ UDP::UDP(uint16_t port)
 	espconn_create(&_conn);
 }
 
-UDP::~UDP()
+EspUDP::~EspUDP()
 {
 	espconn_disconnect(&_conn);
 	espconn_delete(&_conn);
 }
 
-void UDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
+void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
 {
     if (!length) {
         length = strlen(data);
@@ -101,15 +108,18 @@ void UDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     }
 }
 
-void UDP::receiveCB(void* arg, char* data, uint16_t length)
+void EspUDP::receiveCB(void* arg, char* data, uint16_t length)
 {
     struct espconn* conn = (struct espconn *) arg;
+    EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
 
-    reinterpret_cast<UDP*>(conn->reverse)->receivedData(data, length);
+    self->_delegate->UDPreceivedData(self, data, length);
 }
 
-void UDP::sentCB(void* arg)
+void EspUDP::sentCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-    reinterpret_cast<UDP*>(conn->reverse)->sentData();
+    EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
+
+    self->_delegate->UDPsentData(self);
 }

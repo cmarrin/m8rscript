@@ -124,10 +124,24 @@ void blinkTimerfunc(void *)
     }
 }
 
-class MyShellTCPDelegate : public m8r::ShellDelegate, public m8r::TCP {
+class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
-    MyShellDelegate(m8r::TCP* tcp) : _tcp(tcp) { }
+    MyShell(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
+    // TCPDelegate
+    virtual void TCPconnected(m8r::TCP*) override { connected(); }
+    virtual void TCPdisconnected(m8r::TCP*) override { disconnected(); }
+    
+    virtual void TCPreceivedData(m8r::TCP* tcp, const char* data, uint16_t length) override
+    {
+        if (!received(data, length)) {
+            tcp->disconnect();
+        }
+    }
+
+    virtual void TCPsentData(m8r::TCP*) override { sendComplete(); }
+    
+    // Shell Delegate
     virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(data, size); }
     virtual void setDeviceName(const char* name) { setDeviceName(name); }
 
@@ -135,57 +149,11 @@ private:
     m8r::TCP* _tcp;
 };
 
-class MyShell : public m8r::Shell {
-public:
-    MyShell(uint16_t port) : m8r::TCP(port), _shell(this) { }
-    
-    virtual void connected() override { _shell.connected(); }
-    
-    virtual void disconnected() override { _shell.disconnected(); }
-    
-    virtual void receivedData(const char* data, uint16_t length) override
-    {
-        if (!_shell.received(data, length)) {
-            disconnect();
-        }
-    }
-
-    virtual void sentData() override { _shell.sendComplete(); }
-
-    virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
-    virtual void setDeviceName(const char* name) { setDeviceName(name); }
-
-private:
-    m8r::Shell _shell;
-};
-
-class MyShellTCP : public m8r::TCP, public m8r::ShellDelegate {
-public:
-    MyShellTCP(uint16_t port) : m8r::TCP(port), _shell(this) { }
-    
-    virtual void connected() override { _shell.connected(); }
-    
-    virtual void disconnected() override { _shell.disconnected(); }
-    
-    virtual void receivedData(const char* data, uint16_t length) override
-    {
-        if (!_shell.received(data, length)) {
-            disconnect();
-        }
-    }
-
-    virtual void sentData() override { _shell.sendComplete(); }
-
-    virtual void shellSend(const char* data, uint16_t size = 0) { send(data, size); }
-    virtual void setDeviceName(const char* name) { setDeviceName(name); }
-
-private:
-    m8r::Shell _shell;
-};
+MyShell* _shell;
 
 void systemInitialized()
 {
-    _shellTCP = TCP::create(new MyShellTCPDelegate(), new MyShellDelegate22);
+    _shell = new MyShell(22);
     runScript();
 }
 

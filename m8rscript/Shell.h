@@ -40,12 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class ShellDelegate {
-public:
-    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
-    virtual void setDeviceName(const char* name) { }
-};
-
 class Shell {
 public:
     static const uint16_t BufferSize = 76;
@@ -55,9 +49,7 @@ public:
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
-    Shell(ShellDelegate* delegate)
-        : _delegate(delegate)
-    { }
+    Shell() { }
     
     void connected();
     void disconnected() { }
@@ -68,12 +60,14 @@ public:
     long send(const void* data, long size);
     long receive(void* data, long size);
         
+    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
+    virtual void setDeviceName(const char* name) { }
+
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
     void showError(const char*, ...);
     void sendString(const char* s);
 
-    ShellDelegate* _delegate = nullptr;
     m8r::DirectoryEntry* _directoryEntry = nullptr;
     State _state = State::Init;
     bool _binary = true;

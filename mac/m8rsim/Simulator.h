@@ -13,7 +13,7 @@
 #include "Shell.h"
 #include "SystemInterface.h"
 
-class Simulator : public m8r::ShellDelegate
+class Simulator : public m8r::Shell
 {
 public:
     Simulator(m8r::SystemInterface* system)
@@ -41,8 +41,7 @@ public:
     long sendToShell(const void* data, long size);
     long receiveFromShell(void* data, long size);
 
-    // ShellDelegate
-    virtual void shellSend(const char* data, uint16_t size = 0) override
+    void shellSend(const char* data, uint16_t size)
     {
         if (!size) {
             size = strlen(data);
@@ -51,13 +50,22 @@ public:
     }
 
 private:
+    class MyShell : public m8r::Shell {
+    public:
+        MyShell(Simulator* simulator) : _simulator(simulator) { }
+        virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
+
+    private:
+        Simulator* _simulator;
+    };
+    
     m8r::SystemInterface* _system;
     bool _isBuild = true;
     m8r::ExecutionUnit _eu;
     m8r::Program* _program = nullptr;
     m8r::Application* _application = nullptr;
     bool _running = false;
-    m8r::Shell _shell;
+    MyShell _shell;
     m8r::String _receivedString;
 };
 

@@ -35,28 +35,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Esp.h"
+#include "UDP.h"
 
 extern "C" {
-#include "ip_addr.h"
-#include "espconn.h"
+#include <ip_addr.h>
+#include <espconn.h>
+#include <osapi.h>
+#include <ets_sys.h>
+#include "user_interface.h"
 }
 
 namespace m8r {
 
-class UDP {
+class EspUDP : public UDP {
 public:
-    UDP(uint16_t);
-    ~UDP();
+    EspUDP(UDPDelegate*, uint16_t);
+    virtual ~EspUDP();
     
     static void joinMulticastGroup(IPAddr);
     static void leaveMulticastGroup(IPAddr);
     
-    void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0);
+    virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) override;
     
-    virtual void receivedData(const char* data, uint16_t length) { }
-    virtual void sentData() { }
-
 private:    
     static void receiveCB(void* arg, char* data, uint16_t length);
     static void sentCB(void*);

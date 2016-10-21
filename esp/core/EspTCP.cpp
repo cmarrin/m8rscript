@@ -33,14 +33,28 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "TCP.h"
-
-#include "Esp.h"
-#include <stdlib.h>
+#include "EspTCP.h"
 
 using namespace m8r;
 
-TCP::TCP(uint16_t port)
+TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
+{
+    return new EspTCP(delegate, port);
+}
+
+TCP* TCP::create(TCPDelegate* delegate, IPAddr ip, uint16_t port)
+{
+    return new EspTCP(delegate, ip, port);
+}
+
+EspTCP::EspTCP(TCPDelegate* delegate, IPAddr ip, uint16_t port)
+    : TCP(delegate, ip, port)
+{
+    assert(0); // Not yet supported
+}
+
+EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port)
+    : TCP(delegate, port)
 {
     _conn.type = ESPCONN_TCP;
     _conn.state = ESPCONN_NONE;
@@ -56,13 +70,13 @@ TCP::TCP(uint16_t port)
     }
 }
 
-TCP::~TCP()
+EspTCP::~EspTCP()
 {
     espconn_abort(&_conn);
     espconn_disconnect(&_conn);
 }
 
-void TCP::send(char c)
+void EspTCP::send(char c)
 {
     if (!_connected) {
         return;
@@ -79,7 +93,7 @@ void TCP::send(char c)
     }
 }
 
-void TCP::send(const char* data, uint16_t length)
+void EspTCP::send(const char* data, uint16_t length)
 {
     if (!_connected) {
         return;
@@ -100,7 +114,7 @@ void TCP::send(const char* data, uint16_t length)
     }
 }
 
-void TCP::disconnect()
+void EspTCP::disconnect()
 {
     if (!_connected) {
         return;
@@ -108,10 +122,10 @@ void TCP::disconnect()
     espconn_disconnect(&_conn);
 }
 
-void TCP::connectCB(void* arg)
+void EspTCP::connectCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
+    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
 
     self->_sending = false;
     self->_connected = true;
@@ -123,44 +137,45 @@ void TCP::connectCB(void* arg)
     espconn_regist_disconcb(conn, disconnectCB);
     espconn_regist_sentcb(conn, sentCB);
     
-    self->connected();
+    self->_delegate->TCPconnected(self);
 }
 
-void TCP::disconnectCB(void* arg)
+void EspTCP::disconnectCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
+    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
 
     self->_sending = false;
     self->_connected = false;
     os_printf("TCP: disconnected from port %d\n", conn->proto.tcp->local_port);
 
-    self->disconnected();
+    self->_delegate->TCPdisconnected(self);
 }
 
-void TCP::reconnectCB(void* arg, int8_t error)
+void EspTCP::reconnectCB(void* arg, int8_t error)
 {
     struct espconn* conn = (struct espconn *) arg;
-    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
+    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
 
     self->_sending = false;
     self->_connected = true;
     os_printf("TCP: reconnected to port %d, error=%d\n", conn->proto.tcp->local_port, error);
     
-    self->reconnected();
+    self->_delegate->TCPreconnected(self);
 }
 
-void TCP::receiveCB(void* arg, char* data, uint16_t length)
+void EspTCP::receiveCB(void* arg, char* data, uint16_t length)
 {
     struct espconn* conn = (struct espconn *) arg;
+    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
 
-    reinterpret_cast<TCP*>(conn->reverse)->receivedData(data, length);
+    self->_delegate->TCPreceivedData(self, data, length);
 }
 
-void TCP::sentCB(void* arg)
+void EspTCP::sentCB(void* arg)
 {
     struct espconn* conn = (struct espconn *) arg;
-    TCP* self = reinterpret_cast<TCP*>(conn->reverse);
+    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
     assert(self->_sending);
     if (!self->_buffer.empty()) {
         int8_t result = espconn_send(&self->_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(self->_buffer.c_str())), self->_buffer.size());
@@ -172,5 +187,5 @@ void TCP::sentCB(void* arg)
     }
     
     self->_sending = false;
-    self->sentData();
+    self->_delegate->TCPsentData(self);
 }

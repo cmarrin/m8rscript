@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class MDNSResponder {
+class MDNSResponder : public UDPDelegate {
 public:
     enum class ServiceProtocol { TCP, UDP };
     
@@ -163,25 +163,13 @@ private:
     uint32_t _ttl = 0;
     std::vector<uint8_t> _replyBuffer;
     
-    class MyUDP : public UDP {
-    public:
-        MyUDP(uint16_t port, MDNSResponder* responder)
-            : UDP(port)
-            , _responder(responder)
-        { }
-        
-        virtual void receivedData(const char* data, uint16_t length) override
-        {
-            _responder->receivedData(data, length);
-        }
-        
-        virtual void sentData() override { }
+    // UDPDelegate
+    virtual void UDPreceivedData(UDP*, const char* data, uint16_t length) override
+    {
+        receivedData(data, length);
+    }
     
-    private:
-        MDNSResponder* _responder;
-    };
-    
-    MyUDP* _udp;
+    UDP* _udp;
 };
 
 }

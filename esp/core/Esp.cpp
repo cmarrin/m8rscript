@@ -126,15 +126,11 @@ static MySystemInterface _gSystemInterface;
 
 m8r::SystemInterface* esp_system() { return &_gSystemInterface; }
 
-class MyLogTCP : public m8r::TCP {
+class MyLogTCPDelegate : public m8r::TCPDelegate {
 public:
-    MyLogTCP(uint16_t port) : m8r::TCP(port) { }
-    
-    virtual void connected() override { send("Start m8rscript Log\n\n"); }
-    
-    virtual void disconnected() override { }
-    
-    virtual void sentData() override { }
+    virtual void TCPconnected(m8r::TCP* tcp) override { tcp->send("Start m8rscript Log\n\n"); }    
+    virtual void TCPdisconnected(m8r::TCP*) override { }
+    virtual void TCPsentData(m8r::TCP*) override { }
 
 private:
 };
@@ -367,6 +363,8 @@ void initSoftAP()
     wifi_softap_set_config(&apConfig);
 }
 
+MyLogTCPDelegate _myLogTCPDelegate;
+
 void gotStationIP()
 {
     if (_initializedCB && !_calledInitializeCB) {
@@ -374,7 +372,7 @@ void gotStationIP()
         _initializedCB();
         _calledInitializeCB = true;
     }
-    _logTCP = new MyLogTCP(23);
+    _logTCP = m8r::TCP::create(&_myLogTCPDelegate, 23);
 }
 
 static const uint8_t NumWifiTries = 10;

@@ -54,7 +54,7 @@ MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint3
     _hostname = name;
     
     UDP::joinMulticastGroup({ 224,0,0,251 });
-    _udp = new MyUDP(5353, this);
+    _udp = UDP::create(this, 5353);
 
 	os_timer_disarm(&bc_timer);
 	if (broadcastInterval > 0) {
