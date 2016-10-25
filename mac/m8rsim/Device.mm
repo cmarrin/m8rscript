@@ -471,9 +471,10 @@ private:
     _simulator->simulate();
 }
 
-- (void)saveBinary
+- (void)saveBinary:(NSString*)filename
 {
-    
+    NSString* name = [filename stringByDeletingPathExtension];
+    name = [NSString stringWithFormat:@"%@.m8rb", name];
 }
 
 - (void)clearContents

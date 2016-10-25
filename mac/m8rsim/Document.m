@@ -153,7 +153,7 @@
 }
 
 - (IBAction)saveBinary:(id)sender {
-    [_device saveBinary];
+    [_device saveBinary:_sourceFilename];
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build

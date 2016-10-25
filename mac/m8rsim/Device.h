@@ -64,7 +64,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)pause;
 - (void)stop;
 - (void)simulate;
-- (void)saveBinary;
+- (void)saveBinary:(NSString*)filename;
 
 
 @end
