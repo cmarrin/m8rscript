@@ -49,11 +49,13 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
 - (void)removeFile:(NSString*)name;
 - (void)setDevice:(NSString*)device;
+- (void)clearContents;
 
 - (BOOL)canRun;
 - (BOOL)canStop;
 - (BOOL)canUpload;
 - (BOOL)canSimulate;
+- (BOOL)canSaveBinary;
 
 - (void)importBinary:(const char*)filename;
 - (void)exportBinary:(const char*)filename;
@@ -62,6 +64,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)pause;
 - (void)stop;
 - (void)simulate;
+- (void)saveBinary;
 
 
 @end

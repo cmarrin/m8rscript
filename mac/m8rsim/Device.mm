@@ -439,6 +439,11 @@ private:
     return _simulator->canRun();
 }
 
+- (BOOL)canSaveBinary
+{
+    return _simulator->canSaveBinary();
+}
+
 - (void)build:(const char*) source withName:(NSString*) name
 {
     _simulator->build(source, name.UTF8String);
@@ -464,6 +469,16 @@ private:
 - (void)simulate
 {
     _simulator->simulate();
+}
+
+- (void)saveBinary
+{
+    
+}
+
+- (void)clearContents
+{
+    _simulator->clear();
 }
 
 - (void)importBinary:(const char*)filename

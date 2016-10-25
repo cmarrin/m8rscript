@@ -34,6 +34,7 @@
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
+    __weak IBOutlet NSToolbarItem *SaveBinaryButton;
     
     NSString* _source;
     NSFont* _font;
@@ -111,6 +112,9 @@
     if (item == uploadButton) {
         return [_device canUpload];
     }
+    if (item == SaveBinaryButton) {
+        return [_device canSaveBinary];
+    }
     return NO;
 }
 
@@ -146,6 +150,10 @@
 - (IBAction)simulate:(id)sender
 {
     [_device simulate];
+}
+
+- (IBAction)saveBinary:(id)sender {
+    [_device saveBinary];
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build
@@ -221,6 +229,7 @@
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
+    [_device clearContents];
 }
 
 - (void)setContents:(NSData*)contents withName:(NSString*)name;

@@ -32,6 +32,8 @@ void Simulator::importBinary(const char* filename)
     m8r::Error error;
     if (!_program->deserializeObject(&stream, error)) {
         error.showError(_system);
+        delete _program;
+        _program = nullptr;
     }
 }
 
@@ -42,6 +44,8 @@ void Simulator::exportBinary(const char* filename)
         m8r::Error error;
         if (!_program->serializeObject(&stream, error)) {
             error.showError(_system);
+            delete _program;
+            _program = nullptr;
         }
     }
 }
@@ -122,6 +126,10 @@ void Simulator::stop()
 
 void Simulator::simulate()
 {
+    if (_program) {
+        delete _program;
+        _program = nullptr;
+    }
     _application = new m8r::Application(_system);
     m8r::Error error;
     if (_application->load(error)) {

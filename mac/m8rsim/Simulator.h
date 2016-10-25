@@ -31,11 +31,20 @@ public:
     void pause();
     void stop();
     void simulate();
+    void clear()
+    {
+        if (_program) {
+            delete _program;
+            _program = nullptr;
+        }
+    }
+    
     bool isBuild() const { return _isBuild; }
     bool isRunning() const { return _running; }
 
     bool canRun() { return _program && !_running; }
     bool canStop() { return _program && _running; }
+    bool canSaveBinary() { return _program; }
     
     void initShell() { _shell.init(); _receivedString.clear(); }
     long sendToShell(const void* data, long size);
