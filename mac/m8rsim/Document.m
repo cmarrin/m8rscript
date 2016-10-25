@@ -92,7 +92,7 @@
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
     if (item == buildButton) {
-        return [_source length];
+        return [_source length] && [[_sourceFilename pathExtension] isEqualToString:@"m8r"];
     }
     if (item == simulateButton) {
         return [_device canSimulate];
@@ -286,6 +286,7 @@
 
 - (void)addFile:(NSFileWrapper*)file
 {
+    [self clearContents];
     [_device addFile:file];
 }
 

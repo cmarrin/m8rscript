@@ -96,6 +96,7 @@
 - (void)addFiles
 {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
+    panel.allowsMultipleSelection = YES;
     [panel setPrompt:@"Add"];
     [panel beginWithCompletionHandler:^(NSInteger result){
         if (result == NSFileHandlingPanelOKButton) {
@@ -141,6 +142,7 @@
                 [_document addFile:file];
             }
                 
+            [fileListView deselectAll:self];
             [_document reloadFiles];
         }
     }];
