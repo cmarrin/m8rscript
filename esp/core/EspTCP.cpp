@@ -39,23 +39,19 @@ using namespace m8r;
 
 TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
 {
-    return new EspTCP(delegate, port);
+    return new EspTCP(delegate, port, IPAddr());
 }
 
-TCP* TCP::create(TCPDelegate* delegate, IPAddr ip, uint16_t port)
+TCP* TCP::create(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 {
-    return new EspTCP(delegate, ip, port);
+    return new EspTCP(delegate, port, ip);
 }
 
-EspTCP::EspTCP(TCPDelegate* delegate, IPAddr ip, uint16_t port)
-    : TCP(delegate, ip, port)
+EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
+    : TCP(delegate, port, ip)
 {
-    assert(0); // Not yet supported
-}
-
-EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port)
-    : TCP(delegate, port)
-{
+    assert(!ip); // client not yet supported
+    
     _conn.type = ESPCONN_TCP;
     _conn.state = ESPCONN_NONE;
     _conn.proto.tcp = &_tcp;

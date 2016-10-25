@@ -11,6 +11,7 @@
 #import "FastSocket.h"
 #import "MacFS.h"
 #import "Simulator.h"
+#import "MacUDP.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -78,6 +79,8 @@ private:
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+        
+        (void) m8r::IPAddr::myIPAddr();
      }
     return self;
 }

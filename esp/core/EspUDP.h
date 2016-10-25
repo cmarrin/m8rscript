@@ -49,7 +49,7 @@ namespace m8r {
 
 class EspUDP : public UDP {
 public:
-    EspUDP(UDPDelegate*, uint16_t);
+    EspUDP(UDPDelegate*, uint16_t = 0);
     virtual ~EspUDP();
     
     static void joinMulticastGroup(IPAddr);

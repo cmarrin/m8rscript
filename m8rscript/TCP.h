@@ -56,7 +56,7 @@ public:
     static constexpr uint32_t DefaultTimeout = 7200;
      
     static TCP* create(TCPDelegate*, uint16_t port);
-    static TCP* create(TCPDelegate*, IPAddr ip, uint16_t port);
+    static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
     virtual ~TCP() { }
     
     virtual void send(char c) = 0;
@@ -64,8 +64,7 @@ public:
     virtual void disconnect() = 0;
 
 protected:
-    TCP(TCPDelegate* delegate, uint16_t port) : _delegate(delegate), _port(port) { }
-    TCP(TCPDelegate* delegate, IPAddr ip, uint16_t port) : _delegate(delegate), _ip(ip), _port(port) { }
+    TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
 
     TCPDelegate* _delegate;
     IPAddr _ip;

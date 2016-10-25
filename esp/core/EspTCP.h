@@ -50,8 +50,7 @@ public:
     virtual void send(const char* data, uint16_t length = 0) override;
     virtual void disconnect() override;
     
-    EspTCP(TCPDelegate*, IPAddr, uint16_t);
-    EspTCP(TCPDelegate*, uint16_t);
+    EspTCP(TCPDelegate*, uint16_t, IPAddr);
 
 private:
     static void connectCB(void*);
