@@ -81,6 +81,7 @@ user_rf_cal_sector_set(void)
 
 static const char* WIFIAP_SSID = "ESP8266";
 static const char* WIFIAP_PWD = "m8rscript";
+static const char* UserDataFilename = ".userdata";
 
 static os_timer_t startupTimer;
 static os_timer_t micros_overflow_timer;
@@ -225,14 +226,14 @@ void writeUserData()
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
     _gUserData.magic[3] = 's';
-    m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "w");
+    m8r::File* file = m8r::FS::sharedFS()->open(UserDataFilename, "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
 }
 
 void getUserData()
 {
-    m8r::File* file = m8r::FS::sharedFS()->open(".userdata", "r");
+    m8r::File* file = m8r::FS::sharedFS()->open(UserDataFilename, "r");
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 

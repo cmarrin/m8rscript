@@ -30,6 +30,7 @@ class DeviceSystemInterface;
     FastSocket* _logSocket;
     
     dispatch_queue_t _serialQueue;
+    dispatch_queue_t _logQueue;
 }
 
 - (void)outputMessage:(NSString*)msg;
@@ -363,22 +364,41 @@ private:
 
 - (void)setDevice:(NSString*)device
 {
-    _currentDevice = [self findService:device];
-    _logSocket = nullptr;
-    if (_currentDevice) {
-        NSNetService* service = _currentDevice[@"service"];
-        if (service.addresses.count == 0) {
-            return;
-        }
-        NSData* address = [service.addresses objectAtIndex:0];
-        struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-        NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-    
-        NSString* portString = [NSNumber numberWithInteger:service.port + 1].stringValue;
-        _logSocket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-        [_logSocket connect];
-        [_logSocket setTimeout:7200];
+    if (_logSocket) {
+        _logSocket = nil;
+        dispatch_sync(_logQueue, ^{ });
+        _logQueue = nil;
     }
+
+    _currentDevice = [self findService:device];
+    if (!_currentDevice) {
+        return;
+    }
+    
+    NSNetService* service = _currentDevice[@"service"];
+    if (service.addresses.count == 0) {
+        return;
+    }
+
+    _logQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
+
+    NSData* address = [service.addresses objectAtIndex:0];
+    struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
+    NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+    NSString* portString = [NSNumber numberWithInteger:service.port + 1].stringValue;
+    
+    _logSocket = [[FastSocket alloc]initWithHost:ipString andPort:portString];
+    [_logSocket setTimeout:7200];
+
+    dispatch_async(_logQueue, ^{
+        [_logSocket connect];
+        while (1) {
+            char buffer[100];
+            long count = [_logSocket receiveBytes:buffer limit:99];
+            buffer[count] = '\0';
+            [self outputMessage:[NSString stringWithUTF8String:buffer]];
+        }
+    });
 }
 
 - (void)reloadDeviceList
