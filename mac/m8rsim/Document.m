@@ -154,6 +154,7 @@
 
 - (IBAction)saveBinary:(id)sender {
     [_device saveBinary:_sourceFilename];
+    [self reloadFiles];
 }
 
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build

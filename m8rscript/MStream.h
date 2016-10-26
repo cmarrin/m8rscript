@@ -157,4 +157,47 @@ private:
     mutable uint32_t _index;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: VectorStream
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class VectorStream : public m8r::Stream {
+public:
+	VectorStream() : _index(0) { }
+	VectorStream(const std::vector<uint8_t>& vector) : _vector(vector), _index(0) { }
+    
+    virtual ~VectorStream() { }
+	
+    bool loaded() { return true; }
+	virtual bool eof() const override
+    {
+        return _vector.size() <= _index;
+    }
+    virtual int read() const override
+    {
+        return (_index < _vector.size()) ? _vector[_index++] : -1;
+    }
+    virtual int write(uint8_t c) override
+    {
+        // Only allow writing to the end of the vector
+        if (_index != _vector.size()) {
+            return -1;
+        }
+        _vector.push_back(c);
+        _index++;
+        return c;
+    }
+	virtual void flush() override { }
+    
+    void swap(std::vector<uint8_t>& vector) { std::swap(vector, _vector); }
+	
+private:
+    std::vector<uint8_t> _vector;
+    mutable uint32_t _index;
+};
+
 }

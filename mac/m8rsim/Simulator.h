@@ -26,6 +26,7 @@ public:
     
     void importBinary(const char* filename);
     void exportBinary(const char* filename);
+    bool exportBinary(std::vector<uint8_t>&);
     void build(const char* source, const char* name);
     void run();
     void pause();

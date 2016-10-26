@@ -50,6 +50,24 @@ void Simulator::exportBinary(const char* filename)
     }
 }
 
+bool Simulator::exportBinary(std::vector<uint8_t>& vector)
+{
+    if (!_program) {
+        return false;
+    }
+    
+    m8r::VectorStream stream;
+    m8r::Error error;
+    if (!_program->serializeObject(&stream, error)) {
+        error.showError(_system);
+        delete _program;
+        _program = nullptr;
+        return false;
+    }
+    stream.swap(vector);
+    return true;
+}
+
 void Simulator::build(const char* source, const char* name)
 {
     _program = nullptr;

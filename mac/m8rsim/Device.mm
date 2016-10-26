@@ -475,6 +475,13 @@ private:
 {
     NSString* name = [filename stringByDeletingPathExtension];
     name = [NSString stringWithFormat:@"%@.m8rb", name];
+    std::vector<uint8_t> vector;
+    if (!_simulator->exportBinary(vector)) {
+        return;
+    }
+    
+    NSData* data = [NSData dataWithBytes:&vector[0] length:vector.size()];
+    [self addFile:name withContents:data toDevice:_currentDevice[@"service"]];
 }
 
 - (void)clearContents
