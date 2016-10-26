@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Shell.h"
 
 #include "Application.h"
+#include "Error.h"
 #include "base64.h"
 #include <cstdarg>
 
@@ -272,7 +273,18 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _state = State::NeedPrompt;
         sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "run") {
-        if (array.size() < 2) {
+        Program* program = nullptr;
+        Application application(nullptr);
+        Error error;
+        if (!application.load(error, (array.size() < 2) ? nullptr : array[1].c_str())) {
+            showError(ROMSTR("failed to load application"));
+        } else {
+            program = application.program();
+        }
+        
+        if (!program) {
+            showError(ROMSTR("failed to compile program"));
+        } else {
         }
     } else if (array[0] == "quit") {
         return false;

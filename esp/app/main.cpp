@@ -57,30 +57,6 @@ extern "C" {
 
 static m8r::TCP* _shellTCP = nullptr;
 
-os_timer_t gExecutionTimer;
-static const uint32_t ExecutionTaskPrio = 0;
-static const uint32_t ExecutionTaskQueueLen = 1;
-os_event_t gExecutionTaskQueue[ExecutionTaskQueueLen];
-
-void ICACHE_FLASH_ATTR executionTask(os_event_t *event)
-{
-    m8r::ExecutionUnit* eu = reinterpret_cast<m8r::ExecutionUnit*>(event->par);
-    int32_t delay = eu->continueExecution();
-    if (delay == 0) {
-        system_os_post(ExecutionTaskPrio, 0, event->par);
-    } else if (delay > 0) {
-        os_timer_arm(&gExecutionTimer, delay, false);
-    } else {
-        esp_system()->printf(ROMSTR("\n***** End of Program Output *****\n\n"));
-        esp_system()->printf(ROMSTR("***** after run - free ram:%d\n"), system_get_free_heap_size());
-    }
-}
-
-void ICACHE_FLASH_ATTR executionTimerTick(void* data)
-{
-    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(data));
-}
-
 void ICACHE_FLASH_ATTR runScript()
 {
     m8r::FS* fs = m8r::FS::sharedFS();
@@ -97,17 +73,7 @@ void ICACHE_FLASH_ATTR runScript()
     if (!application.load(error)) {
         error.showError(esp_system());
     } else {
-        m8r::Program* program = application.program();
-    
-        esp_system()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-        m8r::ExecutionUnit* eu = new m8r::ExecutionUnit(esp_system());
-        eu->startExecution(program);
-
-        os_timer_disarm(&gExecutionTimer);
-        os_timer_setfn(&gExecutionTimer, (os_timer_func_t*) &executionTimerTick, eu);
-
-        // Fire the execution task directly (0 timeout)
-        system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(eu));
+        application.run();
     }
 }
 
@@ -170,6 +136,4 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
     os_timer_disarm((os_timer_t*) &gBlinkTimer);
     os_timer_setfn((os_timer_t*) &gBlinkTimer, (os_timer_func_t *)blinkTimerfunc, NULL);
     os_timer_arm((os_timer_t*) &gBlinkTimer, 1000, 1);
-
-    system_os_task(executionTask, ExecutionTaskPrio, gExecutionTaskQueue, ExecutionTaskQueueLen);
 }

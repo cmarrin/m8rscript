@@ -35,6 +35,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cstdint>
+
+#ifdef __APPLE__
+#else
+extern "C" {
+#include <osapi.h>
+#include <user_interface.h>
+}
+#endif
+
 namespace m8r {
 
 static const char* MainFileName = "main";
@@ -42,12 +52,14 @@ static const char* MainFileName = "main";
 class SystemInterface;
 class Program;
 class Error;
+class ExecutionUnit;
 
 class Application {
 public:
     Application(SystemInterface*);
     
     bool load(Error&, const char* name = nullptr);
+    void run();
     
     Program* program() const { return _program; }
     
@@ -58,6 +70,19 @@ public:
 private:
     SystemInterface* _system;
     Program* _program = nullptr;
+    ExecutionUnit* _eu = nullptr;
+    
+#ifdef __APPLE__
+#else
+    static constexpr uint32_t ExecutionTaskPrio = 0;
+    static constexpr uint32_t ExecutionTaskQueueLen = 1;
+
+    static void executionTask(os_event_t *);
+    static void executionTimerTick(void* data);
+
+    os_timer_t _executionTimer;
+    os_event_t _executionTaskQueue[ExecutionTaskQueueLen];
+#endif
 };
     
 }
