@@ -73,6 +73,8 @@ public:
     
     SystemInterface* system() const { return _system; }
     
+    static uint64_t currentMicroseconds();
+    
 protected:
     virtual bool serialize(Stream*, Error&) const override
     {
@@ -83,9 +85,6 @@ protected:
     {
         return true;
     }
-
-protected:
-    virtual uint64_t currentTime() const = 0;
 
     uint64_t _startTime = 0;
 

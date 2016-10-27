@@ -65,6 +65,7 @@ public:
     _Float(Raw value) { _value._raw = value._raw; }
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
+    _Float(int32_t value) { _value._raw = value; }
     
     _Float(int32_t i, int32_t e)
     {

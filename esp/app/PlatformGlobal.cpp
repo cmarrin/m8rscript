@@ -44,9 +44,9 @@ extern "C" {
 
 using namespace m8r;
 
-uint64_t PlatformGlobal::currentTime() const
+uint64_t Global::currentMicroseconds()
 {
-    return currentMicroseconds() - _startTime;
+    return ::currentMicroseconds();
 }
 
 int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)

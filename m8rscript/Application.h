@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "TaskManager.h"
+
 #include <cstdint>
 
 #ifdef __APPLE__
@@ -68,9 +70,14 @@ public:
     static NameValidationType validateBonjourName(const char* name);
 
 private:
+    class MyRunTask : public Task {
+        virtual bool execute() override;
+    };
+
     SystemInterface* _system;
     Program* _program = nullptr;
     ExecutionUnit* _eu = nullptr;
+    MyRunTask _runTask;
     
 #ifdef __APPLE__
 #else

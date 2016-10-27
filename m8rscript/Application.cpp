@@ -226,3 +226,9 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     }
     return NameValidationType::Ok;
 }
+
+bool Application::MyRunTask::execute()
+{
+    return true;
+}
+

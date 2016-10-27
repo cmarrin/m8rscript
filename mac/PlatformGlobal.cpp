@@ -44,9 +44,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-uint64_t PlatformGlobal::currentTime() const
+uint64_t Global::currentMicroseconds()
 {
-    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC) - _startTime;
+    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
 int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)

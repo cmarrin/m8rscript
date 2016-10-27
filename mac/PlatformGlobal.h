@@ -44,15 +44,12 @@ public:
     PlatformGlobal(SystemInterface* system)
         : Global(system)
     {
-        _startTime = currentTime();
+        _startTime = currentMicroseconds();
     }
     
     virtual ~PlatformGlobal() { }
 
     virtual int32_t callProperty(uint32_t index, ExecutionUnit*u, uint32_t nparams) override;
-
-protected:
-    virtual uint64_t currentTime() const override;
     
 private:
     // 0 = input, 1 = output

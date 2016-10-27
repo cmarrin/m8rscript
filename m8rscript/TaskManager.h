@@ -35,21 +35,67 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Global.h"
+#include "Float.h"
+#include <cstdint>
 
 namespace m8r {
 
-class PlatformGlobal : public Global {
+class Task;
+
+class TaskManager {
+    friend class Task;
+    
+protected:
+    static constexpr uint8_t MaxTasks = 8;
+    
+    static TaskManager* sharedTaskManager();
+    
+    TaskManager() { }
+    virtual ~TaskManager() { }
+    
+    virtual void runTask(Task*, Float delay);
+    
+private:
+    void fireEvent();
+    void prepareForNextEvent();
+    
+    // Stop any currently running timer
+    virtual void stopTimer() = 0;
+    
+    // Start a timer, after ms call postEvent
+    virtual void startTimer(int32_t ms) = 0;
+    
+    // Post an event now. When event occurs, call fireEvent
+    virtual void postEvent() = 0;
+    
+    Task* _head = nullptr;
+    bool _eventPosted = false;
+};
+
+class Task {
+    friend class TaskManager;
+    
 public:
-    PlatformGlobal(SystemInterface* system)
-        : Global(system)
+    virtual ~Task() { }
+    
+    void runOnce(Float delay = 0)
     {
-        _startTime = currentMicroseconds();
+        _repeating = false;
+        TaskManager::sharedTaskManager()->runTask(this, delay);
+    }
+    void runRepeating(Float delay)
+    {
+        _repeating = true;
+        TaskManager::sharedTaskManager()->runTask(this, delay);
     }
     
-    virtual ~PlatformGlobal() { }
-
-    virtual int32_t callProperty(uint32_t index, ExecutionUnit*, uint32_t nparams) override;
-};
+    virtual bool execute() { return true; }
     
+private:
+    int32_t _msSet = 0;
+    int32_t _msTimeToFire = -1;
+    Task* _next = nullptr;
+    bool _repeating;
+};
+
 }

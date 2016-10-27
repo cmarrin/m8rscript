@@ -204,7 +204,7 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
 {
     switch(static_cast<Property>(index)) {
         case Property::Date_now: {
-            uint64_t t = currentTime();
+            uint64_t t = currentMicroseconds() - _startTime;
             eu->stack().push(Float(static_cast<int32_t>(t), -6));
             return 1;
         }

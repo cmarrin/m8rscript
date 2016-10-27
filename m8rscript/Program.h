@@ -91,8 +91,6 @@ public:
         return _objects.find(id, obj) ? obj : nullptr;
     }
     
-    uint32_t currentTime() const;
-
 protected:
     virtual bool serialize(Stream*, Error&) const override;
     virtual bool deserialize(Stream*, Error&) override;
