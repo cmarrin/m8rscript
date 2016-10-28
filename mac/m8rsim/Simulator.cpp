@@ -1,10 +1,37 @@
-//
-//  Simulator.cpp
-//  m8rsim
-//
-//  Created by Chris Marrin on 6/24/16.
-//  Copyright © 2016 Chris Marrin. All rights reserved.
-//
+/*-------------------------------------------------------------------------
+This source file is a part of m8rscript
+
+For the latest info, see http://www.marrin.org/
+
+Copyright (c) 2016, Chris Marrin
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+    - Redistributions of source code must retain the above copyright notice, 
+    this list of conditions and the following disclaimer.
+    
+    - Redistributions in binary form must reproduce the above copyright 
+    notice, this list of conditions and the following disclaimer in the 
+    documentation and/or other materials provided with the distribution.
+    
+    - Neither the name of the <ORGANIZATION> nor the names of its 
+    contributors may be used to endorse or promote products derived from 
+    this software without specific prior written permission.
+    
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE.
+-------------------------------------------------------------------------*/
 
 #include "Simulator.h"
 
@@ -19,9 +46,6 @@ Simulator::~Simulator()
 {
     if (_program) {
         delete _program;
-    }
-    if (_application) {
-        delete _application;
     }
 }
 
@@ -68,32 +92,29 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
     return true;
 }
 
-void Simulator::build(const char* source, const char* name)
+void Simulator::build(const char* name)
 {
-    _program = nullptr;
+    if (_program) {
+        delete _program;
+        _program = nullptr;
+    }
     _running = false;
     
     _isBuild = true;
-    _system->printf(ROMSTR("Building %s\n"), name);
-
-    m8r::StringStream stream(source);
-    m8r::Parser parser(_system);
-    parser.parse(&stream);
-    _system->printf(ROMSTR("Parsing finished...\n"));
-
-    if (parser.nerrors()) {
-        _system->printf(ROMSTR("***** %d error%s\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-    } else {
-        _system->printf(ROMSTR("0 errors. Ready to run\n"));
-        _program = parser.program();
-
-        m8r::CodePrinter codePrinter(_system);
-        m8r::String codeString = codePrinter.generateCodeString(_program);
-        
-        _system->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-        _system->printf("%s", codeString.c_str());
-        _system->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+    m8r::Error error;
+    if (_application.load(error, name)) {
+        _system->printf(ROMSTR("Ready to run\n"));
     }
+}
+
+void Simulator::printCode()
+{
+    m8r::CodePrinter codePrinter(_system);
+    m8r::String codeString = codePrinter.generateCodeString(_program);
+    
+    _system->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+    _system->printf("%s", codeString.c_str());
+    _system->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
 }
 
 void Simulator::run()
@@ -107,24 +128,14 @@ void Simulator::run()
     
     _isBuild = false;
     _system->printf(ROMSTR("*** Program started...\n\n"));
-    
+
     auto start = std::chrono::system_clock::now();
-        
-    _eu.startExecution(_program);
-    while (1) {
-        int32_t delay = _eu.continueExecution();
-        if (delay < 0) {
-            break;
-        }
-        if (delay > 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-        }
-    }
-    
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> diff = end - start;
-    _system->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
-    _running = false;
+    _application.run([start, this]{
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        _system->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
+        _running = false;
+    });
 }
 
 void Simulator::pause()
@@ -148,13 +159,12 @@ void Simulator::simulate()
         delete _program;
         _program = nullptr;
     }
-    _application = new m8r::Application(_system);
     m8r::Error error;
-    if (_application->load(error)) {
+    if (_application.load(error)) {
         error.showError(_system);
         return;
     }
-    _program = _application->program();
+    _program = _application.program();
     run();
 }
 

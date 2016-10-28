@@ -444,9 +444,9 @@ private:
     return _simulator->canSaveBinary();
 }
 
-- (void)build:(const char*) source withName:(NSString*) name
+- (void)buildFile:(NSString*) name
 {
-    _simulator->build(source, name.UTF8String);
+    _simulator->build(name.UTF8String);
 }
 
 - (void)run

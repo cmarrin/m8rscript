@@ -54,8 +54,9 @@ protected:
     
     virtual void runTask(Task*, int32_t delay);
     
-private:
     void fireEvent();
+
+private:
     void prepareForNextEvent();
     
     // Stop any currently running timer

@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "TaskManager.h"
+#include <functional>
 
 //#ifdef __APPLE__
 //#else
@@ -60,7 +61,7 @@ public:
     Application(SystemInterface*);
     
     bool load(Error&, const char* name = nullptr);
-    void run();
+    void run(std::function<void()>);
     
     Program* program() const { return _program; }
     
@@ -73,8 +74,9 @@ private:
     public:
         MyRunTask(SystemInterface* system) : _eu(system) { }
         
-        void run(Program* program)
+        void run(Program* program, std::function<void()> function)
         {
+            _function = function;
             _eu.startExecution(program);
             runOnce();
         }
@@ -83,6 +85,7 @@ private:
         virtual bool execute() override;
         
         ExecutionUnit _eu;
+        std::function<void()> _function;
     };
 
     SystemInterface* _system;

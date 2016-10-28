@@ -73,7 +73,9 @@ void ICACHE_FLASH_ATTR runScript()
     if (!application.load(error)) {
         error.showError(esp_system());
     } else {
-        application.run();
+        application.run([]{
+            esp_system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+        });
     }
 }
 

@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "TaskManager.h"
+#include <condition_variable>
+#include <thread>
 
 namespace m8r {
 
@@ -53,6 +55,15 @@ private:
     
     // Post an event now. When event occurs, call fireEvent
     virtual void postEvent() override;
+    
+    std::thread* _eventThread = nullptr;
+    std::condition_variable _eventCondition;
+    std::mutex _eventMutex;
+    bool _eventAvailable = false;
+    bool _terminating = false;
+    
+    std::mutex _timerMutex;
+    std::condition_variable _timerCondition;
 };
 
 }

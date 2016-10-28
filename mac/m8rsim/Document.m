@@ -128,7 +128,7 @@
 - (IBAction)build:(id)sender
 {
     [self clearOutput:CTBuild];
-    [_device build:[sourceEditor.string UTF8String] withName:_sourceFilename];
+    [_device buildFile:_sourceFilename];
 }
 
 - (IBAction)run:(id)sender

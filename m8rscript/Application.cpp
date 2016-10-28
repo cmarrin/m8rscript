@@ -56,32 +56,36 @@ Application::Application(SystemInterface* system)
 
 bool Application::load(Error& error, const char* filename)
 {
+    if (_program) {
+        delete _program;
+        _program = nullptr;
+    }
+    
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
-        {
-            FileStream stream(filename);
-            if (!stream.loaded()) {
-                error.setError(Error::Code::FileNotFound);
-                return false;
-            }
-            
-            // Is it a m8rb file?
-            _program = new m8r::Program(_system);
-            if (_program->deserializeObject(&stream, error)) {
-                return true;
-            }
-            delete _program;
-            _program = nullptr;
+        FileStream m8rbStream(filename);
+        if (!m8rbStream.loaded()) {
+            error.setError(Error::Code::FileNotFound);
+            return false;
         }
+        
+        // Is it a m8rb file?
+        _program = new m8r::Program(_system);
+        if (_program->deserializeObject(&m8rbStream, error)) {
+            return true;
+        }
+        delete _program;
+        _program = nullptr;
         
 #ifdef NO_PARSER_SUPPORT
         return false;
 #else
         // See if we can parse it
-        FileStream stream(filename);
+        FileStream m8rStream(filename);
+        _system->printf(ROMSTR("Parsing...\n"));
         Parser parser(_system);
-        parser.parse(&stream);
+        parser.parse(&m8rStream);
+        _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
-            error.setError(Error::Code::ParseError);
             return false;
         }
         _program = parser.program();
@@ -91,11 +95,11 @@ bool Application::load(Error& error, const char* filename)
     
     // See if there is a 'main' file (which contains the name of the program to run)
     String name = "main";
-    FileStream mainstream(name.c_str());
-    if (mainstream.loaded()) {
+    FileStream mainStream(name.c_str());
+    if (mainStream.loaded()) {
         name.clear();
-        while (!mainstream.eof()) {
-            int c = mainstream.read();
+        while (!mainStream.eof()) {
+            int c = mainStream.read();
             if (c < 0) { 
                 break;
             }
@@ -108,38 +112,35 @@ bool Application::load(Error& error, const char* filename)
     name += ".m8rb";
     _system->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
 
-    FileStream stream(name.c_str());
+    FileStream m8rbMainStream(name.c_str());
     
-    if (!stream.loaded()) {
-#ifdef NO_PARSER_SUPPORT
-        return false;
-#else
-        name = name.slice(0, -1);
-        _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
-        FileStream stream(name.c_str());
-        
-        if (!stream.loaded()) {
-            error.setError(Error::Code::FileNotFound);
-            return false;
-        }
-
-        _system->printf("Parsing...\n");
-        Parser parser(_system);
-        parser.parse(&stream);
-        
-        _system->printf(ROMSTR("Finished. %d error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-
-        if (!parser.nerrors()) {
-            _program = parser.program();
-        }
-#endif
-    } else {
+    if (m8rbMainStream.loaded()) {
         _program = new m8r::Program(_system);
-        if (!_program->deserializeObject(&stream, error)) {
-            return false;
-        }
+        return _program->deserializeObject(&m8rbMainStream, error);
+     }
+
+#ifdef NO_PARSER_SUPPORT
+    return false;
+#else
+    name = name.slice(0, -1);
+    _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
+    FileStream m8rMainStream(name.c_str());
+    
+    if (!m8rMainStream.loaded()) {
+        error.setError(Error::Code::FileNotFound);
+        return false;
     }
+
+    Parser parser(_system);
+    parser.parse(&m8rMainStream);
+    _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+    if (parser.nerrors()) {
+        return false;
+    }
+
+    _program = parser.program();
     return true;
+#endif
 }
 
 //#ifdef __APPLE__
@@ -166,10 +167,10 @@ bool Application::load(Error& error, const char* filename)
 //}
 //#endif
 
-void Application::run()
+void Application::run(std::function<void()> function)
 {
     _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-    _runTask.run(_program);
+    _runTask.run(_program, function);
 
 //#ifdef __APPLE__
 //#else
@@ -232,6 +233,7 @@ bool Application::MyRunTask::execute()
     if (delay >= 0) {
         runOnce(delay);
     }
+    _function();
     return true;
 }
 
