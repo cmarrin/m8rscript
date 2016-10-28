@@ -35,6 +35,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Object.cpp \
 		../m8rscript/Program.cpp \
 		../m8rscript/Shell.cpp \
+		../m8rscript/TaskManager.cpp \
 		../m8rscript/Value.cpp \
 		../m8rscript/base64.cpp \
 		app/PlatformGlobal.cpp \

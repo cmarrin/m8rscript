@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 
-#include "ExecutionUnit.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 
@@ -47,11 +46,12 @@ using namespace m8r;
 
 Application::Application(SystemInterface* system)
     : _system(system)
+    , _runTask(system)
 {
-#ifdef __APPLE__
-#else
-    system_os_task(executionTask, ExecutionTaskPrio, _executionTaskQueue, ExecutionTaskQueueLen);
-#endif
+//#ifdef __APPLE__
+//#else
+//    system_os_task(executionTask, ExecutionTaskPrio, _executionTaskQueue, ExecutionTaskQueueLen);
+//#endif
 }
 
 bool Application::load(Error& error, const char* filename)
@@ -142,44 +142,43 @@ bool Application::load(Error& error, const char* filename)
     return true;
 }
 
-#ifdef __APPLE__
-#else
-void Application::executionTask(os_event_t *event)
-{
-    Application* application = reinterpret_cast<Application*>(event->par);
-    int32_t delay = application->_eu->continueExecution();
-    if (delay == 0) {
-        system_os_post(ExecutionTaskPrio, 0, event->par);
-    } else if (delay > 0) {
-        os_timer_arm(&application->_executionTimer, delay, false);
-    } else {
-        application->_system->printf(ROMSTR("\n***** End of Program Output *****\n\n"));
-        application->_system->printf(ROMSTR("***** after run - free ram:%d\n"), system_get_free_heap_size());
-        delete application->_eu;
-        application->_eu = nullptr;
-    }
-}
-
-void Application::executionTimerTick(void* data)
-{
-    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(data));
-}
-#endif
+//#ifdef __APPLE__
+//#else
+//void Application::executionTask(os_event_t *event)
+//{
+//    Application* application = reinterpret_cast<Application*>(event->par);
+//    int32_t delay = application->_eu->continueExecution();
+//    if (delay == 0) {
+//        system_os_post(ExecutionTaskPrio, 0, event->par);
+//    } else if (delay > 0) {
+//        os_timer_arm(&application->_executionTimer, delay, false);
+//    } else {
+//        application->_system->printf(ROMSTR("\n***** End of Program Output *****\n\n"));
+//        application->_system->printf(ROMSTR("***** after run - free ram:%d\n"), system_get_free_heap_size());
+//        delete application->_eu;
+//        application->_eu = nullptr;
+//    }
+//}
+//
+//void Application::executionTimerTick(void* data)
+//{
+//    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(data));
+//}
+//#endif
 
 void Application::run()
 {
     _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-    _eu = new m8r::ExecutionUnit(_system);
-    _eu->startExecution(_program);
+    _runTask.run(_program);
 
-#ifdef __APPLE__
-#else
-    os_timer_disarm(&_executionTimer);
-    os_timer_setfn(&_executionTimer, (os_timer_func_t*) &executionTimerTick, this);
-
-    // Fire the execution task directly (0 timeout)
-    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(this));
-#endif
+//#ifdef __APPLE__
+//#else
+//    os_timer_disarm(&_executionTimer);
+//    os_timer_setfn(&_executionTimer, (os_timer_func_t*) &executionTimerTick, this);
+//
+//    // Fire the execution task directly (0 timeout)
+//    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(this));
+//#endif
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)
@@ -229,6 +228,10 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 
 bool Application::MyRunTask::execute()
 {
+    int32_t delay = _eu.continueExecution();
+    if (delay >= 0) {
+        runOnce(delay);
+    }
     return true;
 }
 

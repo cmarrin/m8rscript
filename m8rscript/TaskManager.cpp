@@ -40,18 +40,19 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void TaskManager::runTask(Task* newTask, Float delay)
+TaskManager* TaskManager::_sharedTaskManager = nullptr;
+
+void TaskManager::runTask(Task* newTask, int32_t delay)
 {
     int32_t msNow = static_cast<int32_t>(Global::currentMicroseconds() / 1000);
-    int32_t ms = delay * Float(1000);
-    if (ms > 6000000) {
-        ms = 6000000;
-    } else if (ms > 0 && ms < 5) {
-        ms = 5;
+    if (delay > 6000000) {
+        delay = 6000000;
+    } else if (delay > 0 && delay < 5) {
+        delay = 5;
     }
     
-    newTask->_msSet = ms;
-    int32_t msTimeToFire = msNow + ms;
+    newTask->_msSet = delay;
+    int32_t msTimeToFire = msNow + delay;
     
     newTask->_msTimeToFire = msTimeToFire;
     Task* prev = nullptr;

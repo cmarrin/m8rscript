@@ -35,68 +35,24 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cstdint>
+#include "TaskManager.h"
 
 namespace m8r {
 
-class Task;
-
-class TaskManager {
-    friend class Task;
+class EspTaskManager : public TaskManager {
+public:
+    EspTaskManager();
+    virtual ~EspTaskManager();
     
-protected:
-    static constexpr uint8_t MaxTasks = 8;
-    
-    static TaskManager* sharedTaskManager();
-    
-    TaskManager() { }
-    virtual ~TaskManager() { }
-    
-    virtual void runTask(Task*, int32_t delay);
-    
-private:
-    void fireEvent();
-    void prepareForNextEvent();
-    
+private:    
     // Stop any currently running timer
-    virtual void stopTimer() = 0;
+    virtual void stopTimer() override;
     
     // Start a timer, after ms call postEvent
-    virtual void startTimer(int32_t ms) = 0;
+    virtual void startTimer(int32_t ms) override;
     
     // Post an event now. When event occurs, call fireEvent
-    virtual void postEvent() = 0;
-    
-    Task* _head = nullptr;
-    bool _eventPosted = false;
-
-    static TaskManager* _sharedTaskManager;
-};
-
-class Task {
-    friend class TaskManager;
-    
-public:
-    virtual ~Task() { }
-    
-    void runOnce(int32_t delay = 0)
-    {
-        _repeating = false;
-        TaskManager::sharedTaskManager()->runTask(this, delay);
-    }
-    void runRepeating(int32_t delay)
-    {
-        _repeating = true;
-        TaskManager::sharedTaskManager()->runTask(this, delay);
-    }
-    
-    virtual bool execute() { return true; }
-    
-private:
-    int32_t _msSet = 0;
-    int32_t _msTimeToFire = -1;
-    Task* _next = nullptr;
-    bool _repeating;
+    virtual void postEvent() override;
 };
 
 }

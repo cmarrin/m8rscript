@@ -35,17 +35,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "ExecutionUnit.h"
 #include "TaskManager.h"
 
-#include <cstdint>
-
-#ifdef __APPLE__
-#else
-extern "C" {
-#include <osapi.h>
-#include <user_interface.h>
-}
-#endif
+//#ifdef __APPLE__
+//#else
+//extern "C" {
+//#include <osapi.h>
+//#include <user_interface.h>
+//}
+//#endif
 
 namespace m8r {
 
@@ -71,25 +70,36 @@ public:
 
 private:
     class MyRunTask : public Task {
+    public:
+        MyRunTask(SystemInterface* system) : _eu(system) { }
+        
+        void run(Program* program)
+        {
+            _eu.startExecution(program);
+            runOnce();
+        }
+
+    private:
         virtual bool execute() override;
+        
+        ExecutionUnit _eu;
     };
 
     SystemInterface* _system;
     Program* _program = nullptr;
-    ExecutionUnit* _eu = nullptr;
     MyRunTask _runTask;
     
-#ifdef __APPLE__
-#else
-    static constexpr uint32_t ExecutionTaskPrio = 0;
-    static constexpr uint32_t ExecutionTaskQueueLen = 1;
-
-    static void executionTask(os_event_t *);
-    static void executionTimerTick(void* data);
-
-    os_timer_t _executionTimer;
-    os_event_t _executionTaskQueue[ExecutionTaskQueueLen];
-#endif
+//#ifdef __APPLE__
+//#else
+//    static constexpr uint32_t ExecutionTaskPrio = 0;
+//    static constexpr uint32_t ExecutionTaskQueueLen = 1;
+//
+//    static void executionTask(os_event_t *);
+//    static void executionTimerTick(void* data);
+//
+//    os_timer_t _executionTimer;
+//    os_event_t _executionTaskQueue[ExecutionTaskQueueLen];
+//#endif
 };
     
 }
