@@ -66,6 +66,9 @@
     [sourceEditor setFont:_font];
     [consoleOutput setFont:_font];
     [buildOutput setFont:_font];
+    [sourceEditor setVerticallyResizable:YES];
+    [consoleOutput setVerticallyResizable:YES];
+    [buildOutput setVerticallyResizable:YES];
     sourceEditor.ShowsLineNumbers = YES;
     sourceEditor.automaticQuoteSubstitutionEnabled = NO;
     [[sourceEditor textStorage] setDelegate:(id) self];
@@ -311,6 +314,17 @@
     NSTextStorage *textStorage = notification.object;
     NSString *string = textStorage.string;
     NSUInteger n = string.length;
+    
+    if (_sourceFilename.length) {
+        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
+                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
+                                    nil;
+        if (files) {
+            [files removeFileWrapper:files.fileWrappers[_sourceFilename]];
+            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_sourceFilename];
+        }
+    }
+    
     [textStorage removeAttribute:NSForegroundColorAttributeName range:NSMakeRange(0, n)];
     for (NSUInteger i = 0; i < n; i++) {
         unichar c = [string characterAtIndex:i];
