@@ -94,7 +94,7 @@ private:
     bool printError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
-    int32_t call(Program* program, uint32_t nparams, Object*, bool isNew);
+    CallReturnValue call(Program* program, uint32_t nparams, Object*, bool isNew);
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);
     Atom propertyNameFromValue(Program*, const Value&);

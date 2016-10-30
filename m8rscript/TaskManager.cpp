@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "TaskManager.h"
 
-#include "Global.h"
 #include <cassert>
 
 using namespace m8r;
@@ -44,7 +43,7 @@ TaskManager* TaskManager::_sharedTaskManager = nullptr;
 
 void TaskManager::runTask(Task* newTask, int32_t delay)
 {
-    int32_t msNow = static_cast<int32_t>(Global::currentMicroseconds() / 1000);
+    int32_t now = msNow();
     if (delay > 6000000) {
         delay = 6000000;
     } else if (delay > 0 && delay < 5) {
@@ -52,11 +51,10 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     }
     
     newTask->_msSet = delay;
-    int32_t msTimeToFire = msNow + delay;
-    
+    int32_t msTimeToFire = now + delay;
     newTask->_msTimeToFire = msTimeToFire;
-    Task* prev = nullptr;
     
+    Task* prev = nullptr;
     for (Task* task = _head; ; task = task->_next) {
         if (!task) {
             // Placing a new task in an empty list, need to schedule
@@ -108,13 +106,6 @@ void TaskManager::prepareForNextEvent()
     if (!_head) {
         return;
     }
-               
-    int32_t msNow = static_cast<int32_t>(Global::currentMicroseconds() / 1000);
-    if (_head->_msTimeToFire > msNow) {
-        stopTimer();
-        startTimer(_head->_msTimeToFire - msNow);
-    } else {
-        postEvent();
-    }
+    postEvent();
 }
 

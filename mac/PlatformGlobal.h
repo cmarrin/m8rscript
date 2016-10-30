@@ -49,7 +49,7 @@ public:
     
     virtual ~PlatformGlobal() { }
 
-    virtual int32_t callProperty(uint32_t index, ExecutionUnit*u, uint32_t nparams) override;
+    virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit*u, uint32_t nparams) override;
     
 private:
     // 0 = input, 1 = output

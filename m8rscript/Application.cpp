@@ -182,6 +182,16 @@ void Application::run(std::function<void()> function)
 //#endif
 }
 
+void Application::pause()
+{
+    _runTask.pause();
+}
+
+void Application::stop()
+{
+    _runTask.stop();
+}
+
 Application::NameValidationType Application::validateFileName(const char* name)
 {
     if (!name || name[0] == '\0') {
@@ -232,8 +242,9 @@ bool Application::MyRunTask::execute()
     int32_t delay = _eu.continueExecution();
     if (delay >= 0) {
         runOnce(delay);
+    } else {
+        _function();
     }
-    _function();
     return true;
 }
 

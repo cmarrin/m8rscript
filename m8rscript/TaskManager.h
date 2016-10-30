@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cstdint>
+#include "Global.h"
 
 namespace m8r {
 
@@ -55,15 +55,14 @@ protected:
     virtual void runTask(Task*, int32_t delay);
     
     void fireEvent();
+    
+    bool empty() const { return !_head; }
+    int32_t nextTimeToFire() const;
+    
+    static int32_t msNow() { return static_cast<int32_t>(Global::currentMicroseconds() / 1000); }
 
 private:
     void prepareForNextEvent();
-    
-    // Stop any currently running timer
-    virtual void stopTimer() = 0;
-    
-    // Start a timer, after ms call postEvent
-    virtual void startTimer(int32_t ms) = 0;
     
     // Post an event now. When event occurs, call fireEvent
     virtual void postEvent() = 0;
@@ -99,5 +98,8 @@ private:
     Task* _next = nullptr;
     bool _repeating;
 };
+
+inline int32_t TaskManager::nextTimeToFire() const { return _head ? _head->_msTimeToFire : 0; }
+
 
 }

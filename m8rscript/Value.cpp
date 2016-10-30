@@ -290,7 +290,7 @@ Value Value::appendPropertyRef(const Value& value) const
     return (_type == Type::PropertyRef) ? objFromValue()->appendPropertyRef(_id, value.asIdValue()) : Value();
 }
 
-uint32_t Value::call(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
 {
     if (_type == Type::PropertyRef) {
         return objFromValue()->callProperty(_id, eu, nparams);
@@ -298,7 +298,7 @@ uint32_t Value::call(ExecutionUnit* eu, uint32_t nparams)
     if (_type == Type::Object) {
         return objFromValue()->call(eu, nparams);
     }
-    return -1;
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 Value Value::bakeValue() const

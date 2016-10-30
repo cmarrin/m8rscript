@@ -200,13 +200,13 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
     return (newProperty == Property::None) ? Value() : Value(this, static_cast<uint16_t>(newProperty), true);
 }
 
-int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
 {
     switch(static_cast<Property>(index)) {
         case Property::Date_now: {
             uint64_t t = currentMicroseconds() - _startTime;
             eu->stack().push(Float(static_cast<int32_t>(t), -6));
-            return 1;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
@@ -214,14 +214,14 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
                     _system->printf(eu->stack().top(i).toStringValue().c_str());
                 }
             }
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Serial_printf:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
                     _system->printf(eu->stack().top(i).toStringValue().c_str());
                 }
             }
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Base64_encode: {
             String inString = eu->stack().top().toStringValue();
             size_t inLength = inString.size();
@@ -238,7 +238,7 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
                 eu->stack().push(Value(outString, actualLength));
                 free(outString);
             }
-            return 1;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::Base64_decode: {
             String inString = eu->stack().top().toStringValue();
@@ -254,8 +254,12 @@ int32_t Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams
                 eu->stack().push(Value(reinterpret_cast<char*>(outString), actualLength));
                 free(outString);
             }
-            return 1;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
-        default: return -1;
+        case Property::System_delay: {
+            uint32_t ms = eu->stack().top().toUIntValue();
+            return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
+        }
+        default: return CallReturnValue(CallReturnValue::Type::Error);
     }
 }

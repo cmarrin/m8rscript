@@ -35,8 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "MacTaskManager.h"
 
+#include "Defines.h"
 #include <cassert>
-#include <future>
 
 using namespace m8r;
 
@@ -44,18 +44,33 @@ MacTaskManager::MacTaskManager()
 {
     _eventThread = new std::thread([this]{
         while (true) {
+            int32_t now = msNow();
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
-                if (!_eventAvailable) {
+                if (empty()) {
                     _eventCondition.wait(lock);
-                }
-                assert(_eventAvailable);
-                _eventAvailable = false;
-                if (_terminating) {
-                    return;
+                    if (_terminating) {
+                        break;
+                    }
                 }
             }
-            fireEvent();
+            
+            int32_t timeToNextEvent = nextTimeToFire() - now;
+            if (timeToNextEvent <= 0) {
+                fireEvent();
+            } else {
+                std::cv_status status;
+                {
+                    std::unique_lock<std::mutex> lock(_eventMutex);
+                    status = _eventCondition.wait_for(lock, std::chrono::milliseconds(timeToNextEvent));
+                }
+                if (_terminating) {
+                    break;
+                }
+                if (status == std::cv_status::timeout) {
+                    fireEvent();
+                }
+            }
         }
     });
 }
@@ -76,27 +91,8 @@ TaskManager* TaskManager::sharedTaskManager()
     return _sharedTaskManager;
 }
 
-void MacTaskManager::stopTimer()
-{
-    std::unique_lock<std::mutex> lock(_timerMutex);
-    _timerCondition.notify_all();
-}
-    
-void MacTaskManager::startTimer(int32_t ms)
-{
-    std::async([this, ms]{
-        std::unique_lock<std::mutex> lock(_timerMutex);
-        std::cv_status status = _timerCondition.wait_for(lock, std::chrono::milliseconds(ms));
-        if (status == std::cv_status::timeout) {
-            postEvent();
-        }
-    });
-}
-    
 void MacTaskManager::postEvent()
 {
     std::unique_lock<std::mutex> lock(_eventMutex);
-    assert(!_eventAvailable);
-    _eventAvailable = true;
-    _eventCondition.notify_all();
+     _eventCondition.notify_all();
 }

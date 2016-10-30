@@ -48,6 +48,30 @@ class ExecutionUnit;
 class Program;
 class Stream;
 
+class CallReturnValue {
+public:
+    enum class Type { ReturnCount, MsDelay, FunctionStart, Error };
+    CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
+    {
+        switch(type) {
+            case Type::ReturnCount: assert(value < 1000); _value = value; break;
+            case Type::MsDelay: assert(value <= 6000000); _value = -value; break;
+            case Type::FunctionStart: _value = 1000; break;
+            case Type::Error: _value = 1001; break;
+        }
+    }
+    
+    bool isFunctionStart() const { return _value == 1000; }
+    bool isError() const { return _value == 1001; }
+    bool isReturnCount() const { return _value >= 0 && _value < 1000; }
+    bool isMsDelay() const { return _value < 0 && _value >= -6000000; }
+    uint32_t msDelay() const { assert(isMsDelay()); return -_value; }
+    uint32_t returnCount() const { assert(isReturnCount()); return _value; }
+
+private:
+    int32_t _value = 0;
+};
+        
 typedef union {
     void* v;
     Float::Raw f;
@@ -173,7 +197,7 @@ public:
     bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
     
     Value appendPropertyRef(const Value& value) const;
-    uint32_t call(ExecutionUnit*, uint32_t nparams);
+    CallReturnValue call(ExecutionUnit*, uint32_t nparams);
     
     bool isInteger() const
     {

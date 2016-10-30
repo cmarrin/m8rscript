@@ -49,10 +49,10 @@ uint64_t Global::currentMicroseconds()
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
-int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
 {
-    int32_t result = Global::callProperty(index, eu, nparams);
-    if (result >= 0) {
+    CallReturnValue result = Global::callProperty(index, eu, nparams);
+    if (!result.isError()) {
         return result;
     }
     
@@ -62,22 +62,16 @@ int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             uint32_t mode = eu->stack().top().toUIntValue();
             _pinio = (_pinio & ~(1 << pin)) | ((mode == PLATFORM_GPIO_OUTPUT) ? (1 << pin) : 0);
             _system->updateGPIOState(_pinio, _pinstate);
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {
             uint8_t pin = eu->stack().top(-1).toUIntValue();
             uint8_t state = eu->stack().top().toUIntValue();
             _pinstate = (_pinstate & ~(1 << pin)) | ((state == PLATFORM_GPIO_HIGH) ? (1 << pin) : 0);
             _system->updateGPIOState(_pinio, _pinstate);
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
-        case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toUIntValue();
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-            return 0;
-        }
-
-        default: return -1;
+        default: return CallReturnValue(CallReturnValue::Type::Error);
     }
 }
 

@@ -45,13 +45,6 @@ public:
     virtual ~EspTaskManager();
     
 private:    
-    // Stop any currently running timer
-    virtual void stopTimer() override;
-    
-    // Start a timer, after ms call postEvent
-    virtual void startTimer(int32_t ms) override;
-    
-    // Post an event now. When event occurs, call fireEvent
     virtual void postEvent() override;
 };
 

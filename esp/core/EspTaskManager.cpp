@@ -53,14 +53,6 @@ TaskManager* TaskManager::sharedTaskManager()
     return _sharedTaskManager;
 }
 
-void EspTaskManager::stopTimer()
-{
-}
-    
-void EspTaskManager::startTimer(int32_t ms)
-{
-}
-    
 void EspTaskManager::postEvent()
 {
 }

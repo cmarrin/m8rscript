@@ -45,7 +45,6 @@ class Simulator : public m8r::Shell
 public:
     Simulator(m8r::SystemInterface* system)
         : _system(system)
-        , _eu(system)
         , _application(system)
         , _shell(this)
     { }
@@ -100,7 +99,6 @@ private:
     
     m8r::SystemInterface* _system;
     bool _isBuild = true;
-    m8r::ExecutionUnit _eu;
     m8r::Program* _program = nullptr;
     m8r::Application _application;
     bool _running = false;

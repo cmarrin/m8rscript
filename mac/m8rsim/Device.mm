@@ -451,9 +451,7 @@ private:
 
 - (void)run
 {
-    dispatch_async(_serialQueue, ^() {
-        _simulator->run();
-    });
+    _simulator->run();
 }
 
 - (void)pause

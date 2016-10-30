@@ -63,7 +63,7 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
-int32_t ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
+CallReturnValue ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
 {
 // On entry the stack has:
 //      tos           ==> nparams values
@@ -306,7 +306,7 @@ static const uint16_t YieldCount = 2000;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
     Value returnedValue;
-    int32_t callReturnCount = 0;
+    CallReturnValue callReturnValue;
     
     DISPATCH;
     
@@ -394,11 +394,11 @@ static const uint16_t YieldCount = 2000;
             op = maskOp(op, 0x0f);
         }
 
-        callReturnCount = call(_program, uintValue, _object, op == Op::CALL || op == Op::CALLX);
+        callReturnValue = call(_program, uintValue, _object, op == Op::CALL || op == Op::CALLX);
 
-        // If the callReturnCount is -1 it means we've called a Function and it just
+        // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue
-        if (callReturnCount < 0) {
+        if (callReturnValue.isFunctionStart()) {
             updateCodePointer();
             DISPATCH;
         }
@@ -407,9 +407,16 @@ static const uint16_t YieldCount = 2000;
         // returned, push a null Value. Otherwise push the first returned value
         
         // On return the stack still has the passed params and the callee. Pop those too
-        returnedValue = (callReturnCount > 0) ? _stack.top(1-callReturnCount) : Value();
-        _stack.pop(callReturnCount + uintValue + 1);
+        returnedValue = Value();
+        if (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) {
+            returnedValue = _stack.top(1 - callReturnValue.returnCount());
+            _stack.pop(callReturnValue.returnCount());
+        }
+        _stack.pop(uintValue + 1);
         _stack.push(returnedValue);
+        if (callReturnValue.isMsDelay()) {
+            return callReturnValue.msDelay();
+        }
         DISPATCH;
     L_RET:
     L_RETX:
@@ -423,13 +430,13 @@ static const uint16_t YieldCount = 2000;
                 _stack.clear();
                 return -1;
             }
-            callReturnCount = 0;
+            callReturnValue = CallReturnValue();
         }
         else if (op == Op::RETX) {
-            callReturnCount = uintFromCode(1);
+            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, uintFromCode(1));
             _pc += 1;
         } else {
-            callReturnCount = uintFromOp(op, 0x0f);
+            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, uintFromOp(op, 0x0f));
         }
         
         // The stack now contains:
@@ -441,8 +448,8 @@ static const uint16_t YieldCount = 2000;
         //              [locals]
         //      frame-> [params]
         //              <callee>
-        returnedValue = (callReturnCount > 0) ? _stack.top(1-callReturnCount) : Value();
-        _stack.pop(callReturnCount);
+        returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
+        _stack.pop(callReturnValue.returnCount());
         
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _object = _stack.top().asObjectValue();

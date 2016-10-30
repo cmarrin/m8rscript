@@ -39,10 +39,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-int32_t Function::call(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Function::call(ExecutionUnit* eu, uint32_t nparams)
 {
     eu->startFunction(this, nparams);
-    return -1;
+    return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
 int32_t Function::addLocal(const Atom& atom)

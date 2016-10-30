@@ -62,6 +62,8 @@ public:
     
     bool load(Error&, const char* name = nullptr);
     void run(std::function<void()>);
+    void pause();
+    void stop();
     
     Program* program() const { return _program; }
     
@@ -80,6 +82,10 @@ private:
             _eu.startExecution(program);
             runOnce();
         }
+        
+        void pause() { }
+        
+        void stop() { _eu.requestTermination(); }
 
     private:
         virtual bool execute() override;

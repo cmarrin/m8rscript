@@ -104,6 +104,7 @@ void Simulator::build(const char* name)
     m8r::Error error;
     if (_application.load(error, name)) {
         _system->printf(ROMSTR("Ready to run\n"));
+        _program = _application.program();
     }
 }
 
@@ -148,7 +149,7 @@ void Simulator::stop()
         assert(0);
         return;
     }
-    _eu.requestTermination();
+    _application.stop();
     _running = false;
     _system->printf(ROMSTR("*** Stopped\n"));
 }

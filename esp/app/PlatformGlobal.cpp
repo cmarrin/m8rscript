@@ -49,10 +49,10 @@ uint64_t Global::currentMicroseconds()
     return ::currentMicroseconds();
 }
 
-int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
 {
-    int32_t result = Global::callProperty(index, eu, nparams);
-    if (result >= 0) {
+    CallReturnValue result = Global::callProperty(index, eu, nparams);
+    if (!result.isError()) {
         return result;
     }
     
@@ -60,21 +60,14 @@ int32_t PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
         case Property::GPIO_pinMode: {
             //uint32_t pin = eu->stack().top(-1).toUIntValue();
             //uint32_t mode = eu->stack().top().toUIntValue();
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {
             //uint8_t pin = eu->stack().top(-1).toUIntValue();
             //uint8_t state = eu->stack().top().toUIntValue();
-            return 0;
-        }
-        case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toUIntValue();
-            while (ms--) {
-                ets_delay_us(1000);
-            }
-            return 0;
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
 
-        default: return -1;
+        default: return CallReturnValue(CallReturnValue::Type::Error);
     }
 }
