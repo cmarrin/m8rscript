@@ -59,12 +59,6 @@ static m8r::TCP* _shellTCP = nullptr;
 
 void ICACHE_FLASH_ATTR runScript()
 {
-    m8r::FS* fs = m8r::FS::sharedFS();
-    if (!fs->mount()) {
-        esp_system()->printf(ROMSTR("ERROR: Mount failed, trying to format.\n"));
-        fs->format();
-    }
-
     esp_system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
     esp_system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     
@@ -111,7 +105,7 @@ public:
     
     // Shell Delegate
     virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(data, size); }
-    virtual void setDeviceName(const char* name) { setDeviceName(name); }
+    virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
 
 private:
     m8r::TCP* _tcp;

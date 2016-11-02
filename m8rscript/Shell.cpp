@@ -245,16 +245,24 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showError(ROMSTR("device name required"));
         } else {
+debugf("******** dev 1\n");
             Application::NameValidationType type = Application::validateBonjourName(array[1].c_str());
+debugf("******** dev 2\n");
 
             if (type == Application::NameValidationType::BadLength) {
+debugf("******** dev 3\n");
                 showError(ROMSTR("device name must be between 1 and 31 characters"));
             } else if (type == Application::NameValidationType::InvalidChar) {
+debugf("******** dev 4\n");
                 showError(ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
+debugf("******** dev 5\n");
                 setDeviceName(array[1].c_str());
+debugf("******** dev 6\n");
                 _state = State::NeedPrompt;
+debugf("******** dev 7\n");
                 sendString(ROMSTR("set dev name\n"));
+debugf("******** dev 8\n");
             }
         }
     } else if (array[0] == "format") {

@@ -288,6 +288,7 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {
+esp_system()->printf("******** smartConfig status=%d\n", status);
     switch(status) {
         case SC_STATUS_WAIT:
             esp_system()->printf("SC_STATUS_WAIT\n");
@@ -328,6 +329,7 @@ void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 void smartConfig()
 {
     wifi_set_opmode(STATION_MODE);
+    smartconfig_set_type(SC_TYPE_ESPTOUCH);
     smartconfig_start(smartconfigDone);
 }
 
@@ -381,6 +383,9 @@ static uint8_t gNumWifiTries = 0;
 void wifiEventHandler(System_Event_t *evt)
 {
     switch(evt->event) {
+        case EVENT_STAMODE_CONNECTED:
+            esp_system()->printf("Connected to ssid %s, channel %d\n", evt->event_info.connected.ssid, evt->event_info.connected.channel);
+            break;
         case EVENT_STAMODE_DISCONNECTED: {
             gNumWifiTries++;
             esp_system()->printf("Wifi failed to connect %d time%s\n", gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
@@ -400,30 +405,50 @@ void wifiEventHandler(System_Event_t *evt)
 
 static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A') : (b + '0'); }
 
+void startup(void*)
+{
+    m8r::FS* fs = m8r::FS::sharedFS();
+    if (!fs->mount()) {
+        esp_system()->printf(ROMSTR("Trying to format..."));
+        if (fs->format()) {
+            esp_system()->printf(ROMSTR("succeeded.\n"));
+            getUserData();
+        } else {
+            esp_system()->printf(ROMSTR("FAILED.\n"));
+        }
+    }
+
+    gNumWifiTries = 0;
+    wifi_set_opmode(STATION_MODE);
+    wifi_station_set_auto_connect(1);
+    wifi_station_connect();
+    
+    struct station_config config;
+    wifi_station_get_config(&config);
+    if (config.ssid[0] == '\0') {
+        esp_system()->printf("no SSID, running smartconfig\n");
+        smartConfig();
+    }
+}
+
 void initializeSystem(void (*initializedCB)())
 {
+    wifi_station_set_auto_connect(0);
     do_global_ctors();
     _calledInitializeCB = false;
     _initializedCB = initializedCB;
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /115200);
     
-    m8r::FS::sharedFS()->mount();
-    getUserData();
-
-    gNumWifiTries = 0;
-    wifi_set_opmode(STATION_MODE);
-    
-    // If we already have our IP we won't get EVENT_STAMODE_GOT_IP since we haven't set
-    // up the callback yet. So call it here:
     wifi_set_event_handler_cb(wifiEventHandler);
-    if (wifi_station_get_connect_status() == STATION_GOT_IP) {
-        gotStationIP();
-    }
 
     os_timer_disarm(&micros_overflow_timer);
     os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, nullptr);
     os_timer_arm(&micros_overflow_timer, 60000, true);
+
+    os_timer_disarm(&startupTimer);
+    os_timer_setfn(&startupTimer, (os_timer_func_t*) &startup, nullptr);
+    os_timer_arm(&startupTimer, 2000, false);
 }
 
 uint64_t currentMicroseconds()
