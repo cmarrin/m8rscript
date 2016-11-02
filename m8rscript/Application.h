@@ -62,6 +62,14 @@ public:
     
     bool load(Error&, const char* name = nullptr);
     void run(std::function<void()>);
+    void clear()
+    {
+        if (!_program) {
+            return;
+        }
+        delete _program;
+        _program = nullptr;
+    }
     void pause();
     void stop();
     

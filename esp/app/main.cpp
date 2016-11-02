@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "MStream.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "Application.h"
 #include "FS.h"
 #include "TCP.h"
 #include "Shell.h"
@@ -55,24 +54,6 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-static m8r::TCP* _shellTCP = nullptr;
-
-void ICACHE_FLASH_ATTR runScript()
-{
-    esp_system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    esp_system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
-    
-    m8r::Application application(esp_system());
-    m8r::Error error;
-    if (!application.load(error)) {
-        error.showError(esp_system());
-    } else {
-        application.run([]{
-            esp_system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
-        });
-    }
-}
-
 static volatile os_timer_t gBlinkTimer;
 
 void blinkTimerfunc(void *)
@@ -88,7 +69,7 @@ void blinkTimerfunc(void *)
 
 class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
-    MyShell(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
+    MyShell(m8r::SystemInterface* system, uint16_t port) : Shell(system), _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
     virtual void TCPconnected(m8r::TCP*) override { connected(); }
@@ -113,9 +94,19 @@ private:
 
 MyShell* _shell;
 
+void ICACHE_FLASH_ATTR runScript()
+{
+    esp_system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
+    esp_system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
+    _shell->load(nullptr);
+    _shell->run([]{
+        esp_system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+    });
+}
+
 void systemInitialized()
 {
-    _shell = new MyShell(22);
+    _shell = new MyShell(esp_system(), 22);
     runScript();
 }
 

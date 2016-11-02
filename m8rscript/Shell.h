@@ -35,8 +35,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Application.h"
 #include "FS.h"
 #include "Containers.h"
+#include "SystemInterface.h"
+#include <functional>
 
 namespace m8r {
 
@@ -49,13 +52,22 @@ public:
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
-    Shell() { }
+    Shell(SystemInterface* system) : _system(system), _application(system) { }
     
     void connected();
     void disconnected() { }
     bool received(const char* data, uint16_t size);
     void sendComplete();
     void init();
+    
+    bool load(const char*);
+    void run(std::function<void()>);
+    void clear() { _application.clear(); }
+    void stop() { _application.stop(); }
+    Program* program() const { return _application.program(); }
+    
+    void vprintf(const char*, va_list);
+
     
     long send(const void* data, long size);
     long receive(void* data, long size);
@@ -73,7 +85,11 @@ private:
     bool _binary = true;
     m8r::File* _file = nullptr;
     
-    char _buffer[BufferSize];
+    mutable char _buffer[BufferSize];
+    
+    SystemInterface* _system;
+    Application _application;
+
 };
 
 }

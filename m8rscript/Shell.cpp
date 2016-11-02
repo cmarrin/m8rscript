@@ -62,6 +62,29 @@ void Shell::init()
     sendComplete();
 }
 
+bool Shell::load(const char* filename)
+{
+    Error error;
+    if (!_application.load(error, filename)) {
+        showError(ROMSTR("failed to load application"));
+        return false;
+    }
+    if (!_application.program()) {
+        showError(ROMSTR("failed to compile application"));
+        return false;
+    }
+    return true;
+}
+
+void Shell::run(std::function<void()> function)
+{
+    if (!_application.program()) {
+        showError(ROMSTR("no application to run"));
+        return;
+    }
+    _application.run(function);
+}
+
 bool Shell::received(const char* data, uint16_t size)
 {
     if (_state == State::PutFile) {
@@ -245,24 +268,16 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showError(ROMSTR("device name required"));
         } else {
-debugf("******** dev 1\n");
             Application::NameValidationType type = Application::validateBonjourName(array[1].c_str());
-debugf("******** dev 2\n");
 
             if (type == Application::NameValidationType::BadLength) {
-debugf("******** dev 3\n");
                 showError(ROMSTR("device name must be between 1 and 31 characters"));
             } else if (type == Application::NameValidationType::InvalidChar) {
-debugf("******** dev 4\n");
                 showError(ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
-debugf("******** dev 5\n");
                 setDeviceName(array[1].c_str());
-debugf("******** dev 6\n");
                 _state = State::NeedPrompt;
-debugf("******** dev 7\n");
                 sendString(ROMSTR("set dev name\n"));
-debugf("******** dev 8\n");
             }
         }
     } else if (array[0] == "format") {
@@ -281,19 +296,8 @@ debugf("******** dev 8\n");
         _state = State::NeedPrompt;
         sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "run") {
-        Program* program = nullptr;
-        Application application(nullptr);
-        Error error;
-        if (!application.load(error, (array.size() < 2) ? nullptr : array[1].c_str())) {
-            showError(ROMSTR("failed to load application"));
-        } else {
-            program = application.program();
-        }
-        
-        if (!program) {
-            showError(ROMSTR("failed to compile program"));
-        } else {
-        }
+        load((array.size() < 2) ? nullptr : array[1].c_str());
+        run([]{ });
     } else if (array[0] == "quit") {
         return false;
     } else {
@@ -327,5 +331,14 @@ void Shell::sendString(const char* s)
 {
     ROMCopyString(_buffer, s);
     shellSend(_buffer);
+}
+
+void Shell::vprintf(const char* fmt, va_list args)
+{
+    char* buf = new char[128];
+    ROMCopyString(_buffer, fmt);
+    vsnprintf(buf, 127, _buffer, args);
+    shellSend(buf);
+    delete[ ] buf;
 }
 

@@ -44,48 +44,43 @@ POSSIBILITY OF SUCH DAMAGE.
 
 Simulator::~Simulator()
 {
-    if (_program) {
-        delete _program;
-    }
 }
 
 void Simulator::importBinary(const char* filename)
 {
-    m8r::FileStream stream(filename, "r");
-    _program = new m8r::Program(_system);
-    m8r::Error error;
-    if (!_program->deserializeObject(&stream, error)) {
-        error.showError(_system);
-        delete _program;
-        _program = nullptr;
-    }
+//    m8r::FileStream stream(filename, "r");
+//    _program = new m8r::Program(_system);
+//    m8r::Error error;
+//    if (!_program->deserializeObject(&stream, error)) {
+//        error.showError(_system);
+//        delete _program;
+//        _program = nullptr;
+//    }
 }
 
 void Simulator::exportBinary(const char* filename)
 {
-    m8r::FileStream stream(filename, "w");
-    if (_program) {
-        m8r::Error error;
-        if (!_program->serializeObject(&stream, error)) {
-            error.showError(_system);
-            delete _program;
-            _program = nullptr;
-        }
-    }
+//    m8r::FileStream stream(filename, "w");
+//    if (_program) {
+//        m8r::Error error;
+//        if (!_program->serializeObject(&stream, error)) {
+//            error.showError(_system);
+//            delete _program;
+//            _program = nullptr;
+//        }
+//    }
 }
 
 bool Simulator::exportBinary(std::vector<uint8_t>& vector)
 {
-    if (!_program) {
+    if (!_shell.program()) {
         return false;
     }
     
     m8r::VectorStream stream;
     m8r::Error error;
-    if (!_program->serializeObject(&stream, error)) {
+    if (!_shell.program()->serializeObject(&stream, error)) {
         error.showError(_system);
-        delete _program;
-        _program = nullptr;
         return false;
     }
     stream.swap(vector);
@@ -94,24 +89,18 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
 
 void Simulator::build(const char* name)
 {
-    if (_program) {
-        delete _program;
-        _program = nullptr;
-    }
     _running = false;
     
     _isBuild = true;
-    m8r::Error error;
-    if (_application.load(error, name)) {
+    if (_shell.load(name)) {
         _system->printf(ROMSTR("Ready to run\n"));
-        _program = _application.program();
     }
 }
 
 void Simulator::printCode()
 {
     m8r::CodePrinter codePrinter(_system);
-    m8r::String codeString = codePrinter.generateCodeString(_program);
+    m8r::String codeString = codePrinter.generateCodeString(_shell.program());
     
     _system->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
     _system->printf("%s", codeString.c_str());
@@ -131,7 +120,7 @@ void Simulator::run()
     _system->printf(ROMSTR("*** Program started...\n\n"));
 
     auto start = std::chrono::system_clock::now();
-    _application.run([start, this]{
+    _shell.run([start, this]{
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> diff = end - start;
         _system->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
@@ -149,24 +138,17 @@ void Simulator::stop()
         assert(0);
         return;
     }
-    _application.stop();
+    _shell.stop();
     _running = false;
     _system->printf(ROMSTR("*** Stopped\n"));
 }
 
 void Simulator::simulate()
 {
-    if (_program) {
-        delete _program;
-        _program = nullptr;
-    }
-    m8r::Error error;
-    if (_application.load(error)) {
-        error.showError(_system);
+    if (!_shell.load(nullptr)) {
         return;
     }
-    _program = _application.program();
-    run();
+    _shell.run([]{});
 }
 
 long Simulator::sendToShell(const void* data, long size)

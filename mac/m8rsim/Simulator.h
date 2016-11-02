@@ -40,13 +40,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Shell.h"
 #include "SystemInterface.h"
 
-class Simulator : public m8r::Shell
+class Simulator
 {
 public:
     Simulator(m8r::SystemInterface* system)
         : _system(system)
-        , _application(system)
-        , _shell(this)
+        , _shell(system, this)
     { }
     
     ~Simulator();
@@ -60,20 +59,14 @@ public:
     void pause();
     void stop();
     void simulate();
-    void clear()
-    {
-        if (_program) {
-            delete _program;
-            _program = nullptr;
-        }
-    }
+    void clear() { _shell.clear(); }
     
     bool isBuild() const { return _isBuild; }
     bool isRunning() const { return _running; }
 
-    bool canRun() { return _program && !_running; }
-    bool canStop() { return _program && _running; }
-    bool canSaveBinary() { return _program; }
+    bool canRun() { return _shell.program() && !_running; }
+    bool canStop() { return _shell.program() && _running; }
+    bool canSaveBinary() { return _shell.program(); }
     
     void initShell() { _shell.init(); _receivedString.clear(); }
     long sendToShell(const void* data, long size);
@@ -90,7 +83,7 @@ public:
 private:
     class MyShell : public m8r::Shell {
     public:
-        MyShell(Simulator* simulator) : _simulator(simulator) { }
+        MyShell(m8r::SystemInterface* system, Simulator* simulator) : Shell(system), _simulator(simulator) { }
         virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
 
     private:
@@ -99,8 +92,6 @@ private:
     
     m8r::SystemInterface* _system;
     bool _isBuild = true;
-    m8r::Program* _program = nullptr;
-    m8r::Application _application;
     bool _running = false;
     MyShell _shell;
     m8r::String _receivedString;
