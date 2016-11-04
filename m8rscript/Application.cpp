@@ -120,6 +120,7 @@ bool Application::load(Error& error, const char* filename)
      }
 
 #ifdef NO_PARSER_SUPPORT
+    _system->printf(ROMSTR("File not found, nothing to load\n"));
     return false;
 #else
     name = name.slice(0, -1);
