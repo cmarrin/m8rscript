@@ -48,22 +48,24 @@ ifeq ($(PARSER_SUPPORT), 1)
         ../m8rscript/Scanner.cpp
 endif
 
-# Esp8266 location
+# Arduino based tools
 ESP_ROOT ?= $(HOME)/esp8266
 TOOLS_ROOT ?= $(ESP_ROOT)/tools
 SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
-#SDK_ROOT = $(TOOLS_ROOT)/sdk
-
 FLASH_LAYOUT ?= eagle.flash.4m.ld
-ESP_TOOL = $(TOOLS_ROOT)/esptool/esptool
 
+# ESP open SDK base tools
 #ESP_ROOT ?= $(HOME)/esp-open-sdk
-#FLASH_LAYOUT ?= eagle.app.v6.ld 
-#ESP_TOOL ?= PATH=$(TOOLS_BIN):$(PATH) && $(TOOLS_BIN)/esptool.py
+#TOOLS_ROOT = $(ESP_ROOT)
+#SDK_ROOT = $(TOOLS_ROOT)/sdk
+#FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
+#FLASH_LAYOUT ?= eagle.app.v6.ld
+
+ESP_TOOL = ./esptool
+ESP_TOOL_PY ?= ./esptool.py
 
 # Output directory
 BUILD_BASE	= build
-FW_BASE		= firmware
 
 # Board definitions
 FLASH_SIZE ?= 4M
@@ -75,6 +77,9 @@ UPLOAD_SPEED ?= 115200
 UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
+
+# Use this speed to print the boot sequence, which runs at this oddball speed
+#UPLOAD_SPEED = 74880
 
 # OTA parameters
 ESP_ADDR ?= ESP_DA6ABC
@@ -107,11 +112,6 @@ CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
 CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
-
-FW_FILE_1_ADDR	= 0x00000
-FW_FILE_1	:= $(addprefix $(FW_BASE)/,$(FW_FILE_1_ADDR).bin)
-FW_FILE_2_ADDR	= 0x40000
-FW_FILE_2	:= $(addprefix $(FW_BASE)/,$(FW_FILE_2_ADDR).bin)
 
 LIBS = main net80211 wpa pp phy crypto smartconfig lwip gcc
 LIBS := $(addprefix -l,$(LIBS))
@@ -199,9 +199,6 @@ $(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ)
 BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
-$(FW_BASE)/%.bin: $(MAIN_ELF) | $(FW_BASE)
-	$(ESP_TOOL) elf2image -o $(FW_BASE)/ $(MAIN_ELF)
-
 $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
 	echo "  Versions: $(SRC_GIT_VERSION), $(ESP_GIT_VERSION)"
@@ -216,6 +213,9 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
+    
+erase:
+	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
     
 term:
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)

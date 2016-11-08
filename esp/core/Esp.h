@@ -46,6 +46,7 @@ void ets_install_putc1(void(*p)(char c));
 int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
 int ets_vsprintf(char *str, const char *format, va_list arg)  __attribute__ ((format (printf, 2, 0)));
 int ets_vsnprintf(char * s, size_t n, const char * format, va_list arg)  __attribute__ ((format (printf, 3, 0)));
+int ets_putc(int);
 void ets_delay_us(uint32_t);
 void hexdump (const char *desc, uint8_t* addr, size_t len);
 void writeUserData();

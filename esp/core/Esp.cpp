@@ -44,37 +44,81 @@ extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 // * Parameters   : none
 // * Returns      : rf cal sector
 //==================================================================================
-uint32 ICACHE_FLASH_ATTR
-user_rf_cal_sector_set(void)
+//uint32 ICACHE_FLASH_ATTR
+//user_rf_cal_sector_set(void)
+//{
+//    enum flash_size_map size_map = system_get_flash_size_map();
+//    uint32 rf_cal_sec = 0;
+//
+//    switch (size_map) {
+//        case FLASH_SIZE_4M_MAP_256_256:
+//            rf_cal_sec = 128 - 8;
+//            break;
+//
+//        case FLASH_SIZE_8M_MAP_512_512:
+//            rf_cal_sec = 256 - 5;
+//            break;
+//
+//        case FLASH_SIZE_16M_MAP_512_512:
+//        case FLASH_SIZE_16M_MAP_1024_1024:
+//            rf_cal_sec = 512 - 5;
+//            break;
+//
+//        case FLASH_SIZE_32M_MAP_512_512:
+//        case FLASH_SIZE_32M_MAP_1024_1024:
+//            rf_cal_sec = 1024 - 5;
+//            break;
+//
+//        default:
+//            rf_cal_sec = 0;
+//            break;
+//    }
+//
+//    return rf_cal_sec;
+//}
+
+uint32 user_rf_cal_sector_set(void) {
+    extern char flashchip;
+    SpiFlashChip *flash = (SpiFlashChip*)(&flashchip + 4);
+    // We know that sector size in 4096
+    //uint32_t sec_num = flash->chip_size / flash->sector_size;
+    uint32_t sec_num = 100; //flash->chip_size >> 12;
+    ets_putc('+');
+    ets_putc('&');
+    ets_putc('+');
+    ets_putc('&');
+    ets_putc('+');
+    ets_putc('&');
+    ets_putc(' ');
+    ets_putc('c');
+    ets_putc('a');
+    ets_putc('l');
+    ets_putc(':');
+    ets_putc('0' + ((sec_num / 1000) % 10));
+    ets_putc('0' + ((sec_num / 100) % 10));
+    ets_putc('0' + ((sec_num / 10) % 10));
+    ets_putc('0' + ((sec_num / 1) % 10));
+    ets_putc('\n');
+    return sec_num - 5;
+}
+
+void user_rf_pre_init()
 {
-    enum flash_size_map size_map = system_get_flash_size_map();
-    uint32 rf_cal_sec = 0;
-
-    switch (size_map) {
-        case FLASH_SIZE_4M_MAP_256_256:
-            rf_cal_sec = 128 - 8;
-            break;
-
-        case FLASH_SIZE_8M_MAP_512_512:
-            rf_cal_sec = 256 - 5;
-            break;
-
-        case FLASH_SIZE_16M_MAP_512_512:
-        case FLASH_SIZE_16M_MAP_1024_1024:
-            rf_cal_sec = 512 - 5;
-            break;
-
-        case FLASH_SIZE_32M_MAP_512_512:
-        case FLASH_SIZE_32M_MAP_1024_1024:
-            rf_cal_sec = 1024 - 5;
-            break;
-
-        default:
-            rf_cal_sec = 0;
-            break;
-    }
-
-    return rf_cal_sec;
+    ets_putc('%');
+    ets_putc('*');
+    ets_putc('%');
+    ets_putc('*');
+    ets_putc('%');
+    ets_putc('*');
+    ets_putc('%');
+    ets_putc('*');
+    ets_putc('%');
+    ets_putc('*');
+    ets_putc(' ');
+    ets_putc('p');
+    ets_putc('r');
+    ets_putc('e');
+    ets_putc('\n');
 }
 
 } // extern "C"
