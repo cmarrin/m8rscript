@@ -82,43 +82,24 @@ uint32 user_rf_cal_sector_set(void) {
     SpiFlashChip *flash = (SpiFlashChip*)(&flashchip + 4);
     // We know that sector size in 4096
     //uint32_t sec_num = flash->chip_size / flash->sector_size;
-    uint32_t sec_num = 100; //flash->chip_size >> 12;
-    ets_putc('+');
-    ets_putc('&');
-    ets_putc('+');
-    ets_putc('&');
-    ets_putc('+');
-    ets_putc('&');
-    ets_putc(' ');
-    ets_putc('c');
-    ets_putc('a');
-    ets_putc('l');
-    ets_putc(':');
-    ets_putc('0' + ((sec_num / 1000) % 10));
-    ets_putc('0' + ((sec_num / 100) % 10));
-    ets_putc('0' + ((sec_num / 10) % 10));
-    ets_putc('0' + ((sec_num / 1) % 10));
-    ets_putc('\n');
+    uint32_t sec_num = flash->chip_size >> 12;
+//    ets_putc('+');
+//    ets_putc('&');
+//    ets_putc('+');
+//    ets_putc('&');
+//    ets_putc('+');
+//    ets_putc('&');
+//    ets_putc(' ');
+//    ets_putc('c');
+//    ets_putc('a');
+//    ets_putc('l');
+//    ets_putc(':');
+//    ets_putc('0' + ((sec_num / 1000) % 10));
+//    ets_putc('0' + ((sec_num / 100) % 10));
+//    ets_putc('0' + ((sec_num / 10) % 10));
+//    ets_putc('0' + ((sec_num / 1) % 10));
+//    ets_putc('\n');
     return sec_num - 5;
-}
-
-void user_rf_pre_init()
-{
-    ets_putc('%');
-    ets_putc('*');
-    ets_putc('%');
-    ets_putc('*');
-    ets_putc('%');
-    ets_putc('*');
-    ets_putc('%');
-    ets_putc('*');
-    ets_putc('%');
-    ets_putc('*');
-    ets_putc(' ');
-    ets_putc('p');
-    ets_putc('r');
-    ets_putc('e');
-    ets_putc('\n');
 }
 
 } // extern "C"

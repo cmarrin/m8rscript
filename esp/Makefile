@@ -211,7 +211,7 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
 upload: all
-	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
+	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE) -ca 0x3fc000 -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
     
 erase:
@@ -219,6 +219,10 @@ erase:
     
 term:
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
+    
+bootterm:
+	python -m serial.tools.miniterm $(UPLOAD_PORT) 74880
+
 
 ota: all
 	$(OTA_TOOL) -i $(ESP_ADDR) -p $(ESP_PORT) -a $(ESP_PWD) -f $(MAIN_EXE)
