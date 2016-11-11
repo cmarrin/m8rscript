@@ -38,7 +38,7 @@
     
     NSString* _source;
     NSFont* _font;
-    NSString* _sourceFilename;
+    NSString* _selectedFilename;
     
     Device* _device;
     SimulationView* _simulationView;
@@ -95,7 +95,7 @@
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
     if (item == buildButton) {
-        return [_source length] && [[_sourceFilename pathExtension] isEqualToString:@"m8r"];
+        return [_source length] && [[_selectedFilename pathExtension] isEqualToString:@"m8r"];
     }
     if (item == simulateButton) {
         return [_device canSimulate];
@@ -131,7 +131,7 @@
 - (IBAction)build:(id)sender
 {
     [self clearOutput:CTBuild];
-    [_device buildFile:_sourceFilename];
+    [_device buildFile:_selectedFilename];
 }
 
 - (IBAction)run:(id)sender
@@ -156,7 +156,7 @@
 }
 
 - (IBAction)saveBinary:(id)sender {
-    [_device saveBinary:_sourceFilename];
+    [_device saveBinary:_selectedFilename];
     [self reloadFiles];
 }
 
@@ -229,7 +229,7 @@
 - (void)clearContents
 {
     _source = @"";
-    _sourceFilename = @"";
+    _selectedFilename = @"";
     if (sourceEditor) {
         [sourceEditor setString:_source];
     }
@@ -239,11 +239,11 @@
 - (void)setContents:(NSData*)contents withName:(NSString*)name;
 {
     [self clearContents];
+    _selectedFilename = name;
     
     NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
     if (source) {
         _source = source;
-        _sourceFilename = name;
         if (sourceEditor) {
             [sourceEditor setString:_source];
         }
@@ -253,6 +253,12 @@
     NSImage* image = [[NSImage alloc]initWithData:contents];
     if (image) {
         [self setImage:image];
+        return;
+    }
+    
+    if ([[name pathExtension] isEqualToString:@"m8rb"]) {
+        [self clearOutput:CTBuild];
+        [_device buildFile:name];
     }
 }
 
@@ -315,13 +321,13 @@
     NSString *string = textStorage.string;
     NSUInteger n = string.length;
     
-    if (_sourceFilename.length) {
+    if (_selectedFilename.length) {
         NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
                                     _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
                                     nil;
         if (files) {
-            [files removeFileWrapper:files.fileWrappers[_sourceFilename]];
-            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_sourceFilename];
+            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
+            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
         }
     }
     

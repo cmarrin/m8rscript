@@ -98,7 +98,7 @@ public:
         if (_file->read(&c, 1) != 1) {
             return -1;
         }
-        return c;
+        return static_cast<uint8_t>(c);
     }
     virtual int write(uint8_t c) override
     {

@@ -66,7 +66,7 @@ bool Shell::load(const char* filename)
 {
     Error error;
     if (!_application.load(error, filename)) {
-        showError(ROMSTR("failed to load application"));
+        error.showError(_system);
         return false;
     }
     if (!_application.program()) {

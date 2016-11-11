@@ -75,6 +75,9 @@ bool Application::load(Error& error, const char* filename)
         }
         delete _program;
         _program = nullptr;
+        if (error.code() != Error::Code::SerialHeader) {
+            return false;
+        }
         
 #ifdef NO_PARSER_SUPPORT
         return false;

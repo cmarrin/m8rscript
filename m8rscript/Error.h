@@ -67,6 +67,9 @@ public:
         _code = code;
         return false;
     }
+    
+    Code code() const { return _code; }
+    
     void showError(SystemInterface*) const;
     
     static void printError(SystemInterface*, Code, const char* format = nullptr, ...);
