@@ -57,7 +57,7 @@ class AtomTable {
     friend class Program;
     
 public:
-    Atom atomizeString(const char*);
+    Atom atomizeString(const char*) const;
     m8r::String stringFromAtom(const Atom atom) const
     {
         uint16_t index = atom.raw();
@@ -72,7 +72,7 @@ private:
 
     static constexpr uint8_t MaxAtomSize = 127;
 
-    std::vector<int8_t> _table;
+    mutable std::vector<int8_t> _table;
 };
 
 }

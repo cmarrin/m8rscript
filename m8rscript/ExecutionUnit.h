@@ -89,6 +89,7 @@ public:
     void requestTermination() { _terminate = true; }
     
     SystemInterface* system() const { return _system; }
+    Program* program() const { return _program; }
     
 private:
     bool printError(const char* s) const;

@@ -124,7 +124,7 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
     if (index < 0) {
         String s = "no property '";
-        s += derefValue.toStringValue();
+        s += derefValue.toStringValue(_program);
         s += "' in '";
         s += obj->typeName();
         s += "' Object";
@@ -140,7 +140,7 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         objectValue = deref(program, program->global(), objectValue);
         if (objectValue.isNone()) {
             String s = "    '";
-            s += derefValue.toStringValue();
+            s += derefValue.toStringValue(_program);
             s += "' property does not exist";
             return printError(s.c_str());
         }
@@ -151,7 +151,7 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
         objectValue = objectValue.appendPropertyRef(derefValue);
         if (objectValue.isNone()) {
             String s = "'";
-            s += derefValue.toStringValue();
+            s += derefValue.toStringValue(_program);
             s += "' property does not exist";
             return printError(s.c_str());
         }
@@ -358,7 +358,7 @@ static const uint16_t YieldCount = 2000;
         _stack.push(_stack.elementRef(intValue));
         DISPATCH;
     L_PUSHLITA:
-        _stack.push(new Array());
+        _stack.push(new Array(_program));
         DISPATCH;
     L_PUSHLITO:
         _stack.push(new MaterObject());
@@ -478,8 +478,8 @@ static const uint16_t YieldCount = 2000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             _stack.setTop(leftValue.toFloatValue() + rightValue.toFloatValue());
         } else {
-            m8r::String s = leftValue.toStringValue();
-            s += rightValue.toStringValue();
+            m8r::String s = leftValue.toStringValue(_program);
+            s += rightValue.toStringValue(_program);
             _stack.setTop(s.c_str());
         }
         DISPATCH;
@@ -610,7 +610,7 @@ static const uint16_t YieldCount = 2000;
                 int32_t index = objectValue->addProperty(name);
                 if (index < 0) {
                     String s = "Invalid property '";
-                    s += Program::stringFromAtom(name);
+                    s += _program->stringFromAtom(name);
                     s += "' for Object literal";
                     printError(s.c_str());
                 }

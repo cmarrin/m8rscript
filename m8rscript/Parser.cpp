@@ -181,7 +181,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         int32_t index = _currentFunction->localIndex(atom);
         if (index < 0 && type == IdType::MustBeLocal) {
             String s = "'";
-            s += Program::stringFromAtom(atom);
+            s += _program->stringFromAtom(atom);
             s += "' is not a local variable name";
             printError(s.c_str());
         }

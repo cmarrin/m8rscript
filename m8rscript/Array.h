@@ -41,7 +41,7 @@ namespace m8r {
 
 class Array : public Object {
 public:
-    Array();
+    Array(Program*);
 
     virtual const char* typeName() const override { return "Array"; }
 

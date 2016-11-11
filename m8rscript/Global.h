@@ -54,7 +54,7 @@ public:
     static constexpr uint32_t PLATFORM_GPIO_HIGH = 1;
     static constexpr uint32_t PLATFORM_GPIO_LOW = 0;
 
-    Global(SystemInterface*);
+    Global(SystemInterface*, Program*);
     
     virtual ~Global();
     

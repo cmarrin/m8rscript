@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Atom AtomTable::atomizeString(const char* s)
+Atom AtomTable::atomizeString(const char* s) const
 {
     size_t len = strlen(s);
     if (len > MaxAtomSize || len == 0) {

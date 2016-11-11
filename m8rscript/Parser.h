@@ -69,7 +69,7 @@ public:
     Program* program() { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
-    Atom atomizeString(const char* s) { return _program->atomizeString(s); }
+    Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
 
     StringLiteral startString() { return _program->startString(); }
     void addToString(char c) { _program->addToString(c); }

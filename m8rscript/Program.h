@@ -61,8 +61,8 @@ public:
     
     SystemInterface* system() const { return _global.system(); }
     
-    static String stringFromAtom(const Atom& atom) { return _atomTable.stringFromAtom(atom); }
-    static Atom atomizeString(const char* s) { return _atomTable.atomizeString(s); }
+    String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
+    Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
     
     StringLiteral startString() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringTable.size()))); }
     void addToString(char c) { _stringTable.push_back(c); }
@@ -96,7 +96,7 @@ protected:
     virtual bool deserialize(Stream*, Error&) override;
 
 private:
-    static AtomTable _atomTable;
+    AtomTable _atomTable;
     
     std::vector<char> _stringTable;
     ObjectMap _objects;

@@ -39,9 +39,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Array::Array()
+Array::Array(Program* program)
 {
-    _lengthAtom = Program::atomizeString("length");
+    _lengthAtom = program->atomizeString("length");
 }
 
 int32_t Array::propertyIndex(const Atom& name, bool canExist)

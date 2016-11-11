@@ -178,7 +178,7 @@ public:
 
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     
-    m8r::String toStringValue() const;
+    m8r::String toStringValue(Program*) const;
     bool toBoolValue() const;
     Float toFloatValue() const;
     Object* toObjectValue() const;

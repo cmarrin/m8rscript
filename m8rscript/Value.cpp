@@ -178,7 +178,7 @@ Float Value::floatFromString(const char* s)
     return Float();
 }
 
-m8r::String Value::toStringValue() const
+m8r::String Value::toStringValue(Program* program) const
 {
     switch(_type) {
         case Type::None: return String("null");
@@ -188,14 +188,14 @@ m8r::String Value::toStringValue() const
             if (obj) {
                 v = obj->value();
             }
-            return v ? v->toStringValue() : String();
+            return v ? v->toStringValue(program) : String();
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
         case Type::String: return m8r::String(asStringValue());
-        case Type::Id: return m8r::String(Program::stringFromAtom(asIdValue()));
-        case Type::PropertyRef: return objFromValue()->property(_id).toStringValue();
-        case Type::ElementRef: return objFromValue()->element(_id).toStringValue();
+        case Type::Id: return m8r::String(program->stringFromAtom(asIdValue()));
+        case Type::PropertyRef: return objFromValue()->property(_id).toStringValue(program);
+        case Type::ElementRef: return objFromValue()->element(_id).toStringValue(program);
         default: assert(0); return m8r::String();
     }
 }

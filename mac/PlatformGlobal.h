@@ -41,8 +41,8 @@ namespace m8r {
 
 class PlatformGlobal : public Global {
 public:
-    PlatformGlobal(SystemInterface* system)
-        : Global(system)
+    PlatformGlobal(SystemInterface* system, Program* program)
+        : Global(system, program)
     {
         _startTime = currentMicroseconds();
     }

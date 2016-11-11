@@ -44,33 +44,33 @@ using namespace m8r;
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
-Global::Global(SystemInterface* system) : _system(system)
+Global::Global(SystemInterface* system, Program* program) : _system(system)
 {
     _startTime = 0;
 
-    _DateAtom = Program::atomizeString("Date");
-    _SystemAtom = Program::atomizeString("System");
-    _SerialAtom = Program::atomizeString("Serial");
-    _GPIOAtom = Program::atomizeString("GPIO");
-    _Base64Atom = Program::atomizeString("Base64");
+    _DateAtom = program->atomizeString("Date");
+    _SystemAtom = program->atomizeString("System");
+    _SerialAtom = program->atomizeString("Serial");
+    _GPIOAtom = program->atomizeString("GPIO");
+    _Base64Atom = program->atomizeString("Base64");
     
-    _nowAtom = Program::atomizeString("now");
-    _delayAtom = Program::atomizeString("delay");
-    _pinModeAtom = Program::atomizeString("pinMode");
-    _digitalWriteAtom = Program::atomizeString("digitalWrite");
-    _OUTPUTAtom = Program::atomizeString("OUTPUT");
-    _INPUTAtom = Program::atomizeString("INPUT");
-    _LOWAtom = Program::atomizeString("LOW");
-    _HIGHAtom = Program::atomizeString("HIGH");
-    _FLOATAtom = Program::atomizeString("FLOAT");
-    _PULLUPAtom = Program::atomizeString("PULLUP");
-    _INTAtom = Program::atomizeString("INT");
-    _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
-    _beginAtom = Program::atomizeString("begin");
-    _printAtom = Program::atomizeString("print");
-    _printfAtom = Program::atomizeString("printf");
-    _encodeAtom = Program::atomizeString("encode");
-    _decodeAtom = Program::atomizeString("decode");
+    _nowAtom = program->atomizeString("now");
+    _delayAtom = program->atomizeString("delay");
+    _pinModeAtom = program->atomizeString("pinMode");
+    _digitalWriteAtom = program->atomizeString("digitalWrite");
+    _OUTPUTAtom = program->atomizeString("OUTPUT");
+    _INPUTAtom = program->atomizeString("INPUT");
+    _LOWAtom = program->atomizeString("LOW");
+    _HIGHAtom = program->atomizeString("HIGH");
+    _FLOATAtom = program->atomizeString("FLOAT");
+    _PULLUPAtom = program->atomizeString("PULLUP");
+    _INTAtom = program->atomizeString("INT");
+    _OPENDRAINAtom = program->atomizeString("OPENDRAIN");
+    _beginAtom = program->atomizeString("begin");
+    _printAtom = program->atomizeString("print");
+    _printfAtom = program->atomizeString("printf");
+    _encodeAtom = program->atomizeString("encode");
+    _decodeAtom = program->atomizeString("decode");
 }
 
 Global::~Global()
@@ -205,19 +205,19 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
         case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue().c_str());
+                    _system->printf(eu->stack().top(i).toStringValue(eu->program()).c_str());
                 }
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Serial_printf:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue().c_str());
+                    _system->printf(eu->stack().top(i).toStringValue(eu->program()).c_str());
                 }
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Base64_encode: {
-            String inString = eu->stack().top().toStringValue();
+            String inString = eu->stack().top().toStringValue(eu->program());
             size_t inLength = inString.size();
             size_t outLength = (inLength * 4 + 2) / 3 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
@@ -235,7 +235,7 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::Base64_decode: {
-            String inString = eu->stack().top().toStringValue();
+            String inString = eu->stack().top().toStringValue(eu->program());
             size_t inLength = inString.size();
             size_t outLength = (inLength * 3 + 3) / 4 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {

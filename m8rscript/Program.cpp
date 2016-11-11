@@ -37,9 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-AtomTable Program::_atomTable;
-
-Program::Program(SystemInterface* system) : _global(system)
+Program::Program(SystemInterface* system) : _global(system, this)
 {
 }
 
