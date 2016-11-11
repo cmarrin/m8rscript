@@ -81,8 +81,12 @@ protected:
     }
 
 private:
+    static constexpr size_t PropertyCount = 1; // length
+
     enum class Property : uint8_t { Length };
-    static Map<Atom, Property> _properties;
+
+    Atom _lengthAtom;
+    
     std::vector<Value> _array;
 };
     

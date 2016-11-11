@@ -44,55 +44,33 @@ using namespace m8r;
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
-Atom Global::_nowAtom;
-Atom Global::_delayAtom;
-Atom Global::_pinModeAtom;
-Atom Global::_digitalWriteAtom;
-Atom Global::_OUTPUTAtom;
-Atom Global::_INPUTAtom;
-Atom Global::_LOWAtom;
-Atom Global::_HIGHAtom;
-Atom Global::_FLOATAtom;
-Atom Global::_PULLUPAtom;
-Atom Global::_INTAtom;
-Atom Global::_OPENDRAINAtom;
-Atom Global::_beginAtom;
-Atom Global::_printAtom;
-Atom Global::_printfAtom;
-Atom Global::_encodeAtom;
-Atom Global::_decodeAtom;
-
-Map<Atom, Global::Property> Global::_properties;
-
 Global::Global(SystemInterface* system) : _system(system)
 {
     _startTime = 0;
 
-    if (_properties.empty()) {
-        _nowAtom = Program::atomizeString("now");
-        _delayAtom = Program::atomizeString("delay");
-        _pinModeAtom = Program::atomizeString("pinMode");
-        _digitalWriteAtom = Program::atomizeString("digitalWrite");
-        _OUTPUTAtom = Program::atomizeString("OUTPUT");
-        _INPUTAtom = Program::atomizeString("INPUT");
-        _LOWAtom = Program::atomizeString("LOW");
-        _HIGHAtom = Program::atomizeString("HIGH");
-        _FLOATAtom = Program::atomizeString("FLOAT");
-        _PULLUPAtom = Program::atomizeString("PULLUP");
-        _INTAtom = Program::atomizeString("INT");
-        _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
-        _beginAtom = Program::atomizeString("begin");
-        _printAtom = Program::atomizeString("print");
-        _printfAtom = Program::atomizeString("printf");
-        _encodeAtom = Program::atomizeString("encode");
-        _decodeAtom = Program::atomizeString("decode");
-
-        _properties.emplace(Program::atomizeString("Date"), Property::Date);
-        _properties.emplace(Program::atomizeString("System"), Property::System);
-        _properties.emplace(Program::atomizeString("Serial"), Property::Serial);
-        _properties.emplace(Program::atomizeString("GPIO"), Property::GPIO);
-        _properties.emplace(Program::atomizeString("Base64"), Property::Base64);
-    }
+    _DateAtom = Program::atomizeString("Date");
+    _SystemAtom = Program::atomizeString("System");
+    _SerialAtom = Program::atomizeString("Serial");
+    _GPIOAtom = Program::atomizeString("GPIO");
+    _Base64Atom = Program::atomizeString("Base64");
+    
+    _nowAtom = Program::atomizeString("now");
+    _delayAtom = Program::atomizeString("delay");
+    _pinModeAtom = Program::atomizeString("pinMode");
+    _digitalWriteAtom = Program::atomizeString("digitalWrite");
+    _OUTPUTAtom = Program::atomizeString("OUTPUT");
+    _INPUTAtom = Program::atomizeString("INPUT");
+    _LOWAtom = Program::atomizeString("LOW");
+    _HIGHAtom = Program::atomizeString("HIGH");
+    _FLOATAtom = Program::atomizeString("FLOAT");
+    _PULLUPAtom = Program::atomizeString("PULLUP");
+    _INTAtom = Program::atomizeString("INT");
+    _OPENDRAINAtom = Program::atomizeString("OPENDRAIN");
+    _beginAtom = Program::atomizeString("begin");
+    _printAtom = Program::atomizeString("print");
+    _printfAtom = Program::atomizeString("printf");
+    _encodeAtom = Program::atomizeString("encode");
+    _decodeAtom = Program::atomizeString("decode");
 }
 
 Global::~Global()
@@ -101,8 +79,22 @@ Global::~Global()
 
 int32_t Global::propertyIndex(const Atom& name, bool canExist)
 {
-    Property prop;
-    return _properties.find(name, prop) ? static_cast<int32_t>(prop) : -1;
+    if (name == _DateAtom) {
+        return static_cast<int32_t>(Property::Date);
+    }
+    if (name == _SystemAtom) {
+        return static_cast<int32_t>(Property::System);
+    }
+    if (name == _SerialAtom) {
+        return static_cast<int32_t>(Property::Serial);
+    }
+    if (name == _GPIOAtom) {
+        return static_cast<int32_t>(Property::GPIO);
+    }
+    if (name == _Base64Atom) {
+        return static_cast<int32_t>(Property::Base64);
+    }
+    return -1;
 }
 
 Value Global::propertyRef(int32_t index)
@@ -136,18 +128,20 @@ bool Global::setProperty(int32_t index, const Value& value)
 
 Atom Global::propertyName(uint32_t index) const
 {
-    // Find it the hard way
-    for (const auto& entry : _properties) {
-        if (static_cast<uint32_t>(entry.value) == index) {
-            return entry.key;
-        }
+    Property property = static_cast<Property>(index);
+    switch(property) {
+        case Property::Date: return _DateAtom;
+        case Property::System: return _SystemAtom;
+        case Property::Serial: return _SerialAtom;
+        case Property::GPIO: return _GPIOAtom;
+        case Property::Base64: return _Base64Atom;
+        default: return Atom();
     }
-    return Atom();
 }
 
 size_t Global::propertyCount() const
 {
-    return _properties.size();
+    return PropertyCount;
 }
 
 Value Global::appendPropertyRef(uint32_t index, const Atom& name)

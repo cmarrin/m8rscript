@@ -88,6 +88,8 @@ protected:
 
     uint64_t _startTime = 0;
 
+    static constexpr size_t PropertyCount = 5; // Date, GPIO, Serial, Base64 and System
+    
     enum class Property : uint8_t
     {
         None = 0,
@@ -99,28 +101,33 @@ protected:
         Serial = 0x40, Serial_begin, Serial_print, Serial_printf,
         Base64 = 0x50, Base64_encode, Base64_decode,
     };
-    static Map<Atom, Property> _properties;
     
     SystemInterface* _system;
 
 private:        
-    static Atom _nowAtom;
-    static Atom _delayAtom;
-    static Atom _pinModeAtom;
-    static Atom _digitalWriteAtom;
-    static Atom _OUTPUTAtom;
-    static Atom _INPUTAtom;
-    static Atom _LOWAtom;
-    static Atom _HIGHAtom;
-    static Atom _FLOATAtom;
-    static Atom _PULLUPAtom;
-    static Atom _INTAtom;
-    static Atom _OPENDRAINAtom;
-    static Atom _beginAtom;
-    static Atom _printAtom;
-    static Atom _printfAtom;
-    static Atom _encodeAtom;
-    static Atom _decodeAtom;
+    Atom _DateAtom;
+    Atom _GPIOAtom;
+    Atom _SerialAtom;
+    Atom _Base64Atom;
+    Atom _SystemAtom;
+    
+    Atom _nowAtom;
+    Atom _delayAtom;
+    Atom _pinModeAtom;
+    Atom _digitalWriteAtom;
+    Atom _OUTPUTAtom;
+    Atom _INPUTAtom;
+    Atom _LOWAtom;
+    Atom _HIGHAtom;
+    Atom _FLOATAtom;
+    Atom _PULLUPAtom;
+    Atom _INTAtom;
+    Atom _OPENDRAINAtom;
+    Atom _beginAtom;
+    Atom _printAtom;
+    Atom _printfAtom;
+    Atom _encodeAtom;
+    Atom _decodeAtom;
 };
     
 }

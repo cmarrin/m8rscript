@@ -39,19 +39,17 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Map<Atom, Array::Property> Array::_properties;
-
 Array::Array()
 {
-    if (_properties.empty()) {
-        _properties.emplace(Program::atomizeString("length"), Property::Length);
-    }
+    _lengthAtom = Program::atomizeString("length");
 }
 
 int32_t Array::propertyIndex(const Atom& name, bool canExist)
 {
-    Property prop;
-    return _properties.find(name, prop) ? static_cast<int32_t>(prop) : -1;
+    if (name == _lengthAtom) {
+        return static_cast<int32_t>(Property::Length);
+    }
+    return -1;
 }
 
 Value Array::propertyRef(int32_t index)
@@ -81,19 +79,12 @@ bool Array::setProperty(int32_t index, const Value& value)
 Atom Array::propertyName(uint32_t index) const
 {
     switch(static_cast<Property>(index)) {
-        case Property::Length:
-            // Find it the hard way
-            for (const auto& entry : _properties) {
-                if (static_cast<uint32_t>(entry.value) == index) {
-                    return entry.key;
-                }
-            }
-            return Atom();
+        case Property::Length: return _lengthAtom;
         default: return Atom();
     }
 }
 
 size_t Array::propertyCount() const
 {
-    return _properties.size();
+    return PropertyCount;
 }
