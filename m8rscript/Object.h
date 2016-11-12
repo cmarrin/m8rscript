@@ -93,10 +93,10 @@ public:
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
 
     bool serializeObject(Stream*, Error&) const;
-    bool deserializeObject(Stream*, Error&);
+    bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
     virtual bool serialize(Stream*, Error&) const = 0;
-    virtual bool deserialize(Stream*, Error&) = 0;
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) = 0;
 
 protected:    
     bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
@@ -151,7 +151,7 @@ public:
 
 protected:
     virtual bool serialize(Stream*, Error&) const override;
-    virtual bool deserialize(Stream*, Error&) override;
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
     int32_t findPropertyIndex(const Atom& name) const

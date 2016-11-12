@@ -92,11 +92,14 @@ bool Program::serialize(Stream* stream, Error& error) const
     return Function::serialize(stream, error);
 }
 
-bool Program::deserialize(Stream* stream, Error& error)
+bool Program::deserialize(Stream* stream, Error& error, Program* program, const AtomTable&, const std::vector<char>&)
 {
-    // Read the atom table
-    std::vector<int8_t>& atomTableString = _atomTable.stringTable();
-    atomTableString.clear();
+    assert(!program);
+    
+    // Read the atom table locally, so we can use it to translate atoms from the code
+    // in this stream to the current program
+    AtomTable atomTable;
+    std::vector<int8_t>& atomTableString = atomTable.stringTable();
 
     uint16_t size;
     if (!deserializeBufferSize(stream, error, ObjectDataType::AtomTable, size)) {
@@ -108,27 +111,27 @@ bool Program::deserialize(Stream* stream, Error& error)
         return false;
     }
     
-    // Read the string table
-    _stringTable.clear();
+    // Read the string table locally, so we can use it to add strings to the existing program
+    std::vector<char> stringTable;
 
     if (!deserializeBufferSize(stream, error, ObjectDataType::StringTable, size)) {
         return false;
     }
     
-    _stringTable.resize(size);
-    if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(&(_stringTable[0])), size)) {
+    stringTable.resize(size);
+    if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(&(stringTable[0])), size)) {
         return false;
     }
-    
+
     // Read the objects
     ObjectDataType type;
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectCount) {
         return false;
     }
-    uint16_t count;
-    if (!deserializeRead(stream, error, count) || count != 2) {
+    if (!deserializeRead(stream, error, size) || size != 2) {
         return false;
     }
+    uint16_t count;
     if (!deserializeRead(stream, error, count)) {
         return false;
     }
@@ -144,12 +147,13 @@ bool Program::deserialize(Stream* stream, Error& error)
             return false;
         }
         Function* function = new Function();
-        if (!function->deserialize(stream, error)) {
+        
+        if (!function->deserialize(stream, error, this, atomTable, stringTable)) {
             delete function;
             return false;
         }
         _objects.emplace(id, function);
     }
     
-    return Function::deserialize(stream, error);
+    return Function::deserialize(stream, error, this, atomTable, stringTable);
 }

@@ -68,7 +68,7 @@ protected:
         return true;
     }
 
-    virtual bool deserialize(Stream*, Error&) override
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
     {
         return true;
     }
@@ -91,48 +91,14 @@ public:
     SystemInterface* system() const { return _system; }
     Program* program() const { return _program; }
     
-private:
-    bool printError(const char* s) const;
+    static uint8_t byteFromInt(uint64_t value, uint32_t index)
+    {
+        assert(index < 8);
+        return static_cast<uint8_t>(value >> (8 * index));
+    }
     
-    Value* valueFromId(Atom, const Object*) const;
-    CallReturnValue call(Program* program, uint32_t nparams, Object*, bool isNew);
-    Value deref(Program*, Object*, const Value&);
-    bool deref(Program*, Value&, const Value&);
-    Atom propertyNameFromValue(Program*, const Value&);
-
-    m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
-
     static Op maskOp(Op op, uint8_t mask) { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
-    static int8_t intFromOp(Op op, uint8_t mask)
-    {
-        uint8_t num = static_cast<uint8_t>(op) & mask;
-        if (num & 0x8) {
-            num |= 0xf0;
-        }
-        return static_cast<int8_t>(num);
-    }
-    static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
 
-    int32_t intFromCode(uint32_t size)
-    {
-        uint32_t num = uintFromCode(size);
-        uint32_t mask = 0x80 << (8 * (size - 1));
-        if (num & mask) {
-            return num | ~(mask - 1);
-        }
-        return static_cast<int32_t>(num);
-    }
-    
-    uint32_t uintFromCode(uint32_t size)
-    {
-        uint32_t value = 0;
-        for (uint32_t i = 0; i < size; ++i) {
-            value <<= 8;
-            value |= _code[_pc + i];
-        }
-        return value;
-    }
-    
     static uint32_t sizeFromOp(Op op)
     {
         uint32_t size = static_cast<uint8_t>(op) & 0x03;
@@ -145,6 +111,47 @@ private:
         return 8;
     }
     
+    static int8_t intFromOp(Op op, uint8_t mask)
+    {
+        uint8_t num = static_cast<uint8_t>(op) & mask;
+        if (num & 0x8) {
+            num |= 0xf0;
+        }
+        return static_cast<int8_t>(num);
+    }
+    static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
+
+    static int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size)
+    {
+        uint32_t num = uintFromCode(code, index, size);
+        uint32_t mask = 0x80 << (8 * (size - 1));
+        if (num & mask) {
+            return num | ~(mask - 1);
+        }
+        return static_cast<int32_t>(num);
+    }
+    
+    static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
+    {
+        uint32_t value = 0;
+        for (uint32_t i = 0; i < size; ++i) {
+            value <<= 8;
+            value |= code[index + i];
+        }
+        return value;
+    }
+    
+private:
+    bool printError(const char* s) const;
+    
+    Value* valueFromId(Atom, const Object*) const;
+    CallReturnValue call(Program* program, uint32_t nparams, Object*, bool isNew);
+    Value deref(Program*, Object*, const Value&);
+    bool deref(Program*, Value&, const Value&);
+    Atom propertyNameFromValue(Program*, const Value&);
+
+    m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
+
     void updateCodePointer()
     {
         assert(_object);

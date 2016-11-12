@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Function.h"
 #include "MStream.h"
+#include "Program.h"
 
 using namespace m8r;
 
@@ -180,7 +181,7 @@ bool Object::serializeObject(Stream* stream, Error& error) const
     return true;
 }
 
-bool Object::deserializeObject(Stream* stream, Error& error)
+bool Object::deserializeObject(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
     ObjectDataType type;
     if (!deserializeRead(stream, error, type)) {
@@ -231,7 +232,7 @@ bool Object::deserializeObject(Stream* stream, Error& error)
         return error.setError(Error::Code::SerialVersion);
     }
 
-    if (!deserialize(stream, error)) {
+    if (!deserialize(stream, error, program, atomTable, stringTable)) {
         return false;
     }
     
@@ -279,7 +280,7 @@ bool MaterObject::serialize(Stream* stream, Error& error) const
     return true;
 }
 
-bool MaterObject::deserialize(Stream* stream, Error& error)
+bool MaterObject::deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
     // Read the Function Properties
     ObjectDataType type;
@@ -293,7 +294,6 @@ bool MaterObject::deserialize(Stream* stream, Error& error)
     if (!deserializeRead(stream, error, count)) {
         return false;
     }
-    _properties.clear();
     while (count-- > 0) {
         if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyId) {
             return false;
@@ -306,11 +306,16 @@ bool MaterObject::deserialize(Stream* stream, Error& error)
             return false;
         }
         Function* function = new Function();
-        if (!function->deserialize(stream, error)) {
+        if (!function->deserialize(stream, error, program, atomTable, stringTable)) {
             delete function;
             return false;
         }
-        _properties.push_back({ id, function });
+
+        // Convert id into space of the current Program
+        String idString = atomTable.stringFromAtom(Atom(id));
+        Atom atom = program->atomizeString(idString.c_str());
+        
+        _properties.push_back({ atom.raw(), function });
     }
     
     return true;

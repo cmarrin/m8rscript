@@ -158,7 +158,7 @@ public:
         return false;
     }
 
-    bool deserialize(Stream*, Error&)
+    bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&)
     {
         // FIXME: Implement
         return false;

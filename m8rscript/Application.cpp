@@ -66,7 +66,7 @@ bool Application::load(Error& error, const char* filename)
         
         // Is it a m8rb file?
         _program = new m8r::Program(_system);
-        if (_program->deserializeObject(&m8rbStream, error)) {
+        if (_program->deserializeObject(&m8rbStream, error, nullptr, AtomTable(), std::vector<char>())) {
             return true;
         }
         delete _program;
@@ -115,7 +115,7 @@ bool Application::load(Error& error, const char* filename)
     
     if (m8rbMainStream.loaded()) {
         _program = new m8r::Program(_system);
-        return _program->deserializeObject(&m8rbMainStream, error);
+        return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
      }
 
 #ifdef NO_PARSER_SUPPORT

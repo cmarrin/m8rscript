@@ -74,7 +74,7 @@ protected:
         return false;
     }
 
-    virtual bool deserialize(Stream*, Error&) override
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
     {
         // FIXME: Implement
         return false;

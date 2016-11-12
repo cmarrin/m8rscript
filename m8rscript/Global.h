@@ -81,7 +81,7 @@ protected:
         return true;
     }
 
-    virtual bool deserialize(Stream*, Error&) override
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
     {
         return true;
     }

@@ -95,8 +95,8 @@ void Parser::matchJump(Label& label)
         printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
-    _currentFunction->setCodeAtIndex(label.matchedAddr + 1, byteFromInt(jumpAddr, 1));
-    _currentFunction->setCodeAtIndex(label.matchedAddr + 2, byteFromInt(jumpAddr, 0));
+    _currentFunction->setCodeAtIndex(label.matchedAddr + 1, ExecutionUnit::byteFromInt(jumpAddr, 1));
+    _currentFunction->setCodeAtIndex(label.matchedAddr + 2, ExecutionUnit::byteFromInt(jumpAddr, 0));
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
@@ -128,17 +128,10 @@ void Parser::addCodeByte(uint8_t c)
 
 void Parser::emit(StringLiteral::Raw s)
 {
-    uint32_t raw = s.raw();
-    uint32_t sizeMask;
-    if (raw <= 255) {
-        sizeMask = 0;
-    } else if (raw <= 65535) {
-        sizeMask = 0x01;
-    } else {
-        sizeMask = 0x02;
-    }
-    addCodeByte(Op::PUSHSX, sizeMask);
-    addCodeInt(raw, sizeMask + 1);
+    // Make all strings 4 bytes so string index is not an issue
+    // when deserializing strings into an existing program
+    addCodeByte(Op::PUSHSX, 2);
+    addCodeInt(s.raw(), 4);
 }
 
 void Parser::emit(uint64_t value)

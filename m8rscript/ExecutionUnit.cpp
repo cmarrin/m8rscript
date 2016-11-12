@@ -314,12 +314,12 @@ static const uint16_t YieldCount = 2000;
         assert(0);
         return -1;
     L_PUSHID:
-        _stack.push(Atom(uintFromCode(2)));
+        _stack.push(Atom(uintFromCode(_code, _pc, 2)));
         _pc += 2;
         DISPATCH;
     L_PUSHF:
         size = sizeFromOp(op);
-        floatValue = Float::make(uintFromCode(sizeFromOp(op)));
+        floatValue = Float::make(uintFromCode(_code, _pc, sizeFromOp(op)));
         _stack.push(Value(floatValue));
         _pc += size;
         DISPATCH;
@@ -329,19 +329,19 @@ static const uint16_t YieldCount = 2000;
             uintValue = uintFromOp(op, 0x0f);
         } else {
             size = sizeFromOp(op);
-            uintValue = uintFromCode(size);
+            uintValue = uintFromCode(_code, _pc, size);
             _pc += size;
         }
         _stack.push(static_cast<int32_t>(uintValue));
         DISPATCH;
     L_PUSHSX:
         size = sizeFromOp(op);
-        uintValue = uintFromCode(size);
+        uintValue = uintFromCode(_code, _pc, size);
         _pc += size;
         _stack.push(Value(_program->stringFromStringLiteral(StringLiteral(uintValue))));
         DISPATCH;
     L_PUSHO:
-        uintValue = uintFromCode(4);
+        uintValue = uintFromCode(_code, _pc, 4);
         _pc += 4;
         _stack.push(_program->objectFromObjectId(ObjectId(uintValue)));
         DISPATCH;
@@ -352,7 +352,7 @@ static const uint16_t YieldCount = 2000;
         } else {
             size = (static_cast<uint8_t>(op) & 0x03) + 1;
             assert(size <= 2);
-            intValue = intFromCode(size);
+            intValue = intFromCode(_code, _pc, size);
             _pc += size;
         }
         _stack.push(_stack.elementRef(intValue));
@@ -367,7 +367,7 @@ static const uint16_t YieldCount = 2000;
     L_JT:
     L_JF:
         size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(size);
+        intValue = intFromCode(_code, _pc, size);
         op = maskOp(op, 0x01);
         _pc += size;
         if (op != Op::JMP) {
@@ -387,7 +387,7 @@ static const uint16_t YieldCount = 2000;
     L_CALL:
     L_CALLX:
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(1);
+            uintValue = uintFromCode(_code, _pc, 1);
             _pc += 1;
         } else {
             uintValue = uintFromOp(op, 0x0f);
@@ -433,7 +433,7 @@ static const uint16_t YieldCount = 2000;
             callReturnValue = CallReturnValue();
         }
         else if (op == Op::RETX) {
-            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, uintFromCode(1));
+            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, uintFromCode(_code, _pc, 1));
             _pc += 1;
         } else {
             callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, uintFromOp(op, 0x0f));

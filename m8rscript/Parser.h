@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "ExecutionUnit.h"
 #include "MStream.h"
 #include "Scanner.h"
 #include "Program.h"
@@ -123,17 +124,11 @@ public:
 private:
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
-    static uint8_t byteFromInt(uint64_t value, uint32_t index)
-    {
-        assert(index < 8);
-        return static_cast<uint8_t>(value >> (8 * index));
-    }
-    
     void addCodeInt(uint64_t value, uint32_t size)
     {
         assert(size <= 8);
         for (int i = size - 1; i >= 0; --i) {
-            addCodeByte(byteFromInt(value, i));
+            addCodeByte(ExecutionUnit::byteFromInt(value, i));
         }
     }
     

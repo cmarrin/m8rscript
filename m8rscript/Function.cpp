@@ -84,7 +84,7 @@ bool Function::serialize(Stream* stream, Error& error) const
     return serializeWrite(stream, error, ObjectDataType::ObjectEnd);
 }
 
-bool Function::deserialize(Stream* stream, Error& error)
+bool Function::deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
     ObjectDataType type;
     if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectStart) {
@@ -108,7 +108,7 @@ bool Function::deserialize(Stream* stream, Error& error)
     }
     free(name);
     
-    if (!deserializeContents(stream, error)) {
+    if (!deserializeContents(stream, error, program, atomTable, stringTable)) {
         return false;
     }
 
@@ -131,12 +131,12 @@ bool Function::serializeContents(Stream* stream, Error& error) const
 
     size_t size = _code.size();
     return serializeBuffer(stream, error, ObjectDataType::Code, 
-                            _code.size() ? &(_code[0]) : nullptr, size);
+                            _code.size() ? _code.data() : nullptr, size);
 }
 
-bool Function::deserializeContents(Stream* stream, Error& error)
+bool Function::deserializeContents(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
-    if (!MaterObject::deserialize(stream, error)) {
+    if (!MaterObject::deserialize(stream, error, program, atomTable, stringTable)) {
         return false;
     }
 
@@ -161,5 +161,51 @@ bool Function::deserializeContents(Stream* stream, Error& error)
     }
     
     _code.resize(size);
-    return deserializeBuffer(stream, error, &(_code[0]), size);
+    if (!deserializeBuffer(stream, error, _code.data(), size)) {
+        return false;
+    }
+    
+    // Walk through the code, finding all atoms and strings. Find their values
+    // in their respective passed tables and insert the new values into the
+    // passed Program.
+    for (uint32_t i = 0; i < _code.size(); ) {
+        Op op = static_cast<Op>(_code[i++]);
+        if (op == Op::END) {
+            break;
+        }
+        
+        if (op < Op::PUSHI) {
+            uint32_t count = ExecutionUnit::sizeFromOp(op);
+            
+            op = ExecutionUnit::maskOp(op, 0x03);
+            // FIXME: Need to handle PUSHO and Object table
+            if (op == Op::PUSHID) {
+                if (count != 2) {
+                    return false;
+                }
+                uint16_t id = ExecutionUnit::uintFromCode(_code.data(), i, count);
+                String idString = atomTable.stringFromAtom(Atom(id));
+                Atom atom = program->atomizeString(idString.c_str());
+                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 1);
+                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 0);
+            } else if (op == Op::PUSHSX) {
+                if (count != 4) {
+                    return false;
+                }
+                uint32_t index = ExecutionUnit::uintFromCode(_code.data(), i, count);
+                if (index >= stringTable.size()) {
+                    return false;
+                }
+                const char* str = &(stringTable[index]);
+                StringLiteral stringId = program->addString(str);
+                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 3);
+                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 2);
+                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 1);
+                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 0);
+            } else {
+                i += count;
+            }
+        }
+    }
+    return true;
 }

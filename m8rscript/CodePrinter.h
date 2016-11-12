@@ -64,50 +64,7 @@ private:
 
     m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
-    static Op maskOp(Op op, uint8_t mask) { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
-    static int8_t intFromOp(Op op, uint8_t mask)
-    {
-        uint8_t num = static_cast<uint8_t>(op) & mask;
-        if (num & 0x8) {
-            num |= 0xf0;
-        }
-        return static_cast<int8_t>(num);
-    }
-    static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
-
-    static int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size)
-    {
-        uint32_t num = uintFromCode(code, index, size);
-        uint32_t mask = 0x80 << (8 * (size - 1));
-        if (num & mask) {
-            return num | ~(mask - 1);
-        }
-        return static_cast<int32_t>(num);
-    }
-    
-    static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
-    {
-        uint32_t value = 0;
-        for (uint32_t i = 0; i < size; ++i) {
-            value <<= 8;
-            value |= code[index + i];
-        }
-        return value;
-    }
-    
-    static uint32_t sizeFromOp(Op op)
-    {
-        uint32_t size = static_cast<uint8_t>(op) & 0x03;
-        if (size < 2) {
-            return size + 1;
-        }
-        if (size == 2) {
-            return 4;
-        }
-        return 8;
-    }
-
-        struct Annotation {
+    struct Annotation {
         uint32_t addr;
         uint32_t uniqueID;
     };

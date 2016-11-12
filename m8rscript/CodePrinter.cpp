@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "CodePrinter.h"
 
+#include "ExecutionUnit.h"
 #include "Float.h"
 #include "SystemInterface.h"
 
@@ -206,15 +207,15 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             break;
         }
         uint8_t c = obj->code()->at(i++);
-        Op op = maskOp(static_cast<Op>(c), 0x03);
+        Op op = ExecutionUnit::maskOp(static_cast<Op>(c), 0x03);
         
         if (op < Op::PUSHI) {
-            uint32_t count = sizeFromOp(op);
+            uint32_t count = ExecutionUnit::sizeFromOp(op);
             int nexti = i + count;
             
             c &= 0xfc;
             if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-                int32_t addr = intFromCode(code, i, count);
+                int32_t addr = ExecutionUnit::intFromCode(code, i, count);
                 Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
                 annotations.push_back(annotation);
             }
@@ -238,7 +239,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHID:
         preamble(outputString, i - 1);
-        strValue = program->stringFromAtom(Atom(uintFromCode(code, i, 2)));
+        strValue = program->stringFromAtom(Atom(ExecutionUnit::uintFromCode(code, i, 2)));
         i += 2;
         outputString += "ID(";
         outputString += strValue.c_str();
@@ -246,8 +247,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHF:
         preamble(outputString, i - 1);
-        size = sizeFromOp(op);
-        uintValue = uintFromCode(code, i, size);
+        size = ExecutionUnit::sizeFromOp(op);
+        uintValue = ExecutionUnit::uintFromCode(code, i, size);
         i += size;
         outputString += "FLT(";
         outputString += Value::toString(Float::make(uintValue));
@@ -256,11 +257,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHI:
     L_PUSHIX:
         preamble(outputString, i - 1);
-        if (maskOp(op, 0x0f) == Op::PUSHI) {
-            uintValue = uintFromOp(op, 0x0f);
+        if (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHI) {
+            uintValue = ExecutionUnit::uintFromOp(op, 0x0f);
         } else {
-            size = sizeFromOp(op);
-            uintValue = uintFromCode(code, i, size);
+            size = ExecutionUnit::sizeFromOp(op);
+            uintValue = ExecutionUnit::uintFromCode(code, i, size);
             i += size;
         }
         outputString += "INT(";
@@ -269,8 +270,8 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHSX:
         preamble(outputString, i - 1);
-        size = sizeFromOp(op);
-        uintValue = uintFromCode(code, i, size);
+        size = ExecutionUnit::sizeFromOp(op);
+        uintValue = ExecutionUnit::uintFromCode(code, i, size);
         i += size;
         outputString += "STR(\"";
         outputString += program->stringFromStringLiteral(StringLiteral(uintValue));
@@ -278,7 +279,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHO:
         preamble(outputString, i - 1);
-        uintValue = uintFromCode(code, i, 4);
+        uintValue = ExecutionUnit::uintFromCode(code, i, 4);
         i += 4;
         outputString += "OBJ(";
         outputString += Value::toString(uintValue);
@@ -287,11 +288,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHL:
     L_PUSHLX:
         preamble(outputString, i - 1);
-        if (maskOp(op, 0x0f) == Op::PUSHL) {
-            uintValue = uintFromOp(op, 0x0f);
+        if (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHL) {
+            uintValue = ExecutionUnit::uintFromOp(op, 0x0f);
         } else {
-            size = sizeFromOp(op);
-            uintValue = uintFromCode(code, i, size);
+            size = ExecutionUnit::sizeFromOp(op);
+            uintValue = ExecutionUnit::uintFromCode(code, i, size);
             i += size;
         }
         outputString += "LOCAL(";
@@ -303,9 +304,9 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_JT:
     L_JF:
         preamble(outputString, i - 1);
-        size = intFromOp(op, 0x01) + 1;
-        intValue = intFromCode(code, i, size);
-        op = maskOp(op, 0x01);
+        size = ExecutionUnit::intFromOp(op, 0x01) + 1;
+        intValue = ExecutionUnit::intFromCode(code, i, size);
+        op = ExecutionUnit::maskOp(op, 0x01);
         outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
         outputString += " LABEL[";
         outputString += Value::toString(findAnnotation(i + intValue));
@@ -318,13 +319,13 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_CALLX:
         preamble(outputString, i - 1);
         if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = uintFromCode(code, i, 1);
+            uintValue = ExecutionUnit::uintFromCode(code, i, 1);
             i += 1;
         } else {
-            uintValue = uintFromOp(op, 0x07);
+            uintValue = ExecutionUnit::uintFromOp(op, 0x07);
         }
         
-        outputString += (maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
+        outputString += (ExecutionUnit::maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
         outputString += "[";
         outputString += Value::toString(uintValue);
         outputString += "]\n";
@@ -333,10 +334,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_RETX:
         preamble(outputString, i - 1);
         if (op == Op::RETX) {
-            uintValue = uintFromCode(code, i, 1);
+            uintValue = ExecutionUnit::uintFromCode(code, i, 1);
             i += 1;
         } else {
-            uintValue = uintFromOp(op, 0x07);
+            uintValue = ExecutionUnit::uintFromOp(op, 0x07);
         }
     
         outputString += "RET[";

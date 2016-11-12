@@ -93,7 +93,7 @@ public:
     
 protected:
     virtual bool serialize(Stream*, Error&) const override;
-    virtual bool deserialize(Stream*, Error&) override;
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
     AtomTable _atomTable;
