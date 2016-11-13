@@ -137,7 +137,7 @@
 - (IBAction)run:(id)sender
 {
     [self clearOutput:CTConsole];
-    [_device run];
+    [_device runFile:_selectedFilename];
 }
 
 - (IBAction)pause:(id)sender

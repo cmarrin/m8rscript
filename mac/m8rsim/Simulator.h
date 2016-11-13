@@ -64,8 +64,8 @@ public:
     bool isBuild() const { return _isBuild; }
     bool isRunning() const { return _running; }
 
-    bool canRun() { return _shell.program() && !_running; }
-    bool canStop() { return _shell.program() && _running; }
+    bool canRun() { return true; }
+    bool canStop() { return true; }
     bool canSaveBinary() { return _shell.program(); }
     
     void initShell() { _shell.init(); _receivedString.clear(); }

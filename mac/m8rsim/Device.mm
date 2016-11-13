@@ -449,9 +449,15 @@ private:
     _simulator->build(name.UTF8String);
 }
 
-- (void)run
+- (void)runFile:(NSString*) name
 {
-    _simulator->run();
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"run %@\r\n", name];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+        dispatch_async(dispatch_get_main_queue(), ^{
+        });
+    });
 }
 
 - (void)pause
@@ -461,7 +467,13 @@ private:
 
 - (void)stop
 {
-    _simulator->stop();
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"stop\r\n"];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+        dispatch_async(dispatch_get_main_queue(), ^{
+        });
+    });
 }
 
 - (void)simulate

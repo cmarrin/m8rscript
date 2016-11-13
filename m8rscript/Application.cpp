@@ -157,6 +157,7 @@ void Application::pause()
 void Application::stop()
 {
     _runTask.stop();
+    _system->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)

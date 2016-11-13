@@ -60,7 +60,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)importBinary:(const char*)filename;
 - (void)exportBinary:(const char*)filename;
 - (void)buildFile:(NSString*) name;
-- (void)run;
+- (void)runFile:(NSString*) name;
 - (void)pause;
 - (void)stop;
 - (void)simulate;

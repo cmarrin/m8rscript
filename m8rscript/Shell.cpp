@@ -297,7 +297,11 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "run") {
         load((array.size() < 2) ? nullptr : array[1].c_str());
-        run([]{ });
+        run([this]{
+            _system->printf(ROMSTR("\n***** Program Finished *****\n\n"));
+        });
+    } else if (array[0] == "stop") {
+        stop();
     } else if (array[0] == "quit") {
         return false;
     } else {
