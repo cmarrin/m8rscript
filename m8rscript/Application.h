@@ -39,14 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "TaskManager.h"
 #include <functional>
 
-//#ifdef __APPLE__
-//#else
-//extern "C" {
-//#include <osapi.h>
-//#include <user_interface.h>
-//}
-//#endif
-
 namespace m8r {
 
 static const char* MainFileName = "main";
@@ -105,18 +97,6 @@ private:
     SystemInterface* _system;
     Program* _program = nullptr;
     MyRunTask _runTask;
-    
-//#ifdef __APPLE__
-//#else
-//    static constexpr uint32_t ExecutionTaskPrio = 0;
-//    static constexpr uint32_t ExecutionTaskQueueLen = 1;
-//
-//    static void executionTask(os_event_t *);
-//    static void executionTimerTick(void* data);
-//
-//    os_timer_t _executionTimer;
-//    os_event_t _executionTaskQueue[ExecutionTaskQueueLen];
-//#endif
 };
     
 }
