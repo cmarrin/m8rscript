@@ -149,7 +149,10 @@ private:
     
         NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
         socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-        [socket connect];
+        if (![socket connect]) {
+            _system->printf("**** Failed to open socket for command '%@'\n", command);
+            return socket;
+        }
         [socket setTimeout:5];
     }
     
@@ -164,16 +167,24 @@ private:
 - (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service
 {
     FastSocket* socket = [self sendCommand:command fromService:service];
+    if (socket && ![socket isConnected]) {
+        return;
+    }
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
     long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
     [self flushToPrompt:socket];
+    [socket close];
 }
 
 - (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
 {
     FastSocket* socket = [self sendCommand:command fromService:service];
+    if (socket && ![socket isConnected]) {
+        return nil;
+    }
     NSString* s = [self receiveFrom:socket toTerminator:terminator];
+    [socket close];
     return s;
 }
 
@@ -383,7 +394,7 @@ private:
         return;
     }
 
-    _logQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
+    _logQueue = dispatch_queue_create("LogQueue", DISPATCH_QUEUE_SERIAL);
 
     NSData* address = [service.addresses objectAtIndex:0];
     struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
@@ -398,6 +409,9 @@ private:
         while (1) {
             char buffer[100];
             long count = [_logSocket receiveBytes:buffer limit:99];
+            if (count == 0) {
+                break;
+            }
             buffer[count] = '\0';
             [self outputMessage:[NSString stringWithUTF8String:buffer]];
         }
