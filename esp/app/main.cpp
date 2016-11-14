@@ -34,12 +34,13 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
 #include "Esp.h"
-#include "MStream.h"
 #include "ExecutionUnit.h"
-#include "SystemInterface.h"
 #include "FS.h"
-#include "TCP.h"
+#include "MStream.h"
 #include "Shell.h"
+#include "SystemInterface.h"
+#include "TaskManager.h"
+#include "TCP.h"
 
 extern "C" {
 #include <gpio.h>
@@ -66,6 +67,25 @@ void blinkTimerfunc(void *)
         gpio_output_set(BIT2, 0, BIT2, 0);
     }
 }
+
+class MyHeartbeatTask : public m8r::Task {
+public:
+    MyHeartbeatTask() { }
+    
+private:
+    static constexpr uint32_t HeartrateMs = 4000;
+    static constexpr uint32_t DownbeatMs = 10;
+    virtual bool execute() override
+    {
+        bool currentState = GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2;
+        return true;
+    }
+    
+    // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
+    // when the downbeat started 
+    bool _downbeat = false; // When true, heartbeat is occuring
+    bool _downBeatState = false; // if we're on a downbeat, did we turn the led on (true) or off (false)
+};
 
 class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
