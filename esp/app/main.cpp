@@ -46,6 +46,10 @@ extern "C" {
 #include <gpio.h>
 #include <osapi.h>
 #include <user_interface.h>
+
+#ifndef NDEBUG
+#include <gdbstub.h>
+#endif
 }
 
 #include <cstdarg>
@@ -132,6 +136,10 @@ void systemInitialized()
 
 extern "C" void ICACHE_FLASH_ATTR user_init()
 {
+#ifndef NDEBUG
+    gdbstub_init();
+#endif
+
     initializeSystem(systemInitialized);
     
     // init gpio subsystem

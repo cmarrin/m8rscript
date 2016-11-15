@@ -19,8 +19,13 @@
 
 PARSER_SUPPORT = 0
 
-DEBUG_FLAGS = -Os -DNDEBUG
-#DEBUG_FLAGS = -Og -g -DDEBUG
+DEBUG ?= 0
+
+ifeq ($(DEBUG), 0)
+    DEBUG_FLAGS = -Os -DNDEBUG
+else
+    DEBUG_FLAGS = -Og -g -DDEBUG
+endif
 
 #=== Project specific definitions
 MAIN_NAME = m8rscript
@@ -118,7 +123,7 @@ LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
+INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 
 ifeq ($(PARSER_SUPPORT), 0)
@@ -144,6 +149,11 @@ SPIFFS_DIR = ./spiffs/src
 SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
 SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
 
+# GDB source files
+GDB_DIR = ./gdbstub
+GDB_SRC = $(shell ls $(GDB_DIR)/*.c $(GDB_DIR)/*.S)
+GDB_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(GDB_SRC)))
+
 # User defined compilation units
 USER_SRC = $(SRC)
 
@@ -151,7 +161,7 @@ USER_SRC = $(SRC)
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR) $(USER_DIRS)
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -191,7 +201,7 @@ $(OBJ_DIR)/%.S$(OBJ_EXT): %.S
 	echo  $(<F)
 	$(CC) $(C_DEFINES) $(C_INCLUDES) $(S_FLAGS) $< -o $@
 
-$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ)
+$(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ) $(GDB_OBJ)
 	echo  Creating core archive
 	rm -f $@
 	$(AR) cru $@  $^
