@@ -128,7 +128,6 @@ class MySystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
-    virtual int read() const override { return -1; }
 };
 
 void MySystemInterface::vprintf(const char* fmt, va_list args) const

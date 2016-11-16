@@ -106,6 +106,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../m8rscript/GPIO.h; sourceTree = "<group>"; };
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
@@ -425,6 +426,7 @@
 				4942EA811D07043C00E02088 /* Function.h */,
 				4984E8301D1370A500D0ABA6 /* Global.cpp */,
 				4984E8311D1370A500D0ABA6 /* Global.h */,
+				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
 				494D25961D33D33E003755DB /* Object.cpp */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,

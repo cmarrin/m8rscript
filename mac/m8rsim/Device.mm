@@ -49,12 +49,10 @@ public:
         [_device outputMessage:string];
     }
     
-    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
-    {
-        [_device updateGPIOState:state withMode:mode];
-    }
-    
-    virtual int read() const override { return -1; }
+//    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
+//    {
+//        [_device updateGPIOState:state withMode:mode];
+//    }
 
 private:
     Device* _device;
