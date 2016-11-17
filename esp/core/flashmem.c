@@ -4,8 +4,6 @@
 // Based on NodeMCU platform_flash
 // https://github.com/nodemcu/nodemcu-firmware
 
-extern char _SPIFFS_start[];
-
 uint32_t flashmem_write( const void *from, uint32_t toaddr, uint32_t size )
 {
   uint32_t temp, rest, ssize = size;
@@ -247,7 +245,7 @@ uint32_t flashmem_read_internal( void *to, uint32_t fromaddr, uint32_t size )
 
 uint32_t flashmem_get_first_free_block_address()
 {
-  if (_SPIFFS_start == NULL)
+  if (_SPIFFS_start == 0)
   {
 	  debugf("_SPIFFS_start:%08x\n", (uint32_t)_SPIFFS_start);
 	  return 0;

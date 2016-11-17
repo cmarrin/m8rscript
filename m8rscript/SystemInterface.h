@@ -62,7 +62,7 @@ public:
     }
     
     virtual void vprintf(const char*, va_list) const = 0;
-    virtual GPIO& gpio() const = 0;
+    virtual GPIO& gpio() = 0;
 };
 
 }

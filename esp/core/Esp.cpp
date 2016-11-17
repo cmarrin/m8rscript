@@ -124,13 +124,28 @@ extern "C" {
 
 static m8r::TCP* _logTCP = nullptr;
 
-class MySystemInterface : public m8r::SystemInterface
+class EspGPIO : public m8r::GPIO {
+public:
+    EspGPIO() { }
+    virtual ~EspGPIO() { }
+
+    virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override { }
+    virtual bool digitalRead(uint8_t pin) const override { return false; }
+    virtual void digitalWrite(uint8_t pin, bool level) override { }
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
+};
+    
+class EspSystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
+    virtual m8r::GPIO& gpio() { return _gpio; }
+    
+private:
+    EspGPIO _gpio;
 };
 
-void MySystemInterface::vprintf(const char* fmt, va_list args) const
+void EspSystemInterface::vprintf(const char* fmt, va_list args) const
 {
     size_t fmtlen = ROMstrlen(fmt);
     char* fmtbuf = new char[fmtlen + 1];
@@ -147,7 +162,7 @@ void MySystemInterface::vprintf(const char* fmt, va_list args) const
     delete [ ] buf;
 }
 
-static MySystemInterface _gSystemInterface;
+static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* esp_system() { return &_gSystemInterface; }
 

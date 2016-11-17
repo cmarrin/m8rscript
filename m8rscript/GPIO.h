@@ -48,12 +48,10 @@ public:
     GPIO() { }
     virtual ~GPIO() { }
     
-    static GPIO* sharedGPIO();
-    
     virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) = 0;
     virtual bool digitalRead(uint8_t pin) const = 0;
     virtual void digitalWrite(uint8_t pin, bool level) = 0;
-    virtual bool onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { });
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
 };
 
 }

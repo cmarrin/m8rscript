@@ -41,7 +41,7 @@ class DeviceSystemInterface;
 class DeviceSystemInterface : public m8r::SystemInterface
 {
 public:
-    DeviceSystemInterface(Device* device) : _device(device) { }
+    DeviceSystemInterface(Device* device) : _device(device), _gpio(device) { }
     
     virtual void vprintf(const char* s, va_list args) const override
     {
@@ -49,13 +49,32 @@ public:
         [_device outputMessage:string];
     }
     
+    virtual m8r::GPIO& gpio() override { return _gpio; }
+
+    
 //    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
 //    {
 //        [_device updateGPIOState:state withMode:mode];
 //    }
 
 private:
+    class DeviceGPIO : public m8r::GPIO {
+    public:
+        DeviceGPIO(Device* device) : _device(device) { }
+        virtual ~DeviceGPIO() { }
+
+        virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override { }
+        virtual bool digitalRead(uint8_t pin) const override { return false; }
+        virtual void digitalWrite(uint8_t pin, bool level) override { [_device updateGPIOState:0 withMode:0]; }
+        virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
+        
+    private:
+        Device* _device;
+    };
+    
     Device* _device;
+    DeviceGPIO _gpio;
+    
 };
 
 @implementation Device

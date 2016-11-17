@@ -11,7 +11,16 @@
 #include <stddef.h>
 
 #ifdef __ets__
+
+#define STORE_TYPEDEF_ATTR  __attribute__((aligned(4),packed))
+#define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
+
+#include <assert.h>
+#include <string.h>
+#include <c_types.h>
 #include <user_config.h>
+#include <ets_sys.h>
+#include <osapi.h>
 #include "flashmem.h"
 typedef signed int s32_t;
 typedef unsigned int u32_t;

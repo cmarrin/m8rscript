@@ -8,9 +8,9 @@
 extern "C" {
 #endif
 
-#include "Esp.h"
-#include <spi_flash.h>
 #include <stdint.h>
+#include <spiffs_config.h>
+#include <spi_flash.h>
 
 #define INTERNAL_FLASH_WRITE_UNIT_SIZE  4
 #define INTERNAL_FLASH_READ_UNIT_SIZE	4
