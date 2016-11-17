@@ -51,25 +51,41 @@ public:
     
     virtual m8r::GPIO& gpio() override { return _gpio; }
 
-    
-//    virtual void updateGPIOState(uint16_t mode, uint16_t state) override
-//    {
-//        [_device updateGPIOState:state withMode:mode];
-//    }
-
 private:
     class DeviceGPIO : public m8r::GPIO {
     public:
         DeviceGPIO(Device* device) : _device(device) { }
         virtual ~DeviceGPIO() { }
 
-        virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override { }
+        virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
+        {
+            if (pin > 16) {
+                return;
+            }
+            _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
+            [_device updateGPIOState:_pinio withMode:_pinstate];
+
+        }
+        
         virtual bool digitalRead(uint8_t pin) const override { return false; }
-        virtual void digitalWrite(uint8_t pin, bool level) override { [_device updateGPIOState:0 withMode:0]; }
+        
+        virtual void digitalWrite(uint8_t pin, bool level) override
+        {
+            if (pin > 16) {
+                return;
+            }
+            _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
+            [_device updateGPIOState:_pinstate withMode:_pinio];
+        }
+        
         virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
         
     private:
         Device* _device;
+        
+        // 0 = input, 1 = output
+        uint32_t _pinio = 0;
+        uint32_t _pinstate = 0;
     };
     
     Device* _device;

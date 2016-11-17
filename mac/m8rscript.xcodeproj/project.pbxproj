@@ -70,7 +70,6 @@
 		49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.m */; };
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
 		49E5AB691DA1717300C6988D /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB681DA1717300C6988D /* Device.mm */; };
-		49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E648121D00BF3B005F5059 /* m8rscript.cpp */; };
 		49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
@@ -203,7 +202,6 @@
 		49E5AB681DA1717300C6988D /* Device.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Device.mm; sourceTree = "<group>"; };
 		49E5AB6A1DA1718900C6988D /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
-		49E648121D00BF3B005F5059 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = m8rscript.cpp; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
 		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../m8rscript/Parser.cpp; sourceTree = "<group>"; };
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
@@ -278,7 +276,6 @@
 				49E1907B1DBAE2570030DC89 /* MacUDP.h */,
 				49E729F41D2ABD6500342B83 /* PlatformGlobal.cpp */,
 				49E729F51D2ABD6500342B83 /* PlatformGlobal.h */,
-				49E648121D00BF3B005F5059 /* m8rscript.cpp */,
 				49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */,
 				49BEB2051DC30EB600F70E0B /* MacTaskManager.h */,
 			);
@@ -653,7 +650,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49E648131D00BF3B005F5059 /* m8rscript.cpp in Sources */,
 				4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */,
 				49E729F61D2ABD6500342B83 /* PlatformGlobal.cpp in Sources */,
 			);

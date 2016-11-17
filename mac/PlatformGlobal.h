@@ -52,9 +52,6 @@ public:
     virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit*u, uint32_t nparams) override;
     
 private:
-    // 0 = input, 1 = output
-    uint16_t _pinio = 0;
-    uint16_t _pinstate = 0;
 };
     
 }

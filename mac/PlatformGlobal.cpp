@@ -62,15 +62,12 @@ CallReturnValue PlatformGlobal::callProperty(uint32_t index, ExecutionUnit* eu, 
             GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toUIntValue()) : GPIO::PinMode::Input;
             bool pullup = (nparams >= 3) ? eu->stack().top(3 - nparams).toBoolValue() : false;
             _system->gpio().pinMode(pin, mode, pullup);
-//            _pinio = (_pinio & ~(1 << pin)) | ((mode == PLATFORM_GPIO_OUTPUT) ? (1 << pin) : 0);
-//            _system->updateGPIOState(_pinio, _pinstate);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {
-//            uint8_t pin = eu->stack().top(-1).toUIntValue();
-//            uint8_t state = eu->stack().top().toUIntValue();
-//            _pinstate = (_pinstate & ~(1 << pin)) | ((state == PLATFORM_GPIO_HIGH) ? (1 << pin) : 0);
-//            _system->updateGPIOState(_pinio, _pinstate);
+            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue() : 0;
+            bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue() : false;
+            _system->gpio().digitalWrite(pin, level);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         default: return CallReturnValue(CallReturnValue::Type::Error);
