@@ -43,8 +43,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/TaskManager.cpp \
 		../m8rscript/Value.cpp \
 		../m8rscript/base64.cpp \
-		app/PlatformGlobal.cpp \
-        ../m8rscript/main.cpp
+        app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)
     SRC += \

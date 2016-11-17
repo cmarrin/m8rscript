@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "GPIO.h"
 #include <cstdint>
+#include <cstdarg>
 
 namespace m8r {
 

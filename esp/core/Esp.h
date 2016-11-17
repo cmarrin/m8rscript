@@ -57,7 +57,6 @@ void setDeviceName(const char* name);
 #endif
 
 void initializeSystem(void (*)());
-uint64_t currentMicroseconds();
 
 #ifdef __cplusplus
 extern "C" m8r::SystemInterface* esp_system();

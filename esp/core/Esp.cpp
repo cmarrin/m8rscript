@@ -162,6 +162,13 @@ void EspSystemInterface::vprintf(const char* fmt, va_list args) const
     delete [ ] buf;
 }
 
+uint64_t m8r::SystemInterface::currentMicroseconds()
+{
+    uint32_t m = system_get_time();
+    uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
+    return (c << 32) + m;
+}
+
 static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* esp_system() { return &_gSystemInterface; }
@@ -488,13 +495,6 @@ void initializeSystem(void (*initializedCB)())
     os_timer_disarm(&startupTimer);
     os_timer_setfn(&startupTimer, (os_timer_func_t*) &startup, nullptr);
     os_timer_arm(&startupTimer, 2000, false);
-}
-
-uint64_t currentMicroseconds()
-{
-    uint32_t m = system_get_time();
-    uint64_t c = static_cast<uint64_t>(micros_overflow_count) + ((m < micros_at_last_overflow_tick) ? 1 : 0);
-    return (c << 32) + m;
 }
 
 extern "C" {
