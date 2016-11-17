@@ -15,6 +15,9 @@
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
+#import <ctime>
+#import <thread>
+#import <chrono>
 
 class DeviceSystemInterface;
 
@@ -37,6 +40,11 @@ class DeviceSystemInterface;
 - (void)outputMessage:(NSString*)msg;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 @end
+
+uint64_t m8r::SystemInterface::currentMicroseconds()
+{
+    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
+}
 
 class DeviceSystemInterface : public m8r::SystemInterface
 {

@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Function.h"
-#include "PlatformGlobal.h"
+#include "Global.h"
 
 namespace m8r {
 
@@ -101,7 +101,7 @@ private:
     std::vector<char> _stringTable;
     ObjectMap _objects;
     uint32_t _nextId = 1;
-    PlatformGlobal _global;
+    Global _global;
 };
     
 }
