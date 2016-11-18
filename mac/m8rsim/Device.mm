@@ -65,17 +65,20 @@ private:
         DeviceGPIO(Device* device) : _device(device) { }
         virtual ~DeviceGPIO() { }
 
-        virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
+        virtual bool pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
         {
-            if (pin > 16) {
-                return;
+            if (!GPIO::pinMode(pin, mode, pullup)) {
+                return false;
             }
             _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
             [_device updateGPIOState:_pinio withMode:_pinstate];
-
+            return true;
         }
         
-        virtual bool digitalRead(uint8_t pin) const override { return false; }
+        virtual bool digitalRead(uint8_t pin) const override
+        {
+            return _pinstate & (1 << pin);
+        }
         
         virtual void digitalWrite(uint8_t pin, bool level) override
         {
