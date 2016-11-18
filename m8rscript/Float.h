@@ -169,7 +169,7 @@ public:
     bool operator>=(const _Float& other) const { return _value._raw >= other._value._raw; }
 
     _Float operator-() const { _Float r; r._value._raw = -_value._raw; return r; }
-    operator RawType() const { return static_cast<int32_t>(static_cast<uint32_t>(*this)); }
+    operator RawType() const { return _value._raw; }
 
 private:    
     Raw _value;
