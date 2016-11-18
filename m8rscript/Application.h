@@ -94,9 +94,37 @@ private:
         std::function<void()> _function;
     };
 
+    class MyHeartbeatTask : public m8r::Task {
+    public:
+        MyHeartbeatTask(SystemInterface* system) : _system(system)
+        {
+            _system->gpio().enableHeartbeat();
+            execute();
+        }
+        
+    private:
+        static constexpr uint32_t HeartrateMs = 3000;
+        static constexpr uint32_t DownbeatMs = 50;
+        
+        virtual bool execute() override
+        {
+            _system->gpio().heartbeat(_upbeat);
+            _upbeat = !_upbeat;
+            runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
+            return true;
+        }
+        
+        // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
+        // when the downbeat started 
+        bool _upbeat = false; // When true, heartbeat is occuring
+
+        SystemInterface* _system;
+    };
+
     SystemInterface* _system;
     Program* _program = nullptr;
     MyRunTask _runTask;
+    MyHeartbeatTask _heartbeatTask;
 };
     
 }

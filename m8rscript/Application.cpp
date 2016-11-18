@@ -47,6 +47,7 @@ using namespace m8r;
 Application::Application(SystemInterface* system)
     : _system(system)
     , _runTask(system)
+    , _heartbeatTask(system)
 {
 }
 
