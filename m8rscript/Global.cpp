@@ -77,7 +77,7 @@ Global::~Global()
 {
 }
 
-int32_t Global::propertyIndex(const Atom& name, bool canExist)
+int32_t Global::propertyIndex(const Atom& name)
 {
     if (name == _DateAtom) {
         return static_cast<int32_t>(Property::Date);

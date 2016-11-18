@@ -44,7 +44,7 @@ Array::Array(Program* program)
     _lengthAtom = program->atomizeString("length");
 }
 
-int32_t Array::propertyIndex(const Atom& name, bool canExist)
+int32_t Array::propertyIndex(const Atom& name)
 {
     if (name == _lengthAtom) {
         return static_cast<int32_t>(Property::Length);

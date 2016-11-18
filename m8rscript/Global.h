@@ -61,7 +61,7 @@ public:
     virtual const char* typeName() const override { return "Global"; }
 
     // Global has built-in properties. Handle those here
-    virtual int32_t propertyIndex(const Atom& s, bool canExist) override;
+    virtual int32_t propertyIndex(const Atom& s) override;
     virtual Value propertyRef(int32_t index) override;
     virtual const Value property(int32_t index) const override;
     virtual bool setProperty(int32_t index, const Value&) override;

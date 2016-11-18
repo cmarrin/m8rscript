@@ -66,7 +66,7 @@ public:
     
     virtual const Code* code() const { return nullptr; }
     
-    virtual int32_t propertyIndex(const Atom& s, bool canExist = false) { return -1; }
+    virtual int32_t propertyIndex(const Atom& s) { return -1; }
     virtual Value propertyRef(int32_t index) { return Value(); }
     virtual const Value property(int32_t index) const { return Value(); }
     virtual bool setProperty(int32_t index, const Value&) { return false; }
@@ -119,14 +119,9 @@ public:
 
     virtual const char* typeName() const override { return "Object"; }
 
-    virtual int32_t propertyIndex(const Atom& name, bool canExist = false) override
+    virtual int32_t propertyIndex(const Atom& name) override
     {
-        int32_t index = findPropertyIndex(name);
-        if (index < 0) {
-            index = static_cast<int32_t>(_properties.size());
-            _properties.push_back({ name, Value() });
-        }
-        return index;
+        return findPropertyIndex(name);
     }
     virtual Value propertyRef(int32_t index) override { return Value(this, index, true); }
     virtual const Value property(int32_t index) const override { return _properties[index].value; }
