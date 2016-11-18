@@ -482,6 +482,9 @@ bool ParseEngine::primaryExpression()
         case Token::Float: _parser->emit(getTokenValue().number); retireToken(); break;
         case Token::Integer: _parser->emit(getTokenValue().integer); retireToken(); break;
         case Token::String: _parser->emit(getTokenValue().string); retireToken(); break;
+        case Token::True: _parser->emit(Op::PUSHTRUE); retireToken(); break;
+        case Token::False: _parser->emit(Op::PUSHFALSE); retireToken(); break;
+        case Token::Null: _parser->emit(Op::PUSHNULL); retireToken(); break;
         case Token::LBracket:
             retireToken();
             _parser->emit(Op::PUSHLITA);

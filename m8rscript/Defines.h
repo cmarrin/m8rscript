@@ -117,7 +117,7 @@ enum class Op : uint8_t {
     RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
     PUSHL = 0x80,   // Lower 4 bits is the index into _locals from 0 to 15
 
-    PUSHLITA = 0xC0, PUSHLITO = 0xC1,
+    PUSHLITA = 0xC0, PUSHLITO = 0xC1, PUSHTRUE = 0xC2, PUSHFALSE = 0xC3, PUSHNULL = 0xC3,
     PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3,
     
     // UNOP
@@ -164,6 +164,9 @@ enum class Token : uint8_t {
     Unknown = 21,
     Comment = 22,
     Do = 23,
+    True = 24,
+    False = 25,
+    Null = 26,
     
     Bang = 33, 
     Percent = 37,

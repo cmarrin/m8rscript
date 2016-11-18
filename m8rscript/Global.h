@@ -43,17 +43,6 @@ class SystemInterface;
 
 class Global : public Object {
 public:
-    static constexpr uint32_t PLATFORM_GPIO_FLOAT = 0;
-    static constexpr uint32_t PLATFORM_GPIO_PULLUP = 1;
-
-    static constexpr uint32_t PLATFORM_GPIO_INT = 2;
-    static constexpr uint32_t PLATFORM_GPIO_OUTPUT = 1;
-    static constexpr uint32_t PLATFORM_GPIO_OPENDRAIN = 3;
-    static constexpr uint32_t PLATFORM_GPIO_INPUT = 0;
-
-    static constexpr uint32_t PLATFORM_GPIO_HIGH = 1;
-    static constexpr uint32_t PLATFORM_GPIO_LOW = 0;
-
     Global(SystemInterface*, Program*);
     
     virtual ~Global();
@@ -94,8 +83,8 @@ protected:
         print = 0x01,
         System = 0x10, System_delay, 
         Date = 0x20, Date_now,
-        GPIO = 0x30, GPIO_pinMode, GPIO_digitalWrite, GPIO_OUTPUT, GPIO_INPUT, GPIO_HIGH, GPIO_LOW,
-            GPIO_FLOAT, GPIO_PULLUP, GPIO_INT, GPIO_OPENDRAIN,
+        GPIO = 0x30, GPIO_pinMode, GPIO_digitalWrite, GPIO_Output, GPIO_Input, GPIO_OpenDrain, GPIO_Interrupt,
+                GPIO_None, GPIO_RisingEdge, GPIO_FallingEdge, GPIO_BothEdges, GPIO_High, GPIO_Low,
         Serial = 0x40, Serial_begin, Serial_print, Serial_printf,
         Base64 = 0x50, Base64_encode, Base64_decode,
     };
@@ -113,14 +102,18 @@ private:
     Atom _delayAtom;
     Atom _pinModeAtom;
     Atom _digitalWriteAtom;
-    Atom _OUTPUTAtom;
-    Atom _INPUTAtom;
-    Atom _LOWAtom;
-    Atom _HIGHAtom;
-    Atom _FLOATAtom;
-    Atom _PULLUPAtom;
-    Atom _INTAtom;
-    Atom _OPENDRAINAtom;
+    Atom _digitalReadAtom;
+    Atom _onInterruptAtom;
+    Atom _OutputAtom;
+    Atom _InputAtom;
+    Atom _OpenDrainAtom;
+    Atom _InterruptAtom;
+    Atom _NoneAtom;
+    Atom _RisingEdgeAtom;
+    Atom _FallingEdgeAtom;
+    Atom _BothEdgesAtom;
+    Atom _LowAtom;
+    Atom _HighAtom;
     Atom _beginAtom;
     Atom _printAtom;
     Atom _printfAtom;

@@ -121,7 +121,7 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
         obj = program->global();
     }
 
-    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
+    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue));
     if (index < 0) {
         String s = "no property '";
         s += derefValue.toStringValue(_program);
@@ -169,7 +169,7 @@ bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& der
             return true;
         }
     }
-    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue), true);
+    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue));
     if (index < 0) {
         return false;
     }
@@ -258,7 +258,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC0 */      OP(PUSHLITA) OP(PUSHLITO) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xC0 */      OP(PUSHLITA) OP(PUSHLITO)  OP(PUSHTRUE) OP(PUSHFALSE) OP(PUSHNULL) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
@@ -362,6 +362,15 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_PUSHLITO:
         _stack.push(new MaterObject());
+        DISPATCH;
+    L_PUSHTRUE:
+        _stack.push(true);
+        DISPATCH;
+    L_PUSHFALSE:
+        _stack.push(false);
+        DISPATCH;
+    L_PUSHNULL:
+        _stack.push(Value());
         DISPATCH;
     L_JMP:
     L_JT:
@@ -586,7 +595,12 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_STO:
-        _stack.top(-1).setValue(_stack.top());
+        if (!_stack.top(-1).setValue(_stack.top())) {
+            String s = "Attempted to assign to nonexistant variable '";
+                    s += _stack.top(-1).toStringValue(_program);
+                    s += "'";
+                    printError(s.c_str());
+        }
         _stack.pop();
         DISPATCH;
     L_STOA:
