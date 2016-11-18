@@ -129,7 +129,14 @@ public:
     EspGPIO() { }
     virtual ~EspGPIO() { }
 
-    virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override { }
+    virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
+    {
+        if (!GPIO::pinMode(pin, mode, pullup)) {
+            return false;
+        }
+        return true;
+    }
+    
     virtual bool digitalRead(uint8_t pin) const override { return false; }
     virtual void digitalWrite(uint8_t pin, bool level) override { }
     virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
