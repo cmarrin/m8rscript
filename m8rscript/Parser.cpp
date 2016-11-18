@@ -173,9 +173,9 @@ void Parser::emitId(const Atom& atom, IdType type)
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         int32_t index = _currentFunction->localIndex(atom);
         if (index < 0 && type == IdType::MustBeLocal) {
-            String s = "'";
+            String s = "nonexistent variable '";
             s += _program->stringFromAtom(atom);
-            s += "' is not a local variable name";
+            s += "'";
             printError(s.c_str());
         }
         if (index >= 0) {
