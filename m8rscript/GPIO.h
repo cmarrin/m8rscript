@@ -42,16 +42,59 @@ namespace m8r {
 
 class GPIO {
 public:
+    static constexpr uint8_t LED = 2;
+    static constexpr uint8_t PinCount = 16;
+    
     enum class PinMode { Output, OpenDrain, Input, Interrupt };
     enum class Trigger { None, RisingEdge, FallingEdge, BothEdges, Low, High };
     
-    GPIO() { }
+    GPIO()
+    {
+    }
     virtual ~GPIO() { }
     
-    virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) = 0;
+    virtual bool pinMode(uint8_t pin, PinMode mode, bool pullup = false)
+    {
+        if (pin > 16) {
+            return false;
+        }
+        _pinState[pin] = { mode, pullup };
+        return true;
+    }
+    
     virtual bool digitalRead(uint8_t pin) const = 0;
     virtual void digitalWrite(uint8_t pin, bool level) = 0;
     virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
+    
+    void enableHeartbeat() { pinMode(LED, PinMode::Output); }
+    void heartbeat(bool on)
+    {
+        if (_pinState[LED]._mode != PinMode::Output) {
+            return;
+        }
+        
+        // Generally the heartbeat is the inverse of the current state of the LED pin. But when turning
+        // it off (which will be for a longer period of time) if the pin has changed state from when
+        // we turned it on, we assume it is being used somewhere else, so we don't change it
+        bool state = digitalRead(LED);
+        if ((!on && (state ^ _heartbeatState)) || (on == _heartbeatState)) {
+            _heartbeatState = on;
+            return;
+        }
+        _heartbeatState = !state;
+        digitalWrite(LED, _heartbeatState);
+    }
+    
+private:
+    struct PinState
+    {
+        PinState() { }
+        PinState(PinMode mode, bool pullup) : _mode(mode), _pullup(pullup) { }
+        PinMode _mode = PinMode::Input;
+        bool _pullup = false;
+    };
+    PinState _pinState[PinCount];
+    bool _heartbeatState = false;
 };
 
 }
