@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
+#include "spiffs_config.h"
 #include <stdint.h>
-#include <spiffs_config.h>
 #include <spi_flash.h>
 
 #define INTERNAL_FLASH_WRITE_UNIT_SIZE  4

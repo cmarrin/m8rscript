@@ -122,14 +122,16 @@ LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(SDK_ROOT)/include $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR)
+INCLUDE_DIRS += $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR)
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 
 ifeq ($(PARSER_SUPPORT), 0)
 C_DEFINES += -DNO_PARSER_SUPPORT
 endif
 
-C_INCLUDES = $(foreach dir,$(INCLUDE_DIRS) $(USER_DIRS),-I$(dir))
+# The xtensa folder inside gdbstub is technically a system library, it just doesn't happen to be in the non-os SDK. So make gdbstub look like a system dir
+C_INCLUDES = -isystem $(GDB_DIR) -isystem $(SDK_ROOT)/include
+C_INCLUDES += $(foreach dir,$(USER_DIRS) $(INCLUDE_DIRS),-iquote$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
@@ -211,7 +213,7 @@ BUILD_TIME = $(call time_string,"%H:%M:%S")
 $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo Linking $(MAIN_EXE)
 	echo "  Versions: $(SRC_GIT_VERSION), $(ESP_GIT_VERSION)"
-	echo 	'#include <buildinfo.h>' >$(BUILD_INFO_CPP)
+	echo 	'#include "buildinfo.h"' >$(BUILD_INFO_CPP)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)

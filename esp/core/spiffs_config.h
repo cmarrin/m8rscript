@@ -18,9 +18,9 @@
 #include <assert.h>
 #include <string.h>
 #include <c_types.h>
-#include <user_config.h>
 #include <ets_sys.h>
 #include <osapi.h>
+#include "user_config.h"
 #include "flashmem.h"
 typedef signed int s32_t;
 typedef unsigned int u32_t;
