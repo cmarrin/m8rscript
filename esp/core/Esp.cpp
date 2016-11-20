@@ -129,9 +129,9 @@ public:
     EspGPIO() { }
     virtual ~EspGPIO() { }
 
-    virtual void pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
+    virtual bool setPinMode(uint8_t pin, PinMode mode) override
     {
-        if (!GPIO::pinMode(pin, mode, pullup)) {
+        if (!GPIO::setPinMode(pin, mode)) {
             return false;
         }
         return true;

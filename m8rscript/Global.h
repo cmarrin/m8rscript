@@ -83,8 +83,11 @@ protected:
         print = 0x01,
         System = 0x10, System_delay, 
         Date = 0x20, Date_now,
-        GPIO = 0x30, GPIO_pinMode, GPIO_digitalWrite, GPIO_Output, GPIO_Input, GPIO_OpenDrain, GPIO_Interrupt,
-                GPIO_None, GPIO_RisingEdge, GPIO_FallingEdge, GPIO_BothEdges, GPIO_High, GPIO_Low,
+        GPIO = 0x30, GPIO_setPinMode, GPIO_digitalWrite, GPIO_PinMode, GPIO_Trigger,
+                GPIO_PinMode_Output, GPIO_PinMode_OutputOpenDrain,
+                    GPIO_PinMode_Input, GPIO_PinMode_InputPullup, GPIO_PinMode_InputPulldown,
+                GPIO_Trigger_None, GPIO_Trigger_RisingEdge, GPIO_Trigger_FallingEdge, 
+                    GPIO_Trigger_BothEdges, GPIO_Trigger_High, GPIO_Trigger_Low,
         Serial = 0x40, Serial_begin, Serial_print, Serial_printf,
         Base64 = 0x50, Base64_encode, Base64_decode,
     };
@@ -97,28 +100,31 @@ private:
     Atom _SerialAtom;
     Atom _Base64Atom;
     Atom _SystemAtom;
+    Atom _PinModeAtom;
+    Atom _TriggerAtom;
     
     Atom _nowAtom;
     Atom _delayAtom;
-    Atom _pinModeAtom;
+    Atom _setPinModeAtom;
     Atom _digitalWriteAtom;
     Atom _digitalReadAtom;
     Atom _onInterruptAtom;
+    Atom _beginAtom;
+    Atom _printAtom;
+    Atom _printfAtom;
+    Atom _encodeAtom;
+    Atom _decodeAtom;
     Atom _OutputAtom;
+    Atom _OutputOpenDrainAtom;
     Atom _InputAtom;
-    Atom _OpenDrainAtom;
-    Atom _InterruptAtom;
+    Atom _InputPullupAtom;
+    Atom _InputPulldownAtom;
     Atom _NoneAtom;
     Atom _RisingEdgeAtom;
     Atom _FallingEdgeAtom;
     Atom _BothEdgesAtom;
     Atom _LowAtom;
     Atom _HighAtom;
-    Atom _beginAtom;
-    Atom _printAtom;
-    Atom _printfAtom;
-    Atom _encodeAtom;
-    Atom _decodeAtom;
 };
     
 }

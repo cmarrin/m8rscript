@@ -56,21 +56,25 @@ Global::Global(SystemInterface* system, Program* program) : _system(system)
     
     _nowAtom = program->atomizeString("now");
     _delayAtom = program->atomizeString("delay");
-    _pinModeAtom = program->atomizeString("pinMode");
+    _setPinModeAtom = program->atomizeString("setPinMode");
     _digitalWriteAtom = program->atomizeString("digitalWrite");
     _digitalReadAtom = program->atomizeString("digitalRead");
     _onInterruptAtom = program->atomizeString("onInterrupt");
     
-    _OutputAtom =       program->atomizeString("Output");
-    _InputAtom =        program->atomizeString("Input");
-    _OpenDrainAtom =    program->atomizeString("OpenDrain");
-    _InterruptAtom =    program->atomizeString("Interrupt");
-    _NoneAtom =         program->atomizeString("None");
-    _RisingEdgeAtom =   program->atomizeString("RisingEdge");
-    _FallingEdgeAtom =  program->atomizeString("FallingEdge");
-    _BothEdgesAtom =    program->atomizeString("BothEdges");
-    _LowAtom =          program->atomizeString("Low");
-    _HighAtom =         program->atomizeString("High");
+    _PinModeAtom = program->atomizeString("PinMode");
+    _TriggerAtom = program->atomizeString("Trigger");
+
+    _OutputAtom = program->atomizeString("Output");
+    _OutputOpenDrainAtom = program->atomizeString("OutputOpenDrain");
+    _InputAtom = program->atomizeString("Input");
+    _InputPullupAtom = program->atomizeString("InputPullup");
+    _InputPulldownAtom = program->atomizeString("InputPulldown");
+    _NoneAtom = program->atomizeString("None");
+    _RisingEdgeAtom = program->atomizeString("RisingEdge");
+    _FallingEdgeAtom = program->atomizeString("FallingEdge");
+    _BothEdgesAtom = program->atomizeString("BothEdges");
+    _LowAtom = program->atomizeString("Low");
+    _HighAtom = program->atomizeString("High");
 
     _beginAtom = program->atomizeString("begin");
     _printAtom = program->atomizeString("print");
@@ -112,16 +116,17 @@ const Value Global::property(int32_t index) const
 {
     switch(static_cast<Property>(index)) {
         case Property::Date: return Value(0);
-        case Property::GPIO_Output: return Value(static_cast<uint32_t>(GPIO::PinMode::Output));
-        case Property::GPIO_Input: return Value(static_cast<uint32_t>(GPIO::PinMode::Input));
-        case Property::GPIO_OpenDrain: return Value(static_cast<uint32_t>(GPIO::PinMode::OpenDrain));
-        case Property::GPIO_Interrupt: return Value(static_cast<uint32_t>(GPIO::PinMode::Interrupt));
-        case Property::GPIO_None: return Value(static_cast<uint32_t>(GPIO::Trigger::None));
-        case Property::GPIO_RisingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::RisingEdge));
-        case Property::GPIO_FallingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::FallingEdge));
-        case Property::GPIO_BothEdges: return Value(static_cast<uint32_t>(GPIO::Trigger::BothEdges));
-        case Property::GPIO_Low: return Value(static_cast<uint32_t>(GPIO::Trigger::Low));
-        case Property::GPIO_High: return Value(static_cast<uint32_t>(GPIO::Trigger::High));
+        case Property::GPIO_PinMode_Output: return Value(static_cast<uint32_t>(GPIO::PinMode::Output));
+        case Property::GPIO_PinMode_OutputOpenDrain: return Value(static_cast<uint32_t>(GPIO::PinMode::OutputOpenDrain));
+        case Property::GPIO_PinMode_Input: return Value(static_cast<uint32_t>(GPIO::PinMode::Input));
+        case Property::GPIO_PinMode_InputPullup: return Value(static_cast<uint32_t>(GPIO::PinMode::InputPullup));
+        case Property::GPIO_PinMode_InputPulldown: return Value(static_cast<uint32_t>(GPIO::PinMode::InputPulldown));
+        case Property::GPIO_Trigger_None: return Value(static_cast<uint32_t>(GPIO::Trigger::None));
+        case Property::GPIO_Trigger_RisingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::RisingEdge));
+        case Property::GPIO_Trigger_FallingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::FallingEdge));
+        case Property::GPIO_Trigger_BothEdges: return Value(static_cast<uint32_t>(GPIO::Trigger::BothEdges));
+        case Property::GPIO_Trigger_Low: return Value(static_cast<uint32_t>(GPIO::Trigger::Low));
+        case Property::GPIO_Trigger_High: return Value(static_cast<uint32_t>(GPIO::Trigger::High));
         default: return Value();
     }
 }
@@ -176,30 +181,46 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
             }
             break;
         case Property::GPIO:
-            if (name == _OutputAtom) {
-                newProperty = Property::GPIO_Output;
-            } else if (name == _InputAtom) {
-                newProperty = Property::GPIO_Input;
-            } else if (name == _OpenDrainAtom) {
-                newProperty = Property::GPIO_OpenDrain;
-            } else if (name == _InterruptAtom) {
-                newProperty = Property::GPIO_Interrupt;
-            } else if (name == _NoneAtom) {
-                newProperty = Property::GPIO_None;
-            } else if (name == _RisingEdgeAtom) {
-                newProperty = Property::GPIO_RisingEdge;
-            } else if (name == _FallingEdgeAtom) {
-                newProperty = Property::GPIO_FallingEdge;
-            } else if (name == _BothEdgesAtom) {
-                newProperty = Property::GPIO_BothEdges;
-            } else if (name == _LowAtom) {
-                newProperty = Property::GPIO_Low;
-            } else if (name == _HighAtom) {
-                newProperty = Property::GPIO_High;
-            } else if (name == _pinModeAtom) {
-                newProperty = Property::GPIO_pinMode;
+            if (name == _PinModeAtom) {
+                newProperty = Property::GPIO_PinMode;
+            } else if (name == _TriggerAtom) {
+                newProperty = Property::GPIO_Trigger;
+            } else if (name == _setPinModeAtom) {
+                newProperty = Property::GPIO_setPinMode;
             } else if (name == _digitalWriteAtom) {
                 newProperty = Property::GPIO_digitalWrite;
+            } else if (name == _digitalReadAtom) {
+                newProperty = Property::GPIO_digitalWrite;
+            } else if (name == _onInterruptAtom) {
+                newProperty = Property::GPIO_digitalWrite;
+            }
+            break;
+        case Property::GPIO_PinMode:
+            if (name == _OutputAtom) {
+                newProperty = Property::GPIO_PinMode_Output;
+            } else if (name == _OutputOpenDrainAtom) {
+                newProperty = Property::GPIO_PinMode_OutputOpenDrain;
+            } else if (name == _InputAtom) {
+                newProperty = Property::GPIO_PinMode_Input;
+            } else if (name == _InputPullupAtom) {
+                newProperty = Property::GPIO_PinMode_InputPullup;
+            } else if (name == _InputPulldownAtom) {
+                newProperty = Property::GPIO_PinMode_InputPulldown;
+            }
+            break;
+        case Property::GPIO_Trigger:
+            if (name == _NoneAtom) {
+                newProperty = Property::GPIO_Trigger_None;
+            } else if (name == _RisingEdgeAtom) {
+                newProperty = Property::GPIO_Trigger_RisingEdge;
+            } else if (name == _FallingEdgeAtom) {
+                newProperty = Property::GPIO_Trigger_FallingEdge;
+            } else if (name == _BothEdgesAtom) {
+                newProperty = Property::GPIO_Trigger_BothEdges;
+            } else if (name == _LowAtom) {
+                newProperty = Property::GPIO_Trigger_Low;
+            } else if (name == _HighAtom) {
+                newProperty = Property::GPIO_Trigger_High;
             }
             break;
         case Property::Base64:
@@ -276,11 +297,10 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             uint32_t ms = eu->stack().top().toUIntValue();
             return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
         }
-        case Property::GPIO_pinMode: {
+        case Property::GPIO_setPinMode: {
             uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue() : 0;
             GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toUIntValue()) : GPIO::PinMode::Input;
-            bool pullup = (nparams >= 3) ? eu->stack().top(3 - nparams).toBoolValue() : false;
-            _system->gpio().pinMode(pin, mode, pullup);
+            _system->gpio().setPinMode(pin, mode);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {

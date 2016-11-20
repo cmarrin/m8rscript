@@ -45,7 +45,7 @@ public:
     static constexpr uint8_t LED = 2;
     static constexpr uint8_t PinCount = 16;
     
-    enum class PinMode { Output, OpenDrain, Input, Interrupt };
+    enum class PinMode { Output, OutputOpenDrain, Input, InputPullup, InputPulldown };
     enum class Trigger { None, RisingEdge, FallingEdge, BothEdges, Low, High };
     
     GPIO()
@@ -53,12 +53,12 @@ public:
     }
     virtual ~GPIO() { }
     
-    virtual bool pinMode(uint8_t pin, PinMode mode, bool pullup = false)
+    virtual bool setPinMode(uint8_t pin, PinMode mode = PinMode::Input)
     {
         if (pin > 16) {
             return false;
         }
-        _pinState[pin] = { mode, pullup };
+        _pinMode[pin] = mode;
         return true;
     }
     
@@ -66,10 +66,10 @@ public:
     virtual void digitalWrite(uint8_t pin, bool level) = 0;
     virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
     
-    void enableHeartbeat() { pinMode(LED, PinMode::Output); }
+    void enableHeartbeat() { setPinMode(LED, PinMode::Output); }
     void heartbeat(bool on)
     {
-        if (_pinState[LED]._mode != PinMode::Output) {
+        if (_pinMode[LED] != PinMode::Output) {
             return;
         }
         
@@ -86,14 +86,7 @@ public:
     }
     
 private:
-    struct PinState
-    {
-        PinState() { }
-        PinState(PinMode mode, bool pullup) : _mode(mode), _pullup(pullup) { }
-        PinMode _mode = PinMode::Input;
-        bool _pullup = false;
-    };
-    PinState _pinState[PinCount];
+    PinMode _pinMode[PinCount];
     bool _heartbeatState = false;
 };
 

@@ -65,9 +65,9 @@ private:
         DeviceGPIO(Device* device) : _device(device) { }
         virtual ~DeviceGPIO() { }
 
-        virtual bool pinMode(uint8_t pin, PinMode mode, bool pullup = false) override
+        virtual bool setPinMode(uint8_t pin, PinMode mode) override
         {
-            if (!GPIO::pinMode(pin, mode, pullup)) {
+            if (!GPIO::setPinMode(pin, mode)) {
                 return false;
             }
             _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
