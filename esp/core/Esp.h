@@ -112,7 +112,7 @@ void timer1_write(uint32_t ticks); //maximum ticks 8388607
 #define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
 #define ICACHE_STORE_ATTR   __attribute__((aligned(4)))
 
-static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr)
+static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr)
 {
     uint32_t bytes;
     bytes = *(uint32_t*)((uint32_t)addr & ~3);

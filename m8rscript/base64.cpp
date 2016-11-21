@@ -36,20 +36,20 @@ size_t encodedLength(size_t decodedLength)
 
 void base64encode(const unsigned char in[3], unsigned char out[4], int count)
 {
-	out[0]=read_rom_uint8(&(base64enc_tab[(in[0]>>2)]));
-	out[1]=read_rom_uint8(&(base64enc_tab[((in[0]&3)<<4)|(in[1]>>4)]));
-	out[2]=count<2 ? '=' : read_rom_uint8(&(base64enc_tab[((in[1]&15)<<2)|(in[2]>>6)]));
-	out[3]=count<3 ? '=' : read_rom_uint8(&(base64enc_tab[(in[2]&63)]));
+	out[0]=readRomByte(&(base64enc_tab[(in[0]>>2)]));
+	out[1]=readRomByte(&(base64enc_tab[((in[0]&3)<<4)|(in[1]>>4)]));
+	out[2]=count<2 ? '=' : readRomByte(&(base64enc_tab[((in[1]&15)<<2)|(in[2]>>6)]));
+	out[3]=count<3 ? '=' : readRomByte(&(base64enc_tab[(in[2]&63)]));
 }
 
 int base64decode(const char in[4], char out[3])
 {
 	uint8_t v[4];
 
-	v[0]=read_rom_uint8(&(base64dec_tab[(unsigned)in[0]]));
-	v[1]=read_rom_uint8(&(base64dec_tab[(unsigned)in[1]]));
-	v[2]=read_rom_uint8(&(base64dec_tab[(unsigned)in[2]]));
-	v[3]=read_rom_uint8(&(base64dec_tab[(unsigned)in[3]]));
+	v[0]=readRomByte(&(base64dec_tab[(unsigned)in[0]]));
+	v[1]=readRomByte(&(base64dec_tab[(unsigned)in[1]]));
+	v[2]=readRomByte(&(base64dec_tab[(unsigned)in[2]]));
+	v[3]=readRomByte(&(base64dec_tab[(unsigned)in[3]]));
 
 	out[0]=(v[0]<<2)|(v[1]>>4); 
 	out[1]=(v[1]<<4)|(v[2]>>2); 
@@ -67,7 +67,7 @@ int base64_decode(size_t in_len, const char *in, size_t out_len, unsigned char *
 		unsigned char ch;
 		if(isWhitespace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
-		ch=read_rom_uint8(&(base64dec_tab[(unsigned)in[ii]]));
+		ch=readRomByte(&(base64dec_tab[(unsigned)in[ii]]));
 		if(ch==255) break; /* stop at a parse error */
 		v=(v<<6)|ch;
 		rem+=6;
@@ -98,13 +98,13 @@ int base64_encode(size_t in_len, const unsigned char *in, size_t out_len, char *
 		while(rem>=6) {
 			rem-=6;
 			if(io>=out_len) return -1; /* truncation is failure */
-			out[io++]=read_rom_uint8(&(base64enc_tab[(v>>rem)&63]));
+			out[io++]=readRomByte(&(base64enc_tab[(v>>rem)&63]));
 		}
 	}
 	if(rem) {
 		v<<=(6-rem);
 		if(io>=out_len) return -1; /* truncation is failure */
-		out[io++]=read_rom_uint8(&(base64enc_tab[v&63]));
+		out[io++]=readRomByte(&(base64enc_tab[v&63]));
 	}
 	while(io&3) {
 		if(io>=out_len) return -1; /* truncation is failure */

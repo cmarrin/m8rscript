@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
     #define ICACHE_RODATA_ATTR
     #define ICACHE_STORE_ATTR
     #define ICACHE_FLASH_ATTR
-    static inline uint8_t ICACHE_FLASH_ATTR read_rom_uint8(const uint8_t* addr) { return *addr; }
+    static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
     #define ROMmemcpy memcpy
     #define ROMstrlen strlen
     #include <cstring>

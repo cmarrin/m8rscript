@@ -212,7 +212,7 @@ void* ROMmemcpy(void* dst, const void* src, size_t len)
     uint8_t* s = (uint8_t*) src;
     uint8_t* d = (uint8_t*) dst;
     while (len--) {
-        *d++ = read_rom_uint8(s++);
+        *d++ = readRomByte(s++);
     }
     return dst;
 }
@@ -221,7 +221,7 @@ char* ROMCopyString(char* dst, const char* src)
 {
     uint8_t* s = (uint8_t*) src;
     char c;
-    while ((c = (char) read_rom_uint8(s++))) {
+    while ((c = (char) readRomByte(s++))) {
         *dst++ = c;
     }
     *dst = '\0';
@@ -231,7 +231,7 @@ char* ROMCopyString(char* dst, const char* src)
 size_t ROMstrlen(const char* s)
 {
     const char* p;
-    for (p = s; read_rom_uint8(reinterpret_cast<const uint8_t*>(p)) != '\0'; p++) ;
+    for (p = s; readRomByte(reinterpret_cast<const uint8_t*>(p)) != '\0'; p++) ;
     return (size_t) (p - s);
 }
 
