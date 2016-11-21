@@ -19,6 +19,7 @@
  */
 
 #include "Esp.h"
+#include "EspGPIO.h"
 #include "FS.h"
 #include "MDNSResponder.h"
 #include "TCP.h"
@@ -124,24 +125,6 @@ extern "C" {
 
 static m8r::TCP* _logTCP = nullptr;
 
-class EspGPIO : public m8r::GPIO {
-public:
-    EspGPIO() { }
-    virtual ~EspGPIO() { }
-
-    virtual bool setPinMode(uint8_t pin, PinMode mode) override
-    {
-        if (!GPIO::setPinMode(pin, mode)) {
-            return false;
-        }
-        return true;
-    }
-    
-    virtual bool digitalRead(uint8_t pin) const override { return false; }
-    virtual void digitalWrite(uint8_t pin, bool level) override { }
-    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
-};
-    
 class EspSystemInterface : public m8r::SystemInterface
 {
 public:
@@ -149,7 +132,7 @@ public:
     virtual m8r::GPIO& gpio() { return _gpio; }
     
 private:
-    EspGPIO _gpio;
+    m8r::EspGPIO _gpio;
 };
 
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const

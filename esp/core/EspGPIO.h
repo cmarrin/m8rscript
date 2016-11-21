@@ -35,59 +35,39 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cstdint>
-#include <functional>
+#include "GPIO.h"
+
+#include "Esp.h"
+#include <ets_sys.h>
 
 namespace m8r {
 
-class GPIO {
+class EspGPIO : public GPIO {
 public:
-    static constexpr uint8_t LED = 2;
-    static constexpr uint8_t PinCount = 17;
+    EspGPIO();
+    virtual ~EspGPIO();
     
-    enum class PinMode { Output, OutputOpenDrain, Input, InputPullup, InputPulldown };
-    enum class Trigger { None, RisingEdge, FallingEdge, BothEdges, Low, High };
-    
-    GPIO()
-    {
-    }
-    virtual ~GPIO() { }
-    
-    virtual bool setPinMode(uint8_t pin, PinMode mode = PinMode::Input)
-    {
-        if (pin >= PinCount) {
-            return false;
-        }
-        _pinMode[pin] = mode;
-        return true;
-    }
-    
-    virtual bool digitalRead(uint8_t pin) const = 0;
-    virtual void digitalWrite(uint8_t pin, bool level) = 0;
-    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
-    
-    void enableHeartbeat() { setPinMode(LED, PinMode::Output); }
-    void heartbeat(bool on)
-    {
-        if (_pinMode[LED] != PinMode::Output) {
-            return;
-        }
-        
-        // Generally the heartbeat is the inverse of the current state of the LED pin. But when turning
-        // it off (which will be for a longer period of time) if the pin has changed state from when
-        // we turned it on, we assume it is being used somewhere else, so we don't change it
-        bool state = digitalRead(LED);
-        if ((!on && (state ^ _heartbeatState)) || (on == _heartbeatState)) {
-            _heartbeatState = on;
-            return;
-        }
-        _heartbeatState = !state;
-        digitalWrite(LED, _heartbeatState);
-    }
-    
+    virtual bool setPinMode(uint8_t pin, PinMode mode) override;
+    virtual bool digitalRead(uint8_t pin) const override;
+    virtual void digitalWrite(uint8_t pin, bool level) override;
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override;    
+
 private:
-    PinMode _pinMode[PinCount];
-    bool _heartbeatState = false;
+    static constexpr uint8_t InvalidName = 0xff;
+    
+    struct PinEntry {
+        PinEntry(uint32_t name, uint8_t func) : _name(name - PERIPHS_IO_MUX), _func(func) { }
+        uint8_t _name;
+        uint8_t _func;
+    };
+    
+    static PinEntry getPinEntry(uint8_t pin)
+    {
+        uint16_t v = readRomShort(reinterpret_cast<uint16_t*>(&(_pins[pin])));
+        return *(reinterpret_cast<PinEntry*>(&v));
+    }
+    
+    static PinEntry _pins[PinCount];
 };
 
 }
