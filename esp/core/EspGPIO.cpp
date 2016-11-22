@@ -129,11 +129,27 @@ bool EspGPIO::setPinMode(uint8_t pin, PinMode mode)
 
 bool EspGPIO::digitalRead(uint8_t pin) const
 {
-    return false;
+    if (pin >= PinCount) {
+        return false;
+    }
+    if (pin == 16) {
+        return (READ_PERI_REG(RTC_GPIO_IN_DATA) & 1UL);
+    }
+    bool result = GPIO_INPUT_GET(GPIO_ID_PIN(pin));
+    return result;
 }
 
 void EspGPIO::digitalWrite(uint8_t pin, bool level)
 {
+    if (pin >= PinCount) {
+        return;
+    }
+    if (pin == 16) {
+        WRITE_PERI_REG(RTC_GPIO_OUT, (READ_PERI_REG(RTC_GPIO_OUT) & 0xfffffffeUL) | (0x1UL & level));
+        return;
+    }
+    
+    GPIO_OUTPUT_SET(GPIO_ID_PIN(pin), level);
 }
 
 void EspGPIO::onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)>)

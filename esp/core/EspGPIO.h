@@ -63,8 +63,7 @@ private:
     
     static PinEntry getPinEntry(uint8_t pin)
     {
-        uint16_t v = readRomShort(reinterpret_cast<const uint16_t*>(&(_pins[pin * 2])));
-        return *(reinterpret_cast<PinEntry*>(&v));
+        return { readRomByte(&(_pins[pin * 2])), readRomByte(&(_pins[pin * 2 + 1])) };
     }
     
     static const uint8_t _pins[PinCount * 2];
