@@ -65,7 +65,7 @@ FLASH_LAYOUT ?= eagle.flash.4m.ld
 #FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
 #FLASH_LAYOUT ?= eagle.app.v6.ld
 
-ESP_TOOL = ./esptool
+ESP_TOOL_BIN = ./esptool
 ESP_TOOL_PY ?= ./esptool.py
 
 # Output directory
@@ -217,16 +217,17 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)
-	$(ESP_TOOL) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+	$(ESP_TOOL_BIN) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 	$(TOOLS_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
 upload: all
-	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE) -ca 0x3fc000 -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
+	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
     
 erase:
 	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
+	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
     
 term:
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
