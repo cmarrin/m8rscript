@@ -21,11 +21,12 @@
 
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
 {
+    // LED on the Esp needs a false to turn on. Invert LED 2 here to match
     [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
     [led0 setNeedsDisplay:YES];
     [led1 setState: (state & 0x02) ? NSOnState : NSOffState];
     [led1 setNeedsDisplay:YES];
-    [led2 setState: (state & 0x04) ? NSOnState : NSOffState];
+    [led2 setState: !(state & 0x04) ? NSOnState : NSOffState];
     [led2 setNeedsDisplay:YES];
 }
 
