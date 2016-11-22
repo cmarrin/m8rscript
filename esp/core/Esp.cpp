@@ -470,6 +470,8 @@ void startup(void*)
 
 void initializeSystem(void (*initializedCB)())
 {
+    gpio_init();
+    
     wifi_station_set_auto_connect(0);
     do_global_ctors();
     _calledInitializeCB = false;
