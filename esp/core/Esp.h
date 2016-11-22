@@ -132,7 +132,7 @@ char* ROMCopyString(char* dst, const char* src);
 
 size_t ROMstrlen(const char* s);
 
-#define panic() __assert_func(__FILE__, __LINE__, __func__, "panic")
+#define panic() __panic_func(__FILE__, __LINE__, __func__, "panic")
 
 // these low level routines provide a replacement for SREG interrupt save that AVR uses
 // but are esp8266 specific. A normal use pattern is like

@@ -173,13 +173,6 @@ public:
 private:
 };
 
-[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
-    os_printf("ASSERT:(%s) at %s:%d\n", what, func, line);
-    abort();
-}
-
-void abort() { while(1) ; }
-
 void *memchr(const void *s, int c, size_t n)
 {
     unsigned char *p = (unsigned char*)s;
@@ -517,6 +510,27 @@ size_t xPortGetFreeHeapSize(void)
 size_t ICACHE_RAM_ATTR xPortWantedSizeAlign(size_t size)
 {
     return (size + 3) & ~((size_t) 3);
+}
+
+extern void gdb_do_break();
+
+[[noreturn]] void abort()
+{
+    do {
+        *((int*)0) = 0;
+    } while(true);
+}
+
+[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
+    os_printf("ASSERT:(%s) at %s:%d\n", what, func, line);
+    gdb_do_break();
+    abort();
+}
+
+[[noreturn]] void __panic_func(const char *file, int line, const char *func, const char *what) {
+    os_printf("PANIC:(%s) at %s:%d\n", what, func, line);
+    gdb_do_break();
+    abort();
 }
 
 } // extern "C"
