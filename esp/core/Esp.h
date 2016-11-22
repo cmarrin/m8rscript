@@ -122,13 +122,6 @@ static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr)
     return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
 }
 
-static inline uint16_t ICACHE_FLASH_ATTR readRomShort(const uint16_t* addr)
-{
-    uint32_t bytes;
-    bytes = *(uint32_t*)((uint32_t)addr & ~3);
-    return ((uint16_t*)&bytes)[((uint32_t)addr & 3) / 2];
-}
-
 #define ROMSTR(s) (__extension__({static const char __c[] ICACHE_RODATA_ATTR ICACHE_STORE_ATTR = (s); &__c[0];}))
 
 // Returns dst, just like memcpy
