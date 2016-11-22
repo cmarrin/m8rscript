@@ -39,6 +39,9 @@ using namespace m8r;
 
 EspTaskManager::EspTaskManager()
 {
+    system_os_task(executionTask, ExecutionTaskPrio, _executionTaskQueue, ExecutionTaskQueueLen);
+    os_timer_disarm(&_executionTimer);
+    os_timer_setfn(&_executionTimer, (os_timer_func_t*) &executionTimerTick, this);
 }
 
 EspTaskManager::~EspTaskManager()
@@ -55,4 +58,27 @@ TaskManager* TaskManager::sharedTaskManager()
 
 void EspTaskManager::postEvent()
 {
+    system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(this));
+}
+
+void EspTaskManager::executionTask(os_event_t *event)
+{
+    EspTaskManager* taskManager = reinterpret_cast<EspTaskManager*>(event->par);
+    if (taskManager->empty()) {
+        return;
+    }
+
+    int32_t now = taskManager->msNow();
+    int32_t timeToNextEvent = taskManager->nextTimeToFire() - now;
+    if (timeToNextEvent <= 5) {
+        taskManager->fireEvent();
+    } else {
+        os_timer_arm(&taskManager->_executionTimer, timeToNextEvent, false);
+    }
+}
+
+void EspTaskManager::executionTimerTick(void* data)
+{
+    EspTaskManager* taskManager = reinterpret_cast<EspTaskManager*>(data);
+    taskManager->postEvent();
 }

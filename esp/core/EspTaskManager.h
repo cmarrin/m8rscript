@@ -37,6 +37,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "TaskManager.h"
 
+extern "C" {
+#include <osapi.h>
+#include "user_interface.h"
+}
+
 namespace m8r {
 
 class EspTaskManager : public TaskManager {
@@ -46,6 +51,15 @@ public:
     
 private:    
     virtual void postEvent() override;
+    
+    static constexpr uint32_t ExecutionTaskPrio = 0;
+    static constexpr uint32_t ExecutionTaskQueueLen = 1;
+
+    static void executionTask(os_event_t*);
+    static void executionTimerTick(void* data);
+
+    os_timer_t _executionTimer;
+    os_event_t _executionTaskQueue[ExecutionTaskQueueLen];
 };
 
 }
