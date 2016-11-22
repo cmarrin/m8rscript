@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <cstdint>
+
 #ifdef __APPLE__
     #define ICACHE_RODATA_ATTR
     #define ICACHE_STORE_ATTR

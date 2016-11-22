@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cstdint>
+#include "Defines.h"
 #include <functional>
 
 namespace m8r {

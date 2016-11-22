@@ -25,7 +25,10 @@
 #include <assert.h>
 
 #ifdef __cplusplus
-#include "SystemInterface.h"
+namespace m8r {
+    class SystemInterface;
+}
+
 extern "C" {
 #endif
 
@@ -36,7 +39,7 @@ int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 
 
 #define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
 
-#define debugf os_printf
+#define debugf os_printf_plus
 
 void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
 void ets_timer_disarm(ETSTimer *a);

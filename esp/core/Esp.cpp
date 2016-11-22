@@ -22,6 +22,7 @@
 #include "EspGPIO.h"
 #include "FS.h"
 #include "MDNSResponder.h"
+#include "SystemInterface.h"
 #include "TCP.h"
 
 extern "C" {
