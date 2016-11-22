@@ -108,7 +108,7 @@ private:
         
         virtual bool execute() override
         {
-            _system->gpio().heartbeat(_upbeat);
+            _system->gpio().heartbeat(!_upbeat);
             _upbeat = !_upbeat;
             runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
             return true;
