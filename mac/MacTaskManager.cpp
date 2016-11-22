@@ -94,5 +94,5 @@ TaskManager* TaskManager::sharedTaskManager()
 void MacTaskManager::postEvent()
 {
     std::unique_lock<std::mutex> lock(_eventMutex);
-     _eventCondition.notify_all();
+    _eventCondition.notify_all();
 }
