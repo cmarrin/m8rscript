@@ -59,19 +59,6 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-static volatile os_timer_t gBlinkTimer;
-
-void blinkTimerfunc(void *)
-{
-    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT2)
-    {
-        esp_system()->printf("Blink\n");
-        gpio_output_set(0, BIT2, BIT2, 0);
-    } else {
-        gpio_output_set(BIT2, 0, BIT2, 0);
-    }
-}
-
 class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
     MyShell(m8r::SystemInterface* system, uint16_t port) : Shell(system), _tcp(m8r::TCP::create(this, port)) { }
@@ -122,14 +109,4 @@ extern "C" void ICACHE_FLASH_ATTR user_init()
 #endif
 
     initializeSystem(systemInitialized);
-    
-    // init gpio subsystem
-    gpio_init();
-    
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
-    gpio_output_set(0, BIT2, BIT2, 0);
-
-    os_timer_disarm((os_timer_t*) &gBlinkTimer);
-    os_timer_setfn((os_timer_t*) &gBlinkTimer, (os_timer_func_t *)blinkTimerfunc, NULL);
-    os_timer_arm((os_timer_t*) &gBlinkTimer, 1000, 1);
 }
