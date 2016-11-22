@@ -79,12 +79,10 @@ EspGPIO::~EspGPIO()
 
 bool EspGPIO::setPinMode(uint8_t pin, PinMode mode)
 {
-debugf("******** setPinMode enter:pin=%d, mode=%d\n", pin, static_cast<uint8_t>(mode));
     if (!GPIO::setPinMode(pin, mode)) {
         return false;
     }
     
-debugf("******** setPinMode 1\n");
     if (pin == 16) {
         WRITE_PERI_REG(PAD_XPD_DCDC_CONF,
             (READ_PERI_REG(PAD_XPD_DCDC_CONF) & 0xffffffbcUL) | 0x1UL); // mux configuration for XPD_DCDC to output rtc_gpio0
@@ -105,17 +103,13 @@ debugf("******** setPinMode 1\n");
         return true;
     }
     
-debugf("******** setPinMode 2\n");
     PinEntry pinEntry = getPinEntry(pin);
-debugf("******** setPinMode 3\n");
     
     if (pinEntry._name == InvalidName) {
         return false;
     }
 
-debugf("******** setPinMode 4\n");
     PIN_FUNC_SELECT(PERIPHS_IO_MUX + pinEntry._name, pinEntry._func);
-debugf("******** setPinMode 5\n");
 
     if (mode == PinMode::InputPullup) {
         PIN_PULLUP_EN(PERIPHS_IO_MUX + pinEntry._name);
@@ -123,7 +117,6 @@ debugf("******** setPinMode 5\n");
         PIN_PULLUP_DIS(PERIPHS_IO_MUX + pinEntry._name);
     }
 
-debugf("******** setPinMode 6\n");
     // FIXME: This will only enable output for PinMode::Output. We need to handle all the other cases
     if (mode != PinMode::Output) {
         GPIO_DIS_OUTPUT(GPIO_ID_PIN(pin));
@@ -131,7 +124,6 @@ debugf("******** setPinMode 6\n");
         gpio_output_set(0, 0, BIT(GPIO_ID_PIN(pin)), 0);
     }
 
-debugf("******** setPinMode 7\n");
     return true;
 }
 
