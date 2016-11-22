@@ -77,13 +77,13 @@ FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_SPEED ?= 115200
 UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
 
-# Use this speed to print the boot sequence, which runs at this oddball speed
-#UPLOAD_SPEED = 74880
+UPLOAD_SPEED ?= 230400
+TERM_SPEED = 115200
+BOOT_TERM_SPEED = 74880
 
 # OTA parameters
 ESP_ADDR ?= ESP_DA6ABC
@@ -223,16 +223,16 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 
 upload: all
 	$(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE) -ca 0x3fc000 -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
-	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
+	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
     
 erase:
 	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
     
 term:
-	python -m serial.tools.miniterm $(UPLOAD_PORT) $(UPLOAD_SPEED)
+	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
     
 bootterm:
-	python -m serial.tools.miniterm $(UPLOAD_PORT) 74880
+	python -m serial.tools.miniterm $(UPLOAD_PORT) $(BOOT_TERM_SPEED)
 
 
 ota: all
