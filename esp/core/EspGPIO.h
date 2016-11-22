@@ -63,11 +63,11 @@ private:
     
     static PinEntry getPinEntry(uint8_t pin)
     {
-        uint16_t v = readRomShort(reinterpret_cast<uint16_t*>(&(_pins[pin])));
+        uint16_t v = readRomShort(reinterpret_cast<const uint16_t*>(&(_pins[pin * 2])));
         return *(reinterpret_cast<PinEntry*>(&v));
     }
     
-    static PinEntry _pins[PinCount];
+    static const uint8_t _pins[PinCount * 2];
 };
 
 }
