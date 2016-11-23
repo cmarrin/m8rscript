@@ -37,9 +37,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Atom AtomTable::atomizeString(const char* s) const
+Atom AtomTable::atomizeString(const char* romstr) const
 {
-    size_t len = strlen(s);
+    size_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
@@ -48,6 +48,9 @@ Atom AtomTable::atomizeString(const char* s) const
         _table.push_back('\0');
     }
     
+    char* s = new char[len + 1];
+    ROMCopyString(s, romstr);
+
     if (_table.size() > 1) {
         const char* start = reinterpret_cast<const char*>(&(_table[0]));
         const char* p = start;
@@ -58,6 +61,7 @@ Atom AtomTable::atomizeString(const char* s) const
             if (p && static_cast<int8_t>(p[-1]) < 0) {
                 // The next char either needs to be negative (meaning the start of the next word) or the end of the string
                 if (static_cast<int8_t>(p[len]) <= 0) {
+                    delete [ ] s;
                     return Atom(p - start - 1);
                 }
             }
@@ -70,5 +74,6 @@ Atom AtomTable::atomizeString(const char* s) const
         _table.push_back(s[i]);
     }
     _table.push_back('\0');
+    delete [ ] s;
     return a;
 }

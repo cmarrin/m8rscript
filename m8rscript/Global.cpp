@@ -48,39 +48,39 @@ Global::Global(SystemInterface* system, Program* program) : _system(system)
 {
     _startTime = 0;
 
-    _DateAtom = program->atomizeString("Date");
-    _SystemAtom = program->atomizeString("System");
-    _SerialAtom = program->atomizeString("Serial");
-    _GPIOAtom = program->atomizeString("GPIO");
-    _Base64Atom = program->atomizeString("Base64");
+    _DateAtom = program->atomizeString(ROMSTR("Date"));
+    _SystemAtom = program->atomizeString(ROMSTR("System"));
+    _SerialAtom = program->atomizeString(ROMSTR("Serial"));
+    _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
+    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
     
-    _nowAtom = program->atomizeString("now");
-    _delayAtom = program->atomizeString("delay");
-    _setPinModeAtom = program->atomizeString("setPinMode");
-    _digitalWriteAtom = program->atomizeString("digitalWrite");
-    _digitalReadAtom = program->atomizeString("digitalRead");
-    _onInterruptAtom = program->atomizeString("onInterrupt");
+    _nowAtom = program->atomizeString(ROMSTR("now"));
+    _delayAtom = program->atomizeString(ROMSTR("delay"));
+    _setPinModeAtom = program->atomizeString(ROMSTR("setPinMode"));
+    _digitalWriteAtom = program->atomizeString(ROMSTR("digitalWrite"));
+    _digitalReadAtom = program->atomizeString(ROMSTR("digitalRead"));
+    _onInterruptAtom = program->atomizeString(ROMSTR("onInterrupt"));
     
-    _PinModeAtom = program->atomizeString("PinMode");
-    _TriggerAtom = program->atomizeString("Trigger");
+    _PinModeAtom = program->atomizeString(ROMSTR("PinMode"));
+    _TriggerAtom = program->atomizeString(ROMSTR("Trigger"));
 
-    _OutputAtom = program->atomizeString("Output");
-    _OutputOpenDrainAtom = program->atomizeString("OutputOpenDrain");
-    _InputAtom = program->atomizeString("Input");
-    _InputPullupAtom = program->atomizeString("InputPullup");
-    _InputPulldownAtom = program->atomizeString("InputPulldown");
-    _NoneAtom = program->atomizeString("None");
-    _RisingEdgeAtom = program->atomizeString("RisingEdge");
-    _FallingEdgeAtom = program->atomizeString("FallingEdge");
-    _BothEdgesAtom = program->atomizeString("BothEdges");
-    _LowAtom = program->atomizeString("Low");
-    _HighAtom = program->atomizeString("High");
+    _OutputAtom = program->atomizeString(ROMSTR("Output"));
+    _OutputOpenDrainAtom = program->atomizeString(ROMSTR("OutputOpenDrain"));
+    _InputAtom = program->atomizeString(ROMSTR("Input"));
+    _InputPullupAtom = program->atomizeString(ROMSTR("InputPullup"));
+    _InputPulldownAtom = program->atomizeString(ROMSTR("InputPulldown"));
+    _NoneAtom = program->atomizeString(ROMSTR("None"));
+    _RisingEdgeAtom = program->atomizeString(ROMSTR("RisingEdge"));
+    _FallingEdgeAtom = program->atomizeString(ROMSTR("FallingEdge"));
+    _BothEdgesAtom = program->atomizeString(ROMSTR("BothEdges"));
+    _LowAtom = program->atomizeString(ROMSTR("Low"));
+    _HighAtom = program->atomizeString(ROMSTR("High"));
 
-    _beginAtom = program->atomizeString("begin");
-    _printAtom = program->atomizeString("print");
-    _printfAtom = program->atomizeString("printf");
-    _encodeAtom = program->atomizeString("encode");
-    _decodeAtom = program->atomizeString("decode");
+    _beginAtom = program->atomizeString(ROMSTR("begin"));
+    _printAtom = program->atomizeString(ROMSTR("print"));
+    _printfAtom = program->atomizeString(ROMSTR("printf"));
+    _encodeAtom = program->atomizeString(ROMSTR("encode"));
+    _decodeAtom = program->atomizeString(ROMSTR("decode"));
 }
 
 Global::~Global()
