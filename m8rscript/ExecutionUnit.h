@@ -142,7 +142,7 @@ public:
     }
     
 private:
-    bool printError(const char* s) const;
+    bool printError(const char* s, ...) const;
     
     Value* valueFromId(Atom, const Object*) const;
     CallReturnValue call(Program* program, uint32_t nparams, Object*, bool isNew);

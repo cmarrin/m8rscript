@@ -41,15 +41,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool ExecutionUnit::printError(const char* s) const
+bool ExecutionUnit::printError(const char* format, ...) const
 {
     ++_nerrors;
-    if (_system) {
-        _system->printf("Runtime error: %s\n", s);
-    }
+    va_list args;
+    va_start(args, format);
+    Error::vprintError(_system, Error::Code::RuntimeError, format, args);
+    
     if (_nerrors >= 10) {
         if (_system) {
-            _system->printf("\n\nToo many runtime errors, exiting...\n");
+            _system->printf(ROMSTR("\n\nToo many runtime errors, exiting...\n"));
             _terminate = true;
         }
         return false;
@@ -123,12 +124,7 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
 
     int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue));
     if (index < 0) {
-        String s = "no property '";
-        s += derefValue.toStringValue(_program);
-        s += "' in '";
-        s += obj->typeName();
-        s += "' Object";
-        printError(s.c_str());
+        printError(ROMSTR("no property '%s' in '%s' Object"), derefValue.toStringValue(_program).c_str(), obj->typeName());
         return Value();
     }
     return obj->propertyRef(index);
@@ -136,26 +132,26 @@ Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValu
 
 bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& derefValue)
 {
+    bool exists = true;
+    
     if (objectValue.type() == Value::Type::Id) {
         objectValue = deref(program, program->global(), objectValue);
-        if (objectValue.isNone()) {
-            String s = "    '";
-            s += derefValue.toStringValue(_program);
-            s += "' property does not exist";
-            return printError(s.c_str());
+        if (!objectValue.isNone()) {
+            return deref(program, objectValue, derefValue);
         }
-        return deref(program, objectValue, derefValue);
+        exists = false;
     }
     
-    if (objectValue.type() == Value::Type::PropertyRef) {
+    if (exists && objectValue.type() == Value::Type::PropertyRef) {
         objectValue = objectValue.appendPropertyRef(derefValue);
-        if (objectValue.isNone()) {
-            String s = "'";
-            s += derefValue.toStringValue(_program);
-            s += "' property does not exist";
-            return printError(s.c_str());
+        if (!objectValue.isNone()) {
+            return true;
         }
-        return true;
+        exists = false;
+    }
+
+    if (!exists) {
+        return printError(ROMSTR("    '%s' property does not exist"), derefValue.toStringValue(_program).c_str());
     }
     
     Object* obj = objectValue.toObjectValue();
@@ -572,10 +568,10 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
-            printError("Must have an lvalue for POSTINC");
+            printError(ROMSTR("Must have an lvalue for POSTINC"));
         } else {
             if (!_stack.top().isInteger()) {
-                printError("Must have an integer value for POSTINC");
+                printError(ROMSTR("Must have an integer value for POSTINC"));
             }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() + 1);
@@ -584,10 +580,10 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_POSTDEC:
         if (!_stack.top().isLValue()) {
-            printError("Must have an lvalue for POSTDEC");
+            printError(ROMSTR("Must have an lvalue for POSTDEC"));
         } else {
             if (!_stack.top().isInteger()) {
-                printError("Must have an integer value for POSTDEC");
+                printError(ROMSTR("Must have an integer value for POSTDEC"));
             }
             leftValue = _stack.top().bakeValue();
             _stack.top().setValue(_stack.top().toIntValue() - 1);
@@ -596,17 +592,14 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_STO:
         if (!_stack.top(-1).setValue(_stack.top())) {
-            String s = "Attempted to assign to nonexistant variable '";
-                    s += _stack.top(-1).toStringValue(_program);
-                    s += "'";
-                    printError(s.c_str());
+            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(_program).c_str());
         }
         _stack.pop();
         DISPATCH;
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
-            printError("target of STOA must be an Object");
+            printError(ROMSTR("target of STOA must be an Object"));
         } else {
             objectValue->appendElement(_stack.top());
         }
@@ -615,18 +608,15 @@ static const uint16_t YieldCount = 2000;
     L_STOO:
         objectValue = _stack.top(-2).asObjectValue();
         if (!objectValue) {
-            printError("target of STOO must be an Object");
+            printError(ROMSTR("target of STOO must be an Object"));
         } else {
             Atom name = propertyNameFromValue(_program, _stack.top(-1));
             if (!name) {
-                printError("Object literal property name must be id, string, integer or float");
+                printError(ROMSTR("Object literal property name must be id, string, integer or float"));
             } else {
                 int32_t index = objectValue->addProperty(name);
                 if (index < 0) {
-                    String s = "Invalid property '";
-                    s += _program->stringFromAtom(name);
-                    s += "' for Object literal";
-                    printError(s.c_str());
+                    printError(ROMSTR("Invalid property '%s' for Object literal"), _program->stringFromAtom(name).c_str());
                 }
                 objectValue->setProperty(index, _stack.top());
             }
