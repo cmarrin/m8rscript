@@ -104,9 +104,5 @@ void systemInitialized()
 
 extern "C" void ICACHE_FLASH_ATTR user_init()
 {
-#ifndef NDEBUG
-    gdbstub_init();
-#endif
-
     initializeSystem(systemInitialized);
 }

@@ -463,6 +463,10 @@ void startup(void*)
 
 void initializeSystem(void (*initializedCB)())
 {
+#ifndef NDEBUG
+    gdbstub_init();
+#endif
+
     gpio_init();
     
     wifi_station_set_auto_connect(0);
@@ -512,7 +516,11 @@ size_t ICACHE_RAM_ATTR xPortWantedSizeAlign(size_t size)
     return (size + 3) & ~((size_t) 3);
 }
 
+#ifndef NDEBUG
 extern void gdb_do_break();
+#else
+#define gdb_do_break()
+#endif
 
 [[noreturn]] void abort()
 {
