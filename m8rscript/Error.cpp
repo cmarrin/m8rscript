@@ -50,6 +50,13 @@ void Error::showError(SystemInterface* system) const
 
 void Error::printError(SystemInterface* system, Code code, const char* format, ...)
 {
+    va_list args;
+    va_start(args, format);
+    vprintError(system, code, format, args);
+}
+
+void Error::vprintError(SystemInterface* system, Code code, const char* format, va_list args)
+{
     const char* codeString = "";
     
     switch(code) {
@@ -72,8 +79,6 @@ void Error::printError(SystemInterface* system, Code code, const char* format, .
     }
     system->printf(ROMSTR(": "));
     
-    va_list args;
-    va_start(args, format);
     system->vprintf(format, args);
 }
 
