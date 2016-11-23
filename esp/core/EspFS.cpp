@@ -78,28 +78,28 @@ DirectoryEntry* EspFS::directory()
 
 bool EspFS::mount()
 {
-    esp_system()->printf("Mounting SPIFFS...\n");
+    esp_system()->printf(ROMSTR("Mounting SPIFFS...\n"));
     int32_t result = internalMount();
     if (result != SPIFFS_OK) {
         if (result == SPIFFS_ERR_NOT_A_FS) {
-            esp_system()->printf("ERROR: Not a valid SPIFFS filesystem. Please format.\n");
+            esp_system()->printf(ROMSTR("ERROR: Not a valid SPIFFS filesystem. Please format.\n"));
         } else {
-            esp_system()->printf("ERROR: SPIFFS mount failed, error=%d\n", result);
+            esp_system()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), result);
         }
         return false;
     }
     if (!mounted()) {
-        esp_system()->printf("ERROR: SPIFFS filesystem failed to mount\n");
+        esp_system()->printf(ROMSTR("ERROR: SPIFFS filesystem failed to mount\n"));
         return false;
     }
 
-    esp_system()->printf("Checking file system...\n");
+    esp_system()->printf(ROMSTR("Checking file system...\n"));
     result = SPIFFS_check(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        esp_system()->printf("ERROR: Consistency check failed during SPIFFS mount, error=%d\n", result);
+        esp_system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
         return false;
     } else {
-        esp_system()->printf("SPIFFS mounted successfully\n");
+        esp_system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
     }
     return true;
 }
@@ -125,7 +125,7 @@ bool EspFS::format()
     
     int32_t result = SPIFFS_format(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        esp_system()->printf("ERROR: SPIFFS format failed, error=%d\n", result);
+        esp_system()->printf(ROMSTR("ERROR: SPIFFS format failed, error=%d\n"), result);
         return false;
     }
     mount();
@@ -210,7 +210,7 @@ static const FileModeEntry _fileModeMap[] = {
 EspFile::EspFile(const char* name, const char* mode)
 {
     if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
-        esp_system()->printf("ERROR: invalid filename '%s' for open\n", name);
+        esp_system()->printf(ROMSTR("ERROR: invalid filename '%s' for open\n"), name);
         _file = SPIFFS_ERR_NAME_TOO_LONG;
         return;
     }
@@ -223,7 +223,7 @@ EspFile::EspFile(const char* name, const char* mode)
         }
     }
     if (!flags) {
-        esp_system()->printf("ERROR: invalid mode '%s' for open\n", mode);
+        esp_system()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
         _file = SPIFFS_ERR_FILE_CLOSED;
         return;
     }

@@ -239,7 +239,7 @@ struct UserSaveData {
 
 void setDeviceName(const char* name)
 {
-    esp_system()->printf("Setting device name to '%s'\n", name);
+    esp_system()->printf(ROMSTR("Setting device name to '%s'\n"), name);
     uint16_t size = strlen(name);
     if (size > MaxBonjourNameSize) {
         size = MaxBonjourNameSize;
@@ -318,26 +318,26 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {
-esp_system()->printf("******** smartConfig status=%d\n", status);
+esp_system()->printf(ROMSTR("******** smartConfig status=%d\n"), status);
     switch(status) {
         case SC_STATUS_WAIT:
-            esp_system()->printf("SC_STATUS_WAIT\n");
+            esp_system()->printf(ROMSTR("SC_STATUS_WAIT\n"));
             break;
         case SC_STATUS_FIND_CHANNEL:
-            esp_system()->printf("SC_STATUS_FIND_CHANNEL\n");
+            esp_system()->printf(ROMSTR("SC_STATUS_FIND_CHANNEL\n"));
             break;
         case SC_STATUS_GETTING_SSID_PSWD: {
-            esp_system()->printf("SC_STATUS_GETTING_SSID_PSWD\n");
+            esp_system()->printf(ROMSTR("SC_STATUS_GETTING_SSID_PSWD\n"));
             sc_type* type = (sc_type*) pdata;
             if (*type == SC_TYPE_ESPTOUCH) {
-                esp_system()->printf("SC_TYPE:SC_TYPE_ESPTOUCH\n");
+                esp_system()->printf(ROMSTR("SC_TYPE:SC_TYPE_ESPTOUCH\n"));
             } else {
-                esp_system()->printf("SC_TYPE:SC_TYPE_AIRKISS\n");
+                esp_system()->printf(ROMSTR("SC_TYPE:SC_TYPE_AIRKISS\n"));
             }
             break;
         }
         case SC_STATUS_LINK: {
-            esp_system()->printf("SC_STATUS_LINK\n");
+            esp_system()->printf(ROMSTR("SC_STATUS_LINK\n"));
             struct station_config* sta_conf = (struct station_config*) pdata;
             wifi_station_set_config(sta_conf);
             wifi_station_disconnect();
@@ -345,11 +345,11 @@ esp_system()->printf("******** smartConfig status=%d\n", status);
             break;
         }
         case SC_STATUS_LINK_OVER:
-            esp_system()->printf("SC_STATUS_LINK_OVER\n");
+            esp_system()->printf(ROMSTR("SC_STATUS_LINK_OVER\n"));
             if (pdata != NULL) {
                 uint8 phone_ip[4] = {0};
                 memcpy(phone_ip, (uint8*)pdata, 4);
-                esp_system()->printf("Phone ip: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
+                esp_system()->printf(ROMSTR("Phone ip: %d.%d.%d.%d\n"), phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
             }
             smartconfig_stop();
             break;
@@ -414,13 +414,13 @@ void wifiEventHandler(System_Event_t *evt)
 {
     switch(evt->event) {
         case EVENT_STAMODE_CONNECTED:
-            esp_system()->printf("Connected to ssid %s, channel %d\n", evt->event_info.connected.ssid, evt->event_info.connected.channel);
+            esp_system()->printf(ROMSTR("Connected to ssid %s, channel %d\n"), evt->event_info.connected.ssid, evt->event_info.connected.channel);
             break;
         case EVENT_STAMODE_DISCONNECTED: {
             gNumWifiTries++;
-            esp_system()->printf("Wifi failed to connect %d time%s\n", gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
+            esp_system()->printf(ROMSTR("Wifi failed to connect %d time%s\n"), gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
             if (gNumWifiTries >= NumWifiTries) {
-                esp_system()->printf("Wifi connection failed, starting smartconfig\n");
+                esp_system()->printf(ROMSTR("Wifi connection failed, starting smartconfig\n"));
                 smartConfig();
             }
             break;
@@ -456,7 +456,7 @@ void startup(void*)
     struct station_config config;
     wifi_station_get_config(&config);
     if (config.ssid[0] == '\0') {
-        esp_system()->printf("no SSID, running smartconfig\n");
+        esp_system()->printf(ROMSTR("no SSID, running smartconfig\n"));
         smartConfig();
     }
 }
