@@ -300,8 +300,12 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         run([this]{
             _system->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
+        _state = State::NeedPrompt;
+        sendString(ROMSTR("Program started...\n"));
     } else if (array[0] == "stop") {
         stop();
+        _state = State::NeedPrompt;
+        sendString(ROMSTR("Program stopped\n"));
     } else if (array[0] == "quit") {
         return false;
     } else {
