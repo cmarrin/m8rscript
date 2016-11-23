@@ -116,13 +116,18 @@ CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
 CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
+OBJDUMP = $(TOOLS_BIN)/xtensa-lx106-elf-objdump
 
 LIBS = main net80211 wpa pp phy crypto smartconfig lwip gcc
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR)
+INCLUDE_DIRS += $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
+ifeq ($(DEBUG), 1)
+INCLUDE_DIRS += $(GDB_DIR)
+endif
+
 C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
 
 ifeq ($(PARSER_SUPPORT), 0)
@@ -130,12 +135,15 @@ C_DEFINES += -DNO_PARSER_SUPPORT
 endif
 
 # The xtensa folder inside gdbstub is technically a system library, it just doesn't happen to be in the non-os SDK. So make gdbstub look like a system dir
-C_INCLUDES = -isystem $(GDB_DIR) -isystem $(SDK_ROOT)/include
+C_INCLUDES = -isystem $(SDK_ROOT)/include
+ifeq ($(DEBUG), 1)
+C_INCLUDES = -isystem $(GDB_DIR)
+endif
 C_INCLUDES += $(foreach dir,$(USER_DIRS) $(INCLUDE_DIRS),-iquote$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-Map=$(OBJ_DIR)/$(MAIN_NAME).map
 
 LD_STD_LIBS = -nostdlib -Wl,--start-group $(LIBS) -Wl,--end-group -lgcc
 
@@ -151,9 +159,11 @@ SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
 SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
 
 # GDB source files
+ifeq ($(DEBUG), 1)
 GDB_DIR = ./gdbstub
 GDB_SRC = $(shell ls $(GDB_DIR)/*.c $(GDB_DIR)/*.S)
 GDB_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(GDB_SRC)))
+endif
 
 # User defined compilation units
 USER_SRC = $(SRC)
@@ -162,7 +172,10 @@ USER_SRC = $(SRC)
 USER_OBJ = $(subst .ino,.cpp,$(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(USER_SRC))))
 USER_DIRS = $(sort $(dir $(USER_SRC)))
 
-VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR) $(USER_DIRS)
+VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(USER_DIRS)
+ifeq ($(DEBUG), 1)
+VPATH += $(GDB_DIR)
+endif
 
 # Automatically generated build information data
 # Makes the build date and git descriptions at the actual build
@@ -170,6 +183,13 @@ VPATH += $(CORE_DIR) $(SPIFFS_DIR) $(GDB_DIR) $(USER_DIRS)
 BUILD_INFO_H = $(OBJ_DIR)/buildinfo.h
 BUILD_INFO_CPP = $(OBJ_DIR)/buildinfo.cpp
 BUILD_INFO_OBJ = $(BUILD_INFO_CPP)$(OBJ_EXT)
+
+#Firmware memory layout info files
+FW_MEMINFO_NEW = $(BUILD_BASE)/fwMeminfo.new
+FW_MEMINFO_OLD = $(BUILD_BASE)/fwMeminfo.old
+FW_MEMINFO_SAVED = $(BUILD_BASE)/fwMeminfo
+
+MEMANALYZER ?= $(OBJDUMP) -h -j .data -j .rodata -j .bss -j .text -j .irom0.text
 
 $(BUILD_INFO_H): | $(OBJ_DIR)
 	echo "typedef struct { const char *date, *time, *src_version, *env_version;} _tBuildInfo; extern _tBuildInfo _BuildInfo;" >$@
