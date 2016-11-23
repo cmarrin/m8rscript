@@ -54,9 +54,7 @@ public:
     
     m8r::String generateCodeString(const Program* program) const;
     
-private:
-    bool printError(const char* s) const;
-    
+private:    
     Value* valueFromId(Atom, const Object*) const;
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);

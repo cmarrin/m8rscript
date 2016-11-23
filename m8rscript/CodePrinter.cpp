@@ -41,21 +41,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool CodePrinter::printError(const char* s) const
-{
-    ++_nerrors;
-    if (_system) {
-        _system->printf(ROMSTR("Runtime error: %s\n"), s);
-    }
-    if (_nerrors > 10) {
-        if (_system) {
-            _system->printf(ROMSTR("\n\nToo many runtime errors, exiting...\n"));
-        }
-        return false;
-    }
-    return true;
-}
-
 uint32_t CodePrinter::findAnnotation(uint32_t addr) const
 {
     for (auto annotation : annotations) {
