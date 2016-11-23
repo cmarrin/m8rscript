@@ -247,7 +247,9 @@ upload: all
     
 erase:
 	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
-	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
+    
+init:
+	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x3fc000 -cf $(SDK_ROOT)/bin/esp_init_data_default.bin
     
 term:
 	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
