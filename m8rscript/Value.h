@@ -107,8 +107,8 @@ public:
     };
 
     Value() : _value(nullptr), _type(Type::None), _id(0) { }
-    Value(const Value& other) { *this = other; }
-    Value(Value& other) { *this = other; }
+    Value(const Value& other) : _type(other._type), _value(other._value), _id(other._id) { }
+    Value(Value&& other) : _type(other._type), _value(other._value), _id(other._id) { }
     
     Value(Object* obj, Type type = Type::Object) : _value(valueFromObj(obj)) , _type(type), _id(0) { }
     Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
