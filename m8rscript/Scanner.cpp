@@ -249,7 +249,7 @@ Token Scanner::scanSpecial()
         return Token::EndOfFile;
     }
     
-    switch(c2) {
+    switch(c1) {
         case '!':
             if (c2 == '=') {
                 return Token::NE;
