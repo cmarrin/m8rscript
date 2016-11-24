@@ -382,8 +382,9 @@ static CodeMap opcodes[] = {
     OP(STOO)
     OP(DUP)
 
-    OP(STO) OP(LOR) OP(LAND) OP(AND) OP(OR)
-    OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE) OP(SHL)
+    OP(STO) OP(STOELT) OP(STOPROP)
+    
+    OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE) OP(SHL)
     OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD) OP(END)
 };
 

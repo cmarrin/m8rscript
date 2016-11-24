@@ -136,7 +136,10 @@ enum class Op : uint8_t {
     // Duplicate TOS
     DUP = 0xDE,
     
-    STO = 0xE0,
+    STO = 0xE0, 
+    
+    // Store tos in the element or property in tos-1 of the object in tos-2
+    STOELT = 0xE1, STOPROP = 0xE2,
     
     // BINIOP
     LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,

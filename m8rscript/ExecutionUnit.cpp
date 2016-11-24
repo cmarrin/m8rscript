@@ -259,7 +259,7 @@ int32_t ExecutionUnit::continueExecution()
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
         /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(STOO) OP(DUP) OP(UNKNOWN)
-        /* 0xE0 */ OP(STO) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xE0 */ OP(STO) OP(STOELT) OP(STOPROP) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0xE8 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
@@ -558,12 +558,6 @@ static const uint16_t YieldCount = 2000;
             }
         }
         DISPATCH;
-    L_STO:
-        if (!_stack.top(-1).setValue(_stack.top())) {
-            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(_program).c_str());
-        }
-        _stack.pop();
-        DISPATCH;
     L_STOA:
         objectValue = _stack.top(-1).asObjectValue();
         if (!objectValue) {
@@ -591,6 +585,36 @@ static const uint16_t YieldCount = 2000;
         }
         _stack.pop();
         _stack.pop();
+        DISPATCH;
+    L_STO:
+        if (!_stack.top(-1).setValue(_stack.top())) {
+            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(_program).c_str());
+        }
+        _stack.pop();
+        DISPATCH;
+    L_STOELT:
+        objectValue = _stack.top(-2).toObjectValue();
+        if (!objectValue) {
+            printError(ROMSTR("Can only assign to an element of an object"));
+        }
+        leftValue = _stack.top();
+        if (!objectValue->setElement(_stack.top(-1).toIntValue(), leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant element %d"), _stack.top(-1).toIntValue());
+        }
+        _stack.pop(2);
+        _stack.setTop(leftValue);
+        DISPATCH;
+    L_STOPROP:
+        objectValue = _stack.top(-2).toObjectValue();
+        if (!objectValue) {
+            printError(ROMSTR("Can only assign to a property of an object"));
+        }
+        leftValue = _stack.top();
+        if (!objectValue->setProperty(_stack.top(-1).toIntValue(), leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant property %d"), _stack.top(-1).toIntValue());
+        }
+        _stack.pop(2);
+        _stack.setTop(leftValue);
         DISPATCH;
     L_PREINC:
         _stack.top().setValue(_stack.top().toIntValue() + 1);
