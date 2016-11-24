@@ -82,6 +82,8 @@ typedef union {
     Atom::Raw a;
 } U;
 
+static_assert(sizeof(U) <= sizeof(void*), "Value union must not be larger than void*");
+
 inline static const char* duplicateString(const char* s, int32_t len = -1)
 {
     size_t length = ((len < 0) ? strlen(s) : static_cast<size_t>(len)) + 1;

@@ -61,7 +61,23 @@ public:
     virtual bool appendElement(const Value&) override { assert(0); return false; }
     virtual size_t elementCount() const override { assert(0); return 0; }
     virtual void setElementCount(size_t) override { assert(0); }
-
+    
+    void popBaked(Value& value)
+    {
+        pop(value);
+        if (value.canBeBaked()) {
+            value = value.bakeValue();
+        }
+    }
+    
+    void topBaked(Value& value)
+    {
+        std::swap(value, top());
+        if (value.canBeBaked()) {
+            value = value.bakeValue();
+        }
+    }
+    
 protected:
     virtual bool serialize(Stream*, Error&) const override
     {

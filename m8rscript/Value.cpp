@@ -260,14 +260,13 @@ Float Value::toFloatValue() const
 
 bool Value::setValue(const Value& v)
 {
-    Value bakedValue = v.bakeValue();
     switch(_type) {
         case Type::Object:
-            return objFromValue()->setValue(bakedValue);
+            return objFromValue()->setValue(v.canBeBaked() ? v.bakeValue() : v);
         case Type::PropertyRef:
-            return objFromValue()->setProperty(_id, bakedValue);
+            return objFromValue()->setProperty(_id, v.canBeBaked() ? v.bakeValue() : v);
         case Type::ElementRef:
-            objFromValue()->setElement(_id, bakedValue);
+            objFromValue()->setElement(_id, v.canBeBaked() ? v.bakeValue() : v);
             return true;
         default:
             return false;

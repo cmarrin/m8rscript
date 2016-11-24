@@ -376,8 +376,8 @@ static const uint16_t YieldCount = 2000;
         op = maskOp(op, 0x01);
         _pc += size;
         if (op != Op::JMP) {
-            boolValue = _stack.top().toBoolValue() != 0;
-            _stack.pop();
+            _stack.pop(leftValue);
+            boolValue = leftValue.toBoolValue();
             if (op == Op::JT) {
                 boolValue = !boolValue;
             }
@@ -457,27 +457,25 @@ static const uint16_t YieldCount = 2000;
         _stack.pop(callReturnValue.returnCount());
         
         assert(_stack.top().type() == Value::Type::PreviousObject);
-        _object = _stack.top().asObjectValue();
-        _stack.pop();
+        _stack.pop(leftValue);
+        _object = leftValue.asObjectValue();
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
-        _pc = _stack.top().asUIntValue();
-        _stack.pop();
+        _stack.pop(leftValue);
+        _pc = leftValue.asUIntValue();
         
         assert(_stack.top().type() == Value::Type::PreviousFrame);
-        _stack.restoreFrame(_stack.top().asUIntValue());
-    
-        // Pop callee
-        _stack.pop();
+        _stack.pop(leftValue);
+        _stack.restoreFrame(leftValue.asUIntValue());
         
         updateCodePointer();
        
         _stack.push(returnedValue);
         DISPATCH;
     L_ADD:
-        rightValue = _stack.top().bakeValue();
-        _stack.pop();
-        leftValue = _stack.top().bakeValue();
+        _stack.popBaked(rightValue);
+        _stack.topBaked(leftValue);
+
         if (leftValue.isInteger() && rightValue.isInteger()) {
             _stack.setTop(leftValue.toIntValue() + rightValue.toIntValue());
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
@@ -489,7 +487,7 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_UNOP:
-        rightValue = _stack.top().bakeValue();
+        _stack.topBaked(rightValue);
         if (rightValue.isInteger() || op != Op::UMINUS) {
             rightIntValue = rightValue.toIntValue();
             switch(op) {
@@ -504,9 +502,10 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_BINIOP:
-        rightIntValue = _stack.top().bakeValue().toIntValue();
-        _stack.pop();
-        leftIntValue = _stack.top().bakeValue().toIntValue();
+        _stack.popBaked(rightValue);
+        rightIntValue = rightValue.toIntValue();
+        _stack.topBaked(leftValue);
+        leftIntValue = leftValue.toIntValue();
         switch(op) {
             case Op::LOR: _stack.setTop(leftIntValue || rightIntValue); break;
             case Op::LAND: _stack.setTop(leftIntValue && rightIntValue); break;
@@ -522,9 +521,8 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
 
     L_BINOP:
-        rightValue = _stack.top().bakeValue();
-        _stack.pop();
-        leftValue = _stack.top().bakeValue();
+        _stack.popBaked(rightValue);
+        _stack.topBaked(leftValue);
         if (leftValue.isInteger() && rightValue.isInteger()) {
             leftIntValue = leftValue.toIntValue();
             rightIntValue = rightValue.toIntValue();

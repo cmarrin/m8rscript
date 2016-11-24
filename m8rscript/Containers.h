@@ -381,6 +381,9 @@ public:
     void clear() { super::clear(); }
     size_t size() const { return super::size(); }
     void push(const type& value) { super::push_back(value); }
+    void pop(size_t n = 1) { super::resize(size() - n); }
+    void pop(type& value) { std::swap(value, top()); pop(); }
+
     type& top(int32_t relative = 0)
     {
         assert(static_cast<int32_t>(super::size()) + relative > 0);
@@ -409,7 +412,6 @@ public:
     
     type& inFrame(int32_t index) { return super::at(_frame + index); }
     const type& inFrame(int32_t index) const { return super::at(_frame + index); }
-    void pop(size_t n = 1) { super::resize(size() - n); }
     void setTop(const type& value) { super::back() = value; }
 
 private:
