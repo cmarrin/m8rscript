@@ -259,8 +259,8 @@ int32_t ExecutionUnit::continueExecution()
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
         /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(STOO) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xE0 */ OP(STO) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0xE0 */ OP(STO) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINISTOOP) OP(BINISTOOP)
+        /* 0xE8 */ OP(BINISTOOP) OP(BINISTOOP) OP(BINISTOOP) OP(BINISTOOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
@@ -558,34 +558,51 @@ static const uint16_t YieldCount = 2000;
             }
         }
         DISPATCH;
-    L_PREINC:
-        _stack.top().setValue(_stack.top().toIntValue() + 1);
-        DISPATCH;
-    L_PREDEC:
-        _stack.top().setValue(_stack.top().toIntValue() + 1);
-        DISPATCH;
-    L_POSTINC:
-        if (!_stack.top().isLValue()) {
-            printError(ROMSTR("Must have an lvalue for POSTINC"));
-        } else {
-            if (!_stack.top().isInteger()) {
-                printError(ROMSTR("Must have an integer value for POSTINC"));
-            }
-            leftValue = _stack.top().bakeValue();
-            _stack.top().setValue(_stack.top().toIntValue() + 1);
-            _stack.setTop(leftValue);
+    L_BINISTOOP:
+        _stack.popBaked(rightValue);
+        rightIntValue = rightValue.toIntValue();
+        leftValue = _stack.top().bakeValue();
+        leftIntValue = leftValue.toIntValue();
+        switch(op) {
+            case Op::STOAND: leftValue = leftIntValue & rightIntValue; break;
+            case Op::STOOR: leftValue = leftIntValue | rightIntValue; break;
+            case Op::STOXOR: leftValue = leftIntValue ^ rightIntValue; break;
+            case Op::STOSHL: leftValue = leftIntValue << rightIntValue; break;
+            case Op::STOSAR: leftValue = leftIntValue >> rightIntValue; break;
+            case Op::STOSHR: leftValue = static_cast<uint32_t>(leftIntValue) >> rightIntValue; break;
+            default: assert(0); break;
+        }
+        if (!_stack.top().setValue(leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top().toStringValue(_program).c_str());
         }
         DISPATCH;
-    L_POSTDEC:
-        if (!_stack.top().isLValue()) {
-            printError(ROMSTR("Must have an lvalue for POSTDEC"));
-        } else {
-            if (!_stack.top().isInteger()) {
-                printError(ROMSTR("Must have an integer value for POSTDEC"));
+    L_BINSTOOP:
+        _stack.popBaked(rightValue);
+        leftValue = _stack.top().bakeValue();
+        if (leftValue.isInteger() && rightValue.isInteger()) {
+            leftIntValue = leftValue.toIntValue();
+            rightIntValue = rightValue.toIntValue();
+            switch(op) {
+                case Op::STOSUB: leftValue = leftIntValue - rightIntValue; break;
+                case Op::STOMUL: leftValue = leftIntValue * rightIntValue; break;
+                case Op::STODIV: leftValue = leftIntValue / rightIntValue; break;
+                case Op::STOMOD: leftValue = leftIntValue % rightIntValue; break;
+                default: assert(0); break;
             }
-            leftValue = _stack.top().bakeValue();
-            _stack.top().setValue(_stack.top().toIntValue() - 1);
-            _stack.setTop(leftValue);
+        } else {
+            leftFloatValue = leftValue.toFloatValue();
+            rightFloatValue = rightValue.toFloatValue();
+               
+            switch(op) {
+                case Op::STOSUB: leftValue = leftFloatValue - rightFloatValue; break;
+                case Op::STOMUL: leftValue = leftFloatValue * rightFloatValue; break;
+                case Op::STODIV: leftValue = leftFloatValue / rightFloatValue; break;
+                case Op::STOMOD: leftValue = leftFloatValue % rightFloatValue; break;
+                default: assert(0); break;
+            }
+        }
+        if (!_stack.top().setValue(leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top().toStringValue(_program).c_str());
         }
         DISPATCH;
     L_STO:
@@ -621,6 +638,36 @@ static const uint16_t YieldCount = 2000;
         }
         _stack.pop();
         _stack.pop();
+        DISPATCH;
+    L_PREINC:
+        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        DISPATCH;
+    L_PREDEC:
+        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        DISPATCH;
+    L_POSTINC:
+        if (!_stack.top().isLValue()) {
+            printError(ROMSTR("Must have an lvalue for POSTINC"));
+        } else {
+            if (!_stack.top().isInteger()) {
+                printError(ROMSTR("Must have an integer value for POSTINC"));
+            }
+            leftValue = _stack.top().bakeValue();
+            _stack.top().setValue(_stack.top().toIntValue() + 1);
+            _stack.setTop(leftValue);
+        }
+        DISPATCH;
+    L_POSTDEC:
+        if (!_stack.top().isLValue()) {
+            printError(ROMSTR("Must have an lvalue for POSTDEC"));
+        } else {
+            if (!_stack.top().isInteger()) {
+                printError(ROMSTR("Must have an integer value for POSTDEC"));
+            }
+            leftValue = _stack.top().bakeValue();
+            _stack.top().setValue(_stack.top().toIntValue() - 1);
+            _stack.setTop(leftValue);
+        }
         DISPATCH;
     L_POP:
         _stack.pop();
