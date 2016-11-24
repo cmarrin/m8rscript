@@ -358,6 +358,7 @@ esp_system()->printf(ROMSTR("******** smartConfig status=%d\n"), status);
 
 void smartConfig()
 {
+    smartconfig_stop();
     wifi_set_opmode(STATION_MODE);
     smartconfig_set_type(SC_TYPE_ESPTOUCH);
     smartconfig_start(smartconfigDone);
@@ -420,6 +421,7 @@ void wifiEventHandler(System_Event_t *evt)
             gNumWifiTries++;
             esp_system()->printf(ROMSTR("Wifi failed to connect %d time%s\n"), gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
             if (gNumWifiTries >= NumWifiTries) {
+                gNumWifiTries = 0;
                 esp_system()->printf(ROMSTR("Wifi connection failed, starting smartconfig\n"));
                 smartConfig();
             }
