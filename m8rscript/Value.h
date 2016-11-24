@@ -80,7 +80,6 @@ typedef union {
     Object* o;
     const char* s;
     Atom::Raw a;
-    Value* val;
 } U;
 
 inline static const char* duplicateString(const char* s, int32_t len = -1)
@@ -222,14 +221,12 @@ private:
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
     inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
-    inline void* valueFromValuePtr(Value* val) const { U u; u.val = val; return u.v; }
 
     inline Float floatFromValue() const { U u; u.v = _value; return Float(u.f); }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
     inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
     inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
-    inline Value* valuePtrFromValue() const { U u; u.v = _value; return u.val; }
     
     void* _value;
     Type _type;
