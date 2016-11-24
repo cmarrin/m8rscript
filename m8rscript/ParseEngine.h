@@ -69,8 +69,9 @@ private:
     struct OpInfo {
         static const uint8_t LeftAssoc = 0;
         static const uint8_t RightAssoc = 1;
-        uint8_t prec : 7;
+        uint8_t prec : 6;
         uint8_t assoc : 1;
+        uint8_t sto : 1;
         Op op;
     };
         

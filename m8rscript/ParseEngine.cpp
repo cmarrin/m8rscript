@@ -43,37 +43,37 @@ ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
     if (!_opInfo.size()) {
-        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, Op::STO });
-        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, Op::STOADD });
-        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, Op::STOSUB });
-        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, Op::STOMUL });
-        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::RightAssoc, Op::STODIV });
-        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::RightAssoc, Op::STOMOD });
-        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::RightAssoc, Op::STOSHL });
-        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::RightAssoc, Op::STOSHR });
-        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::RightAssoc, Op::STOSAR });
-        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::RightAssoc, Op::STOAND });
-        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::RightAssoc, Op::STOOR });
-        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::RightAssoc, Op::STOXOR });
-        _opInfo.emplace(Token::LOR,         { 6, OpInfo::LeftAssoc, Op::LOR });
-        _opInfo.emplace(Token::LAND,        { 7, OpInfo::LeftAssoc, Op::LAND });
-        _opInfo.emplace(Token::OR,          { 8, OpInfo::LeftAssoc, Op::OR });
-        _opInfo.emplace(Token::XOR,         { 9, OpInfo::LeftAssoc, Op::XOR });
-        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::LeftAssoc, Op::AND });
-        _opInfo.emplace(Token::EQ,          { 11, OpInfo::LeftAssoc, Op::EQ });
-        _opInfo.emplace(Token::NE,          { 11, OpInfo::LeftAssoc, Op::NE });
-        _opInfo.emplace(Token::LT,          { 12, OpInfo::LeftAssoc, Op::LT });
-        _opInfo.emplace(Token::GT,          { 12, OpInfo::LeftAssoc, Op::GT });
-        _opInfo.emplace(Token::GE,          { 12, OpInfo::LeftAssoc, Op::GE });
-        _opInfo.emplace(Token::LE,          { 12, OpInfo::LeftAssoc, Op::LE });
-        _opInfo.emplace(Token::SHL,         { 13, OpInfo::LeftAssoc, Op::SHL });
-        _opInfo.emplace(Token::SHR,         { 13, OpInfo::LeftAssoc, Op::SHR });
-        _opInfo.emplace(Token::SAR,         { 13, OpInfo::LeftAssoc, Op::SAR });
-        _opInfo.emplace(Token::Plus,        { 14, OpInfo::LeftAssoc, Op::ADD });
-        _opInfo.emplace(Token::Minus,       { 14, OpInfo::LeftAssoc, Op::SUB });
-        _opInfo.emplace(Token::Star,        { 15, OpInfo::LeftAssoc, Op::MUL });
-        _opInfo.emplace(Token::Slash,       { 15, OpInfo::LeftAssoc, Op::DIV });
-        _opInfo.emplace(Token::Percent,     { 15, OpInfo::LeftAssoc, Op::MOD });
+        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, false, Op::STO });
+        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, true, Op::ADD });
+        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, true, Op::SUB });
+        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, true, Op::MUL });
+        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::RightAssoc, true, Op::DIV });
+        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::RightAssoc, true, Op::MOD });
+        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::RightAssoc, true, Op::SHL });
+        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::RightAssoc, true, Op::SHR });
+        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::RightAssoc, true, Op::SAR });
+        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::RightAssoc, true, Op::AND });
+        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::RightAssoc, true, Op::OR });
+        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::RightAssoc, true, Op::XOR });
+        _opInfo.emplace(Token::LOR,         { 6, OpInfo::LeftAssoc, false, Op::LOR });
+        _opInfo.emplace(Token::LAND,        { 7, OpInfo::LeftAssoc, false, Op::LAND });
+        _opInfo.emplace(Token::OR,          { 8, OpInfo::LeftAssoc, false, Op::OR });
+        _opInfo.emplace(Token::XOR,         { 9, OpInfo::LeftAssoc, false, Op::XOR });
+        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::LeftAssoc, false, Op::AND });
+        _opInfo.emplace(Token::EQ,          { 11, OpInfo::LeftAssoc, false, Op::EQ });
+        _opInfo.emplace(Token::NE,          { 11, OpInfo::LeftAssoc, false, Op::NE });
+        _opInfo.emplace(Token::LT,          { 12, OpInfo::LeftAssoc, false, Op::LT });
+        _opInfo.emplace(Token::GT,          { 12, OpInfo::LeftAssoc, false, Op::GT });
+        _opInfo.emplace(Token::GE,          { 12, OpInfo::LeftAssoc, false, Op::GE });
+        _opInfo.emplace(Token::LE,          { 12, OpInfo::LeftAssoc, false, Op::LE });
+        _opInfo.emplace(Token::SHL,         { 13, OpInfo::LeftAssoc, false, Op::SHL });
+        _opInfo.emplace(Token::SHR,         { 13, OpInfo::LeftAssoc, false, Op::SHR });
+        _opInfo.emplace(Token::SAR,         { 13, OpInfo::LeftAssoc, false, Op::SAR });
+        _opInfo.emplace(Token::Plus,        { 14, OpInfo::LeftAssoc, false, Op::ADD });
+        _opInfo.emplace(Token::Minus,       { 14, OpInfo::LeftAssoc, false, Op::SUB });
+        _opInfo.emplace(Token::Star,        { 15, OpInfo::LeftAssoc, false, Op::MUL });
+        _opInfo.emplace(Token::Slash,       { 15, OpInfo::LeftAssoc, false, Op::DIV });
+        _opInfo.emplace(Token::Percent,     { 15, OpInfo::LeftAssoc, false, Op::MOD });
     }
 }
 
@@ -403,7 +403,7 @@ bool ParseEngine::expression(uint8_t minPrec)
     if (!arithmeticPrimary()) {
         return false;
     }
-
+    
     while(1) {
         OpInfo opInfo;            
         if (!_opInfo.find(getToken(), opInfo) || opInfo.prec < minPrec) {
@@ -411,8 +411,15 @@ bool ParseEngine::expression(uint8_t minPrec)
         }
         uint8_t nextMinPrec = (opInfo.assoc == OpInfo::LeftAssoc) ? (opInfo.prec + 1) : opInfo.prec;
         retireToken();
+        if (opInfo.sto) {
+            _parser->emit(Op::DUP);
+        }
+    
         expression(nextMinPrec);
         _parser->emit(opInfo.op);
+        if (opInfo.sto) {
+            _parser->emit(Op::STO);
+        }
     }
     return true;
 }

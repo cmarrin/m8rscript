@@ -258,9 +258,9 @@ int32_t ExecutionUnit::continueExecution()
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNOP) OP(UNOP) OP(UNOP) OP(UNOP)
-        /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(STOO) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xE0 */ OP(STO) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINSTOOP) OP(BINISTOOP) OP(BINISTOOP)
-        /* 0xE8 */ OP(BINISTOOP) OP(BINISTOOP) OP(BINISTOOP) OP(BINISTOOP) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0xD8 */ OP(DEREF) OP(OPCODE) OP(POP) OP(STOPOP) OP(STOA) OP(STOO) OP(DUP) OP(UNKNOWN)
+        /* 0xE0 */ OP(STO) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xE8 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0xF0 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
         /* 0xF8 */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP) OP(BINOP) OP(BINOP) OP(BINOP)
         /* 0xFF */ OP(END)
@@ -558,53 +558,6 @@ static const uint16_t YieldCount = 2000;
             }
         }
         DISPATCH;
-    L_BINISTOOP:
-        _stack.popBaked(rightValue);
-        rightIntValue = rightValue.toIntValue();
-        leftValue = _stack.top().bakeValue();
-        leftIntValue = leftValue.toIntValue();
-        switch(op) {
-            case Op::STOAND: leftValue = leftIntValue & rightIntValue; break;
-            case Op::STOOR: leftValue = leftIntValue | rightIntValue; break;
-            case Op::STOXOR: leftValue = leftIntValue ^ rightIntValue; break;
-            case Op::STOSHL: leftValue = leftIntValue << rightIntValue; break;
-            case Op::STOSAR: leftValue = leftIntValue >> rightIntValue; break;
-            case Op::STOSHR: leftValue = static_cast<uint32_t>(leftIntValue) >> rightIntValue; break;
-            default: assert(0); break;
-        }
-        if (!_stack.top().setValue(leftValue)) {
-            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top().toStringValue(_program).c_str());
-        }
-        DISPATCH;
-    L_BINSTOOP:
-        _stack.popBaked(rightValue);
-        leftValue = _stack.top().bakeValue();
-        if (leftValue.isInteger() && rightValue.isInteger()) {
-            leftIntValue = leftValue.toIntValue();
-            rightIntValue = rightValue.toIntValue();
-            switch(op) {
-                case Op::STOSUB: leftValue = leftIntValue - rightIntValue; break;
-                case Op::STOMUL: leftValue = leftIntValue * rightIntValue; break;
-                case Op::STODIV: leftValue = leftIntValue / rightIntValue; break;
-                case Op::STOMOD: leftValue = leftIntValue % rightIntValue; break;
-                default: assert(0); break;
-            }
-        } else {
-            leftFloatValue = leftValue.toFloatValue();
-            rightFloatValue = rightValue.toFloatValue();
-               
-            switch(op) {
-                case Op::STOSUB: leftValue = leftFloatValue - rightFloatValue; break;
-                case Op::STOMUL: leftValue = leftFloatValue * rightFloatValue; break;
-                case Op::STODIV: leftValue = leftFloatValue / rightFloatValue; break;
-                case Op::STOMOD: leftValue = leftFloatValue % rightFloatValue; break;
-                default: assert(0); break;
-            }
-        }
-        if (!_stack.top().setValue(leftValue)) {
-            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top().toStringValue(_program).c_str());
-        }
-        DISPATCH;
     L_STO:
         if (!_stack.top(-1).setValue(_stack.top())) {
             printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(_program).c_str());
@@ -676,6 +629,9 @@ static const uint16_t YieldCount = 2000;
         _stack.top(-1).setValue(_stack.top());
         _stack.pop();
         _stack.pop();
+        DISPATCH;
+    L_DUP:
+        _stack.push(_stack.top());
         DISPATCH;
     L_DEREF:
         deref(_program, _stack.top(-1), _stack.top());

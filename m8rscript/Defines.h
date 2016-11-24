@@ -133,8 +133,10 @@ enum class Op : uint8_t {
     // tos-2 must be an object. Add value in tos to property named in tos-1
     STOO = 0xDD,
     
-    STO = 0xE0, STOMUL = 0xE1, STOADD = 0xE2, STOSUB = 0xE3, STODIV = 0xE4, STOMOD = 0xE5, STOSHL = 0xE6, STOSHR = 0xE7,
-    STOSAR = 0xE8, STOAND = 0xE9, STOOR = 0xEA, STOXOR = 0xEB,
+    // Duplicate TOS
+    DUP = 0xDE,
+    
+    STO = 0xE0,
     
     // BINIOP
     LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,

@@ -78,7 +78,8 @@ void Error::vprintError(SystemInterface* system, Code code, const char* format, 
         return;
     }
     system->printf(ROMSTR(": "));
-    
     system->vprintf(format, args);
+    system->printf(ROMSTR("\n"));
+
 }
 
