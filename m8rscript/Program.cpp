@@ -70,9 +70,15 @@ bool Program::serialize(Stream* stream, Error& error) const
     if (!serializeWrite(stream, error, static_cast<uint16_t>(_objects.size()))) {
         return false;
     }
-    for (auto entry : _objects) {
+    
+    for (uint16_t i = 0; ; i++) {
+        Object* obj = objectFromObjectId(i);
+        if (!obj) {
+            break;
+        }
+        
         // Only store functions
-        if (!entry.value->code()) {
+        if (!obj->code()) {
             continue;
         }
         if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {
@@ -81,10 +87,10 @@ bool Program::serialize(Stream* stream, Error& error) const
         if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
             return false;
         }
-        if (!serializeWrite(stream, error, entry.key.raw())) {
+        if (!serializeWrite(stream, error, i)) {
             return false;
         }
-        if (!entry.value->serialize(stream, error)) {
+        if (!obj->serialize(stream, error)) {
             return false;
         }
     }
@@ -95,6 +101,10 @@ bool Program::serialize(Stream* stream, Error& error) const
 bool Program::deserialize(Stream* stream, Error& error, Program* program, const AtomTable&, const std::vector<char>&)
 {
     assert(!program);
+    
+    // FIXME: Currently we read the atomTable and stringTable locally and pass them around to allow their ids to be
+    // changed in the Program. We need to do the same for Objects. Create a dummy program to store them all in and 
+    // pass that around instead. The passed in Program will become the toProgram and the dummy will be the fromProgram
     
     // Read the atom table locally, so we can use it to translate atoms from the code
     // in this stream to the current program
@@ -135,6 +145,7 @@ bool Program::deserialize(Stream* stream, Error& error, Program* program, const 
     if (!deserializeRead(stream, error, count)) {
         return false;
     }
+    _objects.resize(count);
     while (count-- > 0) {
         if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectId) {
             return false;
@@ -152,7 +163,7 @@ bool Program::deserialize(Stream* stream, Error& error, Program* program, const 
             delete function;
             return false;
         }
-        _objects.emplace(id, function);
+        _objects[id] = function;
     }
     
     return Function::deserialize(stream, error, this, atomTable, stringTable);

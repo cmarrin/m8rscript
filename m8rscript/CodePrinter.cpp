@@ -73,12 +73,16 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
 {
     m8r::String outputString;
     
-	for (const auto& object : program->objects()) {
-        if (object.value->code()) {
-            uint32_t rawId = object.key.raw();
-            outputString += generateCodeString(program, object.value, Value::toString(rawId).c_str(), _nestingLevel);
+	for (uint16_t i = 0; ; i++) {
+        Object* obj = program->objectFromObjectId(i);
+        if (!obj) {
+            break;
+        }
+        if (obj->code()) {
+            outputString += generateCodeString(program, obj, Value::toString(i).c_str(), _nestingLevel);
             outputString += "\n";
         }
+        ++i;
 	}
     
     outputString += generateCodeString(program, program, "main", 0);

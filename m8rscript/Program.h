@@ -49,8 +49,6 @@ typedef Id<uint16_t> ObjectId;
 
 class Program : public Function {
 public:
-    typedef Map<ObjectId, Object*> ObjectMap;
-
     Program(SystemInterface* system);
     ~Program();
     
@@ -80,15 +78,13 @@ public:
     
     ObjectId addObject(Object* obj)
     {
-        ObjectId id(_nextId++);
-        _objects.emplace(id, obj);
+        ObjectId id(_objects.size());
+        _objects.push_back(obj);
         return id;
     }
-    const ObjectMap& objects() const { return _objects; }
-    Object* objectFromObjectId(const ObjectId& id)
+    Object* objectFromObjectId(const ObjectId& id) const
     {
-        Object* obj;
-        return _objects.find(id, obj) ? obj : nullptr;
+        return (id.raw() < _objects.size()) ? _objects[id.raw()] : nullptr;
     }
     
 protected:
@@ -99,8 +95,7 @@ private:
     AtomTable _atomTable;
     
     std::vector<char> _stringTable;
-    ObjectMap _objects;
-    uint32_t _nextId = 1;
+    std::vector<Object*> _objects;
     Global _global;
 };
     
