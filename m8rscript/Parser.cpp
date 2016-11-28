@@ -191,7 +191,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
         
-    addCodeByte(Op::PUSHID, 0x01);
+    addCodeByte((type == IdType::MightBeLocal) ? Op::PUSHIDREF : Op::PUSHID, 0x01);
     addCodeInt(atom.raw(), 2);
 }
 

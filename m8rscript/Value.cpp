@@ -293,18 +293,39 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
 bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 {
     assert(_type != Type::Id);
-    assert(*this);
     
-    Object* obj = nullptr;
-    ObjectId objectId = asObjectIdValue();
-    if (objectId) {
-        obj = eu->program()->obj(objectId);
-    }
+    Value bakedValue = bake(eu);
+    if (_type == TypeObject) {
+        Object* obj = eu->program()->obj(objectIdFromValue());
+        
+        // Fast path for indexing arrays
+        if (derefValue.isNumber()) {
+            int32_t index = derefValue.toIntValue(eu);
+            Value ref = obj->elementRef(index);
+            if (ref) {
+                *this = ref;
+                return true;
+            }
+            
+            // Handle like a property
+            String prop = Value::toString(index);
+            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
+            return true;
+        }
     
-    if (!obj) {
+    
+    
+    
+    
+    
+    
+    
+    if (_type != Type::Object) {
         Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' object does not exist"), toStringValue(eu).c_str());
         return false;
     }
+    
+    Object* obj = eu->program()->obj(objectIdFromValue());
     
     // Fast path for indexing arrays
     if (derefValue.isNumber()) {
