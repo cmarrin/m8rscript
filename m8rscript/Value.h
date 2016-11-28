@@ -239,9 +239,6 @@ private:
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
     inline ObjectId objectIdFromValue() const { U u; u.v = _value; return ObjectId(u.o); }
     
-    // Assumes we already know this is an ObjectId
-    Object* asObject(ExecutionUnit*) const;
-    
     void* _value;
     Type _type;
     uint16_t _id;

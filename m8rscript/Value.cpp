@@ -196,11 +196,11 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::String: return m8r::String(asStringValue());
         case Type::Id: return m8r::String(eu->program()->stringFromAtom(asIdValue()));
         case Type::PropertyRef: {
-            Object* obj = asObject(eu);
+            Object* obj = eu->program()->obj(*this);
             return obj ? obj->property(_id).toStringValue(eu) : m8r::String();
         }
         case Type::ElementRef: {
-            Object* obj = asObject(eu);
+            Object* obj = eu->program()->obj(*this);
             return obj ? obj->element(_id).toStringValue(eu) : m8r::String();
         }
         default: assert(0); return m8r::String();
@@ -227,11 +227,11 @@ bool Value::toBoolValue(ExecutionUnit* eu) const
         }
         case Type::Id: return false;
         case Type::PropertyRef: {
-            Object* obj = asObject(eu);
+            Object* obj = eu->program()->obj(*this);
             return obj ? obj->property(_id).toBoolValue(eu) : false;
         }
         case Type::ElementRef: {
-            Object* obj = asObject(eu);
+            Object* obj = eu->program()->obj(*this);
             return obj ? obj->element(_id).toBoolValue(eu) : false;
         }
         default: assert(0); return false;
@@ -271,16 +271,6 @@ Float Value::toFloatValue(ExecutionUnit* eu) const
     return Float();
 }
 
-// Assumes we already know this is an ObjectId
-inline Object* Value::asObject(ExecutionUnit* eu) const
-{
-    ObjectId id = objectIdFromValue();
-    if (id == Program::stackId()) {
-        return &(eu->stack());
-    }
-    return eu->program()->obj(id);
-}
-
 bool Value::setValue(ExecutionUnit* eu, const Value& v)
 {
     Object* obj;
@@ -290,10 +280,10 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
             obj = eu->program()->obj(*this);
             return obj ? (obj->setValue(eu, v.canBeBaked() ? v.bake(eu) : v)) : false;
         case Type::PropertyRef:
-            obj = asObject(eu);
+            obj = eu->program()->obj(*this);
             return obj ? (obj->setProperty(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) : false;
         case Type::ElementRef:
-            obj = asObject(eu);
+            obj = eu->program()->obj(*this);
             return obj ? (obj->setElement(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) : false;
         default:
             return false;
@@ -302,17 +292,13 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
 
 bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 {
+    assert(_type != Type::Id);
+    assert(*this);
+    
     Object* obj = nullptr;
-    if (_type == Type::Id) {
-        obj = eu->program()->global();
-        *this = obj->propertyRef(obj->propertyIndex(asIdValue()));
-    } else if (*this) {
-        ObjectId objectId = asObjectIdValue();
-        if (objectId) {
-            obj = (objectId == Program::stackId()) ? &(eu->stack()) : eu->program()->obj(objectId);
-        }
-    } else {
-        obj = eu->program()->global();
+    ObjectId objectId = asObjectIdValue();
+    if (objectId) {
+        obj = eu->program()->obj(objectId);
     }
     
     if (!obj) {
@@ -388,11 +374,11 @@ CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
 Value Value::bake(ExecutionUnit* eu) const
 {
     if (_type == Type::PropertyRef) {
-        Object* obj = asObject(eu);
+        Object* obj = eu->program()->obj(*this);
         return obj ? obj->property(_id) : Value();
     }
     if (_type == Type::ElementRef) {
-        Object* obj = asObject(eu);
+        Object* obj = eu->program()->obj(*this);
         return obj ? obj->element(_id) : Value();
     }
     return *this;

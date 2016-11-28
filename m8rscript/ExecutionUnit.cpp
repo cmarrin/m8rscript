@@ -83,16 +83,7 @@ CallReturnValue ExecutionUnit::call(uint32_t nparams, ObjectId objectId, bool is
 //        if (
 //    }
 
-    Value callee = _stack.top(-nparams);
-    if (callee.type() == Value::Type::Id) {
-        Value dereffedValue;
-        if (!dereffedValue.deref(this, callee)) {
-            checkTooManyErrors();
-        }
-        callee = dereffedValue;
-    }
-    
-    return callee.call(this, nparams);
+    return _stack.top(-nparams).call(this, nparams);
 //
 // On return the return address has:
 //      tos       ==> count returned values
@@ -101,13 +92,31 @@ CallReturnValue ExecutionUnit::call(uint32_t nparams, ObjectId objectId, bool is
 //
 }
 
+Value ExecutionUnit::derefId(Atom atom)
+{
+    // This atom is a property of the Program or Global objects
+    Object* object = _program;
+    int32_t index = _program->propertyIndex(atom);
+    if (index < 0) {
+        object = _program->global();
+        index = _program->global()->propertyIndex(atom);
+        if (index < 0) {
+            printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
+            return Value();
+        }
+    }
+    
+    return object->propertyRef(index);
+}
+
 void ExecutionUnit::startExecution(Program* program)
 {
     _terminate = false;
     _nerrors = 0;
     _pc = 0;
     _program = program;
-    _object = _program->programId();
+    _object = _program->objectId();
+    _program->setStack(&_stack);
     _stack.clear();
     _stack.setLocalFrame(0, _object ? _program->obj(_object)->localSize() : 0);
 }
@@ -142,7 +151,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
-        /* 0x34 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x34 */      OP(UNKNOWN)  OP(PUSHIDREF)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -220,6 +229,10 @@ static const uint16_t YieldCount = 2000;
         return -1;
     L_PUSHID:
         _stack.push(Atom(uintFromCode(_code, _pc, 2)));
+        _pc += 2;
+        DISPATCH;
+    L_PUSHIDREF:
+        _stack.push(derefId(Atom(uintFromCode(_code, _pc, 2))));
         _pc += 2;
         DISPATCH;
     L_PUSHF:
@@ -312,7 +325,7 @@ static const uint16_t YieldCount = 2000;
             op = maskOp(op, 0x0f);
         }
 
-        callReturnValue = call(uintValue, _object, op == Op::CALL || op == Op::CALLX);
+        callReturnValue = _stack.top(-uintValue).call(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue

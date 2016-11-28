@@ -73,7 +73,7 @@ struct Label {
 };
 
 //  Opcodes with params have bit patterns.
-//  Upper 2 bits are 00
+//  Upper 2 bits are 00 (values from 0x00 to 0x3f)
 //  The lower 2 bits indicate the number of additional bytes:
 //      00 - 1
 //      01 - 2
@@ -82,18 +82,19 @@ struct Label {
 //
 //  The next 4 bits is the opcode class:
 //      0000 - unused
-//      0001 - PUSHID   2 byte form used
-//      0010 - PUSHF    4 or 8 byte form used
-//      0011 - PUSHI    1, 2, 4, 8 byte forms used
-//      0100 - PUSHS    1, 2 and 4 byte forms used
-//      0101 - JMP      1 and 2 byte forms used
-//      0110 - JT       1 and 2 byte forms used
-//      0111 - JF       1 and 2 byte forms used
-//      1000 - CALL     1 byte form used
-//      1001 - NEW      1 byte form used
-//      1010 - PUSHO    4 byte form used
-//      1011 - RET      1 byte form used
-//      1100 - PUSHL    1 and 2 byte forms used - Push local variable. Param is index in _locals
+//      0001 - PUSHID       2 byte form used
+//      0010 - PUSHF        4 or 8 byte form used
+//      0011 - PUSHI        1, 2, 4, 8 byte forms used
+//      0100 - PUSHS        1, 2 and 4 byte forms used
+//      0101 - JMP          1 and 2 byte forms used
+//      0110 - JT           1 and 2 byte forms used
+//      0111 - JF           1 and 2 byte forms used
+//      1000 - CALL         1 byte form used
+//      1001 - NEW          1 byte form used
+//      1010 - PUSHO        4 byte form used
+//      1011 - RET          1 byte form used
+//      1100 - PUSHL        1 and 2 byte forms used - Push local variable. Param is index in _locals
+//      1101 - PUSHIDREF    2 byte form used (same as PUSHID, but used for bare refs)
 //
 enum class Op : uint8_t {
     UNKNOWN = 0x00,
@@ -112,6 +113,8 @@ enum class Op : uint8_t {
     PUSHO = 0x28,   // 0010 1010
     RETX = 0x2C,    // 0010 1100
     PUSHLX = 0x30,  // 0011 0000
+    
+    PUSHIDREF = 0x34, // 0011 0100
     
     PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
     CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15

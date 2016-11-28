@@ -177,6 +177,8 @@ private:
         assert(_codeSize);
         _code = &(_program->obj(_object)->code()->at(0));
     }
+    
+    Value derefId(Atom);
 
     uint32_t _pc = 0;
     Program* _program = nullptr;

@@ -109,7 +109,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
-        /* 0x34 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x34 */      OP(UNKNOWN)  OP(PUSHIDREF)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -228,10 +228,11 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_PUSHID:
+    L_PUSHIDREF:
         preamble(outputString, i - 1);
         strValue = program->stringFromAtom(Atom(ExecutionUnit::uintFromCode(code, i, 2)));
         i += 2;
-        outputString += "ID(";
+        outputString += (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHID) ? "ID(" : "IDREF(";
         outputString += strValue.c_str();
         outputString += ")\n";
         DISPATCH;
@@ -371,6 +372,8 @@ static CodeMap opcodes[] = {
     OP(PUSHO)
     OP(RETX)
     OP(PUSHLX)
+
+    OP(PUSHIDREF)
 
     OP(PUSHI)
     OP(CALL)

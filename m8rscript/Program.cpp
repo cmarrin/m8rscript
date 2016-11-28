@@ -41,9 +41,10 @@ Program::Program(SystemInterface* system) : _global(system, this)
 {
     // The program pointer always occupies index 0 of the _objects array
     _objects.push_back(this);
+    setObjectId(ObjectId(0));
     
-    // A dummy StackId goes next. This is stored as a nullptr and is just a
-    // placeholder so we can put a StackId into a Value
+    // StackId goes next. The setStackId call will set it to the right
+    // value for the current ExecutionUnit
     assert(_objects.size() == StackId);
     _objects.push_back(nullptr);
     

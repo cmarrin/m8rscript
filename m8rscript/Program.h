@@ -54,9 +54,10 @@ public:
 
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
-    ObjectId programId() const { return ObjectId(0); }
     
     SystemInterface* system() const { return _global.system(); }
+
+    void setStack(Object* stack) { _objects[StackId] = stack; }
     
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
@@ -109,7 +110,8 @@ protected:
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
-    // We will store a nullptr in _objects[StackId] so we can store that id in Values to indicate the stack
+    // The Id of the stack. This will be filled in with the stack of the current ExecutionUnit with the
+    // setStackId() call.
     static constexpr ObjectId::value_type StackId = 1; // First value after the Program itself.
     
     AtomTable _atomTable;
