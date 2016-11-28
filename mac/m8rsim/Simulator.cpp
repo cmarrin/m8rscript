@@ -79,7 +79,7 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
     
     m8r::VectorStream stream;
     m8r::Error error;
-    if (!_shell.program()->serializeObject(&stream, error)) {
+    if (!_shell.program()->serializeObject(&stream, error, _shell.program())) {
         error.showError(_system);
         return false;
     }

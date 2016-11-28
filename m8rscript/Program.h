@@ -45,8 +45,6 @@ class Object;
 class Function;
 class SystemInterface;
 
-typedef Id<uint16_t> ObjectId;
-
 class Program : public Function {
 public:
     Program(SystemInterface* system);
@@ -56,6 +54,7 @@ public:
 
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
+    ObjectId programId() const { return ObjectId(0); }
     
     SystemInterface* system() const { return _global.system(); }
     
@@ -82,16 +81,37 @@ public:
         _objects.push_back(obj);
         return id;
     }
-    Object* objectFromObjectId(const ObjectId& id) const
+    
+    bool isValid(const ObjectId& id) const { return id.raw() < _objects.size(); }
+    
+    Object* obj(const Value& value) const
     {
-        return (id.raw() < _objects.size()) ? _objects[id.raw()] : nullptr;
+        ObjectId id = value.asObjectIdValue();
+        return id ? obj(id) : nullptr;
     }
     
+    Object* obj(const ObjectId& id) const
+    {
+        return _objects[id.raw()];
+    }
+    
+    Function* func(const Value& value) const { return value.isObjectId() ? func(value.asObjectIdValue()) : nullptr; }
+    Function* func(const ObjectId& id) const
+    {
+        Object* object = obj(id);
+        return object->isFunction() ? static_cast<Function*>(object) : nullptr;
+    }
+    
+    static ObjectId stackId() { return ObjectId(StackId); }
+    
 protected:
-    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
+    // We will store a nullptr in _objects[StackId] so we can store that id in Values to indicate the stack
+    static constexpr ObjectId::value_type StackId = 1; // First value after the Program itself.
+    
     AtomTable _atomTable;
     
     std::vector<char> _stringTable;

@@ -74,7 +74,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
     m8r::String outputString;
     
 	for (uint16_t i = 0; ; i++) {
-        Object* obj = program->objectFromObjectId(i);
+        Object* obj = program->obj(ObjectId(i));
         if (!obj) {
             break;
         }
@@ -105,7 +105,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -175,9 +175,10 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         if (value.isNone()) {
             continue;
         }
-        if (value.asObjectValue() && value.asObjectValue()->code()) {
+        Object* object = program->obj(value);
+        if (object && object->code()) {
             Atom name = obj->propertyName(i);
-            outputString += generateCodeString(program, value.asObjectValue(), program->stringFromAtom(name).c_str(), _nestingLevel);
+            outputString += generateCodeString(program, object, program->stringFromAtom(name).c_str(), _nestingLevel);
             outputString += "\n";
         }
     }
@@ -268,7 +269,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         DISPATCH;
     L_PUSHO:
         preamble(outputString, i - 1);
-        uintValue = ExecutionUnit::uintFromCode(code, i, 4);
+        uintValue = ExecutionUnit::uintFromCode(code, i, 2);
         i += 4;
         outputString += "OBJ(";
         outputString += Value::toString(uintValue);

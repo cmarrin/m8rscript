@@ -64,12 +64,14 @@ public:
     
     virtual const char* typeName() const = 0;
     
+    virtual bool isFunction() const { return false; }
+    
     virtual const Code* code() const { return nullptr; }
     
     virtual int32_t propertyIndex(const Atom& s) { return -1; }
     virtual Value propertyRef(int32_t index) { return Value(); }
     virtual const Value property(int32_t index) const { return Value(); }
-    virtual bool setProperty(int32_t index, const Value&) { return false; }
+    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value&) { return false; }
     virtual Atom propertyName(uint32_t index) const { return Atom(); }
     virtual int32_t addProperty(const Atom&) { return -1; }
     virtual size_t propertyCount() const { return 0; }
@@ -78,8 +80,8 @@ public:
     
     virtual Value elementRef(int32_t index) { return Value(); }
     virtual const Value element(uint32_t index) const { return Value(); }
-    virtual bool setElement(uint32_t index, const Value&) { return false; }
-    virtual bool appendElement(const Value&) { return false; }
+    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value&) { return false; }
+    virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     virtual size_t elementCount() const { return 0; }
     virtual void setElementCount(size_t) { }
     
@@ -88,16 +90,19 @@ public:
     virtual Atom localName(int32_t index) const { return Atom(); }
     virtual size_t localSize() const { return 0; }
 
-    virtual bool setValue(const Value&) { return false; }
+    virtual bool setValue(ExecutionUnit*, const Value&) { return false; }
     virtual Value* value() { return nullptr; }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
 
-    bool serializeObject(Stream*, Error&) const;
+    bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
-    virtual bool serialize(Stream*, Error&) const = 0;
+    virtual bool serialize(Stream*, Error&, Program*) const = 0;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) = 0;
 
+    void setObjectId(ObjectId id) { _objectId = id; }
+    ObjectId objectId() const { return _objectId; }
+    
 protected:    
     bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
     
@@ -111,6 +116,10 @@ protected:
     bool deserializeRead(Stream*, Error&, ObjectDataType&) const;
     bool deserializeRead(Stream*, Error&, uint8_t&) const;
     bool deserializeRead(Stream*, Error&, uint16_t&) const;
+
+private:
+    ObjectId _objectId;
+
 };
     
 class MaterObject : public Object {
@@ -123,9 +132,9 @@ public:
     {
         return findPropertyIndex(name);
     }
-    virtual Value propertyRef(int32_t index) override { return Value(this, index, true); }
+    virtual Value propertyRef(int32_t index) override { return Value(objectId(), index, true); }
     virtual const Value property(int32_t index) const override { return _properties[index].value; }
-    virtual bool setProperty(int32_t index, const Value& v) override
+    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value& v) override
     {
         _properties[index].value = v;
         return true;
@@ -145,7 +154,7 @@ public:
     virtual size_t propertyCount() const override { return _properties.size(); }
 
 protected:
-    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:

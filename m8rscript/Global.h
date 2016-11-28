@@ -53,7 +53,7 @@ public:
     virtual int32_t propertyIndex(const Atom& s) override;
     virtual Value propertyRef(int32_t index) override;
     virtual const Value property(int32_t index) const override;
-    virtual bool setProperty(int32_t index, const Value&) override;
+    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value&) override;
     virtual Atom propertyName(uint32_t index) const override;
     virtual size_t propertyCount() const override;
     virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
@@ -63,7 +63,7 @@ public:
     SystemInterface* system() const { return _system; }
 
 protected:
-    virtual bool serialize(Stream*, Error&) const override
+    virtual bool serialize(Stream*, Error&, Program*) const override
     {
         return true;
     }

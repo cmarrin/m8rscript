@@ -200,18 +200,18 @@ void Parser::emit(Op value)
     addCodeByte(value);
 }
 
-void Parser::emit(Function* obj)
+void Parser::emit(ObjectId function)
 {
-    addCodeByte(Op::PUSHO, 0x02);
-    addCodeInt(_program->addObject(obj).raw(), 4);
+    addCodeByte(Op::PUSHO, 0x01);
+    addCodeInt(function.raw(), 2);
 }
 
-void Parser::addNamedFunction(Function* function, const Atom& name)
+void Parser::addNamedFunction(ObjectId functionId, const Atom& name)
 {
     assert(name);
     int32_t index = _currentFunction->addProperty(name);
     assert(index >= 0);
-    _currentFunction->setProperty(index, function);
+    _currentFunction->setProperty(nullptr, index, functionId);
 }
 
 void Parser::emitWithCount(Op value, uint32_t nparams)
@@ -252,6 +252,8 @@ void Parser::functionStart()
 {
     _functions.push_back(_currentFunction);
     _currentFunction = new Function();
+    ObjectId functionId = _program->addObject(_currentFunction);
+    _currentFunction->setObjectId(functionId);
 }
 
 void Parser::functionParamsEnd()
@@ -259,13 +261,14 @@ void Parser::functionParamsEnd()
     _currentFunction->markParamEnd();
 }
 
-Function* Parser::functionEnd()
+ObjectId Parser::functionEnd()
 {
     assert(_currentFunction && _functions.size());
     Function* function = _currentFunction;
     _currentFunction = _functions.back();
     _functions.pop_back();
-    return function;
+    ObjectId functionId = _program->addObject(function);
+    return functionId;
 }
 
 void Parser::programEnd()

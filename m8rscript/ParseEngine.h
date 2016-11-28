@@ -112,7 +112,7 @@ private:
     bool leftHandSideExpression();
     bool primaryExpression();
     
-    Function* function();
+    ObjectId function();
     uint32_t argumentList();
     void forLoopCondAndIt();
     bool propertyAssignment();

@@ -41,14 +41,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-bool ExecutionUnit::printError(const char* format, ...) const
+bool ExecutionUnit::checkTooManyErrors() const
 {
-    ++_nerrors;
-    va_list args;
-    va_start(args, format);
-    Error::vprintError(_system, Error::Code::RuntimeError, format, args);
-    
-    if (_nerrors >= 10) {
+    if (++_nerrors >= 10) {
         if (_system) {
             _system->printf(ROMSTR("\n\nToo many runtime errors, exiting...\n"));
             _terminate = true;
@@ -58,13 +53,21 @@ bool ExecutionUnit::printError(const char* format, ...) const
     return true;
 }
 
+bool ExecutionUnit::printError(const char* format, ...) const
+{
+    va_list args;
+    va_start(args, format);
+    Error::vprintError(_system, Error::Code::RuntimeError, format, args);
+    return checkTooManyErrors();
+}
+
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 {
     // Start at the current object and walk up the chain
     return nullptr;
 }
 
-CallReturnValue ExecutionUnit::call(Program* program, uint32_t nparams, Object* obj, bool isNew)
+CallReturnValue ExecutionUnit::call(uint32_t nparams, ObjectId objectId, bool isNew)
 {
 // On entry the stack has:
 //      tos           ==> nparams values
@@ -82,7 +85,11 @@ CallReturnValue ExecutionUnit::call(Program* program, uint32_t nparams, Object* 
 
     Value callee = _stack.top(-nparams);
     if (callee.type() == Value::Type::Id) {
-        callee = deref(program, nullptr, callee);
+        Value dereffedValue;
+        if (!dereffedValue.deref(this, callee)) {
+            checkTooManyErrors();
+        }
+        callee = dereffedValue;
     }
     
     return callee.call(this, nparams);
@@ -94,118 +101,20 @@ CallReturnValue ExecutionUnit::call(Program* program, uint32_t nparams, Object* 
 //
 }
 
-Value ExecutionUnit::deref(Program* program, Object* obj, const Value& derefValue)
-{
-    if (derefValue.isInteger()) {
-        return Value();
-    }
-    
-    if (!obj && derefValue.type() == Value::Type::Id) {
-        // First see if this is a callable property of the main function
-        // FIXME: Need to walk up the function chain
-        Atom name = derefValue.asIdValue();
-        Object* testObj = program;
-        for (uint32_t i = 0; i < testObj->propertyCount(); ++i) {
-            const Value& value = testObj->property(i);
-            if (value.isNone()) {
-                continue;
-            }
-            if (value.asObjectValue() && value.asObjectValue()->code()) {
-                if (testObj->propertyName(i) == name) {
-                    return value;
-                }
-            }
-        }
-    }
-    
-    if (!obj) {
-        obj = program->global();
-    }
-
-    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue));
-    if (index < 0) {
-        printError(ROMSTR("no property '%s' in '%s' Object"), derefValue.toStringValue(_program).c_str(), obj->typeName());
-        return Value();
-    }
-    return obj->propertyRef(index);
-}
-
-bool ExecutionUnit::deref(Program* program, Value& objectValue, const Value& derefValue)
-{
-    bool exists = true;
-    
-    if (objectValue.type() == Value::Type::Id) {
-        objectValue = deref(program, program->global(), objectValue);
-        if (!objectValue.isNone()) {
-            return deref(program, objectValue, derefValue);
-        }
-        exists = false;
-    }
-    
-    if (exists && objectValue.type() == Value::Type::PropertyRef) {
-        objectValue = objectValue.appendPropertyRef(derefValue);
-        if (!objectValue.isNone()) {
-            return true;
-        }
-        exists = false;
-    }
-
-    if (!exists) {
-        return printError(ROMSTR("    '%s' property does not exist"), derefValue.toStringValue(_program).c_str());
-    }
-    
-    Object* obj = objectValue.toObjectValue();
-    if (!obj) {
-        return false;
-    }
-    if (derefValue.isInteger()) {
-        Value elementRef = obj->elementRef(derefValue.toIntValue());
-        if (!elementRef.isNone()) {
-            objectValue = elementRef;
-            return true;
-        }
-    }
-    int32_t index = obj->propertyIndex(propertyNameFromValue(program, derefValue));
-    if (index < 0) {
-        return false;
-    }
-    objectValue = obj->propertyRef(index);
-    return true;
-}
-
-Atom ExecutionUnit::propertyNameFromValue(Program* program, const Value& value)
-{
-    if (value.canBeBaked()) {
-        return propertyNameFromValue(program, value.bakeValue());
-    }
-    switch(value.type()) {
-        case Value::Type::String: return program->atomizeString(value.asStringValue());
-        case Value::Type::Id: return value.asIdValue();
-        case Value::Type::Integer: {
-            return program->atomizeString(Value::toString(value.asIntValue()).c_str());
-        }
-        case Value::Type::Float: {
-            return program->atomizeString(Value::toString(value.asFloatValue()).c_str());
-        }
-        default: break;
-    }
-    return Atom();
-}
-
 void ExecutionUnit::startExecution(Program* program)
 {
     _terminate = false;
     _nerrors = 0;
     _pc = 0;
     _program = program;
-    _object = program;
+    _object = _program->programId();
     _stack.clear();
-    _stack.setLocalFrame(0, _object ? _object->localSize() : 0);
+    _stack.setLocalFrame(0, _object ? _program->obj(_object)->localSize() : 0);
 }
 
-void ExecutionUnit::startFunction(Function* function, uint32_t nparams)
+void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
-    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, _object->localSize())), Value::Type::PreviousFrame));
+    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, _program->obj(_object)->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
@@ -229,7 +138,7 @@ int32_t ExecutionUnit::continueExecution()
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -337,9 +246,9 @@ static const uint16_t YieldCount = 2000;
         _stack.push(Value(_program->stringFromStringLiteral(StringLiteral(uintValue))));
         DISPATCH;
     L_PUSHO:
-        uintValue = uintFromCode(_code, _pc, 4);
-        _pc += 4;
-        _stack.push(_program->objectFromObjectId(ObjectId(uintValue)));
+        uintValue = uintFromCode(_code, _pc, 2);
+        _pc += 2;
+        _stack.push(ObjectId(uintValue));
         DISPATCH;
     L_PUSHL:
     L_PUSHLX:
@@ -354,10 +263,14 @@ static const uint16_t YieldCount = 2000;
         _stack.push(_stack.elementRef(intValue));
         DISPATCH;
     L_PUSHLITA:
-        _stack.push(new Array(_program));
+        objectValue = new Array(_program);
+        objectValue->setObjectId(_program->addObject(objectValue));
+        _stack.push(_program->addObject(objectValue));
         DISPATCH;
     L_PUSHLITO:
-        _stack.push(new MaterObject());
+        objectValue = new MaterObject();
+        objectValue->setObjectId(_program->addObject(objectValue));
+        _stack.push(_program->addObject(objectValue));
         DISPATCH;
     L_PUSHTRUE:
         _stack.push(true);
@@ -377,7 +290,7 @@ static const uint16_t YieldCount = 2000;
         _pc += size;
         if (op != Op::JMP) {
             _stack.pop(leftValue);
-            boolValue = leftValue.toBoolValue();
+            boolValue = leftValue.toBoolValue(this);
             if (op == Op::JT) {
                 boolValue = !boolValue;
             }
@@ -399,7 +312,7 @@ static const uint16_t YieldCount = 2000;
             op = maskOp(op, 0x0f);
         }
 
-        callReturnValue = call(_program, uintValue, _object, op == Op::CALL || op == Op::CALLX);
+        callReturnValue = call(uintValue, _object, op == Op::CALL || op == Op::CALLX);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue
@@ -427,7 +340,7 @@ static const uint16_t YieldCount = 2000;
     L_RETX:
     L_END:
         if (_terminate || op == Op::END) {
-            if (_terminate || _program == _object) {
+            if (_terminate || _program == _program->obj(_object)) {
                 // We've hit the end of the program
                 if (!_terminate) {
                     assert(_stack.validateFrame(0, _program->localSize()));
@@ -458,7 +371,7 @@ static const uint16_t YieldCount = 2000;
         
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
-        _object = leftValue.asObjectValue();
+        _object = leftValue.asObjectIdValue();
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
         _stack.pop(leftValue);
@@ -473,23 +386,23 @@ static const uint16_t YieldCount = 2000;
         _stack.push(returnedValue);
         DISPATCH;
     L_ADD:
-        _stack.popBaked(rightValue);
-        _stack.topBaked(leftValue);
+        _stack.popBaked(this, rightValue);
+        _stack.topBaked(this, leftValue);
 
         if (leftValue.isInteger() && rightValue.isInteger()) {
-            _stack.setTop(leftValue.toIntValue() + rightValue.toIntValue());
+            _stack.setTop(leftValue.toIntValue(this) + rightValue.toIntValue(this));
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
-            _stack.setTop(leftValue.toFloatValue() + rightValue.toFloatValue());
+            _stack.setTop(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
         } else {
-            m8r::String s = leftValue.toStringValue(_program);
-            s += rightValue.toStringValue(_program);
+            m8r::String s = leftValue.toStringValue(this);
+            s += rightValue.toStringValue(this);
             _stack.setTop(s.c_str());
         }
         DISPATCH;
     L_UNOP:
-        _stack.topBaked(rightValue);
+        _stack.topBaked(this, rightValue);
         if (rightValue.isInteger() || op != Op::UMINUS) {
-            rightIntValue = rightValue.toIntValue();
+            rightIntValue = rightValue.toIntValue(this);
             switch(op) {
                 case Op::UMINUS: _stack.setTop(-rightIntValue); break;
                 case Op::UNEG: _stack.setTop(~rightIntValue); break;
@@ -498,14 +411,14 @@ static const uint16_t YieldCount = 2000;
             }
         } else {
             assert(op == Op::UMINUS);
-            _stack.setTop(-rightValue.toFloatValue());
+            _stack.setTop(-rightValue.toFloatValue(this));
         }
         DISPATCH;
     L_BINIOP:
-        _stack.popBaked(rightValue);
-        rightIntValue = rightValue.toIntValue();
-        _stack.topBaked(leftValue);
-        leftIntValue = leftValue.toIntValue();
+        _stack.popBaked(this, rightValue);
+        rightIntValue = rightValue.toIntValue(this);
+        _stack.topBaked(this, leftValue);
+        leftIntValue = leftValue.toIntValue(this);
         switch(op) {
             case Op::LOR: _stack.setTop(leftIntValue || rightIntValue); break;
             case Op::LAND: _stack.setTop(leftIntValue && rightIntValue); break;
@@ -521,11 +434,11 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
 
     L_BINOP:
-        _stack.popBaked(rightValue);
-        _stack.topBaked(leftValue);
+        _stack.popBaked(this, rightValue);
+        _stack.topBaked(this, leftValue);
         if (leftValue.isInteger() && rightValue.isInteger()) {
-            leftIntValue = leftValue.toIntValue();
-            rightIntValue = rightValue.toIntValue();
+            leftIntValue = leftValue.toIntValue(this);
+            rightIntValue = rightValue.toIntValue(this);
             switch(op) {
                 case Op::EQ: _stack.setTop(leftIntValue == rightIntValue); break;
                 case Op::NE: _stack.setTop(leftIntValue != rightIntValue); break;
@@ -540,8 +453,8 @@ static const uint16_t YieldCount = 2000;
                 default: assert(0); break;
             }
         } else {
-            leftFloatValue = leftValue.toFloatValue();
-            rightFloatValue = rightValue.toFloatValue();
+            leftFloatValue = leftValue.toFloatValue(this);
+            rightFloatValue = rightValue.toFloatValue(this);
                
             switch(op) {
                 case Op::EQ: _stack.setTop(leftFloatValue == rightFloatValue); break;
@@ -559,20 +472,20 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_STOA:
-        objectValue = _stack.top(-1).asObjectValue();
+        objectValue = _program->obj(_stack.top(-1));
         if (!objectValue) {
             printError(ROMSTR("target of STOA must be an Object"));
         } else {
-            objectValue->appendElement(_stack.top());
+            objectValue->appendElement(this, _stack.top());
         }
         _stack.pop();
         DISPATCH;
     L_STOO:
-        objectValue = _stack.top(-2).asObjectValue();
+        objectValue = _program->obj(_stack.top(-2));
         if (!objectValue) {
             printError(ROMSTR("target of STOO must be an Object"));
         } else {
-            Atom name = propertyNameFromValue(_program, _stack.top(-1));
+            Atom name = _program->atomizeString(_stack.top(-1).toStringValue(this).c_str());
             if (!name) {
                 printError(ROMSTR("Object literal property name must be id, string, integer or float"));
             } else {
@@ -580,57 +493,57 @@ static const uint16_t YieldCount = 2000;
                 if (index < 0) {
                     printError(ROMSTR("Invalid property '%s' for Object literal"), _program->stringFromAtom(name).c_str());
                 }
-                objectValue->setProperty(index, _stack.top());
+                objectValue->setProperty(this, index, _stack.top());
             }
         }
         _stack.pop();
         _stack.pop();
         DISPATCH;
     L_STO:
-        if (!_stack.top(-1).setValue(_stack.top())) {
-            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(_program).c_str());
+        if (!_stack.top(-1).setValue(this, _stack.top())) {
+            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(this).c_str());
         }
         _stack.pop();
         DISPATCH;
     L_STOELT:
-        objectValue = _stack.top(-2).toObjectValue();
+        objectValue = _program->obj(_stack.top(-2));
         if (!objectValue) {
             printError(ROMSTR("Can only assign to an element of an object"));
         }
         leftValue = _stack.top();
-        if (!objectValue->setElement(_stack.top(-1).toIntValue(), leftValue)) {
-            printError(ROMSTR("Attempted to assign to nonexistant element %d"), _stack.top(-1).toIntValue());
+        if (!objectValue->setElement(this, _stack.top(-1).toIntValue(this), leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant element %d"), _stack.top(-1).toIntValue(this));
         }
         _stack.pop(2);
         _stack.setTop(leftValue);
         DISPATCH;
     L_STOPROP:
-        objectValue = _stack.top(-2).toObjectValue();
+        objectValue = _program->obj(_stack.top(-2));
         if (!objectValue) {
             printError(ROMSTR("Can only assign to a property of an object"));
         }
         leftValue = _stack.top();
-        if (!objectValue->setProperty(_stack.top(-1).toIntValue(), leftValue)) {
-            printError(ROMSTR("Attempted to assign to nonexistant property %d"), _stack.top(-1).toIntValue());
+        if (!objectValue->setProperty(this, _stack.top(-1).toIntValue(this), leftValue)) {
+            printError(ROMSTR("Attempted to assign to nonexistant property %d"), _stack.top(-1).toIntValue(this));
         }
         _stack.pop(2);
         _stack.setTop(leftValue);
         DISPATCH;
     L_PREINC:
-        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        _stack.top().setValue(this, _stack.top().toIntValue(this) + 1);
         DISPATCH;
     L_PREDEC:
-        _stack.top().setValue(_stack.top().toIntValue() + 1);
+        _stack.top().setValue(this, _stack.top().toIntValue(this) + 1);
         DISPATCH;
     L_POSTINC:
         if (!_stack.top().isLValue()) {
             printError(ROMSTR("Must have an lvalue for POSTINC"));
         } else {
-            if (!_stack.top().isInteger()) {
+            leftValue = _stack.top().bake(this);
+            if (!leftValue.isInteger()) {
                 printError(ROMSTR("Must have an integer value for POSTINC"));
             }
-            leftValue = _stack.top().bakeValue();
-            _stack.top().setValue(_stack.top().toIntValue() + 1);
+            _stack.top().setValue(this, _stack.top().toIntValue(this) + 1);
             _stack.setTop(leftValue);
         }
         DISPATCH;
@@ -641,8 +554,8 @@ static const uint16_t YieldCount = 2000;
             if (!_stack.top().isInteger()) {
                 printError(ROMSTR("Must have an integer value for POSTDEC"));
             }
-            leftValue = _stack.top().bakeValue();
-            _stack.top().setValue(_stack.top().toIntValue() - 1);
+            leftValue = _stack.top().bake(this);
+            _stack.top().setValue(this, _stack.top().toIntValue(this) - 1);
             _stack.setTop(leftValue);
         }
         DISPATCH;
@@ -650,7 +563,7 @@ static const uint16_t YieldCount = 2000;
         _stack.pop();
         DISPATCH;
     L_STOPOP:
-        _stack.top(-1).setValue(_stack.top());
+        _stack.top(-1).setValue(this, _stack.top());
         _stack.pop();
         _stack.pop();
         DISPATCH;
@@ -658,7 +571,9 @@ static const uint16_t YieldCount = 2000;
         _stack.push(_stack.top());
         DISPATCH;
     L_DEREF:
-        deref(_program, _stack.top(-1), _stack.top());
+        if (!_stack.top(-1).deref(this, _stack.top())) {
+            checkTooManyErrors();
+        }
         _stack.pop();
         DISPATCH;
     L_OPCODE:

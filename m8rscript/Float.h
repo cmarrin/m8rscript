@@ -56,6 +56,8 @@ public:
         RawType _raw;
     };
     
+    typedef RawType value_type;
+    
     static constexpr int32_t BinaryExponent = BinExp;
     static constexpr int32_t DecimalExponent = DecExp;
     static constexpr int32_t DecimalMultiplier = exp(1, DecExp);
@@ -106,11 +108,7 @@ public:
         _value._raw = sign * static_cast<int32_t>(num);
     }
     
-    // FIXME: This works fine for floats and 32 bit integers. We need a solution for 64 bit
-    uint64_t raw() const
-    {
-        RawType r = _value._raw;
-        return (sizeof(RawType) > 32) ? *(reinterpret_cast<uint64_t*>(&(r))) : *(reinterpret_cast<uint32_t*>(&(r)));
+    RawType raw() const { return _value._raw; 
     }
     static _Float make(uint64_t v)
     {

@@ -41,7 +41,7 @@ using namespace m8r;
 
 CallReturnValue Function::call(ExecutionUnit* eu, uint32_t nparams)
 {
-    eu->startFunction(this, nparams);
+    eu->startFunction(objectId(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
@@ -66,7 +66,7 @@ int32_t Function::localIndex(const Atom& name) const
     return -1;
 }
 
-bool Function::serialize(Stream* stream, Error& error) const
+bool Function::serialize(Stream* stream, Error& error, Program* program) const
 {
     if (!serializeWrite(stream, error, ObjectDataType::ObjectStart)) {
         return false;
@@ -77,7 +77,7 @@ bool Function::serialize(Stream* stream, Error& error) const
         return false;
     }
     
-    if (!serializeContents(stream, error)) {
+    if (!serializeContents(stream, error, program)) {
         return false;
     }
 
@@ -118,9 +118,9 @@ bool Function::deserialize(Stream* stream, Error& error, Program* program, const
     return true;
 }
 
-bool Function::serializeContents(Stream* stream, Error& error) const
+bool Function::serializeContents(Stream* stream, Error& error, Program* program) const
 {
-    if (!MaterObject::serialize(stream, error)) {
+    if (!MaterObject::serialize(stream, error, program)) {
         return false;
     }
     if (!serializeBuffer(stream, error, ObjectDataType::Locals, 

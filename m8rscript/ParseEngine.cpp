@@ -173,7 +173,7 @@ bool ParseEngine::functionDeclaration()
     retireToken();
     Atom name = getTokenValue().atom;
     expect(Token::Identifier);
-    Function* f = function();
+    ObjectId f = function();
     _parser->addNamedFunction(f, name);
     return true;
 }
@@ -434,7 +434,7 @@ bool ParseEngine::leftHandSideExpression()
     
     if (getToken() == Token::Function) {
         retireToken();
-        Function* f = function();
+        ObjectId f = function();
         _parser->emit(f);
         return true;
     }
@@ -549,7 +549,7 @@ bool ParseEngine::propertyName()
     }
 }
 
-Function* ParseEngine::function()
+ObjectId ParseEngine::function()
 {
     expect(Token::LParen);
     _parser->functionStart();

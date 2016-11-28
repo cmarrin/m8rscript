@@ -68,6 +68,8 @@ public:
         RawType _raw;
     };
     
+    typedef RawType value_type;
+    
     Id() { _value._raw = NoId; }
     Id(Raw raw) { _value._raw = raw._raw; }
     Id(RawType raw) { _value._raw = raw; }
@@ -90,7 +92,9 @@ private:
     Raw _value;
 };
 
-typedef Id<uint32_t> StringLiteral;
+class StringLiteral : public Id<uint32_t> { using Id::Id; };
+class ObjectId : public Id<uint16_t> { using Id::Id; };
+class Atom : public Id<uint16_t> { using Id::Id; };
 
 //////////////////////////////////////////////////////////////////////////////
 //

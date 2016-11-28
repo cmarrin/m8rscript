@@ -55,7 +55,7 @@ int32_t Array::propertyIndex(const Atom& name)
 Value Array::propertyRef(int32_t index)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Length: return Value(this, static_cast<int32_t>(Property::Length), true);
+        case Property::Length: return Value(objectId(), static_cast<int32_t>(Property::Length), true);
         default: return Value();
     }
 }
@@ -68,10 +68,10 @@ const Value Array::property(int32_t index) const
     }
 }
 
-bool Array::setProperty(int32_t index, const Value& value)
+bool Array::setProperty(ExecutionUnit* eu, int32_t index, const Value& value)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Length: _array.resize(value.toUIntValue()); return true;
+        case Property::Length: _array.resize(value.toUIntValue(eu)); return true;
         default: return false;
     }
 }

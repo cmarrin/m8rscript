@@ -48,6 +48,8 @@ public:
     virtual ~Function() { }
 
     virtual const char* typeName() const override { return "Function"; }
+    
+    virtual bool isFunction() const override { return true; }
 
     virtual const Code* code() const override { return &_code; }
 
@@ -62,11 +64,11 @@ public:
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
 
-    virtual bool serialize(Stream*, Error&) const override;
+    virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
     
 protected:
-    bool serializeContents(Stream*, Error&) const;
+    bool serializeContents(Stream*, Error&, Program*) const;
     bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
 private:

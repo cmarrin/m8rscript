@@ -109,7 +109,7 @@ int32_t Global::propertyIndex(const Atom& name)
 
 Value Global::propertyRef(int32_t index)
 {
-    return Value(this, index, true);
+    return Value(objectId(), index, true);
 }
 
 const Value Global::property(int32_t index) const
@@ -131,7 +131,7 @@ const Value Global::property(int32_t index) const
     }
 }
 
-bool Global::setProperty(int32_t index, const Value& value)
+bool Global::setProperty(ExecutionUnit*, int32_t index, const Value& value)
 {
     switch(static_cast<Property>(index)) {
         case Property::Date: return true;
@@ -234,7 +234,7 @@ Value Global::appendPropertyRef(uint32_t index, const Atom& name)
             break;
     }
 
-    return (newProperty == Property::None) ? Value() : Value(this, static_cast<uint16_t>(newProperty), true);
+    return (newProperty == Property::None) ? Value() : Value(objectId(), static_cast<uint16_t>(newProperty), true);
 }
 
 CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
@@ -248,19 +248,19 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
         case Property::Serial_print:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue(eu->program()).c_str());
+                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
                 }
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Serial_printf:
             for (int i = 1 - nparams; i <= 0; ++i) {
                 if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue(eu->program()).c_str());
+                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
                 }
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         case Property::Base64_encode: {
-            String inString = eu->stack().top().toStringValue(eu->program());
+            String inString = eu->stack().top().toStringValue(eu);
             size_t inLength = inString.size();
             size_t outLength = (inLength * 4 + 2) / 3 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
@@ -278,7 +278,7 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::Base64_decode: {
-            String inString = eu->stack().top().toStringValue(eu->program());
+            String inString = eu->stack().top().toStringValue(eu);
             size_t inLength = inString.size();
             size_t outLength = (inLength * 3 + 3) / 4 + 1;
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
@@ -294,18 +294,18 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toUIntValue();
+            uint32_t ms = eu->stack().top().toUIntValue(eu);
             return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
         }
         case Property::GPIO_setPinMode: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue() : 0;
-            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toUIntValue()) : GPIO::PinMode::Input;
+            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue(eu) : 0;
+            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toUIntValue(eu)) : GPIO::PinMode::Input;
             _system->gpio().setPinMode(pin, mode);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue() : 0;
-            bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue() : false;
+            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue(eu) : 0;
+            bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
             _system->gpio().digitalWrite(pin, level);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }

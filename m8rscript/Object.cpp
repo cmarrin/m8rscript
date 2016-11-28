@@ -146,7 +146,7 @@ bool Object::deserializeRead(Stream* stream, Error& error, uint16_t& value) cons
     return true;
 }
 
-bool Object::serializeObject(Stream* stream, Error& error) const
+bool Object::serializeObject(Stream* stream, Error& error, Program* program) const
 {
     if (!serializeWrite(stream, error, ObjectDataType::Type)) {
         return error.setError(Error::Code::Write);
@@ -171,7 +171,7 @@ bool Object::serializeObject(Stream* stream, Error& error) const
         return error.setError(Error::Code::Write);
     }
 
-    if (!serialize(stream, error)) {
+    if (!serialize(stream, error, program)) {
         return false;
     }
 
@@ -245,7 +245,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
-bool MaterObject::serialize(Stream* stream, Error& error) const
+bool MaterObject::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the Function properties
     if (!serializeWrite(stream, error, ObjectDataType::PropertyCount)) {
@@ -258,7 +258,7 @@ bool MaterObject::serialize(Stream* stream, Error& error) const
         return false;
     }
     for (auto entry : _properties) {
-        Object* obj = entry.value.toObjectValue();
+        Object* obj = program->obj(entry.value);
         // Only store functions
         if (!obj || !obj->code()) {
             continue;
@@ -272,7 +272,7 @@ bool MaterObject::serialize(Stream* stream, Error& error) const
         if (!serializeWrite(stream, error, entry.key.raw())) {
             return false;
         }
-        if (!obj->serialize(stream, error)) {
+        if (!obj->serialize(stream, error, program)) {
             return false;
         }
     }
@@ -315,7 +315,9 @@ bool MaterObject::deserialize(Stream* stream, Error& error, Program* program, co
         String idString = atomTable.stringFromAtom(Atom(id));
         Atom atom = program->atomizeString(idString.c_str());
         
-        _properties.push_back({ atom.raw(), function });
+        ObjectId functionId = program->addObject(function);
+        function->setObjectId(functionId);
+        _properties.push_back({ atom.raw(), functionId });
     }
     
     return true;

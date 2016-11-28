@@ -39,13 +39,23 @@ using namespace m8r;
 
 Program::Program(SystemInterface* system) : _global(system, this)
 {
+    // The program pointer always occupies index 0 of the _objects array
+    _objects.push_back(this);
+    
+    // A dummy StackId goes next. This is stored as a nullptr and is just a
+    // placeholder so we can put a StackId into a Value
+    assert(_objects.size() == StackId);
+    _objects.push_back(nullptr);
+    
+    // Add the global object
+    _global.setObjectId(addObject(&_global));
 }
 
 Program::~Program()
 {
 }
 
-bool Program::serialize(Stream* stream, Error& error) const
+bool Program::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the atom table
     const std::vector<int8_t>& atomTableString = _atomTable.stringTable();
@@ -72,13 +82,13 @@ bool Program::serialize(Stream* stream, Error& error) const
     }
     
     for (uint16_t i = 0; ; i++) {
-        Object* obj = objectFromObjectId(i);
-        if (!obj) {
+        if (!isValid(ObjectId(i))) {
             break;
         }
+        Object* object = obj(ObjectId(i));
         
         // Only store functions
-        if (!obj->code()) {
+        if (!object->code()) {
             continue;
         }
         if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {
@@ -90,12 +100,12 @@ bool Program::serialize(Stream* stream, Error& error) const
         if (!serializeWrite(stream, error, i)) {
             return false;
         }
-        if (!obj->serialize(stream, error)) {
+        if (!object->serialize(stream, error, program)) {
             return false;
         }
     }
     
-    return Function::serialize(stream, error);
+    return Function::serialize(stream, error, program);
 }
 
 bool Program::deserialize(Stream* stream, Error& error, Program* program, const AtomTable&, const std::vector<char>&)
@@ -157,12 +167,16 @@ bool Program::deserialize(Stream* stream, Error& error, Program* program, const 
         if (!deserializeRead(stream, error, id)) {
             return false;
         }
+        
+        // FIXME: We need to convert to the id space of the destination Program
         Function* function = new Function();
+        function->setObjectId(id);
         
         if (!function->deserialize(stream, error, this, atomTable, stringTable)) {
             delete function;
             return false;
         }
+        
         _objects[id] = function;
     }
     

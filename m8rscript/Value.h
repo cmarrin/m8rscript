@@ -74,12 +74,12 @@ private:
         
 typedef union {
     void* v;
-    Float::Raw f;
+    Float::value_type f;
     int32_t i;
     uint32_t u;
-    Object* o;
     const char* s;
-    Atom::Raw a;
+    Atom::value_type a;
+    ObjectId::value_type o;
 } U;
 
 static_assert(sizeof(U) <= sizeof(void*), "Value union must not be larger than void*");
@@ -110,12 +110,12 @@ public:
     Value(const Value& other) : _type(other._type), _value(other._value), _id(other._id) { }
     Value(Value&& other) : _type(other._type), _value(other._value), _id(other._id) { }
     
-    Value(Object* obj, Type type = Type::Object) : _value(valueFromObj(obj)) , _type(type), _id(0) { }
+    Value(ObjectId objectId, Type type = Type::Object) : _value(valueFromObjectId(objectId)), _type(type), _id(0) { }
     Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
     Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
-    Value(Object* obj, uint16_t index, bool property) : _value(valueFromObj(obj)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
+    Value(ObjectId objectId, uint16_t index, bool property) : _value(valueFromObjectId(objectId)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
     Value(const char* value, int32_t length = -1)
         : _value(valueFromStr(duplicateString(value, length)))
         , _type(Type::String), _id(0)
@@ -145,6 +145,9 @@ public:
         _id = other._id;
         return *this;
     }
+    
+    operator bool() const { return _type != Type::None; }
+
 
     ~Value() {
         // FIXME: We need to manage these string copies
@@ -171,7 +174,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Object* asObjectValue() const { return (_type == Type::Object || _type == Type::PreviousObject) ? objFromValue() : nullptr; }
+    ObjectId asObjectIdValue() const { return (canBeBaked() || _type == Type::Object || _type == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
     uint32_t asUIntValue() const { return (_type == Type::Integer || _type == Type::PreviousPC || _type == Type::PreviousFrame) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
@@ -179,56 +182,65 @@ public:
 
     const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     
-    m8r::String toStringValue(Program*) const;
-    bool toBoolValue() const;
-    Float toFloatValue() const;
-    Object* toObjectValue() const;
+    m8r::String toStringValue(ExecutionUnit*) const;
+    bool toBoolValue(ExecutionUnit*) const;
+    Float toFloatValue(ExecutionUnit*) const;
 
-    int32_t toIntValue() const { return static_cast<int32_t>(toUIntValue()); }
-    uint32_t toUIntValue() const
+    int32_t toIntValue(ExecutionUnit* eu) const { return static_cast<int32_t>(toUIntValue(eu)); }
+    uint32_t toUIntValue(ExecutionUnit* eu) const
     {
         if (_type == Type::Integer) {
             return asUIntValue();
         }
-        return canBeBaked() ? bakeValue().toUIntValue() : static_cast<uint32_t>(toFloatValue());
+        return canBeBaked() ? bake(eu).toUIntValue(eu) : static_cast<uint32_t>(toFloatValue(eu));
     }
-
-    bool setValue(const Value&);
-    Value bakeValue() const;
+    
+    bool setValue(ExecutionUnit*, const Value&);
+    Value bake(ExecutionUnit*) const;
     bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
     
-    Value appendPropertyRef(const Value& value) const;
+    bool deref(ExecutionUnit*, const Value& derefValue);
+    
     CallReturnValue call(ExecutionUnit*, uint32_t nparams);
     
+    // FIXME: These functions must not be passed unbaked values
     bool isInteger() const
     {
-        return (_type == Type::Integer) || (canBeBaked() && bakeValue().isInteger());
+        assert(!canBeBaked());
+        return _type == Type::Integer;
     }
     bool isFloat() const
     {
-        return (_type == Type::Float) || (canBeBaked() && bakeValue().isFloat());
+        assert(!canBeBaked());
+        return _type == Type::Float;
     }
     bool isNumber() const { return isInteger() || isFloat(); }
+    
     bool isLValue() const { return canBeBaked(); }
     bool isNone() const { return _type == Type::None; }
-
+    bool isAtom() const { return _type == Type::Id; }
+    bool isObjectId() const { return _type == Type::Object || _type == Type::ElementRef || _type == Type::PropertyRef || _type == Type::PreviousObject; }
+    
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
     static m8r::String toString(uint32_t value);
     static Float floatFromString(const char*);
     
 private:
-    inline void* valueFromFloat(Float f) const { U u; u.f = static_cast<Float::Raw>(f); return u.v; }
+    inline void* valueFromFloat(Float f) const { U u; u.f = f.raw(); return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
-    inline void* valueFromObj(Object* o) const { U u; u.o = o; return u.v; }
     inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
+    inline void* valueFromObjectId(ObjectId id) const { U u; u.o = id.raw(); return u.v; }
 
     inline Float floatFromValue() const { U u; u.v = _value; return Float(u.f); }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
     inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
-    inline Object* objFromValue() const { U u; u.v = _value; return u.o; }
     inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
+    inline ObjectId objectIdFromValue() const { U u; u.v = _value; return ObjectId(u.o); }
+    
+    // Assumes we already know this is an ObjectId
+    Object* asObject(ExecutionUnit*) const;
     
     void* _value;
     Type _type;

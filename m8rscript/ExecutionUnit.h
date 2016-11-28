@@ -55,31 +55,31 @@ public:
 
     virtual const char* typeName() const override { return "Local"; }
 
-    virtual Value elementRef(int32_t index) override { return Value(this, index, false); }
+    virtual Value elementRef(int32_t index) override { return Value(Program::stackId(), index, false); }
     virtual const Value element(uint32_t index) const override { return inFrame(index); }
-    virtual bool setElement(uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
-    virtual bool appendElement(const Value&) override { assert(0); return false; }
+    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
+    virtual bool appendElement(ExecutionUnit*, const Value&) override { assert(0); return false; }
     virtual size_t elementCount() const override { assert(0); return 0; }
     virtual void setElementCount(size_t) override { assert(0); }
     
-    void popBaked(Value& value)
+    void popBaked(ExecutionUnit* eu, Value& value)
     {
         pop(value);
         if (value.canBeBaked()) {
-            value = value.bakeValue();
+            value = value.bake(eu);
         }
     }
     
-    void topBaked(Value& value)
+    void topBaked(ExecutionUnit* eu, Value& value)
     {
         std::swap(value, top());
         if (value.canBeBaked()) {
-            value = value.bakeValue();
+            value = value.bake(eu);
         }
     }
     
 protected:
-    virtual bool serialize(Stream*, Error&) const override
+    virtual bool serialize(Stream*, Error&, Program*) const override
     {
         return true;
     }
@@ -92,10 +92,11 @@ protected:
 
 class ExecutionUnit {
 public:
+    friend class Function;
+    
     ExecutionUnit(SystemInterface* system = nullptr) : _stack(10), _system(system) { }
     
     void startExecution(Program*);
-    void startFunction(Function *, uint32_t nparams);
     
     // Return -1 when finished. Otherwise return value is number of milliseconds to delay before calling again
     int32_t continueExecution();
@@ -158,28 +159,28 @@ public:
     }
     
 private:
+    void startFunction(ObjectId function, uint32_t nparams);
+
     bool printError(const char* s, ...) const;
+    bool checkTooManyErrors() const;
     
     Value* valueFromId(Atom, const Object*) const;
-    CallReturnValue call(Program* program, uint32_t nparams, Object*, bool isNew);
-    Value deref(Program*, Object*, const Value&);
-    bool deref(Program*, Value&, const Value&);
-    Atom propertyNameFromValue(Program*, const Value&);
+    CallReturnValue call(uint32_t nparams, ObjectId, bool isNew);
 
     m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
     void updateCodePointer()
     {
         assert(_object);
-        assert(_object->code());
-        _codeSize = _object->code()->size();
+        assert(_program->obj(_object)->code());
+        _codeSize = _program->obj(_object)->code()->size();
         assert(_codeSize);
-        _code = &(_object->code()->at(0));
+        _code = &(_program->obj(_object)->code()->at(0));
     }
 
     uint32_t _pc = 0;
     Program* _program = nullptr;
-    Object* _object = nullptr;
+    ObjectId _object;
     const uint8_t* _code;
     size_t _codeSize;
     
