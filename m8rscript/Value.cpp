@@ -290,93 +290,154 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
     }
 }
 
+bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
+{
+    // We know this is an Object
+    Object* obj = eu->program()->obj(objectIdFromValue());
+    Value bakedDerefValue = derefValue.bake(eu);
+    
+    switch(bakedDerefValue.type()) {
+        default:
+            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref using a '%s' value"), bakedDerefValue.toStringValue(eu).c_str());
+            return false;
+        case Type::Integer:
+        case Type::Float: {
+            Value value = obj->elementRef(bakedDerefValue.toIntValue(eu));
+            if (value) {
+                *this = value;
+                return true;
+            }
+            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(bakedDerefValue.toStringValue(eu).c_str())));
+            return true;
+        }
+        case Type::String:
+            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(bakedDerefValue.asStringValue())));
+            return true;
+    }
+}
+
 bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 {
     assert(_type != Type::Id);
     
-    Value bakedValue = bake(eu);
-    if (_type == TypeObject) {
-        Object* obj = eu->program()->obj(objectIdFromValue());
-        
-        // Fast path for indexing arrays
-        if (derefValue.isNumber()) {
-            int32_t index = derefValue.toIntValue(eu);
-            Value ref = obj->elementRef(index);
-            if (ref) {
-                *this = ref;
-                return true;
-            }
-            
-            // Handle like a property
-            String prop = Value::toString(index);
-            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
-            return true;
-        }
     
     
     
     
     
     
-    
-    
-    if (_type != Type::Object) {
-        Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' object does not exist"), toStringValue(eu).c_str());
-        return false;
-    }
-    
-    Object* obj = eu->program()->obj(objectIdFromValue());
-    
-    // Fast path for indexing arrays
-    if (derefValue.isNumber()) {
-        int32_t index = derefValue.toIntValue(eu);
-        Value ref = obj->elementRef(index);
-        if (ref) {
-            *this = ref;
-            return true;
-        }
-        
-        // Handle like a property
-        String prop = Value::toString(index);
-        *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
-        return true;
-    }
-        
-    if (derefValue.isAtom()) {
-        Atom atom = derefValue.asIdValue();
-        
-        if (type() == Value::Type::PropertyRef) {
-            *this = obj->appendPropertyRef(_id, atom);
-            return true;
-        }
-        
-        int32_t index = obj->propertyIndex(atom);
-        if (index < 0) {
-            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), eu->program()->stringFromAtom(atom).c_str());
+    switch(_type) {
+        default:
+            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
             return false;
-        }
+        case Type::Object:
+            return derefObject(eu, derefValue);
+        case Type::ElementRef:
         
-        *this = obj->propertyRef(index);
-        return true;
+        case Type::PropertyRef:
+            if (derefValue.type() == Type::Id) {
+                Object* obj = eu->program()->obj(objectIdFromValue());
+                assert(obj);
+                Value v = obj->appendPropertyRef(_id, derefValue.asIdValue());
+                if (v) {
+                    *this = v;
+                    return true;
+                }
+            }
+
+            Value bakedObjectValue = bake(eu);
+            if (bakedObjectValue.type() == Type::Object) {
+                return derefObject(eu, derefValue);
+            }
     }
     
-    Value bakedValue = derefValue.bake(eu);
-    switch(bakedValue.type()) {
-        default: return Value();
-        case Value::Type::String: {
-            int32_t index = obj->propertyIndex(eu->program()->atomizeString(derefValue.asStringValue()));
-            if (index < 0) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), derefValue.asStringValue());
-                return false;
-            }
-            *this = obj->propertyRef(index);
-            return true;
-        }
-        case Type::Float:
-        case Type::Integer:
-            *this = obj->elementRef(bakedValue.toIntValue(eu));
-            return true;
-    }
+    return false;
+    
+    
+    
+//    Value bakedValue = bake(eu);
+//    if (_type == Type::Object) {
+//        Object* obj = eu->program()->obj(objectIdFromValue());
+//        
+//        // Fast path for indexing arrays
+//        if (derefValue.isNumber()) {
+//            int32_t index = derefValue.toIntValue(eu);
+//            Value ref = obj->elementRef(index);
+//            if (ref) {
+//                *this = ref;
+//                return true;
+//            }
+//            
+//            // Handle like a property
+//            String prop = Value::toString(index);
+//            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
+//            return true;
+//        }
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    if (_type != Type::Object) {
+//        Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' object does not exist"), toStringValue(eu).c_str());
+//        return false;
+//    }
+//    
+//    Object* obj = eu->program()->obj(objectIdFromValue());
+//    
+//    // Fast path for indexing arrays
+//    if (derefValue.isNumber()) {
+//        int32_t index = derefValue.toIntValue(eu);
+//        Value ref = obj->elementRef(index);
+//        if (ref) {
+//            *this = ref;
+//            return true;
+//        }
+//        
+//        // Handle like a property
+//        String prop = Value::toString(index);
+//        *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
+//        return true;
+//    }
+//        
+//    if (derefValue.isAtom()) {
+//        Atom atom = derefValue.asIdValue();
+//        
+//        if (type() == Value::Type::PropertyRef) {
+//            *this = obj->appendPropertyRef(_id, atom);
+//            return true;
+//        }
+//        
+//        int32_t index = obj->propertyIndex(atom);
+//        if (index < 0) {
+//            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), eu->program()->stringFromAtom(atom).c_str());
+//            return false;
+//        }
+//        
+//        *this = obj->propertyRef(index);
+//        return true;
+//    }
+//    
+//    Value bakedValue = derefValue.bake(eu);
+//    switch(bakedValue.type()) {
+//        default: return Value();
+//        case Value::Type::String: {
+//            int32_t index = obj->propertyIndex(eu->program()->atomizeString(derefValue.asStringValue()));
+//            if (index < 0) {
+//                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), derefValue.asStringValue());
+//                return false;
+//            }
+//            *this = obj->propertyRef(index);
+//            return true;
+//        }
+//        case Type::Float:
+//        case Type::Integer:
+//            *this = obj->elementRef(bakedValue.toIntValue(eu));
+//            return true;
+//    }
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
@@ -394,13 +455,24 @@ CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
 
 Value Value::bake(ExecutionUnit* eu) const
 {
-    if (_type == Type::PropertyRef) {
-        Object* obj = eu->program()->obj(*this);
-        return obj ? obj->property(_id) : Value();
-    }
-    if (_type == Type::ElementRef) {
-        Object* obj = eu->program()->obj(*this);
-        return obj ? obj->element(_id) : Value();
+    switch(_type) {
+        case Type::Object:
+        case Type::PropertyRef:
+        case Type::ElementRef: {
+            Object* obj = eu->program()->obj(*this);
+            switch(_type) {
+                case Type::Object: {
+                    Value* value = obj->value();
+                    return value ? *value : Value();
+                }
+                case Type::PropertyRef:
+                    return obj ? obj->property(_id) : Value();
+                case Type::ElementRef:
+                    return obj ? obj->element(_id) : Value();
+                default: break;
+            }
+        }
+        default: break;
     }
     return *this;
 }

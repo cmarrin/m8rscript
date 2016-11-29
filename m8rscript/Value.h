@@ -227,6 +227,8 @@ public:
     static Float floatFromString(const char*);
     
 private:
+    bool derefObject(ExecutionUnit* eu, const Value& derefValue);
+
     inline void* valueFromFloat(Float f) const { U u; u.f = f.raw(); return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
