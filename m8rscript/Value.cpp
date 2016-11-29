@@ -281,10 +281,21 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
             return obj ? (obj->setValue(eu, v.canBeBaked() ? v.bake(eu) : v)) : false;
         case Type::PropertyRef:
             obj = eu->program()->obj(*this);
-            return obj ? (obj->setProperty(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) : false;
+            assert(obj);
+            if (!obj->setProperty(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) {
+                String prop = eu->program()->stringFromAtom(obj->propertyName(_id));
+                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Attempted to assign to nonexistant property '%s'"), prop.c_str());
+                return false;
+            }
+            return true;
         case Type::ElementRef:
             obj = eu->program()->obj(*this);
-            return obj ? (obj->setElement(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) : false;
+            assert(obj);
+            if (!obj->setElement(eu, _id, v.canBeBaked() ? v.bake(eu) : v)) {
+                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Attempted to assign to nonexistant element %d"), _id);
+                return false;
+            }
+            return true;
         default:
             return false;
     }

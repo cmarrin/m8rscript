@@ -517,7 +517,7 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_STO:
         if (!_stack.top(-1).setValue(this, _stack.top())) {
-            printError(ROMSTR("Attempted to assign to nonexistant variable '%s'"), _stack.top(-1).toStringValue(this).c_str());
+            checkTooManyErrors();
         }
         _stack.pop();
         DISPATCH;
