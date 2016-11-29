@@ -35,6 +35,8 @@ class DeviceSystemInterface;
     
     dispatch_queue_t _serialQueue;
     dispatch_queue_t _logQueue;
+    
+    BOOL _isBuild;
 }
 
 - (void)outputMessage:(NSString*)msg;
@@ -142,7 +144,7 @@ private:
 - (void)outputMessage:(NSString*)msg
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate outputMessage:msg toBuild:_simulator->isBuild()];
+        [self.delegate outputMessage:msg toBuild:_isBuild];
     });
 }
 
@@ -504,11 +506,13 @@ private:
 
 - (void)buildFile:(NSString*) name
 {
+    _isBuild = YES;
     _simulator->build(name.UTF8String);
 }
 
 - (void)runFile:(NSString*) name
 {
+    _isBuild = NO;
     dispatch_async(_serialQueue, ^() {        
         NSNetService* service = _currentDevice[@"service"];
         NSString* command = [NSString stringWithFormat:@"run %@\r\n", name];

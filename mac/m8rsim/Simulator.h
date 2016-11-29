@@ -61,7 +61,6 @@ public:
     void simulate();
     void clear() { _shell.clear(); }
     
-    bool isBuild() const { return _isBuild; }
     bool isRunning() const { return _running; }
 
     bool canRun() { return true; }
@@ -91,7 +90,6 @@ private:
     };
     
     m8r::SystemInterface* _system;
-    bool _isBuild = true;
     bool _running = false;
     MyShell _shell;
     m8r::String _receivedString;

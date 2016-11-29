@@ -90,8 +90,6 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
 void Simulator::build(const char* name)
 {
     _running = false;
-    
-    _isBuild = true;
     if (_shell.load(name)) {
         _system->printf(ROMSTR("Ready to run\n"));
     }
@@ -115,8 +113,6 @@ void Simulator::run()
     }
     
     _running = true;
-    
-    _isBuild = false;
     _system->printf(ROMSTR("*** Program started...\n\n"));
 
     auto start = std::chrono::system_clock::now();
