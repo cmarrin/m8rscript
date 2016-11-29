@@ -293,13 +293,23 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
 bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
 {
     // We know this is an Object
+    assert(_type == Type::Object);
     Object* obj = eu->program()->obj(objectIdFromValue());
     Value bakedDerefValue = derefValue.bake(eu);
     
     switch(bakedDerefValue.type()) {
         default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref using a '%s' value"), bakedDerefValue.toStringValue(eu).c_str());
+            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
             return false;
+        case Type::Id: {
+            int32_t index = obj->propertyIndex(derefValue.asIdValue());
+            if (index < 0) {
+                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
+                return false;
+            }
+            *this = obj->propertyRef(index);
+            return true;
+        }
         case Type::Integer:
         case Type::Float: {
             Value value = obj->elementRef(bakedDerefValue.toIntValue(eu));
@@ -319,13 +329,7 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
 bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 {
     assert(_type != Type::Id);
-    
-    
-    
-    
-    
-    
-    
+
     switch(_type) {
         default:
             Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
@@ -333,21 +337,25 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
         case Type::Object:
             return derefObject(eu, derefValue);
         case Type::ElementRef:
-        
         case Type::PropertyRef:
             if (derefValue.type() == Type::Id) {
-                Object* obj = eu->program()->obj(objectIdFromValue());
-                assert(obj);
-                Value v = obj->appendPropertyRef(_id, derefValue.asIdValue());
-                if (v) {
-                    *this = v;
-                    return true;
+                if (_type == Type::PropertyRef) {
+                    Object* obj = eu->program()->obj(objectIdFromValue());
+                    assert(obj);
+                    Value v = obj->appendPropertyRef(_id, derefValue.asIdValue());
+                    if (v) {
+                        *this = v;
+                        return true;
+                    }
                 }
             }
 
             Value bakedObjectValue = bake(eu);
             if (bakedObjectValue.type() == Type::Object) {
-                return derefObject(eu, derefValue);
+                if (bakedObjectValue.derefObject(eu, derefValue)) {
+                    *this = bakedObjectValue;
+                    return true;
+                }
             }
     }
     

@@ -395,6 +395,9 @@ static const uint16_t YieldCount = 2000;
         _stack.restoreFrame(leftValue.asUIntValue());
         
         updateCodePointer();
+        
+        // Pop the function
+        _stack.pop();
        
         _stack.push(returnedValue);
         DISPATCH;

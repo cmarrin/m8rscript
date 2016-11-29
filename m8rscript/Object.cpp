@@ -322,4 +322,3 @@ bool MaterObject::deserialize(Stream* stream, Error& error, Program* program, co
     
     return true;
 }
-

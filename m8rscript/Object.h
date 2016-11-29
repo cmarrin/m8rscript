@@ -153,6 +153,8 @@ public:
 
     virtual size_t propertyCount() const override { return _properties.size(); }
 
+    virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams) override { return _properties[index].value.call(eu, nparams); }
+    
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
