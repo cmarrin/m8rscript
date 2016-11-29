@@ -93,6 +93,7 @@ private:
 };
 
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
+class StringId : public Id<uint16_t> { using Id::Id; };
 class ObjectId : public Id<uint16_t> { using Id::Id; };
 class Atom : public Id<uint16_t> { using Id::Id; };
 

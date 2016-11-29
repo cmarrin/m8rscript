@@ -193,7 +193,8 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
-        case Type::String: return m8r::String(asStringValue());
+        case Type::String: return eu->program()->str(stringIdFromValue());
+        case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
         case Type::Id: return m8r::String(eu->program()->stringFromAtom(asIdValue()));
         case Type::PropertyRef: {
             Object* obj = eu->program()->obj(*this);
@@ -222,8 +223,12 @@ bool Value::toBoolValue(ExecutionUnit* eu) const
         case Type::Float: return asFloatValue() != Float();
         case Type::Integer: return asIntValue() != 0;
         case Type::String: {
-            const char* s = asStringValue();
-            return s ? (s[0] != '\0') : false;
+            const String& s = eu->program()->str(stringIdFromValue());
+            return s[0] != '\0';
+        }
+        case Type::StringLiteral: {
+            const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
+            return s[0] != '\0';
         }
         case Type::Id: return false;
         case Type::PropertyRef: {
@@ -259,11 +264,12 @@ Float Value::toFloatValue(ExecutionUnit* eu) const
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(asIntValue(), 0);
         case Type::String: {
-            const char* s = asStringValue();
-            if (s) {
-                return floatFromString(s);
-            }
-            break;
+            const String& s = eu->program()->str(stringIdFromValue());
+            return floatFromString(s.c_str());
+        }
+        case Type::StringLiteral: {
+            const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
+            return floatFromString(s.c_str());
         }
         case Type::Id: break;
         default: assert(0); break;
@@ -331,9 +337,16 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
             *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(bakedDerefValue.toStringValue(eu).c_str())));
             return true;
         }
-        case Type::String:
-            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(bakedDerefValue.asStringValue())));
+        case Type::String: {
+            const String& s = eu->program()->str(bakedDerefValue.stringIdFromValue());
+            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(s.c_str())));
             return true;
+        }
+        case Type::StringLiteral: {
+            const String& s = eu->program()->stringFromStringLiteral(bakedDerefValue.stringLiteralFromValue());
+            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(s.c_str())));
+            return true;
+        }
     }
 }
 
@@ -371,92 +384,6 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
     }
     
     return false;
-    
-    
-    
-//    Value bakedValue = bake(eu);
-//    if (_type == Type::Object) {
-//        Object* obj = eu->program()->obj(objectIdFromValue());
-//        
-//        // Fast path for indexing arrays
-//        if (derefValue.isNumber()) {
-//            int32_t index = derefValue.toIntValue(eu);
-//            Value ref = obj->elementRef(index);
-//            if (ref) {
-//                *this = ref;
-//                return true;
-//            }
-//            
-//            // Handle like a property
-//            String prop = Value::toString(index);
-//            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
-//            return true;
-//        }
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    if (_type != Type::Object) {
-//        Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' object does not exist"), toStringValue(eu).c_str());
-//        return false;
-//    }
-//    
-//    Object* obj = eu->program()->obj(objectIdFromValue());
-//    
-//    // Fast path for indexing arrays
-//    if (derefValue.isNumber()) {
-//        int32_t index = derefValue.toIntValue(eu);
-//        Value ref = obj->elementRef(index);
-//        if (ref) {
-//            *this = ref;
-//            return true;
-//        }
-//        
-//        // Handle like a property
-//        String prop = Value::toString(index);
-//        *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(Value::toString(index).c_str())));
-//        return true;
-//    }
-//        
-//    if (derefValue.isAtom()) {
-//        Atom atom = derefValue.asIdValue();
-//        
-//        if (type() == Value::Type::PropertyRef) {
-//            *this = obj->appendPropertyRef(_id, atom);
-//            return true;
-//        }
-//        
-//        int32_t index = obj->propertyIndex(atom);
-//        if (index < 0) {
-//            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), eu->program()->stringFromAtom(atom).c_str());
-//            return false;
-//        }
-//        
-//        *this = obj->propertyRef(index);
-//        return true;
-//    }
-//    
-//    Value bakedValue = derefValue.bake(eu);
-//    switch(bakedValue.type()) {
-//        default: return Value();
-//        case Value::Type::String: {
-//            int32_t index = obj->propertyIndex(eu->program()->atomizeString(derefValue.asStringValue()));
-//            if (index < 0) {
-//                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property does not exist"), derefValue.asStringValue());
-//                return false;
-//            }
-//            *this = obj->propertyRef(index);
-//            return true;
-//        }
-//        case Type::Float:
-//        case Type::Integer:
-//            *this = obj->elementRef(bakedValue.toIntValue(eu));
-//            return true;
-//    }
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)

@@ -77,7 +77,8 @@ typedef union {
     Float::value_type f;
     int32_t i;
     uint32_t u;
-    const char* s;
+    StringId::value_type s;
+    StringLiteral::value_type l;
     Atom::value_type a;
     ObjectId::value_type o;
 } U;
@@ -101,7 +102,7 @@ public:
     
     enum class Type : uint8_t {
         None = 0,
-        Object, Float, Integer, String, Id,
+        Object, Float, Integer, String, StringLiteral, Id,
         ElementRef, PropertyRef,
         PreviousFrame, PreviousPC, PreviousObject,
     };
@@ -116,31 +117,12 @@ public:
     Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
     Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
     Value(ObjectId objectId, uint16_t index, bool property) : _value(valueFromObjectId(objectId)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
-    Value(const char* value, int32_t length = -1)
-        : _value(valueFromStr(duplicateString(value, length)))
-        , _type(Type::String), _id(0)
-    { }
-    
-    // Steals the value pointer
-    Value& operator=(Value&& other)
-    {
-        _value = other._value;
-        _type = other._type;
-        _id = other._id;
-        return *this;
-    }
+    Value(StringId stringId) : _value(valueFromStringId(stringId)), _type(Type::String), _id(0) { }
+    Value(StringLiteral stringId) : _value(valueFromStringLiteral(stringId)), _type(Type::StringLiteral), _id(0) { }
     
     Value& operator=(const Value& other)
     {
-        if (asStringValue()) {
-            // FIXME: We need to manage these string copies
-            //free(static_cast<void*>(const_cast<char*>(asStringValue())));
-        }
-        if (other.asStringValue()) {
-            _value = valueFromStr(duplicateString(other.asStringValue()));
-        } else {
-            _value = other._value;
-        }
+        _value = other._value;
         _type = other._type;
         _id = other._id;
         return *this;
@@ -149,12 +131,7 @@ public:
     operator bool() const { return _type != Type::None; }
 
 
-    ~Value() {
-        // FIXME: We need to manage these string copies
-        if (asStringValue()) {
-            //free(static_cast<void*>(const_cast<char*>(asStringValue())));
-        }
-    }
+    ~Value() { }
     
     bool serialize(Stream*, Error&) const
     {
@@ -175,12 +152,12 @@ public:
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
     ObjectId asObjectIdValue() const { return (canBeBaked() || _type == Type::Object || _type == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
+    StringId asStringIdValue() const { return (_type == Type::String) ? stringIdFromValue() : StringId(); }
+    StringLiteral asStringLiteralValue() const { return (_type == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
     uint32_t asUIntValue() const { return (_type == Type::Integer || _type == Type::PreviousPC || _type == Type::PreviousFrame) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (_type == Type::Id) ? Atom(_id) : Atom(); }
-
-    const char* asStringValue() const { return (_type == Type::String) ? strFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit*) const;
@@ -232,14 +209,16 @@ private:
     inline void* valueFromFloat(Float f) const { U u; u.f = f.raw(); return u.v; }
     inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
     inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
-    inline void* valueFromStr(const char* s) const { U u; u.s = s; return u.v; }
     inline void* valueFromObjectId(ObjectId id) const { U u; u.o = id.raw(); return u.v; }
+    inline void* valueFromStringId(StringId id) const { U u; u.s = id.raw(); return u.v; }
+    inline void* valueFromStringLiteral(StringLiteral id) const { U u; u.l = id.raw(); return u.v; }
 
     inline Float floatFromValue() const { U u; u.v = _value; return Float(u.f); }
     inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
     inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
-    inline const char* strFromValue() const { U u; u.v = _value; return u.s; }
     inline ObjectId objectIdFromValue() const { U u; u.v = _value; return ObjectId(u.o); }
+    inline StringId stringIdFromValue() const { U u; u.v = _value; return StringId(u.s); }
+    inline StringLiteral stringLiteralFromValue() const { U u; u.v = _value; return StringLiteral(u.l); }
     
     void* _value;
     Type _type;

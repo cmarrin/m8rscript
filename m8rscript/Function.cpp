@@ -197,7 +197,7 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
                     return false;
                 }
                 const char* str = &(stringTable[index]);
-                StringLiteral stringId = program->addString(str);
+                StringLiteral stringId = program->addStringLiteral(str);
                 _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 3);
                 _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 2);
                 _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 1);

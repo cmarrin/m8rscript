@@ -256,7 +256,7 @@ static const uint16_t YieldCount = 2000;
         size = sizeFromOp(op);
         uintValue = uintFromCode(_code, _pc, size);
         _pc += size;
-        _stack.push(Value(_program->stringFromStringLiteral(StringLiteral(uintValue))));
+        _stack.push(Value(StringLiteral(uintValue)));
         DISPATCH;
     L_PUSHO:
         uintValue = uintFromCode(_code, _pc, 2);
@@ -410,9 +410,11 @@ static const uint16_t YieldCount = 2000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             _stack.setTop(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
         } else {
-            m8r::String s = leftValue.toStringValue(this);
+            StringId stringId = _program->createString();
+            String& s = _program->str(stringId);
+            s = leftValue.toStringValue(this);
             s += rightValue.toStringValue(this);
-            _stack.setTop(s.c_str());
+            _stack.setTop(stringId);
         }
         DISPATCH;
     L_UNOP:

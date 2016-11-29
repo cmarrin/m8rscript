@@ -50,6 +50,9 @@ Program::Program(SystemInterface* system) : _global(system, this)
     
     // Add the global object
     _global.setObjectId(addObject(&_global));
+    
+    // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
+    _strings.push_back("*** ERROR:StringId does not exist ***");
 }
 
 Program::~Program()
@@ -64,10 +67,10 @@ bool Program::serialize(Stream* stream, Error& error, Program* program) const
         return false;
     }
         
-    // Write the string table
+    // Write the literal string table
     if (!serializeBuffer(stream, error, ObjectDataType::StringTable, 
-                        _stringTable.size() ? reinterpret_cast<const uint8_t*>(&(_stringTable[0])) : nullptr, 
-                        _stringTable.size())) {
+                        _stringLiteralTable.size() ? reinterpret_cast<const uint8_t*>(&(_stringLiteralTable[0])) : nullptr, 
+                        _stringLiteralTable.size())) {
         return false;
     }
     

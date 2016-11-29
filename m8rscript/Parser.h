@@ -72,9 +72,9 @@ public:
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
 
-    StringLiteral startString() { return _program->startString(); }
-    void addToString(char c) { _program->addToString(c); }
-    void endString() { _program->endString(); }
+    StringLiteral startString() { return _program->startStringLiteral(); }
+    void addToString(char c) { _program->addToStringLiteral(c); }
+    void endString() { _program->endStringLiteral(); }
     
     // The next 3 functions work together:
     //

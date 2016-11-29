@@ -62,19 +62,19 @@ public:
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
     
-    StringLiteral startString() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringTable.size()))); }
-    void addToString(char c) { _stringTable.push_back(c); }
-    void endString() { _stringTable.push_back('\0'); }
+    StringLiteral startStringLiteral() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringLiteralTable.size()))); }
+    void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }
+    void endStringLiteral() { _stringLiteralTable.push_back('\0'); }
     
-    StringLiteral addString(const char* s)
+    StringLiteral addStringLiteral(const char* s)
     {
         size_t length = strlen(s);
-        size_t index = _stringTable.size();
-        _stringTable.resize(index + length + 1);
-        memcpy(&(_stringTable[index]), s, length + 1);
+        size_t index = _stringLiteralTable.size();
+        _stringLiteralTable.resize(index + length + 1);
+        memcpy(&(_stringLiteralTable[index]), s, length + 1);
         return StringLiteral(StringLiteral(static_cast<uint32_t>(index)));
     }
-    const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringTable[id.raw()]); }
+    const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
     ObjectId addObject(Object* obj)
     {
@@ -83,7 +83,14 @@ public:
         return id;
     }
     
+    StringId createString() {
+        StringId id(_strings.size());
+        _strings.push_back(String());
+        return id;
+    }
+    
     bool isValid(const ObjectId& id) const { return id.raw() < _objects.size(); }
+    bool isValid(const StringId& id) const { return id.raw() < _strings.size(); }
     
     Object* obj(const Value& value) const
     {
@@ -105,6 +112,28 @@ public:
     
     static ObjectId stackId() { return ObjectId(StackId); }
     
+    const String& str(const Value& value) const
+    {
+        return str(value.asStringIdValue());
+    }
+    
+    String& str(const Value& value)
+    {
+        return str(value.asStringIdValue());
+    }
+    
+    const String& str(const StringId& id) const
+    {
+        // _strings[0] contains an error entry for when invalid ids are passed
+        return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+    }
+    
+    String& str(const StringId& id)
+    {
+        // _strings[0] contains an error entry for when invalid ids are passed
+        return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+    }
+    
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
@@ -116,7 +145,8 @@ private:
     
     AtomTable _atomTable;
     
-    std::vector<char> _stringTable;
+    std::vector<char> _stringLiteralTable;
+    std::vector<String> _strings;
     std::vector<Object*> _objects;
     Global _global;
 };

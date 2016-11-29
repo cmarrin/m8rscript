@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 #include "ExecutionUnit.h"
 #include "base64.h"
+#include <string>
 
 using namespace m8r;
 
@@ -46,9 +47,11 @@ static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 Global::Global(SystemInterface* system, Program* program) : _system(system)
 {
+    std::string s = "Date";
+    
     _startTime = 0;
 
-    _DateAtom = program->atomizeString(ROMSTR("Date"));
+    _DateAtom = program->atomizeString(s.c_str());
     _SystemAtom = program->atomizeString(ROMSTR("System"));
     _SerialAtom = program->atomizeString(ROMSTR("Serial"));
     _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
@@ -267,12 +270,18 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
                 char outString[BASE64_STACK_ALLOC_LIMIT];
                 int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
                                                  BASE64_STACK_ALLOC_LIMIT, outString);
-                eu->stack().push(Value(outString, actualLength));
+                StringId stringId = eu->program()->createString();
+                String& s = eu->program()->str(stringId);
+                s = String(outString, actualLength);
+                eu->stack().push(stringId);
             } else {
                 char* outString = static_cast<char*>(malloc(outLength));
                 int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                                  BASE64_STACK_ALLOC_LIMIT, outString);
-                eu->stack().push(Value(outString, actualLength));
+                StringId stringId = eu->program()->createString();
+                String& s = eu->program()->str(stringId);
+                s = String(outString, actualLength);
+                eu->stack().push(stringId);
                 free(outString);
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
@@ -284,11 +293,17 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
                 unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
                 int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-                eu->stack().push(Value(reinterpret_cast<char*>(outString), actualLength));
+                StringId stringId = eu->program()->createString();
+                String& s = eu->program()->str(stringId);
+                s = String(reinterpret_cast<char*>(outString), actualLength);
+                eu->stack().push(stringId);
             } else {
                 unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
                 int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-                eu->stack().push(Value(reinterpret_cast<char*>(outString), actualLength));
+                StringId stringId = eu->program()->createString();
+                String& s = eu->program()->str(stringId);
+                s = String(reinterpret_cast<char*>(outString), actualLength);
+                eu->stack().push(stringId);
                 free(outString);
             }
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
