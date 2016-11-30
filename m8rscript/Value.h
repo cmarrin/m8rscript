@@ -87,8 +87,6 @@ public:
     Value(const Value& other) : _value(other._value) { }
     Value(Value&& other) : _value(other._value) { }
     
-    Value(uint64_t v) : _value(v) { }
-    
     Value(ObjectId objectId, Type type = Type::Object) : _value(rawValue(objectId, type)) { }
     Value(Float value) : _value(rawValue(value, Type::Float)) { }
     Value(int32_t value) : _value(rawValue(value, Type::Integer)) { }
@@ -100,7 +98,6 @@ public:
     
     Value& operator=(const Value& other) { _value = other._value; return *this; }
     operator bool() const { return type() != Type::None; }
-    operator uint64_t() const { return _value; }
 
     ~Value() { }
     
@@ -129,7 +126,6 @@ public:
     uint32_t asUIntValue() const { return (type() == Type::Integer || type() == Type::PreviousPC || type() == Type::PreviousFrame) ? uintFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
-    uint16_t asIndexValue() const { return canBeBaked() ? indexFromValue() : 0; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit*) const;
@@ -188,8 +184,7 @@ private:
     inline uint64_t rawValue(ObjectId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
     inline uint64_t rawValue(ObjectId id, uint16_t index, Type t) const
     {
-        uint64_t r = (static_cast<uint64_t>(index) << ((sizeof(ObjectId::value_type) * 8) + TypeBitCount)) | (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t);
-        return r;
+        return (static_cast<uint64_t>(index) << ((sizeof(ObjectId::value_type) * 8) + TypeBitCount)) | (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t);
     }
     inline uint64_t rawValue(StringId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
     inline uint64_t rawValue(StringLiteral id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
