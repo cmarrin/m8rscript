@@ -72,28 +72,6 @@ private:
     int32_t _value = 0;
 };
         
-typedef union {
-    void* v;
-    Float::value_type f;
-    int32_t i;
-    uint32_t u;
-    StringId::value_type s;
-    StringLiteral::value_type l;
-    Atom::value_type a;
-    ObjectId::value_type o;
-} U;
-
-inline static const char* duplicateString(const char* s, int32_t len = -1)
-{
-    size_t length = ((len < 0) ? strlen(s) : static_cast<size_t>(len)) + 1;
-    char* newString = static_cast<char*>(malloc(length));
-    assert(newString);
-    if (newString) {
-        memcpy(newString, s, length);
-    }
-    return newString;
-}
-
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
@@ -105,29 +83,21 @@ public:
         PreviousFrame, PreviousPC, PreviousObject,
     };
 
-    Value() : _value(nullptr), _type(Type::None), _id(0) { }
-    Value(const Value& other) : _type(other._type), _value(other._value), _id(other._id) { }
-    Value(Value&& other) : _type(other._type), _value(other._value), _id(other._id) { }
+    Value() : _value(0) { }
+    Value(const Value& other) : _value(other._value) { }
+    Value(Value&& other) : _value(other._value) { }
     
-    Value(ObjectId objectId, Type type = Type::Object) : _value(valueFromObjectId(objectId)), _type(type), _id(0) { }
-    Value(Float value) : _value(valueFromFloat(value)) , _type(Type::Float), _id(0) { }
-    Value(int32_t value) : _value(valueFromInt(value)) , _type(Type::Integer), _id(0) { }
-    Value(uint32_t value, Type type = Type::Integer) : _value(valueFromUInt(value)) , _type(type), _id(0) { }
-    Value(Atom value) : _value(nullptr), _type(Type::Id), _id(value.raw()) { }
-    Value(ObjectId objectId, uint16_t index, bool property) : _value(valueFromObjectId(objectId)), _type(property ? Type::PropertyRef : Type::ElementRef), _id(index) { }
-    Value(StringId stringId) : _value(valueFromStringId(stringId)), _type(Type::String), _id(0) { }
-    Value(StringLiteral stringId) : _value(valueFromStringLiteral(stringId)), _type(Type::StringLiteral), _id(0) { }
+    Value(ObjectId objectId, Type type = Type::Object) : _value(rawValue(objectId, type)) { }
+    Value(Float value) : _value(rawValue(value, Type::Float)) { }
+    Value(int32_t value) : _value(rawValue(value, Type::Integer)) { }
+    Value(uint32_t value, Type type = Type::Integer) : _value(rawValue(value, type)) { }
+    Value(Atom value) : _value(rawValue(value, Type::Id)) { }
+    Value(ObjectId objectId, uint16_t index, bool property) : _value(rawValue(objectId, index, property ? Type::PropertyRef : Type::ElementRef)) { }
+    Value(StringId stringId) : _value(rawValue(stringId, Type::String)) { }
+    Value(StringLiteral stringId) : _value(rawValue(stringId, Type::StringLiteral)) { }
     
-    Value& operator=(const Value& other)
-    {
-        _value = other._value;
-        _type = other._type;
-        _id = other._id;
-        return *this;
-    }
-    
-    operator bool() const { return _type != Type::None; }
-
+    Value& operator=(const Value& other) { _value = other._value; return *this; }
+    operator bool() const { return type() != Type::None; }
 
     ~Value() { }
     
@@ -143,19 +113,19 @@ public:
         return false;
     }
 
-    Type type() const { return _type; }
+    Type type() const { return static_cast<Type>(_value & TypeMask); }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (canBeBaked() || _type == Type::Object || _type == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
-    StringId asStringIdValue() const { return (_type == Type::String) ? stringIdFromValue() : StringId(); }
-    StringLiteral asStringLiteralValue() const { return (_type == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
-    int32_t asIntValue() const { return (_type == Type::Integer) ? intFromValue() : 0; }
-    uint32_t asUIntValue() const { return (_type == Type::Integer || _type == Type::PreviousPC || _type == Type::PreviousFrame) ? uintFromValue() : 0; }
-    Float asFloatValue() const { return (_type == Type::Float) ? floatFromValue() : Float(); }
-    Atom asIdValue() const { return (_type == Type::Id) ? Atom(_id) : Atom(); }
+    ObjectId asObjectIdValue() const { return (canBeBaked() || type() == Type::Object || type() == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
+    StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
+    StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
+    int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
+    uint32_t asUIntValue() const { return (type() == Type::Integer || type() == Type::PreviousPC || type() == Type::PreviousFrame) ? uintFromValue() : 0; }
+    Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
+    Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit*) const;
@@ -164,7 +134,7 @@ public:
     int32_t toIntValue(ExecutionUnit* eu) const { return static_cast<int32_t>(toUIntValue(eu)); }
     uint32_t toUIntValue(ExecutionUnit* eu) const
     {
-        if (_type == Type::Integer) {
+        if (type() == Type::Integer) {
             return asUIntValue();
         }
         return canBeBaked() ? bake(eu).toUIntValue(eu) : static_cast<uint32_t>(toFloatValue(eu));
@@ -172,7 +142,7 @@ public:
     
     bool setValue(ExecutionUnit*, const Value&);
     Value bake(ExecutionUnit*) const;
-    bool canBeBaked() const { return _type == Type::PropertyRef || _type == Type::ElementRef; }
+    bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
     
     bool deref(ExecutionUnit*, const Value& derefValue);
     
@@ -182,19 +152,19 @@ public:
     bool isInteger() const
     {
         assert(!canBeBaked());
-        return _type == Type::Integer;
+        return type() == Type::Integer;
     }
     bool isFloat() const
     {
         assert(!canBeBaked());
-        return _type == Type::Float;
+        return type() == Type::Float;
     }
     bool isNumber() const { return isInteger() || isFloat(); }
     
     bool isLValue() const { return canBeBaked(); }
-    bool isNone() const { return _type == Type::None; }
-    bool isAtom() const { return _type == Type::Id; }
-    bool isObjectId() const { return _type == Type::Object || _type == Type::ElementRef || _type == Type::PropertyRef || _type == Type::PreviousObject; }
+    bool isNone() const { return type() == Type::None; }
+    bool isAtom() const { return type() == Type::Id; }
+    bool isObjectId() const { return type() == Type::Object || type() == Type::ElementRef || type() == Type::PropertyRef || type() == Type::PreviousObject; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -202,25 +172,38 @@ public:
     static Float floatFromString(const char*);
     
 private:
+    static constexpr uint8_t TypeBitCount = 4;
+    static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
+    
     bool derefObject(ExecutionUnit* eu, const Value& derefValue);
 
-    inline void* valueFromFloat(Float f) const { U u; u.f = f.raw(); return u.v; }
-    inline void* valueFromInt(int32_t i) const { U u; u.i = i; return u.v; }
-    inline void* valueFromUInt(uint32_t i) const { U u; u.u = i; return u.v; }
-    inline void* valueFromObjectId(ObjectId id) const { U u; u.o = id.raw(); return u.v; }
-    inline void* valueFromStringId(StringId id) const { U u; u.s = id.raw(); return u.v; }
-    inline void* valueFromStringLiteral(StringLiteral id) const { U u; u.l = id.raw(); return u.v; }
+    inline uint64_t rawValue(Float f, Type t) const { return (static_cast<uint64_t>(f.raw()) & ~TypeMask) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(int32_t i, Type t) const { return (static_cast<uint64_t>(i) << TypeBitCount) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(uint32_t i, Type t) const { return (static_cast<uint64_t>(i) << TypeBitCount) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(Atom atom, Type t) const { return (static_cast<uint64_t>(atom.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(ObjectId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(ObjectId id, uint16_t index, Type t) const
+    {
+        return (static_cast<uint64_t>(index) << ((sizeof(ObjectId::value_type) * 8) + TypeBitCount)) | (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t);
+    }
+    inline uint64_t rawValue(StringId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
+    inline uint64_t rawValue(StringLiteral id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
 
-    inline Float floatFromValue() const { U u; u.v = _value; return Float(u.f); }
-    inline int32_t intFromValue() const { U u; u.v = _value; return u.i; }
-    inline uint32_t uintFromValue() const { U u; u.v = _value; return u.u; }
-    inline ObjectId objectIdFromValue() const { U u; u.v = _value; return ObjectId(u.o); }
-    inline StringId stringIdFromValue() const { U u; u.v = _value; return StringId(u.s); }
-    inline StringLiteral stringLiteralFromValue() const { U u; u.v = _value; return StringLiteral(u.l); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value & ~TypeMask)); }
+    inline int32_t intFromValue() const { return static_cast<int32_t>(_value >> TypeBitCount); }
+    inline uint32_t uintFromValue() const { return static_cast<uint32_t>(_value >> TypeBitCount); }
+    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value >> TypeBitCount)); }
+    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value >> TypeBitCount)); }
+    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value >> TypeBitCount)); }
+    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value >> TypeBitCount)); }
+    inline uint16_t indexFromValue() const { return static_cast<uint16_t>(_value >> (16 + TypeBitCount)); }
     
-    void* _value;
-    Type _type;
-    uint16_t _id;
+    uint64_t _value;
+    
+    // In order to fit everything, we have some requirements
+    static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");
+    static_assert(sizeof(_value) * 8 >= sizeof(ObjectId) * 8 + sizeof(uint16_t) * 8 + TypeBitCount, "Value must be large enough to hold an ObjectId, a 16 bit index and a 4 bit type");
+    static_assert(sizeof(_value) * 8 >= sizeof(StringLiteral) * 8 + TypeBitCount, "Value must be large enough to hold a StringLiteral and a 4 bit type");
 };
 
 }
