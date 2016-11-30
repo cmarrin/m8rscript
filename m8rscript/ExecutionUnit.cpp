@@ -67,31 +67,6 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
-CallReturnValue ExecutionUnit::call(uint32_t nparams, ObjectId objectId, bool isNew)
-{
-// On entry the stack has:
-//      tos           ==> nparams values
-//      tos-nparams   ==> the function to be called
-//
-//    size_t tos = _stack.size();
-//    Value& callee = _stack[tos - nparams - 2];
-//    Object* callee =
-//    
-//    // Fill in the local vars
-//    size_t firstParam = tos - nparams - 1;
-//    for (size_t i = 0; i < nparams; ++i) {
-//        if (
-//    }
-
-    return _stack.top(-nparams).call(this, nparams);
-//
-// On return the return address has:
-//      tos       ==> count returned values
-//      tos-count ==> nparams values
-//      tos-count-nparams ==> the function to be called
-//
-}
-
 Value ExecutionUnit::derefId(Atom atom)
 {
     // This atom is a property of the Program or Global objects

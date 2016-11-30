@@ -165,7 +165,6 @@ private:
     bool checkTooManyErrors() const;
     
     Value* valueFromId(Atom, const Object*) const;
-    CallReturnValue call(uint32_t nparams, ObjectId, bool isNew);
 
     m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
