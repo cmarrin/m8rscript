@@ -50,7 +50,7 @@ inline static void reverse(char *str, int len)
     }
 }
 
-static int32_t intToString(int32_t x, char* str, int32_t dp)
+static int32_t intToString(Float::decompose_type x, char* str, int16_t dp)
 {
     int32_t i = 0;
     bool haveDP = false;
@@ -93,7 +93,7 @@ static int32_t intToString(int32_t x, char* str, int32_t dp)
     return i;
 }
 
-static bool toString(char* buf, uint32_t value, int32_t& exp)
+static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
 {
     if (value == 0) {
         buf[0] = '0';
@@ -108,7 +108,7 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
     }
 
     // See how many digits we have
-    uint32_t v = value;
+    Float::decompose_type v = value;
     int digits = 0;
     for ( ; v > 0; ++digits, v /= 10) ;
     v = value;
@@ -138,8 +138,8 @@ static bool toString(char* buf, uint32_t value, int32_t& exp)
 m8r::String Value::toString(Float value)
 {
     char buf[Float::MaxDigits + 8];
-    int32_t exp;
-    int32_t mantissa;
+    int16_t exp;
+    Float::decompose_type mantissa;
     value.decompose(mantissa, exp);
     if (mantissa < 0) {
         buf[0] = '-';
@@ -154,7 +154,7 @@ m8r::String Value::toString(Float value)
 m8r::String Value::toString(uint32_t value)
 {
     char buf[12];
-    int32_t exp = 0;
+    int16_t exp = 0;
     ::toString(buf, value, exp);
     return m8r::String(buf);
 }
@@ -162,7 +162,7 @@ m8r::String Value::toString(uint32_t value)
 m8r::String Value::toString(int32_t value)
 {
     char buf[12];
-    int32_t exp = 0;
+    int16_t exp = 0;
     if (value < 0) {
         buf[0] = '-';
         value = -value;

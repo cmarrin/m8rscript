@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-template<typename RawType, int32_t BinExp = 0, int32_t DecExp = 0>
+template<typename RawType, typename DecomposeType, int32_t BinExp = 0, int32_t DecExp = 0>
 class _Float
 {
 private:
@@ -57,6 +57,7 @@ public:
     };
     
     typedef RawType value_type;
+    typedef DecomposeType decompose_type;
     
     static constexpr int32_t BinaryExponent = BinExp;
     static constexpr int32_t DecimalExponent = DecExp;
@@ -67,9 +68,9 @@ public:
     _Float(Raw value) { _value._raw = value._raw; }
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
-    _Float(int32_t value) { _value._raw = value; }
+    _Float(RawType value) { _value._raw = value; }
     
-    _Float(int32_t i, int32_t e)
+    _Float(RawType i, int32_t e)
     {
         if (i == 0) {
             _value._raw = 0;
@@ -105,7 +106,7 @@ public:
             return;
         }
         
-        _value._raw = sign * static_cast<int32_t>(num);
+        _value._raw = sign * static_cast<RawType>(num);
     }
     
     RawType raw() const { return _value._raw; 
@@ -128,7 +129,7 @@ public:
     {
         _Float r;
         int64_t result = static_cast<uint64_t>(_value._raw) * other._value._raw >> BinaryExponent;
-        r._value._raw = static_cast<int32_t>(result);
+        r._value._raw = static_cast<RawType>(result);
         return r;
     }
     _Float operator/(const _Float& other) const
@@ -139,21 +140,21 @@ public:
         }
         _Float r;
         int64_t result = (static_cast<int64_t>(_value._raw) << BinaryExponent) / other._value._raw;
-        r._value._raw = static_cast<int32_t>(result);
+        r._value._raw = static_cast<RawType>(result);
         return r;
     }
     _Float floor() const { _Float r; r._value._raw = _value._raw >> BinaryExponent << BinaryExponent; return r; }
 
-    void decompose(int32_t& mantissa, int32_t& exponent) const
+    void decompose(DecomposeType& mantissa, int16_t& exponent) const
     {
         if (_value._raw == 0) {
             mantissa = 0;
             exponent = 0;
             return;
         }
-        int32_t sign = (_value._raw < 0) ? -1 : 1;
-        int64_t value = static_cast<int64_t>(sign * _value._raw) * DecimalMultiplier;
-        mantissa = sign * static_cast<int32_t>(((value >> (BinaryExponent - 1)) + 1) >> 1);
+        RawType sign = (_value._raw < 0) ? -1 : 1;
+        DecomposeType value = static_cast<DecomposeType>(sign * _value._raw) * DecimalMultiplier;
+        mantissa = sign * static_cast<DecomposeType>(((value >> (BinaryExponent - 1)) + 1) >> 1);
         exponent = -DecimalExponent;
     }
 
@@ -174,7 +175,7 @@ private:
 };
 
 template<>
-inline _Float<float>::_Float(int32_t i, int32_t e)
+inline _Float<float, int32_t>::_Float(value_type i, int32_t e)
 {
     float num = static_cast<float>(i);
     while (e > 0) {
@@ -189,7 +190,7 @@ inline _Float<float>::_Float(int32_t i, int32_t e)
 }
 
 template<>
-inline void _Float<float>::decompose(int32_t& mantissa, int32_t& exponent) const
+inline void _Float<float, int32_t>::decompose(int32_t& mantissa, int16_t& exponent) const
 {
     if (_value._raw == 0) {
         mantissa = 0;
@@ -212,7 +213,7 @@ inline void _Float<float>::decompose(int32_t& mantissa, int32_t& exponent) const
 }
 
 template<>
-inline _Float<float> _Float<float>::operator*(const _Float& other) const
+inline _Float<float, int32_t> _Float<float, int32_t>::operator*(const _Float& other) const
 {
     _Float r;
     r._value._raw = _value._raw * other._value._raw;
@@ -220,7 +221,7 @@ inline _Float<float> _Float<float>::operator*(const _Float& other) const
 }
 
 template<>
-inline _Float<float> _Float<float>::operator/(const _Float& other) const
+inline _Float<float, int32_t> _Float<float, int32_t>::operator/(const _Float& other) const
 {
     _Float r;
     r._value._raw = _value._raw / other._value._raw;
@@ -228,7 +229,7 @@ inline _Float<float> _Float<float>::operator/(const _Float& other) const
 }
 
 template<>
-inline _Float<float> _Float<float>::floor() const
+inline _Float<float, int32_t> _Float<float, int32_t>::floor() const
 {
     _Float r;
     r._value._raw = static_cast<float>(static_cast<int32_t>(_value._raw));
@@ -236,7 +237,7 @@ inline _Float<float> _Float<float>::floor() const
 }
 
 template<>
-inline _Float<double>::_Float(int32_t i, int32_t e)
+inline _Float<double, int64_t>::_Float(value_type i, int32_t e)
 {
     double num = static_cast<double>(i);
     while (e > 0) {
@@ -251,7 +252,7 @@ inline _Float<double>::_Float(int32_t i, int32_t e)
 }
 
 template<>
-inline void _Float<double>::decompose(int32_t& mantissa, int32_t& exponent) const
+inline void _Float<double, int64_t>::decompose(int64_t& mantissa, int16_t& exponent) const
 {
     if (_value._raw == 0) {
         mantissa = 0;
@@ -274,7 +275,7 @@ inline void _Float<double>::decompose(int32_t& mantissa, int32_t& exponent) cons
 }
 
 template<>
-inline _Float<double> _Float<double>::operator*(const _Float& other) const
+inline _Float<double, int64_t> _Float<double, int64_t>::operator*(const _Float& other) const
 {
     _Float r;
     r._value._raw = _value._raw * other._value._raw;
@@ -282,7 +283,7 @@ inline _Float<double> _Float<double>::operator*(const _Float& other) const
 }
 
 template<>
-inline _Float<double> _Float<double>::operator/(const _Float& other) const
+inline _Float<double, int64_t> _Float<double, int64_t>::operator/(const _Float& other) const
 {
     _Float r;
     r._value._raw = _value._raw / other._value._raw;
@@ -290,20 +291,25 @@ inline _Float<double> _Float<double>::operator/(const _Float& other) const
 }
 
 template<>
-inline _Float<double> _Float<double>::floor() const
+inline _Float<double, int64_t> _Float<double, int64_t>::floor() const
 {
     _Float r;
     r._value._raw = static_cast<double>(static_cast<int64_t>(_value._raw));
     return r;
 }
 
-typedef _Float<int32_t, 10, 2> Float32;
-typedef _Float<int64_t, 20, 5> Float64;
-typedef _Float<float> FloatFloat;
-typedef _Float<double> FloatDouble;
+// Range is +/- 2e6 with 2 decimal digits of precision
+typedef _Float<int32_t, int32_t, 10, 2> Float32;
 
-typedef Float32 Float;
-//typedef Float64 Float;
+// Range is +/- 2e9 with 8 decimal digits of precision. When used
+// As value lower 4 bits is used to store a type enum, so these
+// bits are always 0. Thus the 8 digit precision.
+typedef _Float<int64_t, int64_t, 20, 8> Float64;
+typedef _Float<float, int32_t> FloatFloat;
+typedef _Float<double, int64_t> FloatDouble;
+
+//typedef Float32 Float;
+typedef Float64 Float;
 //typedef FloatFloat Float;
 //typedef FloatDouble Float;
 

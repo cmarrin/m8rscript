@@ -47,11 +47,9 @@ static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 Global::Global(SystemInterface* system, Program* program) : _system(system)
 {
-    std::string s = "Date";
-    
     _startTime = 0;
 
-    _DateAtom = program->atomizeString(s.c_str());
+    _DateAtom = program->atomizeString(ROMSTR("Date"));
     _SystemAtom = program->atomizeString(ROMSTR("System"));
     _SerialAtom = program->atomizeString(ROMSTR("Serial"));
     _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
@@ -245,7 +243,7 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
     switch(static_cast<Property>(index)) {
         case Property::Date_now: {
             uint64_t t = _system->currentMicroseconds() - _startTime;
-            eu->stack().push(Float(static_cast<int32_t>(t), -6));
+            eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::Serial_print:
