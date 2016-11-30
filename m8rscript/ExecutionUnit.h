@@ -48,36 +48,67 @@ class Function;
 class Program;
 class SystemInterface;
 
-class ExecutionStack : public Stack<Value>, public Object
+class ExecutionStack : public Object
 {
 public:
-    ExecutionStack(uint32_t size) : Stack<Value>(size) { }
+    ExecutionStack(uint32_t size) : _stack(size) { }
 
     virtual const char* typeName() const override { return "Local"; }
 
     virtual Value elementRef(int32_t index) override { return Value(Program::stackId(), index, false); }
-    virtual const Value element(uint32_t index) const override { return inFrame(index); }
-    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
+    virtual const Value element(uint32_t index) const override { return Value(_stack.inFrame(index)); }
+    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override { _stack.inFrame(index) = value; return true; }
     virtual bool appendElement(ExecutionUnit*, const Value&) override { assert(0); return false; }
     virtual size_t elementCount() const override { assert(0); return 0; }
     virtual void setElementCount(size_t) override { assert(0); }
     
+    void clear() { _stack.clear(); }
+
+    Value& top(int32_t relative = 0)
+    {
+        return *(reinterpret_cast<Value*>(&_stack.top(relative)));
+    }
+    
+    void setTop(const Value& value) { _stack.setTop(value); }
+
+    void push(const Value& value) { _stack.push(value); }
+
+    void pop(size_t n = 1)
+    {
+        _stack.pop(n);
+    }
+    
+    void pop(Value& value)
+    {
+        value = top();
+        _stack.pop();
+    }
+
     void popBaked(ExecutionUnit* eu, Value& value)
     {
-        pop(value);
-        if (value.canBeBaked()) {
-            value = value.bake(eu);
-        }
+        topBaked(eu, value);
+        _stack.pop();
     }
     
     void topBaked(ExecutionUnit* eu, Value& value)
     {
-        std::swap(value, top());
+        value = _stack.top();
+
+        if (value.asObjectIdValue() == objectId() && value.type() == Value::Type::ElementRef) {
+            // Optimize case of accessing stack elements
+            value = _stack.inFrame(value.asIndexValue());
+            return;
+        }
+        
         if (value.canBeBaked()) {
             value = value.bake(eu);
         }
     }
     
+    size_t setLocalFrame(size_t nparams, size_t localSize) { return _stack.setLocalFrame(nparams, localSize); }
+    void restoreFrame(size_t frame) { _stack.restoreFrame(frame); }
+    bool validateFrame(size_t frame, size_t localSize) { return _stack.validateFrame(frame, localSize); }
+
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
     {
@@ -88,6 +119,9 @@ protected:
     {
         return true;
     }
+    
+private:
+     Stack<uint64_t> _stack; 
 };
 
 class ExecutionUnit {

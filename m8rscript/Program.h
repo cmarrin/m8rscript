@@ -57,7 +57,7 @@ public:
     
     SystemInterface* system() const { return _global.system(); }
 
-    void setStack(Object* stack) { _objects[StackId] = stack; }
+    void setStack(Object* stack) { _objects[StackId] = stack; stack->setObjectId(StackId); }
     
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
