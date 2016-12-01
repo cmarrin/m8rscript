@@ -69,6 +69,11 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 
 Value ExecutionUnit::derefId(Atom atom)
 {
+    if (!atom) {
+        printError(ROMSTR("Value in PUSHREFK must be an Atom"));
+        return Value();
+    }
+
     // This atom is a property of the Program or Global objects
     Object* object = _program;
     int32_t index = _program->propertyIndex(atom);
@@ -126,9 +131,9 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
-        /* 0x34 */      OP(UNKNOWN)  OP(PUSHIDREF)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x34 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x3c */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x3c */      OP(PUSHREFK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
         /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
         /* 0x48 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
@@ -206,10 +211,6 @@ static const uint16_t YieldCount = 2000;
         _stack.push(Atom(uintFromCode(_code, _pc, 2)));
         _pc += 2;
         DISPATCH;
-    L_PUSHIDREF:
-        _stack.push(derefId(Atom(uintFromCode(_code, _pc, 2))));
-        _pc += 2;
-        DISPATCH;
     L_PUSHF:
         size = sizeFromOp(op);
         floatValue = Float::make(uintFromCode(_code, _pc, sizeFromOp(op)));
@@ -254,6 +255,11 @@ static const uint16_t YieldCount = 2000;
         uintValue = uintFromCode(_code, _pc, 1);
         _pc += 1;
         _stack.push(_program->obj(_object)->constant(ConstantId(uintValue)));
+        DISPATCH;
+    L_PUSHREFK:
+        uintValue = uintFromCode(_code, _pc, 1);
+        _pc += 1;
+        _stack.push(derefId(_program->obj(_object)->constant(ConstantId(uintValue)).asIdValue()));
         DISPATCH;
     L_PUSHLITA:
         objectValue = new Array(_program);

@@ -170,14 +170,9 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
-    if (type == IdType::NotLocal) {
-        ConstantId id = _currentFunction->addConstant(atom);
-        addCodeByte(Op::PUSHK, 0x00);
-        addCodeInt(id.raw(), 1);
-    } else {
-        addCodeByte(Op::PUSHIDREF, 0x01);
-        addCodeInt(atom.raw(), 2);
-    }
+    ConstantId id = _currentFunction->addConstant(atom);
+    addCodeByte((type == IdType::NotLocal) ? Op::PUSHK : Op::PUSHREFK, 0x00);
+    addCodeInt(id.raw(), 1);
 }
 
 void Parser::emit(Op value)

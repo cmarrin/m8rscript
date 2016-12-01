@@ -94,8 +94,8 @@ struct Label {
 //      1010 - PUSHO        4 byte form used
 //      1011 - RET          1 byte form used
 //      1100 - PUSHL        1 and 2 byte forms used - Push local variable. Param is index in _locals
-//      1101 - PUSHIDREF    2 byte form used (same as PUSHID, but used for bare refs)
 //      1101 - PUSHK        1 byte form used, push 1 byte ConstantId
+//      1110 - PUSHREFK     1 byte form used, push 1 byte ConstantId as a ref (Constant must be Atom)
 //
 enum class Op : uint8_t {
     UNKNOWN = 0x00,
@@ -115,8 +115,8 @@ enum class Op : uint8_t {
     RETX = 0x2C,    // 0010 1100
     PUSHLX = 0x30,  // 0011 0000
     
-    PUSHIDREF = 0x34, // 0011 0100
     PUSHK = 0x38,   // 0011 1000
+    PUSHREFK = 0x3C,   // 0011 1100
     
     PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
     CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
