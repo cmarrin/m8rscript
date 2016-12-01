@@ -55,6 +55,7 @@ public:
     m8r::String generateCodeString(const Program* program) const;
     
 private:    
+    void showValue(const Program*, m8r::String&, const Value&) const;
     Value* valueFromId(Atom, const Object*) const;
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);

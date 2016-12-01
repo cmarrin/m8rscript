@@ -75,14 +75,13 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
     
 	for (uint16_t i = 0; ; i++) {
         Object* obj = program->obj(ObjectId(i));
-        if (!obj) {
+        if (!obj || obj == program) {
             break;
         }
         if (obj->code()) {
             outputString += generateCodeString(program, obj, Value::toString(i).c_str(), _nestingLevel);
             outputString += "\n";
         }
-        ++i;
 	}
     
     outputString += generateCodeString(program, program, "main", 0);
@@ -97,7 +96,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(PUSHIX)
+        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN)
         /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
@@ -110,7 +109,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
         /* 0x34 */      OP(UNKNOWN)  OP(PUSHIDREF)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
         /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
@@ -134,7 +133,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN)
         /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
         /* 0xF0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
@@ -213,6 +212,32 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         }
     }
     
+    // Display the constants
+    if (obj->isFunction()) {
+        const Function* function = static_cast<const Function*>(obj);
+        
+        // We don't show the first Constant, it is a dummy error value
+        if (function->constantCount() > 1) {
+            indentCode(outputString);
+            outputString += "CONSTANTS:\n";
+            _nestingLevel++;
+
+            for (uint8_t i = 1; i < function->constantCount(); ++i) {
+                Value constant = function->constant(ConstantId(i));
+                indentCode(outputString);
+                outputString += "[" + Value::toString(i) + "] = ";
+                showValue(program, outputString, constant);
+                outputString += "\n";
+            }
+            _nestingLevel--;
+            outputString += "\n";
+        }
+    }
+
+    indentCode(outputString);
+    outputString += "CODE:\n";
+    _nestingLevel++;
+
     i = 0;
     m8r::String strValue;
     uint32_t uintValue;
@@ -234,6 +259,14 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         i += 2;
         outputString += (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHID) ? "ID(" : "IDREF(";
         outputString += strValue.c_str();
+        outputString += ")\n";
+        DISPATCH;
+    L_PUSHK:
+        preamble(outputString, i - 1);
+        uintValue = ExecutionUnit::uintFromCode(code, i, 1);
+        i += 1;
+        outputString += "CONST(";
+        outputString += Value::toString(uintValue);
         outputString += ")\n";
         DISPATCH;
     L_PUSHF:
@@ -271,7 +304,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_PUSHO:
         preamble(outputString, i - 1);
         uintValue = ExecutionUnit::uintFromCode(code, i, 2);
-        i += 4;
+        i += 2;
         outputString += "OBJ(";
         outputString += Value::toString(uintValue);
         outputString += ")\n";
@@ -345,6 +378,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         _nestingLevel--;
         preamble(outputString, i - 1);
         outputString += "END\n";
+        _nestingLevel--;
         return outputString;
 }
 
@@ -413,3 +447,32 @@ void CodePrinter::indentCode(m8r::String& s) const
     }
 }
 
+void CodePrinter::showValue(const Program* program, m8r::String& s, const Value& value) const
+{
+    switch(value.type()) {
+        case Value::Type::None: s += "NONE"; break;
+        case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
+        case Value::Type::Integer: s += "INT(" + Value::toString(value.asIntValue()) + ")"; break;
+        case Value::Type::String: s += "***String***"; break;
+        case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
+        case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
+        case Value::Type::ElementRef: s += "***ElementRef***"; break;
+        case Value::Type::PropertyRef: s += "***PropertyRef***"; break;
+        case Value::Type::PreviousFrame: s += "***PreviousFrame***"; break;
+        case Value::Type::PreviousPC: s += "***PreviousPC***"; break;
+        case Value::Type::PreviousObject: s += "***PreviousObject***"; break;
+        case Value::Type::Object: {
+            ObjectId objectId = value.asObjectIdValue();
+            Object* obj = program->obj(objectId);
+            if (obj->isFunction()) {
+                _nestingLevel++;
+                s += "\n";
+                s += generateCodeString(program, obj, Value::toString(objectId.raw()).c_str(), _nestingLevel);
+                _nestingLevel--;
+                break;
+            }
+            s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
+            break;
+        }
+    }
+}
