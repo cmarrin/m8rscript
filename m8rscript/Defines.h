@@ -82,16 +82,11 @@ struct Label {
 //
 //  The next 4 bits is the opcode class:
 //      0000 - unused
-//      0001 - PUSHID       2 byte form used
-//      0010 - PUSHF        4 or 8 byte form used
-//      0011 - PUSHI        1, 2, 4, 8 byte forms used
-//      0100 - PUSHS        1, 2 and 4 byte forms used
 //      0101 - JMP          1 and 2 byte forms used
 //      0110 - JT           1 and 2 byte forms used
 //      0111 - JF           1 and 2 byte forms used
 //      1000 - CALL         1 byte form used
 //      1001 - NEW          1 byte form used
-//      1010 - PUSHO        4 byte form used
 //      1011 - RET          1 byte form used
 //      1100 - PUSHL        1 and 2 byte forms used - Push local variable. Param is index in _locals
 //      1101 - PUSHK        1 byte form used, push 1 byte ConstantId
@@ -99,10 +94,6 @@ struct Label {
 //
 enum class Op : uint8_t {
     UNKNOWN = 0x00,
-    PUSHID = 0x04,   // 0000 0100 - Next 2 bytes are atom
-    PUSHF  = 0x08,   // 0000 1011 - Next 4 or 8 bytes are number
-    PUSHIX = 0x0C,   // 0000 1100 - Next bytes are number
-    PUSHSX = 0x10,   // 0001 0000 - Next 1, 2, or 4 bytes is the index into the string table
     
     // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
     JMP = 0x14,     // 0001 0100
@@ -111,14 +102,14 @@ enum class Op : uint8_t {
     
     CALLX = 0x20,   // 0010 0000
     NEWX = 0x24,    // 0010 0100
-    PUSHO = 0x28,   // 0010 1010
     RETX = 0x2C,    // 0010 1100
     PUSHLX = 0x30,  // 0011 0000
     
     PUSHK = 0x38,   // 0011 1000
     PUSHREFK = 0x3C,   // 0011 1100
     
-    PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
+    PASTENDOFCOMPACTOPCODES = 0x40,
+    
     CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
     NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
     RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15

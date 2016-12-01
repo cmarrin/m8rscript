@@ -174,38 +174,40 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
             break;
         }
         
-        if (op < Op::PUSHI) {
-            uint32_t count = ExecutionUnit::sizeFromOp(op);
-            
-            op = ExecutionUnit::maskOp(op, 0x03);
-            // FIXME: Need to handle PUSHO and Object table
-            if (op == Op::PUSHID) {
-                if (count != 2) {
-                    return false;
-                }
-                uint16_t id = ExecutionUnit::uintFromCode(_code.data(), i, count);
-                String idString = atomTable.stringFromAtom(Atom(id));
-                Atom atom = program->atomizeString(idString.c_str());
-                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 1);
-                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 0);
-            } else if (op == Op::PUSHSX) {
-                if (count != 4) {
-                    return false;
-                }
-                uint32_t index = ExecutionUnit::uintFromCode(_code.data(), i, count);
-                if (index >= stringTable.size()) {
-                    return false;
-                }
-                const char* str = &(stringTable[index]);
-                StringLiteral stringId = program->addStringLiteral(str);
-                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 3);
-                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 2);
-                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 1);
-                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 0);
-            } else {
-                i += count;
-            }
-        }
+// FIXME: Now we just need to walk through the Constants array
+//
+//        if (op < Op::PUSHI) {
+//            uint32_t count = ExecutionUnit::sizeFromOp(op);
+//            
+//            op = ExecutionUnit::maskOp(op, 0x03);
+//            // FIXME: Need to handle PUSHO and Object table
+//            if (op == Op::PUSHID) {
+//                if (count != 2) {
+//                    return false;
+//                }
+//                uint16_t id = ExecutionUnit::uintFromCode(_code.data(), i, count);
+//                String idString = atomTable.stringFromAtom(Atom(id));
+//                Atom atom = program->atomizeString(idString.c_str());
+//                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 1);
+//                _code[i++] = ExecutionUnit::byteFromInt(atom.raw(), 0);
+//            } else if (op == Op::PUSHSX) {
+//                if (count != 4) {
+//                    return false;
+//                }
+//                uint32_t index = ExecutionUnit::uintFromCode(_code.data(), i, count);
+//                if (index >= stringTable.size()) {
+//                    return false;
+//                }
+//                const char* str = &(stringTable[index]);
+//                StringLiteral stringId = program->addStringLiteral(str);
+//                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 3);
+//                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 2);
+//                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 1);
+//                _code[i++] = ExecutionUnit::byteFromInt(stringId.raw(), 0);
+//            } else {
+//                i += count;
+//            }
+//        }
     }
     return true;
 }

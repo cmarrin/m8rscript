@@ -117,17 +117,17 @@ int32_t ExecutionUnit::continueExecution()
     
     static const void* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR dispatchTable[] {
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN)
-        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
+        /* 0x04 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x10 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
         /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -135,8 +135,8 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(PUSHREFK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
-        /* 0x48 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x40 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x48 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x50 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x58 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x60 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
@@ -207,38 +207,6 @@ static const uint16_t YieldCount = 2000;
     L_UNKNOWN:
         assert(0);
         return -1;
-    L_PUSHID:
-        _stack.push(Atom(uintFromCode(_code, _pc, 2)));
-        _pc += 2;
-        DISPATCH;
-    L_PUSHF:
-        size = sizeFromOp(op);
-        floatValue = Float::make(uintFromCode(_code, _pc, sizeFromOp(op)));
-        _stack.push(Value(floatValue));
-        _pc += size;
-        DISPATCH;
-    L_PUSHI:
-    L_PUSHIX:
-        if (maskOp(op, 0x0f) == Op::PUSHI) {
-            uintValue = uintFromOp(op, 0x0f);
-        } else {
-            size = sizeFromOp(op);
-            uintValue = uintFromCode(_code, _pc, size);
-            _pc += size;
-        }
-        _stack.push(static_cast<int32_t>(uintValue));
-        DISPATCH;
-    L_PUSHSX:
-        size = sizeFromOp(op);
-        uintValue = uintFromCode(_code, _pc, size);
-        _pc += size;
-        _stack.push(Value(StringLiteral(uintValue)));
-        DISPATCH;
-    L_PUSHO:
-        uintValue = uintFromCode(_code, _pc, 2);
-        _pc += 2;
-        _stack.push(ObjectId(uintValue));
-        DISPATCH;
     L_PUSHL:
     L_PUSHLX:
         if (maskOp(op, 0x0f) == Op::PUSHL) {

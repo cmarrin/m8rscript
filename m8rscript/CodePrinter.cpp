@@ -94,17 +94,17 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     #define OP(op) &&L_ ## op,
     static const void* dispatchTable[] {
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN)
-        /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
+        /* 0x04 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x10 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
         /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(PUSHO) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
@@ -112,8 +112,8 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(PUSHREFK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
-        /* 0x48 */      OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
+        /* 0x40 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x48 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x50 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x58 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
         /* 0x60 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
@@ -198,7 +198,7 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         uint8_t c = obj->code()->at(i++);
         Op op = ExecutionUnit::maskOp(static_cast<Op>(c), 0x03);
         
-        if (op < Op::PUSHI) {
+        if (op < Op::PASTENDOFCOMPACTOPCODES) {
             uint32_t count = ExecutionUnit::sizeFromOp(op);
             int nexti = i + count;
             
@@ -252,60 +252,12 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     L_UNKNOWN:
         outputString += "UNKNOWN\n";
         DISPATCH;
-    L_PUSHID:
-        preamble(outputString, i - 1);
-        strValue = program->stringFromAtom(Atom(ExecutionUnit::uintFromCode(code, i, 2)));
-        i += 2;
-        outputString += "ID(";
-        outputString += strValue.c_str();
-        outputString += ")\n";
-        DISPATCH;
     L_PUSHREFK:
     L_PUSHK:
         preamble(outputString, i - 1);
         uintValue = ExecutionUnit::uintFromCode(code, i, 1);
         i += 1;
         outputString += (op == Op::PUSHK) ? "CONST(" : "CONSTREF)";
-        outputString += Value::toString(uintValue);
-        outputString += ")\n";
-        DISPATCH;
-    L_PUSHF:
-        preamble(outputString, i - 1);
-        size = ExecutionUnit::sizeFromOp(op);
-        uintValue = ExecutionUnit::uintFromCode(code, i, size);
-        i += size;
-        outputString += "FLT(";
-        outputString += Value::toString(Float::make(uintValue));
-        outputString += ")\n";
-        DISPATCH;
-    L_PUSHI:
-    L_PUSHIX:
-        preamble(outputString, i - 1);
-        if (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHI) {
-            uintValue = ExecutionUnit::uintFromOp(op, 0x0f);
-        } else {
-            size = ExecutionUnit::sizeFromOp(op);
-            uintValue = ExecutionUnit::uintFromCode(code, i, size);
-            i += size;
-        }
-        outputString += "INT(";
-        outputString += Value::toString(uintValue);
-        outputString += ")\n";
-        DISPATCH;
-    L_PUSHSX:
-        preamble(outputString, i - 1);
-        size = ExecutionUnit::sizeFromOp(op);
-        uintValue = ExecutionUnit::uintFromCode(code, i, size);
-        i += size;
-        outputString += "STR(\"";
-        outputString += program->stringFromStringLiteral(StringLiteral(uintValue));
-        outputString += "\")\n";
-        DISPATCH;
-    L_PUSHO:
-        preamble(outputString, i - 1);
-        uintValue = ExecutionUnit::uintFromCode(code, i, 2);
-        i += 2;
-        outputString += "OBJ(";
         outputString += Value::toString(uintValue);
         outputString += ")\n";
         DISPATCH;
@@ -391,23 +343,16 @@ struct CodeMap
 #undef OP
 #define OP(op) { Op::op, #op },
 
-static CodeMap opcodes[] = {
-    OP(PUSHID)
-    OP(PUSHF)
-    OP(PUSHIX)
-    OP(PUSHSX)
-    
+static CodeMap opcodes[] = {    
     OP(JMP)
     OP(JT)
     OP(JF)
     
     OP(CALLX)
     OP(NEWX)
-    OP(PUSHO)
     OP(RETX)
     OP(PUSHLX)
 
-    OP(PUSHI)
     OP(CALL)
     OP(NEW)
     OP(RET)
