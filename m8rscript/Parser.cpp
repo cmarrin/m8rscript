@@ -128,44 +128,23 @@ void Parser::addCodeByte(uint8_t c)
 
 void Parser::emit(StringLiteral::Raw s)
 {
-    // Make all strings 4 bytes so string index is not an issue
-    // when deserializing strings into an existing program
-    addCodeByte(Op::PUSHSX, 2);
-    addCodeInt(s.raw(), 4);
+    ConstantId id = _currentFunction->addConstant(StringLiteral(s));
+    addCodeByte(Op::PUSHK, 0x00);
+    addCodeInt(id.raw(), 1);
 }
 
-void Parser::emit(uint64_t value)
+void Parser::emit(uint32_t value)
 {
-    uint32_t size;
-    uint32_t mask;
-    
-    if (value <= 15) {
-        addCodeByte(Op::PUSHI, static_cast<uint8_t>(value));
-        return;
-    }
-    if (value < std::numeric_limits<uint8_t>::max()) {
-        size = 1;
-        mask = 0;
-    } else if (value < std::numeric_limits<uint16_t>::max()) {
-        size = 2;
-        mask = 0x01;
-    } else if (value < std::numeric_limits<uint32_t>::max()) {
-        size = 4;
-        mask = 0x02;
-    } else {
-        size = 8;
-        mask = 0x03;
-    }
-    addCodeByte(Op::PUSHIX, mask);
-    addCodeInt(value, size);
+    ConstantId id = _currentFunction->addConstant(value);
+    addCodeByte(Op::PUSHK, 0x00);
+    addCodeInt(id.raw(), 1);
 }
 
 void Parser::emit(Float value)
 {
-    uint64_t v = value.raw();
-    uint32_t size = (v <= std::numeric_limits<uint32_t>::max()) ? 4 : 8;
-    addCodeByte(Op::PUSHF, (size == 4) ? 0x02 : 0x03);
-    addCodeInt(v, size);
+    ConstantId id = _currentFunction->addConstant(value);
+    addCodeByte(Op::PUSHK, 0x00);
+    addCodeInt(id.raw(), 1);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
@@ -190,9 +169,15 @@ void Parser::emitId(const Atom& atom, IdType type)
             return;
         }
     }
-        
-    addCodeByte((type == IdType::MightBeLocal) ? Op::PUSHIDREF : Op::PUSHID, 0x01);
-    addCodeInt(atom.raw(), 2);
+    
+    if (type == IdType::NotLocal) {
+        ConstantId id = _currentFunction->addConstant(atom);
+        addCodeByte(Op::PUSHK, 0x00);
+        addCodeInt(id.raw(), 1);
+    } else {
+        addCodeByte(Op::PUSHIDREF, 0x01);
+        addCodeInt(atom.raw(), 2);
+    }
 }
 
 void Parser::emit(Op value)
@@ -202,8 +187,9 @@ void Parser::emit(Op value)
 
 void Parser::emit(ObjectId function)
 {
-    addCodeByte(Op::PUSHO, 0x01);
-    addCodeInt(function.raw(), 2);
+    ConstantId id = _currentFunction->addConstant(function);
+    addCodeByte(Op::PUSHK, 0x00);
+    addCodeInt(id.raw(), 1);
 }
 
 void Parser::addNamedFunction(ObjectId functionId, const Atom& name)

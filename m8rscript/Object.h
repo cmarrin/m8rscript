@@ -89,6 +89,8 @@ public:
     virtual int32_t localIndex(const Atom& name) const { return -1; }
     virtual Atom localName(int32_t index) const { return Atom(); }
     virtual size_t localSize() const { return 0; }
+    
+    virtual Value constant(ConstantId) const { return Value(); }
 
     virtual bool setValue(ExecutionUnit*, const Value&) { return false; }
     virtual Value* value() { return nullptr; }

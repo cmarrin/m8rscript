@@ -42,6 +42,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <chrono>
 #include <thread>
 
+#define PrintCode 1
+
 Simulator::~Simulator()
 {
 }
@@ -91,6 +93,9 @@ void Simulator::build(const char* name)
 {
     _running = false;
     if (_shell.load(name)) {
+#ifdef PrintCode
+        printCode();
+#endif
         _system->printf(ROMSTR("Ready to run\n"));
     }
 }

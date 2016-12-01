@@ -100,14 +100,14 @@ public:
     
     Object* obj(const ObjectId& id) const
     {
-        return _objects[id.raw()];
+        return (id.raw() < _objects.size()) ? _objects[id.raw()] : nullptr;
     }
     
     Function* func(const Value& value) const { return value.isObjectId() ? func(value.asObjectIdValue()) : nullptr; }
     Function* func(const ObjectId& id) const
     {
         Object* object = obj(id);
-        return object->isFunction() ? static_cast<Function*>(object) : nullptr;
+        return object ? (object->isFunction() ? static_cast<Function*>(object) : nullptr) : nullptr;
     }
     
     static ObjectId stackId() { return ObjectId(StackId); }

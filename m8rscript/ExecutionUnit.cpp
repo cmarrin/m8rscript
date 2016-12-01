@@ -114,7 +114,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x04 */ OP(UNKNOWN) OP(PUSHID) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(PUSHF) OP(PUSHF)
-        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(PUSHIX)
+        /* 0x0C */ OP(PUSHIX) OP(PUSHIX) OP(PUSHIX) OP(UNKNOWN)
         /* 0x10 */ OP(PUSHSX) OP(PUSHSX) OP(PUSHSX) OP(UNKNOWN)
         /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
@@ -127,7 +127,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
         /* 0x34 */      OP(UNKNOWN)  OP(PUSHIDREF)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x38 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
         /* 0x40 */ OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI) OP(PUSHI)
@@ -249,6 +249,11 @@ static const uint16_t YieldCount = 2000;
             _pc += size;
         }
         _stack.push(_stack.elementRef(intValue));
+        DISPATCH;
+    L_PUSHK:
+        uintValue = uintFromCode(_code, _pc, 1);
+        _pc += 1;
+        _stack.push(_program->obj(_object)->constant(ConstantId(uintValue)));
         DISPATCH;
     L_PUSHLITA:
         objectValue = new Array(_program);

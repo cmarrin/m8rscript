@@ -109,7 +109,7 @@ public:
     void programEnd();
         
     void emit(StringLiteral::Raw value);
-    void emit(uint64_t value);
+    void emit(uint32_t value);
     void emit(Float value);
     void emit(Op value);
     

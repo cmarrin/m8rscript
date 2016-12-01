@@ -43,7 +43,11 @@ namespace m8r {
 
 class Function : public MaterObject {
 public:
-    Function() { }
+    Function()
+    {
+        // Place a dummy constant at index 0 as an error return value
+        _constants.push_back(Value());
+    }
 
     virtual ~Function() { }
 
@@ -58,6 +62,16 @@ public:
     virtual Atom localName(int32_t index) const override { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
     virtual size_t localSize() const override { return _locals.size(); }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
+    
+    ConstantId addConstant(const Value& v)
+    {
+        assert(_constants.size() < std::numeric_limits<uint8_t>::max());
+        ConstantId r(static_cast<ConstantId::value_type>(_constants.size()));
+        _constants.push_back(v);
+        return r;
+    }
+    virtual Value constant(ConstantId id) const override { return _constants[(id.raw() < _constants.size()) ? id.raw() : 0]; }
+    size_t constantCount() const { return _constants.size(); }
 
     void addCode(uint8_t c) { _code.push_back(c); }
     void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
@@ -75,6 +89,7 @@ private:
     Code _code;
     std::vector<Atom> _locals;
     uint32_t _paramEnd = 0;
+    std::vector<Value> _constants;
 };
     
 }
