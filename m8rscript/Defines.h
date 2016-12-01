@@ -72,6 +72,100 @@ struct Label {
     int32_t matchedAddr : 20;
 };
 
+
+
+// Here is the new design of Opcodes:
+
+// Opcodes fit in one byte. They are optionally followed by up to 3 bytes.
+// Which parameters follow is determined by the lower upper 3 bits of the
+// opcode. So opcodes are split into 8 sets, each with a different paerameter
+// format
+//
+
+/*
+
+    K[s]    - Source constant, local to function (0..255)
+    K[s1]   - Source constant, local to function (0..255)
+    K[s2]   - Source constant, local to function (0..255)
+    R[s]    - Source register (0..255)
+    R[s1]   - Source register (0..255)
+    R[s2]   - Source register (0..255)
+    R[d]    - Destination register (0..255)
+    nparams - Params passed to called function (0..255)
+    addr    - Relative jump addr (-128..127)
+    laddr   - Relative jump addr (-32768..32767)
+
+    MOVE        R[d], R[s]                                  ; (5)
+    LOADK       R[d], K[s]
+    LOADREFK    R[d], K[s]
+    LOADLITA    R[d]
+    LOADLITO    R[d]
+    
+    <binop> ==> LOR, LAND,                                  ; [x20]
+                OR, AND, XOR,
+                EQ, NE, LT, LE, GT, GE,
+                SHL, SHR, SAR,
+                ADD, SUB, MUL, DIV, MOD
+                DEREF
+    
+    <binop>RR   R[d], R[s1], R[s2]                          ; (80)
+    <binop>RK   R[d], R[s1], K[s2]
+    <binop>KR   R[d], K[s1], R[s2]
+    <binop>KK   R[d], K[s1], K[s2]
+    
+    <unop> ==>  UMINUS, UNOT, UNEG                          ; [x7] 
+                PREINC, PREDEC, POSTINC, POSTDEC
+                
+    <unop>R     R[d], R[s]                                  ; (14)
+    <unop>K     R[d], K[s]
+    
+    CALL<0..3>R R[s]            ; nparams ==> 0..3          ; [x4]
+    CALL<0..3>K K[s]            ; nparams ==> 0..3          ; [x4]
+    CALLXR      R[s], nparams
+    CALLXK      K[s], nparams
+    NEW<0..3>R  R[s]            ; nparams ==> 0..3          ; [x4]
+    NEW<0..3>K  K[s]            ; nparams ==> 0..3          ; [x4]
+    NEWXR       R[s], nparams
+    NEWXK       K[s], nparams                               ; (20)
+    
+    JMP         addr                                        ; (10)
+    JMPX        laddr
+    JTR         R[s], addr
+    JTXR        R[s], laddr
+    JTK         K[s], addr
+    JTXK        K[s], laddr
+    JFR         R[s], addr
+    JFXR        R[s], laddr
+    JFK         K[s], addr
+    JFXK        K[s], laddr
+    
+    UNKNOWN                                                 ; (3)
+    RET
+    END
+    
+    Total: 132 instructions
+
+*/
+enum class Op2 : uint8_t {
+    // Category 0 - Opcodes with zero parameters
+    UNKNOWN = 0x00,
+    RET = 0x01,
+    END = 0x02,
+    
+    // Category 1 - Parameter is a 1 byte destination register (dreg) or a one byte relative jump addr
+    LOADLITA = 0x20, LOADLITO = 0x21, JMP = 0x22,
+    
+    // Category 2 - Parameter: 1 byte dreg, 1 byte sreg
+    JT = 0x40, JF = 0x41,
+};    
+    
+    
+    
+    
+    
+
+
+
 //  Opcodes with params have bit patterns.
 //  Upper 2 bits are 00 (values from 0x00 to 0x3f)
 //  The lower 2 bits indicate the number of additional bytes:
