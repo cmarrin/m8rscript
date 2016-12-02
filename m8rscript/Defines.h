@@ -85,6 +85,24 @@ struct Label {
     R       - Register (0..255)
     RK      - Register (0..255) or Constant (256..511)
     N       - Passed params (0..256K) or address (-128K..128K)
+    L       - Local variable (0..255) - only used during initial code generation
+    
+    Local vs Register parameters
+    ----------------------------
+    During initial code generation, register indexes are relative to 0 and grow
+    according to the number of register entries needed at any given time.
+    The high water mark is saved in the Function when code generation for that
+    Function is closed. Local variables for the function are also indexed 
+    starting at 0, but in a local variable space. During initial code
+    generation these are loaded into register variables by generating the LOADL
+    opcode. The destination is in the register space and the source is in
+    the locals space.
+    
+    After the Function is closed, a pass is done on the generated code. All
+    register indexs are bumped by the number of locals and the LOADL opcode
+    is changed to a MOVE with the destination index bumped but the source
+    index left intact. So the LOADL opcode should never make it through to
+    the ExecutionUnit.
 
     UNKNOWN     X, X, X
     RET         X, X, X
@@ -95,6 +113,8 @@ struct Label {
  
     LOADLITA    R[d], X, X
     LOADLITO    R[d], X, X
+    
+    LOADL       R[d], L[s], X
     
     <binop> ==> LOR, LAND,                                  ; (20)
                 OR, AND, XOR,
@@ -119,28 +139,28 @@ struct Label {
  
     Total: 39 instructions
 */
+
+static constexpr uint32_t MaxRegister = 255;
+
 enum class Op : uint8_t {
     UNKNOWN = 0x00, RET, END,
     
-    MOVE, LOADREFK,
-    LOADLITA, LOADLITO,
+    MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO, LOADL,
 
-    LOR, LAND, OR, AND, XOR,
+    LOR = 0x20, LAND, OR, AND, XOR,
     EQ,  NE, LT, LE, GT, GE,
     SHL, SHR, SAR,
     ADD, SUB, MUL, DIV, MOD,
     DEREF,
 
-    UMINUS, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
+    UMINUS = 0x40, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
 
-    CALL, NEW,
-
-    JMP, JT, JF,
+    CALL = 0x50, NEW, JMP, JT, JF,
     
     LAST
 };
 
-static_assert(static_cast<uint32_t>(Op::LAST) <= (1 << 6), "Opcode must fit in 6 bits");
+static_assert(static_cast<uint32_t>(Op::LAST) <= 0x56, "Opcode must fit in 6 bits");
 
 inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
 inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }

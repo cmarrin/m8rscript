@@ -161,7 +161,7 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     }
     
     _code.resize(size);
-    if (!deserializeBuffer(stream, error, reinterpret_cast<const uint8_t*>(_code.data()), size)) {
+    if (!deserializeBuffer(stream, error, reinterpret_cast<uint8_t*>(_code.data()), size)) {
         return false;
     }
     

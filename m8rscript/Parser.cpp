@@ -84,8 +84,7 @@ void Parser::addMatchedJump(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JF || op == Op::JF);
     label.matchedAddr = static_cast<int32_t>(_currentFunction->code()->size());
-    addCodeByte(op, 1);
-    addCodeInt(0, 2);
+    emitCode(op);
 }
 
 void Parser::matchJump(Label& label)
@@ -101,34 +100,25 @@ void Parser::matchJump(Label& label)
 
 void Parser::jumpToLabel(Op op, Label& label)
 {
-    assert(op == Op::JMP || op == Op::JF || op == Op::JF);
+    assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->code()->size()) - 1;
-    if (jumpAddr >= -127 && jumpAddr <= 127) {
-        addCodeByte(op);
-        addCodeByte(static_cast<uint8_t>(jumpAddr));
-    } else {
-        if (jumpAddr < -32767 || jumpAddr > 32767) {
-            printError("JUMP ADDRESS TOO BIG TO LOOP. CODE WILL NOT WORK!\n");
-            return;
-        }
-        addCodeByte(op, 0x01);
-        addCodeInt(jumpAddr, 2);
-    }
+    emitCode(op, (op == Op::JMP) ? 0 : _currentFunction->currentReg(), jumpAddr);
+    _currentFunction->popReg();
 }
 
 void Parser::emitCode(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff);
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff));
 }
 
 void Parser::emitCode(Op op, uint32_t ra, uint32_t n)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff);
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
 }
 
 void Parser::emitCode(Op op, uint32_t ra, int32_t n)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff);
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
 }
 
 void Parser::addCode(uint32_t c)

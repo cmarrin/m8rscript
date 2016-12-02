@@ -88,64 +88,92 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
     return outputString;
 }
 
+inline String regString(uint32_t reg)
+{
+    if (reg <= MaxRegister) {
+        return String("R[") + Value::toString(reg) + "]";
+    }
+    return String("K[") + Value::toString(reg - MaxRegister) + "]";
+}
+
+void CodePrinter::generateXXX(m8r::String& s, uint32_t addr, Op op) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op);
+}
+
+void CodePrinter::generateRXX(m8r::String& s, uint32_t addr, Op op, uint32_t d) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op) + " " + regString(d);
+}
+
+void CodePrinter::generateRRX(m8r::String& s, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op) + " " + regString(d) + ", " + regString(s);
+}
+
+void CodePrinter::generateRRR(m8r::String& s, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2);
+}
+
+void CodePrinter::generateXN(m8r::String& s, uint32_t addr, Op op, int32_t n) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op) + " " + Value::toString(n);
+}
+
+void CodePrinter::generateRN(m8r::String& s, uint32_t addr, Op op, uint32_t d, int32_t n) const
+{
+    preamble(s, addr);
+    s += stringFromOp(op) + " " + regString(d) + ", " + Value::toString(n);
+}
+
 m8r::String CodePrinter::generateCodeString(const Program* program, const Object* obj, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
     static const void* dispatchTable[] {
-        /* 0x00 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */ OP(UNKNOWN) OP(RET) OP(END) OP(UNKNOWN)
         /* 0x04 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x10 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x14 */ OP(JMP) OP(JMP) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x18 */ OP(JT) OP(JT)  OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x1C */ OP(JF) OP(JF) OP(UNKNOWN) OP(UNKNOWN)
-
-        /* 0x20 */ OP(CALLX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x24 */ OP(NEWX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x28 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x2C */ OP(RETX) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x30 */ OP(PUSHLX)  OP(PUSHLX)  OP(UNKNOWN)  OP(UNKNOWN)
         
-        /* 0x34 */      OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x38 */      OP(PUSHK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x3c */      OP(PUSHREFK)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
+        /* 0x14 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x18 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x40 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x48 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x50 */ OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
-        /* 0x58 */      OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL) OP(CALL)
-        /* 0x60 */ OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
-        /* 0x68 */      OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW) OP(NEW)
-        /* 0x70 */ OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET)
-        /* 0x78 */      OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET) OP(RET)
-        /* 0x80 */ OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL)
-        /* 0x88 */      OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL) OP(PUSHL)
+        /* 0x20 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
+        /* 0x24 */ OP(XOR) OP(EQ) OP(NE) OP(LT)
+        /* 0x28 */ OP(LE) OP(GT) OP(GE) OP(SHL)
+        /* 0x2C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
+        
+        /* 0x30 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
+        /* 0x34 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x3c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x90 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x98 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xA0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xA8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xB0 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xB8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC0 */      OP(OPCODE) OP(OPCODE) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0xC8 */      OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x40 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
+        /* 0x44 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(UNKNOWN)
+        /* 0x48 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x4c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0xD0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xD8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(UNKNOWN)
-        /* 0xE0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xE8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xF0 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xF8 */ OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE) OP(OPCODE)
-        /* 0xFF */ OP(END)
+        /* 0x50 */ OP(CALL) OP(NEW) OP(JMP) OP(JT)
+        /* 0x54 */ OP(JF) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x58 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x5c */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
     };
     
-static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is wrong size");
+static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = static_cast<Op>(code[i++]); \
+        machineCode = code[i++]; \
+        op = machineCodeToOp(machineCode); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -239,93 +267,50 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
     uint32_t size;
     Atom localName;
     
+    uint32_t machineCode;
     Op op;
+    uint32_t ra, rb, rc;
+    uint32_t un;
+    int32_t sn;
     
     DISPATCH;
     
     L_UNKNOWN:
         outputString += "UNKNOWN\n";
         DISPATCH;
-    L_PUSHREFK:
-    L_PUSHK:
-        preamble(outputString, i - 1);
-        uintValue = ExecutionUnit::uintFromCode(code, i, 1);
-        i += 1;
-        outputString += (op == Op::PUSHK) ? "CONST(" : "CONSTREF)";
-        outputString += Value::toString(uintValue);
-        outputString += ")\n";
-        DISPATCH;
-    L_PUSHL:
-    L_PUSHLX:
-        preamble(outputString, i - 1);
-        if (ExecutionUnit::maskOp(op, 0x0f) == Op::PUSHL) {
-            uintValue = ExecutionUnit::uintFromOp(op, 0x0f);
-        } else {
-            size = ExecutionUnit::sizeFromOp(op);
-            uintValue = ExecutionUnit::uintFromCode(code, i, size);
-            i += size;
-        }
-        outputString += "LOCAL(";
-        localName = obj->localName(uintValue);
-        outputString += localName ? program->stringFromAtom(localName) : "<UNKNOWN>";
-        outputString += ")\n";
-        DISPATCH;
-    L_JMP:
-    L_JT:
-    L_JF:
-        preamble(outputString, i - 1);
-        size = ExecutionUnit::intFromOp(op, 0x01) + 1;
-        intValue = ExecutionUnit::intFromCode(code, i, size);
-        op = ExecutionUnit::maskOp(op, 0x01);
-        outputString += (op == Op::JT) ? "JT" : ((op == Op::JF) ? "JF" : "JMP");
-        outputString += " LABEL[";
-        outputString += Value::toString(findAnnotation(i + intValue));
-        outputString += "]\n";
-        i += size;
-        DISPATCH;
-    L_NEW:
-    L_NEWX:
-    L_CALL:
-    L_CALLX:
-        preamble(outputString, i - 1);
-        if (op == Op::CALLX || op == Op::NEWX) {
-            uintValue = ExecutionUnit::uintFromCode(code, i, 1);
-            i += 1;
-        } else {
-            uintValue = ExecutionUnit::uintFromOp(op, 0x07);
-        }
-        
-        outputString += (ExecutionUnit::maskOp(op, 0x07) == Op::CALL || op == Op::CALLX) ? "CALL" : "NEW";
-        outputString += "[";
-        outputString += Value::toString(uintValue);
-        outputString += "]\n";
-        DISPATCH;
     L_RET:
-    L_RETX:
-        preamble(outputString, i - 1);
-        if (op == Op::RETX) {
-            uintValue = ExecutionUnit::uintFromCode(code, i, 1);
-            i += 1;
-        } else {
-            uintValue = ExecutionUnit::uintFromOp(op, 0x07);
-        }
-    
-        outputString += "RET[";
-        outputString += Value::toString(uintValue);
-        outputString += "]\n";
-        DISPATCH;
-    L_OPCODE:
-        preamble(outputString, i - 1);
-        outputString += "OP(";
-        outputString += stringFromOp(op);
-        outputString += ")\n";
-        DISPATCH;
+        generateXXX(outputString, i - 1, op);
+        DISPATCH;    
     L_END:
         _nestingLevel--;
         preamble(outputString, i - 1);
         outputString += "END\n";
         _nestingLevel--;
-        return outputString;
+        return outputString;  
+    L_LOADLITA: L_LOADLITO:
+        generateRXX(outputString, i - 1, op, machineCodeToRa(machineCode));
+        DISPATCH;
+    L_MOVE: L_LOADREFK:
+    L_MINUS: L_NOT: L_NEG:
+    L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
+        generateRRX(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode));
+        DISPATCH;
+    L_LOR: L_LAND: L_OR: L_AND: L_XOR:
+    L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
+    L_SHL: L_SHR: L_SAR:
+    L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
+    L_DEREF:
+        generateRRR(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode), machineCodeToRc(machineCode));
+        DISPATCH;
+    L_JMP:
+        generateXN(outputString, i - 1, op, machineCodeToSN(<#uint32_t code#>));
+        DISPATCH;
+    L_JT: L_JF:
+        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToSN(<#uint32_t code#>));
+        DISPATCH;
+    L_CALL: L_NEW:
+        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToUN(<#uint32_t code#>));
+        DISPATCH;
 }
 
 struct CodeMap
@@ -338,33 +323,20 @@ struct CodeMap
 #define OP(op) { Op::op, #op },
 
 static CodeMap opcodes[] = {    
-    OP(JMP)
-    OP(JT)
-    OP(JF)
-    
-    OP(CALLX)
-    OP(NEWX)
-    OP(RETX)
-    OP(PUSHLX)
-
-    OP(CALL)
-    OP(NEW)
     OP(RET)
-    OP(PUSHL)
+    OP(END)
     
-    OP(PUSHLITA) OP(PUSHLITO) OP(PUSHTRUE) OP(PUSHFALSE) OP(PUSHNULL)
+    OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO) OP(LOADL) 
     
-    OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UPLUS) OP(UMINUS) OP(UNOT) OP(UNEG)
-    OP(DEREF) OP(DEL) OP(POP) OP(STOPOP)
+    OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
+    OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
+    OP(SHL) OP(SHR) OP(SAR) 
+    OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD) 
+    OP(DEREF)
     
-    OP(STOA)
-    OP(STOO)
-    OP(DUP)
-
-    OP(STO) OP(STOELT) OP(STOPROP)
+    OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
     
-    OP(LOR) OP(LAND) OP(AND) OP(OR) OP(XOR) OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE) OP(SHL)
-    OP(SHR) OP(SAR) OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD) OP(END)
+    OP(CALL) OP(NEW) OP(JMP) OP(JT) OP(JF) 
 };
 
 const char* CodePrinter::stringFromOp(Op op)

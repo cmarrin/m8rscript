@@ -138,11 +138,10 @@ private:
     std::vector<size_t> _deferredCodeBlocks;
     Code _deferredCode;
     bool _deferred = false;
-    
+
     SystemInterface* _system;
 
     static uint32_t _nextLabelId;
-    
 };
 
 }
