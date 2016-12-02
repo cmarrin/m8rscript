@@ -73,174 +73,197 @@ struct Label {
 };
 
 
-
-// Here is the new design of Opcodes:
-
-// Opcodes fit in one byte. They are optionally followed by up to 3 bytes.
-// Which parameters follow is determined by the lower upper 3 bits of the
-// opcode. So opcodes are split into 8 sets, each with a different paerameter
-// format
-//
-
 /*
+    Here is the new design of Opcodes:
 
-    K[s]    - Source constant, local to function (0..255)
-    K[s1]   - Source constant, local to function (0..255)
-    K[s2]   - Source constant, local to function (0..255)
-    R[s]    - Source register (0..255)
-    R[s1]   - Source register (0..255)
-    R[s2]   - Source register (0..255)
-    R[d]    - Destination register (0..255)
-    nparams - Params passed to called function (0..255)
-    addr    - Relative jump addr (-128..127)
-    laddr   - Relative jump addr (-32768..32767)
-
-    MOVE        R[d], R[s]                                  ; (5)
-    LOADK       R[d], K[s]
-    LOADREFK    R[d], K[s]
-    LOADLITA    R[d]
-    LOADLITO    R[d]
+    Opcodes are 32 bits. There are 3 bit patterns:
     
-    <binop> ==> LOR, LAND,                                  ; [x20]
+    Opcode:6, R:8, RK:9, RK:9
+    Opcode:6, R:8, N:18
+
+
+    R       - Register (0..255)
+    RK      - Register (0..255) or Constant (256..511)
+    N       - Passed params (0..256K) or address (-128K..128K)
+
+    MOVE        R[d], RK[s], X                             ; (4)
+    LOADREFK    R[d], RK[s], X
+ 
+    LOADLITA    R[d], X, X
+    LOADLITO    R[d], X, X
+    
+    <binop> ==> LOR, LAND,                                  ; (20)
                 OR, AND, XOR,
                 EQ, NE, LT, LE, GT, GE,
                 SHL, SHR, SAR,
                 ADD, SUB, MUL, DIV, MOD
                 DEREF
     
-    <binop>RR   R[d], R[s1], R[s2]                          ; (80)
-    <binop>RK   R[d], R[s1], K[s2]
-    <binop>KR   R[d], K[s1], R[s2]
-    <binop>KK   R[d], K[s1], K[s2]
-    
-    <unop> ==>  UMINUS, UNOT, UNEG                          ; [x7] 
+    <binop>RR   R[d], RK[s1], RK[s2]
+ 
+    <unop> ==>  UMINUS, UNOT, UNEG                          ; (7)
                 PREINC, PREDEC, POSTINC, POSTDEC
                 
-    <unop>R     R[d], R[s]                                  ; (14)
-    <unop>K     R[d], K[s]
+    <unop>R     R[d], R[s], X
+ 
+    CALLX       RK[s], N                                    ; (8)
+    NEWX        RK[s], N
+ 
+    JMPX        X, N
+    JT          RK[s], N
+    JF          RK[s], N
+ 
+    UNKNOWN     X, X, X
+    RET         X, X, X
+    END         X, X, X
     
-    CALL<0..3>R R[s]            ; nparams ==> 0..3          ; [x4]
-    CALL<0..3>K K[s]            ; nparams ==> 0..3          ; [x4]
-    CALLXR      R[s], nparams
-    CALLXK      K[s], nparams
-    NEW<0..3>R  R[s]            ; nparams ==> 0..3          ; [x4]
-    NEW<0..3>K  K[s]            ; nparams ==> 0..3          ; [x4]
-    NEWXR       R[s], nparams
-    NEWXK       K[s], nparams                               ; (20)
-    
-    JMP         addr                                        ; (10)
-    JMPX        laddr
-    JTR         R[s], addr
-    JTXR        R[s], laddr
-    JTK         K[s], addr
-    JTXK        K[s], laddr
-    JFR         R[s], addr
-    JFXR        R[s], laddr
-    JFK         K[s], addr
-    JFXK        K[s], laddr
-    
-    UNKNOWN                                                 ; (3)
-    RET
-    END
-    
-    Total: 132 instructions
-
+    Total: 39 instructions
 */
-enum class Op2 : uint8_t {
-    // Category 0 - Opcodes with zero parameters
-    UNKNOWN = 0x00,
-    RET = 0x01,
-    END = 0x02,
-    
-    // Category 1 - Parameter is a 1 byte destination register (dreg) or a one byte relative jump addr
-    LOADLITA = 0x20, LOADLITO = 0x21, JMP = 0x22,
-    
-    // Category 2 - Parameter: 1 byte dreg, 1 byte sreg
-    JT = 0x40, JF = 0x41,
-};    
-    
-    
-    
-    
-    
-
-
-
-//  Opcodes with params have bit patterns.
-//  Upper 2 bits are 00 (values from 0x00 to 0x3f)
-//  The lower 2 bits indicate the number of additional bytes:
-//      00 - 1
-//      01 - 2
-//      10 - 4
-//      11 - 8
-//
-//  The next 4 bits is the opcode class:
-//      0000 - unused
-//      0101 - JMP          1 and 2 byte forms used
-//      0110 - JT           1 and 2 byte forms used
-//      0111 - JF           1 and 2 byte forms used
-//      1000 - CALL         1 byte form used
-//      1001 - NEW          1 byte form used
-//      1011 - RET          1 byte form used
-//      1100 - PUSHL        1 and 2 byte forms used - Push local variable. Param is index in _locals
-//      1101 - PUSHK        1 byte form used, push 1 byte ConstantId
-//      1110 - PUSHREFK     1 byte form used, push 1 byte ConstantId as a ref (Constant must be Atom)
-//
 enum class Op : uint8_t {
-    UNKNOWN = 0x00,
-    
-    // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
-    JMP = 0x14,     // 0001 0100
-    JT = 0x18,      // 0001 1000
-    JF = 0x1C,      // 0001 1100
-    
-    CALLX = 0x20,   // 0010 0000
-    NEWX = 0x24,    // 0010 0100
-    RETX = 0x2C,    // 0010 1100
-    PUSHLX = 0x30,  // 0011 0000
-    
-    PUSHK = 0x38,   // 0011 1000
-    PUSHREFK = 0x3C,   // 0011 1100
-    
-    PASTENDOFCOMPACTOPCODES = 0x40,
-    
-    CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
-    NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
-    RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
-    PUSHL = 0x80,   // Lower 4 bits is the index into _locals from 0 to 15
+    // Category 0 - (1 byte): Opcodes with zero parameters
+    UNKNOWN = 0x00, RET, END,
 
-    PUSHLITA = 0xC0, PUSHLITO = 0xC1, PUSHTRUE = 0xC2, PUSHFALSE = 0xC3, PUSHNULL = 0xC3,
-    PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3,
+    // Category 1 - (2 bytes): Params: R[d]/{addr}
+    LOADLITA = 0x20, LOADLITO,
+    JMP,
+    CALL0R, CALL1R, CALL2R, CALL3R,
+    CALL0K, CALL1K, CALL2K, CALL3K,
+    NEW0R, NEW1R, NEW2R, NEW3R,
+    NEW0K, NEW1K, NEW2K, NEW3K,
     
-    // UNOP
-    UPLUS = 0xD4, UMINUS = 0xD5, UNOT = 0xD6, UNEG = 0xD7,
+    // Category 2 - (3 bytes): Params: R[d]/R[s]/K[s], R[s]/K[s]/{addr}
+    MOVE = 0x40, LOADK, LOADREFK,
+    UMINUSR, UNOTR, UNEGR, PREINCR, PREDECR, POSTINCR, POSTDECR,
+    UMINUSK, UNOTK, UNEGK, PREINCK, PREDECK, POSTINCK, POSTDECK,
+    CALLXR, CALLXK, NEWXR, NEWXK,
+    JTR, JFR, JTK, JFK,
     
-    DEREF = 0xD8, DEL = 0xD9, POP = 0xDA, STOPOP = 0xDB,
-    
-    // Append tos to tos-1 which must be an array
-    STOA = 0xDC,
-    
-    // tos-2 must be an object. Add value in tos to property named in tos-1
-    STOO = 0xDD,
-    
-    // Duplicate TOS
-    DUP = 0xDE,
-    
-    STO = 0xE0, 
-    
-    // Store tos in the element or property in tos-1 of the object in tos-2
-    STOELT = 0xE1, STOPROP = 0xE2,
-    
-    // BINIOP
-    LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,
-    XOR = 0xF0, EQ = 0xF1, NE = 0xF2, LT = 0xF3, LE = 0xF4, GT = 0xF5, GE = 0xF6, SHL = 0xF7,
-    SHR = 0xF8, SAR = 0xF9,
-    
-    // BINOP
-    ADD = 0xFA, SUB = 0xFB, MUL = 0xFC, DIV = 0xFD, MOD = 0xFE,
-    
-    END = 0xFF,
+    // Category 3 - (4 bytes): Params: R[s]/K[s], {laddr}
+    // Note: In order to fit in the opcodes, JMPX is included here.
+    //       It is includes the register param, but ignores it
+    JTXR = 0x60, JFXR, JTXK, JFXK, JMPX,
+
+    // Category 4 - (4 bytes): Params: R[d], R[s1], R[s2]
+    LORRR = 0x80, LANDRR, ORRR, ANDRR, XORRR,
+    EQRR,  NERR, LTRR, LERR, GTRR, GERR,
+    SHLRR, SHRRR, SARRR,
+    ADDRR, SUBRR, MULRR, DIVRR, MODRR,
+    DEREFRR,
+
+    // Category 5 - (4 bytes): Params: R[d], R[s1], K[s2]
+    LORRK = 0xA0, LANDRK, ORRK, ANDRK, XORRK,
+    EQRK, NERK, LTRK, LERK, GTRK, GERK,
+    SHLRK, SHRRK, SARRK,
+    ADDRK, SUBRK, MULRK, DIVRK, MODRK,
+    DEREFRK,
+
+    // Category 6 - (4 bytes): Params: R[d], K[s1], R[s2]
+    LORKR = 0xC0, LANDKR, ORKR, ANDKR, XORKR,
+    EQKR, NEKR, LTKR, LEKR, GTKR, GEKR,
+    SHLKR, SHRKR, SARKR,
+    ADDKR, SUBKR, MULKR, DIVKR, MODKR,
+    DEREFKR,
+
+    // Category 7 - (4 bytes): Params: R[d], K[s1], K[s2]
+    LORKK = 0xE0, LANDKK, ORKK, ANDKK, XORKK,
+    EQKK, NEKK, LTKK, LEKK, GTKK, GEKK,
+    SHLKK, SHRKK, SARKK,
+    ADDKK, SUBKK, MULKK, DIVKK, MODKK,
+    DEREFKK,
 };
+
+inline uint8_t categoryForOpcode(Op op) { return static_cast<uint8_t>(op) >> 5; }
+
+inline uint8_t paramBytesForOpcode(Op op)
+{
+    uint8_t category = categoryForOpcode(op);
+    return (category >= 3) ? 3 : category;
+}
+
+////  Opcodes with params have bit patterns.
+////  Upper 2 bits are 00 (values from 0x00 to 0x3f)
+////  The lower 2 bits indicate the number of additional bytes:
+////      00 - 1
+////      01 - 2
+////      10 - 4
+////      11 - 8
+////
+////  The next 4 bits is the opcode class:
+////      0000 - unused
+////      0001 - PUSHID       2 byte form used
+////      0010 - PUSHF        4 or 8 byte form used
+////      0011 - PUSHI        1, 2, 4, 8 byte forms used
+////      0100 - PUSHS        1, 2 and 4 byte forms used
+////      0101 - JMP          1 and 2 byte forms used
+////      0110 - JT           1 and 2 byte forms used
+////      0111 - JF           1 and 2 byte forms used
+////      1000 - CALL         1 byte form used
+////      1001 - NEW          1 byte form used
+////      1010 - PUSHO        4 byte form used
+////      1011 - RET          1 byte form used
+////      1100 - PUSHL        1 and 2 byte forms used - Push local variable. Param is index in _locals
+////      1101 - PUSHIDREF    2 byte form used (same as PUSHID, but used for bare refs)
+////      1101 - PUSHK        1 byte form used, push 1 byte ConstantId
+////
+//enum class Op : uint8_t {
+//    UNKNOWN = 0x00,
+//    PUSHID = 0x04,   // 0000 0100 - Next 2 bytes are atom
+//    PUSHF  = 0x08,   // 0000 1011 - Next 4 or 8 bytes are number
+//    PUSHIX = 0x0C,   // 0000 1100 - Next bytes are number
+//    PUSHSX = 0x10,   // 0001 0000 - Next 1, 2, or 4 bytes is the index into the string table
+//    
+//    // The jump instructions use the LSB to indicate the jump type. 0 - next byte is jump address (-128..127), 1 - next 2 bytes are address (HI/LO, -32768..32767)
+//    JMP = 0x14,     // 0001 0100
+//    JT = 0x18,      // 0001 1000
+//    JF = 0x1C,      // 0001 1100
+//    
+//    CALLX = 0x20,   // 0010 0000
+//    NEWX = 0x24,    // 0010 0100
+//    PUSHO = 0x28,   // 0010 1010
+//    RETX = 0x2C,    // 0010 1100
+//    PUSHLX = 0x30,  // 0011 0000
+//    
+//    PUSHIDREF = 0x34, // 0011 0100
+//    PUSHK = 0x38,   // 0011 1000
+//    
+//    PUSHI = 0x40,   // Lower 4 bits is number from 0 to 15
+//    CALL = 0x50,    // Lower 4 bits is number of params from 0 to 15
+//    NEW = 0x60,     // Lower 4 bits is number of params from 0 to 15
+//    RET = 0x70,     // Lower 4 bits is number of return values from 0 to 15
+//    PUSHL = 0x80,   // Lower 4 bits is the index into _locals from 0 to 15
+//
+//    PUSHLITA = 0xC0, PUSHLITO = 0xC1, PUSHTRUE = 0xC2, PUSHFALSE = 0xC3, PUSHNULL = 0xC3,
+//    PREINC = 0xD0, PREDEC = 0xD1, POSTINC = 0xD2, POSTDEC = 0xD3,
+//    
+//    // UNOP
+//    UPLUS = 0xD4, UMINUS = 0xD5, UNOT = 0xD6, UNEG = 0xD7,
+//    
+//    DEREF = 0xD8, DEL = 0xD9, POP = 0xDA, STOPOP = 0xDB,
+//    
+//    // Append tos to tos-1 which must be an array
+//    STOA = 0xDC,
+//    
+//    // tos-2 must be an object. Add value in tos to property named in tos-1
+//    STOO = 0xDD,
+//    
+//    // Duplicate TOS
+//    DUP = 0xDE,
+//    
+//    STO = 0xE0, 
+//    
+//    // Store tos in the element or property in tos-1 of the object in tos-2
+//    STOELT = 0xE1, STOPROP = 0xE2,
+//    
+//    // BINIOP
+//    LOR = 0xEC, LAND = 0xED, AND = 0xEE, OR = 0xEF,
+//    XOR = 0xF0, EQ = 0xF1, NE = 0xF2, LT = 0xF3, LE = 0xF4, GT = 0xF5, GE = 0xF6, SHL = 0xF7,
+//    SHR = 0xF8, SAR = 0xF9,
+//    
+//    // BINOP
+//    ADD = 0xFA, SUB = 0xFB, MUL = 0xFC, DIV = 0xFD, MOD = 0xFE,
+//    
+//    END = 0xFF,
+//};
 
 #undef DEC
 enum class Token : uint8_t {
@@ -364,7 +387,6 @@ enum class ObjectDataType : uint8_t {
     Locals = 0x31,          // { uint16_t nparams, uint16_t atoms[nparams] }
     ParamEnd = 0x32,        // { uint16_t size = 2, uint16_t paramEnd }
     Code = 0x33,            // { uint16_t size, uint8_t code[size] }
-    
 };
 
 }

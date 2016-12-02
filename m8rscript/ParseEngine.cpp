@@ -43,7 +43,7 @@ ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
     if (!_opInfo.size()) {
-        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, false, Op::STO });
+        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, false, Op::MOVE });
         _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, true, Op::ADD });
         _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, true, Op::SUB });
         _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, true, Op::MUL });

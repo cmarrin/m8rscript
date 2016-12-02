@@ -192,24 +192,26 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
-        if (obj->code()->at(i) == static_cast<uint8_t>(Op::END)) {
+
+        uint8_t c = obj->code()->at(i++);
+        if (c == static_cast<uint8_t>(Op::END)) {
             break;
         }
-        uint8_t c = obj->code()->at(i++);
-        Op op = ExecutionUnit::maskOp(static_cast<Op>(c), 0x03);
-        
-        if (op < Op::PASTENDOFCOMPACTOPCODES) {
-            uint32_t count = ExecutionUnit::sizeFromOp(op);
-            int nexti = i + count;
-            
-            c &= 0xfc;
-            if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-                int32_t addr = ExecutionUnit::intFromCode(code, i, count);
-                Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
-                annotations.push_back(annotation);
-            }
-            i = nexti;
+        Op op = static_cast<Op>(c);
+
+        uint32_t size = 0;
+        if (op == Op::JTR || op == Op::JFR || op == Op::JTK || op == Op::JFK) {
+            size = 1;
+        } else if (op == Op::JTXR || op == Op::JFXR || op == Op::JTXK || op == Op::JFXK || op == Op::JMPX) {
+            size = 2;
         }
+        if (size) {
+            int16_t addr = ExecutionUnit::intFromCode(code, i, size);
+            Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
+            annotations.push_back(annotation);
+        }
+
+        i = paramBytesForOpcode(op);
     }
     
     // Display the constants
