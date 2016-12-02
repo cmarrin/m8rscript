@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-typedef std::vector<uint8_t> Code;
+typedef std::vector<uint32_t> Code;
 
 class Error;
 class ExecutionUnit;

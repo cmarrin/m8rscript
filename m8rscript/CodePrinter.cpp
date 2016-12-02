@@ -182,36 +182,28 @@ static_assert (sizeof(dispatchTable) == 256 * sizeof(void*), "Dispatch table is 
         }
     }
     
-    const uint8_t* code = &(obj->code()->at(0));
+    const uint32_t* code = &(obj->code()->at(0));
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
     uint32_t i = 0;
-    for ( ; ; ) {
+    for (uint32_t i = 0; ; ++i) {
         if (i >= obj->code()->size()) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
 
-        uint8_t c = obj->code()->at(i++);
-        if (c == static_cast<uint8_t>(Op::END)) {
+        uint32_t c = obj->code()->at(i++);
+        Op op = machineCodeToOp(c);
+        if (op == Op::END) {
             break;
         }
-        Op op = static_cast<Op>(c);
 
-        uint32_t size = 0;
-        if (op == Op::JTR || op == Op::JFR || op == Op::JTK || op == Op::JFK) {
-            size = 1;
-        } else if (op == Op::JTXR || op == Op::JFXR || op == Op::JTXK || op == Op::JFXK || op == Op::JMPX) {
-            size = 2;
-        }
-        if (size) {
-            int16_t addr = ExecutionUnit::intFromCode(code, i, size);
+        if (op == Op::JT || op == Op::JF || op == Op::JMP) {
+            int16_t addr = machineCodeToSN(c);
             Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
             annotations.push_back(annotation);
         }
-
-        i = paramBytesForOpcode(op);
     }
     
     // Display the constants

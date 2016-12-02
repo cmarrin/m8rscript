@@ -131,7 +131,7 @@ bool Function::serializeContents(Stream* stream, Error& error, Program* program)
 
     size_t size = _code.size();
     return serializeBuffer(stream, error, ObjectDataType::Code, 
-                            _code.size() ? _code.data() : nullptr, size);
+                            _code.size() ? reinterpret_cast<const uint8_t*>(_code.data()) : nullptr, size);
 }
 
 bool Function::deserializeContents(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
@@ -161,7 +161,7 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     }
     
     _code.resize(size);
-    if (!deserializeBuffer(stream, error, _code.data(), size)) {
+    if (!deserializeBuffer(stream, error, reinterpret_cast<const uint8_t*>(_code.data()), size)) {
         return false;
     }
     
@@ -175,6 +175,8 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
         }
         
 // FIXME: Now we just need to walk through the Constants array
+
+// FIXME: implement for RegisterBasedVM
 //
 //        if (op < Op::PUSHI) {
 //            uint32_t count = ExecutionUnit::sizeFromOp(op);

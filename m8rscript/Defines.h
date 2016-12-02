@@ -86,6 +86,10 @@ struct Label {
     RK      - Register (0..255) or Constant (256..511)
     N       - Passed params (0..256K) or address (-128K..128K)
 
+    UNKNOWN     X, X, X
+    RET         X, X, X
+    END         X, X, X
+    
     MOVE        R[d], RK[s], X                             ; (4)
     LOADREFK    R[d], RK[s], X
  
@@ -106,79 +110,44 @@ struct Label {
                 
     <unop>R     R[d], R[s], X
  
-    CALLX       RK[s], N                                    ; (8)
-    NEWX        RK[s], N
+    CALL        RK[s], N                                    ; (8)
+    NEW         RK[s], N
  
-    JMPX        X, N
+    JMP         X, N
     JT          RK[s], N
     JF          RK[s], N
  
-    UNKNOWN     X, X, X
-    RET         X, X, X
-    END         X, X, X
-    
     Total: 39 instructions
 */
 enum class Op : uint8_t {
-    // Category 0 - (1 byte): Opcodes with zero parameters
     UNKNOWN = 0x00, RET, END,
-
-    // Category 1 - (2 bytes): Params: R[d]/{addr}
-    LOADLITA = 0x20, LOADLITO,
-    JMP,
-    CALL0R, CALL1R, CALL2R, CALL3R,
-    CALL0K, CALL1K, CALL2K, CALL3K,
-    NEW0R, NEW1R, NEW2R, NEW3R,
-    NEW0K, NEW1K, NEW2K, NEW3K,
     
-    // Category 2 - (3 bytes): Params: R[d]/R[s]/K[s], R[s]/K[s]/{addr}
-    MOVE = 0x40, LOADK, LOADREFK,
-    UMINUSR, UNOTR, UNEGR, PREINCR, PREDECR, POSTINCR, POSTDECR,
-    UMINUSK, UNOTK, UNEGK, PREINCK, PREDECK, POSTINCK, POSTDECK,
-    CALLXR, CALLXK, NEWXR, NEWXK,
-    JTR, JFR, JTK, JFK,
+    MOVE, LOADREFK,
+    LOADLITA, LOADLITO,
+
+    LOR, LAND, OR, AND, XOR,
+    EQ,  NE, LT, LE, GT, GE,
+    SHL, SHR, SAR,
+    ADD, SUB, MUL, DIV, MOD,
+    DEREF,
+
+    UMINUS, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
+
+    CALL, NEW,
+
+    JMP, JT, JF,
     
-    // Category 3 - (4 bytes): Params: R[s]/K[s], {laddr}
-    // Note: In order to fit in the opcodes, JMPX is included here.
-    //       It is includes the register param, but ignores it
-    JTXR = 0x60, JFXR, JTXK, JFXK, JMPX,
-
-    // Category 4 - (4 bytes): Params: R[d], R[s1], R[s2]
-    LORRR = 0x80, LANDRR, ORRR, ANDRR, XORRR,
-    EQRR,  NERR, LTRR, LERR, GTRR, GERR,
-    SHLRR, SHRRR, SARRR,
-    ADDRR, SUBRR, MULRR, DIVRR, MODRR,
-    DEREFRR,
-
-    // Category 5 - (4 bytes): Params: R[d], R[s1], K[s2]
-    LORRK = 0xA0, LANDRK, ORRK, ANDRK, XORRK,
-    EQRK, NERK, LTRK, LERK, GTRK, GERK,
-    SHLRK, SHRRK, SARRK,
-    ADDRK, SUBRK, MULRK, DIVRK, MODRK,
-    DEREFRK,
-
-    // Category 6 - (4 bytes): Params: R[d], K[s1], R[s2]
-    LORKR = 0xC0, LANDKR, ORKR, ANDKR, XORKR,
-    EQKR, NEKR, LTKR, LEKR, GTKR, GEKR,
-    SHLKR, SHRKR, SARKR,
-    ADDKR, SUBKR, MULKR, DIVKR, MODKR,
-    DEREFKR,
-
-    // Category 7 - (4 bytes): Params: R[d], K[s1], K[s2]
-    LORKK = 0xE0, LANDKK, ORKK, ANDKK, XORKK,
-    EQKK, NEKK, LTKK, LEKK, GTKK, GEKK,
-    SHLKK, SHRKK, SARKK,
-    ADDKK, SUBKK, MULKK, DIVKK, MODKK,
-    DEREFKK,
+    LAST
 };
 
-inline uint8_t categoryForOpcode(Op op) { return static_cast<uint8_t>(op) >> 5; }
+static_assert(static_cast<uint32_t>(Op::LAST) <= (1 << 6), "Opcode must fit in 6 bits");
 
-inline uint8_t paramBytesForOpcode(Op op)
-{
-    uint8_t category = categoryForOpcode(op);
-    return (category >= 3) ? 3 : category;
-}
+inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
+inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }
+inline uint32_t machineCodeToRb(uint32_t code) { return (code >> 9) & 0x1ff; }
+inline uint32_t machineCodeToRc(uint32_t code) { return code & 0x1ff; }
+inline uint32_t machineCodeToUN(uint32_t code) { return code & 0x3ffff; }
+inline uint32_t machineCodeToSN(uint32_t code) { return static_cast<int32_t>(code << 14) >> 14; }
 
 ////  Opcodes with params have bit patterns.
 ////  Upper 2 bits are 00 (values from 0x00 to 0x3f)

@@ -116,7 +116,22 @@ void Parser::jumpToLabel(Op op, Label& label)
     }
 }
 
-void Parser::addCodeByte(uint8_t c)
+void Parser::emitCode(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+{
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff);
+}
+
+void Parser::emitCode(Op op, uint32_t ra, uint32_t n)
+{
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff);
+}
+
+void Parser::emitCode(Op op, uint32_t ra, int32_t n)
+{
+    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff);
+}
+
+void Parser::addCode(uint32_t c)
 {
     if (_deferred) {
         assert(_deferredCodeBlocks.size() > 0);

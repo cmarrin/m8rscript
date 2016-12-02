@@ -73,8 +73,8 @@ public:
     virtual Value constant(ConstantId id) const override { return _constants[(id.raw() < _constants.size()) ? id.raw() : 0]; }
     size_t constantCount() const { return _constants.size(); }
 
-    void addCode(uint8_t c) { _code.push_back(c); }
-    void setCodeAtIndex(uint32_t index, uint8_t c) { _code[index] = c; }
+    void addCode(uint32_t c) { _code.push_back(c); }
+    void setCodeAtIndex(uint32_t index, uint32_t c) { _code[index] = c; }
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
 

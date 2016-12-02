@@ -182,7 +182,7 @@ private:
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
-    const uint8_t* _code;
+    const uint32_t* _code;
     size_t _codeSize;
     
     ExecutionStack _stack;

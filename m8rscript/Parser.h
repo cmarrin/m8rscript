@@ -124,17 +124,11 @@ public:
 private:
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
-    void addCodeInt(uint64_t value, uint32_t size)
-    {
-        assert(size <= 8);
-        for (int i = size - 1; i >= 0; --i) {
-            addCodeByte(ExecutionUnit::byteFromInt(value, i));
-        }
-    }
+    void addCode(uint32_t);
     
-    void addCodeByte(Op op) { addCodeByte(static_cast<uint8_t>(op)); }
-    void addCodeByte(Op op, uint32_t mask) { addCodeByte(static_cast<uint8_t>(op) | mask); }
-    void addCodeByte(uint8_t);
+    void emitCode(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
+    void emitCode(Op, uint32_t ra, uint32_t n);
+    void emitCode(Op, uint32_t ra, int32_t n);
     
     Scanner _scanner;
     Program* _program;
