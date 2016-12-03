@@ -72,7 +72,6 @@ struct Label {
     int32_t matchedAddr : 20;
 };
 
-
 /*
     Here is the new design of Opcodes:
 
@@ -105,7 +104,7 @@ struct Label {
     the ExecutionUnit.
 
     UNKNOWN     X, X, X
-    RET         X, X, X
+    RET         X, N
     END         X, X, X
     
     MOVE        R[d], RK[s], X                             ; (4)
@@ -113,7 +112,10 @@ struct Label {
  
     LOADLITA    R[d], X, X
     LOADLITO    R[d], X, X
-    
+    LOADTRUE    R[d], X, X
+    LOADFALSE   R[d], X, X
+    LOADNULL    R[d], X, X
+ 
     LOADL       R[d], L[s], X
     
     <binop> ==> LOR, LAND,                                  ; (20)
@@ -145,7 +147,8 @@ static constexpr uint32_t MaxRegister = 255;
 enum class Op : uint8_t {
     UNKNOWN = 0x00, RET, END,
     
-    MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO, LOADL,
+    MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO,
+    LOADL, LOADTRUE, LOADFALSE, LOADNULL,
 
     LOR = 0x20, LAND, OR, AND, XOR,
     EQ,  NE, LT, LE, GT, GE,

@@ -84,7 +84,7 @@ void Parser::addMatchedJump(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JF || op == Op::JF);
     label.matchedAddr = static_cast<int32_t>(_currentFunction->code()->size());
-    emitCode(op);
+    emitCodeRRR(op);
 }
 
 void Parser::matchJump(Label& label)
@@ -102,21 +102,21 @@ void Parser::jumpToLabel(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(_currentFunction->code()->size()) - 1;
-    emitCode(op, (op == Op::JMP) ? 0 : _currentFunction->currentReg(), jumpAddr);
+    emitCodeRSN(op, (op == Op::JMP) ? 0 : _currentFunction->currentReg(), jumpAddr);
     _currentFunction->popReg();
 }
 
-void Parser::emitCode(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
 {
     addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff));
 }
 
-void Parser::emitCode(Op op, uint32_t ra, uint32_t n)
+void Parser::emitCodeRUN(Op op, uint32_t ra, uint32_t n)
 {
     addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
 }
 
-void Parser::emitCode(Op op, uint32_t ra, int32_t n)
+void Parser::emitCodeRSN(Op op, uint32_t ra, int32_t n)
 {
     addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
 }
@@ -134,22 +134,19 @@ void Parser::addCode(uint32_t c)
 void Parser::emit(StringLiteral::Raw s)
 {
     ConstantId id = _currentFunction->addConstant(StringLiteral(s));
-    addCodeByte(Op::PUSHK, 0x00);
-    addCodeInt(id.raw(), 1);
+    emitCodeRRR(Op::MOVE, _currentFunction->pushReg(), id.raw() + MaxRegister);
 }
 
 void Parser::emit(uint32_t value)
 {
     ConstantId id = _currentFunction->addConstant(value);
-    addCodeByte(Op::PUSHK, 0x00);
-    addCodeInt(id.raw(), 1);
+    emitCodeRRR(Op::MOVE, _currentFunction->pushReg(), id.raw() + MaxRegister);
 }
 
 void Parser::emit(Float value)
 {
     ConstantId id = _currentFunction->addConstant(value);
-    addCodeByte(Op::PUSHK, 0x00);
-    addCodeInt(id.raw(), 1);
+    emitCodeRRR(Op::MOVE, _currentFunction->pushReg(), id.raw() + MaxRegister);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
@@ -163,33 +160,38 @@ void Parser::emitId(const Atom& atom, IdType type)
             printError(s.c_str());
         }
         if (index >= 0) {
-            if (index <= 15) {
-                addCodeByte(Op::PUSHL, index);
-            } else {
-                assert(index < 65536);
-                uint32_t size = (index < 256) ? 1 : 2;
-                addCodeByte(Op::PUSHLX, size - 1);
-                addCodeInt(index, size);
-            }
+            emitCodeRRR(Op::LOADL, _currentFunction->pushReg(), index);
             return;
         }
     }
     
     ConstantId id = _currentFunction->addConstant(atom);
-    addCodeByte((type == IdType::NotLocal) ? Op::PUSHK : Op::PUSHREFK, 0x00);
-    addCodeInt(id.raw(), 1);
+    emitCodeRRR((type == IdType::NotLocal) ? Op::MOVE : Op::LOADREFK, _currentFunction->pushReg(), id.raw() + MaxRegister);
 }
 
 void Parser::emit(Op value)
 {
-    addCodeByte(value);
+    emitCodeRRR(value);
 }
 
 void Parser::emit(ObjectId function)
 {
     ConstantId id = _currentFunction->addConstant(function);
-    addCodeByte(Op::PUSHK, 0x00);
-    addCodeInt(id.raw(), 1);
+    emitCodeRRR(Op::MOVE, _currentFunction->pushReg(), id.raw() + MaxRegister);
+}
+
+void Parser::emitMove()
+{
+    uint32_t src = _currentFunction->popReg();
+    uint32_t dst = _currentFunction->popReg();
+    emitCodeRRR(Op::MOVE, dst, src);
+}
+
+void Parser::emitBinOp(Op op, bool sto)
+{
+    uint32_t src = _currentFunction->popReg();
+    uint32_t dst = _currentFunction->popReg();
+    emitCodeRRR(op, dst, dst, src);
 }
 
 void Parser::addNamedFunction(ObjectId functionId, const Atom& name)
@@ -205,12 +207,7 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
     assert(nparams < 256);
     assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
     
-    if (nparams <= 15) {
-        addCodeByte(value, nparams);
-    } else {
-        addCodeByte((value == Op::CALL) ? Op::CALLX : ((value == Op::NEW) ? Op::NEWX : Op::RETX));
-        addCodeInt(nparams, 1);
-    }
+    emitCodeRUN(value, (value == Op::RET) ? 0 : _currentFunction->popReg(), nparams);
 }
 
 void Parser::emitDeferred()

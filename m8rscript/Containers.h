@@ -418,6 +418,7 @@ public:
     
     type& inFrame(int32_t index) { return super::at(_frame + index); }
     const type& inFrame(int32_t index) const { return super::at(_frame + index); }
+    void setInFrame(int32_t index, const type& value) { super::at(_frame + index) = value; }
     void setTop(const type& value) { super::back() = value; }
 
 private:

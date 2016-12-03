@@ -82,7 +82,7 @@ public:
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
     
     uint32_t pushReg() { return _nextReg++; }
-    void popReg() { --_nextReg; }
+    uint32_t popReg() { uint32_t reg = _nextReg--; return reg; }
     uint32_t currentReg() const { return _nextReg; }
     
 protected:

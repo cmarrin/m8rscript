@@ -131,18 +131,18 @@ public:
     bool toBoolValue(ExecutionUnit*) const;
     Float toFloatValue(ExecutionUnit*) const;
 
-    int32_t toIntValue(ExecutionUnit* eu) const { return static_cast<int32_t>(toUIntValue(eu)); }
-    uint32_t toUIntValue(ExecutionUnit* eu) const
+    uint32_t toUIntValue(ExecutionUnit* eu) const { return static_cast<uint32_t>(toUIntValue(eu)); }
+    int32_t toIntValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Integer) {
-            return asUIntValue();
+            return asIntValue();
         }
-        return canBeBaked() ? bake(eu).toUIntValue(eu) : static_cast<uint32_t>(toFloatValue(eu));
+        return static_cast<int32_t>(toFloatValue(eu));
     }
     
     bool setValue(ExecutionUnit*, const Value&);
-    Value bake(ExecutionUnit*) const;
     bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
+    Value bake(ExecutionUnit* eu) const { return canBeBaked() ? bake(eu) : *this; }
     
     bool deref(ExecutionUnit*, const Value& derefValue);
     
@@ -175,6 +175,8 @@ private:
     static constexpr uint8_t TypeBitCount = 4;
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
+    Value _bake(ExecutionUnit*) const;
+
     bool derefObject(ExecutionUnit* eu, const Value& derefValue);
 
     inline uint64_t rawValue(Float f, Type t) const { return (static_cast<uint64_t>(f.raw()) & ~TypeMask) | static_cast<uint64_t>(t); }

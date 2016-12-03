@@ -399,7 +399,7 @@ CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-Value Value::bake(ExecutionUnit* eu) const
+Value Value::_bake(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::Object:

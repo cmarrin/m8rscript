@@ -113,10 +113,15 @@ public:
     void emit(Float value);
     void emit(Op value);
     
+    void popReg() { _currentFunction->popReg(); }
+    
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
     
     void emit(ObjectId function);
+    void emitMove();
+    void emitBinOp(Op op, bool sto);
+    
     void addNamedFunction(ObjectId functionId, const Atom& name);
     void emitWithCount(Op value, uint32_t count);
     void addVar(const Atom& name) { _currentFunction->addLocal(name); }
@@ -126,9 +131,9 @@ private:
     
     void addCode(uint32_t);
     
-    void emitCode(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
-    void emitCode(Op, uint32_t ra, uint32_t n);
-    void emitCode(Op, uint32_t ra, int32_t n);
+    void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
+    void emitCodeRUN(Op, uint32_t ra, uint32_t n);
+    void emitCodeRSN(Op, uint32_t ra, int32_t n);
     
     Scanner _scanner;
     Program* _program;

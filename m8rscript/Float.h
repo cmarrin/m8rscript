@@ -143,7 +143,18 @@ public:
         r._value._raw = static_cast<RawType>(result);
         return r;
     }
+
+    _Float operator%(const _Float& other) const { return *this - (*this / other).floor() * other; }
+    
+    _Float operator+=(const _Float& other) { *this = *this + other; return *this; }
+    _Float operator-=(const _Float& other) { *this = *this - other; return *this; }
+    _Float operator*=(const _Float& other) { *this = *this * other; return *this; }
+    _Float operator/=(const _Float& other) { *this = *this / other; return *this; }
+    _Float operator%=(const _Float& other) { *this = *this % other; return *this; }
+    
     _Float floor() const { _Float r; r._value._raw = _value._raw >> BinaryExponent << BinaryExponent; return r; }
+    operator int32_t() const { return static_cast<int32_t>(_value._raw >> BinaryExponent); }
+    operator int64_t() const { return static_cast<int64_t>(_value._raw >> BinaryExponent); }
 
     void decompose(DecomposeType& mantissa, int16_t& exponent) const
     {
@@ -168,7 +179,6 @@ public:
     bool operator>=(const _Float& other) const { return _value._raw >= other._value._raw; }
 
     _Float operator-() const { _Float r; r._value._raw = -_value._raw; return r; }
-    operator RawType() const { return _value._raw; }
 
 private:    
     Raw _value;

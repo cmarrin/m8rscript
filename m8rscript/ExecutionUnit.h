@@ -171,17 +171,20 @@ private:
     void updateCodePointer()
     {
         assert(_object);
-        assert(_program->obj(_object)->code());
-        _codeSize = _program->obj(_object)->code()->size();
+        assert(_objectPointer->code());
+        _codeSize = _objectPointer->code()->size();
         assert(_codeSize);
-        _code = &(_program->obj(_object)->code()->at(0));
+        _code = &(_objectPointer->code()->at(0));
     }
     
     Value derefId(Atom);
+    
+    Value regOrConst(uint32_t r) const { return (r > MaxRegister) ? _objectPointer->constant(ConstantId(r - MaxRegister)) : _stack.inFrame(r); }
 
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
+    Object* _objectPointer;
     const uint32_t* _code;
     size_t _codeSize;
     

@@ -156,7 +156,7 @@ bool ParseEngine::statement()
             expect(Token::Semicolon);
             return true;
         } else if (expression()) {
-            _parser->emit(m8r::Op::POP);
+            _parser->popReg();
             expect(Token::Semicolon);
             return true;
         } else {
@@ -233,7 +233,7 @@ void ParseEngine::forLoopCondAndIt()
     _parser->startDeferred();
     expect(Token::Semicolon);
     expression(); // iterator
-    _parser->emit(m8r::Op::POP);
+    _parser->popReg();
     _parser->endDeferred();
     expect(Token::RParen);
     statement();
@@ -349,7 +349,8 @@ bool ParseEngine::variableDeclaration()
         return false;
     }
         
-    _parser->emit(m8r::Op::STOPOP);
+    _parser->emitMove();
+    _parser->popReg();
     return true;
 }
 
@@ -366,7 +367,6 @@ bool ParseEngine::arithmeticPrimary()
     switch(getToken()) {
         case Token::INC: op = Op::PREINC; break;
         case Token::DEC: op = Op::PREDEC; break;
-        case Token::Plus: op = Op::UPLUS; break;
         case Token::Minus: op = Op::UMINUS; break;
         case Token::Twiddle: op = Op::UNEG; break;
         case Token::Bang: op = Op::UNOT; break;
@@ -376,9 +376,7 @@ bool ParseEngine::arithmeticPrimary()
     if (op != Op::UNKNOWN) {
         retireToken();
         arithmeticPrimary();
-        if (op != Op::UPLUS) {
-            _parser->emit(op);
-        }
+        _parser->emit(op);
         return true;
     }
     

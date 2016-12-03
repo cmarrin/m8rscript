@@ -96,40 +96,40 @@ inline String regString(uint32_t reg)
     return String("K[") + Value::toString(reg - MaxRegister) + "]";
 }
 
-void CodePrinter::generateXXX(m8r::String& s, uint32_t addr, Op op) const
+void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op);
+    preamble(str, addr);
+    str += stringFromOp(op);
 }
 
-void CodePrinter::generateRXX(m8r::String& s, uint32_t addr, Op op, uint32_t d) const
+void CodePrinter::generateRXX(m8r::String& str, uint32_t addr, Op op, uint32_t d) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op) + " " + regString(d);
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d);
 }
 
-void CodePrinter::generateRRX(m8r::String& s, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRRX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op) + " " + regString(d) + ", " + regString(s);
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s);
 }
 
-void CodePrinter::generateRRR(m8r::String& s, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
+void CodePrinter::generateRRR(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2);
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2);
 }
 
-void CodePrinter::generateXN(m8r::String& s, uint32_t addr, Op op, int32_t n) const
+void CodePrinter::generateXN(m8r::String& str, uint32_t addr, Op op, int32_t n) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op) + " " + Value::toString(n);
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + Value::toString(n);
 }
 
-void CodePrinter::generateRN(m8r::String& s, uint32_t addr, Op op, uint32_t d, int32_t n) const
+void CodePrinter::generateRN(m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
 {
-    preamble(s, addr);
-    s += stringFromOp(op) + " " + regString(d) + ", " + Value::toString(n);
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n);
 }
 
 m8r::String CodePrinter::generateCodeString(const Program* program, const Object* obj, const char* functionName, uint32_t nestingLevel) const
@@ -143,7 +143,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         
         /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x14 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x14 */ OP(UNKNOWN) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
         /* 0x18 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
@@ -168,7 +168,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x5c */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
     };
     
-static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
+//static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
 
     #undef DISPATCH
     #define DISPATCH { \
@@ -262,36 +262,27 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
     i = 0;
     m8r::String strValue;
-    uint32_t uintValue;
-    int32_t intValue;
-    uint32_t size;
     Atom localName;
     
     uint32_t machineCode;
     Op op;
-    uint32_t ra, rb, rc;
-    uint32_t un;
-    int32_t sn;
     
     DISPATCH;
     
     L_UNKNOWN:
         outputString += "UNKNOWN\n";
         DISPATCH;
-    L_RET:
-        generateXXX(outputString, i - 1, op);
-        DISPATCH;    
     L_END:
         _nestingLevel--;
         preamble(outputString, i - 1);
         outputString += "END\n";
         _nestingLevel--;
         return outputString;  
-    L_LOADLITA: L_LOADLITO:
+    L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
         generateRXX(outputString, i - 1, op, machineCodeToRa(machineCode));
         DISPATCH;
     L_MOVE: L_LOADREFK:
-    L_MINUS: L_NOT: L_NEG:
+    L_UMINUS: L_UNOT: L_UNEG:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
         generateRRX(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode));
         DISPATCH;
@@ -302,14 +293,15 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_DEREF:
         generateRRR(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode), machineCodeToRc(machineCode));
         DISPATCH;
+    L_RET:
     L_JMP:
-        generateXN(outputString, i - 1, op, machineCodeToSN(<#uint32_t code#>));
+        generateXN(outputString, i - 1, op, machineCodeToSN(machineCode));
         DISPATCH;
     L_JT: L_JF:
-        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToSN(<#uint32_t code#>));
+        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToSN(machineCode));
         DISPATCH;
     L_CALL: L_NEW:
-        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToUN(<#uint32_t code#>));
+        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToUN(machineCode));
         DISPATCH;
 }
 
@@ -326,7 +318,8 @@ static CodeMap opcodes[] = {
     OP(RET)
     OP(END)
     
-    OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO) OP(LOADL) 
+    OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
+    OP(LOADL) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
     OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
