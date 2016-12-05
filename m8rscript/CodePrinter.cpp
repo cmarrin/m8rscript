@@ -111,25 +111,25 @@ void CodePrinter::generateRXX(m8r::String& str, uint32_t addr, Op op, uint32_t d
 void CodePrinter::generateRRX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s) + "\n";
 }
 
 void CodePrinter::generateRRR(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2) + "\n";
 }
 
 void CodePrinter::generateXN(m8r::String& str, uint32_t addr, Op op, int32_t n) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + Value::toString(n);
+    str += String(stringFromOp(op)) + " " + Value::toString(n) + "\n";
 }
 
 void CodePrinter::generateRN(m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Program* program, const Object* obj, const char* functionName, uint32_t nestingLevel) const
@@ -143,8 +143,8 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         
         /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x14 */ OP(UNKNOWN) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x18 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+        /* 0x18 */ OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(UNKNOWN)
         /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
@@ -221,7 +221,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
             return outputString;
         }
 
-        uint32_t c = obj->code()->at(i++);
+        uint32_t c = obj->code()->at(i);
         Op op = machineCodeToOp(c);
         if (op == Op::END) {
             break;
@@ -286,6 +286,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
         generateRRX(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode));
         DISPATCH;
+    L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
     L_SHL: L_SHR: L_SAR:
@@ -319,7 +320,8 @@ static CodeMap opcodes[] = {
     OP(END)
     
     OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-    OP(LOADL) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
+    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
     OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)

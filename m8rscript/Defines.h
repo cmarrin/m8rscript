@@ -116,7 +116,10 @@ struct Label {
     LOADFALSE   R[d], X, X
     LOADNULL    R[d], X, X
  
-    LOADL       R[d], L[s], X
+    LOADPROP    R[d], RK[o], K[p]
+    LOADELT     R[d], RK[o], RK[e]
+    STOPROP     RK[o], K[p], RK[s]
+    STOELT      RK[o], RK[e], RK[s]
     
     <binop> ==> LOR, LAND,                                  ; (20)
                 OR, AND, XOR,
@@ -148,7 +151,8 @@ enum class Op : uint8_t {
     UNKNOWN = 0x00, RET, END,
     
     MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO,
-    LOADL, LOADTRUE, LOADFALSE, LOADNULL,
+    LOADPROP, LOADELT, STOPROP, STOELT,
+    LOADTRUE, LOADFALSE, LOADNULL,
 
     LOR = 0x20, LAND, OR, AND, XOR,
     EQ,  NE, LT, LE, GT, GE,

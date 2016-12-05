@@ -156,7 +156,7 @@ bool ParseEngine::statement()
             expect(Token::Semicolon);
             return true;
         } else if (expression()) {
-            _parser->popReg();
+            _parser->discardResult();
             expect(Token::Semicolon);
             return true;
         } else {
@@ -233,7 +233,7 @@ void ParseEngine::forLoopCondAndIt()
     _parser->startDeferred();
     expect(Token::Semicolon);
     expression(); // iterator
-    _parser->popReg();
+    _parser->discardResult();
     _parser->endDeferred();
     expect(Token::RParen);
     statement();
@@ -350,7 +350,7 @@ bool ParseEngine::variableDeclaration()
     }
         
     _parser->emitMove();
-    _parser->popReg();
+    _parser->discardResult();
     return true;
 }
 
@@ -376,7 +376,7 @@ bool ParseEngine::arithmeticPrimary()
     if (op != Op::UNKNOWN) {
         retireToken();
         arithmeticPrimary();
-        _parser->emit(op);
+        _parser->emitUnOp(op);
         return true;
     }
     
@@ -391,7 +391,7 @@ bool ParseEngine::arithmeticPrimary()
     
     if (op != Op::UNKNOWN) {
         retireToken();
-        _parser->emit(op);
+        _parser->emitUnOp(op);
     }
     return true;
 }
@@ -410,13 +410,13 @@ bool ParseEngine::expression(uint8_t minPrec)
         uint8_t nextMinPrec = (opInfo.assoc == OpInfo::LeftAssoc) ? (opInfo.prec + 1) : opInfo.prec;
         retireToken();
         if (opInfo.sto) {
-            _parser->emit(Op::DUP);
+            _parser->emitDup();
         }
     
         expression(nextMinPrec);
-        _parser->emit(opInfo.op);
+        _parser->emitBinOp(opInfo.op);
         if (opInfo.sto) {
-            _parser->emit(Op::STO);
+            _parser->emitMove();
         }
     }
     return true;
@@ -433,7 +433,7 @@ bool ParseEngine::leftHandSideExpression()
     if (getToken() == Token::Function) {
         retireToken();
         ObjectId f = function();
-        _parser->emit(f);
+        _parser->pushK(f);
         return true;
     }
     
@@ -450,13 +450,13 @@ bool ParseEngine::leftHandSideExpression()
             retireToken();
             expression();
             expect(Token::RBracket);
-            _parser->emit(m8r::Op::DEREF);
+            _parser->emitDeref(false);
         } else if (getToken() == Token::Period) {
             retireToken();
             Atom name = getTokenValue().atom;
             if (expect(Token::Identifier)) {
                 _parser->emitId(name, Parser::IdType::NotLocal);
-                _parser->emit(m8r::Op::DEREF);
+                _parser->emitDeref(true);
             }
         } else {
             return true;
@@ -484,38 +484,38 @@ bool ParseEngine::primaryExpression()
 {
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::MightBeLocal); retireToken(); break;
-        case Token::Float: _parser->emit(getTokenValue().number); retireToken(); break;
-        case Token::Integer: _parser->emit(getTokenValue().integer); retireToken(); break;
-        case Token::String: _parser->emit(getTokenValue().string); retireToken(); break;
-        case Token::True: _parser->emit(Op::PUSHTRUE); retireToken(); break;
-        case Token::False: _parser->emit(Op::PUSHFALSE); retireToken(); break;
-        case Token::Null: _parser->emit(Op::PUSHNULL); retireToken(); break;
+        case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); break;
+        case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); break;
+        case Token::String: _parser->pushK(getTokenValue().string); retireToken(); break;
+        case Token::True: _parser->pushK(true); retireToken(); break;
+        case Token::False: _parser->pushK(false); retireToken(); break;
+        case Token::Null: _parser->pushK(); retireToken(); break;
         case Token::LBracket:
             retireToken();
-            _parser->emit(Op::PUSHLITA);
+            _parser->emitLoadLit(true);
             if (expression()) {
-                _parser->emit(m8r::Op::STOA);
+                _parser->emitMove();
                 while (getToken() == Token::Comma) {
                     retireToken();
                     if (!expect(Token::Expr, expression())) {
                         break;
                     }
-                    _parser->emit(m8r::Op::STOA);
+                    _parser->emitMove();
                 }
             }
             expect(Token::RBracket);
             break;
         case Token::LBrace:
             retireToken();
-            _parser->emit(Op::PUSHLITO);
+            _parser->emitLoadLit(false);
             if (propertyAssignment()) {
-                _parser->emit(m8r::Op::STOO);
+                _parser->emitStoProp();
                 while (getToken() == Token::Comma) {
                     retireToken();
                     if (!expect(Token::PropertyAssignment, propertyAssignment())) {
                         break;
                     }
-                    _parser->emit(m8r::Op::STOO);
+                    _parser->emitStoProp();
                 }
             }
             expect(Token::RBrace);
@@ -540,9 +540,9 @@ bool ParseEngine::propertyName()
 {
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::NotLocal); retireToken(); return true;
-        case Token::String: _parser->emit(getTokenValue().string); retireToken(); return true;
-        case Token::Float: _parser->emit(getTokenValue().number); retireToken(); return true;
-        case Token::Integer: _parser->emit(getTokenValue().integer); retireToken(); return true;
+        case Token::String: _parser->pushK(getTokenValue().string); retireToken(); return true;
+        case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); return true;
+        case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); return true;
         default: return false;
     }
 }
@@ -557,7 +557,7 @@ ObjectId ParseEngine::function()
     expect(Token::LBrace);
     while(statement()) { }
     expect(Token::RBrace);
-    _parser->emit(m8r::Op::END);
+    _parser->emitEnd();
     return _parser->functionEnd();
 }
 

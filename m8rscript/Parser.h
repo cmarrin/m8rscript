@@ -76,6 +76,26 @@ public:
     void addToString(char c) { _program->addToStringLiteral(c); }
     void endString() { _program->endStringLiteral(); }
     
+private:
+    struct ParseStackEntry {
+        enum class Type { Local, Constant, Register, RefK, PropRef, EltRef };
+        
+        ParseStackEntry() { }
+        ParseStackEntry(Type type, uint32_t reg, uint32_t derefReg = 0)
+            : _type(type)
+            , _reg(reg)
+            , _derefReg(derefReg)
+        {
+            if (_type == Type::Constant) {
+                _reg += MaxRegister;
+            }
+        }
+        
+        Type _type;
+        uint32_t _reg;
+        uint32_t _derefReg;
+    };
+    
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,
@@ -108,37 +128,60 @@ public:
     ObjectId functionEnd();
     void programEnd();
         
-    void emit(StringLiteral::Raw value);
-    void emit(uint32_t value);
-    void emit(Float value);
-    void emit(Op value);
-    
-    void popReg() { _currentFunction->popReg(); }
+    void pushK(StringLiteral::Raw value);
+    void pushK(uint32_t value);
+    void pushK(Float value);
+    void pushK(bool value);
+    void pushK();
+    void pushK(ObjectId function);
     
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
-    
-    void emit(ObjectId function);
+
+    void emitDup();
     void emitMove();
-    void emitBinOp(Op op, bool sto);
+    void emitDeref(bool prop);
+    void emitStoProp();
+    void emitUnOp(Op op);
+    void emitBinOp(Op op);
+    void emitLoadLit(bool array);
+    void emitEnd();
     
     void addNamedFunction(ObjectId functionId, const Atom& name);
     void emitWithCount(Op value, uint32_t count);
-    void addVar(const Atom& name) { _currentFunction->addLocal(name); }
+    void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     
-private:
+    void discardResult() { _parseStack.pop(); }
+    
+    Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
+    
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
     void addCode(uint32_t);
+    
+    // Parse Stack manipulation and code generation
     
     void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
     void emitCodeRUN(Op, uint32_t ra, uint32_t n);
     void emitCodeRSN(Op, uint32_t ra, int32_t n);
     
+    uint32_t pushParseStackEntry(ParseStackEntry::Type type, uint32_t reg = 0, uint32_t derefReg = 0);
+    void popParseStackEntry();
+    void bake();
+
+    Stack<ParseStackEntry> _parseStack;
+    
+
+    struct FunctionEntry {
+        FunctionEntry(Function* function) : _function(function) { }
+        Function* _function = nullptr;
+        uint32_t _nextReg = 255;
+    };
+        
+    std::vector<FunctionEntry> _functions;
+
     Scanner _scanner;
     Program* _program;
-    Function* _currentFunction;
-    std::vector<Function*> _functions;
     uint32_t _nerrors = 0;
     std::vector<size_t> _deferredCodeBlocks;
     Code _deferredCode;

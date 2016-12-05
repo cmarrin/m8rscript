@@ -81,9 +81,7 @@ public:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
     
-    uint32_t pushReg() { return _nextReg++; }
-    uint32_t popReg() { uint32_t reg = _nextReg--; return reg; }
-    uint32_t currentReg() const { return _nextReg; }
+    void reconcileRegisters(uint8_t tempRegCount);
     
 protected:
     bool serializeContents(Stream*, Error&, Program*) const;
@@ -94,7 +92,6 @@ private:
     std::vector<Atom> _locals;
     uint32_t _paramEnd = 0;
     std::vector<Value> _constants;
-    uint32_t _nextReg = 0;
 };
     
 }

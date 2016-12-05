@@ -124,8 +124,8 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
         
         /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x14 */ OP(LOADL) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x18 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+        /* 0x18 */ OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(UNKNOWN)
         /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
@@ -192,7 +192,6 @@ static const uint16_t YieldCount = 2000;
     DISPATCH;
     
     L_UNKNOWN:
-    L_LOADL:
         assert(0);
         return -1;
     L_RET:
@@ -257,6 +256,12 @@ static const uint16_t YieldCount = 2000;
         objectId = _program->addObject(objectValue);
         objectValue->setObjectId(objectId);
         _stack.setInFrame(machineCodeToRa(machineCode), objectId);
+        DISPATCH;
+    L_LOADPROP:
+    L_LOADELT:
+    L_STOPROP:
+    L_STOELT:
+        // FIXME: Implement
         DISPATCH;
     L_LOADTRUE:
         _stack.setInFrame(machineCodeToRa(machineCode), true);
