@@ -1,0 +1,38 @@
+//
+// Test of various functionality of m8rscript
+//
+
+function add(x, y, z)
+{
+	return function(m)
+	{
+		return m * (x + y + z);
+	};
+}
+
+Serial.print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
+
+var b = [ 1, 2, 3 ];
+var c = 12.5;
+var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
+var d = 5;
+d *= 3;
+
+Serial.print("Array b[1] = " + b[1] + "\n");
+Serial.print("Object a[54325667] = " + a[54325667] + "\n");
+Serial.print("Object a.b = " + a.b + "\n");
+Serial.print("d=" + d + "\n");
+
+var e;
+var a = b * c + d * e;
+
+var add2 = add(2, 3, 4);
+Serial.print("add2(5) = " + add2(5) + "\n");
+
+function multi(x)
+{
+	return x; //{ x + 3, x * 4, x / 5 };
+}
+
+a = multi(4);
+Serial.println("a=" + a);

@@ -1,0 +1,22 @@
+/*
+    Blink the LED connected to GPIO2 at a 1 sec interval
+*/
+
+GPIO.setPinMode(2, GPIO.PinMode.Output);
+Serial.begin(9600);
+Serial.print("Started Blink\n");
+var count = 0;
+while (count < 1000) {
+    blink();
+    count++;
+}
+
+function blink()
+{
+    GPIO.digitalWrite(2, true);
+    Serial.print("Blink off\n");
+    System.delay(500);
+    GPIO.digitalWrite(2, false);
+    Serial.print("Blink on\n");
+    System.delay(500); // wait a bit
+}
