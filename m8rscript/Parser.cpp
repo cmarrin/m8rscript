@@ -95,8 +95,11 @@ void Parser::matchJump(Label& label)
         printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
-    currentFunction()->setCodeAtIndex(label.matchedAddr + 1, ExecutionUnit::byteFromInt(jumpAddr, 1));
-    currentFunction()->setCodeAtIndex(label.matchedAddr + 2, ExecutionUnit::byteFromInt(jumpAddr, 0));
+    
+    uint32_t machineCode = currentFunction()->code()->at(label.matchedAddr);
+    Op op = machineCodeToOp(machineCode);
+    uint32_t reg = machineCodeToRa(machineCode);
+    emitCodeRSN(op, reg, jumpAddr);
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
@@ -115,17 +118,17 @@ void Parser::jumpToLabel(Op op, Label& label)
 
 void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff));
+    addCode(genMachineCodeRRR(op, ra, rb, rc));
 }
 
 void Parser::emitCodeRUN(Op op, uint32_t ra, uint32_t n)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
+    addCode(genMachineCodeRUN(op, ra, n));
 }
 
 void Parser::emitCodeRSN(Op op, uint32_t ra, int32_t n)
 {
-    addCode((static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff));
+    addCode(genMachineCodeRSN(op, ra, n));
 }
 
 void Parser::addCode(uint32_t c)
@@ -134,7 +137,7 @@ void Parser::addCode(uint32_t c)
         assert(_deferredCodeBlocks.size() > 0);
         _deferredCode.push_back(c);
     } else {
-        currentFunction()->addCode(c);
+        currentFunction()->code()->push_back(c);
     }
 }
 
@@ -314,7 +317,7 @@ void Parser::emitDeferred()
     assert(!_deferred);
     assert(_deferredCodeBlocks.size() > 0);
     for (size_t i = _deferredCodeBlocks.back(); i < _deferredCode.size(); ++i) {
-        currentFunction()->addCode(_deferredCode[i]);
+        currentFunction()->code()->push_back(_deferredCode[i]);
     }
     _deferredCode.resize(_deferredCodeBlocks.back());
     _deferredCodeBlocks.pop_back();
@@ -356,8 +359,7 @@ ObjectId Parser::functionEnd()
     Function* function = currentFunction();
     _functions.pop_back();
     
-    // FIXME: Remember max temp reg count and pass it
-    function->reconcileRegisters(0);
+    reconcileRegisters(function);
     
     return function->objectId();
 }
@@ -365,6 +367,32 @@ ObjectId Parser::functionEnd()
 void Parser::programEnd()
 {
     emitEnd();
+}
+
+static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
+{
+    return (reg > numLocals) ? (255 - reg + numLocals) : reg;
+}
+
+void Parser::reconcileRegisters(Function* function)
+{
+    assert(function->code());
+    Code& code = *function->code();
+    uint32_t numLocals = static_cast<uint32_t>(function->localSize());
+    
+    for (int i = 0; i < code.size(); ++i) {
+        uint32_t machineCode = code[i];
+        Op op = machineCodeToOp(machineCode);
+        uint32_t ra = regFromTempReg(machineCodeToRa(machineCode), numLocals);
+        
+        if (op == Op::RET || op == Op::CALL || op == Op::NEW) {
+            code[i] = genMachineCodeRUN(op, ra, machineCodeToUN(machineCode));
+        } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
+            code[i] = genMachineCodeRSN(op, ra, machineCodeToSN(machineCode));
+        } else {
+            code[i] = genMachineCodeRRR(op, ra, regFromTempReg(machineCodeToRb(machineCode), numLocals), regFromTempReg(machineCodeToRc(machineCode), numLocals));
+        }
+    }
 }
 
 uint32_t Parser::ParseStack::push(ParseStack::Type type, uint32_t reg, uint32_t derefReg)

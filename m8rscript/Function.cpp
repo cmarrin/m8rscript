@@ -213,9 +213,3 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     }
     return true;
 }
-
-void Function::reconcileRegisters(uint8_t tempRegCount)
-{
-    // FIXME: Implement
-}
-

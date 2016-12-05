@@ -169,12 +169,17 @@ enum class Op : uint8_t {
 
 static_assert(static_cast<uint32_t>(Op::LAST) <= 0x56, "Opcode must fit in 6 bits");
 
-inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
-inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }
-inline uint32_t machineCodeToRb(uint32_t code) { return (code >> 9) & 0x1ff; }
-inline uint32_t machineCodeToRc(uint32_t code) { return code & 0x1ff; }
-inline uint32_t machineCodeToUN(uint32_t code) { return code & 0x3ffff; }
-inline uint32_t machineCodeToSN(uint32_t code) { return static_cast<int32_t>(code << 14) >> 14; }
+static inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
+static inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }
+static inline uint32_t machineCodeToRb(uint32_t code) { return (code >> 9) & 0x1ff; }
+static inline uint32_t machineCodeToRc(uint32_t code) { return code & 0x1ff; }
+static inline uint32_t machineCodeToUN(uint32_t code) { return code & 0x3ffff; }
+static inline int32_t machineCodeToSN(uint32_t code) { return static_cast<int32_t>(code << 14) >> 14; }
+
+static inline uint32_t genMachineCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff); }
+static inline uint32_t genMachineCodeRUN(Op op, uint32_t ra, uint32_t n) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff); }
+static inline uint32_t genMachineCodeRSN(Op op, uint32_t ra, int32_t n) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff); }
+
 
 ////  Opcodes with params have bit patterns.
 ////  Upper 2 bits are 00 (values from 0x00 to 0x3f)

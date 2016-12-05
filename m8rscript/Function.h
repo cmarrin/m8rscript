@@ -56,6 +56,7 @@ public:
     virtual bool isFunction() const override { return true; }
 
     virtual const Code* code() const override { return &_code; }
+    Code* code() { return &_code; }
 
     virtual int32_t addLocal(const Atom& name) override;
     virtual int32_t localIndex(const Atom& name) const override;
@@ -73,16 +74,11 @@ public:
     virtual Value constant(ConstantId id) const override { return _constants[(id.raw() < _constants.size()) ? id.raw() : 0]; }
     size_t constantCount() const { return _constants.size(); }
 
-    void addCode(uint32_t c) { _code.push_back(c); }
-    void setCodeAtIndex(uint32_t index, uint32_t c) { _code[index] = c; }
-
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
 
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
-    
-    void reconcileRegisters(uint8_t tempRegCount);
-    
+
 protected:
     bool serializeContents(Stream*, Error&, Program*) const;
     bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
