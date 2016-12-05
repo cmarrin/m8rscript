@@ -396,6 +396,12 @@ public:
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
     
+    const type& top(int32_t relative = 0) const
+    {
+        assert(static_cast<int32_t>(super::size()) + relative > 0);
+        return super::at(static_cast<int32_t>(super::size()) + relative - 1);
+    }
+    
     size_t setLocalFrame(size_t nparams, size_t localSize)
     {
         size_t oldFrame = _frame;

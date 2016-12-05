@@ -55,6 +55,7 @@ class SystemInterface;
 
 class Parser  {
     friend class ParseEngine;
+    friend class ParseStack;
     
 public:
 	Parser(SystemInterface* system = nullptr);
@@ -76,26 +77,7 @@ public:
     void addToString(char c) { _program->addToStringLiteral(c); }
     void endString() { _program->endStringLiteral(); }
     
-private:
-    struct ParseStackEntry {
-        enum class Type { Local, Constant, Register, RefK, PropRef, EltRef };
-        
-        ParseStackEntry() { }
-        ParseStackEntry(Type type, uint32_t reg, uint32_t derefReg = 0)
-            : _type(type)
-            , _reg(reg)
-            , _derefReg(derefReg)
-        {
-            if (_type == Type::Constant) {
-                _reg += MaxRegister;
-            }
-        }
-        
-        Type _type;
-        uint32_t _reg;
-        uint32_t _derefReg;
-    };
-    
+private:    
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,
@@ -164,13 +146,47 @@ private:
     void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
     void emitCodeRUN(Op, uint32_t ra, uint32_t n);
     void emitCodeRSN(Op, uint32_t ra, int32_t n);
-    
-    uint32_t pushParseStackEntry(ParseStackEntry::Type type, uint32_t reg = 0, uint32_t derefReg = 0);
-    void popParseStackEntry();
-    void bake();
 
-    Stack<ParseStackEntry> _parseStack;
+    class ParseStack {
+    public:
+        enum class Type { Local, Constant, Register, RefK, PropRef, EltRef };
+        
+        ParseStack(Parser* parser) : _parser(parser) { }
+        
+        uint32_t push(Type, uint32_t reg = 0, uint32_t derefReg = 0);
+        void pop();
+        
+        Type topType() const { return _stack.top()._type; }
+        uint32_t topReg() const { return _stack.top()._reg; }
+        uint32_t topDerefReg() const { return _stack.top()._derefReg; }
+        
+        uint32_t bake();
+        uint32_t dupCallee(int32_t nparams);
+        
+    private:
+        struct Entry {
+            
+            Entry() { }
+            Entry(Type type, uint32_t reg, uint32_t derefReg = 0)
+                : _type(type)
+                , _reg(reg)
+                , _derefReg(derefReg)
+            {
+                if (_type == Type::Constant) {
+                    _reg += MaxRegister;
+                }
+            }
+            
+            Type _type;
+            uint32_t _reg;
+            uint32_t _derefReg;
+        };
+        
+        Stack<Entry> _stack;
+        Parser* _parser;
+    };
     
+    ParseStack _parseStack;
 
     struct FunctionEntry {
         FunctionEntry(Function* function) : _function(function) { }
