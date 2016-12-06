@@ -99,13 +99,13 @@ inline String regString(uint32_t reg)
 void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
 {
     preamble(str, addr);
-    str += stringFromOp(op);
+    str += String(stringFromOp(op)) + "\n";
 }
 
 void CodePrinter::generateRXX(m8r::String& str, uint32_t addr, Op op, uint32_t d) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d);
+    str += String(stringFromOp(op)) + " " + regString(d) + "\n";
 }
 
 void CodePrinter::generateRRX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
@@ -144,7 +144,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         
         /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
         /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x18 */ OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(UNKNOWN)
+        /* 0x18 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
         /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
@@ -284,6 +284,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
+    L_APPENDELT:
         generateRRX(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode));
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT:
@@ -320,7 +321,7 @@ static CodeMap opcodes[] = {
     OP(END)
     
     OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT)
     OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)

@@ -123,6 +123,7 @@ private:
     void emitDup();
     void emitMove();
     void emitDeref(bool prop);
+    void emitAppendElt();
     void emitStoProp();
     void emitUnOp(Op op);
     void emitBinOp(Op op);
@@ -174,7 +175,7 @@ private:
                 , _reg(reg)
                 , _derefReg(derefReg)
             {
-                if (_type == Type::Constant) {
+                if (_type == Type::Constant || _type == Type::RefK) {
                     _reg += MaxRegister;
                 }
             }

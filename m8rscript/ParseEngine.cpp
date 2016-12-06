@@ -494,13 +494,13 @@ bool ParseEngine::primaryExpression()
             retireToken();
             _parser->emitLoadLit(true);
             if (expression()) {
-                _parser->emitMove();
+                _parser->emitAppendElt();
                 while (getToken() == Token::Comma) {
                     retireToken();
                     if (!expect(Token::Expr, expression())) {
                         break;
                     }
-                    _parser->emitMove();
+                    _parser->emitAppendElt();
                 }
             }
             expect(Token::RBracket);

@@ -125,7 +125,7 @@ int32_t ExecutionUnit::continueExecution()
         
         /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
         /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x18 */ OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(UNKNOWN)
+        /* 0x18 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
         /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
 
         /* 0x20 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
@@ -261,6 +261,9 @@ static const uint16_t YieldCount = 2000;
     L_LOADELT:
     L_STOPROP:
     L_STOELT:
+        // FIXME: Implement
+        DISPATCH;
+    L_APPENDELT:
         // FIXME: Implement
         DISPATCH;
     L_LOADTRUE:

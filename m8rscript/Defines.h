@@ -109,6 +109,7 @@ struct Label {
     
     MOVE        R[d], RK[s], X                             ; (4)
     LOADREFK    R[d], RK[s], X
+    APPENDELT   R[d], RK[s], X
  
     LOADLITA    R[d], X, X
     LOADLITO    R[d], X, X
@@ -151,7 +152,7 @@ enum class Op : uint8_t {
     UNKNOWN = 0x00, RET, END,
     
     MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO,
-    LOADPROP, LOADELT, STOPROP, STOELT,
+    LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT,
     LOADTRUE, LOADFALSE, LOADNULL,
 
     LOR = 0x20, LAND, OR, AND, XOR,

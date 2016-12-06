@@ -246,11 +246,24 @@ void Parser::emitDup()
     }
 }
 
+void Parser::emitAppendElt()
+{
+    // tos-1 object to append to
+    // tos value to store
+    // leave object on tos
+    uint32_t srcReg = _parseStack.bake();
+    _parseStack.pop();
+    uint32_t objectReg = _parseStack.bake();
+    
+    emitCodeRRR(Op::APPENDELT, objectReg, srcReg);
+}
+
 void Parser::emitStoProp()
 {
     // tos-2 object to store into
     // tos-1 property of this object to store into
     // tos value to store
+    // leave object on tos
     uint32_t srcReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t derefReg = _parseStack.bake();
@@ -367,11 +380,12 @@ ObjectId Parser::functionEnd()
 void Parser::programEnd()
 {
     emitEnd();
+    reconcileRegisters(_program);
 }
 
 static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
 {
-    return (reg > numLocals) ? (255 - reg + numLocals) : reg;
+    return (reg > numLocals && reg < 256) ? (255 - reg + numLocals) : reg;
 }
 
 void Parser::reconcileRegisters(Function* function)
