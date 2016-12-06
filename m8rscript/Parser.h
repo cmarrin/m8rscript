@@ -128,6 +128,8 @@ private:
     void emitUnOp(Op op);
     void emitBinOp(Op op);
     void emitLoadLit(bool array);
+    void emitPush();
+    void emitPop();
     void emitEnd();
     
     void addNamedFunction(ObjectId functionId, const Atom& name);
@@ -162,6 +164,7 @@ private:
         Type topType() const { return _stack.top()._type; }
         uint32_t topReg() const { return _stack.top()._reg; }
         uint32_t topDerefReg() const { return _stack.top()._derefReg; }
+        bool empty() const { return _stack.empty(); }
         
         uint32_t bake();
         uint32_t dupCallee(int32_t nparams);

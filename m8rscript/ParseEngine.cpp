@@ -471,10 +471,12 @@ uint32_t ParseEngine::argumentList()
     if (!expression()) {
         return i;
     }
+    _parser->emitPush();
     ++i;
     while (getToken() == Token::Comma) {
         retireToken();
         expression();
+        _parser->emitPush();
         ++i;
     }
     return i;

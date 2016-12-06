@@ -137,35 +137,25 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     #undef OP
     #define OP(op) &&L_ ## op,
     static const void* dispatchTable[] {
-        /* 0x00 */ OP(UNKNOWN) OP(RET) OP(END) OP(UNKNOWN)
-        /* 0x04 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
+        /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+        /* 0x08 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
+        /* 0x0C */ OP(PUSH) OP(POP) OP(UNKNOWN) OP(UNKNOWN)
+
+        /* 0x10 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
+        /* 0x14 */ OP(XOR) OP(EQ) OP(NE) OP(LT)
+        /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(SHL)
+        /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
-        /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x18 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
+        /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x20 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
-        /* 0x24 */ OP(XOR) OP(EQ) OP(NE) OP(LT)
-        /* 0x28 */ OP(LE) OP(GT) OP(GE) OP(SHL)
-        /* 0x2C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
-        
-        /* 0x30 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
-        /* 0x34 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x38 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x3c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-
-        /* 0x40 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
-        /* 0x44 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(UNKNOWN)
-        /* 0x48 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x4c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-
-        /* 0x50 */ OP(CALL) OP(NEW) OP(JMP) OP(JT)
-        /* 0x54 */ OP(JF) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x58 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x5c */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
+        /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
+        /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
+        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
     
 //static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
@@ -279,6 +269,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         _nestingLevel--;
         return outputString;  
     L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
+    L_PUSH: L_POP:
         generateRXX(outputString, i - 1, op, machineCodeToRa(machineCode));
         DISPATCH;
     L_MOVE: L_LOADREFK:
@@ -323,6 +314,7 @@ static CodeMap opcodes[] = {
     OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
     OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT)
     OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
+    OP(PUSH) OP(POP)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
     OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)

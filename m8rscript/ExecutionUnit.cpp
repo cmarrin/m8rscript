@@ -118,34 +118,25 @@ int32_t ExecutionUnit::continueExecution()
     #define OP(op) &&L_ ## op,
     
     static const void* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR dispatchTable[] {
-        /* 0x00 */ OP(UNKNOWN) OP(RET) OP(END) OP(UNKNOWN)
-        /* 0x04 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x08 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x0C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        
-        /* 0x10 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x14 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x18 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x1C */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
+        /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
+        /* 0x08 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
+        /* 0x0C */ OP(PUSH) OP(POP) OP(UNKNOWN) OP(UNKNOWN)
 
-        /* 0x20 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
-        /* 0x24 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP)
-        /* 0x28 */ OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
-        /* 0x2C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP)
-        /* 0x30 */ OP(BINOP)  OP(BINOP)  OP(BINOP)  OP(DEREF)
-        /* 0x34 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x38 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x3c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-
-        /* 0x40 */ OP(UNOP) OP(UNOP) OP(UNOP) OP(PREINC)
-        /* 0x44 */ OP(PREDEC) OP(POSTINC) OP(POSTDEC) OP(UNKNOWN)
-        /* 0x48 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x4c */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x10 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0x14 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP)
+        /* 0x18 */ OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
+        /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP)
         
-        /* 0x50 */ OP(CALL) OP(NEW) OP(JMP) OP(JT)
-        /* 0x54 */ OP(JF) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x58 */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
-        /* 0x5c */ OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x20 */ OP(BINOP)  OP(BINOP)  OP(BINOP)  OP(DEREF)
+        /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+
+        /* 0x30 */ OP(UNOP)  OP(UNOP)  OP(UNOP)  OP(PREINC)
+        /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
+        /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
+        /* 0x3c */ OP(UNKNOWN) OP(RET) OP(END) OP(UNKNOWN)
     };
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
@@ -274,6 +265,13 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_LOADNULL:
         _stack.setInFrame(machineCodeToRa(machineCode), Value());
+        DISPATCH;
+    L_PUSH:
+        _stack.push(_stack.inFrame(machineCodeToRb(machineCode)));
+        DISPATCH;
+    L_POP:
+        _stack.setInFrame(machineCodeToRa(machineCode), _stack.top());
+        _stack.pop();
         DISPATCH;
     L_DEREF:
         leftValue = _stack.inFrame(machineCodeToRb(machineCode));

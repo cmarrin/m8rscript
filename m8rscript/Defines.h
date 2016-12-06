@@ -116,6 +116,9 @@ struct Label {
     LOADTRUE    R[d], X, X
     LOADFALSE   R[d], X, X
     LOADNULL    R[d], X, X
+    
+    PUSH        RK[s]
+    POP         R[d]
  
     LOADPROP    R[d], RK[o], K[p]
     LOADELT     R[d], RK[o], RK[e]
@@ -149,26 +152,26 @@ struct Label {
 static constexpr uint32_t MaxRegister = 255;
 
 enum class Op : uint8_t {
-    UNKNOWN = 0x00, RET, END,
     
-    MOVE = 0x10, LOADREFK, LOADLITA, LOADLITO,
+    MOVE = 0x00, LOADREFK, LOADLITA, LOADLITO,
     LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT,
-    LOADTRUE, LOADFALSE, LOADNULL,
+    LOADTRUE, LOADFALSE, LOADNULL, PUSH, POP,
 
-    LOR = 0x20, LAND, OR, AND, XOR,
+    LOR = 0x10, LAND, OR, AND, XOR,
     EQ,  NE, LT, LE, GT, GE,
     SHL, SHR, SAR,
     ADD, SUB, MUL, DIV, MOD,
     DEREF,
 
-    UMINUS = 0x40, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
+    UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
+    CALL, NEW, JMP, JT, JF,
 
-    CALL = 0x50, NEW, JMP, JT, JF,
+    END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
     LAST
 };
 
-static_assert(static_cast<uint32_t>(Op::LAST) <= 0x56, "Opcode must fit in 6 bits");
+static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bits");
 
 static inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
 static inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }

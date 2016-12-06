@@ -280,9 +280,9 @@ void Parser::emitBinOp(Op op)
         return;
     }
     
-    uint32_t leftReg = _parseStack.bake();
-    _parseStack.pop();
     uint32_t rightReg = _parseStack.bake();
+    _parseStack.pop();
+    uint32_t leftReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
 
@@ -303,8 +303,22 @@ void Parser::emitLoadLit(bool array)
     emitCodeRRR(array ? Op::LOADLITA : Op::LOADLITO, dst);
 }
 
+void Parser::emitPush()
+{
+    uint32_t src = _parseStack.bake();
+    _parseStack.pop();
+    emitCodeRRR(Op::PUSH, src);
+}
+
+void Parser::emitPop()
+{
+    uint32_t dst = _parseStack.push(ParseStack::Type::Register);
+    emitCodeRRR(Op::POP, dst);
+}
+
 void Parser::emitEnd()
 {
+    assert(_parseStack.empty());
     emitCodeRRR(Op::END);
 }
 
@@ -313,16 +327,18 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
     assert(nparams < 256);
     assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
     
-    // If this is CALL or NEW, the callee is behind the params. We need to
-    // Get it to the top of the parse stack so we can bake it. We leave
-    // the original on the stack for the caller to pop on return
     uint32_t calleeReg = 0;
     
     if (value == Op::CALL || value == Op::NEW) {
-        calleeReg = _parseStack.dupCallee(nparams);
+        calleeReg = _parseStack.bake();
+        _parseStack.pop();
     }
 
     emitCodeRUN(value, calleeReg, nparams);
+    if (value == Op::CALL || value == Op::NEW) {
+        // On return there will be a value on the runtime stack. Pop it into a register
+        emitPop();
+    }
 }
 
 void Parser::emitDeferred()
