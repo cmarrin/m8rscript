@@ -50,19 +50,19 @@ Parser::Parser(SystemInterface* system)
     , _program(new Program(system))
     , _system(system)
 {
-    _functions.emplace_back(_program);
 }
 
 void Parser::parse(m8r::Stream* istream)
 {
     _scanner.setStream(istream);
     ParseEngine p(this);
+    _functions.emplace_back(_program);
     while(1) {
         if (!p.statement()) {
             break;
         }
     }
-    programEnd();
+    functionEnd();
 }
 
 void Parser::printError(const char* s)
@@ -385,18 +385,15 @@ void Parser::functionParamsEnd()
 ObjectId Parser::functionEnd()
 {
     assert(_functions.size());
+    emitEnd();
     Function* function = currentFunction();
+    uint8_t tempRegisterCount = 256 - _functions.back()._minReg;
     _functions.pop_back();
     
     reconcileRegisters(function);
+    function->setTempRegisterCount(tempRegisterCount);
     
     return function->objectId();
-}
-
-void Parser::programEnd()
-{
-    emitEnd();
-    reconcileRegisters(_program);
 }
 
 static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
@@ -428,7 +425,11 @@ void Parser::reconcileRegisters(Function* function)
 uint32_t Parser::ParseStack::push(ParseStack::Type type, uint32_t reg, uint32_t derefReg)
 {
     if (type == Type::Register) {
-        reg = _parser->_functions.back()._nextReg--;
+        FunctionEntry& entry = _parser->_functions.back();
+        reg = entry._nextReg--;
+        if (reg < entry._minReg) {
+            entry._minReg = reg;
+        }
     }
     _stack.push({ type, reg, derefReg });
     return reg;

@@ -559,7 +559,6 @@ ObjectId ParseEngine::function()
     expect(Token::LBrace);
     while(statement()) { }
     expect(Token::RBrace);
-    _parser->emitEnd();
     return _parser->functionEnd();
 }
 

@@ -108,7 +108,6 @@ private:
     void functionStart();
     void functionParamsEnd();
     ObjectId functionEnd();
-    void programEnd();
         
     void pushK(StringLiteral::Raw value);
     void pushK(uint32_t value);
@@ -198,6 +197,7 @@ private:
         FunctionEntry(Function* function) : _function(function) { }
         Function* _function = nullptr;
         uint32_t _nextReg = 255;
+        uint32_t _minReg = 256;
     };
         
     std::vector<FunctionEntry> _functions;

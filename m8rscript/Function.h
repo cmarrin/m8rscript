@@ -61,7 +61,7 @@ public:
     virtual int32_t addLocal(const Atom& name) override;
     virtual int32_t localIndex(const Atom& name) const override;
     virtual Atom localName(int32_t index) const override { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
-    virtual size_t localSize() const override { return _locals.size(); }
+    virtual size_t localSize() const override { return _locals.size() + _tempRegisterCount; }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
     
     ConstantId addConstant(const Value& v)
@@ -75,6 +75,9 @@ public:
     size_t constantCount() const { return _constants.size(); }
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
+    
+    void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
+    uint8_t tempRegisterCount() const { return _tempRegisterCount; }
 
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
@@ -88,6 +91,7 @@ private:
     std::vector<Atom> _locals;
     uint32_t _paramEnd = 0;
     std::vector<Value> _constants;
+    uint8_t _tempRegisterCount = 0;
 };
     
 }

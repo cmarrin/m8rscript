@@ -267,22 +267,22 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(machineCodeToRa(machineCode), Value());
         DISPATCH;
     L_PUSH:
-        _stack.push(_stack.inFrame(machineCodeToRb(machineCode)));
+        _stack.push(_stack.inFrame(regOrConst(machineCodeToRb(machineCode))));
         DISPATCH;
     L_POP:
         _stack.setInFrame(machineCodeToRa(machineCode), _stack.top());
         _stack.pop();
         DISPATCH;
     L_DEREF:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode));
-        if (!leftValue.deref(this, _stack.inFrame(machineCodeToRc(machineCode)))) {
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode)));
+        if (!leftValue.deref(this, _stack.inFrame(regOrConst(machineCodeToRc(machineCode))))) {
             checkTooManyErrors();
         }
         _stack.setInFrame(machineCodeToRa(machineCode), leftValue);
         DISPATCH;
     L_BINIOP:
-        leftIntValue = _stack.inFrame(machineCodeToRb(machineCode)).toIntValue(this);
-        rightIntValue = _stack.inFrame(machineCodeToRc(machineCode)).toIntValue(this);
+        leftIntValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).toIntValue(this);
+        rightIntValue = _stack.inFrame(regOrConst(machineCodeToRc(machineCode))).toIntValue(this);
         switch(op) {
             case Op::LOR: leftIntValue = leftIntValue || rightIntValue; break;
             case Op::LAND: leftIntValue = leftIntValue && rightIntValue; break;
@@ -297,8 +297,8 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(machineCodeToRa(machineCode), leftIntValue);
         DISPATCH;
     L_BINOP:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode)).bake(this);
-        rightValue = _stack.inFrame(machineCodeToRc(machineCode)).bake(this);
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).bake(this);
+        rightValue = _stack.inFrame(regOrConst(machineCodeToRc(machineCode))).bake(this);
         if (leftValue.isInteger() && rightValue.isInteger()) {
             leftIntValue = leftValue.toIntValue(this);
             rightIntValue = rightValue.toIntValue(this);
@@ -336,8 +336,8 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_ADD:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode)).bake(this);
-        rightValue = _stack.inFrame(machineCodeToRc(machineCode)).bake(this);
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).bake(this);
+        rightValue = _stack.inFrame(regOrConst(machineCodeToRc(machineCode))).bake(this);
 
         if (leftValue.isInteger() && rightValue.isInteger()) {
             _stack.setInFrame(machineCodeToRa(machineCode), leftValue.toIntValue(this) + rightValue.toIntValue(this));
@@ -352,7 +352,7 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_UNOP:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode)).bake(this);
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).bake(this);
         if (leftValue.isInteger() || op != Op::UMINUS) {
             leftIntValue = leftValue.toIntValue(this);
             switch(op) {
@@ -368,13 +368,13 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_PREINC:
-        _stack.setInFrame(machineCodeToRa(machineCode), _stack.inFrame(machineCodeToRb(machineCode)).toIntValue(this) + 1);
+        _stack.setInFrame(machineCodeToRa(machineCode), _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).toIntValue(this) + 1);
         DISPATCH;
     L_PREDEC:
-        _stack.setInFrame(machineCodeToRa(machineCode), _stack.inFrame(machineCodeToRb(machineCode)).toIntValue(this) - 1);
+        _stack.setInFrame(machineCodeToRa(machineCode), _stack.inFrame(regOrConst(machineCodeToRb(machineCode))).toIntValue(this) - 1);
         DISPATCH;
     L_POSTINC:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode));
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode)));
         if (!leftValue.isLValue()) {
             printError(ROMSTR("Must have an lvalue for POSTINC"));
         } else {
@@ -386,7 +386,7 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_POSTDEC:
-        leftValue = _stack.inFrame(machineCodeToRb(machineCode));
+        leftValue = _stack.inFrame(regOrConst(machineCodeToRb(machineCode)));
         if (!leftValue.isLValue()) {
             printError(ROMSTR("Must have an lvalue for POSTINC"));
         } else {
@@ -400,7 +400,7 @@ static const uint16_t YieldCount = 2000;
     L_NEW:
     L_CALL:
         uintValue = machineCodeToUN(machineCode);
-        callReturnValue = _stack.inFrame(machineCodeToRa(machineCode)).call(this, uintValue);
+        callReturnValue = _stack.inFrame(regOrConst(machineCodeToRa(machineCode))).call(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue
@@ -429,7 +429,7 @@ static const uint16_t YieldCount = 2000;
     L_JF:
         intValue = machineCodeToSN(machineCode);
         if (op != Op::JMP) {
-            boolValue = _stack.inFrame(machineCodeToRa(machineCode)).toBoolValue(this);
+            boolValue = _stack.inFrame(regOrConst(machineCodeToRa(machineCode))).toBoolValue(this);
             if (op == Op::JT) {
                 boolValue = !boolValue;
             }
