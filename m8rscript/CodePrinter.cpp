@@ -162,8 +162,8 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
 
     #undef DISPATCH
     #define DISPATCH { \
-        machineCode = code[i++]; \
-        op = machineCodeToOp(machineCode); \
+        inst = code[i++]; \
+        op = inst.op; \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -200,7 +200,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         }
     }
     
-    const uint32_t* code = &(obj->code()->at(0));
+    const Instruction* code = &(obj->code()->at(0));
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
@@ -211,14 +211,14 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
             return outputString;
         }
 
-        uint32_t c = obj->code()->at(i);
-        Op op = machineCodeToOp(c);
+        Instruction c = obj->code()->at(i);
+        Op op = c.op;
         if (op == Op::END) {
             break;
         }
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
-            int16_t addr = machineCodeToSN(c);
+            int16_t addr = c.sn;
             Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
             annotations.push_back(annotation);
         }
@@ -254,7 +254,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     m8r::String strValue;
     Atom localName;
     
-    uint32_t machineCode;
+    Instruction inst;
     Op op;
     
     DISPATCH;
@@ -270,13 +270,13 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         return outputString;  
     L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
     L_PUSH: L_POP:
-        generateRXX(outputString, i - 1, op, machineCodeToRa(machineCode));
+        generateRXX(outputString, i - 1, op, inst.ra);
         DISPATCH;
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode));
+        generateRRX(outputString, i - 1, op, inst.ra, inst.rb);
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -284,17 +284,17 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_DEREF:
-        generateRRR(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToRb(machineCode), machineCodeToRc(machineCode));
+        generateRRR(outputString, i - 1, op, inst.ra, inst.rb, inst.rc);
         DISPATCH;
     L_RET:
     L_JMP:
-        generateXN(outputString, i - 1, op, machineCodeToSN(machineCode));
+        generateXN(outputString, i - 1, op, inst.sn);
         DISPATCH;
     L_JT: L_JF:
-        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToSN(machineCode));
+        generateRN(outputString, i - 1, op, inst.ra, inst.sn);
         DISPATCH;
     L_CALL: L_NEW:
-        generateRN(outputString, i - 1, op, machineCodeToRa(machineCode), machineCodeToUN(machineCode));
+        generateRN(outputString, i - 1, op, inst.ra, inst.un);
         DISPATCH;
 }
 

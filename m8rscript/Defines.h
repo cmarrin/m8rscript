@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 #ifdef __APPLE__
     #define ICACHE_RODATA_ATTR
@@ -173,16 +174,31 @@ enum class Op : uint8_t {
 
 static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bits");
 
-static inline Op machineCodeToOp(uint32_t code) { return static_cast<Op>(code >> 26); }
-static inline uint32_t machineCodeToRa(uint32_t code) { return (code >> 18) & 0xff; }
-static inline uint32_t machineCodeToRb(uint32_t code) { return (code >> 9) & 0x1ff; }
-static inline uint32_t machineCodeToRc(uint32_t code) { return code & 0x1ff; }
-static inline uint32_t machineCodeToUN(uint32_t code) { return code & 0x3ffff; }
-static inline int32_t machineCodeToSN(uint32_t code) { return static_cast<int32_t>(code << 14) >> 14; }
+union Instruction {
+    struct {
+        Op op : 6;
+        uint32_t ra : 8;
+        uint32_t rb : 9;
+        uint32_t rc : 9;
+    };
+    struct {
+        uint32_t dummy1 : 14;
+        int32_t sn : 18;
+    };
+    struct {
+        uint32_t dummy2 : 14;
+        uint32_t un : 18;
+    };
+    uint32_t v;
+};
 
-static inline uint32_t genMachineCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | ((rb & 0x1ff) << 9) | (rc & 0x1ff); }
-static inline uint32_t genMachineCodeRUN(Op op, uint32_t ra, uint32_t n) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff); }
-static inline uint32_t genMachineCodeRSN(Op op, uint32_t ra, int32_t n) { return (static_cast<uint32_t>(op) << 26) | ((ra & 0xff) << 18) | (n & 0x3ffff); }
+static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
+
+typedef std::vector<Instruction> Code;
+
+static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc) { Instruction i; i.op = op; i.ra = ra; i.rb = rb; i.rc = rc; return i; }
+static inline Instruction genInstructionRUN(Op op, uint32_t ra, uint32_t n) { Instruction i; i.op = op; i.ra = ra; i.un = n; return i; }
+static inline Instruction genInstructionRSN(Op op, uint32_t ra, int32_t n) { Instruction i; i.op = op; i.ra = ra; i.sn = n; return i; }
 
 
 ////  Opcodes with params have bit patterns.

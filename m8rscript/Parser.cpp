@@ -96,9 +96,9 @@ void Parser::matchJump(Label& label)
         return;
     }
     
-    uint32_t machineCode = currentFunction()->code()->at(label.matchedAddr);
-    Op op = machineCodeToOp(machineCode);
-    uint32_t reg = machineCodeToRa(machineCode);
+    Instruction inst = currentFunction()->code()->at(label.matchedAddr);
+    Op op = inst.op;
+    uint32_t reg = inst.ra;
     emitCodeRSN(op, reg, jumpAddr);
 }
 
@@ -118,26 +118,26 @@ void Parser::jumpToLabel(Op op, Label& label)
 
 void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
 {
-    addCode(genMachineCodeRRR(op, ra, rb, rc));
+    addCode(genInstructionRRR(op, ra, rb, rc));
 }
 
 void Parser::emitCodeRUN(Op op, uint32_t ra, uint32_t n)
 {
-    addCode(genMachineCodeRUN(op, ra, n));
+    addCode(genInstructionRUN(op, ra, n));
 }
 
 void Parser::emitCodeRSN(Op op, uint32_t ra, int32_t n)
 {
-    addCode(genMachineCodeRSN(op, ra, n));
+    addCode(genInstructionRSN(op, ra, n));
 }
 
-void Parser::addCode(uint32_t c)
+void Parser::addCode(Instruction inst)
 {
     if (_deferred) {
         assert(_deferredCodeBlocks.size() > 0);
-        _deferredCode.push_back(c);
+        _deferredCode.push_back(inst);
     } else {
-        currentFunction()->code()->push_back(c);
+        currentFunction()->code()->push_back(inst);
     }
 }
 
@@ -407,16 +407,16 @@ void Parser::reconcileRegisters(Function* function)
     uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
     for (int i = 0; i < code.size(); ++i) {
-        uint32_t machineCode = code[i];
-        Op op = machineCodeToOp(machineCode);
-        uint32_t ra = regFromTempReg(machineCodeToRa(machineCode), numLocals);
+        Instruction inst = code[i];
+        Op op = inst.op;
+        uint32_t ra = regFromTempReg(inst.ra, numLocals);
         
         if (op == Op::RET || op == Op::CALL || op == Op::NEW) {
-            code[i] = genMachineCodeRUN(op, ra, machineCodeToUN(machineCode));
+            code[i] = genInstructionRUN(op, ra, inst.un);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-            code[i] = genMachineCodeRSN(op, ra, machineCodeToSN(machineCode));
+            code[i] = genInstructionRSN(op, ra, inst.sn);
         } else {
-            code[i] = genMachineCodeRRR(op, ra, regFromTempReg(machineCodeToRb(machineCode), numLocals), regFromTempReg(machineCodeToRc(machineCode), numLocals));
+            code[i] = genInstructionRRR(op, ra, regFromTempReg(inst.rb, numLocals), regFromTempReg(inst.rc, numLocals));
         }
     }
 }

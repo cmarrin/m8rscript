@@ -141,7 +141,7 @@ private:
     
   	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
     
-    void addCode(uint32_t);
+    void addCode(Instruction);
     
     // Parse Stack manipulation and code generation
     

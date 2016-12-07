@@ -185,7 +185,7 @@ private:
     Program* _program = nullptr;
     ObjectId _object;
     Object* _objectPointer;
-    const uint32_t* _code;
+    const Instruction* _code;
     size_t _codeSize;
     
     ExecutionStack _stack;
