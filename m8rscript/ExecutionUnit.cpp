@@ -282,7 +282,7 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(inst.ra, Value());
         DISPATCH;
     L_PUSH:
-        _stack.push(regOrConst(inst.rb));
+        _stack.push(regOrConst(inst.ra));
         DISPATCH;
     L_POP:
         _stack.setInFrame(inst.ra, _stack.top());
