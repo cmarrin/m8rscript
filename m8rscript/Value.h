@@ -142,7 +142,7 @@ public:
     
     bool setValue(ExecutionUnit*, const Value&);
     bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
-    Value bake(ExecutionUnit* eu) const { return canBeBaked() ? bake(eu) : *this; }
+    Value bake(ExecutionUnit* eu) const { return canBeBaked() ? _bake(eu) : *this; }
     
     bool deref(ExecutionUnit*, const Value& derefValue);
     
@@ -194,6 +194,7 @@ private:
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value & ~TypeMask)); }
     inline int32_t intFromValue() const { return static_cast<int32_t>(_value >> TypeBitCount); }
     inline uint32_t uintFromValue() const { return static_cast<uint32_t>(_value >> TypeBitCount); }
+    inline uint16_t eltIndexFromValue() const { return static_cast<uint16_t>(_value >> TypeBitCount); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value >> TypeBitCount)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value >> TypeBitCount)); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value >> TypeBitCount)); }

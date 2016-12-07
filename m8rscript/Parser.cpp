@@ -222,8 +222,7 @@ void Parser::emitDeref(bool prop)
     uint32_t derefReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t objectReg = _parseStack.bake();
-    _parseStack.pop();
-    _parseStack.push(prop ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
+    _parseStack.replaceTop(prop ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
 }
 
 void Parser::emitDup()
@@ -453,18 +452,16 @@ uint32_t Parser::ParseStack::bake()
         uint32_t r = push(Type::Register);
         _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
         return r;
+    } else if (entry._type == Type::RefK) {
+        pop();
+        uint32_t r = push(Type::Register);
+        _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
+        return r;
     }
     return entry._reg;
 }
 
-uint32_t Parser::ParseStack::dupCallee(int32_t nparams)
+void Parser::ParseStack::replaceTop(Type type, uint32_t reg, uint32_t derefReg)
 {
-    Entry callee = _stack.top(-nparams);
-    _stack.push({ callee._type, callee._reg, callee._derefReg });
-    bake();
-    callee = _stack.top();
-    _stack.pop();
-    return callee._reg;
+    _stack.setTop({ type, reg, derefReg });
 }
-
-

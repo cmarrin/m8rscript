@@ -166,7 +166,7 @@ private:
         bool empty() const { return _stack.empty(); }
         
         uint32_t bake();
-        uint32_t dupCallee(int32_t nparams);
+        void replaceTop(Type, uint32_t reg = 0, uint32_t derefReg = 0);
         
     private:
         struct Entry {
