@@ -334,22 +334,19 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
                 *this = value;
                 return true;
             }
-            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(bakedDerefValue.toStringValue(eu).c_str())));
-            return true;
+            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Object has no %d element"), bakedDerefValue.toIntValue(eu));
+            return false;
         }
-        case Type::String: {
-            const String& s = eu->program()->str(bakedDerefValue.stringIdFromValue());
-            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(s.c_str())));
-            return true;
-        }
+        case Type::String:
         case Type::StringLiteral: {
-            const String& s = eu->program()->stringFromStringLiteral(bakedDerefValue.stringLiteralFromValue());
+            const String& s = (bakedDerefValue.type() == Type::String) ? eu->program()->str(bakedDerefValue.stringIdFromValue()) : eu->program()->stringFromStringLiteral(bakedDerefValue.stringLiteralFromValue());
             *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(s.c_str())));
             return true;
         }
     }
 }
 
+// If derefValue is an id, this is a property deref, otherwise it's an element deref
 bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 {
     assert(type() != Type::Id);

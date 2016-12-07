@@ -249,6 +249,7 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(machineCodeToRa(machineCode), objectId);
         DISPATCH;
     L_LOADPROP:
+    L_LOADELT:
         leftValue = regOrConst(machineCodeToRb(machineCode));
         rightValue = regOrConst(machineCodeToRc(machineCode));
         if (!leftValue.deref(this, rightValue)) {
@@ -258,14 +259,18 @@ static const uint16_t YieldCount = 2000;
         }
         _stack.setInFrame(machineCodeToRa(machineCode), leftValue);
         DISPATCH;
-    L_LOADELT:
-        DISPATCH;
     L_STOPROP:
         DISPATCH;
     L_STOELT:
         DISPATCH;
     L_APPENDELT:
-        // FIXME: Implement
+        objectValue = _program->obj(regOrConst(machineCodeToRa(machineCode)).asObjectIdValue());
+        if (!objectValue) {
+            printError(ROMSTR("Null Array for APPENDELT"));
+            DISPATCH;
+        }
+        rightValue = regOrConst(machineCodeToRb(machineCode)).bake(this);
+        objectValue->appendElement(this, rightValue);
         DISPATCH;
     L_LOADTRUE:
         _stack.setInFrame(machineCodeToRa(machineCode), true);
