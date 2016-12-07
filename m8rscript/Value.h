@@ -182,7 +182,6 @@ private:
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw << TypeBitCount)); }
     inline int32_t intFromValue() const { return _value._i; }
     inline uint32_t uintFromValue() const { return _value._i; }
-    inline uint16_t eltIndexFromValue() const { return _value._i; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._i)); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._i)); }

@@ -411,7 +411,7 @@ Value Value::_bake(ExecutionUnit* eu) const
                 case Type::PropertyRef:
                     return obj ? obj->property(atomFromValue()) : Value();
                 case Type::ElementRef:
-                    return obj ? obj->element(eltIndexFromValue()) : Value();
+                    return obj ? obj->element(indexFromValue()) : Value();
                 default: break;
             }
         }
