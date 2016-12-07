@@ -83,20 +83,20 @@ public:
         PreviousFrame, PreviousPC, PreviousObject,
     };
 
-    Value() : _value(0) { }
-    Value(const Value& other) : _value(other._value) { }
-    Value(Value&& other) : _value(other._value) { }
+    Value() { }
+    Value(const Value& other) { _value.raw = other._value.raw; }
+    Value(Value&& other) { _value.raw = other._value.raw; }
     
-    Value(ObjectId objectId, Type type = Type::Object) : _value(rawValue(objectId, type)) { }
-    Value(Float value) : _value(rawValue(value, Type::Float)) { }
-    Value(int32_t value) : _value(rawValue(value, Type::Integer)) { }
-    Value(uint32_t value, Type type = Type::Integer) : _value(rawValue(value, type)) { }
-    Value(Atom value) : _value(rawValue(value, Type::Id)) { }
-    Value(ObjectId objectId, uint16_t index, bool property) : _value(rawValue(objectId, index, property ? Type::PropertyRef : Type::ElementRef)) { }
-    Value(StringId stringId) : _value(rawValue(stringId, Type::String)) { }
-    Value(StringLiteral stringId) : _value(rawValue(stringId, Type::StringLiteral)) { }
+    Value(ObjectId objectId) : _value(objectId) { }
+    Value(Float value) : _value(value) { }
+    Value(int32_t value) : _value(value) { }
+    Value(uint32_t value, Type type = Type::Integer) : _value(value, type) { }
+    Value(Atom value) : _value(value) { }
+    Value(ObjectId objectId, uint16_t index, bool property) : _value(objectId, index, property ? Type::PropertyRef : Type::ElementRef) { }
+    Value(StringId stringId) : _value(stringId) { }
+    Value(StringLiteral stringId) : _value(stringId) { }
     
-    Value& operator=(const Value& other) { _value = other._value; return *this; }
+    Value& operator=(const Value& other) { _value.raw = other._value.raw; return *this; }
     operator bool() const { return type() != Type::None; }
 
     ~Value() { }
@@ -113,7 +113,7 @@ public:
         return false;
     }
 
-    Type type() const { return static_cast<Type>(_value & TypeMask); }
+    Type type() const { return _value.type; }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -179,29 +179,39 @@ private:
 
     bool derefObject(ExecutionUnit* eu, const Value& derefValue);
 
-    inline uint64_t rawValue(Float f, Type t) const { return (static_cast<uint64_t>(f.raw()) & ~TypeMask) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(int32_t i, Type t) const { return (static_cast<uint64_t>(i) << TypeBitCount) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(uint32_t i, Type t) const { return (static_cast<uint64_t>(i) << TypeBitCount) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(Atom atom, Type t) const { return (static_cast<uint64_t>(atom.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(ObjectId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(ObjectId id, uint16_t index, Type t) const
-    {
-        return (static_cast<uint64_t>(index) << ((sizeof(ObjectId::value_type) * 8) + TypeBitCount)) | (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t);
-    }
-    inline uint64_t rawValue(StringId id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
-    inline uint64_t rawValue(StringLiteral id, Type t) const { return (static_cast<uint64_t>(id.raw()) << TypeBitCount) | static_cast<uint64_t>(t); }
-
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value & ~TypeMask)); }
-    inline int32_t intFromValue() const { return static_cast<int32_t>(_value >> TypeBitCount); }
-    inline uint32_t uintFromValue() const { return static_cast<uint32_t>(_value >> TypeBitCount); }
-    inline uint16_t eltIndexFromValue() const { return static_cast<uint16_t>(_value >> TypeBitCount); }
-    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value >> TypeBitCount)); }
-    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value >> TypeBitCount)); }
-    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value >> TypeBitCount)); }
-    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value >> TypeBitCount)); }
-    inline uint16_t indexFromValue() const { return static_cast<uint16_t>(_value >> (16 + TypeBitCount)); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value.raw & ~TypeMask)); }
+    inline int32_t intFromValue() const { return _value.i; }
+    inline uint32_t uintFromValue() const { return _value.i; }
+    inline uint16_t eltIndexFromValue() const { return _value.i; }
+    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.i)); }
+    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.i)); }
+    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.i)); }
+    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.i)); }
+    inline uint16_t indexFromValue() const { return _value.d; }
     
-    uint64_t _value;
+    struct RawValue {
+        RawValue() { raw = 0; }
+        RawValue(uint64_t v) { raw = v; }
+        RawValue(Float f) { f = f; type = Type::Float; }
+        RawValue(int32_t i) { i = i; type = Type::Integer; }
+        RawValue(uint32_t i, Type type) { i = i; type = type; }
+        RawValue(Atom atom) { i = atom.raw(); type = Type::Id; }
+        RawValue(StringId id) { i = id.raw(); type = Type::String; }
+        RawValue(StringLiteral id) { i = id.raw(); type = Type::StringLiteral; }
+        RawValue(ObjectId id) { i = id.raw(); type = Type::Object; }
+        RawValue(ObjectId id, uint16_t index, Type type) { i = id.raw(); d = index; type = type; }
+        
+        union {
+            uint64_t raw;
+            struct {
+                uint16_t d : 16;
+                uint32_t i : 32;
+                Type type : 4;
+            };
+        };
+    };
+    
+    RawValue _value;
     
     // In order to fit everything, we have some requirements
     static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");
