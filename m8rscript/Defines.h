@@ -118,7 +118,7 @@ struct Label {
     LOADFALSE   R[d], X, X
     LOADNULL    R[d], X, X
     
-    PUSH        RK[s]
+    PUSH        X, RK[s]
     POP         R[d]
  
     LOADPROP    R[d], RK[o], K[p]

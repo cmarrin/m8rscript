@@ -306,7 +306,9 @@ void Parser::emitPush()
 {
     uint32_t src = _parseStack.bake();
     _parseStack.pop();
-    emitCodeRRR(Op::PUSH, src);
+    
+    // Value pushed is a register or constant, so it has to go into rb
+    emitCodeRRR(Op::PUSH, 0, src);
 }
 
 void Parser::emitPop()
@@ -331,9 +333,15 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
     if (value == Op::CALL || value == Op::NEW) {
         calleeReg = _parseStack.bake();
         _parseStack.pop();
+    } else {
+        // If there is a return value, push it onto the runtime stack
+        for (uint32_t i = 0; i < nparams; ++i) {
+            emitPush();
+        }
     }
-
+        
     emitCodeRUN(value, calleeReg, nparams);
+    
     if (value == Op::CALL || value == Op::NEW) {
         // On return there will be a value on the runtime stack. Pop it into a register
         emitPop();
