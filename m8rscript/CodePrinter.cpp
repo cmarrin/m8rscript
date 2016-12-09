@@ -269,7 +269,12 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         _nestingLevel--;
         return outputString;  
     L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
-    L_PUSH: L_POP:
+        generateRXX(outputString, i - 1, op, inst.ra);
+        DISPATCH;
+    L_PUSH:
+        generateRXX(outputString, i - 1, op, inst.rn);
+        DISPATCH;
+    L_POP:
         generateRXX(outputString, i - 1, op, inst.ra);
         DISPATCH;
     L_MOVE: L_LOADREFK:
@@ -291,10 +296,10 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         generateXN(outputString, i - 1, op, inst.sn);
         DISPATCH;
     L_JT: L_JF:
-        generateRN(outputString, i - 1, op, inst.ra, inst.sn);
+        generateRN(outputString, i - 1, op, inst.rn, inst.sn);
         DISPATCH;
     L_CALL: L_NEW:
-        generateRN(outputString, i - 1, op, inst.ra, inst.un);
+        generateRN(outputString, i - 1, op, inst.rn, inst.un);
         DISPATCH;
 }
 

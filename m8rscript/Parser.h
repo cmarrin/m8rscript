@@ -146,8 +146,8 @@ private:
     // Parse Stack manipulation and code generation
     
     void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
-    void emitCodeRUN(Op, uint32_t ra, uint32_t n);
-    void emitCodeRSN(Op, uint32_t ra, int32_t n);
+    void emitCodeRUN(Op, uint32_t rn, uint32_t n);
+    void emitCodeRSN(Op, uint32_t rn, int32_t n);
     
     void reconcileRegisters(Function*);
 

@@ -10,9 +10,10 @@ function add(x, y, z)
 	//	return m * (x + y + z);
 	//};
 }
-/*
 
 Serial.print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
+
+/*
 
 var b = [ 1, 2, 3 ];
 var c = 12.5;

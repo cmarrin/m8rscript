@@ -282,7 +282,7 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(inst.ra, Value());
         DISPATCH;
     L_PUSH:
-        _stack.push(regOrConst(inst.rb));
+        _stack.push(regOrConst(inst.rn));
         DISPATCH;
     L_POP:
         _stack.setInFrame(inst.ra, _stack.top());
@@ -417,7 +417,7 @@ static const uint16_t YieldCount = 2000;
     L_NEW:
     L_CALL:
         uintValue = inst.un;
-        callReturnValue = regOrConst(inst.ra).call(this, uintValue);
+        callReturnValue = regOrConst(inst.rn).call(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue
@@ -446,7 +446,7 @@ static const uint16_t YieldCount = 2000;
     L_JF:
         intValue = inst.sn;
         if (op != Op::JMP) {
-            boolValue = regOrConst(inst.ra).toBoolValue(this);
+            boolValue = regOrConst(inst.rn).toBoolValue(this);
             if (op == Op::JT) {
                 boolValue = !boolValue;
             }

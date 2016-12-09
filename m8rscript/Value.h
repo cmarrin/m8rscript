@@ -87,7 +87,7 @@ public:
     Value(const Value& other) { _value._raw = other._value._raw; }
     Value(Value&& other) { _value._raw = other._value._raw; }
     
-    Value(ObjectId objectId) : _value(objectId) { }
+    Value(ObjectId objectId, Type type = Type::Object) : _value(objectId, type) { }
     Value(Float value) : _value(value) { }
     Value(int32_t value) : _value(value) { }
     Value(uint32_t value, Type type = Type::Integer) : _value(value, type) { }
@@ -197,7 +197,7 @@ private:
         RawValue(Atom atom) { _i = atom.raw(); _type = Type::Id; }
         RawValue(StringId id) { _i = id.raw(); _type = Type::String; }
         RawValue(StringLiteral id) { _i = id.raw(); _type = Type::StringLiteral; }
-        RawValue(ObjectId id) { _i = id.raw(); _type = Type::Object; }
+        RawValue(ObjectId id, Type type = Type::Object) { _i = id.raw(); _type = type; }
         RawValue(ObjectId id, uint16_t index, Type type) { _i = id.raw(); _d = index; _type = type; }
         
         union {

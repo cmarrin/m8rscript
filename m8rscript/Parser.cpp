@@ -121,14 +121,14 @@ void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
     addCode(genInstructionRRR(op, ra, rb, rc));
 }
 
-void Parser::emitCodeRUN(Op op, uint32_t ra, uint32_t n)
+void Parser::emitCodeRUN(Op op, uint32_t rn, uint32_t n)
 {
-    addCode(genInstructionRUN(op, ra, n));
+    addCode(genInstructionRUN(op, rn, n));
 }
 
-void Parser::emitCodeRSN(Op op, uint32_t ra, int32_t n)
+void Parser::emitCodeRSN(Op op, uint32_t rn, int32_t n)
 {
-    addCode(genInstructionRSN(op, ra, n));
+    addCode(genInstructionRSN(op, rn, n));
 }
 
 void Parser::addCode(Instruction inst)
@@ -308,7 +308,7 @@ void Parser::emitPush()
     _parseStack.pop();
     
     // Value pushed is a register or constant, so it has to go into rb
-    emitCodeRRR(Op::PUSH, 0, src);
+    emitCodeRUN(Op::PUSH, src, 0);
 }
 
 void Parser::emitPop()
@@ -417,13 +417,16 @@ void Parser::reconcileRegisters(Function* function)
     for (int i = 0; i < code.size(); ++i) {
         Instruction inst = code[i];
         Op op = inst.op;
-        uint32_t ra = regFromTempReg(inst.ra, numLocals);
+        uint32_t rn = regFromTempReg(inst.rn, numLocals);
         
         if (op == Op::RET || op == Op::CALL || op == Op::NEW) {
-            code[i] = genInstructionRUN(op, ra, inst.un);
+            code[i] = genInstructionRUN(op, rn, inst.un);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-            code[i] = genInstructionRSN(op, ra, inst.sn);
+            code[i] = genInstructionRSN(op, rn, inst.sn);
+        } else if (op == Op::PUSH) {
+            code[i] = genInstructionRSN(op, rn, inst.sn);
         } else {
+            uint32_t ra = regFromTempReg(inst.ra, numLocals);
             code[i] = genInstructionRRR(op, ra, regFromTempReg(inst.rb, numLocals), regFromTempReg(inst.rc, numLocals));
         }
     }

@@ -79,7 +79,7 @@ struct Label {
     Opcodes are 32 bits. There are 3 bit patterns:
     
     Opcode:6, R:8, RK:9, RK:9
-    Opcode:6, R:8, N:18
+    Opcode:6, RK:9, N:17
 
 
     R       - Register (0..255)
@@ -118,7 +118,7 @@ struct Label {
     LOADFALSE   R[d], X, X
     LOADNULL    R[d], X, X
     
-    PUSH        X, RK[s]
+    PUSH        RK[s], X
     POP         R[d]
  
     LOADPROP    R[d], RK[o], K[p]
@@ -182,12 +182,13 @@ union Instruction {
         uint32_t rc : 9;
     };
     struct {
-        uint32_t dummy1 : 14;
-        int32_t sn : 18;
+        uint32_t _ : 6;
+        uint32_t rn : 9;
+        int32_t sn : 17;
     };
     struct {
-        uint32_t dummy2 : 14;
-        uint32_t un : 18;
+        uint32_t __ : 15;
+        uint32_t un : 17;
     };
     uint32_t v;
 };
@@ -197,8 +198,8 @@ static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
 typedef std::vector<Instruction> Code;
 
 static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc) { Instruction i; i.op = op; i.ra = ra; i.rb = rb; i.rc = rc; return i; }
-static inline Instruction genInstructionRUN(Op op, uint32_t ra, uint32_t n) { Instruction i; i.op = op; i.ra = ra; i.un = n; return i; }
-static inline Instruction genInstructionRSN(Op op, uint32_t ra, int32_t n) { Instruction i; i.op = op; i.ra = ra; i.sn = n; return i; }
+static inline Instruction genInstructionRUN(Op op, uint32_t rn, uint32_t n) { Instruction i; i.op = op; i.rn = rn; i.un = n; return i; }
+static inline Instruction genInstructionRSN(Op op, uint32_t rn, int32_t n) { Instruction i; i.op = op; i.rn = rn; i.sn = n; return i; }
 
 
 ////  Opcodes with params have bit patterns.
