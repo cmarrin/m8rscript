@@ -139,8 +139,8 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     static const void* dispatchTable[] {
         /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
         /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x08 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x0C */ OP(PUSH) OP(POP) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE) OP(LOADFALSE)
+        /* 0x0C */ OP(LOADNULL) OP(PUSH) OP(POP) OP(UNKNOWN)
 
         /* 0x10 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
         /* 0x14 */ OP(XOR) OP(EQ) OP(NE) OP(LT)
@@ -283,7 +283,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     L_APPENDELT:
         generateRRX(outputString, i - 1, op, inst.ra, inst.rb);
         DISPATCH;
-    L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT:
+    L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
     L_SHL: L_SHR: L_SAR:
@@ -317,7 +317,7 @@ static CodeMap opcodes[] = {
     OP(END)
     
     OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT)
+    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
     OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
     OP(PUSH) OP(POP)
     

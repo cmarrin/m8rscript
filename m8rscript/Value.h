@@ -144,7 +144,7 @@ public:
     bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
     Value bake(ExecutionUnit* eu) const { return canBeBaked() ? _bake(eu) : *this; }
     
-    bool deref(ExecutionUnit*, const Value& derefValue);
+    bool deref(ExecutionUnit*, const Value& derefValue, bool add);
     
     CallReturnValue call(ExecutionUnit*, uint32_t nparams);
     
@@ -177,9 +177,9 @@ private:
     
     Value _bake(ExecutionUnit*) const;
 
-    bool derefObject(ExecutionUnit* eu, const Value& derefValue);
+    bool derefObject(ExecutionUnit* eu, const Value& derefValue, bool add);
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw << TypeBitCount)); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return _value._i; }
     inline uint32_t uintFromValue() const { return _value._i; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
@@ -191,7 +191,7 @@ private:
     struct RawValue {
         RawValue() { _raw = 0; }
         RawValue(uint64_t v) { _raw = v; }
-        RawValue(Float f) { _raw = f.raw() >> TypeBitCount; _type = Type::Float; }
+        RawValue(Float f) { _raw = f.raw(); _type = Type::Float; }
         RawValue(int32_t i) { _i = i; _type = Type::Integer; }
         RawValue(uint32_t i, Type type) { _i = i; _type = type; }
         RawValue(Atom atom) { _i = atom.raw(); _type = Type::Id; }

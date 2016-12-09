@@ -120,8 +120,8 @@ int32_t ExecutionUnit::continueExecution()
     static const void* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR dispatchTable[] {
         /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
         /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x08 */ OP(APPENDELT) OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
-        /* 0x0C */ OP(PUSH) OP(POP) OP(UNKNOWN) OP(UNKNOWN)
+        /* 0x08 */ OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE) OP(LOADFALSE)
+        /* 0x0C */ OP(LOADNULL) OP(PUSH) OP(POP) OP(UNKNOWN)
 
         /* 0x10 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0x14 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP)
@@ -252,7 +252,7 @@ static const uint16_t YieldCount = 2000;
     L_LOADELT:
         leftValue = regOrConst(inst.rb);
         rightValue = regOrConst(inst.rc);
-        if (!leftValue.deref(this, rightValue)) {
+        if (!leftValue.deref(this, rightValue, false)) {
             if (checkTooManyErrors()) {
                 return -1;
             }
@@ -260,6 +260,16 @@ static const uint16_t YieldCount = 2000;
         _stack.setInFrame(inst.ra, leftValue);
         DISPATCH;
     L_STOPROP:
+        // ra - Object
+        // rb - prop
+        // rc - value to store
+        objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
+        if (!objectValue) {
+            printError(ROMSTR("Null Object for STOPROP"));
+            DISPATCH;
+        }
+        leftValue = regOrConst(inst.ra).bake(this).deref(this, regOrConst(inst.rb).bake(this), false);
+        leftValue.setValue(this, regOrConst(inst.rc).bake(this));
         DISPATCH;
     L_STOELT:
         DISPATCH;
@@ -271,6 +281,14 @@ static const uint16_t YieldCount = 2000;
         }
         rightValue = regOrConst(inst.rb).bake(this);
         objectValue->appendElement(this, rightValue);
+        DISPATCH;
+    L_APPENDPROP:
+        // ra - Object
+        // rb - prop
+        // rc - value to store
+        leftValue = regOrConst(inst.ra).bake(this);
+        leftValue.deref(this, regOrConst(inst.rb).bake(this), true);
+        leftValue.setValue(this, regOrConst(inst.rc).bake(this));
         DISPATCH;
     L_LOADTRUE:
         _stack.setInFrame(inst.ra, true);
@@ -290,7 +308,7 @@ static const uint16_t YieldCount = 2000;
         DISPATCH;
     L_DEREF:
         leftValue = regOrConst(inst.rb);
-        if (!leftValue.deref(this, regOrConst(inst.rc))) {
+        if (!leftValue.deref(this, regOrConst(inst.rc), false)) {
             if (checkTooManyErrors()) {
                 return -1;
             }

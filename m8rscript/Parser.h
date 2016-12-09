@@ -123,6 +123,7 @@ private:
     void emitMove();
     void emitDeref(bool prop);
     void emitAppendElt();
+    void emitAppendProp();
     void emitStoProp();
     void emitUnOp(Op op);
     void emitBinOp(Op op);

@@ -511,13 +511,13 @@ bool ParseEngine::primaryExpression()
             retireToken();
             _parser->emitLoadLit(false);
             if (propertyAssignment()) {
-                _parser->emitStoProp();
+                _parser->emitAppendProp();
                 while (getToken() == Token::Comma) {
                     retireToken();
                     if (!expect(Token::PropertyAssignment, propertyAssignment())) {
                         break;
                     }
-                    _parser->emitStoProp();
+                    _parser->emitAppendProp();
                 }
             }
             expect(Token::RBrace);

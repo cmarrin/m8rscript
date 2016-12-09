@@ -307,26 +307,21 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
     }
 }
 
-bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
+bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue, bool add)
 {
     // We know this is an Object
     assert(type() == Type::Object);
     Object* obj = eu->program()->obj(objectIdFromValue());
     Value bakedDerefValue = derefValue.bake(eu);
+    int32_t index = -1;
     
     switch(bakedDerefValue.type()) {
         default:
             Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
             return false;
-        case Type::Id: {
-            int32_t index = obj->propertyIndex(derefValue.asIdValue());
-            if (index < 0) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
-                return false;
-            }
-            *this = obj->propertyRef(index);
-            return true;
-        }
+        case Type::Id:
+            index = add ? obj->addProperty(derefValue.asIdValue()) : obj->propertyIndex(derefValue.asIdValue());
+            break;
         case Type::Integer:
         case Type::Float: {
             Value value = obj->elementRef(bakedDerefValue.toIntValue(eu));
@@ -334,20 +329,31 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue)
                 *this = value;
                 return true;
             }
-            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Object has no %d element"), bakedDerefValue.toIntValue(eu));
-            return false;
+            
+            // Try as a property
+            Atom prop = eu->program()->atomizeString(bakedDerefValue.toStringValue(eu).c_str());
+            index = add ? obj->addProperty(prop) : obj->propertyIndex(prop);
+            break;
         }
         case Type::String:
         case Type::StringLiteral: {
             const String& s = (bakedDerefValue.type() == Type::String) ? eu->program()->str(bakedDerefValue.stringIdFromValue()) : eu->program()->stringFromStringLiteral(bakedDerefValue.stringLiteralFromValue());
-            *this = obj->propertyRef(obj->propertyIndex(eu->program()->atomizeString(s.c_str())));
-            return true;
+            Atom prop = eu->program()->atomizeString(s.c_str());
+            index = add ? obj->addProperty(prop) : obj->propertyIndex(prop);
+            break;
         }
     }
+    
+    // If we fall through here, index is a property index we need to try
+    if (index < 0) {
+        Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
+        return false;
+    }
+    *this = obj->propertyRef(index);
+    return true;
 }
 
-// If derefValue is an id, this is a property deref, otherwise it's an element deref
-bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
+bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
 {
     assert(type() != Type::Id);
 
@@ -356,7 +362,7 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
             Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
             return false;
         case Type::Object:
-            return derefObject(eu, derefValue);
+            return derefObject(eu, derefValue, add);
         case Type::ElementRef:
         case Type::PropertyRef:
             if (derefValue.type() == Type::Id) {
@@ -373,7 +379,7 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue)
 
             Value bakedObjectValue = bake(eu);
             if (bakedObjectValue.type() == Type::Object) {
-                if (bakedObjectValue.derefObject(eu, derefValue)) {
+                if (bakedObjectValue.derefObject(eu, derefValue, add)) {
                     *this = bakedObjectValue;
                     return true;
                 }
@@ -409,7 +415,7 @@ Value Value::_bake(ExecutionUnit* eu) const
                     return value ? *value : Value();
                 }
                 case Type::PropertyRef:
-                    return obj ? obj->property(atomFromValue()) : Value();
+                    return obj ? obj->property(indexFromValue()) : Value();
                 case Type::ElementRef:
                     return obj ? obj->element(indexFromValue()) : Value();
                 default: break;

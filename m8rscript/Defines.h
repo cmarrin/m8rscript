@@ -112,6 +112,8 @@ struct Label {
     LOADREFK    R[d], RK[s], X
     APPENDELT   R[d], RK[s], X
  
+    APPENDPROP  R[d], RK[p], RK[s]
+ 
     LOADLITA    R[d], X, X
     LOADLITO    R[d], X, X
     LOADTRUE    R[d], X, X
@@ -155,7 +157,7 @@ static constexpr uint32_t MaxRegister = 255;
 enum class Op : uint8_t {
     
     MOVE = 0x00, LOADREFK, LOADLITA, LOADLITO,
-    LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT,
+    LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT, APPENDPROP,
     LOADTRUE, LOADFALSE, LOADNULL, PUSH, POP,
 
     LOR = 0x10, LAND, OR, AND, XOR,

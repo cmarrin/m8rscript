@@ -257,6 +257,21 @@ void Parser::emitAppendElt()
     emitCodeRRR(Op::APPENDELT, objectReg, srcReg);
 }
 
+void Parser::emitAppendProp()
+{
+    // tos-2 object to append to
+    // tos-1 property on that object
+    // tos value to store
+    // leave object on tos
+    uint32_t srcReg = _parseStack.bake();
+    _parseStack.pop();
+    uint32_t propReg = _parseStack.bake();
+    _parseStack.pop();
+    uint32_t objectReg = _parseStack.bake();
+    
+    emitCodeRRR(Op::APPENDPROP, objectReg, propReg, srcReg);
+}
+
 void Parser::emitStoProp()
 {
     // tos-2 object to store into
