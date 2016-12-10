@@ -64,14 +64,10 @@ public:
     virtual size_t localSize() const override { return _locals.size() + _tempRegisterCount; }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
     
-    ConstantId addConstant(const Value& v)
-    {
-        assert(_constants.size() < std::numeric_limits<uint8_t>::max());
-        ConstantId r(static_cast<ConstantId::value_type>(_constants.size()));
-        _constants.push_back(v);
-        return r;
-    }
+    ConstantId addConstant(const Value&);
+
     virtual Value constant(ConstantId id) const override { return _constants[(id.raw() < _constants.size()) ? id.raw() : 0]; }
+
     size_t constantCount() const { return _constants.size(); }
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }

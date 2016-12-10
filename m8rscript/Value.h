@@ -98,6 +98,8 @@ public:
     
     Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
     operator bool() const { return type() != Type::None; }
+    bool operator==(const Value& other) { return _value._raw == other._value._raw; }
+    bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
 
     ~Value() { }
     
@@ -131,7 +133,7 @@ public:
     bool toBoolValue(ExecutionUnit*) const;
     Float toFloatValue(ExecutionUnit*) const;
 
-    uint32_t toUIntValue(ExecutionUnit* eu) const { return static_cast<uint32_t>(toUIntValue(eu)); }
+    uint32_t toUIntValue(ExecutionUnit* eu) const { return static_cast<uint32_t>(toIntValue(eu)); }
     int32_t toIntValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Integer) {
@@ -192,13 +194,13 @@ private:
         RawValue() { _raw = 0; }
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); _type = Type::Float; }
-        RawValue(int32_t i) { _i = i; _type = Type::Integer; }
-        RawValue(uint32_t i, Type type) { _i = i; _type = type; }
-        RawValue(Atom atom) { _i = atom.raw(); _type = Type::Id; }
-        RawValue(StringId id) { _i = id.raw(); _type = Type::String; }
-        RawValue(StringLiteral id) { _i = id.raw(); _type = Type::StringLiteral; }
-        RawValue(ObjectId id, Type type = Type::Object) { _i = id.raw(); _type = type; }
-        RawValue(ObjectId id, uint16_t index, Type type) { _i = id.raw(); _d = index; _type = type; }
+        RawValue(int32_t i) { _raw = 0; _i = i; _type = Type::Integer; }
+        RawValue(uint32_t i, Type type) { _raw = 0; _i = i; _type = type; }
+        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); _type = Type::Id; }
+        RawValue(StringId id) { _raw = 0; _i = id.raw(); _type = Type::String; }
+        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); _type = Type::StringLiteral; }
+        RawValue(ObjectId id, Type type = Type::Object) { _raw = 0; _i = id.raw(); _type = type; }
+        RawValue(ObjectId id, uint16_t index, Type type) { _raw = 0; _i = id.raw(); _d = index; _type = type; }
         
         union {
             uint64_t _raw;

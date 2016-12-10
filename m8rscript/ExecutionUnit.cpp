@@ -104,12 +104,13 @@ void ExecutionUnit::startExecution(Program* program)
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
-    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, _objectPointer->localSize())), Value::Type::PreviousFrame));
+    Object* functionPointer = _program->obj(function);
+    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPointer->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
     _object = function;
-    _objectPointer = _program->obj(_object);
+    _objectPointer = functionPointer;
 }
 
 int32_t ExecutionUnit::continueExecution()
@@ -176,6 +177,7 @@ static const uint16_t YieldCount = 2000;
     ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
+    size_t localsToPop;
 
     Instruction inst;
     Op op = Op::END;
@@ -214,6 +216,8 @@ static const uint16_t YieldCount = 2000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
+        localsToPop = _objectPointer->localSize();
+        
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
@@ -225,7 +229,7 @@ static const uint16_t YieldCount = 2000;
         
         assert(_stack.top().type() == Value::Type::PreviousFrame);
         _stack.pop(leftValue);
-        _stack.restoreFrame(leftValue.asUIntValue());
+        _stack.restoreFrame(leftValue.asUIntValue(), localsToPop);
         
         updateCodePointer();
     
@@ -472,6 +476,6 @@ static const uint16_t YieldCount = 2000;
                 DISPATCH;
             }
         }
-        _pc += intValue;
+        _pc += intValue - 1;
         DISPATCH;
 }

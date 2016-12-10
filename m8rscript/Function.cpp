@@ -66,6 +66,21 @@ int32_t Function::localIndex(const Atom& name) const
     return -1;
 }
 
+ConstantId Function::addConstant(const Value& v)
+{
+    assert(_constants.size() < std::numeric_limits<uint8_t>::max());
+    
+    for (ConstantId::value_type id = 0; id < _constants.size(); ++id) {
+        if (_constants[id] == v) {
+            return ConstantId(id);
+        }
+    }
+    
+    ConstantId r(static_cast<ConstantId::value_type>(_constants.size()));
+    _constants.push_back(v);
+    return r;
+}
+
 bool Function::serialize(Stream* stream, Error& error, Program* program) const
 {
     if (!serializeWrite(stream, error, ObjectDataType::ObjectStart)) {

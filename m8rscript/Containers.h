@@ -409,10 +409,10 @@ public:
         super::resize(size() + localSize);
         return oldFrame;
     }
-    void restoreFrame(size_t frame)
+    void restoreFrame(size_t frame, size_t localsToPop)
     {
         assert(frame <= size() && frame <= _frame);
-        super::resize(_frame);
+        pop(localsToPop);
         _frame = frame;
     }
     
