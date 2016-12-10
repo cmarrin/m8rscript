@@ -83,14 +83,21 @@ Label Parser::label()
 
 void Parser::addMatchedJump(Op op, Label& label)
 {
-    assert(op == Op::JMP || op == Op::JF || op == Op::JF);
+    assert(op == Op::JMP || op == Op::JT || op == Op::JF);
     label.matchedAddr = static_cast<int32_t>(currentFunction()->code()->size());
-    emitCodeRRR(op);
+
+    uint32_t reg = 0;
+    if (op != Op::JMP) {
+        reg = _parseStack.bake();
+        _parseStack.pop();
+    }
+    // Emit opcode with a dummy address
+    emitCodeRSN(op, reg, 0);
 }
 
 void Parser::matchJump(Label& label)
 {
-    int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - label.matchedAddr - 1;
+    int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - label.matchedAddr;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
@@ -99,13 +106,13 @@ void Parser::matchJump(Label& label)
     Instruction inst = currentFunction()->code()->at(label.matchedAddr);
     Op op = inst.op;
     uint32_t reg = inst.ra;
-    emitCodeRSN(op, reg, jumpAddr);
+    currentFunction()->code()->at(label.matchedAddr) = genInstructionRSN(op, reg, jumpAddr);
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
-    int32_t jumpAddr = label.label - static_cast<int32_t>(currentFunction()->code()->size()) - 1;
+    int32_t jumpAddr = label.label - static_cast<int32_t>(currentFunction()->code()->size());
     
     uint32_t r = 0;
     if (op != Op::JMP) {

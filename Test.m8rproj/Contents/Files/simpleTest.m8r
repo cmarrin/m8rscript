@@ -1,7 +1,7 @@
 //
 // Test of various functionality of m8rscript
 //
-/*
+
 function add(x, y, z)
 {
 	return (x + y + z);
@@ -23,7 +23,7 @@ var e = 4;
 var a = c * c + e * e;
 
 Serial.print("a = " + a + "\n");
-*/
+
 function multi(x)
 {
 	return { q:x - 3, r:x * 4, s:x / 5 };
