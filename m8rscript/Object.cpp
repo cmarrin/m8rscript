@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Object.h"
 
+#include "ExecutionUnit.h"
 #include "Function.h"
 #include "MStream.h"
 #include "Program.h"
@@ -243,6 +244,25 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
         return error.setError(Error::Code::SerialType);
     }
     return true;
+}
+
+String MaterObject::toString(ExecutionUnit* eu) const
+{
+    // FIXME: Pretty print
+    String s = "{ ";
+    bool first = true;
+    for (auto prop : _properties) {
+        if (!first) {
+            s += ", ";
+        } else {
+            first = false;
+        }
+        s += eu->program()->stringFromAtom(prop.key);
+        s += " : ";
+        s += prop.value.toStringValue(eu);
+    }
+    s += " }";
+    return s;
 }
 
 bool MaterObject::serialize(Stream* stream, Error& error, Program* program) const

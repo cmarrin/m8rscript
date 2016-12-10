@@ -66,6 +66,8 @@ public:
     
     virtual const Code* code() const { return nullptr; }
     
+    virtual String toString(ExecutionUnit*) const { return String(typeName()) + "{ }"; }
+    
     virtual int32_t propertyIndex(const Atom& s) { return -1; }
     virtual Value propertyRef(int32_t index) { return Value(); }
     virtual const Value property(int32_t index) const { return Value(); }
@@ -127,6 +129,8 @@ public:
     virtual ~MaterObject() { }
 
     virtual const char* typeName() const override { return "Object"; }
+
+    virtual String toString(ExecutionUnit*) const override;
 
     virtual int32_t propertyIndex(const Atom& name) override
     {
