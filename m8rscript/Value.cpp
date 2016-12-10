@@ -189,7 +189,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
             if (obj) {
                 v = obj->value();
             }
-            return v ? v->toStringValue(eu) : String();
+            return v ? v->toStringValue(eu) : (obj ? obj->toString(eu) : String("unknown"));
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
@@ -384,8 +384,14 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
                     return true;
                 }
             }
-    }
     
+            if (type() == Type::PropertyRef) {
+                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+            } else {
+                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+            }
+            return false;
+    }
     return false;
 }
 
