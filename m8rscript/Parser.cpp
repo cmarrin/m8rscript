@@ -334,6 +334,10 @@ void Parser::emitPop()
 
 void Parser::emitEnd()
 {
+    // If we have no errors we expect an empty stack, otherwise, there might be cruft left over
+    if (_nerrors) {
+        _parseStack.clear();
+    }
     assert(_parseStack.empty());
     emitCodeRRR(Op::END);
 }

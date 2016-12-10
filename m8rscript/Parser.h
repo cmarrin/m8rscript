@@ -165,6 +165,7 @@ private:
         uint32_t topReg() const { return _stack.top()._reg; }
         uint32_t topDerefReg() const { return _stack.top()._derefReg; }
         bool empty() const { return _stack.empty(); }
+        void clear() { _stack.clear(); }
         
         uint32_t bake();
         void replaceTop(Type, uint32_t reg = 0, uint32_t derefReg = 0);
