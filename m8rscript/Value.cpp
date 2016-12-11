@@ -243,7 +243,7 @@ bool Value::toBoolValue(ExecutionUnit* eu) const
     }
 }
 
-Float Value::toFloatValue(ExecutionUnit* eu) const
+Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     if (canBeBaked()) {
         return bake(eu).toFloatValue(eu);

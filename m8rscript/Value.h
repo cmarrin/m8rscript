@@ -131,7 +131,13 @@ public:
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit*) const;
-    Float toFloatValue(ExecutionUnit*) const;
+    Float toFloatValue(ExecutionUnit* eu) const
+    {
+        if (type() == Type::Float) {
+            return asFloatValue();
+        }
+        return _toFloatValue(eu);
+    }
 
     uint32_t toUIntValue(ExecutionUnit* eu) const { return static_cast<uint32_t>(toIntValue(eu)); }
     int32_t toIntValue(ExecutionUnit* eu) const
@@ -178,6 +184,7 @@ private:
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
     Value _bake(ExecutionUnit*) const;
+    Float _toFloatValue(ExecutionUnit*) const;
 
     bool derefObject(ExecutionUnit* eu, const Value& derefValue, bool add);
 
