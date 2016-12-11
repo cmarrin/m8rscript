@@ -96,21 +96,30 @@ void ExecutionUnit::startExecution(Program* program)
     _pc = 0;
     _program = program;
     _object = _program->objectId();
-    _objectPointer = _program->obj(_object);
+    Object* obj = _program->obj(_object);
+    if (!obj->isFunction()) {
+        _terminate = true;
+        _functionPointer = nullptr;
+        _stack.clear();
+        return;
+    }
+    _functionPointer =  static_cast<Function*>(obj);
     _program->setStack(&_stack);
     _stack.clear();
-    _stack.setLocalFrame(0, _object ? _objectPointer->localSize() : 0);
+    _stack.setLocalFrame(0, _object ? _functionPointer->localSize() : 0);
 }
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
     Object* functionPointer = _program->obj(function);
+    assert(functionPointer->isFunction());
+    
     _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPointer->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
     _object = function;
-    _objectPointer = functionPointer;
+    _functionPointer =  static_cast<Function*>(functionPointer);
 }
 
 int32_t ExecutionUnit::continueExecution()
@@ -142,7 +151,7 @@ int32_t ExecutionUnit::continueExecution()
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-static const uint16_t YieldCount = 2000;
+static const uint16_t YieldCount = 10000;
 
     #undef DISPATCH
     #define DISPATCH { \
@@ -154,7 +163,7 @@ static const uint16_t YieldCount = 2000;
             return 0; \
         } \
         inst = _code[_pc++]; \
-        op = inst.op; \
+        op = static_cast<Op>(inst.op); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -191,7 +200,7 @@ static const uint16_t YieldCount = 2000;
     L_RETX:
     L_END:
         if (_terminate || op == Op::END) {
-            if (_terminate || _program == _objectPointer) {
+            if (_terminate || _program == _functionPointer) {
                 // We've hit the end of the program
                 if (!_terminate) {
                     assert(_stack.validateFrame(0, _program->localSize()));
@@ -216,12 +225,14 @@ static const uint16_t YieldCount = 2000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _objectPointer->localSize();
+        localsToPop = _functionPointer->localSize();
         
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
-        _objectPointer = _program->obj(_object);
+        objectValue = _program->obj(_object);
+        assert(objectValue->isFunction());
+        _functionPointer = static_cast<Function*>(objectValue);
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
         _stack.pop(leftValue);
@@ -407,34 +418,20 @@ static const uint16_t YieldCount = 2000;
         }
         DISPATCH;
     L_PREINC:
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb).toIntValue(this) + 1);
+        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) + 1);
+        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
         DISPATCH;
     L_PREDEC:
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb).toIntValue(this) - 1);
+        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) - 1);
+        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
         DISPATCH;
     L_POSTINC:
-        leftValue = regOrConst(inst.rb);
-        if (!leftValue.isLValue()) {
-            printError(ROMSTR("Must have an lvalue for POSTINC"));
-        } else {
-            rightValue = leftValue.bake(this);
-            if (!rightValue.isInteger()) {
-                printError(ROMSTR("Must have an integer value for POSTINC"));
-            }
-            leftValue.setValue(this, rightValue + 1);
-        }
+        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
+        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) + 1);
         DISPATCH;
     L_POSTDEC:
-        leftValue = regOrConst(inst.rb);
-        if (!leftValue.isLValue()) {
-            printError(ROMSTR("Must have an lvalue for POSTINC"));
-        } else {
-            rightValue = leftValue.bake(this);
-            if (!rightValue.isInteger()) {
-                printError(ROMSTR("Must have an integer value for POSTINC"));
-            }
-            leftValue.setValue(this, rightValue - 1);
-        }
+        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
+        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) - 1);
         DISPATCH;
     L_NEW:
     L_CALL:

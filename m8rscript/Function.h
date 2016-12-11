@@ -66,7 +66,7 @@ public:
     
     ConstantId addConstant(const Value&);
 
-    virtual Value constant(ConstantId id) const override { return _constants[(id.raw() < _constants.size()) ? id.raw() : 0]; }
+    Value constant(ConstantId id) const { return _constants[id.raw()]; }
 
     size_t constantCount() const { return _constants.size(); }
 
