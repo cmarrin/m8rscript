@@ -2,13 +2,12 @@
     Blink the LED connected to GPIO2 at a 1 sec interval
 */
 
-/*
 GPIO.setPinMode(2, GPIO.PinMode.Output);
 Serial.begin(9600);
 Serial.print("Started Blink\n");
-*/
+
 var count = 0;
-while (count < 1000) {
+while (count < 100) {
     blink();
     count++;
 }
