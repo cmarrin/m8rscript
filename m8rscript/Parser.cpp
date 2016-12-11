@@ -215,7 +215,7 @@ void Parser::emitMove()
     switch(dstType) {
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
-            emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, srcReg, _parseStack.topReg(), _parseStack.topDerefReg());
+            emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             break;
         default:
             emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
