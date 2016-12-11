@@ -115,7 +115,7 @@ public:
         return false;
     }
 
-    Type type() const { return _value._type; }
+    Type type() const { return _value.type(); }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -193,19 +193,29 @@ private:
     struct RawValue {
         RawValue() { _raw = 0; }
         RawValue(uint64_t v) { _raw = v; }
-        RawValue(Float f) { _raw = f.raw(); _type = Type::Float; }
-        RawValue(int32_t i) { _raw = 0; _i = i; _type = Type::Integer; }
-        RawValue(uint32_t i, Type type) { _raw = 0; _i = i; _type = type; }
-        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); _type = Type::Id; }
-        RawValue(StringId id) { _raw = 0; _i = id.raw(); _type = Type::String; }
-        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); _type = Type::StringLiteral; }
-        RawValue(ObjectId id, Type type = Type::Object) { _raw = 0; _i = id.raw(); _type = type; }
-        RawValue(ObjectId id, uint16_t index, Type type) { _raw = 0; _i = id.raw(); _d = index; _type = type; }
+        RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
+        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
+        RawValue(uint32_t i, Type type) { _raw = 0; _i = i; setType(type); }
+        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
+        RawValue(StringId id) { _raw = 0; _i = id.raw(); setType(Type::String); }
+        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }
+        RawValue(ObjectId id, Type type = Type::Object) { _raw = 0; _i = id.raw(); setType(type); }
+        RawValue(ObjectId id, uint16_t index, Type type) { _raw = 0; _i = id.raw(); _d = index; setType(type); }
         
+        Type type() const { return static_cast<Type>(_type); }
+#ifdef __APPLE__
+        void setType(Type type) { _type = type; }
+#else
+        void setType(Type type) { _type = static_cast<uint32_t>(type); }
+#endif
         union {
             uint64_t _raw;
             struct {
+#ifdef __APPLE__
                 Type _type : TypeBitCount;
+#else
+                uint32_t _type : TypeBitCount;
+#endif
                 uint16_t _ : 12;
                 uint16_t _d : 16;
                 uint32_t _i : 32;

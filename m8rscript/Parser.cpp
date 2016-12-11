@@ -104,7 +104,7 @@ void Parser::matchJump(Label& label)
     }
     
     Instruction inst = currentFunction()->code()->at(label.matchedAddr);
-    Op op = inst.op;
+    Op op = static_cast<Op>(inst.op);
     uint32_t reg = inst.ra;
     currentFunction()->code()->at(label.matchedAddr) = genInstructionRSN(op, reg, jumpAddr);
 }
@@ -442,7 +442,7 @@ void Parser::reconcileRegisters(Function* function)
     
     for (int i = 0; i < code.size(); ++i) {
         Instruction inst = code[i];
-        Op op = inst.op;
+        Op op = static_cast<Op>(inst.op);
         uint32_t rn = regFromTempReg(inst.rn, numLocals);
         
         if (op == Op::RET || op == Op::CALL || op == Op::NEW) {

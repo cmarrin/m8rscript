@@ -184,7 +184,7 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     // in their respective passed tables and insert the new values into the
     // passed Program.
     for (uint32_t i = 0; i < _code.size(); ) {
-        Op op = _code[i++].op;
+        Op op = static_cast<Op>(_code[i++].op);
         if (op == Op::END) {
             break;
         }

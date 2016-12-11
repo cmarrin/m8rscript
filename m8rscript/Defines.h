@@ -178,7 +178,11 @@ static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bit
 
 union Instruction {
     struct {
+#ifdef __APPLE__
         Op op : 6;
+#else
+        uint32_t op : 6;
+#endif
         uint32_t ra : 8;
         uint32_t rb : 9;
         uint32_t rc : 9;
@@ -199,10 +203,45 @@ static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
 
 typedef std::vector<Instruction> Code;
 
-static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc) { Instruction i; i.op = op; i.ra = ra; i.rb = rb; i.rc = rc; return i; }
-static inline Instruction genInstructionRUN(Op op, uint32_t rn, uint32_t n) { Instruction i; i.op = op; i.rn = rn; i.un = n; return i; }
-static inline Instruction genInstructionRSN(Op op, uint32_t rn, int32_t n) { Instruction i; i.op = op; i.rn = rn; i.sn = n; return i; }
+static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+{
+    Instruction i;
+#ifdef __APPLE__
+    i.op = op;
+#else
+    i.op = static_cast<uint32_t>(op);
+#endif
+    i.ra = ra;
+    i.rb = rb;
+    i.rc = rc;
+    return i;
+}
 
+static inline Instruction genInstructionRUN(Op op, uint32_t rn, uint32_t n)
+{
+    Instruction i;
+#ifdef __APPLE__
+    i.op = op;
+#else
+    i.op = static_cast<uint32_t>(op);
+#endif
+    i.rn = rn;
+    i.un = n;
+    return i;
+}
+
+static inline Instruction genInstructionRSN(Op op, uint32_t rn, int32_t n)
+{
+    Instruction i;
+#ifdef __APPLE__
+    i.op = op;
+#else
+    i.op = static_cast<uint32_t>(op);
+#endif
+    i.rn = rn;
+    i.sn = n;
+    return i;
+}
 
 ////  Opcodes with params have bit patterns.
 ////  Upper 2 bits are 00 (values from 0x00 to 0x3f)

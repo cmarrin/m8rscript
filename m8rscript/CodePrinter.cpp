@@ -163,7 +163,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     #undef DISPATCH
     #define DISPATCH { \
         inst = code[i++]; \
-        op = inst.op; \
+        op = static_cast<Op>(inst.op); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -212,7 +212,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         }
 
         Instruction c = obj->code()->at(i);
-        Op op = c.op;
+        Op op = static_cast<Op>(c.op);
         if (op == Op::END) {
             break;
         }
