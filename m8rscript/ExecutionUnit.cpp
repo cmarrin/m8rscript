@@ -139,11 +139,11 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x0C */ OP(LOADNULL) OP(PUSH) OP(POP) OP(UNKNOWN)
 
         /* 0x10 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
-        /* 0x14 */ OP(BINIOP) OP(BINOP) OP(BINOP) OP(BINOP)
-        /* 0x18 */ OP(BINOP) OP(BINOP) OP(BINOP) OP(BINIOP)
-        /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(BINOP)
+        /* 0x14 */ OP(BINIOP) OP(EQ) OP(NE) OP(LT)
+        /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(BINIOP)
+        /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(BINOP)  OP(BINOP)  OP(BINOP)  OP(DEREF)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
         /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
@@ -353,31 +353,21 @@ static const uint16_t YieldCount = 10000;
         }
         _framePtr[inst.ra] = Value(leftIntValue);
         DISPATCH;
-    L_BINOP:
-        leftFloatValue = regOrConst(inst.rb).toFloatValue(this);
-        rightFloatValue = regOrConst(inst.rc).toFloatValue(this);
-        switch(op) {
-            case Op::EQ: leftFloatValue = leftFloatValue == rightFloatValue; break;
-            case Op::NE: leftFloatValue = leftFloatValue != rightFloatValue; break;
-            case Op::LT: leftFloatValue = leftFloatValue < rightFloatValue; break;
-            case Op::LE: leftFloatValue = leftFloatValue <= rightFloatValue; break;
-            case Op::GT: leftFloatValue = leftFloatValue > rightFloatValue; break;
-            case Op::GE: leftFloatValue = leftFloatValue >= rightFloatValue; break;
-            case Op::SUB: leftFloatValue -= rightFloatValue; break;
-            case Op::MUL: leftFloatValue *= rightFloatValue; break;
-            case Op::DIV: leftFloatValue /= rightFloatValue; break;
-            case Op::MOD: leftFloatValue %= rightFloatValue; break;
-            default: assert(0); break;
-        }
-        _framePtr[inst.ra] = Value(leftFloatValue);
-        DISPATCH;
+    L_EQ: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) == regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_NE: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) != regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_LT: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) < regOrConst(inst.rc).toFloatValue(this));  DISPATCH;
+    L_LE: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) <= regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_GT: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) > regOrConst(inst.rc).toFloatValue(this));  DISPATCH;
+    L_GE: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) >= regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_SUB: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) - regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_MUL: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) * regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_DIV: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) / regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
+    L_MOD: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) % regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
     L_ADD:
         leftValue = regOrConst(inst.rb).bake(this);
         rightValue = regOrConst(inst.rc).bake(this);
 
-        if (leftValue.isInteger() && rightValue.isInteger()) {
-            _framePtr[inst.ra] = Value(leftValue.toIntValue(this) + rightValue.toIntValue(this));
-        } else if (leftValue.isNumber() && rightValue.isNumber()) {
+        if (leftValue.isNumber() && rightValue.isNumber()) {
             _framePtr[inst.ra] = Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
         } else {
             StringId stringId = _program->createString();
