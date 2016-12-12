@@ -90,7 +90,7 @@ public:
     Value(ObjectId objectId, Type type = Type::Object) : _value(objectId, type) { }
     Value(Float value) : _value(value) { }
     Value(int32_t value) : _value(value) { }
-    Value(uint32_t value, Type type = Type::Integer) : _value(value, type) { }
+    Value(uint32_t value, Type type) : _value(value, type) { }
     Value(Atom value) : _value(value) { }
     Value(ObjectId objectId, uint16_t index, bool property) : _value(objectId, index, property ? Type::PropertyRef : Type::ElementRef) { }
     Value(StringId stringId) : _value(stringId) { }
@@ -98,6 +98,7 @@ public:
     
     Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
     operator bool() const { return type() != Type::None; }
+    operator uint64_t() const { return _value._raw; }
     bool operator==(const Value& other) { return _value._raw == other._value._raw; }
     bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
 
@@ -125,21 +126,21 @@ public:
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
-    uint32_t asUIntValue() const { return (type() == Type::Integer || type() == Type::PreviousPC || type() == Type::PreviousFrame) ? uintFromValue() : 0; }
+    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousPC) ? intFromValue() : 0; }
+    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousFrame) ? intFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     
     m8r::String toStringValue(ExecutionUnit*) const;
-    bool toBoolValue(ExecutionUnit*) const;
+    bool toBoolValue(ExecutionUnit* eu) const { return toFloatValue(eu); }
     Float toFloatValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Float) {
-            return asFloatValue();
+            return floatFromValue();
         }
         return _toFloatValue(eu);
     }
 
-    uint32_t toUIntValue(ExecutionUnit* eu) const { return static_cast<uint32_t>(toIntValue(eu)); }
     int32_t toIntValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Integer) {
@@ -176,7 +177,6 @@ public:
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
-    static m8r::String toString(uint32_t value);
     static Float floatFromString(const char*);
     
 private:
@@ -190,7 +190,6 @@ private:
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return _value._i; }
-    inline uint32_t uintFromValue() const { return _value._i; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._i)); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._i)); }
@@ -201,8 +200,8 @@ private:
         RawValue() { _raw = 0; }
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
-        RawValue(uint32_t i, Type type) { _raw = 0; _i = i; setType(type); }
+        RawValue(int32_t i) { _raw = 0; _raw = Float(i, 0).raw(); setType(Type::Float); }
+        RawValue(uint32_t i, Type type) { assert(type == Type::PreviousPC || type == Type::PreviousFrame); _raw = 0; _i = i; setType(type); }
         RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
         RawValue(StringId id) { _raw = 0; _i = id.raw(); setType(Type::String); }
         RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }

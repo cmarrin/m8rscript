@@ -71,7 +71,7 @@ const Value Array::property(int32_t index) const
 bool Array::setProperty(ExecutionUnit* eu, int32_t index, const Value& value)
 {
     switch(static_cast<Property>(index)) {
-        case Property::Length: _array.resize(value.toUIntValue(eu)); return true;
+        case Property::Length: _array.resize(value.toIntValue(eu)); return true;
         default: return false;
     }
 }

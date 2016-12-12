@@ -151,14 +151,6 @@ m8r::String Value::toString(Float value)
     return m8r::String(buf);
 }
 
-m8r::String Value::toString(uint32_t value)
-{
-    char buf[12];
-    int16_t exp = 0;
-    ::toString(buf, value, exp);
-    return m8r::String(buf);
-}
-
 m8r::String Value::toString(int32_t value)
 {
     char buf[12];
@@ -205,41 +197,6 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
             return obj ? obj->element(indexFromValue()).toStringValue(eu) : m8r::String();
         }
         default: assert(0); return m8r::String();
-    }
-}
-
-bool Value::toBoolValue(ExecutionUnit* eu) const
-{
-    switch(type()) {
-        case Type::None: return false;
-        case Type::Object: {
-            Value* v = nullptr;
-            Object* obj = eu->program()->obj(*this);
-            if (obj) {
-                v = obj->value();
-            }
-            return v ? v->toBoolValue(eu) : false;
-        }
-        case Type::Float: return asFloatValue() != Float();
-        case Type::Integer: return asIntValue() != 0;
-        case Type::String: {
-            const String& s = eu->program()->str(stringIdFromValue());
-            return s[0] != '\0';
-        }
-        case Type::StringLiteral: {
-            const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-            return s[0] != '\0';
-        }
-        case Type::Id: return false;
-        case Type::PropertyRef: {
-            Object* obj = eu->program()->obj(*this);
-            return obj ? obj->property(indexFromValue()).toBoolValue(eu) : false;
-        }
-        case Type::ElementRef: {
-            Object* obj = eu->program()->obj(*this);
-            return obj ? obj->element(indexFromValue()).toBoolValue(eu) : false;
-        }
-        default: assert(0); return false;
     }
 }
 

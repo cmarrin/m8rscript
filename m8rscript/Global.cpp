@@ -307,17 +307,17 @@ CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toUIntValue(eu);
+            uint32_t ms = eu->stack().top().toIntValue(eu);
             return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
         }
         case Property::GPIO_setPinMode: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue(eu) : 0;
-            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toUIntValue(eu)) : GPIO::PinMode::Input;
+            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIO::PinMode::Input;
             _system->gpio().setPinMode(pin, mode);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         case Property::GPIO_digitalWrite: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toUIntValue(eu) : 0;
+            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
             bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
             _system->gpio().digitalWrite(pin, level);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
