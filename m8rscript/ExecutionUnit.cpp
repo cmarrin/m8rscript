@@ -354,43 +354,22 @@ static const uint16_t YieldCount = 10000;
         _framePtr[inst.ra] = Value(leftIntValue);
         DISPATCH;
     L_BINOP:
-        leftValue = regOrConst(inst.rb).bake(this);
-        rightValue = regOrConst(inst.rc).bake(this);
-        if (leftValue.isInteger() && rightValue.isInteger()) {
-            leftIntValue = leftValue.toIntValue(this);
-            rightIntValue = rightValue.toIntValue(this);
-            switch(op) {
-                case Op::EQ: leftIntValue = leftIntValue == rightIntValue; break;
-                case Op::NE: leftIntValue = leftIntValue != rightIntValue; break;
-                case Op::LT: leftIntValue = leftIntValue < rightIntValue; break;
-                case Op::LE: leftIntValue = leftIntValue <= rightIntValue; break;
-                case Op::GT: leftIntValue = leftIntValue > rightIntValue; break;
-                case Op::GE: leftIntValue = leftIntValue >= rightIntValue; break;
-                case Op::SUB: leftIntValue -= rightIntValue; break;
-                case Op::MUL: leftIntValue *= rightIntValue; break;
-                case Op::DIV: leftIntValue /= rightIntValue; break;
-                case Op::MOD: leftIntValue %= rightIntValue; break;
-                default: assert(0); break;
-            }
-            _framePtr[inst.ra] = Value(leftIntValue);
-        } else {
-            leftFloatValue = leftValue.toFloatValue(this);
-            rightFloatValue = rightValue.toFloatValue(this);
-            switch(op) {
-                case Op::EQ: leftFloatValue = leftFloatValue == rightFloatValue; break;
-                case Op::NE: leftFloatValue = leftFloatValue != rightFloatValue; break;
-                case Op::LT: leftFloatValue = leftFloatValue < rightFloatValue; break;
-                case Op::LE: leftFloatValue = leftFloatValue <= rightFloatValue; break;
-                case Op::GT: leftFloatValue = leftFloatValue > rightFloatValue; break;
-                case Op::GE: leftFloatValue = leftFloatValue >= rightFloatValue; break;
-                case Op::SUB: leftFloatValue -= rightFloatValue; break;
-                case Op::MUL: leftFloatValue *= rightFloatValue; break;
-                case Op::DIV: leftFloatValue /= rightFloatValue; break;
-                case Op::MOD: leftFloatValue %= rightFloatValue; break;
-                default: assert(0); break;
-            }
-            _framePtr[inst.ra] = Value(leftFloatValue);
+        leftFloatValue = regOrConst(inst.rb).toFloatValue(this);
+        rightFloatValue = regOrConst(inst.rc).toFloatValue(this);
+        switch(op) {
+            case Op::EQ: leftFloatValue = leftFloatValue == rightFloatValue; break;
+            case Op::NE: leftFloatValue = leftFloatValue != rightFloatValue; break;
+            case Op::LT: leftFloatValue = leftFloatValue < rightFloatValue; break;
+            case Op::LE: leftFloatValue = leftFloatValue <= rightFloatValue; break;
+            case Op::GT: leftFloatValue = leftFloatValue > rightFloatValue; break;
+            case Op::GE: leftFloatValue = leftFloatValue >= rightFloatValue; break;
+            case Op::SUB: leftFloatValue -= rightFloatValue; break;
+            case Op::MUL: leftFloatValue *= rightFloatValue; break;
+            case Op::DIV: leftFloatValue /= rightFloatValue; break;
+            case Op::MOD: leftFloatValue %= rightFloatValue; break;
+            default: assert(0); break;
         }
+        _framePtr[inst.ra] = Value(leftFloatValue);
         DISPATCH;
     L_ADD:
         leftValue = regOrConst(inst.rb).bake(this);
