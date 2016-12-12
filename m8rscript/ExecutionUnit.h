@@ -171,10 +171,10 @@ private:
     void updateCodePointer()
     {
         assert(_object);
-        assert(_functionPointer->code());
-        _codeSize = _functionPointer->code()->size();
+        assert(_functionPtr->code());
+        _codeSize = _functionPtr->code()->size();
         assert(_codeSize);
-        _code = &(_functionPointer->code()->at(0));
+        _code = &(_functionPtr->code()->at(0));
     }
     
     Value derefId(Atom);
@@ -184,7 +184,7 @@ private:
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
-    Function* _functionPointer;
+    Function* _functionPtr;
     const Instruction* _code;
     size_t _codeSize;
     

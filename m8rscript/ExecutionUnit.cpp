@@ -99,27 +99,27 @@ void ExecutionUnit::startExecution(Program* program)
     Object* obj = _program->obj(_object);
     if (!obj->isFunction()) {
         _terminate = true;
-        _functionPointer = nullptr;
+        _functionPtr = nullptr;
         _stack.clear();
         return;
     }
-    _functionPointer =  static_cast<Function*>(obj);
+    _functionPtr =  static_cast<Function*>(obj);
     _program->setStack(&_stack);
     _stack.clear();
-    _stack.setLocalFrame(0, _object ? _functionPointer->localSize() : 0);
+    _stack.setLocalFrame(0, _object ? _functionPtr->localSize() : 0);
 }
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
-    Object* functionPointer = _program->obj(function);
-    assert(functionPointer->isFunction());
+    Object* functionPtr = _program->obj(function);
+    assert(functionPtr->isFunction());
     
-    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPointer->localSize())), Value::Type::PreviousFrame));
+    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPtr->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
     _object = function;
-    _functionPointer =  static_cast<Function*>(functionPointer);
+    _functionPtr =  static_cast<Function*>(functionPtr);
 }
 
 int32_t ExecutionUnit::continueExecution()
@@ -200,7 +200,7 @@ static const uint16_t YieldCount = 10000;
     L_RETX:
     L_END:
         if (_terminate || op == Op::END) {
-            if (_terminate || _program == _functionPointer) {
+            if (_terminate || _program == _functionPtr) {
                 // We've hit the end of the program
                 if (!_terminate) {
                     assert(_stack.validateFrame(0, _program->localSize()));
@@ -225,14 +225,14 @@ static const uint16_t YieldCount = 10000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _functionPointer->localSize();
+        localsToPop = _functionPtr->localSize();
         
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
         objectValue = _program->obj(_object);
         assert(objectValue->isFunction());
-        _functionPointer = static_cast<Function*>(objectValue);
+        _functionPtr = static_cast<Function*>(objectValue);
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
         _stack.pop(leftValue);
