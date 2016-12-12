@@ -406,7 +406,7 @@ public:
     {
         size_t oldFrame = _frame;
         _frame = size() - nparams;
-        super::resize(size() + localSize);
+        super::resize(size() + localSize - nparams);
         return oldFrame;
     }
     void restoreFrame(size_t frame, size_t localsToPop)
