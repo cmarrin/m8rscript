@@ -92,7 +92,7 @@ bool Program::serialize(Stream* stream, Error& error, Program* program) const
         Object* object = obj(ObjectId(i));
         
         // Only store functions
-        if (!object->code()) {
+        if (!object->isFunction()) {
             continue;
         }
         if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {

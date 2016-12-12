@@ -114,8 +114,9 @@ void ExecutionUnit::startExecution(Program* program)
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
-    Object* functionPtr = _program->obj(function);
-    assert(functionPtr->isFunction());
+    Object* p = _program->obj(function);
+    assert(p->isFunction());
+    Function* functionPtr = static_cast<Function*>(p);
     
     _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPtr->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));

@@ -78,7 +78,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
         if (!obj || obj == program) {
             break;
         }
-        if (obj->code()) {
+        if (obj->isFunction()) {
             outputString += generateCodeString(program, obj, Value::toString(i).c_str(), _nestingLevel);
             outputString += "\n";
         }
@@ -167,6 +167,12 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
+    if (!obj->isFunction()) {
+        return String();
+    }
+    
+    const Function* function = static_cast<const Function*>(obj);
+    
     m8r::String outputString;
 
     _nestingLevel = nestingLevel;
@@ -193,25 +199,25 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
             continue;
         }
         Object* object = program->obj(value);
-        if (object && object->code()) {
+        if (object && object->isFunction()) {
             Atom name = obj->propertyName(i);
             outputString += generateCodeString(program, object, program->stringFromAtom(name).c_str(), _nestingLevel);
             outputString += "\n";
         }
     }
     
-    const Instruction* code = &(obj->code()->at(0));
+    const Instruction* code = &(function->code()->at(0));
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
     uint32_t i = 0;
     for (uint32_t i = 0; ; ++i) {
-        if (i >= obj->code()->size()) {
+        if (i >= function->code()->size()) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
 
-        Instruction c = obj->code()->at(i);
+        Instruction c = function->code()->at(i);
         Op op = static_cast<Op>(c.op);
         if (op == Op::END) {
             break;

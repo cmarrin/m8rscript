@@ -63,9 +63,7 @@ public:
     virtual const char* typeName() const = 0;
     
     virtual bool isFunction() const { return false; }
-    
-    virtual const Code* code() const { return nullptr; }
-    
+
     virtual String toString(ExecutionUnit*) const { return String(typeName()) + "{ }"; }
     
     virtual int32_t propertyIndex(const Atom& s) { return -1; }
@@ -85,11 +83,6 @@ public:
     virtual size_t elementCount() const { return 0; }
     virtual void setElementCount(size_t) { }
     
-    virtual int32_t addLocal(const Atom& name) { return -1; }
-    virtual int32_t localIndex(const Atom& name) const { return -1; }
-    virtual Atom localName(int32_t index) const { return Atom(); }
-    virtual size_t localSize() const { return 0; }
-
     virtual bool setValue(ExecutionUnit*, const Value&) { return false; }
     virtual Value* value() { return nullptr; }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }

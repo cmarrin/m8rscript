@@ -55,13 +55,14 @@ public:
     
     virtual bool isFunction() const override { return true; }
 
-    virtual const Code* code() const override { return &_code; }
+    const Code* code() const { return &_code; }
     Code* code() { return &_code; }
 
-    virtual int32_t addLocal(const Atom& name) override;
-    virtual int32_t localIndex(const Atom& name) const override;
-    virtual Atom localName(int32_t index) const override { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
-    virtual size_t localSize() const override { return _locals.size() + _tempRegisterCount; }
+    int32_t addLocal(const Atom& name);
+    int32_t localIndex(const Atom& name) const;
+    Atom localName(int32_t index) const { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
+    size_t localSize() const { return _locals.size() + _tempRegisterCount; }
+    
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
     
     ConstantId addConstant(const Value&);

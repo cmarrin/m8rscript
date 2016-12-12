@@ -280,7 +280,7 @@ bool MaterObject::serialize(Stream* stream, Error& error, Program* program) cons
     for (auto entry : _properties) {
         Object* obj = program->obj(entry.value);
         // Only store functions
-        if (!obj || !obj->code()) {
+        if (!obj || !obj->isFunction()) {
             continue;
         }
         if (!serializeWrite(stream, error, ObjectDataType::PropertyId)) {
