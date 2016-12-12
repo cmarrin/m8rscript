@@ -485,8 +485,10 @@ uint32_t Parser::ParseStack::bake()
     Entry entry = _stack.top();
     
     if (entry._type == Type::PropRef || entry._type == Type::EltRef) {
-        _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, entry._reg, entry._reg, entry._derefReg);
-        return entry._reg;
+        pop();
+        uint32_t r = push(Type::Register);
+        _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+        return r;
     } else if (entry._type == Type::RefK) {
         pop();
         uint32_t r = push(Type::Register);
