@@ -77,7 +77,9 @@ public:
             value = value.bake(eu);
         }
     }
-    
+
+    Value* framePtr() { return Stack::framePtr(); }
+
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
     {
@@ -94,7 +96,7 @@ class ExecutionUnit {
 public:
     friend class Function;
     
-    ExecutionUnit(SystemInterface* system = nullptr) : _stack(10), _system(system) { }
+    ExecutionUnit(SystemInterface* system = nullptr) : _stack(200), _system(system) { }
     
     void startExecution(Program*);
     
@@ -179,12 +181,16 @@ private:
     
     Value derefId(Atom);
     
-    Value regOrConst(uint32_t r) const { return (r > MaxRegister) ? _functionPointer->constant(ConstantId(r - MaxRegister)) : _stack.inFrame(r); }
+    const Value& regOrConst(uint32_t r) const { return (r > MaxRegister) ? _constantsPtr[r - MaxRegister] : _framePtr[r]; }
+    Value& regOrConst(uint32_t r) { return (r > MaxRegister) ? _constantsPtr[r - MaxRegister] : _framePtr[r]; }
 
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
     Function* _functionPtr;
+    Value* _constantsPtr;
+    Value* _framePtr;
+    
     const Instruction* _code;
     size_t _codeSize;
     

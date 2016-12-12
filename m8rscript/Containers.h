@@ -428,6 +428,8 @@ public:
     void setTop(const type& value) { super::back() = value; }
     bool empty() const { return super::empty(); }
 
+    type* framePtr() { return &super::at(_frame); }
+
 private:
     size_t _frame = 0;
 };

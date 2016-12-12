@@ -100,13 +100,16 @@ void ExecutionUnit::startExecution(Program* program)
     if (!obj->isFunction()) {
         _terminate = true;
         _functionPtr = nullptr;
+        _constantsPtr = nullptr;
         _stack.clear();
         return;
     }
     _functionPtr =  static_cast<Function*>(obj);
+    _constantsPtr = _functionPtr->constantsPtr();
     _program->setStack(&_stack);
     _stack.clear();
     _stack.setLocalFrame(0, _object ? _functionPtr->localSize() : 0);
+    _framePtr =_stack.framePtr();
 }
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
@@ -120,6 +123,8 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     _stack.push(Value(_object, Value::Type::PreviousObject));
     _object = function;
     _functionPtr =  static_cast<Function*>(functionPtr);
+    _constantsPtr = _functionPtr->constantsPtr();
+    _framePtr =_stack.framePtr();
 }
 
 int32_t ExecutionUnit::continueExecution()
@@ -233,24 +238,26 @@ static const uint16_t YieldCount = 10000;
         objectValue = _program->obj(_object);
         assert(objectValue->isFunction());
         _functionPtr = static_cast<Function*>(objectValue);
+        _constantsPtr = _functionPtr->constantsPtr();
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
         _stack.pop(leftValue);
-        _pc = leftValue.asUIntValue();
+        _pc = leftValue.asPreviousPCValue();
         
         assert(_stack.top().type() == Value::Type::PreviousFrame);
         _stack.pop(leftValue);
-        _stack.restoreFrame(leftValue.asUIntValue(), localsToPop);
+        _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
+        _framePtr =_stack.framePtr();
         
         updateCodePointer();
     
         _stack.push(returnedValue);
         DISPATCH;
     L_MOVE:
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
+        _framePtr[inst.ra] = regOrConst(inst.rb);
         DISPATCH;
     L_LOADREFK:
-        _stack.setInFrame(inst.ra, derefId(regOrConst(inst.rb).asIdValue()));
+        _framePtr[inst.ra] = derefId(regOrConst(inst.rb).asIdValue());
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:
@@ -261,7 +268,7 @@ static const uint16_t YieldCount = 10000;
         }
         objectId = _program->addObject(objectValue);
         objectValue->setObjectId(objectId);
-        _stack.setInFrame(inst.ra, objectId);
+        _framePtr[inst.ra] = Value(objectId);
         DISPATCH;
     L_LOADPROP:
     L_LOADELT:
@@ -272,7 +279,7 @@ static const uint16_t YieldCount = 10000;
                 return -1;
             }
         }
-        _stack.setInFrame(inst.ra, leftValue);
+        _framePtr[inst.ra] = leftValue;
         DISPATCH;
     L_STOPROP:
         // ra - Object
@@ -306,19 +313,19 @@ static const uint16_t YieldCount = 10000;
         leftValue.setValue(this, regOrConst(inst.rc).bake(this));
         DISPATCH;
     L_LOADTRUE:
-        _stack.setInFrame(inst.ra, true);
+        _framePtr[inst.ra] = Value(true);
         DISPATCH;
     L_LOADFALSE:
-        _stack.setInFrame(inst.ra, false);
+        _framePtr[inst.ra] = Value(false);
         DISPATCH;
     L_LOADNULL:
-        _stack.setInFrame(inst.ra, Value());
+        _framePtr[inst.ra] = Value();
         DISPATCH;
     L_PUSH:
         _stack.push(regOrConst(inst.rn));
         DISPATCH;
     L_POP:
-        _stack.setInFrame(inst.ra, _stack.top());
+        _framePtr[inst.ra] = _stack.top();
         _stack.pop();
         DISPATCH;
     L_DEREF:
@@ -328,7 +335,7 @@ static const uint16_t YieldCount = 10000;
                 return -1;
             }
         }
-        _stack.setInFrame(inst.ra, leftValue);
+        _framePtr[inst.ra] = leftValue;
         DISPATCH;
     L_BINIOP:
         leftIntValue = regOrConst(inst.rb).toIntValue(this);
@@ -344,7 +351,7 @@ static const uint16_t YieldCount = 10000;
             case Op::SHR: leftIntValue = static_cast<uint32_t>(leftIntValue) >> rightIntValue; break;
             default: assert(0); break;
         }
-        _stack.setInFrame(inst.ra, leftIntValue);
+        _framePtr[inst.ra] = Value(leftIntValue);
         DISPATCH;
     L_BINOP:
         leftValue = regOrConst(inst.rb).bake(this);
@@ -365,7 +372,7 @@ static const uint16_t YieldCount = 10000;
                 case Op::MOD: leftIntValue %= rightIntValue; break;
                 default: assert(0); break;
             }
-            _stack.setInFrame(inst.ra, leftIntValue);
+            _framePtr[inst.ra] = Value(leftIntValue);
         } else {
             leftFloatValue = leftValue.toFloatValue(this);
             rightFloatValue = rightValue.toFloatValue(this);
@@ -382,7 +389,7 @@ static const uint16_t YieldCount = 10000;
                 case Op::MOD: leftFloatValue %= rightFloatValue; break;
                 default: assert(0); break;
             }
-            _stack.setInFrame(inst.ra, leftFloatValue);
+            _framePtr[inst.ra] = Value(leftFloatValue);
         }
         DISPATCH;
     L_ADD:
@@ -390,15 +397,15 @@ static const uint16_t YieldCount = 10000;
         rightValue = regOrConst(inst.rc).bake(this);
 
         if (leftValue.isInteger() && rightValue.isInteger()) {
-            _stack.setInFrame(inst.ra, leftValue.toIntValue(this) + rightValue.toIntValue(this));
+            _framePtr[inst.ra] = Value(leftValue.toIntValue(this) + rightValue.toIntValue(this));
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
-            _stack.setInFrame(inst.ra, leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
+            _framePtr[inst.ra] = Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
         } else {
             StringId stringId = _program->createString();
             String& s = _program->str(stringId);
             s = leftValue.toStringValue(this);
             s += rightValue.toStringValue(this);
-            _stack.setInFrame(inst.ra, stringId);
+            _framePtr[inst.ra] = Value(stringId);
         }
         DISPATCH;
     L_UNOP:
@@ -411,27 +418,27 @@ static const uint16_t YieldCount = 10000;
                 case Op::UNOT: leftIntValue = (leftIntValue == 0) ? 0 : 1; break;
                 default: assert(0);
             }
-            _stack.setInFrame(inst.ra, leftIntValue);
+            _framePtr[inst.ra] = Value(leftIntValue);
         } else {
             leftFloatValue = -leftValue.toFloatValue(this);
-            _stack.setInFrame(inst.ra, leftFloatValue);
+            _framePtr[inst.ra] = Value(leftFloatValue);
         }
         DISPATCH;
     L_PREINC:
-        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) + 1);
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
+        _framePtr[inst.rb] = Value(regOrConst(inst.rb).toIntValue(this) + 1);
+        _framePtr[inst.ra] = regOrConst(inst.rb);
         DISPATCH;
     L_PREDEC:
-        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) - 1);
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
+        _framePtr[inst.rb] = Value(regOrConst(inst.rb).toIntValue(this) - 1);
+        _framePtr[inst.ra] = regOrConst(inst.rb);
         DISPATCH;
     L_POSTINC:
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
-        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) + 1);
+        _framePtr[inst.ra] = regOrConst(inst.rb);
+        _framePtr[inst.rb] = Value(regOrConst(inst.rb).toIntValue(this) + 1);
         DISPATCH;
     L_POSTDEC:
-        _stack.setInFrame(inst.ra, regOrConst(inst.rb));
-        _stack.setInFrame(inst.rb, regOrConst(inst.rb).toIntValue(this) - 1);
+        _framePtr[inst.ra] = regOrConst(inst.rb);
+        _framePtr[inst.rb] = Value(regOrConst(inst.rb).toIntValue(this) - 1);
         DISPATCH;
     L_NEW:
     L_CALL:

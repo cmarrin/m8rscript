@@ -69,6 +69,8 @@ public:
     Value constant(ConstantId id) const { return _constants[id.raw()]; }
 
     size_t constantCount() const { return _constants.size(); }
+    
+    Value* constantsPtr() { return &(_constants.at(0)); }
 
     void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
     
