@@ -60,8 +60,9 @@ public:
     typedef DecomposeType decompose_type;
     
     static constexpr int32_t BinaryExponent = BinExp;
+    static constexpr value_type BinaryMask = (1 << BinaryExponent) - 1;
     static constexpr int32_t DecimalExponent = DecExp;
-    static constexpr int32_t DecimalMultiplier = exp(1, DecExp);
+    static constexpr value_type DecimalMultiplier = exp(1, DecExp);
     static constexpr uint8_t MaxDigits = (sizeof(RawType) <= 32) ? 8 : 12;
     
     _Float() { _value._raw = 0; }
@@ -69,6 +70,7 @@ public:
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
     _Float(RawType value) { _value._raw = value; }
+    _Float(bool value) { _value._raw = value ? (1 << BinaryExponent) : 0; }
     
     _Float(RawType i, int32_t e)
     {
@@ -82,7 +84,7 @@ public:
         num *= sign;
         
         while (e > 0) {
-            if (num > std::numeric_limits<int32_t>::max()) {
+            if (num > std::numeric_limits<value_type>::max()) {
                 // FIXME: Number is over range, handle that
                 _value._raw = 0;
                 return;
@@ -100,7 +102,7 @@ public:
             num /= 10;
         }
         
-        if (num > std::numeric_limits<int32_t>::max()) {
+        if (num > std::numeric_limits<value_type>::max()) {
             // FIXME: Number is under range, handle that
             _value._raw = 0;
             return;
@@ -118,6 +120,8 @@ public:
         return r;
     }
     operator Raw() const { return _value; }
+    
+    operator bool() const { return _value._raw != 0; }
 
     const _Float& operator=(const _Float& other) { _value._raw = other._value._raw; return *this; }
     _Float& operator=(_Float& other) { _value._raw = other._value._raw; return *this; }
@@ -156,16 +160,19 @@ public:
     operator int32_t() const { return static_cast<int32_t>(_value._raw >> BinaryExponent); }
     operator int64_t() const { return static_cast<int64_t>(_value._raw >> BinaryExponent); }
 
-    void decompose(DecomposeType& mantissa, int16_t& exponent) const
-    {
+    void decompose(decompose_type& mantissa, int16_t& exponent) const
+    {        
         if (_value._raw == 0) {
             mantissa = 0;
             exponent = 0;
             return;
         }
-        RawType sign = (_value._raw < 0) ? -1 : 1;
-        DecomposeType value = static_cast<DecomposeType>(sign * _value._raw) * DecimalMultiplier;
-        mantissa = sign * static_cast<DecomposeType>(((value >> (BinaryExponent - 1)) + 1) >> 1);
+        _Float integerFloat = floor();
+        decompose_type integerPart = static_cast<int64_t>(integerFloat);
+        _Float fractionPart = *this - integerFloat;
+        decompose_type value = static_cast<decompose_type>(fractionPart._value._raw) * DecimalMultiplier;
+        mantissa = ((value >> (BinaryExponent - 1)) + 1) >> 1;
+        mantissa += integerPart * DecimalMultiplier;
         exponent = -DecimalExponent;
     }
 
@@ -200,8 +207,12 @@ inline _Float<float, int32_t>::_Float(value_type i, int32_t e)
 }
 
 template<>
+inline _Float<float, int32_t>::_Float(bool value) { _value._raw = value ? 1 : 0; }
+
+template<>
 inline void _Float<float, int32_t>::decompose(int32_t& mantissa, int16_t& exponent) const
 {
+    // FIXME: Implement correctly for fractions
     if (_value._raw == 0) {
         mantissa = 0;
         exponent = 0;
@@ -262,8 +273,12 @@ inline _Float<double, int64_t>::_Float(value_type i, int32_t e)
 }
 
 template<>
+inline _Float<double, int32_t>::_Float(bool value) { _value._raw = value ? 1 : 0; }
+
+template<>
 inline void _Float<double, int64_t>::decompose(int64_t& mantissa, int16_t& exponent) const
 {
+    // FIXME: Implement correctly for fractions
     if (_value._raw == 0) {
         mantissa = 0;
         exponent = 0;
@@ -314,7 +329,7 @@ typedef _Float<int32_t, int32_t, 10, 2> Float32;
 // Range is +/- 2e9 with 8 decimal digits of precision. When used
 // As value lower 4 bits is used to store a type enum, so these
 // bits are always 0. Thus the 8 digit precision.
-typedef _Float<int64_t, int64_t, 20, 8> Float64;
+typedef _Float<int64_t, int64_t, 26, 6> Float64;
 typedef _Float<float, int32_t> FloatFloat;
 typedef _Float<double, int64_t> FloatDouble;
 
