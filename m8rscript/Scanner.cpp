@@ -54,36 +54,43 @@ inline static bool findChar(const char* s, char c)
 
 struct Keyword
 {
-	const char* word;
+	uint8_t index;
 	Token token;
 };
 
+static const char* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR keywordString =
+       "break\0case\0continue\0default\0delete\0do\0else\0false\0for\0function\0if\0new\0null\0return\0switch\0true\0var\0while";
+    //  000000 00000 000000000 00000000 0000000 000 00000 000000 0000 000000000 000 0000 00000 0000000 0000000 00000 0000 00011
+    //  000000 00001 111111111 22222222 2233333 333 33444 444444 4555 555555566 666 6666 67777 7777778 8888888 88999 9999 99900
+    //  012345 67890 123456789 01234567 8901234 567 89012 345678 9012 345678901 234 5678 90123 4567890 1234567 89012 3456 78901
+    //
+
 static Keyword keywords[] = {
-	{ "break",		Token::Break },
-	{ "case",		Token::Case },
-	{ "continue",	Token::Continue },
-	{ "default",	Token::Default },
-	{ "delete",		Token::Delete },
-	{ "do",			Token::Do },
-	{ "else",		Token::Else },
-	{ "false",		Token::False },
-	{ "for",		Token::For },
-	{ "function",	Token::Function },
-	{ "if",			Token::If },
-	{ "new",		Token::New },
-	{ "null",		Token::Null },
-	{ "return",		Token::Return },
-	{ "switch",		Token::Switch },
-	{ "true",		Token::True },
-	{ "var",		Token::Var },
-	{ "while",		Token::While },
+	{ 0,	Token::Break },
+	{ 6,	Token::Case },
+	{ 11,	Token::Continue },
+	{ 20,	Token::Default },
+	{ 28,	Token::Delete },
+	{ 35,	Token::Do },
+	{ 38,	Token::Else },
+	{ 43,	Token::False },
+	{ 49,	Token::For },
+	{ 53,	Token::Function },
+	{ 62,	Token::If },
+	{ 65,	Token::New },
+	{ 69,	Token::Null },
+	{ 74,	Token::Return },
+	{ 81,	Token::Switch },
+	{ 88,	Token::True },
+	{ 93,	Token::Var },
+	{ 97,	Token::While },
 };
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
 {
 	for (size_t i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
-		if (strcmp(keywords[i].word, s) == 0) {
+		if (ROMstrcmp(keywordString + keywords[i].index, s) == 0) {
 			return keywords[i].token;
 		}
 	}
