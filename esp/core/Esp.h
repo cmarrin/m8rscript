@@ -132,6 +132,7 @@ void* ROMmemcpy(void* dst, const void* src, size_t len);
 char* ROMCopyString(char* dst, const char* src);
 
 size_t ROMstrlen(const char* s);
+int ROMstrcmp(const char* s1, const char* s2);
 
 #define panic() __panic_func(__FILE__, __LINE__, __func__, "panic")
 

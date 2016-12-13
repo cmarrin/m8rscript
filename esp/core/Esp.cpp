@@ -212,6 +212,25 @@ size_t ROMstrlen(const char* s)
     return (size_t) (p - s);
 }
 
+int ROMstrcmp(const char* s1, const char* s2)
+{
+    const uint8_t* p1 = reinterpret_cast<const uint8_t*>(s1);
+    const uint8_t* p2 = reinterpret_cast<const uint8_t*>(s2);
+    
+    uint8_t c1;
+    uint8_t c2;
+    while (true) {
+        c1 = readRomByte(p1++);
+        c2 = readRomByte(p2++);
+        if (c1 != c2) {
+            break;
+        }
+        if (c1 == '\0') {
+            return 0;
+        }
+    }
+    return c1 - c2;
+}
 
 void micros_overflow_tick(void* arg) {
     uint32_t m = system_get_time();
