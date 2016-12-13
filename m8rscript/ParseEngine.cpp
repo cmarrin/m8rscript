@@ -77,43 +77,10 @@ ParseEngine::ParseEngine(Parser* parser)
     }
 }
 
-void ParseEngine::syntaxError(Error error, Token token)
-{
-    String s;
-    uint8_t c = static_cast<uint8_t>(token);
-    
-    switch(error) {
-        case Error::Unknown:
-            s = "unknown token: (";
-            s += Value::toString(c);
-            s += ")";
-            break;
-        case Error::Expected:
-            s = "syntax error: expected ";
-            if (c < 0x80) {
-                s += '\'';
-                s += c;
-                s += '\'';
-            } else {
-                const char* errorString;
-                switch(token) {
-                    case Token::Expr: errorString = "expression"; break;
-                    case Token::PropertyAssignment: errorString = "property assignment"; break;
-                    case Token::Identifier: errorString = "identifier"; break;
-                    default: errorString = "*** UNKNOWN TOKEN ***"; break;
-                }
-                s += errorString;
-            }
-            break;
-    }
-    
-    _parser->printError(s.c_str());
-}
-
 bool ParseEngine::expect(Token token)
 {
     if (getToken() != token) {
-        syntaxError(Error::Expected, token);
+        _parser->expectedError(token);
         return false;
     }
     retireToken();
@@ -123,7 +90,7 @@ bool ParseEngine::expect(Token token)
 bool ParseEngine::expect(Token token, bool expected)
 {
     if (!expected) {
-        syntaxError(Error::Expected, token);
+        _parser->expectedError(token);
     }
     return expected;
 }
@@ -575,7 +542,7 @@ void ParseEngine::formalParameterList()
         }
         retireToken();
         if (getToken() != Token::Identifier) {
-            syntaxError(Error::Expected, Token::Identifier);
+            _parser->expectedError(Token::Identifier);
             return;
         }
     }

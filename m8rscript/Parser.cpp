@@ -68,8 +68,29 @@ void Parser::parse(m8r::Stream* istream)
 void Parser::printError(const char* s)
 {
     ++_nerrors;
-    if (_system) {
-        _system->printf(ROMSTR("Error: %s on line %d\n"), s, _scanner.lineno());
+    Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), s);
+}
+
+void Parser::unknownError(Token token)
+{
+    ++_nerrors;
+    uint8_t c = static_cast<uint8_t>(token);
+    Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
+}
+
+void Parser::expectedError(Token token)
+{
+    ++_nerrors;
+    uint8_t c = static_cast<uint8_t>(token);
+    if (c < 0x80) {
+        Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
+    } else {
+        switch(token) {
+            case Token::Expr: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
+            case Token::PropertyAssignment: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
+            case Token::Identifier: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
+            default: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
+        }
     }
 }
 
@@ -99,7 +120,7 @@ void Parser::matchJump(Label& label)
 {
     int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - label.matchedAddr;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
-        printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
+        printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
         return;
     }
     

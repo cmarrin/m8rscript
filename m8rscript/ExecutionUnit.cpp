@@ -57,7 +57,7 @@ bool ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    Error::vprintError(_system, Error::Code::RuntimeError, format, args);
+    Error::vprintError(_system, Error::Code::RuntimeError, -1, format, args);
     return checkTooManyErrors();
 }
 

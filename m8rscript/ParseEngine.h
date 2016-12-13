@@ -55,8 +55,6 @@ class Value;
 
 class ParseEngine  {
 public:
-    enum class Error : uint8_t { Expected, Unknown };
-    
   	ParseEngine(Parser* parser);
   	
   	~ParseEngine()
@@ -77,7 +75,6 @@ private:
         
     bool expect(Token token);
     bool expect(Token token, bool expected);
-    void syntaxError(Error, Token token);
     
     Token getToken()
     {

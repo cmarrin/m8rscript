@@ -72,8 +72,8 @@ public:
     
     void showError(SystemInterface*) const;
     
-    static void printError(SystemInterface*, Code, const char* format = nullptr, ...);
-    static void vprintError(SystemInterface*, Code, const char* format, va_list);
+    static void printError(SystemInterface*, Code, int32_t lineno, const char* format = nullptr, ...);
+    static void vprintError(SystemInterface*, Code, int32_t lineno, const char* format, va_list);
     
 private:
     Code _code = Code::None;

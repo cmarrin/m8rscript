@@ -247,7 +247,7 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
             assert(obj);
             if (!obj->setProperty(eu, indexFromValue(), v.canBeBaked() ? v.bake(eu) : v)) {
                 String prop = eu->program()->stringFromAtom(obj->propertyName(indexFromValue()));
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Attempted to assign to nonexistant property '%s'"), prop.c_str());
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("Attempted to assign to nonexistant property '%s'"), prop.c_str());
                 return false;
             }
             return true;
@@ -255,7 +255,7 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
             obj = eu->program()->obj(*this);
             assert(obj);
             if (!obj->setElement(eu, indexFromValue(), v.canBeBaked() ? v.bake(eu) : v)) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("Attempted to assign to nonexistant element %d"), indexFromValue());
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("Attempted to assign to nonexistant element %d"), indexFromValue());
                 return false;
             }
             return true;
@@ -274,7 +274,7 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue, bool add)
     
     switch(bakedDerefValue.type()) {
         default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
+            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
             return false;
         case Type::Id:
             index = add ? obj->addProperty(derefValue.asIdValue()) : obj->propertyIndex(derefValue.asIdValue());
@@ -303,7 +303,7 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue, bool add)
     
     // If we fall through here, index is a property index we need to try
     if (index < 0) {
-        Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
+        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
         return false;
     }
     *this = obj->propertyRef(index);
@@ -316,7 +316,7 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
 
     switch(type()) {
         default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
+            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
             return false;
         case Type::Object:
             return derefObject(eu, derefValue, add);
@@ -343,9 +343,9 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
             }
     
             if (type() == Type::PropertyRef) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
             } else {
-                Error::printError(eu->system(), Error::Code::RuntimeError, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
             }
             return false;
     }

@@ -48,14 +48,14 @@ void Error::showError(SystemInterface* system) const
     system->printf(ROMSTR("Error: %s\n"), codeString);
 }
 
-void Error::printError(SystemInterface* system, Code code, const char* format, ...)
+void Error::printError(SystemInterface* system, Code code, int32_t lineno, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    vprintError(system, code, format, args);
+    vprintError(system, code, lineno, format, args);
 }
 
-void Error::vprintError(SystemInterface* system, Code code, const char* format, va_list args)
+void Error::vprintError(SystemInterface* system, Code code, int32_t lineno, const char* format, va_list args)
 {
     const char* codeString = "";
     
@@ -79,7 +79,9 @@ void Error::vprintError(SystemInterface* system, Code code, const char* format, 
     }
     system->printf(ROMSTR(": "));
     system->vprintf(format, args);
+    if (lineno >= 0) {
+        system->printf(ROMSTR(" on line %d"), lineno);
+    }
     system->printf(ROMSTR("\n"));
-
 }
 
