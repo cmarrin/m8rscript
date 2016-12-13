@@ -45,6 +45,7 @@ POSSIBILITY OF SUCH DAMAGE.
     static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
     #define ROMmemcpy memcpy
     #define ROMstrlen strlen
+    #define ROMstrcmp strcmp
     #include <cstring>
     static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
     #define ROMSTR(s) s
