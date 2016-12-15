@@ -66,6 +66,8 @@ public:
 
     virtual String toString(ExecutionUnit*) const { return String(typeName()) + "{ }"; }
     
+    virtual void gcMark(ExecutionUnit*) { }
+    
     virtual int32_t propertyIndex(const Atom& s) { return -1; }
     virtual Value propertyRef(int32_t index) { return Value(); }
     virtual const Value property(int32_t index) const { return Value(); }
@@ -123,6 +125,13 @@ public:
 
     virtual String toString(ExecutionUnit*) const override;
 
+    virtual void gcMark(ExecutionUnit* eu) override
+    {
+        for (auto entry : _properties) {
+            entry.value.gcMark(eu);
+        }
+    }
+    
     virtual int32_t propertyIndex(const Atom& name) override
     {
         return findPropertyIndex(name);

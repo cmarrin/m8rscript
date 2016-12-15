@@ -388,3 +388,8 @@ Value Value::_bake(ExecutionUnit* eu) const
     }
     return *this;
 }
+
+void Value::_gcMark(ExecutionUnit* eu)
+{
+    eu->program()->gcMark(*this);
+}

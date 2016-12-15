@@ -179,12 +179,26 @@ public:
     static m8r::String toString(int32_t value);
     static Float floatFromString(const char*);
     
+    void gcMark(ExecutionUnit* eu)
+    {
+        ObjectId objectId = asObjectIdValue();
+        if (objectId) {
+            _gcMark(eu);
+        } else {
+            StringId stringId = asStringIdValue();
+            if (stringId) {
+            _gcMark(eu);
+            }
+        }
+    }
+    
 private:
     static constexpr uint8_t TypeBitCount = 4;
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
     Value _bake(ExecutionUnit*) const;
     Float _toFloatValue(ExecutionUnit*) const;
+    void _gcMark(ExecutionUnit*);
 
     bool derefObject(ExecutionUnit* eu, const Value& derefValue, bool add);
 

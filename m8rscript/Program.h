@@ -134,6 +134,9 @@ public:
         return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
     }
     
+    // FIXME: Implement
+    void gcMark(const Value& value) { }
+    
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
