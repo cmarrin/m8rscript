@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Program.h"
 
+#include "ExecutionUnit.h"
+
 using namespace m8r;
 
 Program::Program(SystemInterface* system) : _global(system, this)
@@ -57,6 +59,31 @@ Program::Program(SystemInterface* system) : _global(system, this)
 
 Program::~Program()
 {
+}
+
+void Program::gc(ExecutionUnit* eu)
+{
+    _stringMarked.clear();
+    _stringMarked.resize(_strings.size());
+    _objectMarked.clear();
+    _objectMarked.resize(_objects.size());
+    
+    eu->stack().gcMark(eu);
+}
+
+void Program::gcMark(ExecutionUnit* eu, const Value& value)
+{
+    StringId stringId = value.asStringIdValue();
+    if (stringId) {
+        _stringMarked[stringId.raw()] = true;
+        return;
+    }
+    
+    ObjectId objectId = value.asObjectIdValue();
+    if (objectId && !_objectMarked[objectId.raw()]) {
+        _objectMarked[objectId.raw()] = true;
+        obj(objectId)->gcMark(eu);
+    }
 }
 
 bool Program::serialize(Stream* stream, Error& error, Program* program) const

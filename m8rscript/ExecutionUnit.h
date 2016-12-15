@@ -55,6 +55,13 @@ public:
 
     virtual const char* typeName() const override { return "Local"; }
 
+    virtual void gcMark(ExecutionUnit* eu) override
+    {
+        for (auto entry : *this) {
+            entry.gcMark(eu);
+        }
+    }
+    
     virtual Value elementRef(int32_t index) override { return Value(Program::stackId(), index, false); }
     virtual const Value element(uint32_t index) const override { return inFrame(index); }
     virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override { inFrame(index) = value; return true; }

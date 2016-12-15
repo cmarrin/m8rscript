@@ -381,6 +381,9 @@ class Stack : std::vector<type> {
     typedef std::vector<type> super;
     
 public:
+    using std::vector<type>::begin;
+    using std::vector<type>::end;
+    
     Stack() { }
     Stack(size_t reserveCount) { super::reserve(reserveCount); }
     

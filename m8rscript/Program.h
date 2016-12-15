@@ -80,12 +80,14 @@ public:
     {
         ObjectId id(_objects.size());
         _objects.push_back(obj);
+        _objectMarked.resize(_strings.size());
         return id;
     }
     
     StringId createString() {
         StringId id(_strings.size());
         _strings.push_back(String());
+        _stringMarked.resize(_strings.size());
         return id;
     }
     
@@ -134,8 +136,8 @@ public:
         return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
     }
     
-    // FIXME: Implement
-    void gcMark(const Value& value) { }
+    void gc(ExecutionUnit*);
+    void gcMark(ExecutionUnit*, const Value& value);
     
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
@@ -150,7 +152,9 @@ private:
     
     std::vector<char> _stringLiteralTable;
     std::vector<String> _strings;
+    std::vector<bool> _stringMarked;
     std::vector<Object*> _objects;
+    std::vector<bool> _objectMarked;
     Global _global;
 };
     
