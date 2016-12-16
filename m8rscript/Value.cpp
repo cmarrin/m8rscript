@@ -264,7 +264,28 @@ bool Value::setValue(ExecutionUnit* eu, const Value& v)
     }
 }
 
-bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue, bool add)
+bool Value::derefObjectProp(ExecutionUnit* eu, const Value& derefValue, bool add)
+{
+    Value bakedDerefValue = derefValue.bake(eu);
+    if (bakedDerefValue.type() != Type::Id) {
+        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
+        return false;
+    }
+    
+    // We know this is an Object
+    assert(type() == Type::Object);
+    Object* obj = eu->program()->obj(objectIdFromValue());
+    int32_t index = -1;
+    index = add ? obj->addProperty(derefValue.asIdValue()) : obj->propertyIndex(derefValue.asIdValue());
+    if (index < 0) {
+        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
+        return false;
+    }
+    *this = obj->propertyRef(index);
+    return true;
+}
+
+bool Value::derefObjectElt(ExecutionUnit* eu, const Value& derefValue, bool add)
 {
     // We know this is an Object
     assert(type() == Type::Object);
@@ -310,7 +331,7 @@ bool Value::derefObject(ExecutionUnit* eu, const Value& derefValue, bool add)
     return true;
 }
 
-bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
+bool Value::_derefProp(ExecutionUnit* eu, const Value& derefValue, bool add)
 {
     assert(type() != Type::Id);
 
@@ -319,7 +340,7 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
             Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
             return false;
         case Type::Object:
-            return derefObject(eu, derefValue, add);
+            break;
         case Type::ElementRef:
         case Type::PropertyRef:
             if (derefValue.type() == Type::Id) {
@@ -336,7 +357,49 @@ bool Value::deref(ExecutionUnit* eu, const Value& derefValue, bool add)
 
             Value bakedObjectValue = bake(eu);
             if (bakedObjectValue.type() == Type::Object) {
-                if (bakedObjectValue.derefObject(eu, derefValue, add)) {
+                if (bakedObjectValue.derefObjectProp(eu, derefValue, add)) {
+                    *this = bakedObjectValue;
+                    return true;
+                }
+            }
+    
+            if (type() == Type::PropertyRef) {
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+            } else {
+                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
+            }
+            return false;
+    }
+    return false;
+}
+
+bool Value::_derefElt(ExecutionUnit* eu, const Value& derefValue, bool add)
+{
+    assert(type() != Type::Id);
+
+    switch(type()) {
+        default:
+            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
+            return false;
+        case Type::Object:
+            break;
+        case Type::ElementRef:
+        case Type::PropertyRef:
+            if (derefValue.type() == Type::Id) {
+                if (type() == Type::PropertyRef) {
+                    Object* obj = eu->program()->obj(objectIdFromValue());
+                    assert(obj);
+                    Value v = obj->appendPropertyRef(indexFromValue(), derefValue.asIdValue());
+                    if (v) {
+                        *this = v;
+                        return true;
+                    }
+                }
+            }
+
+            Value bakedObjectValue = bake(eu);
+            if (bakedObjectValue.type() == Type::Object) {
+                if (bakedObjectValue.derefObjectElt(eu, derefValue, add)) {
                     *this = bakedObjectValue;
                     return true;
                 }

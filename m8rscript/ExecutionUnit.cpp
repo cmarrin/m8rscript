@@ -275,10 +275,19 @@ static const uint16_t GCCount = 1000;
         _framePtr[inst.ra] = Value(objectId);
         DISPATCH;
     L_LOADPROP:
+        leftValue = regOrConst(inst.rb);
+        rightValue = regOrConst(inst.rc);
+        if (!leftValue.derefProp(this, rightValue, false)) {
+            if (checkTooManyErrors()) {
+                return -1;
+            }
+        }
+        _framePtr[inst.ra] = leftValue;
+        DISPATCH;
     L_LOADELT:
         leftValue = regOrConst(inst.rb);
         rightValue = regOrConst(inst.rc);
-        if (!leftValue.deref(this, rightValue, false)) {
+        if (!leftValue.derefElt(this, rightValue, false)) {
             if (checkTooManyErrors()) {
                 return -1;
             }
@@ -289,15 +298,25 @@ static const uint16_t GCCount = 1000;
         // ra - Object
         // rb - prop
         // rc - value to store
-        objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
-        if (!objectValue) {
-            printError(ROMSTR("Null Object for STOPROP"));
-            DISPATCH;
+        leftValue = regOrConst(inst.ra).bake(this);
+        if (!leftValue.derefProp(this, regOrConst(inst.rb), false)) {
+            checkTooManyErrors();
         }
-        leftValue = regOrConst(inst.ra).bake(this).deref(this, regOrConst(inst.rb).bake(this), false);
         leftValue.setValue(this, regOrConst(inst.rc).bake(this));
         DISPATCH;
     L_STOELT:
+        // ra - Object
+        // rb - elt
+        // rc - value to store
+        objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
+        if (!objectValue) {
+            printError(ROMSTR("Null Object for STOELT"));
+            DISPATCH;
+        }
+        leftIntValue = regOrConst(inst.rb).toIntValue(this);
+        if (!objectValue->setElement(this, leftIntValue, regOrConst(inst.rc).bake(this))) {
+            printError(ROMSTR("Element %d does not exist"), leftIntValue);
+        }
         DISPATCH;
     L_APPENDELT:
         objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
@@ -313,7 +332,7 @@ static const uint16_t GCCount = 1000;
         // rb - prop
         // rc - value to store
         leftValue = regOrConst(inst.ra).bake(this);
-        leftValue.deref(this, regOrConst(inst.rb).bake(this), true);
+        leftValue.derefProp(this, regOrConst(inst.rb).bake(this), true);
         leftValue.setValue(this, regOrConst(inst.rc).bake(this));
         DISPATCH;
     L_LOADTRUE:

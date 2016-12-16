@@ -153,7 +153,21 @@ public:
     bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
     Value bake(ExecutionUnit* eu) const { return canBeBaked() ? _bake(eu) : *this; }
     
-    bool deref(ExecutionUnit*, const Value& derefValue, bool add);
+    bool derefProp(ExecutionUnit* eu, const Value& derefValue, bool add)
+    {
+        if (type() == Type::Object) {
+            return derefObjectProp(eu, derefValue, add);
+        }
+        return _derefProp(eu, derefValue, add);
+    }
+    
+    bool derefElt(ExecutionUnit* eu, const Value& derefValue, bool add)
+    {
+        if (type() == Type::Object) {
+            return derefObjectElt(eu, derefValue, add);
+        }
+        return _derefElt(eu, derefValue, add);
+    }
     
     CallReturnValue call(ExecutionUnit*, uint32_t nparams);
     
@@ -197,10 +211,13 @@ private:
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
     Value _bake(ExecutionUnit*) const;
+    bool _derefProp(ExecutionUnit*, const Value& derefValue, bool add);
+    bool _derefElt(ExecutionUnit*, const Value& derefValue, bool add);
     Float _toFloatValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
-    bool derefObject(ExecutionUnit* eu, const Value& derefValue, bool add);
+    bool derefObjectProp(ExecutionUnit* eu, const Value& derefValue, bool add);
+    bool derefObjectElt(ExecutionUnit* eu, const Value& derefValue, bool add);
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return _value._i; }
