@@ -158,6 +158,7 @@ int32_t ExecutionUnit::continueExecution()
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
 static const uint16_t YieldCount = 10000;
+static const uint16_t GCCount = 1000;
 
     #undef DISPATCH
     #define DISPATCH { \
@@ -168,6 +169,9 @@ static const uint16_t YieldCount = 10000;
             yieldCounter = YieldCount; \
             return 0; \
         } \
+        if (yieldCounter % GCCount == 0) { \
+            _program->gc(this); \
+        } \
         inst = _code[_pc++]; \
         op = static_cast<Op>(inst.op); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
@@ -176,8 +180,6 @@ static const uint16_t YieldCount = 10000;
     if (!_program) {
         return -1;
     }
-    
-    _program->gc(this);
 
     uint16_t yieldCounter = YieldCount;
     updateCodePointer();

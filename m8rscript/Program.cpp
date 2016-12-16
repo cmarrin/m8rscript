@@ -42,19 +42,20 @@ using namespace m8r;
 Program::Program(SystemInterface* system) : _global(system, this)
 {
     // The program pointer always occupies index 0 of the _objects array
-    _objects.push_back(this);
-    setObjectId(ObjectId(0));
+    ObjectId id = _objectStore.add(this);
+    assert(id.raw() == 0);
+    setObjectId(id);
     
     // StackId goes next. The setStackId call will set it to the right
     // value for the current ExecutionUnit
-    assert(_objects.size() == StackId);
-    _objects.push_back(nullptr);
+    id = _objectStore.add(nullptr);
+    assert(id.raw() == StackId);
     
     // Add the global object
     _global.setObjectId(addObject(&_global, false));
     
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
-    _strings.push_back(new String("*** ERROR:INVALID STRING ***"));
+    _stringStore.add(new String("*** ERROR:INVALID STRING ***"));
 }
 
 Program::~Program()
@@ -63,40 +64,27 @@ Program::~Program()
 
 void Program::gc(ExecutionUnit* eu)
 {
-    _stringMarked.clear();
-    _stringMarked.resize(_strings.size());
-    _objectMarked.clear();
-    _objectMarked.resize(_objects.size());
+    _stringStore.gcClear();
+    _objectStore.gcClear();
     
     eu->stack().gcMark(eu);
     gcMark(eu);
     
-    for (uint16_t i = 1; i < _strings.size(); ++i) {
-        if (_strings[i] && !_stringMarked[i]) {
-            delete _strings[i];
-            _strings[i] = nullptr;
-        }
-    }
-    
-    for (uint16_t i = 1; i < _objects.size(); ++i) {
-        if (_objects[i] && _objects[i]->collectable() && !_objectMarked[i]) {
-            delete _objects[i];
-            _objects[i] = nullptr;
-        }
-    }
+    _stringStore.gcSweep();
+    _objectStore.gcSweep();
 }
 
 void Program::gcMarkValue(ExecutionUnit* eu, const Value& value)
 {
     StringId stringId = value.asStringIdValue();
     if (stringId) {
-        _stringMarked[stringId.raw()] = true;
+        _stringStore.gcMark(stringId);
         return;
     }
     
     ObjectId objectId = value.asObjectIdValue();
-    if (objectId && !_objectMarked[objectId.raw()]) {
-        _objectMarked[objectId.raw()] = true;
+    if (objectId && !_objectStore.isGCMarked(objectId)) {
+        _objectStore.gcMark(objectId);
         obj(objectId)->gcMark(eu);
     }
 }
@@ -123,9 +111,9 @@ bool Program::serialize(Stream* stream, Error& error, Program* program) const
     if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
         return false;
     }
-    if (!serializeWrite(stream, error, static_cast<uint16_t>(_objects.size()))) {
-        return false;
-    }
+//    if (!serializeWrite(stream, error, static_cast<uint16_t>(_objects.size()))) {
+//        return false;
+//    }
     
     for (uint16_t i = 0; ; i++) {
         if (!isValid(ObjectId(i))) {
@@ -201,30 +189,30 @@ bool Program::deserialize(Stream* stream, Error& error, Program* program, const 
     if (!deserializeRead(stream, error, count)) {
         return false;
     }
-    _objects.resize(count);
-    while (count-- > 0) {
-        if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectId) {
-            return false;
-        }
-        uint16_t id;
-        if (!deserializeRead(stream, error, id) || id != 2) {
-            return false;
-        }
-        if (!deserializeRead(stream, error, id)) {
-            return false;
-        }
-        
-        // FIXME: We need to convert to the id space of the destination Program
-        Function* function = new Function();
-        function->setObjectId(id);
-        
-        if (!function->deserialize(stream, error, this, atomTable, stringTable)) {
-            delete function;
-            return false;
-        }
-        
-        _objects[id] = function;
-    }
+//    _objects.resize(count);
+//    while (count-- > 0) {
+//        if (!deserializeRead(stream, error, type) || type != ObjectDataType::ObjectId) {
+//            return false;
+//        }
+//        uint16_t id;
+//        if (!deserializeRead(stream, error, id) || id != 2) {
+//            return false;
+//        }
+//        if (!deserializeRead(stream, error, id)) {
+//            return false;
+//        }
+//        
+//        // FIXME: We need to convert to the id space of the destination Program
+//        Function* function = new Function();
+//        function->setObjectId(id);
+//        
+//        if (!function->deserialize(stream, error, this, atomTable, stringTable)) {
+//            delete function;
+//            return false;
+//        }
+//        
+//        _objects[id] = function;
+//    }
     
     return Function::deserialize(stream, error, this, atomTable, stringTable);
 }
