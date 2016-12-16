@@ -157,30 +157,29 @@ int32_t ExecutionUnit::continueExecution()
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-static const uint16_t YieldCount = 10000;
+static const uint16_t YieldCount = 10;
 static const uint16_t GCCount = 1000;
 
     #undef DISPATCH
     #define DISPATCH { \
-        if (_terminate || _pc >= _codeSize) { \
+        if (_terminate) { \
             goto L_END; \
         } \
-        if (--yieldCounter == 0) { \
-            yieldCounter = YieldCount; \
-            return 0; \
-        } \
-        if (yieldCounter % GCCount == 0) { \
-            _program->gc(this); \
+        if (--gcCounter == 0) { \
+            gcCounter = GCCount; \
+            if (--yieldCounter == 0) { \
+                return 0; \
+            } \
         } \
         inst = _code[_pc++]; \
-        op = static_cast<Op>(inst.op); \
-        goto *dispatchTable[static_cast<uint8_t>(op)]; \
+        goto *dispatchTable[static_cast<uint8_t>(inst.op)]; \
     }
     
     if (!_program) {
         return -1;
     }
 
+    uint16_t gcCounter = GCCount;
     uint16_t yieldCounter = YieldCount;
     updateCodePointer();
     
@@ -199,7 +198,6 @@ static const uint16_t GCCount = 1000;
     size_t localsToPop;
 
     Instruction inst;
-    Op op = Op::END;
     
     DISPATCH;
     
@@ -209,7 +207,7 @@ static const uint16_t GCCount = 1000;
     L_RET:
     L_RETX:
     L_END:
-        if (_terminate || op == Op::END) {
+        if (_terminate || inst.op == Op::END) {
             if (_terminate || _program == _functionPtr) {
                 // We've hit the end of the program
                 if (!_terminate) {
@@ -267,7 +265,7 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:
-        if (op == Op::LOADLITA) {
+        if (inst.op == Op::LOADLITA) {
             objectValue = new Array(_program);
         } else {
             objectValue = new MaterObject();
@@ -337,7 +335,7 @@ static const uint16_t GCCount = 1000;
     L_BINIOP:
         leftIntValue = regOrConst(inst.rb).toIntValue(this);
         rightIntValue = regOrConst(inst.rc).toIntValue(this);
-        switch(op) {
+        switch(inst.op) {
             case Op::LOR: leftIntValue = leftIntValue || rightIntValue; break;
             case Op::LAND: leftIntValue = leftIntValue && rightIntValue; break;
             case Op::AND: leftIntValue &= rightIntValue; break;
@@ -376,9 +374,9 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_UNOP:
         leftValue = regOrConst(inst.rb).bake(this);
-        if (leftValue.isInteger() || op != Op::UMINUS) {
+        if (leftValue.isInteger() || inst.op != Op::UMINUS) {
             leftIntValue = leftValue.toIntValue(this);
-            switch(op) {
+            switch(inst.op) {
                 case Op::UMINUS: leftIntValue = -leftIntValue; break;
                 case Op::UNEG: leftIntValue = ~leftIntValue; break;
                 case Op::UNOT: leftIntValue = (leftIntValue == 0) ? 0 : 1; break;
@@ -437,9 +435,9 @@ static const uint16_t GCCount = 1000;
     L_JT:
     L_JF:
         intValue = inst.sn;
-        if (op != Op::JMP) {
+        if (inst.op != Op::JMP) {
             boolValue = regOrConst(inst.rn).toBoolValue(this);
-            if (op == Op::JT) {
+            if (inst.op == Op::JT) {
                 boolValue = !boolValue;
             }
             if (boolValue) {
