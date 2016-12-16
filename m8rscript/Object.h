@@ -98,6 +98,9 @@ public:
     void setObjectId(ObjectId id) { _objectId = id; }
     ObjectId objectId() const { return _objectId; }
     
+    void setCollectable(bool b) { _collectable = b; }
+    bool collectable() const { return _collectable; }
+    
 protected:    
     bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
     
@@ -114,6 +117,7 @@ protected:
 
 private:
     ObjectId _objectId;
+    bool _collectable = false;
 
 };
     

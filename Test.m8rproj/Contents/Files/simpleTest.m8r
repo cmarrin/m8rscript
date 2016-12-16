@@ -31,3 +31,10 @@ function multi(x)
 
 var a = multi(4);
 Serial.print("a=" + a + "\n");
+
+for (var i = 0; i < 1000; ++i) {
+	var x = "String " + i;
+}
+
+
+

@@ -50,6 +50,7 @@ Parser::Parser(SystemInterface* system)
     , _program(new Program(system))
     , _system(system)
 {
+    _program->setCollectable(false);
 }
 
 void Parser::parse(m8r::Stream* istream)
@@ -203,6 +204,9 @@ void Parser::pushK()
 
 void Parser::pushK(ObjectId function)
 {
+    Object* obj = _program->obj(function);
+    assert(obj);
+    obj->setCollectable(false);
     ConstantId id = currentFunction()->addConstant(function);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
@@ -427,7 +431,7 @@ void Parser::functionAddParam(const Atom& atom)
 void Parser::functionStart()
 {
     _functions.emplace_back(new Function());
-    ObjectId functionId = _program->addObject(currentFunction());
+    ObjectId functionId = _program->addObject(currentFunction(), true);
     currentFunction()->setObjectId(functionId);
 }
 

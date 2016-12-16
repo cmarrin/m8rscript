@@ -2,7 +2,7 @@
 // Timing test
 //
 
-var n = 3000;
+var n = 1000;
 var a = [ ];
 a.length = n;
 

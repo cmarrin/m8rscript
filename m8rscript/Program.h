@@ -76,8 +76,9 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
-    ObjectId addObject(Object* obj)
+    ObjectId addObject(Object* obj, bool collectable)
     {
+        obj->setCollectable(collectable);
         ObjectId id(_objects.size());
         _objects.push_back(obj);
         _objectMarked.resize(_objects.size());
@@ -141,7 +142,7 @@ public:
     }
     
     void gc(ExecutionUnit*);
-    void gcMark(ExecutionUnit*, const Value& value);
+    void gcMarkValue(ExecutionUnit*, const Value& value);
     
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;

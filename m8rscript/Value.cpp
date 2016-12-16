@@ -391,5 +391,5 @@ Value Value::_bake(ExecutionUnit* eu) const
 
 void Value::_gcMark(ExecutionUnit* eu)
 {
-    eu->program()->gcMark(eu, *this);
+    eu->program()->gcMarkValue(eu, *this);
 }

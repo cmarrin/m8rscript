@@ -51,7 +51,7 @@ Program::Program(SystemInterface* system) : _global(system, this)
     _objects.push_back(nullptr);
     
     // Add the global object
-    _global.setObjectId(addObject(&_global));
+    _global.setObjectId(addObject(&_global, false));
     
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
     _strings.push_back(new String("*** ERROR:INVALID STRING ***"));
@@ -69,6 +69,7 @@ void Program::gc(ExecutionUnit* eu)
     _objectMarked.resize(_objects.size());
     
     eu->stack().gcMark(eu);
+    gcMark(eu);
     
     for (uint16_t i = 1; i < _strings.size(); ++i) {
         if (_strings[i] && !_stringMarked[i]) {
@@ -78,14 +79,14 @@ void Program::gc(ExecutionUnit* eu)
     }
     
     for (uint16_t i = 1; i < _objects.size(); ++i) {
-        if (_objects[i] && !_objectMarked[i]) {
+        if (_objects[i] && _objects[i]->collectable() && !_objectMarked[i]) {
             delete _objects[i];
             _objects[i] = nullptr;
         }
     }
 }
 
-void Program::gcMark(ExecutionUnit* eu, const Value& value)
+void Program::gcMarkValue(ExecutionUnit* eu, const Value& value)
 {
     StringId stringId = value.asStringIdValue();
     if (stringId) {

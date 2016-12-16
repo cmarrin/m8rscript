@@ -176,6 +176,8 @@ static const uint16_t YieldCount = 10000;
     if (!_program) {
         return -1;
     }
+    
+    _program->gc(this);
 
     uint16_t yieldCounter = YieldCount;
     updateCodePointer();
@@ -211,6 +213,7 @@ static const uint16_t YieldCount = 10000;
                 if (!_terminate) {
                     assert(_stack.validateFrame(0, _program->localSize()));
                 }
+                _program->gc(this);
                 _stack.clear();
                 return -1;
             }
@@ -267,7 +270,7 @@ static const uint16_t YieldCount = 10000;
         } else {
             objectValue = new MaterObject();
         }
-        objectId = _program->addObject(objectValue);
+        objectId = _program->addObject(objectValue, true);
         objectValue->setObjectId(objectId);
         _framePtr[inst.ra] = Value(objectId);
         DISPATCH;

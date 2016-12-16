@@ -187,7 +187,7 @@ public:
         } else {
             StringId stringId = asStringIdValue();
             if (stringId) {
-            _gcMark(eu);
+                _gcMark(eu);
             }
         }
     }
