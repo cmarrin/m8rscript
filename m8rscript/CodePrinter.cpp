@@ -147,7 +147,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(SHL)
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(UNKNOWN)
         /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
@@ -331,7 +331,6 @@ static CodeMap opcodes[] = {
     OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
     OP(SHL) OP(SHR) OP(SAR) 
     OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD) 
-    OP(DEREF)
     
     OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
     

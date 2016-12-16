@@ -134,8 +134,7 @@ struct Label {
                 EQ, NE, LT, LE, GT, GE,
                 SHL, SHR, SAR,
                 ADD, SUB, MUL, DIV, MOD
-                DEREF
-    
+ 
     <binop>RR   R[d], RK[s1], RK[s2]
  
     <unop> ==>  UMINUS, UNOT, UNEG                          ; (7)
@@ -165,7 +164,6 @@ enum class Op : uint8_t {
     EQ,  NE, LT, LE, GT, GE,
     SHL, SHR, SAR,
     ADD, SUB, MUL, DIV, MOD,
-    DEREF,
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
     CALL, NEW, JMP, JT, JF,

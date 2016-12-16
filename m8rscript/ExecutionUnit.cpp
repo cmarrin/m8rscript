@@ -144,7 +144,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(BINIOP)
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(DEREF)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(UNKNOWN)
         /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
@@ -333,15 +333,6 @@ static const uint16_t GCCount = 1000;
     L_POP:
         _framePtr[inst.ra] = _stack.top();
         _stack.pop();
-        DISPATCH;
-    L_DEREF:
-        leftValue = regOrConst(inst.rb);
-        if (!leftValue.deref(this, regOrConst(inst.rc), false)) {
-            if (checkTooManyErrors()) {
-                return -1;
-            }
-        }
-        _framePtr[inst.ra] = leftValue;
         DISPATCH;
     L_BINIOP:
         leftIntValue = regOrConst(inst.rb).toIntValue(this);
