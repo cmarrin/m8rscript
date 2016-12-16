@@ -80,14 +80,16 @@ public:
     {
         ObjectId id(_objects.size());
         _objects.push_back(obj);
-        _objectMarked.resize(_strings.size());
+        _objectMarked.resize(_objects.size());
+        _objectMarked[id.raw()] = true;
         return id;
     }
     
     StringId createString() {
         StringId id(_strings.size());
-        _strings.push_back(String());
+        _strings.push_back(new String());
         _stringMarked.resize(_strings.size());
+        _stringMarked[id.raw()] = true;
         return id;
     }
     
@@ -127,13 +129,15 @@ public:
     const String& str(const StringId& id) const
     {
         // _strings[0] contains an error entry for when invalid ids are passed
-        return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+        String* s = _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+        return s ? *s : *_strings[0];
     }
     
     String& str(const StringId& id)
     {
         // _strings[0] contains an error entry for when invalid ids are passed
-        return _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+        String* s = _strings[(id.raw() < _strings.size()) ? id.raw() : 0];
+        return s ? *s : *_strings[0];
     }
     
     void gc(ExecutionUnit*);
@@ -151,7 +155,7 @@ private:
     AtomTable _atomTable;
     
     std::vector<char> _stringLiteralTable;
-    std::vector<String> _strings;
+    std::vector<String*> _strings;
     std::vector<bool> _stringMarked;
     std::vector<Object*> _objects;
     std::vector<bool> _objectMarked;
