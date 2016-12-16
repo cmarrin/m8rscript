@@ -152,7 +152,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x30 */ OP(UNOP)  OP(UNOP)  OP(UNOP)  OP(PREINC)
         /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
         /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
-        /* 0x3c */ OP(UNKNOWN) OP(RET) OP(END) OP(UNKNOWN)
+        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
