@@ -74,8 +74,8 @@ public:
     
     virtual const Value element(int32_t index) const { return Value(); }
     virtual bool setElement(ExecutionUnit*, int32_t index, const Value&) { return false; }
-    virtual const Value element(ExecutionUnit*, const Value& elt) const { return Value(); }
-    virtual bool setElement(ExecutionUnit*, const Value& elt, const Value& value) { return false; }
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIntValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     virtual size_t elementCount() const { return 0; }
     virtual void setElementCount(size_t) { }
@@ -166,9 +166,6 @@ public:
     }
 
     virtual size_t propertyCount() const override { return _properties.size(); }
-
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override { return property(elt.toIdValue(eu)); }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override { return setProperty(eu, elt.toIntValue(eu), value); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;

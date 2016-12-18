@@ -55,8 +55,6 @@ public:
     const Object* global() const { return &_global; }
     Object* global() { return &_global; }
     
-    SystemInterface* system() const { return _global.system(); }
-
     void setStack(Object* stack) { _stackId = _objectStore.add(stack); }
     
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }

@@ -63,9 +63,117 @@ private:
     NativeFunction _printf;
 };
 
+class System : public Object {
+public:
+    System(Program*);
+
+    virtual const char* typeName() const override { return "System"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _delayAtom;
+    static CallReturnValue delay(ExecutionUnit*, uint32_t nparams);
+    NativeFunction _delay;
+};
+
+class Date : public Object {
+public:
+    Date(Program*);
+
+    virtual const char* typeName() const override { return "Date"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _nowAtom;
+    static CallReturnValue now(ExecutionUnit*, uint32_t nparams);
+    NativeFunction _now;
+};
+
+class Base64 : public Object {
+public:
+    Base64(Program*);
+
+    virtual const char* typeName() const override { return "Base64"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _encodeAtom;
+    Atom _decodeAtom;
+    static CallReturnValue encode(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue decode(ExecutionUnit*, uint32_t nparams);
+    NativeFunction _encode;
+    NativeFunction _decode;
+};
+
+class PinMode : public Object {
+public:
+    PinMode(Program*);
+
+    virtual const char* typeName() const override { return "PinMode"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _OutputAtom;
+    Atom _OutputOpenDrainAtom;
+    Atom _InputAtom;
+    Atom _InputPullupAtom;
+    Atom _InputPulldownAtom;
+};
+
+class Trigger : public Object {
+public:
+    Trigger(Program*);
+
+    virtual const char* typeName() const override { return "Trigger"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _NoneAtom;
+    Atom _RisingEdgeAtom;
+    Atom _FallingEdgeAtom;
+    Atom _BothEdgesAtom;
+    Atom _LowAtom;
+    Atom _HighAtom;
+};
+
+class GPIOObject : public Object {
+public:
+    GPIOObject(Program*);
+
+    virtual const char* typeName() const override { return "GPIO"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _setPinModeAtom;
+    Atom _digitalWriteAtom;
+    Atom _digitalReadAtom;
+    Atom _onInterruptAtom;
+    Atom _PinModeAtom;
+    Atom _TriggerAtom;
+
+    static CallReturnValue setPinMode(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue digitalWrite(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue digitalRead(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue onInterrupt(ExecutionUnit*, uint32_t nparams);
+    
+    NativeFunction _setPinMode;
+    NativeFunction _digitalWrite;
+    NativeFunction _digitalRead;
+    NativeFunction _onInterrupt;
+    
+    PinMode _pinMode;
+    Trigger _trigger;
+};
+
 class Global : public Object {
 public:
-    Global(SystemInterface*, Program*);
+    Global(Program*);
     
     virtual ~Global();
     
@@ -73,12 +181,9 @@ public:
 
     // Global has built-in properties. Handle those here
     virtual const Value property(const Atom&) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
     virtual Atom propertyName(uint32_t index) const override;
     virtual size_t propertyCount() const override;
     
-    SystemInterface* system() const { return _system; }
-
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
     {
@@ -90,57 +195,20 @@ protected:
         return true;
     }
 
-    uint64_t _startTime = 0;
-
     static constexpr size_t PropertyCount = 5; // Date, GPIO, Serial, Base64 and System
     
-    enum class Property : uint8_t
-    {
-        None = 0,
-        print = 0x01,
-        System = 0x10, System_delay, 
-        Date = 0x20, Date_now,
-        GPIO = 0x30, GPIO_setPinMode, GPIO_digitalWrite, GPIO_PinMode, GPIO_Trigger,
-                GPIO_PinMode_Output, GPIO_PinMode_OutputOpenDrain,
-                    GPIO_PinMode_Input, GPIO_PinMode_InputPullup, GPIO_PinMode_InputPulldown,
-                GPIO_Trigger_None, GPIO_Trigger_RisingEdge, GPIO_Trigger_FallingEdge, 
-                    GPIO_Trigger_BothEdges, GPIO_Trigger_High, GPIO_Trigger_Low,
-        Serial = 0x40, Serial_begin, Serial_print, Serial_printf,
-        Base64 = 0x50, Base64_encode, Base64_decode,
-    };
-    
-    SystemInterface* _system;
-
 private:        
     Atom _DateAtom;
     Atom _GPIOAtom;
     Atom _SerialAtom;
     Atom _Base64Atom;
     Atom _SystemAtom;
-    Atom _PinModeAtom;
-    Atom _TriggerAtom;
-    
-    Atom _nowAtom;
-    Atom _delayAtom;
-    Atom _setPinModeAtom;
-    Atom _digitalWriteAtom;
-    Atom _digitalReadAtom;
-    Atom _onInterruptAtom;
-    Atom _encodeAtom;
-    Atom _decodeAtom;
-    Atom _OutputAtom;
-    Atom _OutputOpenDrainAtom;
-    Atom _InputAtom;
-    Atom _InputPullupAtom;
-    Atom _InputPulldownAtom;
-    Atom _NoneAtom;
-    Atom _RisingEdgeAtom;
-    Atom _FallingEdgeAtom;
-    Atom _BothEdgesAtom;
-    Atom _LowAtom;
-    Atom _HighAtom;
-    
+
     Serial _serial;
+    System _system;
+    Date _date;
+    Base64 _base64;
+    GPIOObject _gpio;
 };
     
 }
