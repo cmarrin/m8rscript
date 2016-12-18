@@ -75,18 +75,16 @@ Value ExecutionUnit::derefId(Atom atom)
     }
 
     // This atom is a property of the Program or Global objects
-    Object* object = _program;
-    int32_t index = _program->propertyIndex(atom);
-    if (index < 0) {
-        object = _program->global();
-        index = _program->global()->propertyIndex(atom);
-        if (index < 0) {
+    Value value = _program->property(atom);
+    if (!value) {
+        value = _program->global()->property(atom);
+        if (!value) {
             printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
             return Value();
         }
     }
     
-    return object->propertyRef(index);
+    return value;
 }
 
 void ExecutionUnit::startExecution(Program* program)
@@ -149,7 +147,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
-        /* 0x30 */ OP(UNOP)  OP(UNOP)  OP(UNOP)  OP(PREINC)
+        /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
         /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
         /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
@@ -192,6 +190,7 @@ static const uint16_t GCCount = 1000;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
+    Value* valuePtr;
     ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
@@ -275,65 +274,57 @@ static const uint16_t GCCount = 1000;
         _framePtr[inst.ra] = Value(objectId);
         DISPATCH;
     L_LOADPROP:
-        leftValue = regOrConst(inst.rb);
-        rightValue = regOrConst(inst.rc);
-        if (!leftValue.derefProp(this, rightValue, false)) {
-            if (checkTooManyErrors()) {
-                return -1;
-            }
-        }
-        _framePtr[inst.ra] = leftValue;
-        DISPATCH;
-    L_LOADELT:
-        leftValue = regOrConst(inst.rb);
-        rightValue = regOrConst(inst.rc);
-        if (!leftValue.derefElt(this, rightValue, false)) {
-            if (checkTooManyErrors()) {
-                return -1;
-            }
-        }
-        _framePtr[inst.ra] = leftValue;
-        DISPATCH;
-    L_STOPROP:
-        // ra - Object
-        // rb - prop
-        // rc - value to store
-        leftValue = regOrConst(inst.ra).bake(this);
-        if (!leftValue.derefProp(this, regOrConst(inst.rb), false)) {
-            checkTooManyErrors();
-        }
-        leftValue.setValue(this, regOrConst(inst.rc).bake(this));
-        DISPATCH;
-    L_STOELT:
-        // ra - Object
-        // rb - elt
-        // rc - value to store
-        objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
+        objectValue = toObject(regOrConst(inst.rb), "LOADPROP");
         if (!objectValue) {
-            printError(ROMSTR("Null Object for STOELT"));
+            objectError("LOADPROP");
             DISPATCH;
         }
-        leftIntValue = regOrConst(inst.rb).toIntValue(this);
-        if (!objectValue->setElement(this, leftIntValue, regOrConst(inst.rc).bake(this))) {
-            printError(ROMSTR("Element %d does not exist"), leftIntValue);
+        _framePtr[inst.ra] = objectValue->property(regOrConst(inst.rc).toIdValue(this));
+        DISPATCH;
+    L_LOADELT:
+        objectValue = toObject(regOrConst(inst.rb), "LOADELT");
+        if (!objectValue) {
+            DISPATCH;
+        }
+        _framePtr[inst.ra] = objectValue->element(this, regOrConst(inst.rc));
+        DISPATCH;
+    L_STOPROP:
+        objectValue = toObject(regOrConst(inst.ra), "STOPROP");
+        if (!objectValue) {
+            DISPATCH;
+        }
+        if (!objectValue->setProperty(this, regOrConst(inst.rb).toIdValue(this), regOrConst(inst.rc))) {
+            checkTooManyErrors();
+        }
+            
+        DISPATCH;
+    L_STOELT:
+        objectValue = toObject(regOrConst(inst.ra), "STOPROP");
+        if (!objectValue) {
+            DISPATCH;
+        }
+        if (!objectValue->setElement(this, regOrConst(inst.rb), regOrConst(inst.rc))) {
+            checkTooManyErrors();
         }
         DISPATCH;
     L_APPENDELT:
-        objectValue = _program->obj(regOrConst(inst.ra).asObjectIdValue());
+        objectValue = toObject(regOrConst(inst.ra), "APPENDELT");
         if (!objectValue) {
-            printError(ROMSTR("Null Array for APPENDELT"));
             DISPATCH;
         }
-        rightValue = regOrConst(inst.rb).bake(this);
-        objectValue->appendElement(this, rightValue);
+        objectValue->appendElement(this, regOrConst(inst.rb));
         DISPATCH;
     L_APPENDPROP:
-        // ra - Object
-        // rb - prop
-        // rc - value to store
-        leftValue = regOrConst(inst.ra).bake(this);
-        leftValue.derefProp(this, regOrConst(inst.rb).bake(this), true);
-        leftValue.setValue(this, regOrConst(inst.rc).bake(this));
+        objectValue = toObject(regOrConst(inst.ra), "APPENDPROP");
+        if (!objectValue) {
+            DISPATCH;
+        }
+        valuePtr = objectValue->addProperty(regOrConst(inst.rb).toIdValue(this));
+        if (!valuePtr) {
+            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb).toStringValue(this).c_str());
+            DISPATCH;
+        }
+        *valuePtr = regOrConst(inst.rc);
         DISPATCH;
     L_LOADTRUE:
         _framePtr[inst.ra] = Value(true);
@@ -378,8 +369,8 @@ static const uint16_t GCCount = 1000;
     L_DIV: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) / regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
     L_MOD: _framePtr[inst.ra] = Value(regOrConst(inst.rb).toFloatValue(this) % regOrConst(inst.rc).toFloatValue(this)); DISPATCH;
     L_ADD:
-        leftValue = regOrConst(inst.rb).bake(this);
-        rightValue = regOrConst(inst.rc).bake(this);
+        leftValue = regOrConst(inst.rb);
+        rightValue = regOrConst(inst.rc);
 
         if (leftValue.isNumber() && rightValue.isNumber()) {
             _framePtr[inst.ra] = Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
@@ -391,22 +382,9 @@ static const uint16_t GCCount = 1000;
             _framePtr[inst.ra] = Value(stringId);
         }
         DISPATCH;
-    L_UNOP:
-        leftValue = regOrConst(inst.rb).bake(this);
-        if (leftValue.isInteger() || inst.op != Op::UMINUS) {
-            leftIntValue = leftValue.toIntValue(this);
-            switch(inst.op) {
-                case Op::UMINUS: leftIntValue = -leftIntValue; break;
-                case Op::UNEG: leftIntValue = ~leftIntValue; break;
-                case Op::UNOT: leftIntValue = (leftIntValue == 0) ? 0 : 1; break;
-                default: assert(0);
-            }
-            _framePtr[inst.ra] = Value(leftIntValue);
-        } else {
-            leftFloatValue = -leftValue.toFloatValue(this);
-            _framePtr[inst.ra] = Value(leftFloatValue);
-        }
-        DISPATCH;
+    L_UMINUS: _framePtr[inst.ra] = -regOrConst(inst.rb).toFloatValue(this); DISPATCH;
+    L_UNOT: _framePtr[inst.ra] = ~regOrConst(inst.rb).toIntValue(this); DISPATCH;
+    L_UNEG: _framePtr[inst.ra] = (regOrConst(inst.rb).toIntValue(this) == 0) ? 0 : 1; DISPATCH;
     L_PREINC:
         _framePtr[inst.rb] = Value(regOrConst(inst.rb).toIntValue(this) + 1);
         _framePtr[inst.ra] = regOrConst(inst.rb);
@@ -425,8 +403,12 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_NEW:
     L_CALL:
+        objectValue = toObject(regOrConst(inst.rn), "CALL");
+        if (!objectValue) {
+            DISPATCH;
+        }
         uintValue = inst.un;
-        callReturnValue = regOrConst(inst.rn).call(this, uintValue);
+        callReturnValue = objectValue->call(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue

@@ -62,29 +62,12 @@ public:
         }
     }
     
-    virtual Value elementRef(int32_t index) override { return Value(Program::stackId(), index, false); }
-    virtual const Value element(uint32_t index) const override { return inFrame(index); }
-    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override { inFrame(index) = value; return true; }
+    virtual const Value element(int32_t index) const override { assert(index >= 0 && index < size()); return inFrame(index); }
+    virtual bool setElement(ExecutionUnit*, int32_t index, const Value& value) override { assert(index >= 0 && index < size()); inFrame(index) = value; return true; }
     virtual bool appendElement(ExecutionUnit*, const Value&) override { assert(0); return false; }
     virtual size_t elementCount() const override { assert(0); return 0; }
     virtual void setElementCount(size_t) override { assert(0); }
     
-    void popBaked(ExecutionUnit* eu, Value& value)
-    {
-        pop(value);
-        if (value.canBeBaked()) {
-            value = value.bake(eu);
-        }
-    }
-    
-    void topBaked(ExecutionUnit* eu, Value& value)
-    {
-        std::swap(value, top());
-        if (value.canBeBaked()) {
-            value = value.bake(eu);
-        }
-    }
-
     Value* framePtr() { return Stack::framePtr(); }
 
 protected:
@@ -172,6 +155,7 @@ private:
 
     bool printError(const char* s, ...) const;
     bool checkTooManyErrors() const;
+    void objectError(const char* s) { printError(ROMSTR("Value must be Object for %s"), s); }
     
     Value* valueFromId(Atom, const Object*) const;
 
@@ -184,6 +168,16 @@ private:
         _codeSize = _functionPtr->code()->size();
         assert(_codeSize);
         _code = &(_functionPtr->code()->at(0));
+    }
+    
+    Object* toObject(const Value& v, const char* s)
+    {
+        Object* obj = _program->obj(v);
+        if (!obj) {
+            objectError(s);
+            return nullptr;
+        }
+        return obj;
     }
     
     Value derefId(Atom);

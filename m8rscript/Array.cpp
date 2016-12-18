@@ -44,36 +44,18 @@ Array::Array(Program* program)
     _lengthAtom = program->atomizeString("length");
 }
 
-int32_t Array::propertyIndex(const Atom& name)
+const Value Array::property(const Atom& name) const
+{
+    return (name == _lengthAtom) ? Value(static_cast<int32_t>(_array.size())) : Value();
+}
+
+bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value)
 {
     if (name == _lengthAtom) {
-        return static_cast<int32_t>(Property::Length);
+        _array.resize(value.toIntValue(eu));
+        return true;
     }
-    return -1;
-}
-
-Value Array::propertyRef(int32_t index)
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Length: return Value(objectId(), static_cast<int32_t>(Property::Length), true);
-        default: return Value();
-    }
-}
-
-const Value Array::property(int32_t index) const
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Length: return Value(static_cast<int32_t>(_array.size()));
-        default: return Value();
-    }
-}
-
-bool Array::setProperty(ExecutionUnit* eu, int32_t index, const Value& value)
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Length: _array.resize(value.toIntValue(eu)); return true;
-        default: return false;
-    }
+    return false;
 }
 
 Atom Array::propertyName(uint32_t index) const

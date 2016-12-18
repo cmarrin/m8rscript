@@ -363,8 +363,6 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
-        case Value::Type::ElementRef: s += "***ElementRef***"; break;
-        case Value::Type::PropertyRef: s += "***PropertyRef***"; break;
         case Value::Type::PreviousFrame: s += "***PreviousFrame***"; break;
         case Value::Type::PreviousPC: s += "***PreviousPC***"; break;
         case Value::Type::PreviousObject: s += "***PreviousObject***"; break;

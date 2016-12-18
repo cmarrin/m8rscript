@@ -333,11 +333,11 @@ bool MaterObject::deserialize(Stream* stream, Error& error, Program* program, co
 
         // Convert id into space of the current Program
         String idString = atomTable.stringFromAtom(Atom(id));
-        Atom atom = program->atomizeString(idString.c_str());
+        //Atom atom = program->atomizeString(idString.c_str());
         
         ObjectId functionId = program->addObject(function, true);
         function->setObjectId(functionId);
-        _properties.push_back({ atom.raw(), functionId });
+        //_properties.push_back({ atom.raw(), functionId });
     }
     
     return true;

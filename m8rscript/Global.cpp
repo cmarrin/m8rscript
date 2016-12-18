@@ -43,10 +43,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
+//static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
-Global::Global(SystemInterface* system, Program* program) : _system(system)
+Global::Global(SystemInterface* system, Program* program)
+    : _system(system)
+    , _serial(program)
 {
+    program->addObject(this, false);
+    
     _startTime = 0;
 
     _DateAtom = program->atomizeString(ROMSTR("Date"));
@@ -77,9 +81,6 @@ Global::Global(SystemInterface* system, Program* program) : _system(system)
     _LowAtom = program->atomizeString(ROMSTR("Low"));
     _HighAtom = program->atomizeString(ROMSTR("High"));
 
-    _beginAtom = program->atomizeString(ROMSTR("begin"));
-    _printAtom = program->atomizeString(ROMSTR("print"));
-    _printfAtom = program->atomizeString(ROMSTR("printf"));
     _encodeAtom = program->atomizeString(ROMSTR("encode"));
     _decodeAtom = program->atomizeString(ROMSTR("decode"));
 }
@@ -88,56 +89,21 @@ Global::~Global()
 {
 }
 
-int32_t Global::propertyIndex(const Atom& name)
+const Value Global::property(const Atom& name) const
 {
-    if (name == _DateAtom) {
-        return static_cast<int32_t>(Property::Date);
-    }
-    if (name == _SystemAtom) {
-        return static_cast<int32_t>(Property::System);
-    }
     if (name == _SerialAtom) {
-        return static_cast<int32_t>(Property::Serial);
+        return Value(_serial.objectId());
     }
-    if (name == _GPIOAtom) {
-        return static_cast<int32_t>(Property::GPIO);
-    }
-    if (name == _Base64Atom) {
-        return static_cast<int32_t>(Property::Base64);
-    }
-    return -1;
+    return Value();
 }
 
-Value Global::propertyRef(int32_t index)
+bool Global::setProperty(ExecutionUnit*, const Atom& name, const Value& value)
 {
-    return Value(objectId(), index, true);
-}
-
-const Value Global::property(int32_t index) const
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Date: return Value(0);
-        case Property::GPIO_PinMode_Output: return Value(static_cast<uint32_t>(GPIO::PinMode::Output));
-        case Property::GPIO_PinMode_OutputOpenDrain: return Value(static_cast<uint32_t>(GPIO::PinMode::OutputOpenDrain));
-        case Property::GPIO_PinMode_Input: return Value(static_cast<uint32_t>(GPIO::PinMode::Input));
-        case Property::GPIO_PinMode_InputPullup: return Value(static_cast<uint32_t>(GPIO::PinMode::InputPullup));
-        case Property::GPIO_PinMode_InputPulldown: return Value(static_cast<uint32_t>(GPIO::PinMode::InputPulldown));
-        case Property::GPIO_Trigger_None: return Value(static_cast<uint32_t>(GPIO::Trigger::None));
-        case Property::GPIO_Trigger_RisingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::RisingEdge));
-        case Property::GPIO_Trigger_FallingEdge: return Value(static_cast<uint32_t>(GPIO::Trigger::FallingEdge));
-        case Property::GPIO_Trigger_BothEdges: return Value(static_cast<uint32_t>(GPIO::Trigger::BothEdges));
-        case Property::GPIO_Trigger_Low: return Value(static_cast<uint32_t>(GPIO::Trigger::Low));
-        case Property::GPIO_Trigger_High: return Value(static_cast<uint32_t>(GPIO::Trigger::High));
-        default: return Value();
-    }
-}
-
-bool Global::setProperty(ExecutionUnit*, int32_t index, const Value& value)
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Date: return true;
-        default: return false;
-    }
+    return false;
+//    switch(static_cast<Property>(index)) {
+//        case Property::Date: return true;
+//        default: return false;
+//    }
 }
 
 Atom Global::propertyName(uint32_t index) const
@@ -158,170 +124,140 @@ size_t Global::propertyCount() const
     return PropertyCount;
 }
 
-Value Global::appendPropertyRef(uint32_t index, const Atom& name)
-{
-    Property newProperty = Property::None;
-    switch(static_cast<Property>(index)) {
-        case Property::Date:
-            if (name == _nowAtom) {
-                newProperty = Property::Date_now;
-            }
-            break;
-        case Property::System:
-            if (name == _delayAtom) {
-                newProperty = Property::System_delay;
-            }
-            break;
-        case Property::Serial:
-            if (name == _beginAtom) {
-                newProperty = Property::Serial_begin;
-            } else if (name == _printAtom) {
-                newProperty = Property::Serial_print;
-            } else if (name == _printfAtom) {
-                newProperty = Property::Serial_printf;
-            }
-            break;
-        case Property::GPIO:
-            if (name == _PinModeAtom) {
-                newProperty = Property::GPIO_PinMode;
-            } else if (name == _TriggerAtom) {
-                newProperty = Property::GPIO_Trigger;
-            } else if (name == _setPinModeAtom) {
-                newProperty = Property::GPIO_setPinMode;
-            } else if (name == _digitalWriteAtom) {
-                newProperty = Property::GPIO_digitalWrite;
-            } else if (name == _digitalReadAtom) {
-                newProperty = Property::GPIO_digitalWrite;
-            } else if (name == _onInterruptAtom) {
-                newProperty = Property::GPIO_digitalWrite;
-            }
-            break;
-        case Property::GPIO_PinMode:
-            if (name == _OutputAtom) {
-                newProperty = Property::GPIO_PinMode_Output;
-            } else if (name == _OutputOpenDrainAtom) {
-                newProperty = Property::GPIO_PinMode_OutputOpenDrain;
-            } else if (name == _InputAtom) {
-                newProperty = Property::GPIO_PinMode_Input;
-            } else if (name == _InputPullupAtom) {
-                newProperty = Property::GPIO_PinMode_InputPullup;
-            } else if (name == _InputPulldownAtom) {
-                newProperty = Property::GPIO_PinMode_InputPulldown;
-            }
-            break;
-        case Property::GPIO_Trigger:
-            if (name == _NoneAtom) {
-                newProperty = Property::GPIO_Trigger_None;
-            } else if (name == _RisingEdgeAtom) {
-                newProperty = Property::GPIO_Trigger_RisingEdge;
-            } else if (name == _FallingEdgeAtom) {
-                newProperty = Property::GPIO_Trigger_FallingEdge;
-            } else if (name == _BothEdgesAtom) {
-                newProperty = Property::GPIO_Trigger_BothEdges;
-            } else if (name == _LowAtom) {
-                newProperty = Property::GPIO_Trigger_Low;
-            } else if (name == _HighAtom) {
-                newProperty = Property::GPIO_Trigger_High;
-            }
-            break;
-        case Property::Base64:
-            if (name == _encodeAtom) {
-                newProperty = Property::Base64_encode;
-            } else if (name == _decodeAtom) {
-                newProperty = Property::Base64_decode;
-            }
-            break;
-        default:
-            break;
-    }
+//CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
+//{
+//    switch(static_cast<Property>(index)) {
+//        case Property::Date_now: {
+//            uint64_t t = _system->currentMicroseconds() - _startTime;
+//            eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+//        }
+//        case Property::Serial_print:
+//            for (int i = 1 - nparams; i <= 0; ++i) {
+//                if (_system) {
+//                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
+//                }
+//            }
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+//        case Property::Serial_printf:
+//            for (int i = 1 - nparams; i <= 0; ++i) {
+//                if (_system) {
+//                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
+//                }
+//            }
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+//        case Property::Base64_encode: {
+//            String inString = eu->stack().top().toStringValue(eu);
+//            size_t inLength = inString.size();
+//            size_t outLength = (inLength * 4 + 2) / 3 + 1;
+//            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
+//                char outString[BASE64_STACK_ALLOC_LIMIT];
+//                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
+//                                                 BASE64_STACK_ALLOC_LIMIT, outString);
+//                StringId stringId = eu->program()->createString();
+//                String& s = eu->program()->str(stringId);
+//                s = String(outString, actualLength);
+//                eu->stack().push(stringId);
+//            } else {
+//                char* outString = static_cast<char*>(malloc(outLength));
+//                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
+//                                                 BASE64_STACK_ALLOC_LIMIT, outString);
+//                StringId stringId = eu->program()->createString();
+//                String& s = eu->program()->str(stringId);
+//                s = String(outString, actualLength);
+//                eu->stack().push(stringId);
+//                free(outString);
+//            }
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+//        }
+//        case Property::Base64_decode: {
+//            String inString = eu->stack().top().toStringValue(eu);
+//            size_t inLength = inString.size();
+//            size_t outLength = (inLength * 3 + 3) / 4 + 1;
+//            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
+//                unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
+//                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
+//                StringId stringId = eu->program()->createString();
+//                String& s = eu->program()->str(stringId);
+//                s = String(reinterpret_cast<char*>(outString), actualLength);
+//                eu->stack().push(stringId);
+//            } else {
+//                unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
+//                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
+//                StringId stringId = eu->program()->createString();
+//                String& s = eu->program()->str(stringId);
+//                s = String(reinterpret_cast<char*>(outString), actualLength);
+//                eu->stack().push(stringId);
+//                free(outString);
+//            }
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+//        }
+//        case Property::System_delay: {
+//            uint32_t ms = eu->stack().top().toIntValue(eu);
+//            return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
+//        }
+//        case Property::GPIO_setPinMode: {
+//            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+//            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIO::PinMode::Input;
+//            _system->gpio().setPinMode(pin, mode);
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+//        }
+//        case Property::GPIO_digitalWrite: {
+//            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+//            bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
+//            _system->gpio().digitalWrite(pin, level);
+//            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+//        }
+//        default: return CallReturnValue(CallReturnValue::Type::Error);
+//    }
+//}
 
-    return (newProperty == Property::None) ? Value() : Value(objectId(), static_cast<uint16_t>(newProperty), true);
+Serial::Serial(Program* program)
+    : _begin(begin)
+    , _print(print)
+    , _printf(printf)
+{
+    _beginAtom = program->atomizeString(ROMSTR("begin"));
+    _printAtom = program->atomizeString(ROMSTR("print"));
+    _printfAtom = program->atomizeString(ROMSTR("printf"));
+    
+    program->addObject(this, false);
+    
+    program->addObject(&_begin, false);
+    program->addObject(&_print, false);
+    program->addObject(&_printf, false);
 }
 
-CallReturnValue Global::callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Serial::begin(ExecutionUnit*, uint32_t nparams)
 {
-    switch(static_cast<Property>(index)) {
-        case Property::Date_now: {
-            uint64_t t = _system->currentMicroseconds() - _startTime;
-            eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-        }
-        case Property::Serial_print:
-            for (int i = 1 - nparams; i <= 0; ++i) {
-                if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
-                }
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        case Property::Serial_printf:
-            for (int i = 1 - nparams; i <= 0; ++i) {
-                if (_system) {
-                    _system->printf(eu->stack().top(i).toStringValue(eu).c_str());
-                }
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        case Property::Base64_encode: {
-            String inString = eu->stack().top().toStringValue(eu);
-            size_t inLength = inString.size();
-            size_t outLength = (inLength * 4 + 2) / 3 + 1;
-            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-                char outString[BASE64_STACK_ALLOC_LIMIT];
-                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
-                                                 BASE64_STACK_ALLOC_LIMIT, outString);
-                StringId stringId = eu->program()->createString();
-                String& s = eu->program()->str(stringId);
-                s = String(outString, actualLength);
-                eu->stack().push(stringId);
-            } else {
-                char* outString = static_cast<char*>(malloc(outLength));
-                int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
-                                                 BASE64_STACK_ALLOC_LIMIT, outString);
-                StringId stringId = eu->program()->createString();
-                String& s = eu->program()->str(stringId);
-                s = String(outString, actualLength);
-                eu->stack().push(stringId);
-                free(outString);
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-        }
-        case Property::Base64_decode: {
-            String inString = eu->stack().top().toStringValue(eu);
-            size_t inLength = inString.size();
-            size_t outLength = (inLength * 3 + 3) / 4 + 1;
-            if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-                unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
-                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-                StringId stringId = eu->program()->createString();
-                String& s = eu->program()->str(stringId);
-                s = String(reinterpret_cast<char*>(outString), actualLength);
-                eu->stack().push(stringId);
-            } else {
-                unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
-                int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-                StringId stringId = eu->program()->createString();
-                String& s = eu->program()->str(stringId);
-                s = String(reinterpret_cast<char*>(outString), actualLength);
-                eu->stack().push(stringId);
-                free(outString);
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-        }
-        case Property::System_delay: {
-            uint32_t ms = eu->stack().top().toIntValue(eu);
-            return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
-        }
-        case Property::GPIO_setPinMode: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-            GPIO::PinMode mode = (nparams >= 2) ? static_cast<GPIO::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIO::PinMode::Input;
-            _system->gpio().setPinMode(pin, mode);
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-        case Property::GPIO_digitalWrite: {
-            uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-            bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
-            _system->gpio().digitalWrite(pin, level);
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-        default: return CallReturnValue(CallReturnValue::Type::Error);
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Serial::print(ExecutionUnit* eu, uint32_t nparams)
+{
+    for (int32_t i = 1 - nparams; i <= 0; ++i) {
+        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue Serial::printf(ExecutionUnit*, uint32_t nparams)
+{
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+const Value Serial::property(const Atom& prop) const
+{
+    if (prop == _beginAtom) {
+        return Value(_begin.objectId());
+    }
+    if (prop == _printAtom) {
+        return Value(_print.objectId());
+    }
+    if (prop == _printfAtom) {
+        return Value(_printf.objectId());
+    }
+    return Value();
 }

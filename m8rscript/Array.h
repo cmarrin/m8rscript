@@ -52,25 +52,24 @@ public:
         }
     }
     
-    virtual Value elementRef(int32_t index) override { return Value(objectId(), index, false); }
-    virtual const Value element(uint32_t index) const override { return (index < _array.size()) ? _array[index] : Value(); }
-    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value& value) override
+    virtual const Value element(int32_t index) const override { return (index >= 0 && index < _array.size()) ? _array[index] : Value(); }
+    virtual bool setElement(ExecutionUnit*, int32_t index, const Value& value) override
     {
-        if (index >= _array.size()) {
+        if (index < 0 || index >= _array.size()) {
             return false;
         }
         _array[index] = value;
         return true;
     }
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override { return element(elt.toIntValue(eu)); }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override { return setElement(eu, elt.toIntValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value& value) override { _array.push_back(value); return true; }
     virtual size_t elementCount() const override { return _array.size(); }
     virtual void setElementCount(size_t size) override { _array.resize(size); }
 
     // Array has built-in properties. Handle those here
-    virtual int32_t propertyIndex(const Atom& s) override;
-    virtual Value propertyRef(int32_t index) override;
-    virtual const Value property(int32_t index) const override;
-    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value&) override;
+    virtual const Value property(const Atom& prop) const override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
     virtual Atom propertyName(uint32_t index) const override;
     virtual size_t propertyCount() const override;
 

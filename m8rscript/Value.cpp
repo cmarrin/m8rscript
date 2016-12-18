@@ -187,24 +187,13 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Integer: return toString(asIntValue());
         case Type::String: return eu->program()->str(stringIdFromValue());
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-        case Type::Id: return m8r::String(eu->program()->stringFromAtom(asIdValue()));
-        case Type::PropertyRef: {
-            Object* obj = eu->program()->obj(*this);
-            return obj ? obj->property(indexFromValue()).toStringValue(eu) : m8r::String();
-        }
-        case Type::ElementRef: {
-            Object* obj = eu->program()->obj(*this);
-            return obj ? obj->element(indexFromValue()).toStringValue(eu) : m8r::String();
-        }
+        case Type::Id: return m8r::String(eu->program()->stringFromAtom(atomFromValue()));
         default: assert(0); return m8r::String();
     }
 }
 
 Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
-    if (canBeBaked()) {
-        return bake(eu).toFloatValue(eu);
-    }
     switch(type()) {
         case Type::None: break;
         case Type::Object: {
@@ -219,7 +208,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
             break;
         }
         case Type::Float: return asFloatValue();
-        case Type::Integer: return Float(asIntValue(), 0);
+        case Type::Integer: return Float(intFromValue(), 0);
         case Type::String: {
             const String& s = eu->program()->str(stringIdFromValue());
             return floatFromString(s.c_str());
@@ -234,222 +223,34 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
     return Float();
 }
 
-bool Value::setValue(ExecutionUnit* eu, const Value& v)
-{
-    Object* obj;
-    
-    switch(type()) {
-        case Type::Object:
-            obj = eu->program()->obj(*this);
-            return obj ? (obj->setValue(eu, v.canBeBaked() ? v.bake(eu) : v)) : false;
-        case Type::PropertyRef:
-            obj = eu->program()->obj(*this);
-            assert(obj);
-            if (!obj->setProperty(eu, indexFromValue(), v.canBeBaked() ? v.bake(eu) : v)) {
-                String prop = eu->program()->stringFromAtom(obj->propertyName(indexFromValue()));
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("Attempted to assign to nonexistant property '%s'"), prop.c_str());
-                return false;
-            }
-            return true;
-        case Type::ElementRef:
-            obj = eu->program()->obj(*this);
-            assert(obj);
-            if (!obj->setElement(eu, indexFromValue(), v.canBeBaked() ? v.bake(eu) : v)) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("Attempted to assign to nonexistant element %d"), indexFromValue());
-                return false;
-            }
-            return true;
-        default:
-            return false;
-    }
-}
-
-bool Value::derefObjectProp(ExecutionUnit* eu, const Value& derefValue, bool add)
-{
-    Value bakedDerefValue = derefValue.bake(eu);
-    if (bakedDerefValue.type() != Type::Id) {
-        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
-        return false;
-    }
-    
-    // We know this is an Object
-    assert(type() == Type::Object);
-    Object* obj = eu->program()->obj(objectIdFromValue());
-    int32_t index = -1;
-    index = add ? obj->addProperty(derefValue.asIdValue()) : obj->propertyIndex(derefValue.asIdValue());
-    if (index < 0) {
-        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
-        return false;
-    }
-    *this = obj->propertyRef(index);
-    return true;
-}
-
-bool Value::derefObjectElt(ExecutionUnit* eu, const Value& derefValue, bool add)
-{
-    // We know this is an Object
-    assert(type() == Type::Object);
-    Object* obj = eu->program()->obj(objectIdFromValue());
-    Value bakedDerefValue = derefValue.bake(eu);
-    int32_t index = -1;
-    
-    switch(bakedDerefValue.type()) {
-        default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref using a '%s' property"), bakedDerefValue.toStringValue(eu).c_str());
-            return false;
-        case Type::Id:
-            index = add ? obj->addProperty(derefValue.asIdValue()) : obj->propertyIndex(derefValue.asIdValue());
-            break;
-        case Type::Integer:
-        case Type::Float: {
-            Value value = obj->elementRef(bakedDerefValue.toIntValue(eu));
-            if (value) {
-                *this = value;
-                return true;
-            }
-            
-            // Try as a property
-            Atom prop = eu->program()->atomizeString(bakedDerefValue.toStringValue(eu).c_str());
-            index = add ? obj->addProperty(prop) : obj->propertyIndex(prop);
-            break;
-        }
-        case Type::String:
-        case Type::StringLiteral: {
-            const String& s = (bakedDerefValue.type() == Type::String) ? eu->program()->str(bakedDerefValue.stringIdFromValue()) : eu->program()->stringFromStringLiteral(bakedDerefValue.stringLiteralFromValue());
-            Atom prop = eu->program()->atomizeString(s.c_str());
-            index = add ? obj->addProperty(prop) : obj->propertyIndex(prop);
-            break;
-        }
-    }
-    
-    // If we fall through here, index is a property index we need to try
-    if (index < 0) {
-        Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property doesn't exist"), bakedDerefValue.toStringValue(eu).c_str());
-        return false;
-    }
-    *this = obj->propertyRef(index);
-    return true;
-}
-
-bool Value::_derefProp(ExecutionUnit* eu, const Value& derefValue, bool add)
-{
-    assert(type() != Type::Id);
-
-    switch(type()) {
-        default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
-            return false;
-        case Type::Object:
-            break;
-        case Type::ElementRef:
-        case Type::PropertyRef:
-            if (derefValue.type() == Type::Id) {
-                if (type() == Type::PropertyRef) {
-                    Object* obj = eu->program()->obj(objectIdFromValue());
-                    assert(obj);
-                    Value v = obj->appendPropertyRef(indexFromValue(), derefValue.asIdValue());
-                    if (v) {
-                        *this = v;
-                        return true;
-                    }
-                }
-            }
-
-            Value bakedObjectValue = bake(eu);
-            if (bakedObjectValue.type() == Type::Object) {
-                if (bakedObjectValue.derefObjectProp(eu, derefValue, add)) {
-                    *this = bakedObjectValue;
-                    return true;
-                }
-            }
-    
-            if (type() == Type::PropertyRef) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
-            } else {
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
-            }
-            return false;
-    }
-    return false;
-}
-
-bool Value::_derefElt(ExecutionUnit* eu, const Value& derefValue, bool add)
-{
-    assert(type() != Type::Id);
-
-    switch(type()) {
-        default:
-            Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("can't deref '%s' value"), toStringValue(eu).c_str());
-            return false;
-        case Type::Object:
-            break;
-        case Type::ElementRef:
-        case Type::PropertyRef:
-            if (derefValue.type() == Type::Id) {
-                if (type() == Type::PropertyRef) {
-                    Object* obj = eu->program()->obj(objectIdFromValue());
-                    assert(obj);
-                    Value v = obj->appendPropertyRef(indexFromValue(), derefValue.asIdValue());
-                    if (v) {
-                        *this = v;
-                        return true;
-                    }
-                }
-            }
-
-            Value bakedObjectValue = bake(eu);
-            if (bakedObjectValue.type() == Type::Object) {
-                if (bakedObjectValue.derefObjectElt(eu, derefValue, add)) {
-                    *this = bakedObjectValue;
-                    return true;
-                }
-            }
-    
-            if (type() == Type::PropertyRef) {
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
-            } else {
-                Error::printError(eu->system(), Error::Code::RuntimeError, -1, ROMSTR("'%s' property not found"), derefValue.toStringValue(eu).c_str());
-            }
-            return false;
-    }
-    return false;
-}
-
-CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
-{
-    if (type() == Type::PropertyRef) {
-        Object* obj = eu->program()->obj(*this);
-        return obj ? obj->callProperty(indexFromValue(), eu, nparams) : CallReturnValue(CallReturnValue::Type::Error);
-    }
-    if (type() == Type::Object) {
-        Object* obj = eu->program()->obj(*this);
-        return obj ? obj->call(eu, nparams) : CallReturnValue(CallReturnValue::Type::Error);
-    }
-    return CallReturnValue(CallReturnValue::Type::Error);
-}
-
-Value Value::_bake(ExecutionUnit* eu) const
+Atom Value::_toIdValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::Object:
-        case Type::PropertyRef:
-        case Type::ElementRef: {
+        case Type::None: break;
+        case Type::Object: {
             Object* obj = eu->program()->obj(*this);
-            switch(type()) {
-                case Type::Object: {
-                    Value* value = obj->value();
-                    return value ? *value : Value();
-                }
-                case Type::PropertyRef:
-                    return obj ? obj->property(indexFromValue()) : Value();
-                case Type::ElementRef:
-                    return obj ? obj->element(indexFromValue()) : Value();
-                default: break;
+            Value* v = nullptr;
+            if (obj) {
+                v = obj->value();
             }
+            if (v) {
+                return v->toIdValue(eu);
+            }
+            break;
         }
-        default: break;
+        case Type::Integer:
+        case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
+        case Type::String: {
+            const String& s = eu->program()->str(stringIdFromValue());
+            return eu->program()->atomizeString(s.c_str());
+        }
+        case Type::StringLiteral: {
+            const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
+            return eu->program()->atomizeString(s.c_str());
+        }
+        default: assert(0); break;
     }
-    return *this;
+    return Atom();
 }
 
 void Value::_gcMark(ExecutionUnit* eu)

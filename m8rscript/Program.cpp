@@ -41,21 +41,12 @@ using namespace m8r;
 
 Program::Program(SystemInterface* system) : _global(system, this)
 {
-    // The program pointer always occupies index 0 of the _objects array
-    ObjectId id = _objectStore.add(this);
-    assert(id.raw() == 0);
-    setObjectId(id);
-    
-    // StackId goes next. The setStackId call will set it to the right
-    // value for the current ExecutionUnit
-    id = _objectStore.add(nullptr);
-    assert(id.raw() == StackId);
-    
-    // Add the global object
-    _global.setObjectId(addObject(&_global, false));
+    addObject(this, false);
     
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
-    _stringStore.add(new String("*** ERROR:INVALID STRING ***"));
+    StringId dummy = createString();
+    str(dummy) = "*** ERROR:INVALID STRING ***";
+    assert(dummy.raw() == 0);
 }
 
 Program::~Program()

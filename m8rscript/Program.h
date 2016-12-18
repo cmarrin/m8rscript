@@ -57,7 +57,7 @@ public:
     
     SystemInterface* system() const { return _global.system(); }
 
-    void setStack(Object* stack) { _objectStore.set(ObjectId(StackId), stack); }
+    void setStack(Object* stack) { _stackId = _objectStore.add(stack); }
     
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
@@ -76,7 +76,13 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
-    ObjectId addObject(Object* obj, bool collectable) { obj->setCollectable(collectable); return _objectStore.add(obj); }
+    ObjectId addObject(Object* obj, bool collectable)
+    {
+        obj->setCollectable(collectable);
+        ObjectId id = _objectStore.add(obj);
+        obj->setObjectId(id);
+        return id;
+    }
     StringId createString() { return _stringStore.add(new String()); }
     
     bool isValid(const ObjectId& id) const { return _objectStore.isValid(id); }
@@ -95,9 +101,7 @@ public:
         Object* object = obj(id);
         return object ? (object->isFunction() ? static_cast<Function*>(object) : nullptr) : nullptr;
     }
-    
-    static ObjectId stackId() { return ObjectId(StackId); }
-    
+
     const String& str(const Value& value) const
     {
         return str(value.asStringIdValue());
@@ -130,9 +134,7 @@ protected:
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
-    // The Id of the stack. This will be filled in with the stack of the current ExecutionUnit with the
-    // setStackId() call.
-    static constexpr ObjectId::value_type StackId = 1; // First value after the Program itself.
+    ObjectId _stackId;
     
     AtomTable _atomTable;
     
@@ -142,7 +144,6 @@ private:
         void remove(IdType);
         bool isValid(const IdType& id) const { return id.raw() < _values.size(); }
         ValueType* ptr(const IdType& id) const { return isValid(id) ? _values[id.raw()] : nullptr; }
-        void set(IdType id, ValueType* value) { assert(isValid(id)); _values[id.raw()] = value; }
         
         void gcClear() { _valueMarked.clear(); _valueMarked.resize(_values.size()); }
         void gcMark(IdType id) { _valueMarked[id.raw()] = true; }
@@ -151,7 +152,7 @@ private:
 
         void gcSweep()
         {
-            for (uint16_t i = 1; i < _values.size(); ++i) {
+            for (uint16_t i = 0; i < _values.size(); ++i) {
                 if (_values[i] && !_valueMarked[i]) {
                     remove(IdType(i));
                 }
@@ -214,7 +215,7 @@ void Program::IdStore<IdType, ValueType>::remove(IdType id)
 template<>
 inline void Program::IdStore<ObjectId, Object>::gcSweep()
 {
-    for (uint16_t i = 1; i < _values.size(); ++i) {
+    for (uint16_t i = 0; i < _values.size(); ++i) {
         if (_values[i] && !_valueMarked[i] && _values[i]->collectable()) {
             remove(ObjectId(i));
         }

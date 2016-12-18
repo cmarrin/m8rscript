@@ -29,7 +29,6 @@ class DeviceSystemInterface;
     FileList _fileList;
     NSFileWrapper* _files;
 
-    DeviceSystemInterface* _system;
     Simulator* _simulator;
     FastSocket* _logSocket;
     
@@ -103,8 +102,10 @@ private:
     
     Device* _device;
     DeviceGPIO _gpio;
-    
 };
+
+m8r::SystemInterface* _sharedSystemInterface = nullptr;
+m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInterface; }
 
 @implementation Device
 
@@ -116,8 +117,8 @@ private:
         _fileList = [[NSMutableArray alloc] init];
         [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
 
-        _system = new DeviceSystemInterface(self);
-        _simulator = new Simulator(_system);
+        _sharedSystemInterface = new DeviceSystemInterface(self);
+        _simulator = new Simulator(_sharedSystemInterface);
         
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -138,7 +139,7 @@ private:
         dispatch_sync(_serialQueue, ^{ });
     }
     delete _simulator;
-    delete _system;
+    delete _sharedSystemInterface;
 }
 
 - (void)outputMessage:(NSString*)msg
@@ -196,7 +197,7 @@ private:
         NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
         socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
         if (![socket connect]) {
-            _system->printf("**** Failed to open socket for command '%@'\n", command);
+            _sharedSystemInterface->printf("**** Failed to open socket for command '%@'\n", command);
             return socket;
         }
         [socket setTimeout:5];

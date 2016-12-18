@@ -370,19 +370,19 @@ bool ParseEngine::expression(uint8_t minPrec)
     }
     
     while(1) {
-        OpInfo opInfo;            
-        if (!_opInfo.find(getToken(), opInfo) || opInfo.prec < minPrec) {
+        auto it = _opInfo.find(getToken());
+        if (it == _opInfo.end() || it->value.prec < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (opInfo.assoc == OpInfo::LeftAssoc) ? (opInfo.prec + 1) : opInfo.prec;
+        uint8_t nextMinPrec = (it->value.assoc == OpInfo::LeftAssoc) ? (it->value.prec + 1) : it->value.prec;
         retireToken();
-        if (opInfo.sto) {
+        if (it->value.sto) {
             _parser->emitDup();
         }
     
         expression(nextMinPrec);
-        _parser->emitBinOp(opInfo.op);
-        if (opInfo.sto) {
+        _parser->emitBinOp(it->value.op);
+        if (it->value.sto) {
             _parser->emitMove();
         }
     }

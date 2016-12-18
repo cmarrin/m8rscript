@@ -48,8 +48,6 @@ class Stream;
 
 class Object {
 public:
-    typedef std::vector<Value::Map::Pair> Properties;
-
     virtual ~Object() { }
     
     static void* operator new (size_t size)
@@ -68,19 +66,16 @@ public:
     
     virtual void gcMark(ExecutionUnit*) { }
     
-    virtual int32_t propertyIndex(const Atom& s) { return -1; }
-    virtual Value propertyRef(int32_t index) { return Value(); }
-    virtual const Value property(int32_t index) const { return Value(); }
-    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value&) { return false; }
+    virtual const Value property(const Atom&) const { return Value(); }
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value) { return false; }
     virtual Atom propertyName(uint32_t index) const { return Atom(); }
-    virtual int32_t addProperty(const Atom&) { return -1; }
+    virtual Value* addProperty(const Atom&) { return nullptr; }
     virtual size_t propertyCount() const { return 0; }
-    virtual Value appendPropertyRef(uint32_t index, const Atom&) { return Value(); }
-    virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
-    virtual Value elementRef(int32_t index) { return Value(); }
-    virtual const Value element(uint32_t index) const { return Value(); }
-    virtual bool setElement(ExecutionUnit*, uint32_t index, const Value&) { return false; }
+    virtual const Value element(int32_t index) const { return Value(); }
+    virtual bool setElement(ExecutionUnit*, int32_t index, const Value&) { return false; }
+    virtual const Value element(ExecutionUnit*, const Value& elt) const { return Value(); }
+    virtual bool setElement(ExecutionUnit*, const Value& elt, const Value& value) { return false; }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     virtual size_t elementCount() const { return 0; }
     virtual void setElementCount(size_t) { }
@@ -92,8 +87,8 @@ public:
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
-    virtual bool serialize(Stream*, Error&, Program*) const = 0;
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) = 0;
+    virtual bool serialize(Stream*, Error&, Program*) const { return true; }
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) { return true; }
 
     void setObjectId(ObjectId id) { _objectId = id; }
     ObjectId objectId() const { return _objectId; }
@@ -118,7 +113,14 @@ protected:
 private:
     ObjectId _objectId;
     bool _collectable = false;
+};
 
+class PseudoObject : public Object {
+public:
+    
+private:
+    Object* _master;
+    uint32_t _index;
 };
     
 class MaterObject : public Object {
@@ -136,49 +138,58 @@ public:
         }
     }
     
-    virtual int32_t propertyIndex(const Atom& name) override
+    virtual const Value property(const Atom& prop) const override
     {
-        return findPropertyIndex(name);
+        auto it = _properties.find(prop);
+        return (it != _properties.end()) ? it->value : Value();
     }
-    virtual Value propertyRef(int32_t index) override { return Value(objectId(), index, true); }
-    virtual const Value property(int32_t index) const override { return _properties[index].value; }
-    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value& v) override
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v) override
     {
-        _properties[index].value = v;
+        auto it = _properties.find(prop);
+        if (it == _properties.end()) {
+            return false;
+        }
+        it->value = v;
         return true;
     }
     
-    virtual Atom propertyName(uint32_t index) const override { return _properties[index].key; }
-    virtual int32_t addProperty(const Atom& name) override
+    virtual Atom propertyName(uint32_t index) const override { return (_properties.begin() + index)->key; }
+    virtual Value* addProperty(const Atom& prop) override
     {
-        int32_t index = findPropertyIndex(name);
-        if (index >= 0) {
-            return -1;
+        auto it = _properties.find(prop);
+        if (it != _properties.end()) {
+            return nullptr;
         }
-        _properties.push_back({ name, Value() });
-        return static_cast<int32_t>(_properties.size()) - 1;
+        auto ret = _properties.emplace(prop, Value());
+        assert(ret.second);
+        return &(ret.first->value);
     }
 
     virtual size_t propertyCount() const override { return _properties.size(); }
 
-    virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit* eu, uint32_t nparams) override { return _properties[index].value.call(eu, nparams); }
-    
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override { return property(elt.toIdValue(eu)); }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override { return setProperty(eu, elt.toIntValue(eu), value); }
+
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
 private:
-    int32_t findPropertyIndex(const Atom& name) const
-    {
-        for (size_t i = 0; i < _properties.size(); ++i) {
-            if (_properties[i].key == name) {
-                return static_cast<int32_t>(i);
-            }
-        }
-        return -1;
-    }
+    Value::Map _properties;
+};
+
+class NativeFunction : public Object {
+public:
+    typedef CallReturnValue (*Func)(ExecutionUnit*, uint32_t nparams);
     
-    Properties _properties;
+    NativeFunction(Func func) : _func(func) { }
+    
+    virtual const char* typeName() const override { return "NativeFunction"; }
+
+    virtual CallReturnValue call(ExecutionUnit* eu, uint32_t nparams) override { return _func(eu, nparams); }
+
+private:
+    Func _func = nullptr;
 };
     
 }

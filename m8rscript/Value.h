@@ -79,7 +79,6 @@ public:
     enum class Type : uint8_t {
         None = 0,
         Object, Float, Integer, String, StringLiteral, Id,
-        ElementRef, PropertyRef,
         PreviousFrame, PreviousPC, PreviousObject,
     };
 
@@ -92,7 +91,6 @@ public:
     Value(int32_t value) : _value(value) { }
     Value(uint32_t value, Type type) : _value(value, type) { }
     Value(Atom value) : _value(value) { }
-    Value(ObjectId objectId, uint16_t index, bool property) : _value(objectId, index, property ? Type::PropertyRef : Type::ElementRef) { }
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
     
@@ -122,7 +120,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (canBeBaked() || type() == Type::Object || type() == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
+    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
@@ -144,50 +142,26 @@ public:
     int32_t toIntValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Integer) {
-            return asIntValue();
+            return intFromValue();
         }
         return static_cast<int32_t>(toFloatValue(eu));
     }
     
-    bool setValue(ExecutionUnit*, const Value&);
-    bool canBeBaked() const { return type() == Type::PropertyRef || type() == Type::ElementRef; }
-    Value bake(ExecutionUnit* eu) const { return canBeBaked() ? _bake(eu) : *this; }
-    
-    bool derefProp(ExecutionUnit* eu, const Value& derefValue, bool add)
+    Atom toIdValue(ExecutionUnit* eu) const
     {
-        if (type() == Type::Object) {
-            return derefObjectProp(eu, derefValue, add);
+        if (type() == Type::Id) {
+            return atomFromValue();
         }
-        return _derefProp(eu, derefValue, add);
+        return _toIdValue(eu);
     }
     
-    bool derefElt(ExecutionUnit* eu, const Value& derefValue, bool add)
-    {
-        if (type() == Type::Object) {
-            return derefObjectElt(eu, derefValue, add);
-        }
-        return _derefElt(eu, derefValue, add);
-    }
-    
-    CallReturnValue call(ExecutionUnit*, uint32_t nparams);
-    
-    // FIXME: These functions must not be passed unbaked values
-    bool isInteger() const
-    {
-        assert(!canBeBaked());
-        return type() == Type::Integer;
-    }
-    bool isFloat() const
-    {
-        assert(!canBeBaked());
-        return type() == Type::Float;
-    }
+    bool isInteger() const { return type() == Type::Integer; }
+    bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     
-    bool isLValue() const { return canBeBaked(); }
     bool isNone() const { return type() == Type::None; }
     bool isAtom() const { return type() == Type::Id; }
-    bool isObjectId() const { return type() == Type::Object || type() == Type::ElementRef || type() == Type::PropertyRef || type() == Type::PreviousObject; }
+    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -210,14 +184,9 @@ private:
     static constexpr uint8_t TypeBitCount = 4;
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
-    Value _bake(ExecutionUnit*) const;
-    bool _derefProp(ExecutionUnit*, const Value& derefValue, bool add);
-    bool _derefElt(ExecutionUnit*, const Value& derefValue, bool add);
     Float _toFloatValue(ExecutionUnit*) const;
+    Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
-
-    bool derefObjectProp(ExecutionUnit* eu, const Value& derefValue, bool add);
-    bool derefObjectElt(ExecutionUnit* eu, const Value& derefValue, bool add);
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return _value._i; }

@@ -41,6 +41,28 @@ namespace m8r {
 
 class SystemInterface;
 
+class Serial : public Object {
+public:
+    Serial(Program*);
+
+    virtual const char* typeName() const override { return "Serial"; }
+
+    virtual const Value property(const Atom&) const override;
+
+private:
+    Atom _beginAtom;
+    Atom _printAtom;
+    Atom _printfAtom;
+    
+    static CallReturnValue begin(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue print(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue printf(ExecutionUnit*, uint32_t nparams);
+
+    NativeFunction _begin;
+    NativeFunction _print;
+    NativeFunction _printf;
+};
+
 class Global : public Object {
 public:
     Global(SystemInterface*, Program*);
@@ -50,15 +72,10 @@ public:
     virtual const char* typeName() const override { return "Global"; }
 
     // Global has built-in properties. Handle those here
-    virtual int32_t propertyIndex(const Atom& s) override;
-    virtual Value propertyRef(int32_t index) override;
-    virtual const Value property(int32_t index) const override;
-    virtual bool setProperty(ExecutionUnit*, int32_t index, const Value&) override;
+    virtual const Value property(const Atom&) const override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
     virtual Atom propertyName(uint32_t index) const override;
     virtual size_t propertyCount() const override;
-    virtual Value appendPropertyRef(uint32_t index, const Atom&) override;
-
-    virtual CallReturnValue callProperty(uint32_t index, ExecutionUnit*, uint32_t nparams) override;
     
     SystemInterface* system() const { return _system; }
 
@@ -109,9 +126,6 @@ private:
     Atom _digitalWriteAtom;
     Atom _digitalReadAtom;
     Atom _onInterruptAtom;
-    Atom _beginAtom;
-    Atom _printAtom;
-    Atom _printfAtom;
     Atom _encodeAtom;
     Atom _decodeAtom;
     Atom _OutputAtom;
@@ -125,6 +139,8 @@ private:
     Atom _BothEdgesAtom;
     Atom _LowAtom;
     Atom _HighAtom;
+    
+    Serial _serial;
 };
     
 }

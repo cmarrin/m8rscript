@@ -320,19 +320,33 @@ public:
         Key key;
         Value value;
     };
+    
+    typedef std::vector<Pair> List;
+    typedef typename List::iterator iterator;
+    typedef typename List::const_iterator const_iterator;
 
-    bool find(const Key& key, Value& value) const
+    const_iterator find(const Key& key) const
     {
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
         if (result < 0) {
-            return false;
+            return _list.cend();
         }
-        value = _list[result].value;
-        return true;
+        return _list.cbegin() + result;
     }
-    Value* emplace(const Key& key, const Value& value)
+    
+    iterator find(const Key& key)
     {
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        if (result < 0) {
+            return _list.end();
+        }
+        return _list.begin() + result;
+    }
+    
+    std::pair<iterator, bool> emplace(const Key& key, const Value& value)
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        bool placed = false;
         if (result < 0) {
             _list.resize(_list.size() + 1);
             int sizeToMove = static_cast<int>(_list.size()) + result;
@@ -341,14 +355,15 @@ public:
             }
             result = -result - 1;
             _list[result] = { key, value };
+            placed = true;
         }
-        return &(_list[result].value);
+        return { begin() + result, placed };
     }
     
-    Pair* begin() { return _list.size() ? &(_list[0]) : nullptr; }
-    const Pair* begin() const { return _list.size() ? &(_list[0]) : nullptr; }
-    Pair* end() { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
-    const Pair* end() const { return _list.size() ? (&(_list[0]) + _list.size()) : nullptr; }
+    iterator begin() { return _list.begin(); }
+    const_iterator begin() const { return _list.begin(); }
+    iterator end() { return _list.end(); }
+    const_iterator end() const { return _list.end(); }
     
     bool empty() const { return _list.empty(); }
     size_t size() const { return _list.size(); }
@@ -364,7 +379,7 @@ private:
         return -(first + 1);    // failed to find key
     }
     
-    std::vector<Pair> _list;
+    List _list;
     Compare _compare;
 };
 

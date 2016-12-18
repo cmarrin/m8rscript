@@ -52,8 +52,9 @@ namespace m8r {
 class SystemInterface  {
 public:
 	SystemInterface() { }
-    
     virtual ~SystemInterface() { }
+        
+    static SystemInterface* shared();
     
     void printf(const char* fmt, ...) const
     {
