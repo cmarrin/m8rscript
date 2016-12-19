@@ -88,17 +88,17 @@ MyShell* _shell;
 
 void ICACHE_FLASH_ATTR runScript()
 {
-    esp_system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    esp_system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
+    m8r::SystemInterface::shared()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
+    m8r::SystemInterface::shared()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     _shell->load(nullptr);
     _shell->run([]{
-        esp_system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+        m8r::SystemInterface::shared()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
     });
 }
 
 void systemInitialized()
 {
-    _shell = new MyShell(esp_system(), 22);
+    _shell = new MyShell(m8r::SystemInterface::shared(), 22);
     runScript();
 }
 

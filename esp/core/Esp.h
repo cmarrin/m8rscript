@@ -61,10 +61,6 @@ void setDeviceName(const char* name);
 
 void initializeSystem(void (*)());
 
-#ifdef __cplusplus
-extern "C" m8r::SystemInterface* esp_system();
-#endif
-
 #define HIGH 0x1
 #define LOW  0x0
 
