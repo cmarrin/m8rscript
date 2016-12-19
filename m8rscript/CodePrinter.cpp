@@ -163,7 +163,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     #undef DISPATCH
     #define DISPATCH { \
         inst = code[i++]; \
-        op = static_cast<Op>(inst.op); \
+        op = static_cast<Op>(inst.op()); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -218,13 +218,13 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         }
 
         Instruction c = function->code()->at(i);
-        Op op = static_cast<Op>(c.op);
+        Op op = static_cast<Op>(c.op());
         if (op == Op::END) {
             break;
         }
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
-            int16_t addr = c.sn;
+            int16_t addr = c.sn();
             Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
             annotations.push_back(annotation);
         }
@@ -275,19 +275,19 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
         _nestingLevel--;
         return outputString;  
     L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
-        generateRXX(outputString, i - 1, op, inst.ra);
+        generateRXX(outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_PUSH:
-        generateRXX(outputString, i - 1, op, inst.rn);
+        generateRXX(outputString, i - 1, op, inst.rn());
         DISPATCH;
     L_POP:
-        generateRXX(outputString, i - 1, op, inst.ra);
+        generateRXX(outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(outputString, i - 1, op, inst.ra, inst.rb);
+        generateRRX(outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -295,17 +295,17 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_DEREF:
-        generateRRR(outputString, i - 1, op, inst.ra, inst.rb, inst.rc);
+        generateRRR(outputString, i - 1, op, inst.ra(), inst.rb(), inst.rc());
         DISPATCH;
     L_RET:
     L_JMP:
-        generateXN(outputString, i - 1, op, inst.sn);
+        generateXN(outputString, i - 1, op, inst.sn());
         DISPATCH;
     L_JT: L_JF:
-        generateRN(outputString, i - 1, op, inst.rn, inst.sn);
+        generateRN(outputString, i - 1, op, inst.rn(), inst.sn());
         DISPATCH;
     L_CALL: L_NEW:
-        generateRN(outputString, i - 1, op, inst.rn, inst.un);
+        generateRN(outputString, i - 1, op, inst.rn(), inst.un());
         DISPATCH;
 }
 

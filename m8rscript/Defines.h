@@ -175,72 +175,108 @@ enum class Op : uint8_t {
 
 static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bits");
 
-union Instruction {
-    struct {
-#ifdef __APPLE__
-        Op op : 6;
-#else
-        uint32_t op : 6;
-#endif
-        uint32_t ra : 8;
-        uint32_t rb : 9;
-        uint32_t rc : 9;
+class Instruction {
+public:
+    Instruction() { _v = 0; }
+    
+    Instruction(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+    {
+        _op = static_cast<uint32_t>(op);
+        _ra = ra;
+        _rb = rb;
+        _rc = rc;
+    }
+    
+    Instruction(Op op, uint32_t rn, uint32_t n)
+    {
+        _op = static_cast<uint32_t>(op);
+        _rn = rn;
+        _un = n;
+    }
+    
+    Instruction(Op op, uint32_t rn, int32_t n)
+    {
+        _op = static_cast<uint32_t>(op);
+        _rn = rn;
+        _sn = n;
+    }
+    
+    Op op() const { return static_cast<Op>(_op); }
+    uint32_t ra() const { return _ra; }
+    uint32_t rb() const { return _rb; }
+    uint32_t rc() const { return _rc; }
+    uint32_t rn() const { return _rn; }
+    uint32_t un() const { return _un; }
+    int32_t sn() const { return _sn; }
+    
+private:
+    union {
+        struct {
+            uint32_t _op : 6;
+            uint32_t _ra : 8;
+            uint32_t _rb : 9;
+            uint32_t _rc : 9;
+        };
+        struct {
+            uint32_t _ : 6;
+            uint32_t _rn : 9;
+            int32_t _sn : 17;
+        };
+        struct {
+            uint32_t __ : 15;
+            uint32_t _un : 17;
+        };
+        uint32_t _v;
     };
-    struct {
-        uint32_t _ : 6;
-        uint32_t rn : 9;
-        int32_t sn : 17;
-    };
-    struct {
-        uint32_t __ : 15;
-        uint32_t un : 17;
-    };
-    uint32_t v;
 };
 
 static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
 
 typedef std::vector<Instruction> Code;
 
-static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
-{
-    Instruction i;
-#ifdef __APPLE__
-    i.op = op;
-#else
-    i.op = static_cast<uint32_t>(op);
-#endif
-    i.ra = ra;
-    i.rb = rb;
-    i.rc = rc;
-    return i;
-}
-
-static inline Instruction genInstructionRUN(Op op, uint32_t rn, uint32_t n)
-{
-    Instruction i;
-#ifdef __APPLE__
-    i.op = op;
-#else
-    i.op = static_cast<uint32_t>(op);
-#endif
-    i.rn = rn;
-    i.un = n;
-    return i;
-}
-
-static inline Instruction genInstructionRSN(Op op, uint32_t rn, int32_t n)
-{
-    Instruction i;
-#ifdef __APPLE__
-    i.op = op;
-#else
-    i.op = static_cast<uint32_t>(op);
-#endif
-    i.rn = rn;
-    i.sn = n;
-    return i;
-}
+//static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
+//
+//typedef std::vector<Instruction> Code;
+//
+//static inline Instruction genInstructionRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+//{
+//    Instruction i;
+//#ifdef __APPLE__
+//    i.op = op;
+//#else
+//    i.op = static_cast<uint32_t>(op);
+//#endif
+//    i.ra = ra;
+//    i.rb = rb;
+//    i.rc = rc;
+//    return i;
+//}
+//
+//static inline Instruction genInstructionRUN(Op op, uint32_t rn, uint32_t n)
+//{
+//    Instruction i;
+//#ifdef __APPLE__
+//    i.op = op;
+//#else
+//    i.op = static_cast<uint32_t>(op);
+//#endif
+//    i.rn = rn;
+//    i.un = n;
+//    return i;
+//}
+//
+//static inline Instruction genInstructionRSN(Op op, uint32_t rn, int32_t n)
+//{
+//    Instruction i;
+//#ifdef __APPLE__
+//    i.op = op;
+//#else
+//    i.op = static_cast<uint32_t>(op);
+//#endif
+//    i.rn = rn;
+//    i.sn = n;
+//    return i;
+//}
 
 ////  Opcodes with params have bit patterns.
 ////  Upper 2 bits are 00 (values from 0x00 to 0x3f)
