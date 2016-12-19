@@ -58,6 +58,9 @@ void Program::gc(ExecutionUnit* eu)
     _stringStore.gcClear();
     _objectStore.gcClear();
     
+    // Mark string 0 (the dummy string)
+    _stringStore.gcMark(StringId(0));
+    
     eu->stack().gcMark(eu);
     gcMark(eu);
     
