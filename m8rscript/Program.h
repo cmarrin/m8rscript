@@ -160,7 +160,7 @@ private:
     private:
         std::vector<ValueType*> _values;
         std::vector<bool> _valueMarked;
-        typename IdType::value_type _freeValueIdCount = 0;
+        uint32_t _freeValueIdCount = 0;
         IdType _freeValueId;
     };
     
