@@ -180,6 +180,8 @@ public:
         }
     }
     
+    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::String; }
+    
 private:
     static constexpr uint8_t TypeBitCount = 4;
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;

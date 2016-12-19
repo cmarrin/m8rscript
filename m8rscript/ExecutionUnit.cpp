@@ -160,8 +160,8 @@ int32_t ExecutionUnit::continueExecution()
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-static const uint16_t YieldCount = 2;
-static const uint16_t GCCount = 5000;
+static const uint16_t YieldCount = 10;
+static const uint16_t GCCount = 1000;
 
     #undef DISPATCH
     #define DISPATCH { \

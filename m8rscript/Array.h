@@ -47,8 +47,15 @@ public:
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
+        if (!_needsGC) {
+            return;
+        }
+        _needsGC = false;
         for (auto entry : _array) {
             entry.gcMark(eu);
+            if (entry.needsGC()) {
+                _needsGC = true;
+            }
         }
     }
     
@@ -64,6 +71,7 @@ public:
             return false;
         }
         _array[index] = value;
+        _needsGC = value.needsGC();
         return true;
     }
     virtual bool appendElement(ExecutionUnit*, const Value& value) override { _array.push_back(value); return true; }
@@ -95,6 +103,8 @@ private:
     Atom _lengthAtom;
     
     std::vector<Value> _array;
+    
+    bool _needsGC = false;
 };
     
 }
