@@ -149,7 +149,7 @@ private:
 
     bool printError(const char* s, ...) const;
     bool checkTooManyErrors() const;
-    void objectError(const char* s) { printError(ROMSTR("Value must be Object for %s"), s); }
+    void objectError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
 

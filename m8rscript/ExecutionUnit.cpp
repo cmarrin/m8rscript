@@ -61,6 +61,11 @@ bool ExecutionUnit::printError(const char* format, ...) const
     return checkTooManyErrors();
 }
 
+void ExecutionUnit::objectError(const char* s) const
+{
+    printError(ROMSTR("Value must be Object for %s"), s);
+}
+
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 {
     // Start at the current object and walk up the chain
