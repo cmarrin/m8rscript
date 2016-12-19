@@ -72,16 +72,10 @@ public:
     virtual Value* addProperty(const Atom&) { return nullptr; }
     virtual size_t propertyCount() const { return 0; }
     
-    virtual const Value element(int32_t index) const { return Value(); }
-    virtual bool setElement(ExecutionUnit*, int32_t index, const Value&) { return false; }
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIntValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
-    virtual size_t elementCount() const { return 0; }
-    virtual void setElementCount(size_t) { }
     
-    virtual bool setValue(ExecutionUnit*, const Value&) { return false; }
-    virtual Value* value() { return nullptr; }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
 
     bool serializeObject(Stream*, Error&, Program*) const;

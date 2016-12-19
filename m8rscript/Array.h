@@ -52,20 +52,21 @@ public:
         }
     }
     
-    virtual const Value element(int32_t index) const override { return (index >= 0 && index < _array.size()) ? _array[index] : Value(); }
-    virtual bool setElement(ExecutionUnit*, int32_t index, const Value& value) override
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
     {
+        int32_t index = elt.toIntValue(eu);
+        return (index >= 0 && index < _array.size()) ? _array[index] : Value();
+    }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override
+    {
+        int32_t index = elt.toIntValue(eu);
         if (index < 0 || index >= _array.size()) {
             return false;
         }
         _array[index] = value;
         return true;
     }
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override { return element(elt.toIntValue(eu)); }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override { return setElement(eu, elt.toIntValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value& value) override { _array.push_back(value); return true; }
-    virtual size_t elementCount() const override { return _array.size(); }
-    virtual void setElementCount(size_t size) override { _array.resize(size); }
 
     // Array has built-in properties. Handle those here
     virtual const Value property(const Atom& prop) const override;

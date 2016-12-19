@@ -62,12 +62,6 @@ public:
         }
     }
     
-    virtual const Value element(int32_t index) const override { assert(index >= 0 && index < size()); return inFrame(index); }
-    virtual bool setElement(ExecutionUnit*, int32_t index, const Value& value) override { assert(index >= 0 && index < size()); inFrame(index) = value; return true; }
-    virtual bool appendElement(ExecutionUnit*, const Value&) override { assert(0); return false; }
-    virtual size_t elementCount() const override { assert(0); return 0; }
-    virtual void setElementCount(size_t) override { assert(0); }
-    
     Value* framePtr() { return Stack::framePtr(); }
 
 protected:

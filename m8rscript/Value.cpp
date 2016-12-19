@@ -176,12 +176,8 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: return String("null");
         case Type::Object: {
-            Value* v = nullptr;
             Object* obj = eu->program()->obj(*this);
-            if (obj) {
-                v = obj->value();
-            }
-            return v ? v->toStringValue(eu) : (obj ? obj->toString(eu) : String("unknown"));
+            return obj ? obj->toString(eu) : String("null");
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
@@ -198,14 +194,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::None: break;
         case Type::Object: {
             Object* obj = eu->program()->obj(*this);
-            Value* v = nullptr;
-            if (obj) {
-                v = obj->value();
-            }
-            if (v) {
-                return v->toFloatValue(eu);
-            }
-            break;
+            return obj ? floatFromString(obj->toString(eu).c_str()) : Float();
         }
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(intFromValue(), 0);
@@ -229,14 +218,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::None: break;
         case Type::Object: {
             Object* obj = eu->program()->obj(*this);
-            Value* v = nullptr;
-            if (obj) {
-                v = obj->value();
-            }
-            if (v) {
-                return v->toIdValue(eu);
-            }
-            break;
+            return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
         }
         case Type::Integer:
         case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
