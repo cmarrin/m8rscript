@@ -41,6 +41,27 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+inline void mult64to128(uint64_t op1, uint64_t op2, uint64_t& hi, uint64_t& lo)
+{
+    uint64_t u1 = (op1 & 0xffffffff);
+    uint64_t v1 = (op2 & 0xffffffff);
+    uint64_t t = (u1 * v1);
+    uint64_t w3 = (t & 0xffffffff);
+    uint64_t k = (t >> 32);
+
+    op1 >>= 32;
+    t = (op1 * v1) + k;
+    k = (t & 0xffffffff);
+    uint64_t w1 = (t >> 32);
+
+    op2 >>= 32;
+    t = (u1 * op2) + k;
+    k = (t >> 32);
+
+    hi = (op1 * op2) + w1 + k;
+    lo = (t << 32) + w3;
+}
+
 template<typename RawType, typename DecomposeType, int32_t BinExp = 0, int32_t DecExp = 0>
 class _Float
 {
@@ -322,6 +343,42 @@ inline _Float<double, int64_t> _Float<double, int64_t>::floor() const
     r._value._raw = static_cast<double>(static_cast<int64_t>(_value._raw));
     return r;
 }
+
+template<>
+inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator*(const _Float& other) const
+{
+    if (_value._raw > -std::numeric_limits<int32_t>::max() && _value._raw < std::numeric_limits<int32_t>::max() &&
+        other._value._raw > -std::numeric_limits<int32_t>::max() && other._value._raw < std::numeric_limits<int32_t>::max()) {
+        _Float r;
+        int64_t result = static_cast<uint64_t>(_value._raw) * other._value._raw >> BinaryExponent;
+        r._value._raw = static_cast<int64_t>(result);
+        return r;
+    }
+    // Do it the slow way
+    bool signA = _value._raw < 0;
+    bool signB = other._value._raw < 0;
+    uint64_t a = static_cast<uint64_t>(_value._raw);
+    uint64_t b = static_cast<uint64_t>(other._value._raw);
+    if (signA) {
+        a = -a;
+    }
+    if (signB) {
+        b = -b;
+    }
+    mult64to128(a, b, a, b);
+    if (a >= (1 << 26)) {
+        // Handle out of range error
+        return _Float();
+    }
+    b = (b >> BinaryExponent) + (a << (64 - BinaryExponent));
+    if (signA ^ signB) {
+        b = -b;
+    }
+    _Float r;
+    r._value._raw = b;
+    return r;
+}
+
 
 // Range is +/- 2e6 with 2 decimal digits of precision
 typedef _Float<int32_t, int32_t, 10, 2> Float32;

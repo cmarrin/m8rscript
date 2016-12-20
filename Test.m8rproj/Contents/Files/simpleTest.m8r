@@ -6,6 +6,9 @@ function add(x, y, z)
 	return (x + y + z);
 }
 
+var m1 = 9.5;
+Serial.print("m1 * 1000 = " + m1 * 1000 + "\n");
+
 Serial.print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
 var b = [ 1, 2, 3 ];
 var c = 12.5;
