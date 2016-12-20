@@ -379,6 +379,26 @@ inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator
     return r;
 }
 
+template<>
+inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator/(const _Float& other) const
+{
+    if (_value._raw > -std::numeric_limits<int32_t>::max() && _value._raw < std::numeric_limits<int32_t>::max()) {
+        if (other._value._raw == 0) {
+            return _Float();
+        }
+        _Float r;
+        int64_t result = (static_cast<int64_t>(_value._raw) << BinaryExponent) / other._value._raw;
+        r._value._raw = result;
+        return r;
+    }
+
+    // do *this * 1 / other
+    _Float inv;
+    inv._value._raw = (1LL << 62) / other._value._raw;
+    _Float r = inv * *this;
+    r._value._raw = ((r._value._raw >> (62 - (26 + 26) - 1)) + 1) >> 1;
+    return r;
+}
 
 // Range is +/- 2e6 with 2 decimal digits of precision
 typedef _Float<int32_t, int32_t, 10, 2> Float32;

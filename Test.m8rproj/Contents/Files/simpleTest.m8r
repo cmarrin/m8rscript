@@ -6,8 +6,11 @@ function add(x, y, z)
 	return (x + y + z);
 }
 
+// Range tests
 var m1 = 9.5;
 Serial.print("m1 * 1000 = " + m1 * 1000 + "\n");
+
+Serial.print("2100 / 1000 = " + 2100 / 1000 + "\n");
 
 Serial.print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
 var b = [ 1, 2, 3 ];
