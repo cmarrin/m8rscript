@@ -45,7 +45,7 @@ bool ExecutionUnit::checkTooManyErrors() const
 {
     if (++_nerrors >= 10) {
         if (_system) {
-            _system->printf(ROMSTR("\n\nToo many runtime errors, exiting...\n"));
+            _system->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
             _terminate = true;
         }
         return false;
@@ -300,6 +300,7 @@ static const uint16_t GCCount = 1000;
             DISPATCH;
         }
         if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()))) {
+            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
             
@@ -310,6 +311,7 @@ static const uint16_t GCCount = 1000;
             DISPATCH;
         }
         if (!objectValue->setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()))) {
+            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
         DISPATCH;
