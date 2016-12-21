@@ -47,8 +47,8 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     int32_t now = msNow();
     if (delay > 6000000) {
         delay = 6000000;
-    } else if (delay > 0 && delay < 5) {
-        delay = 5;
+    } else if (delay < 5) {
+        delay = 0;
     }
     
     newTask->_msSet = delay;

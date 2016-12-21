@@ -84,7 +84,7 @@ public:
         _repeating = false;
         TaskManager::sharedTaskManager()->runTask(this, delay);
     }
-    void runRepeating(int32_t delay)
+    void runRepeating(int32_t delay = 0)
     {
         _repeating = true;
         TaskManager::sharedTaskManager()->runTask(this, delay);
