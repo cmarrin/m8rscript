@@ -66,7 +66,7 @@ bool Shell::load(const char* filename)
 {
     Error error;
     if (!_application.load(error, filename)) {
-        error.showError(_system);
+        error.showError();
         return false;
     }
     if (!_application.program()) {
@@ -298,7 +298,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     } else if (array[0] == "run") {
         load((array.size() < 2) ? nullptr : array[1].c_str());
         run([this]{
-            _system->printf(ROMSTR("\n***** Program Finished *****\n\n"));
+            SystemInterface::shared()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
         _state = State::NeedPrompt;
         sendString(ROMSTR("Program started...\n"));

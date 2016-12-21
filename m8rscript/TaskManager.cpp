@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "TaskManager.h"
 
+#include "SystemInterface.h"
 #include <cassert>
 
 using namespace m8r;
@@ -107,5 +108,10 @@ void TaskManager::prepareForNextEvent()
         return;
     }
     postEvent();
+}
+
+int32_t TaskManager::msNow()
+{
+    return static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
 }
 

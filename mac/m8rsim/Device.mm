@@ -118,7 +118,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
         [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
 
         _sharedSystemInterface = new DeviceSystemInterface(self);
-        _simulator = new Simulator(_sharedSystemInterface);
+        _simulator = new Simulator();
         
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
 

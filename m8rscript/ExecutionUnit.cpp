@@ -44,10 +44,8 @@ using namespace m8r;
 bool ExecutionUnit::checkTooManyErrors() const
 {
     if (++_nerrors >= 10) {
-        if (_system) {
-            _system->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
-            _terminate = true;
-        }
+        SystemInterface::shared()->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
+        _terminate = true;
         return false;
     }
     return true;
@@ -57,7 +55,7 @@ bool ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    Error::vprintError(_system, Error::Code::RuntimeError, -1, format, args);
+    Error::vprintError(Error::Code::RuntimeError, -1, format, args);
     return checkTooManyErrors();
 }
 

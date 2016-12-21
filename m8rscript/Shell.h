@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Application.h"
 #include "FS.h"
 #include "Containers.h"
-#include "SystemInterface.h"
 #include <functional>
 
 namespace m8r {
@@ -52,7 +51,7 @@ public:
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
-    Shell(SystemInterface* system) : _system(system), _application(system) { }
+    Shell() : _application() { }
     
     void connected();
     void disconnected() { }
@@ -87,7 +86,6 @@ private:
     
     mutable char _buffer[BufferSize];
     
-    SystemInterface* _system;
     Application _application;
 
 };

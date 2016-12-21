@@ -44,10 +44,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Application::Application(SystemInterface* system)
-    : _system(system)
-    , _runTask(system)
-    , _heartbeatTask(system)
+Application::Application()
+    : _runTask()
+    , _heartbeatTask()
 {
 }
 
@@ -66,7 +65,7 @@ bool Application::load(Error& error, const char* filename)
         }
         
         // Is it a m8rb file?
-        _program = new m8r::Program(_system);
+        _program = new m8r::Program();
         if (_program->deserializeObject(&m8rbStream, error, nullptr, AtomTable(), std::vector<char>())) {
             return true;
         }
@@ -81,10 +80,10 @@ bool Application::load(Error& error, const char* filename)
 #else
         // See if we can parse it
         FileStream m8rStream(filename);
-        _system->printf(ROMSTR("Parsing...\n"));
-        Parser parser(_system);
+        SystemInterface::shared()->printf(ROMSTR("Parsing...\n"));
+        Parser parser;
         parser.parse(&m8rStream);
-        _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             return false;
         }
@@ -106,16 +105,16 @@ bool Application::load(Error& error, const char* filename)
             name += static_cast<char>(c);
         }
     } else {
-        _system->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
+        SystemInterface::shared()->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
     }
     
     name += ".m8rb";
-    _system->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
+    SystemInterface::shared()->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
 
     FileStream m8rbMainStream(name.c_str());
     
     if (m8rbMainStream.loaded()) {
-        _program = new m8r::Program(_system);
+        _program = new m8r::Program();
         return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
      }
 
@@ -124,7 +123,7 @@ bool Application::load(Error& error, const char* filename)
     return false;
 #else
     name = name.slice(0, -1);
-    _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
+    SystemInterface::shared()->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
     FileStream m8rMainStream(name.c_str());
     
     if (!m8rMainStream.loaded()) {
@@ -132,9 +131,9 @@ bool Application::load(Error& error, const char* filename)
         return false;
     }
 
-    Parser parser(_system);
+    Parser parser;
     parser.parse(&m8rMainStream);
-    _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+    SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     if (parser.nerrors()) {
         return false;
     }
@@ -146,7 +145,7 @@ bool Application::load(Error& error, const char* filename)
 
 void Application::run(std::function<void()> function)
 {
-    _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
+    SystemInterface::shared()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
     _runTask.run(_program, function);
 }
 
@@ -158,7 +157,7 @@ void Application::pause()
 void Application::stop()
 {
     _runTask.stop();
-    _system->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
+    SystemInterface::shared()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)

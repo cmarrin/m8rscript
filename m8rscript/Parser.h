@@ -43,8 +43,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class SystemInterface;
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Parser
@@ -58,7 +56,7 @@ class Parser  {
     friend class ParseStack;
     
 public:
-	Parser(SystemInterface* system = nullptr);
+	Parser();
     
     ~Parser()
     {
@@ -213,8 +211,6 @@ private:
     std::vector<size_t> _deferredCodeBlocks;
     Code _deferredCode;
     bool _deferred = false;
-
-    SystemInterface* _system;
 
     static uint32_t _nextLabelId;
 };

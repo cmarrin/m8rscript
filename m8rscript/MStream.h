@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "FS.h"
 #include "Containers.h"
-#include "SystemInterface.h"
 
 namespace m8r {
 

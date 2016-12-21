@@ -39,8 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class SystemInterface;
-
 class Serial : public Object {
 public:
     Serial(Program*);

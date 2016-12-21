@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Program::Program(SystemInterface* system) : _global(this)
+Program::Program() : _global(this)
 {
     addObject(this, false);
     

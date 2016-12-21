@@ -46,7 +46,6 @@ namespace m8r {
 class Parser;
 class Function;
 class Program;
-class SystemInterface;
 
 class ExecutionStack : public Stack<Value>, public Object
 {
@@ -80,7 +79,7 @@ class ExecutionUnit {
 public:
     friend class Function;
     
-    ExecutionUnit(SystemInterface* system = nullptr) : _stack(200), _system(system) { }
+    ExecutionUnit() : _stack(200) { }
     
     void startExecution(Program*);
     
@@ -91,7 +90,6 @@ public:
 
     void requestTermination() { _terminate = true; }
     
-    SystemInterface* system() const { return _system; }
     Program* program() const { return _program; }
     
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
@@ -191,7 +189,6 @@ private:
     
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
-    SystemInterface* _system;
     mutable bool _terminate = false;
 };
     

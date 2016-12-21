@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "ExecutionUnit.h"
+#include "SystemInterface.h"
 #include "TaskManager.h"
 #include <functional>
 
@@ -43,14 +44,13 @@ namespace m8r {
 
 static const char* MainFileName = "main";
 
-class SystemInterface;
 class Program;
 class Error;
 class ExecutionUnit;
 
 class Application {
 public:
-    Application(SystemInterface*);
+    Application();
     
     bool load(Error&, const char* name = nullptr);
     void run(std::function<void()>);
@@ -74,7 +74,7 @@ public:
 private:
     class MyRunTask : public Task {
     public:
-        MyRunTask(SystemInterface* system) : _eu(system) { }
+        MyRunTask() : _eu() { }
         
         void run(Program* program, std::function<void()> function)
         {
@@ -96,9 +96,9 @@ private:
 
     class MyHeartbeatTask : public m8r::Task {
     public:
-        MyHeartbeatTask(SystemInterface* system) : _system(system)
+        MyHeartbeatTask()
         {
-            _system->gpio().enableHeartbeat();
+            SystemInterface::shared()->gpio().enableHeartbeat();
             execute();
         }
         
@@ -108,7 +108,7 @@ private:
         
         virtual bool execute() override
         {
-            _system->gpio().heartbeat(!_upbeat);
+            SystemInterface::shared()->gpio().heartbeat(!_upbeat);
             _upbeat = !_upbeat;
             runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
             return true;
@@ -117,11 +117,8 @@ private:
         // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
         // when the downbeat started 
         bool _upbeat = false; // When true, heartbeat is occuring
-
-        SystemInterface* _system;
     };
 
-    SystemInterface* _system;
     Program* _program = nullptr;
     MyRunTask _runTask;
     MyHeartbeatTask _heartbeatTask;

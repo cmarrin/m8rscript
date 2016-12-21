@@ -37,18 +37,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ParseEngine.h"
 #include "ExecutionUnit.h"
-#include "SystemInterface.h"
 #include <limits>
 
 using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(SystemInterface* system)
+Parser::Parser()
     : _parseStack(this)
     , _scanner(this)
-    , _program(new Program(system))
-    , _system(system)
+    , _program(new Program())
 {
     _program->setCollectable(false);
 }
@@ -69,14 +67,14 @@ void Parser::parse(m8r::Stream* istream)
 void Parser::printError(const char* s)
 {
     ++_nerrors;
-    Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), s);
+    Error::printError(Error::Code::ParseError, _scanner.lineno(), s);
 }
 
 void Parser::unknownError(Token token)
 {
     ++_nerrors;
     uint8_t c = static_cast<uint8_t>(token);
-    Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
+    Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
 }
 
 void Parser::expectedError(Token token)
@@ -84,13 +82,13 @@ void Parser::expectedError(Token token)
     ++_nerrors;
     uint8_t c = static_cast<uint8_t>(token);
     if (c < 0x80) {
-        Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
+        Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
     } else {
         switch(token) {
-            case Token::Expr: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
-            case Token::PropertyAssignment: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
-            case Token::Identifier: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
-            default: Error::printError(_system, Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
+            case Token::Expr: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
+            case Token::PropertyAssignment: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
+            case Token::Identifier: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
+            default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
     }
 }

@@ -61,7 +61,7 @@ extern "C" {
 
 class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
-    MyShell(m8r::SystemInterface* system, uint16_t port) : Shell(system), _tcp(m8r::TCP::create(this, port)) { }
+    MyShell(uint16_t port) : Shell(system), _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
     virtual void TCPconnected(m8r::TCP*) override { connected(); }
@@ -98,7 +98,7 @@ void ICACHE_FLASH_ATTR runScript()
 
 void systemInitialized()
 {
-    _shell = new MyShell(m8r::SystemInterface::shared(), 22);
+    _shell = new MyShell(22);
     runScript();
 }
 

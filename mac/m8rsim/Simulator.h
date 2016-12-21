@@ -38,14 +38,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Application.h"
 #include "ExecutionUnit.h"
 #include "Shell.h"
-#include "SystemInterface.h"
 
 class Simulator
 {
 public:
-    Simulator(m8r::SystemInterface* system)
-        : _system(system)
-        , _shell(system, this)
+    Simulator()
+        : _shell(this)
     { }
     
     ~Simulator();
@@ -82,14 +80,13 @@ public:
 private:
     class MyShell : public m8r::Shell {
     public:
-        MyShell(m8r::SystemInterface* system, Simulator* simulator) : Shell(system), _simulator(simulator) { }
+        MyShell(Simulator* simulator) : Shell(), _simulator(simulator) { }
         virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
 
     private:
         Simulator* _simulator;
     };
     
-    m8r::SystemInterface* _system;
     bool _running = false;
     MyShell _shell;
     m8r::String _receivedString;

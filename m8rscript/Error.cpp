@@ -39,23 +39,23 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void Error::showError(SystemInterface* system) const
+void Error::showError() const
 {
     const char* codeString = "unknown";
     switch(_code) {
         default: break;
     }
-    system->printf(ROMSTR("Error: %s\n"), codeString);
+    SystemInterface::shared()->printf(ROMSTR("Error: %s\n"), codeString);
 }
 
-void Error::printError(SystemInterface* system, Code code, int32_t lineno, const char* format, ...)
+void Error::printError(Code code, int32_t lineno, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    vprintError(system, code, lineno, format, args);
+    vprintError(code, lineno, format, args);
 }
 
-void Error::vprintError(SystemInterface* system, Code code, int32_t lineno, const char* format, va_list args)
+void Error::vprintError(Code code, int32_t lineno, const char* format, va_list args)
 {
     const char* codeString = "";
     
@@ -72,16 +72,16 @@ void Error::vprintError(SystemInterface* system, Code code, int32_t lineno, cons
         case Code::RuntimeError: codeString = ROMSTR("Runtime"); break;
     }
     
-    system->printf(codeString);
-    system->printf(ROMSTR(" Error"));
+    SystemInterface::shared()->printf(codeString);
+    SystemInterface::shared()->printf(ROMSTR(" Error"));
     if (!format) {
         return;
     }
-    system->printf(ROMSTR(": "));
-    system->vprintf(format, args);
+    SystemInterface::shared()->printf(ROMSTR(": "));
+    SystemInterface::shared()->vprintf(format, args);
     if (lineno >= 0) {
-        system->printf(ROMSTR(" on line %d"), lineno);
+        SystemInterface::shared()->printf(ROMSTR(" on line %d"), lineno);
     }
-    system->printf(ROMSTR("\n"));
+    SystemInterface::shared()->printf(ROMSTR("\n"));
 }
 

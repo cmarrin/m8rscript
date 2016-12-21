@@ -43,11 +43,10 @@ namespace m8r {
 
 class Object;
 class Function;
-class SystemInterface;
 
 class Program : public Function {
 public:
-    Program(SystemInterface* system);
+    Program();
     ~Program();
     
     virtual const char* typeName() const override { return "Program"; }

@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "SystemInterface.h"
+#include <cstdint>
 
 namespace m8r {
 
@@ -59,7 +59,7 @@ protected:
     bool empty() const { return !_head; }
     int32_t nextTimeToFire() const;
     
-    static int32_t msNow() { return static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000); }
+    static int32_t msNow();
 
 private:
     void prepareForNextEvent();

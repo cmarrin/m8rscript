@@ -24,11 +24,6 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#ifdef __cplusplus
-namespace m8r {
-    class SystemInterface;
-}
-
 extern "C" {
 #endif
 
