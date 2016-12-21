@@ -61,7 +61,7 @@ extern "C" {
 
 class MyShell : public m8r::Shell, public m8r::TCPDelegate {
 public:
-    MyShell(uint16_t port) : Shell(system), _tcp(m8r::TCP::create(this, port)) { }
+    MyShell(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
     virtual void TCPconnected(m8r::TCP*) override { connected(); }

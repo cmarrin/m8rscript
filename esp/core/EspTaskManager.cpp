@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EspTaskManager.h"
 
+#include "Esp.h"
+
 using namespace m8r;
 
 EspTaskManager::EspTaskManager()
