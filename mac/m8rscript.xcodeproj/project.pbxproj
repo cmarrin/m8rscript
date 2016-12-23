@@ -71,6 +71,8 @@
 		49E5AB691DA1717300C6988D /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB681DA1717300C6988D /* Device.mm */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
+		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
+		49F463361E0DD545004EF625 /* MGSFragaria.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +101,16 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		49F463351E0DD533004EF625 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				49F463361E0DD545004EF625 /* MGSFragaria.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -211,6 +223,7 @@
 		49F166F41DA7443100C07A1A /* SimulationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SimulationView.xib; sourceTree = "<group>"; };
 		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
+		49F463321E0DD05E004EF625 /* MGSFragaria.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MGSFragaria.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */,
+				49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +318,7 @@
 		49D9B8191D1C854700724911 /* m8rsim */ = {
 			isa = PBXGroup;
 			children = (
+				49F463321E0DD05E004EF625 /* MGSFragaria.framework */,
 				49E5AB5B1D98BFED00C6988D /* FastSocket */,
 				49E5AB531D981A6300C6988D /* UI */,
 				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
@@ -486,6 +501,7 @@
 				49D9B8141D1C854700724911 /* Sources */,
 				49D9B8151D1C854700724911 /* Frameworks */,
 				49D9B8161D1C854700724911 /* Resources */,
+				49F463351E0DD533004EF625 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -705,8 +721,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/m8rsim",
+				);
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
@@ -722,8 +743,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/m8rsim",
+				);
 				INFOPLIST_FILE = m8rsim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;

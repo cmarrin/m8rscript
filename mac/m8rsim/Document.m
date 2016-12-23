@@ -13,12 +13,13 @@
 #import "Device.h"
 #import "SimulationView.h"
 #import "FileBrowser.h"
+#import <MGSFragaria/MGSFragaria.h>
 
 #import <stdarg.h>
 
 @interface Document ()
 {
-    IBOutlet NSTextView* sourceEditor;
+    IBOutlet NSView* editView;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
@@ -46,6 +47,8 @@
     
     NSFileWrapper* _package;
     
+    MGSFragaria* _fragaria;
+
 }
 
 @end
@@ -63,16 +66,10 @@
 
 - (void)awakeFromNib
 {
-    [sourceEditor setFont:_font];
     [consoleOutput setFont:_font];
     [buildOutput setFont:_font];
-    [sourceEditor setVerticallyResizable:YES];
     [consoleOutput setVerticallyResizable:YES];
     [buildOutput setVerticallyResizable:YES];
-    sourceEditor.ShowsLineNumbers = YES;
-    sourceEditor.automaticQuoteSubstitutionEnabled = NO;
-    [[sourceEditor textStorage] setDelegate:(id) self];
-    [sourceEditor setString:_source];
     
     _device = [[Device alloc]init];
     _device.delegate = self;
@@ -90,6 +87,52 @@
     if (_package) {
         [self setFiles];
     }
+}
+
+- (void)windowControllerDidLoadNib:(NSWindowController *) aController
+{
+    [super windowControllerDidLoadNib:aController];
+
+	// create an instance
+	_fragaria = [[MGSFragaria alloc] init];
+	
+	[_fragaria setObject:self forKey:MGSFODelegate];
+	
+	// define our syntax definition
+	[self setSyntaxDefinition:@"Objective-C"];
+	
+	// embed editor in editView
+	[_fragaria embedInView:editView];
+	
+    //
+	// assign user defaults.
+	// a number of properties are derived from the user defaults system rather than the doc spec.
+	//
+	// see MGSFragariaPreferences.h for details
+	//
+    if (NO) {
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:MGSFragariaPrefsAutocompleteSuggestAutomatically];
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:MGSFragariaPrefsLineWrapNewDocuments];
+    }
+	
+	// define initial document configuration
+	//
+	// see MGSFragaria.h for details
+	//
+    if (YES) {
+        [_fragaria setObject:[NSNumber numberWithBool:YES] forKey:MGSFOIsSyntaxColoured];
+        [_fragaria setObject:[NSNumber numberWithBool:YES] forKey:MGSFOShowLineNumberGutter];
+    }
+
+    // set text
+	[_fragaria setString:@"// We Don't need the future"];
+	
+
+	// access the NSTextView
+	NSTextView *textView = [_fragaria objectForKey:ro_MGSFOTextView];
+	
+#pragma unused(textView)
+	
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -230,9 +273,9 @@
 {
     _source = @"";
     _selectedFilename = @"";
-    if (sourceEditor) {
-        [sourceEditor setString:_source];
-    }
+//    if (sourceEditor) {
+//        [sourceEditor setString:_source];
+//    }
     [_device clearContents];
 }
 
@@ -244,9 +287,9 @@
     NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
     if (source) {
         _source = source;
-        if (sourceEditor) {
-            [sourceEditor setString:_source];
-        }
+//        if (sourceEditor) {
+//            [sourceEditor setString:_source];
+//        }
         return;
     }
     
@@ -268,7 +311,7 @@
     NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
     [attachment setAttachmentCell: attachmentCell ];
     NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
-    [[sourceEditor textStorage] setAttributedString:attributedString];
+//    [[sourceEditor textStorage] setAttributedString:attributedString];
 }
 
 - (void)setFiles
@@ -395,6 +438,93 @@
 
 - (IBAction)upload:(id)sender {
     [_device mirrorFiles];
+}
+
+#pragma mark -
+#pragma mark Syntax definition handling
+
+/*
+ 
+ - setSyntaxDefinition:
+ 
+ */
+
+- (void)setSyntaxDefinition:(NSString *)name
+{
+	[_fragaria setObject:name forKey:MGSFOSyntaxDefinitionName];
+}
+
+/*
+ 
+ - syntaxDefinition
+ 
+ */
+- (NSString *)syntaxDefinition
+{
+	return [_fragaria objectForKey:MGSFOSyntaxDefinitionName];
+	
+}
+
+#pragma mark -
+#pragma mark NSTextDelegate
+/*
+ 
+ - textDidChange:
+ 
+ fragaria delegate method
+ 
+ */
+- (void)textDidChange:(NSNotification *)notification
+{
+	#pragma unused(notification)
+	
+	NSWindowController *controller = [[self windowControllers] objectAtIndex:0];
+	
+	[controller setDocumentEdited:YES];
+}
+
+/*
+ 
+ - textDidBeginEditing:
+ 
+ */
+- (void)textDidBeginEditing:(NSNotification *)aNotification
+{
+	NSLog(@"notification : %@", [aNotification name]);
+}
+
+/*
+ 
+ - textDidEndEditing:
+ 
+ */
+- (void)textDidEndEditing:(NSNotification *)aNotification
+{
+	NSLog(@"notification : %@", [aNotification name]);
+}
+
+/*
+ 
+ - textShouldBeginEditing:
+ 
+ */
+- (BOOL)textShouldBeginEditing:(NSText *)aTextObject
+{
+#pragma unused(aTextObject)
+	
+	return YES;
+}
+
+/*
+ 
+ - textShouldEndEditing:
+ 
+ */
+- (BOOL)textShouldEndEditing:(NSText *)aTextObject
+{
+	#pragma unused(aTextObject)
+	
+	return YES;
 }
 
 @end
