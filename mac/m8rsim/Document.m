@@ -345,39 +345,6 @@
     [self reloadFiles];
 }
 
-//
-// Text Content Interface
-//
-- (void)textStorageDidProcessEditing:(NSNotification *)notification
-{
-    NSTextStorage *textStorage = notification.object;
-    NSString *string = textStorage.string;
-    NSUInteger n = string.length;
-    
-    if (_selectedFilename.length) {
-        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
-                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
-                                    nil;
-        if (files) {
-            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
-            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
-        }
-    }
-    
-    [textStorage removeAttribute:NSForegroundColorAttributeName range:NSMakeRange(0, n)];
-    for (NSUInteger i = 0; i < n; i++) {
-        unichar c = [string characterAtIndex:i];
-        if (c == '\\') {
-            [textStorage addAttribute:NSForegroundColorAttributeName value:[NSColor lightGrayColor] range:NSMakeRange(i, 1)];
-            i++;
-        } else if (c == '$') {
-            NSUInteger l = ((i < n - 1) && isdigit([string characterAtIndex:i+1])) ? 2 : 1;
-            [textStorage addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(i, l)];
-            i++;
-        }
-    }
-}
-
 - (NSString *)windowNibName {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
@@ -466,11 +433,20 @@
  */
 - (void)textDidChange:(NSNotification *)notification
 {
-	#pragma unused(notification)
-	
-	NSWindowController *controller = [[self windowControllers] objectAtIndex:0];
-	
-	[controller setDocumentEdited:YES];
+    NSTextStorage *textStorage = [notification.object textStorage];
+    NSString *string = textStorage.string;
+    
+    if (_selectedFilename.length) {
+        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
+                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
+                                    nil;
+        if (files) {
+            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
+            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
+        }
+    }
+    [self reloadFiles];
+    [self updateChangeCount:NSChangeDone];
 }
 
 /*
@@ -502,6 +478,7 @@
 {
 #pragma unused(aTextObject)
 	
+	NSLog(@"textShouldBeginEditing");
 	return YES;
 }
 
@@ -514,6 +491,7 @@
 {
 	#pragma unused(aTextObject)
 	
+	NSLog(@"textShouldEndEditing");
 	return YES;
 }
 
