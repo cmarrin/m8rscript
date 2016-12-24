@@ -186,8 +186,70 @@ bool ParseEngine::selectionStatement()
 
 bool ParseEngine::switchStatement()
 {
-    // FIXME: Implement
-    return false;
+    if (getToken() != Token::Switch) {
+        return false;
+    }
+    retireToken();
+    expect(Token::LParen);
+    expression();
+    expect(Token::RParen);
+    expect(Token::LBrace);
+
+    // Case statements
+    Label prevCaseLabel;
+    Label defaultCaseLabel;
+    bool haveDefault = false;
+    bool havePrevious = false;
+
+    std::vector<Label> _labels;
+    
+    while (true) {
+        if (getToken() == Token::Case) {
+            retireToken();
+
+            if (havePrevious) {
+                _parser->matchJump(prevCaseLabel);
+            }
+            
+            havePrevious = true;
+            prevCaseLabel = _parser->label();
+            
+            expression();
+            expect(Token::Colon);
+            _parser->emitCaseTest();
+            _parser->addMatchedJump(Op::JF, prevCaseLabel);
+            statement();
+            _labels.push_back(Label());
+            _parser->addMatchedJump(Op::JMP, _labels.back());
+        } else if (getToken() == Token::Default) {
+            retireToken();
+            
+            // This is a bit confusing. We expect that we haven't already seen a default statement
+            expect(Token::Default, !haveDefault);
+            haveDefault = true;
+            expect(Token::Colon);
+            
+            defaultCaseLabel = _parser->label();
+            statement();
+            _labels.push_back(defaultCaseLabel);
+            _parser->addMatchedJump(Op::JMP, _labels.back());
+        } else {
+            break;
+        }
+    }
+    
+    expect(Token::RBrace);
+    if (haveDefault) {
+        // Make the last case jump to the default
+        _parser->matchJump(prevCaseLabel, defaultCaseLabel);
+    }
+    
+    for (auto it : _labels) {
+        _parser->matchJump(it);
+    }
+    
+    _parser->discardResult();
+    return true;
 }
 
 void ParseEngine::forLoopCondAndIt()
