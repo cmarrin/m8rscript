@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11191" systemVersion="16C60a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11163.2" systemVersion="15F18c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11163.2"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
@@ -15,6 +15,7 @@
                 <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
                 <outlet property="editView" destination="E0T-Wz-mD4" id="7tW-Fd-D6A"/>
                 <outlet property="filesContainer" destination="ITH-sx-5DT" id="WZ2-Z6-8pn"/>
+                <outlet property="imageView" destination="np9-g9-QUZ" id="6zF-UC-9yK"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
                 <outlet property="pauseButton" destination="7ed-ZA-LTG" id="ZFe-iA-0tc"/>
                 <outlet property="reloadFilesButton" destination="ewM-ZG-vnX" id="k9u-M3-uSw"/>
@@ -33,7 +34,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="133" y="235" width="1094" height="606"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <value key="minSize" type="size" width="1094" height="606"/>
             <view key="contentView" wantsLayer="YES" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="1094" height="606"/>
@@ -60,6 +61,11 @@
                                         <rect key="frame" x="258" y="0.0" width="567" height="423"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </customView>
+                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="np9-g9-QUZ">
+                                        <rect key="frame" x="258" y="0.0" width="567" height="423"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Y5x-05-ptV"/>
+                                    </imageView>
                                     <box borderType="bezel" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="NwS-b5-0vz" userLabel="Files Container Box">
                                         <rect key="frame" x="830" y="-4" width="267" height="429"/>
                                         <view key="contentView" id="ITH-sx-5DT" userLabel="Files Container View">
@@ -98,13 +104,15 @@
                                                                 <rect key="frame" x="1" y="1" width="1077" height="147"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
-                                                                    <textView importsGraphics="NO" horizontallyResizable="YES" verticallyResizable="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="kHQ-5K-DHj">
+                                                                    <textView importsGraphics="NO" horizontallyResizable="YES" verticallyResizable="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="kHQ-5K-DHj">
                                                                         <rect key="frame" x="0.0" y="0.0" width="1077" height="147"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                         <size key="minSize" width="1077" height="147"/>
                                                                         <size key="maxSize" width="1094" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <size key="minSize" width="1077" height="147"/>
+                                                                        <size key="maxSize" width="1094" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -138,13 +146,15 @@
                                                                 <rect key="frame" x="1" y="1" width="1077" height="140"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                                 <subviews>
-                                                                    <textView importsGraphics="NO" horizontallyResizable="YES" verticallyResizable="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="I74-i4-HVL" userLabel="Build Output">
+                                                                    <textView importsGraphics="NO" horizontallyResizable="YES" verticallyResizable="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="I74-i4-HVL" userLabel="Build Output">
                                                                         <rect key="frame" x="0.0" y="0.0" width="1077" height="140"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                         <size key="minSize" width="1077" height="140"/>
                                                                         <size key="maxSize" width="1094" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <size key="minSize" width="1077" height="140"/>
+                                                                        <size key="maxSize" width="1094" height="10000000"/>
                                                                     </textView>
                                                                 </subviews>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

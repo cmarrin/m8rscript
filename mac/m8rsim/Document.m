@@ -20,6 +20,7 @@
 @interface Document ()
 {
     IBOutlet NSView* editView;
+    IBOutlet NSImageView* imageView;
     __unsafe_unretained IBOutlet NSTextView *consoleOutput;
     __unsafe_unretained IBOutlet NSTextView *buildOutput;
     __weak IBOutlet NSTabView *outputView;
@@ -48,6 +49,7 @@
     NSFileWrapper* _package;
     
     MGSFragaria* _fragaria;
+    NSImageView* _imageView;
 
 }
 
@@ -92,6 +94,8 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *) aController
 {
     [super windowControllerDidLoadNib:aController];
+    
+    _imageView = [[NSImageView alloc] init];
 
 	// create an instance
 	_fragaria = [[MGSFragaria alloc] init];
@@ -99,7 +103,7 @@
 	[_fragaria setObject:self forKey:MGSFODelegate];
 	
 	// define our syntax definition
-	[self setSyntaxDefinition:@"Objective-C"];
+	[self setSyntaxDefinition:@"javascript"];
 	
 	// embed editor in editView
 	[_fragaria embedInView:editView];
@@ -110,10 +114,8 @@
 	//
 	// see MGSFragariaPreferences.h for details
 	//
-    if (NO) {
-        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:MGSFragariaPrefsAutocompleteSuggestAutomatically];
-        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:MGSFragariaPrefsLineWrapNewDocuments];
-    }
+//        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:MGSFragariaPrefsAutocompleteSuggestAutomatically];
+//        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:MGSFragariaPrefsLineWrapNewDocuments];
 	
 	// define initial document configuration
 	//
@@ -123,16 +125,6 @@
         [_fragaria setObject:[NSNumber numberWithBool:YES] forKey:MGSFOIsSyntaxColoured];
         [_fragaria setObject:[NSNumber numberWithBool:YES] forKey:MGSFOShowLineNumberGutter];
     }
-
-    // set text
-	[_fragaria setString:@"// We Don't need the future"];
-	
-
-	// access the NSTextView
-	NSTextView *textView = [_fragaria objectForKey:ro_MGSFOTextView];
-	
-#pragma unused(textView)
-	
 }
 
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
@@ -273,9 +265,9 @@
 {
     _source = @"";
     _selectedFilename = @"";
-//    if (sourceEditor) {
-//        [sourceEditor setString:_source];
-//    }
+    editView.hidden = YES;
+    imageView.hidden = YES;
+    [_fragaria setString:_source];
     [_device clearContents];
 }
 
@@ -286,10 +278,10 @@
     
     NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
     if (source) {
+        editView.hidden = NO;
+        imageView.hidden = YES;
         _source = source;
-//        if (sourceEditor) {
-//            [sourceEditor setString:_source];
-//        }
+        [_fragaria setString:_source];
         return;
     }
     
@@ -307,11 +299,9 @@
 
 - (void)setImage:(NSImage*)image
 {
-    NSTextAttachmentCell *attachmentCell = [[NSTextAttachmentCell alloc] initImageCell:image];
-    NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
-    [attachment setAttachmentCell: attachmentCell ];
-    NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
-//    [[sourceEditor textStorage] setAttributedString:attributedString];
+    editView.hidden = YES;
+    imageView.hidden = NO;
+    imageView.image = image;
 }
 
 - (void)setFiles
