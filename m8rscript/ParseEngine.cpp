@@ -217,8 +217,8 @@ bool ParseEngine::iterationStatement()
     }
     
     retireToken();
-    expect(Token::LParen);
     if (type == Token::While) {
+        expect(Token::LParen);
         Label label = _parser->label();
         expression();
         _parser->addMatchedJump(m8r::Op::JF, label);
@@ -236,6 +236,7 @@ bool ParseEngine::iterationStatement()
         expect(Token::RParen);
         expect(Token::Semicolon);
     } else if (type == Token::For) {
+        expect(Token::LParen);
         if (getToken() == Token::Var) {
             retireToken();
             variableDeclarationList();
