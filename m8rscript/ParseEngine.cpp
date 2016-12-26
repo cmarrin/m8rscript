@@ -296,6 +296,12 @@ void ParseEngine::forLoopCondAndIt()
     _parser->endDeferred();
     expect(Token::RParen);
     statement();
+
+    // resolve the continue statements
+    for (auto it : _continueStack.back()) {
+        _parser->matchJump(it);
+    }
+
     _parser->emitDeferred();
     _parser->jumpToLabel(Op::JMP, label);
     _parser->matchJump(label);
@@ -309,6 +315,9 @@ bool ParseEngine::iterationStatement()
     }
     
     retireToken();
+    
+    _breakStack.emplace_back();
+    _continueStack.emplace_back();
     if (type == Token::While) {
         expect(Token::LParen);
         Label label = _parser->label();
@@ -316,11 +325,23 @@ bool ParseEngine::iterationStatement()
         _parser->addMatchedJump(m8r::Op::JF, label);
         expect(Token::RParen);
         statement();
+        
+        // resolve the continue statements
+        for (auto it : _continueStack.back()) {
+            _parser->matchJump(it);
+        }
+        
         _parser->jumpToLabel(Op::JMP, label);
         _parser->matchJump(label);
     } else if (type == Token::Do) {
         Label label = _parser->label();
         statement();
+
+        // resolve the continue statements
+        for (auto it : _continueStack.back()) {
+            _parser->matchJump(it);
+        }
+
         expect(Token::While);
         expect(Token::LParen);
         expression();
@@ -355,16 +376,33 @@ bool ParseEngine::iterationStatement()
             }
         }
     }
+
+    // resolve the break statements
+    for (auto it : _breakStack.back()) {
+        _parser->matchJump(it);
+    }
     
-    // We should be at the closing paren
+    _breakStack.pop_back();
+    _continueStack.pop_back();
+    
     return true;
 }
 
 bool ParseEngine::jumpStatement()
 {
     if (getToken() == Token::Break || getToken() == Token::Continue) {
+        bool isBreak = getToken() == Token::Break;
         retireToken();
         expect(Token::Semicolon);
+        
+        // Add a JMP which will get resolved by the enclosing iteration statement
+        Label label = _parser->label();
+        _parser->addMatchedJump(Op::JMP, label);
+        if (isBreak) {
+            _breakStack.back().push_back(label);
+        } else {
+            _continueStack.back().push_back(label);
+        }
         return true;
     }
     if (getToken() == Token::Return) {

@@ -42,7 +42,6 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class Function;
-class ExecutionUnit;
 class Value;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -120,8 +119,9 @@ private:
     Token _currentToken = Token::None;
     Scanner::TokenType _currentTokenValue;
     
-    ExecutionUnit* _eu = nullptr;
-    
+    std::vector<std::vector<Label>> _breakStack;
+    std::vector<std::vector<Label>> _continueStack;
+
     struct CompareTokens
     {
         int operator()(const Token& lhs, const Token& rhs) const { return static_cast<int>(lhs) - static_cast<int>(rhs); }

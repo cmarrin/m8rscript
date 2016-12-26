@@ -10,14 +10,29 @@ for (var i = 0; i < arr.length; ++i) {
 		default: Serial.print("Got default\n");
 		case "abc": Serial.print("Got abc\n");
 	}
+	if (i == 1) {
+		continue;
+	}
+	Serial.print("Before break\n");
+	if (i == 2) {
+		break;
+	}
 }
 
 Serial.print("Test while, should print 1 - 9\n");
+
 var i = 1;
-do {
+while (i < 10) {
+	if (i == 2) {
+		i++;
+		continue;
+	}
 	Serial.print("i=" + i + "\n");
+	if (i > 5) {
+		break;
+	}
 	i++;
-} while(i < 10);
+}
 
 Serial.print("\nTest do..while, should print 20 - 11\n");
 var i = 20;
