@@ -85,10 +85,9 @@ void Parser::expectedError(Token token)
         Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
     } else {
         switch(token) {
-            case Token::DuplicateDefault: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("multiple default cases not allowed")); break;
+            case Token::Default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("multiple default statements not allowed")); break;
             case Token::Expr: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
             case Token::PropertyAssignment: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
-            case Token::Statement: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("statement expected")); break;
             case Token::Identifier: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
             default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
@@ -98,7 +97,7 @@ void Parser::expectedError(Token token)
 Label Parser::label()
 {
     Label label;
-    label.label = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
+    label.label = static_cast<int32_t>(currentFunction()->code()->size());
     label.uniqueID = _nextLabelId++;
     return label;
 }
@@ -106,7 +105,7 @@ Label Parser::label()
 void Parser::addMatchedJump(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
-    label.matchedAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
+    label.matchedAddr = static_cast<int32_t>(currentFunction()->code()->size());
 
     uint32_t reg = 0;
     if (op != Op::JMP) {
@@ -409,18 +408,15 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
     }
 }
 
-int32_t Parser::emitDeferred()
+void Parser::emitDeferred()
 {
     assert(!_deferred);
     assert(_deferredCodeBlocks.size() > 0);
-    int32_t start = static_cast<int32_t>(currentFunction()->code()->size());
-    
     for (size_t i = _deferredCodeBlocks.back(); i < _deferredCode.size(); ++i) {
         currentFunction()->code()->push_back(_deferredCode[i]);
     }
     _deferredCode.resize(_deferredCodeBlocks.back());
     _deferredCodeBlocks.pop_back();
-    return start;
 }
 
 void Parser::addNamedFunction(ObjectId functionId, const Atom& name)

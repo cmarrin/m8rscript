@@ -195,87 +195,57 @@ bool ParseEngine::switchStatement()
     expect(Token::RParen);
     expect(Token::LBrace);
 
-    typedef struct { Label toStatement; Label fromStatement; int32_t statementAddr; } CaseEntry;
-
-    std::vector<CaseEntry> cases;
-    
-    // This pushes a deferral block onto the deferred stack.
-    // We use resumeDeferred()/endDeferred() for each statement block
-    int32_t deferredStatementStart = _parser->startDeferred();
-    _parser->endDeferred();
-    
-    int32_t defaultStatement = 0;
-    Label defaultFromStatementLabel;
+    // Case statements
+    Label prevCaseLabel;
+    Label defaultCaseLabel;
     bool haveDefault = false;
+    bool havePrevious = false;
+
+    std::vector<Label> _labels;
     
     while (true) {
-        if (getToken() == Token::Case || getToken() == Token::Default) {
-            bool isDefault = getToken() == Token::Default;
+        if (getToken() == Token::Case) {
             retireToken();
 
-            if (isDefault) {
-                expect(Token::DuplicateDefault, !haveDefault);
-                haveDefault = true;
-            } else {
-                expression();
-                _parser->emitCaseTest();
+            if (havePrevious) {
+                _parser->matchJump(prevCaseLabel);
             }
             
+            havePrevious = true;
+            prevCaseLabel = _parser->label();
+            
+            expression();
+            expect(Token::Colon);
+            _parser->emitCaseTest();
+            _parser->addMatchedJump(Op::JF, prevCaseLabel);
+            statement();
+            _labels.push_back(Label());
+            _parser->addMatchedJump(Op::JMP, _labels.back());
+        } else if (getToken() == Token::Default) {
+            retireToken();
+            
+            // This is a bit confusing. We expect that we haven't already seen a default statement
+            expect(Token::Default, !haveDefault);
+            haveDefault = true;
             expect(Token::Colon);
             
-            if (isDefault) {
-                defaultStatement = _parser->resumeDeferred();
-                statement();
-                defaultFromStatementLabel = _parser->label();
-                _parser->addMatchedJump(Op::JMP, defaultFromStatementLabel);
-                _parser->endDeferred();
-            } else {
-                CaseEntry entry;
-                entry.toStatement = _parser->label();
-                _parser->addMatchedJump(Op::JT, entry.toStatement);
-                entry.statementAddr = _parser->resumeDeferred();
-                if (statement()) {
-                    entry.fromStatement = _parser->label();
-                    _parser->addMatchedJump(Op::JMP, entry.fromStatement);
-                } else {
-                    entry.fromStatement.label = -1;
-                }
-                _parser->endDeferred();
-                cases.push_back(entry);
-            }
+            defaultCaseLabel = _parser->label();
+            statement();
+            _labels.push_back(defaultCaseLabel);
+            _parser->addMatchedJump(Op::JMP, _labels.back());
         } else {
             break;
         }
     }
     
     expect(Token::RBrace);
-    
-    // We need a JMP statement here. It will either jump after all the case
-    // statements or to the default statement
-    Label endJumpLabel = _parser->label();
-    _parser->addMatchedJump(Op::JMP, endJumpLabel);
-    
-    int32_t statementStart = _parser->emitDeferred();
-    Label afterStatementsLabel = _parser->label();
-    
     if (haveDefault) {
-        _parser->matchJump(endJumpLabel, defaultStatement - deferredStatementStart + statementStart);
-
-        // Adjust the matchedAddr in the defaultFromStatementLabel into the code space it got copied to
-        defaultFromStatementLabel.matchedAddr += statementStart - deferredStatementStart;
-        _parser->matchJump(defaultFromStatementLabel, afterStatementsLabel);
-    } else {
-        _parser->matchJump(endJumpLabel, afterStatementsLabel);
+        // Make the last case jump to the default
+        _parser->matchJump(prevCaseLabel, defaultCaseLabel);
     }
-
-    for (auto it : cases) {
-        _parser->matchJump(it.toStatement, it.statementAddr - deferredStatementStart + statementStart);
-        
-        if (it.fromStatement.label >= 0) {
-            // Adjust the matchedAddr in the fromStatement into the code space it got copied to
-            it.fromStatement.matchedAddr += statementStart - deferredStatementStart;
-            _parser->matchJump(it.fromStatement, afterStatementsLabel);
-        }
+    
+    for (auto it : _labels) {
+        _parser->matchJump(it);
     }
     
     _parser->discardResult();
