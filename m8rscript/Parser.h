@@ -92,19 +92,7 @@ private:
     //
     Label label();
     void addMatchedJump(Op op, Label&);
-    void matchJump(const Label& matchLabel)
-    {
-        int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - matchLabel.matchedAddr;
-        doMatchJump(matchLabel.matchedAddr, jumpAddr);
-    }
-
-    void matchJump(const Label& matchLabel, const Label& dstLabel)
-    {
-        int32_t jumpAddr = dstLabel.label - matchLabel.matchedAddr;
-        doMatchJump(matchLabel.matchedAddr, jumpAddr);
-    }
-    
-    void doMatchJump(int32_t matchAddr, int32_t jumpAddr);
+    void matchJump(Label&);
     void jumpToLabel(Op op, Label&);
     
     void startDeferred()
@@ -140,7 +128,6 @@ private:
     void emitStoProp();
     void emitUnOp(Op op);
     void emitBinOp(Op op);
-    void emitCaseTest();
     void emitLoadLit(bool array);
     void emitPush();
     void emitPop();

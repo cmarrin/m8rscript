@@ -85,7 +85,6 @@ void Parser::expectedError(Token token)
         Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
     } else {
         switch(token) {
-            case Token::Default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("multiple default statements not allowed")); break;
             case Token::Expr: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
             case Token::PropertyAssignment: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
             case Token::Identifier: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
@@ -116,17 +115,18 @@ void Parser::addMatchedJump(Op op, Label& label)
     emitCodeRSN(op, reg, 0);
 }
 
-void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
+void Parser::matchJump(Label& label)
 {
+    int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - label.matchedAddr;
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
         return;
     }
     
-    Instruction inst = currentFunction()->code()->at(matchAddr);
+    Instruction inst = currentFunction()->code()->at(label.matchedAddr);
     Op op = static_cast<Op>(inst.op());
     uint32_t reg = inst.ra();
-    currentFunction()->code()->at(matchAddr) = Instruction(op, reg, jumpAddr);
+    currentFunction()->code()->at(label.matchedAddr) = Instruction(op, reg, jumpAddr);
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
@@ -331,17 +331,6 @@ void Parser::emitBinOp(Op op)
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
 
     emitCodeRRR(op, dst, leftReg, rightReg);
-}
-
-void Parser::emitCaseTest()
-{
-    // This is like emitBinOp(Op::EQ), but does not pop the left operand
-    uint32_t rightReg = _parseStack.bake();
-    _parseStack.pop();
-    uint32_t leftReg = _parseStack.bake();
-    uint32_t dst = _parseStack.push(ParseStack::Type::Register);
-
-    emitCodeRRR(Op::EQ, dst, leftReg, rightReg);
 }
 
 void Parser::emitUnOp(Op op)
