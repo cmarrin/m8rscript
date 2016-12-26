@@ -443,6 +443,8 @@ enum class Token : uint8_t {
     
     Expr = 0xe0,
     PropertyAssignment = 0xe1,
+    Statement = 0xe2,
+    DuplicateDefault = 0xe3,
 
     None = 0xfd,
     Error = 0xfe,

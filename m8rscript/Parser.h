@@ -104,19 +104,33 @@ private:
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
     
+    void matchJump(const Label& matchLabel, int32_t dstAddr)
+    {
+        int32_t jumpAddr = dstAddr - matchLabel.matchedAddr;
+        doMatchJump(matchLabel.matchedAddr, jumpAddr);
+    }
+    
     void doMatchJump(int32_t matchAddr, int32_t jumpAddr);
     void jumpToLabel(Op op, Label&);
     
-    void startDeferred()
+    int32_t startDeferred()
     {
         assert(!_deferred);
         _deferred = true;
         _deferredCodeBlocks.push_back(_deferredCode.size());
+        return static_cast<int32_t>(_deferredCode.size());
+    }
+    
+    int32_t resumeDeferred()
+    {
+        assert(!_deferred);
+        _deferred = true;
+        return static_cast<int32_t>(_deferredCode.size());
     }
     
     void endDeferred() { assert(_deferred); _deferred = false; }
-    void emitDeferred();
-    
+    int32_t emitDeferred();
+
     void functionAddParam(const Atom& atom);
     void functionStart();
     void functionParamsEnd();
