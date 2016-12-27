@@ -69,22 +69,8 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
 }
 
 m8r::String CodePrinter::generateCodeString(const Program* program) const
-{
-    m8r::String outputString;
-    
-	for (uint16_t i = 0; ; i++) {
-        Object* obj = program->obj(ObjectId(i));
-        if (!obj || obj == program) {
-            break;
-        }
-        if (obj->isFunction()) {
-            outputString += generateCodeString(program, obj, Value::toString(i).c_str(), _nestingLevel);
-            outputString += "\n";
-        }
-	}
-    
-    outputString += generateCodeString(program, program, "main", 0);
-    return outputString;
+{    
+    return generateCodeString(program, program, "main", 0);
 }
 
 inline String regString(uint32_t reg)
@@ -131,7 +117,7 @@ void CodePrinter::generateRN(m8r::String& str, uint32_t addr, Op op, uint32_t d,
     str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program, const Object* obj, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Program* program, const Function* obj, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -192,15 +178,18 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Object
     outputString += ")\n";
     
     _nestingLevel++;
+    
+    // Output all the function properties
     for (uint32_t i = 0; i < obj->propertyCount(); ++i) {
-        const Value& value = obj->property(i);
+        Atom name = obj->propertyName(i);
+        const Value& value = obj->property(name);
         if (value.isNone()) {
             continue;
         }
         Object* object = program->obj(value);
         if (object && object->isFunction()) {
             Atom name = obj->propertyName(i);
-            outputString += generateCodeString(program, object, program->stringFromAtom(name).c_str(), _nestingLevel);
+            outputString += generateCodeString(program, static_cast<Function*>(object), program->stringFromAtom(name).c_str(), _nestingLevel);
             outputString += "\n";
         }
     }
@@ -368,14 +357,15 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();
             Object* obj = program->obj(objectId);
-            if (obj->isFunction()) {
+            if (obj && obj->isFunction()) {
                 _nestingLevel++;
                 s += "\n";
-                s += generateCodeString(program, obj, Value::toString(objectId.raw()).c_str(), _nestingLevel);
+                s += generateCodeString(program, static_cast<Function*>(obj), Value::toString(objectId.raw()).c_str(), _nestingLevel);
                 _nestingLevel--;
                 break;
+            } else {
+                s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
             }
-            s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
             break;
         }
     }

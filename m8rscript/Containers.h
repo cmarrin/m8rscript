@@ -62,6 +62,8 @@ public:
         friend class Id;
 
     public:
+        Raw() : _raw(NoId) { }
+        Raw(RawType raw) : _raw(raw) { }
         RawType raw() const { return _raw; }
 
     private:
@@ -70,9 +72,9 @@ public:
     
     typedef RawType value_type;
     
-    Id() { _value._raw = NoId; }
+    Id() { }
     Id(Raw raw) { _value._raw = raw._raw; }
-    Id(RawType raw) { _value._raw = raw; }
+    //Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
     Id(Id&& other) { _value._raw = other._value._raw; }
 
@@ -87,7 +89,7 @@ public:
     bool operator==(const Id& other) const { return _value._raw == other._value._raw; }
 
 private:
-    static constexpr uint16_t NoId = std::numeric_limits<RawType>::max();
+    static constexpr RawType NoId = std::numeric_limits<RawType>::max();
 
     Raw _value;
 };

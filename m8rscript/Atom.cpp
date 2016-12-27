@@ -62,7 +62,7 @@ Atom AtomTable::atomizeString(const char* romstr) const
                 // The next char either needs to be negative (meaning the start of the next word) or the end of the string
                 if (static_cast<int8_t>(p[len]) <= 0) {
                     delete [ ] s;
-                    return Atom(static_cast<Atom::value_type>(p - start - 1));
+                    return Atom(Atom::Raw(static_cast<Atom::value_type>(p - start - 1)));
                 }
             }
         }

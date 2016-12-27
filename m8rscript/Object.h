@@ -73,7 +73,7 @@ public:
     virtual size_t propertyCount() const { return 0; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIntValue(eu), value); }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIdValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }

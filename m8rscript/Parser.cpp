@@ -380,7 +380,6 @@ void Parser::emitEnd()
     if (_nerrors) {
         _parseStack.clear();
     }
-    assert(_parseStack.empty());
     emitCodeRRR(Op::END);
 }
 

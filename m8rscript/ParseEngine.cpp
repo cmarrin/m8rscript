@@ -413,6 +413,7 @@ bool ParseEngine::jumpStatement()
         }
         _parser->emitWithCount(m8r::Op::RET, count);
         expect(Token::Semicolon);
+        return true;
     }
     return false;
 }
