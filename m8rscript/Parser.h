@@ -182,16 +182,16 @@ private:
 
     class ParseStack {
     public:
-        enum class Type { Local, Constant, Register, RefK, PropRef, EltRef };
+        enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef };
         
         ParseStack(Parser* parser) : _parser(parser) { }
         
         uint32_t push(Type, uint32_t reg = 0, uint32_t derefReg = 0);
         void pop();
         
-        Type topType() const { return _stack.top()._type; }
-        uint32_t topReg() const { return _stack.top()._reg; }
-        uint32_t topDerefReg() const { return _stack.top()._derefReg; }
+        Type topType() const { return empty() ? Type::Unknown : _stack.top()._type; }
+        uint32_t topReg() const { return empty() ? 0 : _stack.top()._reg; }
+        uint32_t topDerefReg() const { return empty() ? 0 : _stack.top()._derefReg; }
         bool empty() const { return _stack.empty(); }
         void clear() { _stack.clear(); }
         

@@ -510,7 +510,9 @@ uint32_t Parser::ParseStack::push(ParseStack::Type type, uint32_t reg, uint32_t 
 
 void Parser::ParseStack::pop()
 {
-    assert(!_stack.empty());
+    if (empty()) {
+        return;
+    }
     if (_stack.top()._type == Type::Register) {
         _parser->_functions.back()._nextReg++;
     }
