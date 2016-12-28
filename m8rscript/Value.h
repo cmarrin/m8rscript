@@ -79,7 +79,7 @@ public:
     enum class Type : uint8_t {
         None = 0,
         Object, Float, Integer, String, StringLiteral, Id,
-        PreviousFrame, PreviousPC, PreviousObject,
+        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount,
     };
 
     Value() { }
@@ -126,6 +126,7 @@ public:
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
     uint32_t asPreviousPCValue() const { return (type() == Type::PreviousPC) ? intFromValue() : 0; }
     uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousFrame) ? intFromValue() : 0; }
+    uint32_t asPreviousParamCountValue() const { return (type() == Type::PreviousParamCount) ? intFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     
@@ -203,7 +204,13 @@ private:
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
         RawValue(int32_t i) { _raw = 0; _raw = Float(i, 0).raw(); setType(Type::Float); }
-        RawValue(uint32_t i, Type type) { assert(type == Type::PreviousPC || type == Type::PreviousFrame); _raw = 0; _i = i; setType(type); }
+        RawValue(uint32_t i, Type type)
+        {
+            assert(type == Type::PreviousPC || type == Type::PreviousFrame || type == Type::PreviousParamCount);
+            _raw = 0;
+            _i = i;
+            setType(type);
+        }
         RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
         RawValue(StringId id) { _raw = 0; _i = id.raw(); setType(Type::String); }
         RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }

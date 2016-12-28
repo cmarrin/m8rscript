@@ -174,8 +174,27 @@ private:
     
     Value derefId(Atom);
     
-    const Value& regOrConst(uint32_t r) const { return (r > MaxRegister) ? _constantsPtr[r - MaxRegister] : _framePtr[r]; }
-    Value& regOrConst(uint32_t r) { return (r > MaxRegister) ? _constantsPtr[r - MaxRegister] : _framePtr[r]; }
+    void setInFrame(uint32_t r, const Value& v)
+    {
+        assert(r <= MaxRegister);
+        if (r >= _formalParamCount) {
+            _framePtr[r + _localOffset] = v;
+        } else {
+            _framePtr[r] = v;
+        }
+    }
+     
+    const Value& regOrConst(uint32_t r) const { return const_cast<ExecutionUnit*>(this)->regOrConst(r); }
+    Value& regOrConst(uint32_t r)
+    {
+        if (r > MaxRegister) {
+            return _constantsPtr[r - MaxRegister];
+        }
+        if (r >= _formalParamCount) {
+            return _framePtr[r + _localOffset];
+        }
+        return _framePtr[r];
+    }
 
     uint32_t _pc = 0;
     Program* _program = nullptr;
@@ -183,6 +202,9 @@ private:
     Function* _functionPtr;
     Value* _constantsPtr;
     Value* _framePtr;
+    uint32_t _localOffset = 0;
+    uint32_t _formalParamCount = 0;
+    uint32_t _actualParamCount = 0;
     
     const Instruction* _code;
     size_t _codeSize;

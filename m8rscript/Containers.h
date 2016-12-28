@@ -422,11 +422,11 @@ public:
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
     
-    size_t setLocalFrame(size_t nparams, size_t localSize)
+    size_t setLocalFrame(size_t formalParams, size_t actualParams, size_t localSize)
     {
         size_t oldFrame = _frame;
-        _frame = size() - nparams;
-        super::resize(size() + localSize - nparams);
+        _frame = size() - actualParams;
+        super::resize(size() + localSize - formalParams);
         return oldFrame;
     }
     void restoreFrame(size_t frame, size_t localsToPop)

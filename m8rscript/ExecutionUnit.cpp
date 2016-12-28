@@ -92,25 +92,27 @@ Value ExecutionUnit::derefId(Atom atom)
 
 void ExecutionUnit::startExecution(Program* program)
 {
-    _terminate = false;
-    _nerrors = 0;
-    _pc = 0;
-    _program = program;
-    _object = _program->objectId();
-    Object* obj = _program->obj(_object);
-    if (!obj->isFunction()) {
+    if (!program) {
         _terminate = true;
         _functionPtr = nullptr;
         _constantsPtr = nullptr;
         _stack.clear();
         return;
     }
-    _functionPtr =  static_cast<Function*>(obj);
+    _terminate = false;
+    _nerrors = 0;
+    _pc = 0;
+    _program = program;
+    _object = _program->objectId();
+    _functionPtr =  _program;
     _constantsPtr = _functionPtr->constantsPtr();
     _program->setStack(&_stack);
     _stack.clear();
-    _stack.setLocalFrame(0, _object ? _functionPtr->localSize() : 0);
+    _stack.setLocalFrame(0, 0, _functionPtr->localSize());
     _framePtr =_stack.framePtr();
+    _formalParamCount = 0;
+    _actualParamCount = 0;
+    _localOffset = 0;
 }
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
@@ -118,14 +120,20 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     Object* p = _program->obj(function);
     assert(p->isFunction());
     Function* functionPtr = static_cast<Function*>(p);
+    _functionPtr =  static_cast<Function*>(functionPtr);
+    _constantsPtr = _functionPtr->constantsPtr();
+    _formalParamCount = _functionPtr->formalParamCount();
+    uint32_t prevActualParamCount = _actualParamCount;
+    _actualParamCount = nparams;
+    _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
-    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(nparams, functionPtr->localSize())), Value::Type::PreviousFrame));
+    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
+    _stack.push(Value(prevActualParamCount, Value::Type::PreviousParamCount));
     _object = function;
-    _functionPtr =  static_cast<Function*>(functionPtr);
-    _constantsPtr = _functionPtr->constantsPtr();
+
     _framePtr =_stack.framePtr();
 }
 
@@ -237,8 +245,12 @@ static const uint16_t GCCount = 1000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _functionPtr->localSize();
+        localsToPop = _functionPtr->localSize() + _localOffset;
         
+        assert(_stack.top().type() == Value::Type::PreviousParamCount);
+        _stack.pop(leftValue);
+        _actualParamCount = leftValue.asPreviousParamCountValue();
+
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
@@ -255,16 +267,18 @@ static const uint16_t GCCount = 1000;
         _stack.pop(leftValue);
         _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
         _framePtr =_stack.framePtr();
+        _formalParamCount = _functionPtr->formalParamCount();
+        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
         
         updateCodePointer();
     
         _stack.push(returnedValue);
         DISPATCH;
     L_MOVE:
-        _framePtr[inst.ra()] = regOrConst(inst.rb());
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_LOADREFK:
-        _framePtr[inst.ra()] = derefId(regOrConst(inst.rb()).asIdValue());
+        setInFrame(inst.ra(), derefId(regOrConst(inst.rb()).asIdValue()));
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:
@@ -275,22 +289,21 @@ static const uint16_t GCCount = 1000;
         }
         objectId = _program->addObject(objectValue, true);
         objectValue->setObjectId(objectId);
-        _framePtr[inst.ra()] = Value(objectId);
+        setInFrame(inst.ra(), Value(objectId));
         DISPATCH;
     L_LOADPROP:
         objectValue = toObject(regOrConst(inst.rb()), "LOADPROP");
         if (!objectValue) {
-            objectError("LOADPROP");
             DISPATCH;
         }
-        _framePtr[inst.ra()] = objectValue->property(regOrConst(inst.rc()).toIdValue(this));
+        setInFrame(inst.ra(), objectValue->property(regOrConst(inst.rc()).toIdValue(this)));
         DISPATCH;
     L_LOADELT:
         objectValue = toObject(regOrConst(inst.rb()), "LOADELT");
         if (!objectValue) {
             DISPATCH;
         }
-        _framePtr[inst.ra()] = objectValue->element(this, regOrConst(inst.rc()));
+        setInFrame(inst.ra(), objectValue->element(this, regOrConst(inst.rc())));
         DISPATCH;
     L_STOPROP:
         objectValue = toObject(regOrConst(inst.ra()), "STOPROP");
@@ -333,19 +346,19 @@ static const uint16_t GCCount = 1000;
         *valuePtr = regOrConst(inst.rc());
         DISPATCH;
     L_LOADTRUE:
-        _framePtr[inst.ra()] = Value(true);
+        setInFrame(inst.ra(), Value(true));
         DISPATCH;
     L_LOADFALSE:
-        _framePtr[inst.ra()] = Value(false);
+        setInFrame(inst.ra(), Value(false));
         DISPATCH;
     L_LOADNULL:
-        _framePtr[inst.ra()] = Value();
+        setInFrame(inst.ra(), Value());
         DISPATCH;
     L_PUSH:
         _stack.push(regOrConst(inst.rn()));
         DISPATCH;
     L_POP:
-        _framePtr[inst.ra()] = _stack.top();
+        setInFrame(inst.ra(), _stack.top());
         _stack.pop();
         DISPATCH;
     L_BINIOP:
@@ -362,50 +375,50 @@ static const uint16_t GCCount = 1000;
             case Op::SHR: leftIntValue = static_cast<uint32_t>(leftIntValue) >> rightIntValue; break;
             default: assert(0); break;
         }
-        _framePtr[inst.ra()] = Value(leftIntValue);
+        setInFrame(inst.ra(), Value(leftIntValue));
         DISPATCH;
-    L_EQ: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) == regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_NE: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) != regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_LT: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) < regOrConst(inst.rc()).toFloatValue(this));  DISPATCH;
-    L_LE: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) <= regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_GT: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) > regOrConst(inst.rc()).toFloatValue(this));  DISPATCH;
-    L_GE: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) >= regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_SUB: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) - regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_MUL: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) * regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_DIV: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) / regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
-    L_MOD: _framePtr[inst.ra()] = Value(regOrConst(inst.rb()).toFloatValue(this) % regOrConst(inst.rc()).toFloatValue(this)); DISPATCH;
+    L_EQ: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) == regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_NE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) != regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_LT: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) < regOrConst(inst.rc()).toFloatValue(this)));  DISPATCH;
+    L_LE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) <= regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_GT: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) > regOrConst(inst.rc()).toFloatValue(this)));  DISPATCH;
+    L_GE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) >= regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_SUB: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) - regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_MUL: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) * regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_DIV: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) / regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_MOD: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) % regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
     L_ADD:
         leftValue = regOrConst(inst.rb());
         rightValue = regOrConst(inst.rc());
 
         if (leftValue.isNumber() && rightValue.isNumber()) {
-            _framePtr[inst.ra()] = Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this));
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
             StringId stringId = _program->createString();
             String& s = _program->str(stringId);
             s = leftValue.toStringValue(this);
             s += rightValue.toStringValue(this);
-            _framePtr[inst.ra()] = Value(stringId);
+            setInFrame(inst.ra(), Value(stringId));
         }
         DISPATCH;
-    L_UMINUS: _framePtr[inst.ra()] = -regOrConst(inst.rb()).toFloatValue(this); DISPATCH;
-    L_UNOT: _framePtr[inst.ra()] = ~regOrConst(inst.rb()).toIntValue(this); DISPATCH;
-    L_UNEG: _framePtr[inst.ra()] = (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1; DISPATCH;
+    L_UMINUS: setInFrame(inst.ra(), -regOrConst(inst.rb()).toFloatValue(this)); DISPATCH;
+    L_UNOT: setInFrame(inst.ra(), ~regOrConst(inst.rb()).toIntValue(this)); DISPATCH;
+    L_UNEG: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1); DISPATCH;
     L_PREINC:
-        _framePtr[inst.rb()] = Value(regOrConst(inst.rb()).toIntValue(this) + 1);
-        _framePtr[inst.ra()] = regOrConst(inst.rb());
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_PREDEC:
-        _framePtr[inst.rb()] = Value(regOrConst(inst.rb()).toIntValue(this) - 1);
-        _framePtr[inst.ra()] = regOrConst(inst.rb());
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_POSTINC:
-        _framePtr[inst.ra()] = regOrConst(inst.rb());
-        _framePtr[inst.rb()] = Value(regOrConst(inst.rb()).toIntValue(this) + 1);
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
         DISPATCH;
     L_POSTDEC:
-        _framePtr[inst.ra()] = regOrConst(inst.rb());
-        _framePtr[inst.rb()] = Value(regOrConst(inst.rb()).toIntValue(this) - 1);
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
     L_NEW:
     L_CALL:

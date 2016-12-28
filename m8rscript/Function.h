@@ -73,7 +73,8 @@ public:
     
     Value* constantsPtr() { return &(_constants.at(0)); }
 
-    void markParamEnd() { _paramEnd = static_cast<uint32_t>(_locals.size()); }
+    void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
+    uint32_t formalParamCount() const { return _formalParamCount; }
     
     void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
@@ -88,7 +89,7 @@ protected:
 private:
     Code _code;
     std::vector<Atom> _locals;
-    uint32_t _paramEnd = 0;
+    uint32_t _formalParamCount = 0;
     std::vector<Value> _constants;
     uint8_t _tempRegisterCount = 0;
 };
