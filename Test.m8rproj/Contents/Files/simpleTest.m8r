@@ -1,10 +1,24 @@
 //
 // Test of various functionality of m8rscript
 //
-function add(x, y, z)
+
+//var a = [ "one", "two", "three" ];
+//for (var s : 
+
+function add()
 {
-	return (x + y + z);
+	var n = 0;
+	for (var i = 0; i < arguments.length; ++i) {
+		n += arguments[i];
+	}
+	return n;
 }
+
+Serial.print("add() = " + add() + "\n");
+Serial.print("add(8) = " + add(8) + "\n");
+Serial.print("add(5, 7) = " + add(5, 7) + "\n");
+Serial.print("add(4, 3, 2) = " + add(4, 3, 2) + "\n");
+Serial.print("add(1, 2, 3, 4) = " + add(1, 2, 3, 4) + "\n");
 
 // Range tests
 var m1 = 9.5;
@@ -39,4 +53,3 @@ Serial.print("a=" + a + "\n");
 for (var i = 0; i < 1000; ++i) {
 	var x = "String " + i;
 }
-
