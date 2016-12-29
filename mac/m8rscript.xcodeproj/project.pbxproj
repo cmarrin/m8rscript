@@ -18,6 +18,8 @@
 		492BA3E51E159B2C00242DA8 /* Serial.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3E31E159B2C00242DA8 /* Serial.h */; };
 		492BA3E81E159B4A00242DA8 /* Date.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3E61E159B4A00242DA8 /* Date.cpp */; };
 		492BA3E91E159B4A00242DA8 /* Date.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3E71E159B4A00242DA8 /* Date.h */; };
+		492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */; };
+		492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3EB1E15C5CD00242DA8 /* Arguments.h */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -135,6 +137,8 @@
 		492BA3E31E159B2C00242DA8 /* Serial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Serial.h; path = ../m8rscript/Serial.h; sourceTree = "<group>"; };
 		492BA3E61E159B4A00242DA8 /* Date.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Date.cpp; path = ../m8rscript/Date.cpp; sourceTree = "<group>"; };
 		492BA3E71E159B4A00242DA8 /* Date.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Date.h; path = ../m8rscript/Date.h; sourceTree = "<group>"; };
+		492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Arguments.cpp; path = ../m8rscript/Arguments.cpp; sourceTree = "<group>"; };
+		492BA3EB1E15C5CD00242DA8 /* Arguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Arguments.h; path = ../m8rscript/Arguments.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -428,6 +432,8 @@
 			children = (
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
+				492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */,
+				492BA3EB1E15C5CD00242DA8 /* Arguments.h */,
 				49D95E7F1D107AEE00B8A651 /* Array.cpp */,
 				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
@@ -495,6 +501,7 @@
 				492BA3E91E159B4A00242DA8 /* Date.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				492BA3E11E159B0C00242DA8 /* System.h in Headers */,
+				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
@@ -645,6 +652,7 @@
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
+				492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */,
 				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
