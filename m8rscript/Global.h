@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Base64.h"
 #include "GPIO.h"
 #include "Object.h"
 
@@ -88,23 +89,6 @@ private:
     Atom _nowAtom;
     static CallReturnValue now(ExecutionUnit*, uint32_t nparams);
     NativeFunction _now;
-};
-
-class Base64 : public Object {
-public:
-    Base64(Program*);
-
-    virtual const char* typeName() const override { return "Base64"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _encodeAtom;
-    Atom _decodeAtom;
-    static CallReturnValue encode(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue decode(ExecutionUnit*, uint32_t nparams);
-    NativeFunction _encode;
-    NativeFunction _decode;
 };
 
 class Global : public Object {

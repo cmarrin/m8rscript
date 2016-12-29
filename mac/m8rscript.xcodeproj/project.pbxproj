@@ -10,6 +10,8 @@
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3D61E15849C00242DA8 /* GPIO.cpp */; };
 		492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3D81E15944000242DA8 /* GPIOInterface.h */; };
+		492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3DA1E15987C00242DA8 /* Base64.cpp */; };
+		492BA3DD1E15987C00242DA8 /* Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3DB1E15987C00242DA8 /* Base64.h */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -31,8 +33,6 @@
 		494D255D1D2E90A9003755DB /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
 		494D25621D2E911F003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
 		494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
-		494D25871D32AFA4003755DB /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25851D32AFA4003755DB /* base64.cpp */; };
-		494D25881D32AFA4003755DB /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 494D25861D32AFA4003755DB /* base64.h */; };
 		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
@@ -121,6 +121,8 @@
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
 		492BA3D61E15849C00242DA8 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../m8rscript/GPIO.cpp; sourceTree = "<group>"; };
 		492BA3D81E15944000242DA8 /* GPIOInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIOInterface.h; path = ../m8rscript/GPIOInterface.h; sourceTree = "<group>"; };
+		492BA3DA1E15987C00242DA8 /* Base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Base64.cpp; path = ../m8rscript/Base64.cpp; sourceTree = "<group>"; };
+		492BA3DB1E15987C00242DA8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = ../m8rscript/Base64.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -146,8 +148,6 @@
 		494BA1A71D20B26100E72725 /* NSTextView+JSDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextView+JSDExtensions.h"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.h"; sourceTree = "<group>"; };
 		494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextView+JSDExtensions.m"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.m"; sourceTree = "<group>"; };
 		494D254E1D2E9055003755DB /* liblibm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		494D25851D32AFA4003755DB /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../m8rscript/base64.cpp; sourceTree = "<group>"; };
-		494D25861D32AFA4003755DB /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../m8rscript/base64.h; sourceTree = "<group>"; };
 		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../m8rscript/Object.cpp; sourceTree = "<group>"; };
 		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -420,8 +420,8 @@
 				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
 				49E6482B1D01F279005F5059 /* Atom.h */,
-				494D25851D32AFA4003755DB /* base64.cpp */,
-				494D25861D32AFA4003755DB /* base64.h */,
+				492BA3DA1E15987C00242DA8 /* Base64.cpp */,
+				492BA3DB1E15987C00242DA8 /* Base64.h */,
 				4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */,
 				4966A41C1D22F8C4008951F4 /* CodePrinter.h */,
 				49E648221D00CB57005F5059 /* Containers.h */,
@@ -474,8 +474,8 @@
 				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
-				494D25881D32AFA4003755DB /* base64.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
+				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
 			);
@@ -632,10 +632,10 @@
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
+				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
-				494D25871D32AFA4003755DB /* base64.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,

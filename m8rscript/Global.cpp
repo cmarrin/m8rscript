@@ -38,12 +38,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "SystemInterface.h"
 #include "ExecutionUnit.h"
-#include "base64.h"
 #include <string>
 
 using namespace m8r;
-
-static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 Global::Global(Program* program)
     : _serial(program)
@@ -193,78 +190,6 @@ const Value Date::property(const Atom& prop) const
 {
     if (prop == _nowAtom) {
         return Value(_now.objectId());
-    }
-    return Value();
-}
-
-Base64::Base64(Program* program)
-    : _encode(encode)
-    , _decode(decode)
-{
-    _encodeAtom = program->atomizeString(ROMSTR("encode"));    
-    _decodeAtom = program->atomizeString(ROMSTR("decode"));    
-    program->addObject(this, false);
-    program->addObject(&_encode, false);
-    program->addObject(&_decode, false);
-}
-
-CallReturnValue Base64::encode(ExecutionUnit* eu, uint32_t nparams)
-{
-    String inString = eu->stack().top().toStringValue(eu);
-    size_t inLength = inString.size();
-    size_t outLength = (inLength * 4 + 2) / 3 + 1;
-    if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-        char outString[BASE64_STACK_ALLOC_LIMIT];
-        int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
-                                         BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
-        s = String(outString, actualLength);
-        eu->stack().push(stringId);
-    } else {
-        char* outString = static_cast<char*>(malloc(outLength));
-        int actualLength = base64_encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
-                                         BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
-        s = String(outString, actualLength);
-        eu->stack().push(stringId);
-        free(outString);
-    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-CallReturnValue Base64::decode(ExecutionUnit* eu, uint32_t nparams)
-{
-    String inString = eu->stack().top().toStringValue(eu);
-    size_t inLength = inString.size();
-    size_t outLength = (inLength * 3 + 3) / 4 + 1;
-    if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-        unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
-        int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
-        s = String(reinterpret_cast<char*>(outString), actualLength);
-        eu->stack().push(stringId);
-    } else {
-        unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
-        int actualLength = base64_decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
-        s = String(reinterpret_cast<char*>(outString), actualLength);
-        eu->stack().push(stringId);
-        free(outString);
-    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-const Value Base64::property(const Atom& prop) const
-{
-    if (prop == _encodeAtom) {
-        return Value(_encode.objectId());
-    }
-    if (prop == _decodeAtom) {
-        return Value(_decode.objectId());
     }
     return Value();
 }

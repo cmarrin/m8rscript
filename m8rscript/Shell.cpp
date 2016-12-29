@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 #include "Error.h"
-#include "base64.h"
 #include <cstdarg>
 
 using namespace m8r;
@@ -110,7 +109,7 @@ bool Shell::received(const char* data, uint16_t size)
                     showError(ROMSTR("binary 'put' too large"));
                 }
 
-                int length = base64_decode(lineSize, p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
+                int length = Base64::decode(lineSize, p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
                 if (length < 0) {
                     delete _file;
                     _file = nullptr;
@@ -183,7 +182,7 @@ void Shell::sendComplete()
                     delete _file;
                     _file = nullptr;
                 }
-                int length = base64_encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
+                int length = Base64::encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
                 if (length < 0) {
                     showError(ROMSTR("binary encode failed"));
                     delete _file;
