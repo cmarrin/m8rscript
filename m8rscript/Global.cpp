@@ -43,7 +43,8 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Global::Global(Program* program)
-    : _serial(program)
+    : _arguments(program)
+    , _serial(program)
     , _system(program)
     , _date(program)
     , _base64(program)
@@ -51,6 +52,7 @@ Global::Global(Program* program)
 {
     program->addObject(this, false);
     
+    _ArgumentsAtom = program->atomizeString(ROMSTR("arguments"));
     _DateAtom = program->atomizeString(ROMSTR("Date"));
     _SystemAtom = program->atomizeString(ROMSTR("System"));
     _SerialAtom = program->atomizeString(ROMSTR("Serial"));
@@ -64,6 +66,9 @@ Global::~Global()
 
 const Value Global::property(ExecutionUnit*, const Atom& name) const
 {
+    if (name == _ArgumentsAtom) {
+        return Value(_arguments.objectId());
+    }
     if (name == _SerialAtom) {
         return Value(_serial.objectId());
     }
@@ -90,6 +95,7 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
         case 2: return _DateAtom;
         case 3: return _Base64Atom;
         case 4: return _GPIOAtom;
+        case 5: return _ArgumentsAtom;
         default: return Atom();
     }
 }

@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Arguments.h"
 #include "Base64.h"
 #include "Date.h"
 #include "GPIO.h"
@@ -68,15 +69,17 @@ protected:
         return true;
     }
 
-    static constexpr size_t PropertyCount = 5; // Date, GPIO, Serial, Base64 and System
+    static constexpr size_t PropertyCount = 6; // Arguments, Date, GPIO, Serial, Base64 and System
     
 private:        
+    Atom _ArgumentsAtom;
     Atom _DateAtom;
     Atom _GPIOAtom;
     Atom _SerialAtom;
     Atom _Base64Atom;
     Atom _SystemAtom;
 
+    Arguments _arguments;
     Serial _serial;
     System _system;
     Date _date;

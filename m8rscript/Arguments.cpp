@@ -42,6 +42,7 @@ using namespace m8r;
 
 Arguments::Arguments(Program* program)
 {
+    program->addObject(this, false);
     _lengthAtom = program->atomizeString("length");
 }
 
