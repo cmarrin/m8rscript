@@ -66,13 +66,13 @@ public:
     
     virtual void gcMark(ExecutionUnit*) { }
     
-    virtual const Value property(const Atom&) const { return Value(); }
+    virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value) { return false; }
-    virtual Atom propertyName(uint32_t index) const { return Atom(); }
-    virtual Value* addProperty(const Atom&) { return nullptr; }
-    virtual size_t propertyCount() const { return 0; }
+    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const { return Atom(); }
+    virtual Value* addProperty(ExecutionUnit*, const Atom&) { return nullptr; }
+    virtual size_t propertyCount(ExecutionUnit*) const { return 0; }
     
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIdValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     
@@ -132,7 +132,7 @@ public:
         }
     }
     
-    virtual const Value property(const Atom& prop) const override
+    virtual const Value property(ExecutionUnit*, const Atom& prop) const override
     {
         auto it = _properties.find(prop);
         return (it != _properties.end()) ? it->value : Value();
@@ -147,8 +147,8 @@ public:
         return true;
     }
     
-    virtual Atom propertyName(uint32_t index) const override { return (_properties.begin() + index)->key; }
-    virtual Value* addProperty(const Atom& prop) override
+    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override { return (_properties.begin() + index)->key; }
+    virtual Value* addProperty(ExecutionUnit*, const Atom& prop) override
     {
         auto it = _properties.find(prop);
         if (it != _properties.end()) {
@@ -159,7 +159,7 @@ public:
         return &(ret.first->value);
     }
 
-    virtual size_t propertyCount() const override { return _properties.size(); }
+    virtual size_t propertyCount(ExecutionUnit*) const override { return _properties.size(); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;

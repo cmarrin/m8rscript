@@ -78,9 +78,9 @@ Value ExecutionUnit::derefId(Atom atom)
     }
 
     // This atom is a property of the Program or Global objects
-    Value value = _program->property(atom);
+    Value value = _program->property(this, atom);
     if (!value) {
-        value = _program->global()->property(atom);
+        value = _program->global()->property(this, atom);
         if (!value) {
             printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
             return Value();
@@ -296,7 +296,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        setInFrame(inst.ra(), objectValue->property(regOrConst(inst.rc()).toIdValue(this)));
+        setInFrame(inst.ra(), objectValue->property(this, regOrConst(inst.rc()).toIdValue(this)));
         DISPATCH;
     L_LOADELT:
         objectValue = toObject(regOrConst(inst.rb()), "LOADELT");
@@ -338,7 +338,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        valuePtr = objectValue->addProperty(regOrConst(inst.rb()).toIdValue(this));
+        valuePtr = objectValue->addProperty(this, regOrConst(inst.rb()).toIdValue(this));
         if (!valuePtr) {
             printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
             DISPATCH;

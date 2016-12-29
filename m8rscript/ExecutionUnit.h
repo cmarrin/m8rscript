@@ -142,6 +142,9 @@ public:
         return value;
     }
     
+    uint32_t argumentCount() const { return _actualParamCount; }
+    Value& argument(int32_t i) { return _stack.inFrame(i); }
+    
 private:
     void startFunction(ObjectId function, uint32_t nparams);
 

@@ -92,7 +92,7 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-const Value GPIO::property(const Atom& prop) const
+const Value GPIO::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _setPinModeAtom) {
         return Value(_setPinMode.objectId());
@@ -126,7 +126,7 @@ PinMode::PinMode(Program* program)
     program->addObject(this, false);
 }
 
-const Value PinMode::property(const Atom& prop) const
+const Value PinMode::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _OutputAtom) {
         return Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output));
@@ -158,7 +158,7 @@ Trigger::Trigger(Program* program)
     program->addObject(this, false);
 }
 
-const Value Trigger::property(const Atom& prop) const
+const Value Trigger::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _NoneAtom) {
         return Value(static_cast<uint32_t>(GPIOInterface::Trigger::None));

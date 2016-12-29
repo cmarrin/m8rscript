@@ -180,15 +180,15 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     _nestingLevel++;
     
     // Output all the function properties
-    for (uint32_t i = 0; i < obj->propertyCount(); ++i) {
-        Atom name = obj->propertyName(i);
-        const Value& value = obj->property(name);
+    for (uint32_t i = 0; i < obj->propertyCount(nullptr); ++i) {
+        Atom name = obj->propertyName(nullptr, i);
+        const Value& value = obj->property(nullptr, name);
         if (value.isNone()) {
             continue;
         }
         Object* object = program->obj(value);
         if (object && object->isFunction()) {
-            Atom name = obj->propertyName(i);
+            Atom name = obj->propertyName(nullptr, i);
             outputString += generateCodeString(program, static_cast<Function*>(object), program->stringFromAtom(name).c_str(), _nestingLevel);
             outputString += "\n";
         }

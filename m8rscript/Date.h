@@ -45,7 +45,7 @@ public:
 
     virtual const char* typeName() const override { return "Date"; }
 
-    virtual const Value property(const Atom&) const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
 
 private:
     Atom _nowAtom;

@@ -53,9 +53,9 @@ public:
     virtual const char* typeName() const override { return "Global"; }
 
     // Global has built-in properties. Handle those here
-    virtual const Value property(const Atom&) const override;
-    virtual Atom propertyName(uint32_t index) const override;
-    virtual size_t propertyCount() const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
+    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
+    virtual size_t propertyCount(ExecutionUnit*) const override;
     
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override

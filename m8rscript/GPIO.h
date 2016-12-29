@@ -47,7 +47,7 @@ public:
 
     virtual const char* typeName() const override { return "PinMode"; }
 
-    virtual const Value property(const Atom&) const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
 
 private:
     Atom _OutputAtom;
@@ -63,7 +63,7 @@ public:
 
     virtual const char* typeName() const override { return "Trigger"; }
 
-    virtual const Value property(const Atom&) const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
 
 private:
     Atom _NoneAtom;
@@ -81,7 +81,7 @@ public:
     
     virtual const char* typeName() const override { return "GPIO"; }
 
-    virtual const Value property(const Atom&) const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
 
 private:
     Atom _setPinModeAtom;

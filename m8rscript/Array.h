@@ -77,10 +77,10 @@ public:
     virtual bool appendElement(ExecutionUnit*, const Value& value) override { _array.push_back(value); return true; }
 
     // Array has built-in properties. Handle those here
-    virtual const Value property(const Atom& prop) const override;
+    virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
-    virtual Atom propertyName(uint32_t index) const override;
-    virtual size_t propertyCount() const override;
+    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
+    virtual size_t propertyCount(ExecutionUnit*) const override;
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override

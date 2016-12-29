@@ -186,7 +186,7 @@ CallReturnValue Base64::decode(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-const Value Base64::property(const Atom& prop) const
+const Value Base64::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _encodeAtom) {
         return Value(_encode.objectId());

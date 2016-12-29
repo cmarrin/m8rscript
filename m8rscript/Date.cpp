@@ -56,7 +56,7 @@ CallReturnValue Date::now(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-const Value Date::property(const Atom& prop) const
+const Value Date::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _nowAtom) {
         return Value(_now.objectId());

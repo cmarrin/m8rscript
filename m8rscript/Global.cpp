@@ -62,7 +62,7 @@ Global::~Global()
 {
 }
 
-const Value Global::property(const Atom& name) const
+const Value Global::property(ExecutionUnit*, const Atom& name) const
 {
     if (name == _SerialAtom) {
         return Value(_serial.objectId());
@@ -82,7 +82,7 @@ const Value Global::property(const Atom& name) const
     return Value();
 }
 
-Atom Global::propertyName(uint32_t index) const
+Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
 {
     switch(index) {
         case 0: return _SerialAtom;
@@ -94,7 +94,7 @@ Atom Global::propertyName(uint32_t index) const
     }
 }
 
-size_t Global::propertyCount() const
+size_t Global::propertyCount(ExecutionUnit*) const
 {
     return PropertyCount;
 }

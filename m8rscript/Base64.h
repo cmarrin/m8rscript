@@ -45,7 +45,7 @@ public:
 
     virtual const char* typeName() const override { return "Base64"; }
 
-    virtual const Value property(const Atom&) const override;
+    virtual const Value property(ExecutionUnit*, const Atom&) const override;
     
     static int encode(size_t in_len, const unsigned char *in, size_t out_len, char *out);
     static int decode(size_t in_len, const char *in, size_t out_len, unsigned char *out);

@@ -54,7 +54,7 @@ CallReturnValue System::delay(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
 }
 
-const Value System::property(const Atom& prop) const
+const Value System::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _delayAtom) {
         return Value(_delay.objectId());

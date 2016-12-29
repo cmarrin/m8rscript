@@ -77,7 +77,7 @@ CallReturnValue Serial::printf(ExecutionUnit*, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-const Value Serial::property(const Atom& prop) const
+const Value Serial::property(ExecutionUnit*, const Atom& prop) const
 {
     if (prop == _beginAtom) {
         return Value(_begin.objectId());
