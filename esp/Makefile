@@ -33,16 +33,20 @@ MAIN_NAME = m8rscript
 SRC ?=  ../m8rscript/Application.cpp \
         ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
+		../m8rscript/Base64.cpp \
+		../m8rscript/Date.cpp \
 		../m8rscript/Error.cpp \
 		../m8rscript/ExecutionUnit.cpp \
 		../m8rscript/Function.cpp \
 		../m8rscript/Global.cpp \
+		../m8rscript/GPIO.cpp \
 		../m8rscript/Object.cpp \
 		../m8rscript/Program.cpp \
+		../m8rscript/Serial.cpp \
 		../m8rscript/Shell.cpp \
+		../m8rscript/System.cpp \
 		../m8rscript/TaskManager.cpp \
 		../m8rscript/Value.cpp \
-		../m8rscript/base64.cpp \
         app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)
