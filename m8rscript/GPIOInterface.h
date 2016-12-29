@@ -36,73 +36,56 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Defines.h"
-#include "Object.h"
 #include <functional>
 
 namespace m8r {
 
-class PinMode : public Object {
+class GPIOInterface {
 public:
-    PinMode(Program*);
-
-    virtual const char* typeName() const override { return "PinMode"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _OutputAtom;
-    Atom _OutputOpenDrainAtom;
-    Atom _InputAtom;
-    Atom _InputPullupAtom;
-    Atom _InputPulldownAtom;
-};
-
-class Trigger : public Object {
-public:
-    Trigger(Program*);
-
-    virtual const char* typeName() const override { return "Trigger"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _NoneAtom;
-    Atom _RisingEdgeAtom;
-    Atom _FallingEdgeAtom;
-    Atom _BothEdgesAtom;
-    Atom _LowAtom;
-    Atom _HighAtom;
-};
-
-class GPIO : public Object {
-public:
-    GPIO(Program*);
-    virtual ~GPIO() { }
+    static constexpr uint8_t LED = 2;
+    static constexpr uint8_t PinCount = 17;
     
-    virtual const char* typeName() const override { return "GPIO"; }
-
-    virtual const Value property(const Atom&) const override;
-
+    enum class PinMode { Output, OutputOpenDrain, Input, InputPullup, InputPulldown };
+    enum class Trigger { None, RisingEdge, FallingEdge, BothEdges, Low, High };
+    
+    GPIOInterface() { }
+    virtual ~GPIOInterface() { }
+    
+    virtual bool setPinMode(uint8_t pin, PinMode mode = PinMode::Input)
+    {
+        if (pin >= PinCount) {
+            return false;
+        }
+        _pinMode[pin] = mode;
+        return true;
+    }
+    
+    virtual bool digitalRead(uint8_t pin) const = 0;
+    virtual void digitalWrite(uint8_t pin, bool level) = 0;
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
+    
+    void enableHeartbeat() { setPinMode(LED, PinMode::Output); }
+    void heartbeat(bool on)
+    {
+        if (_pinMode[LED] != PinMode::Output) {
+            return;
+        }
+        
+        // Generally the heartbeat is the inverse of the current state of the LED pin. But when turning
+        // it off (which will be for a longer period of time) if the pin has changed state from when
+        // we turned it on, we assume it is being used somewhere else, so we don't change it
+        bool state = digitalRead(LED);
+        if ((!on && (state ^ _heartbeatState)) || (on == _heartbeatState)) {
+            _heartbeatState = on;
+            return;
+        }
+        _heartbeatState = !state;
+        digitalWrite(LED, _heartbeatState);
+    }
+    
 private:
-    Atom _setPinModeAtom;
-    Atom _digitalWriteAtom;
-    Atom _digitalReadAtom;
-    Atom _onInterruptAtom;
-    Atom _PinModeAtom;
-    Atom _TriggerAtom;
-
-    static CallReturnValue setPinMode(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalWrite(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalRead(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue onInterrupt(ExecutionUnit*, uint32_t nparams);
-    
-    NativeFunction _setPinMode;
-    NativeFunction _digitalWrite;
-    NativeFunction _digitalRead;
-    NativeFunction _onInterrupt;
-    
-    m8r::PinMode _pinMode;
-    m8r::Trigger _trigger;
+    PinMode _pinMode[PinCount];
+    bool _heartbeatState = false;
 };
 
 }

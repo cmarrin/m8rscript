@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-      this list of conditions and the following disclaimer.
-      
+    this list of conditions and the following disclaimer.
+    
     - Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-      
+    notice, this list of conditions and the following disclaimer in the 
+    documentation and/or other materials provided with the distribution.
+    
     - Neither the name of the <ORGANIZATION> nor the names of its 
-      contributors may be used to endorse or promote products derived from 
-      this software without specific prior written permission.
-      
+    contributors may be used to endorse or promote products derived from 
+    this software without specific prior written permission.
+    
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -36,36 +36,37 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "GPIOInterface.h"
-#include <cstdint>
-#include <cstdarg>
+
+#include "Esp.h"
+#include <ets_sys.h>
 
 namespace m8r {
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Class: SystemInterface
-//
-//  
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class SystemInterface  {
+class EspGPIOInterface : public GPIOInterface {
 public:
-	SystemInterface() { }
-    virtual ~SystemInterface() { }
-        
-    static SystemInterface* shared();
+    EspGPIOInterface();
+    virtual ~EspGPIOInterface();
     
-    void printf(const char* fmt, ...) const
+    virtual bool setPinMode(uint8_t pin, PinMode mode) override;
+    virtual bool digitalRead(uint8_t pin) const override;
+    virtual void digitalWrite(uint8_t pin, bool level) override;
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override;    
+
+private:
+    static constexpr uint8_t InvalidName = 0xff;
+    
+    struct PinEntry {
+        PinEntry(uint32_t name, uint8_t func) : _name(name - PERIPHS_IO_MUX), _func(func) { }
+        uint8_t _name;
+        uint8_t _func;
+    };
+    
+    static PinEntry getPinEntry(uint8_t pin)
     {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
+        return { readRomByte(&(_pins[pin * 2])), readRomByte(&(_pins[pin * 2 + 1])) };
     }
     
-    virtual void vprintf(const char*, va_list) const = 0;
-    virtual GPIOInterface& gpio() = 0;
-    static uint64_t currentMicroseconds();
+    static const uint8_t _pins[PinCount * 2];
 };
 
 }

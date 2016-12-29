@@ -58,17 +58,17 @@ public:
         [_device outputMessage:string];
     }
     
-    virtual m8r::GPIO& gpio() override { return _gpio; }
+    virtual m8r::GPIOInterface& gpio() override { return _gpio; }
 
 private:
-    class DeviceGPIO : public m8r::GPIO {
+    class DeviceGPIOInterface : public m8r::GPIOInterface {
     public:
-        DeviceGPIO(Device* device) : _device(device) { }
-        virtual ~DeviceGPIO() { }
+        DeviceGPIOInterface(Device* device) : _device(device) { }
+        virtual ~DeviceGPIOInterface() { }
 
         virtual bool setPinMode(uint8_t pin, PinMode mode) override
         {
-            if (!GPIO::setPinMode(pin, mode)) {
+            if (!GPIOInterface::setPinMode(pin, mode)) {
                 return false;
             }
             _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
@@ -101,7 +101,7 @@ private:
     };
     
     Device* _device;
-    DeviceGPIO _gpio;
+    DeviceGPIOInterface _gpio;
 };
 
 m8r::SystemInterface* _sharedSystemInterface = nullptr;

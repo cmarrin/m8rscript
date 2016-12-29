@@ -19,7 +19,7 @@
  */
 
 #include "Esp.h"
-#include "EspGPIO.h"
+#include "EspGPIOInterface.h"
 #include "FS.h"
 #include "MDNSResponder.h"
 #include "SystemInterface.h"
@@ -130,10 +130,10 @@ class EspSystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
-    virtual m8r::GPIO& gpio() { return _gpio; }
+    virtual m8r::GPIOInterface& gpio() { return _gpio; }
     
 private:
-    m8r::EspGPIO _gpio;
+    m8r::EspGPIOInterface _gpio;
 };
 
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const

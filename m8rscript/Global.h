@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "GPIO.h"
 #include "Object.h"
 
 namespace m8r {
@@ -106,69 +107,6 @@ private:
     NativeFunction _decode;
 };
 
-class PinMode : public Object {
-public:
-    PinMode(Program*);
-
-    virtual const char* typeName() const override { return "PinMode"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _OutputAtom;
-    Atom _OutputOpenDrainAtom;
-    Atom _InputAtom;
-    Atom _InputPullupAtom;
-    Atom _InputPulldownAtom;
-};
-
-class Trigger : public Object {
-public:
-    Trigger(Program*);
-
-    virtual const char* typeName() const override { return "Trigger"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _NoneAtom;
-    Atom _RisingEdgeAtom;
-    Atom _FallingEdgeAtom;
-    Atom _BothEdgesAtom;
-    Atom _LowAtom;
-    Atom _HighAtom;
-};
-
-class GPIOObject : public Object {
-public:
-    GPIOObject(Program*);
-
-    virtual const char* typeName() const override { return "GPIO"; }
-
-    virtual const Value property(const Atom&) const override;
-
-private:
-    Atom _setPinModeAtom;
-    Atom _digitalWriteAtom;
-    Atom _digitalReadAtom;
-    Atom _onInterruptAtom;
-    Atom _PinModeAtom;
-    Atom _TriggerAtom;
-
-    static CallReturnValue setPinMode(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalWrite(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalRead(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue onInterrupt(ExecutionUnit*, uint32_t nparams);
-    
-    NativeFunction _setPinMode;
-    NativeFunction _digitalWrite;
-    NativeFunction _digitalRead;
-    NativeFunction _onInterrupt;
-    
-    PinMode _pinMode;
-    Trigger _trigger;
-};
-
 class Global : public Object {
 public:
     Global(Program*);
@@ -206,7 +144,7 @@ private:
     System _system;
     Date _date;
     Base64 _base64;
-    GPIOObject _gpio;
+    GPIO _gpio;
 };
     
 }
