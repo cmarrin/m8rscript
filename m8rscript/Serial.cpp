@@ -33,68 +33,60 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Global.h"
+#include "Serial.h"
 
+#include "ExecutionUnit.h"
 #include "Program.h"
 #include "SystemInterface.h"
-#include "ExecutionUnit.h"
-#include <string>
 
 using namespace m8r;
 
-Global::Global(Program* program)
-    : _serial(program)
-    , _system(program)
-    , _date(program)
-    , _base64(program)
-    , _gpio(program)
+Serial::Serial(Program* program)
+    : _begin(begin)
+    , _print(print)
+    , _printf(printf)
 {
+    _beginAtom = program->atomizeString(ROMSTR("begin"));
+    _printAtom = program->atomizeString(ROMSTR("print"));
+    _printfAtom = program->atomizeString(ROMSTR("printf"));
+    
     program->addObject(this, false);
     
-    _DateAtom = program->atomizeString(ROMSTR("Date"));
-    _SystemAtom = program->atomizeString(ROMSTR("System"));
-    _SerialAtom = program->atomizeString(ROMSTR("Serial"));
-    _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
-    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
+    program->addObject(&_begin, false);
+    program->addObject(&_print, false);
+    program->addObject(&_printf, false);
 }
 
-Global::~Global()
+CallReturnValue Serial::begin(ExecutionUnit*, uint32_t nparams)
 {
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-const Value Global::property(const Atom& name) const
+CallReturnValue Serial::print(ExecutionUnit* eu, uint32_t nparams)
 {
-    if (name == _SerialAtom) {
-        return Value(_serial.objectId());
+    for (int32_t i = 1 - nparams; i <= 0; ++i) {
+        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
-    if (name == _SystemAtom) {
-        return Value(_system.objectId());
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue Serial::printf(ExecutionUnit*, uint32_t nparams)
+{
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+const Value Serial::property(const Atom& prop) const
+{
+    if (prop == _beginAtom) {
+        return Value(_begin.objectId());
     }
-    if (name == _DateAtom) {
-        return Value(_date.objectId());
+    if (prop == _printAtom) {
+        return Value(_print.objectId());
     }
-    if (name == _Base64Atom) {
-        return Value(_base64.objectId());
-    }
-    if (name == _GPIOAtom) {
-        return Value(_gpio.objectId());
+    if (prop == _printfAtom) {
+        return Value(_printf.objectId());
     }
     return Value();
-}
-
-Atom Global::propertyName(uint32_t index) const
-{
-    switch(index) {
-        case 0: return _SerialAtom;
-        case 1: return _SystemAtom;
-        case 2: return _DateAtom;
-        case 3: return _Base64Atom;
-        case 4: return _GPIOAtom;
-        default: return Atom();
-    }
-}
-
-size_t Global::propertyCount() const
-{
-    return PropertyCount;
 }

@@ -35,53 +35,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Base64.h"
-#include "Date.h"
-#include "GPIO.h"
-#include "Serial.h"
-#include "System.h"
 #include "Object.h"
 
 namespace m8r {
 
-class Global : public Object {
+class Date : public Object {
 public:
-    Global(Program*);
-    
-    virtual ~Global();
-    
-    virtual const char* typeName() const override { return "Global"; }
+    Date(Program*);
 
-    // Global has built-in properties. Handle those here
+    virtual const char* typeName() const override { return "Date"; }
+
     virtual const Value property(const Atom&) const override;
-    virtual Atom propertyName(uint32_t index) const override;
-    virtual size_t propertyCount() const override;
-    
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override
-    {
-        return true;
-    }
 
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
-    {
-        return true;
-    }
-
-    static constexpr size_t PropertyCount = 5; // Date, GPIO, Serial, Base64 and System
-    
-private:        
-    Atom _DateAtom;
-    Atom _GPIOAtom;
-    Atom _SerialAtom;
-    Atom _Base64Atom;
-    Atom _SystemAtom;
-
-    Serial _serial;
-    System _system;
-    Date _date;
-    Base64 _base64;
-    GPIO _gpio;
+private:
+    Atom _nowAtom;
+    static CallReturnValue now(ExecutionUnit*, uint32_t nparams);
+    NativeFunction _now;
 };
-    
+
 }

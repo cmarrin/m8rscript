@@ -33,68 +33,33 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Global.h"
+#include "Date.h"
 
+#include "ExecutionUnit.h"
 #include "Program.h"
 #include "SystemInterface.h"
-#include "ExecutionUnit.h"
-#include <string>
 
 using namespace m8r;
 
-Global::Global(Program* program)
-    : _serial(program)
-    , _system(program)
-    , _date(program)
-    , _base64(program)
-    , _gpio(program)
+Date::Date(Program* program)
+    : _now(now)
 {
+    _nowAtom = program->atomizeString(ROMSTR("now"));    
     program->addObject(this, false);
-    
-    _DateAtom = program->atomizeString(ROMSTR("Date"));
-    _SystemAtom = program->atomizeString(ROMSTR("System"));
-    _SerialAtom = program->atomizeString(ROMSTR("Serial"));
-    _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
-    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
+    program->addObject(&_now, false);
 }
 
-Global::~Global()
+CallReturnValue Date::now(ExecutionUnit* eu, uint32_t nparams)
 {
+    uint64_t t = SystemInterface::shared()->currentMicroseconds();
+    eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-const Value Global::property(const Atom& name) const
+const Value Date::property(const Atom& prop) const
 {
-    if (name == _SerialAtom) {
-        return Value(_serial.objectId());
-    }
-    if (name == _SystemAtom) {
-        return Value(_system.objectId());
-    }
-    if (name == _DateAtom) {
-        return Value(_date.objectId());
-    }
-    if (name == _Base64Atom) {
-        return Value(_base64.objectId());
-    }
-    if (name == _GPIOAtom) {
-        return Value(_gpio.objectId());
+    if (prop == _nowAtom) {
+        return Value(_now.objectId());
     }
     return Value();
-}
-
-Atom Global::propertyName(uint32_t index) const
-{
-    switch(index) {
-        case 0: return _SerialAtom;
-        case 1: return _SystemAtom;
-        case 2: return _DateAtom;
-        case 3: return _Base64Atom;
-        case 4: return _GPIOAtom;
-        default: return Atom();
-    }
-}
-
-size_t Global::propertyCount() const
-{
-    return PropertyCount;
 }
