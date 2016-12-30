@@ -100,7 +100,7 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
     }
 }
 
-size_t Global::propertyCount(ExecutionUnit*) const
+uint32_t Global::propertyCount(ExecutionUnit*) const
 {
     return PropertyCount;
 }

@@ -48,11 +48,14 @@ public:
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override;
 
-    // Array has built-in properties. Handle those here
+    // Arguments has built-in properties. Handle those here
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
     virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual size_t propertyCount(ExecutionUnit*) const override;
+    virtual uint32_t propertyCount(ExecutionUnit*) const override;
+
+    virtual uint32_t iteratorCount(ExecutionUnit* eu) const override { return argCount(eu); }
+    virtual Value iterator(ExecutionUnit* eu, uint32_t index) override { return arg(eu, index); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
@@ -68,6 +71,9 @@ protected:
     }
 
 private:
+    uint32_t argCount(ExecutionUnit*) const;
+    Value& arg(ExecutionUnit*, uint32_t index);
+    
     static constexpr size_t PropertyCount = 1; // length
 
     enum class Property : uint8_t { Length };

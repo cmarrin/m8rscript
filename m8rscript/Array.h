@@ -80,7 +80,10 @@ public:
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
     virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual size_t propertyCount(ExecutionUnit*) const override;
+    virtual uint32_t propertyCount(ExecutionUnit*) const override;
+
+    virtual uint32_t iteratorCount(ExecutionUnit*) const override { return static_cast<uint32_t>(_array.size()); }
+    virtual Value iterator(ExecutionUnit*, uint32_t index) override { return _array[index]; }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override

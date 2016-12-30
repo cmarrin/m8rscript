@@ -66,7 +66,7 @@ Atom Array::propertyName(ExecutionUnit*, uint32_t index) const
     }
 }
 
-size_t Array::propertyCount(ExecutionUnit*) const
+uint32_t Array::propertyCount(ExecutionUnit*) const
 {
     return PropertyCount;
 }

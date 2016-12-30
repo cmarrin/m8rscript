@@ -70,13 +70,16 @@ public:
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value) { return false; }
     virtual Atom propertyName(ExecutionUnit*, uint32_t index) const { return Atom(); }
     virtual Value* addProperty(ExecutionUnit*, const Atom&) { return nullptr; }
-    virtual size_t propertyCount(ExecutionUnit*) const { return 0; }
+    virtual uint32_t propertyCount(ExecutionUnit*) const { return 0; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIdValue(eu), value); }
     virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
     
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
+    
+    virtual uint32_t iteratorCount(ExecutionUnit*) const { return 0; }
+    virtual Value iterator(ExecutionUnit*, uint32_t index) { return Value(); }
 
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
@@ -159,7 +162,10 @@ public:
         return &(ret.first->value);
     }
 
-    virtual size_t propertyCount(ExecutionUnit*) const override { return _properties.size(); }
+    virtual uint32_t propertyCount(ExecutionUnit*) const override { return static_cast<uint32_t>(_properties.size()); }
+
+    virtual uint32_t iteratorCount(ExecutionUnit* eu) const override { return propertyCount(eu); }
+    virtual Value iterator(ExecutionUnit* eu, uint32_t index) override { return propertyName(eu, index); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;

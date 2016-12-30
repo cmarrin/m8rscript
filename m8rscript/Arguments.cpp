@@ -49,21 +49,31 @@ Arguments::Arguments(Program* program)
 const Value Arguments::element(ExecutionUnit* eu, const Value& elt) const
 {
     int32_t index = elt.toIntValue(eu);
-    return (index >= 0 && index < eu->argumentCount()) ? eu->argument(index) : Value();
+    return (index >= 0 && index < argCount(eu)) ? eu->argument(index) : Value();
 }
 bool Arguments::setElement(ExecutionUnit* eu, const Value& elt, const Value& value)
 {
     int32_t index = elt.toIntValue(eu);
-    if (index < 0 || index >= eu->argumentCount()) {
+    if (index < 0 || index >= argCount(eu)) {
         return false;
     }
-    eu->argument(index) = value;
+    arg(eu, index) = value;
     return true;
+}
+
+uint32_t Arguments::argCount(ExecutionUnit* eu) const
+{
+    return eu->argumentCount();
+}
+
+Value& Arguments::arg(ExecutionUnit* eu, uint32_t index)
+{
+    return eu->argument(index);
 }
 
 const Value Arguments::property(ExecutionUnit* eu, const Atom& name) const
 {
-    return (name == _lengthAtom) ? Value(static_cast<int32_t>(eu->argumentCount())) : Value();
+    return (name == _lengthAtom) ? Value(static_cast<int32_t>(argCount(eu))) : Value();
 }
 
 bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value)
@@ -82,7 +92,7 @@ Atom Arguments::propertyName(ExecutionUnit*, uint32_t index) const
     }
 }
 
-size_t Arguments::propertyCount(ExecutionUnit*) const
+uint32_t Arguments::propertyCount(ExecutionUnit*) const
 {
     return PropertyCount;
 }
