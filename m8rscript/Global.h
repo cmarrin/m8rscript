@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Base64.h"
 #include "Date.h"
 #include "GPIO.h"
+#include "Iterator.h"
 #include "Serial.h"
 #include "System.h"
 #include "Object.h"
@@ -69,12 +70,13 @@ protected:
         return true;
     }
 
-    static constexpr size_t PropertyCount = 6; // Arguments, Date, GPIO, Serial, Base64 and System
+    static constexpr size_t PropertyCount = 7; // Arguments, Date, GPIO, Iterator, Serial, Base64 and System
     
 private:        
     Atom _ArgumentsAtom;
     Atom _DateAtom;
     Atom _GPIOAtom;
+    Atom _IteratorAtom;
     Atom _SerialAtom;
     Atom _Base64Atom;
     Atom _SystemAtom;
@@ -85,6 +87,7 @@ private:
     Date _date;
     Base64 _base64;
     GPIO _gpio;
+    Iterator _iterator;
 };
     
 }

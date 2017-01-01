@@ -49,6 +49,7 @@ Global::Global(Program* program)
     , _date(program)
     , _base64(program)
     , _gpio(program)
+    , _iterator(program)
 {
     program->addObject(this, false);
     
@@ -57,6 +58,7 @@ Global::Global(Program* program)
     _SystemAtom = program->atomizeString(ROMSTR("System"));
     _SerialAtom = program->atomizeString(ROMSTR("Serial"));
     _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
+    _IteratorAtom = program->atomizeString(ROMSTR("Iterator"));
     _Base64Atom = program->atomizeString(ROMSTR("Base64"));
 }
 
@@ -84,6 +86,9 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
     if (name == _GPIOAtom) {
         return Value(_gpio.objectId());
     }
+    if (name == _IteratorAtom) {
+        return Value(_iterator.objectId());
+    }
     return Value();
 }
 
@@ -96,6 +101,7 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
         case 3: return _Base64Atom;
         case 4: return _GPIOAtom;
         case 5: return _ArgumentsAtom;
+        case 6: return _IteratorAtom;
         default: return Atom();
     }
 }
