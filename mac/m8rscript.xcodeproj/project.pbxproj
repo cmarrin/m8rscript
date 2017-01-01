@@ -14,6 +14,8 @@
 		492BA3DD1E15987C00242DA8 /* Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3DB1E15987C00242DA8 /* Base64.h */; };
 		492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */; };
 		492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3EB1E15C5CD00242DA8 /* Arguments.h */; };
+		492BA3F11E19729A00242DA8 /* slre.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3EF1E19727C00242DA8 /* slre.h */; };
+		492BA3F21E1972A000242DA8 /* slre.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3EE1E19727C00242DA8 /* slre.cpp */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -129,6 +131,8 @@
 		492BA3DB1E15987C00242DA8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = ../m8rscript/Base64.h; sourceTree = "<group>"; };
 		492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Arguments.cpp; path = ../m8rscript/Arguments.cpp; sourceTree = "<group>"; };
 		492BA3EB1E15C5CD00242DA8 /* Arguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Arguments.h; path = ../m8rscript/Arguments.h; sourceTree = "<group>"; };
+		492BA3EE1E19727C00242DA8 /* slre.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = slre.cpp; path = ../m8rscript/slre.cpp; sourceTree = "<group>"; };
+		492BA3EF1E19727C00242DA8 /* slre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slre.h; path = ../m8rscript/slre.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -464,6 +468,8 @@
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49AE34F61D8330CA00C4E680 /* Shell.cpp */,
 				49AE34F71D8330CA00C4E680 /* Shell.h */,
+				492BA3EE1E19727C00242DA8 /* slre.cpp */,
+				492BA3EF1E19727C00242DA8 /* slre.h */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				49AB794B1DC143B700DE6332 /* TaskManager.cpp */,
 				49AB794C1DC143B700DE6332 /* TaskManager.h */,
@@ -487,6 +493,7 @@
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
+				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
@@ -652,6 +659,7 @@
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
+				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,

@@ -244,10 +244,10 @@ public:
         }
         size_t l = _size - 1;
         char* s = _data;
-        while (isWhitespace(s[l - 1])) {
+        while (isspace(s[l - 1])) {
             --l;
         }
-        while (*s && isWhitespace(*s)) {
+        while (*s && isspace(*s)) {
             ++s;
             --l;
         }

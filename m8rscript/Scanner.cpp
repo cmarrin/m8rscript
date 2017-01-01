@@ -123,7 +123,7 @@ Token Scanner::scanString(char terminal)
                         return Token::String;
                     }
                     
-                    if (!isHex(c) && !isDigit(c)) {
+                    if (!isHex(c) && !isdigit(c)) {
                         c = '?';
                         break;
                     }
@@ -131,10 +131,10 @@ Token Scanner::scanString(char terminal)
                     uint32_t num = 0;
                     putback(c);
                     while ((c = get()) != C_EOF) {
-                        if (!isHex(c) && !isDigit(c)) {
+                        if (!isHex(c) && !isdigit(c)) {
                             break;
                         }
-                        if (isDigit(c)) {
+                        if (isdigit(c)) {
                             num = (num << 4) | (c - '0');
                         } else if (isUpper(c)) {
                             num = (num << 4) | ((c - 'A') + 0x0a);
@@ -355,7 +355,7 @@ int32_t Scanner::scanDigits(int32_t& number, bool hex)
     int32_t numDigits = 0;
     
 	while ((c = get()) != C_EOF) {
-		if (isDigit(c)) {
+		if (isdigit(c)) {
             number = number * radix;
             number += static_cast<int32_t>(c - '0');
         } else if (isLCHex(c)) {
@@ -380,7 +380,7 @@ Token Scanner::scanNumber(TokenType& tokenValue)
         return Token::EndOfFile;
     }
     
-	if (!isDigit(c)) {
+	if (!isdigit(c)) {
 		putback(c);
 		return Token::EndOfFile;
 	}
@@ -397,7 +397,7 @@ Token Scanner::scanNumber(TokenType& tokenValue)
             if ((c = get()) == C_EOF) {
                 return Token::EndOfFile;
             }
-            if (!isDigit(c)) {
+            if (!isdigit(c)) {
                 putback(c);
                 return Token::Unknown;
             }
@@ -511,7 +511,7 @@ Token Scanner::getToken(TokenType& tokenValue)
 	Token token = Token::EndOfFile;
 	
 	while (token == Token::EndOfFile && (c = get()) != C_EOF) {
-        if (isWhitespace(c)) {
+        if (isspace(c)) {
             continue;
         }
 		switch(c) {

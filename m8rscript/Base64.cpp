@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base64.h"
 
-#include <cstdint>
 #include "Defines.h"
 #include "ExecutionUnit.h"
 #include "Program.h"
@@ -74,7 +73,7 @@ int Base64::decode(size_t in_len, const char *in, size_t out_len, unsigned char 
 
 	for(io=0,ii=0,v=0,rem=0;ii<in_len;ii++) {
 		unsigned char ch;
-		if(isWhitespace(in[ii])) continue;
+		if(isspace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
 		ch=readRomByte(&(base64dec_tab[(unsigned)in[ii]]));
 		if(ch==255) break; /* stop at a parse error */

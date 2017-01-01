@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Program.h"
 #include "SystemInterface.h"
 #include "ExecutionUnit.h"
+#include "slre.h"
 #include <string>
 
 using namespace m8r;
@@ -153,6 +154,7 @@ CallReturnValue Global::print(ExecutionUnit* eu, uint32_t nparams)
 
 CallReturnValue Global::printf(ExecutionUnit*, uint32_t nparams)
 {
+    slre_match(nullptr, nullptr, 0, nullptr, 0, 0);
     // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);
 }
