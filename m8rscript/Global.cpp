@@ -152,11 +152,72 @@ CallReturnValue Global::print(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue Global::printf(ExecutionUnit*, uint32_t nparams)
+CallReturnValue Global::printf(ExecutionUnit* eu, uint32_t nparams)
 {
-    slre_match(nullptr, nullptr, 0, nullptr, 0, 0);
-    // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
+    static const char* formatRegex = "(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])";
+    
+    int32_t nextParam = 1 - nparams;
+
+    const String& format = eu->stack().top(nextParam++).toStringValue(eu);
+    int size = static_cast<int>(format.size());
+    const char* s = format.c_str();
+    struct slre_cap caps[5];
+    memset(caps, 0, sizeof(caps));
+    while (true) {
+        int next = slre_match(formatRegex, s, size, caps, 5, 0);
+        if (next == SLRE_NO_MATCH) {
+            // Print the remainder of the string
+            SystemInterface::shared()->printf(s);
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+        if (next < 0) {
+            return CallReturnValue(CallReturnValue::Type::Error);
+        }
+        
+        // Output anything from s to the '%'
+        assert(caps[0].len == 1);
+        if (s != caps[0].ptr) {
+            String str(s, static_cast<int32_t>(caps[0].ptr - s));
+            SystemInterface::shared()->printf(str.c_str());
+        }
+        
+        // FIXME: handle the leading number(s) in the format
+        assert(caps[4].len == 1);
+        Value value = eu->stack().top(nextParam++);
+        char formatChar = *(caps[4].ptr);
+        switch (formatChar) {
+            case 'c':
+                SystemInterface::shared()->printf("%c", value.toIntValue(eu));
+                break;
+            case 's':
+                SystemInterface::shared()->printf("%s", value.toStringValue(eu).c_str());
+                break;
+            case 'd':
+            case 'i':
+                SystemInterface::shared()->printf("%d", value.toIntValue(eu));
+                break;
+            case 'x':
+            case 'X':
+                SystemInterface::shared()->printf((formatChar == 'x') ? "%x" : "%X", static_cast<uint32_t>(value.toIntValue(eu)));
+                break;
+            case 'u':
+                SystemInterface::shared()->printf("%u", static_cast<uint32_t>(value.toIntValue(eu)));
+                break;
+            case 'f':
+            case 'e':
+            case 'E':
+            case 'g':
+            case 'G':
+                // FIXME: Implement
+                break;
+            case 'p':
+                SystemInterface::shared()->printf("%p", *(reinterpret_cast<void**>(&value)));
+                break;
+            default: return CallReturnValue(CallReturnValue::Type::Error);
+        }
+        
+        s += next;
+    }
 }
 
 CallReturnValue Global::println(ExecutionUnit* eu, uint32_t nparams)
