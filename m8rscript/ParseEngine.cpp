@@ -114,7 +114,7 @@ bool ParseEngine::statement()
         }
         if (getToken() == Token::Var) {
             retireToken();
-            variableDeclarationList();
+            expect(Token::MissingVarDecl, variableDeclarationList() > 0);
             expect(Token::Semicolon);
             return true;
         } else if (getToken() == Token::Delete) {
@@ -307,6 +307,51 @@ void ParseEngine::forLoopCondAndIt()
     _parser->matchJump(label);
 }
 
+void ParseEngine::forIteration()
+{
+    // On entry we just parsed the object expression and it is
+    // on the stack. We also parsed the end paren, so we're ready
+    // to parse the statement
+
+    // Stack now has the result of the object expression. We also have the name of 
+    // the identifier that will receive the next iteration on each pass.
+    // We need to generate the following:
+    //
+    //          MOVE T[i], K[0] // T[i] = i, K[0] = the constant 0
+    //      L1: LTIT T[1], T[i], R[n] // R[n] is the result of the object expression
+    //          JF T[1], L2
+    //          LOADIT R[m], R[n], T[i] // R[m] is the receiver of the iteration value
+    //          <statement>
+    //          PREDEC (T[1], T[i]
+    //          JMP l1
+    //      L2: ...
+
+
+
+
+    // On entry, we are at the semicolon before the cond expr
+    expect(Token::Semicolon);
+    Label label = _parser->label();
+    expression(); // cond expr
+    _parser->addMatchedJump(m8r::Op::JF, label);
+    _parser->startDeferred();
+    expect(Token::Semicolon);
+    expression(); // iterator
+    _parser->discardResult();
+    _parser->endDeferred();
+    expect(Token::RParen);
+    statement();
+
+    // resolve the continue statements
+    for (auto it : _continueStack.back()) {
+        _parser->matchJump(it);
+    }
+
+    _parser->emitDeferred();
+    _parser->jumpToLabel(Op::JMP, label);
+    _parser->matchJump(label);
+}
+
 bool ParseEngine::iterationStatement()
 {
     Token type = getToken();
@@ -352,22 +397,30 @@ bool ParseEngine::iterationStatement()
         expect(Token::LParen);
         if (getToken() == Token::Var) {
             retireToken();
-            variableDeclarationList();
+            
+            // Hang onto the identifier. If this is a for..in we need to know it
+            Atom name;
+            if (getToken() == Token::Identifier) {
+                name = getTokenValue().atom;
+            }
+            
+            uint32_t count = variableDeclarationList();
+            expect(Token::MissingVarDecl, count  > 0);
             if (getToken() == Token::Colon) {
                 // for-in case with var
-                //FIXME: implement
-                // FIXME: We need a way to know if the above decl is a legit variable for for-in
+                expect(Token::OneVarDeclAllowed, count == 1);
                 retireToken();
-                leftHandSideExpression();
+                expression();
+                expect(Token::RParen);
+                forIteration();
             } else {
+                expect(Token::MissingVarDecl, count > 0);
                 forLoopCondAndIt();
             }
         } else {
             if (expression()) {
                 if (getToken() == Token::Colon) {
                     // for-in case with left hand expr
-                    // FIXME: We need a way to know if the above expression is a legit left hand expr
-                    // FIXME: implement
                     retireToken();
                     leftHandSideExpression();
                 } else {
@@ -418,17 +471,17 @@ bool ParseEngine::jumpStatement()
     return false;
 }
 
-bool ParseEngine::variableDeclarationList()
+uint32_t ParseEngine::variableDeclarationList()
 {
-    bool haveOne = false;
+    uint32_t count = 0;
     while (variableDeclaration()) {
+        ++count;
         if (getToken() != Token::Comma) {
-            return true;
+            break;
         }
-        haveOne = true;
         retireToken();
     }
-    return haveOne;
+    return count;
 }
 
 bool ParseEngine::variableDeclaration()

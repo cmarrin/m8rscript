@@ -90,6 +90,8 @@ void Parser::expectedError(Token token)
             case Token::PropertyAssignment: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
             case Token::Statement: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("statement expected")); break;
             case Token::Identifier: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
+            case Token::MissingVarDecl: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("missing var declaration")); break;
+            case Token::OneVarDeclAllowed: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("only one var declaration allowed here")); break;
             default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
     }

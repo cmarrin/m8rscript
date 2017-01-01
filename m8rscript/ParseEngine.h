@@ -99,7 +99,7 @@ private:
     bool switchStatement();
     bool iterationStatement();
     bool jumpStatement();
-    bool variableDeclarationList();
+    uint32_t variableDeclarationList();
     bool variableDeclaration();
     
     bool arithmeticPrimary();
@@ -111,6 +111,7 @@ private:
     ObjectId function();
     uint32_t argumentList();
     void forLoopCondAndIt();
+    void forIteration();
     bool propertyAssignment();
     bool propertyName();
     void formalParameterList();

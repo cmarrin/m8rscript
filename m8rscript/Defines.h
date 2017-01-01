@@ -445,6 +445,8 @@ enum class Token : uint8_t {
     PropertyAssignment = 0xe1,
     Statement = 0xe2,
     DuplicateDefault = 0xe3,
+    MissingVarDecl = 0xe4,
+    OneVarDeclAllowed = 0xe5,
 
     None = 0xfd,
     Error = 0xfe,
