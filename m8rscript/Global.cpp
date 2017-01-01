@@ -51,6 +51,7 @@ Global::Global(Program* program)
     , _delay(delay)
     , _print(print)
     , _printf(printf)
+    , _println(println)
 {
     program->addObject(this, false);
     
@@ -58,6 +59,7 @@ Global::Global(Program* program)
     program->addObject(&_delay, false);
     program->addObject(&_print, false);
     program->addObject(&_printf, false);
+    program->addObject(&_println, false);
     
     _ArgumentsAtom = program->atomizeString(ROMSTR("arguments"));
     _Base64Atom = program->atomizeString(ROMSTR("Base64"));
@@ -68,6 +70,7 @@ Global::Global(Program* program)
     _delayAtom = program->atomizeString(ROMSTR("delay"));    
     _printAtom = program->atomizeString(ROMSTR("print"));
     _printfAtom = program->atomizeString(ROMSTR("printf"));
+    _printlnAtom = program->atomizeString(ROMSTR("println"));
 }
 
 Global::~Global()
@@ -100,6 +103,9 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
     if (name == _printfAtom) {
         return Value(_printf.objectId());
     }
+    if (name == _printlnAtom) {
+        return Value(_println.objectId());
+    }
     return Value();
 }
 
@@ -114,13 +120,14 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
         case 5: return _delayAtom;
         case 6: return _printAtom;
         case 7: return _printfAtom;
+        case 8: return _printlnAtom;
         default: return Atom();
     }
 }
 
 uint32_t Global::propertyCount(ExecutionUnit*) const
 {
-    return PropertyCount;
+    return 9;
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, uint32_t nparams)
@@ -148,4 +155,14 @@ CallReturnValue Global::printf(ExecutionUnit*, uint32_t nparams)
 {
     // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Global::println(ExecutionUnit* eu, uint32_t nparams)
+{
+    for (int32_t i = 1 - nparams; i <= 0; ++i) {
+        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+    }
+    SystemInterface::shared()->printf("\n");
+
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

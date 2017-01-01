@@ -14,33 +14,33 @@ function add()
 	return n;
 }
 
-print("add() = " + add() + "\n");
-print("add(8) = " + add(8) + "\n");
-print("add(5, 7) = " + add(5, 7) + "\n");
-print("add(4, 3, 2) = " + add(4, 3, 2) + "\n");
-print("add(1, 2, 3, 4) = " + add(1, 2, 3, 4) + "\n");
+println("add() = " + add());
+println("add(8) = " + add(8));
+println("add(5, 7) = " + add(5, 7));
+println("add(4, 3, 2) = " + add(4, 3, 2));
+println("add(1, 2, 3, 4) = " + add(1, 2, 3, 4));
 
 // Range tests
 var m1 = 9.5;
-print("m1 * 1000 = " + m1 * 1000 + "\n");
+println("m1 * 1000 = " + m1 * 1000);
 
-print("2100 / 1000 = " + 2100 / 1000 + "\n");
+println("2100 / 1000 = " + 2100 / 1000);
 
-print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
+println("add(1, 2, 3) = " + add(1, 2, 3));
 var b = [ 1, 2, 3 ];
 var c = 12.5;
 var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
 var d = 5;
 d *= 3;
-print("Array b[1] = " + b[1] + "\n");
-print("Object a[54325667] = " + a[54325667] + "\n");
-print("Object a.b = " + a.b + "\n");
-print("d=" + d + "\n");
+println("Array b[1] = " + b[1]);
+println("Object a[54325667] = " + a[54325667]);
+println("Object a.b = " + a.b);
+println("d=" + d);
 
 var e = 4;
 var a = c * c + e * e;
 
-print("a = " + a + "\n");
+println("a = " + a);
 
 function multi(x)
 {
@@ -48,7 +48,7 @@ function multi(x)
 }
 
 var a = multi(4);
-print("a=" + a + "\n");
+println("a=" + a);
 
 for (var i = 0; i < 1000; ++i) {
 	var x = "String " + i;

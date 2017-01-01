@@ -16,7 +16,7 @@ for (var i = 0; i < n; ++i) {
 }
 
 var t = currentTime() - startTime;
-print("Run time: " + (t * 1000.) + "ms\n");
+println("Run time: " + (t * 1000.) + "ms");
 
-print("a[100] = " + a[100] + "\n");
+println("a[100] = " + a[100]);
 

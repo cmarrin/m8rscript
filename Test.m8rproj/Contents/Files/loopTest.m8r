@@ -6,20 +6,20 @@ var arr = [ "abc", 5, 3.5, 4 ];
 for (var i = 0; i < arr.length; ++i) {
 	switch (arr[i]) {
 		case 4:
-		case 3.5: Serial.print("Got 3.5 or 4\n");
-		default: Serial.print("Got default\n");
-		case "abc": Serial.print("Got abc\n");
+		case 3.5: print("Got 3.5 or 4\n");
+		default: print("Got default\n");
+		case "abc": print("Got abc\n");
 	}
 	if (i == 1) {
 		continue;
 	}
-	Serial.print("Before break\n");
+	print("Before break\n");
 	if (i == 2) {
 		break;
 	}
 }
 
-Serial.print("Test while, should print 1 - 9\n");
+print("Test while, should print 1 - 9\n");
 
 var i = 1;
 while (i < 10) {
@@ -27,16 +27,16 @@ while (i < 10) {
 		i++;
 		continue;
 	}
-	Serial.print("i=" + i + "\n");
+	println("i=" + i);
 	if (i > 5) {
 		break;
 	}
 	i++;
 }
 
-Serial.print("\nTest do..while, should print 20 - 11\n");
+print("\nTest do..while, should print 20 - 11\n");
 var i = 20;
 do {
-	Serial.print("i=" + i + "\n");
+	println("i=" + i);
 	i--;
 } while(i > 10);
