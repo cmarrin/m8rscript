@@ -39,32 +39,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Arguments : public Object {
+class Iterator : public Object {
 public:
-    Arguments(Program*);
+    Iterator(Program*);
 
-    virtual const char* typeName() const override { return "arguments"; }
-
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override;
+    virtual const char* typeName() const override { return "Iterator"; }
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual uint32_t propertyCount(ExecutionUnit*) const override;
 
-    virtual uint32_t iteratorCount(ExecutionUnit* eu) const override { return argCount(eu); }
-    virtual Value iterator(ExecutionUnit* eu, uint32_t index) override { return arg(eu, index); }
+    virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
 
-private:
-    uint32_t argCount(ExecutionUnit*) const;
-    Value& arg(ExecutionUnit*, uint32_t index);
+    virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     
-    static constexpr size_t PropertyCount = 1; // length
+private:
+    Atom _nextAtom;
+    Atom _endAtom;
+    Atom _valueAtom;
 
-    enum class Property : uint8_t { Length };
-
-    Atom _lengthAtom;
+    static CallReturnValue next(ExecutionUnit*, uint32_t nparams);
+    NativeFunction _next;
+    
+    Value _object;
+    uint32_t _index = 0;
 };
     
 }

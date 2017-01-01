@@ -83,6 +83,8 @@
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
 		49F463361E0DD545004EF625 /* MGSFragaria.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
+		49F4633E1E1873D6004EF625 /* Iterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F4633C1E1873D6004EF625 /* Iterator.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +246,8 @@
 		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
 		49F463321E0DD05E004EF625 /* MGSFragaria.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MGSFragaria.framework; sourceTree = "<group>"; };
+		49F4633B1E1873D6004EF625 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../m8rscript/Iterator.cpp; sourceTree = "<group>"; };
+		49F4633C1E1873D6004EF625 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iterator.h; path = ../m8rscript/Iterator.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -459,6 +463,8 @@
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
 				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				492BA3D81E15944000242DA8 /* GPIOInterface.h */,
+				49F4633B1E1873D6004EF625 /* Iterator.cpp */,
+				49F4633C1E1873D6004EF625 /* Iterator.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
 				494D25961D33D33E003755DB /* Object.cpp */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
@@ -501,6 +507,7 @@
 				492BA3E91E159B4A00242DA8 /* Date.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				492BA3E11E159B0C00242DA8 /* System.h in Headers */,
+				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
@@ -660,6 +667,7 @@
 				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
+				49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
