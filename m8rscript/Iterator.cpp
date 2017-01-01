@@ -41,22 +41,30 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+Atom Iterator::_nextAtom;
+Atom Iterator::_endAtom;
+Atom Iterator::_valueAtom;
+NativeFunction Iterator::_next(Iterator::next);
+
 Iterator::Iterator(Program* program)
-    : _next(next)
 {
-    _nextAtom = program->atomizeString(ROMSTR("next"));    
-    _endAtom = program->atomizeString(ROMSTR("end"));    
-    _valueAtom = program->atomizeString(ROMSTR("value"));    
+    if (!_nextAtom) {
+        _nextAtom = program->atomizeString(ROMSTR("next"));    
+        _endAtom = program->atomizeString(ROMSTR("end"));    
+        _valueAtom = program->atomizeString(ROMSTR("value"));    
+        program->addObject(&_next, false);
+    }
     
     program->addObject(this, false);
-    program->addObject(&_next, false);
 }
 
 CallReturnValue Iterator::call(ExecutionUnit* eu, uint32_t nparams)
 {
-    _object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
-    _index = 0;
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    Iterator* it = new Iterator(eu->program());
+    it->_object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
+    it->_index = 0;
+    eu->stack().push(Value(it->objectId()));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
 CallReturnValue Iterator::next(ExecutionUnit* eu, uint32_t nparams)
