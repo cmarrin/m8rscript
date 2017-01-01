@@ -31,6 +31,8 @@ extern "C" {
 #include <smartconfig.h>
 #include "umm_malloc.h"
 
+//#define NEED_HEXDUMP
+
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 
 //==================================================================================
@@ -299,6 +301,7 @@ void getUserData()
     }
 }
 
+#ifdef NEED_HEXDUMP
 void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 {
     int i;
@@ -307,7 +310,7 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Output description if given.
     if (desc != NULL)
-    	m8r::SystemInterface::shared()->printf("%s:\n", desc);
+    	m8r::SystemInterface::shared()->printf(ROMSTR("%s:\n"), desc);
 
     // Process every byte in the data.
     for (i = 0; i < len; i++) {
@@ -316,14 +319,14 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
         if ((i % 16) == 0) {
             // Just don't print ASCII for the zeroth line.
             if (i != 0)
-            	m8r::SystemInterface::shared()->printf("  %s\n", buff);
+            	m8r::SystemInterface::shared()->printf(ROMSTR("  %s\n"), buff);
 
             // Output the offset.
-            m8r::SystemInterface::shared()->printf("  %04x ", i);
+            m8r::SystemInterface::shared()->printf(ROMSTR("  %04x "), i);
         }
 
         // Now the hex code for the specific character.
-        m8r::SystemInterface::shared()->printf(" %02x", pc[i]);
+        m8r::SystemInterface::shared()->printf(ROMSTR(" %02x"), pc[i]);
 
         // And store a printable ASCII character for later.
         if ((pc[i] < 0x20) || (pc[i] > 0x7e))
@@ -335,13 +338,14 @@ void ICACHE_FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Pad out last line if not exactly 16 characters.
     while ((i % 16) != 0) {
-    	m8r::SystemInterface::shared()->printf("   ");
+    	m8r::SystemInterface::shared()->printf(ROMSTR("   "));
         i++;
     }
 
     // And print the final ASCII bit.
-    m8r::SystemInterface::shared()->printf("  %s\n", buff);
+    m8r::SystemInterface::shared()->printf(ROMSTR("  %s\n"), buff);
 }
+#endif
 
 void ICACHE_FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {

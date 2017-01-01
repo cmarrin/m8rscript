@@ -44,7 +44,7 @@ extern "C" {
 
 using namespace m8r;
 
-#define MDNSRESP_DEBUG
+//#define MDNSRESP_DEBUG
 
 static os_timer_t bc_timer;
 
@@ -342,7 +342,9 @@ void MDNSResponder::sendReply()
         return;
     }
     
+#ifdef MDNSRESP_DEBUG
     hexdump("reply", &(_replyBuffer[0]), _replyBuffer.size());
+#endif
     _udp->send({ 224,0,0,251 }, 5353, reinterpret_cast<char*>(&(_replyBuffer[0])), _replyBuffer.size());
     _replyBuffer.clear();
 }
