@@ -3,8 +3,7 @@
 */
 
 GPIO.setPinMode(2, GPIO.PinMode.Output);
-Serial.begin(9600);
-Serial.print("Started Blink\n");
+print("Started Blink\n");
 
 var count = 0;
 while (count < 100) {
@@ -15,9 +14,9 @@ while (count < 100) {
 function blink()
 {
     GPIO.digitalWrite(2, true);
-    Serial.print("Blink off\n");
-    System.delay(500);
+    print("Blink off\n");
+    delay(500);
     GPIO.digitalWrite(2, false);
-    Serial.print("Blink on\n");
-    System.delay(500); // wait a bit
+    print("Blink on\n");
+    delay(500); // wait a bit
 }

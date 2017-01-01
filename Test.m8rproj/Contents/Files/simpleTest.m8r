@@ -14,33 +14,33 @@ function add()
 	return n;
 }
 
-Serial.print("add() = " + add() + "\n");
-Serial.print("add(8) = " + add(8) + "\n");
-Serial.print("add(5, 7) = " + add(5, 7) + "\n");
-Serial.print("add(4, 3, 2) = " + add(4, 3, 2) + "\n");
-Serial.print("add(1, 2, 3, 4) = " + add(1, 2, 3, 4) + "\n");
+print("add() = " + add() + "\n");
+print("add(8) = " + add(8) + "\n");
+print("add(5, 7) = " + add(5, 7) + "\n");
+print("add(4, 3, 2) = " + add(4, 3, 2) + "\n");
+print("add(1, 2, 3, 4) = " + add(1, 2, 3, 4) + "\n");
 
 // Range tests
 var m1 = 9.5;
-Serial.print("m1 * 1000 = " + m1 * 1000 + "\n");
+print("m1 * 1000 = " + m1 * 1000 + "\n");
 
-Serial.print("2100 / 1000 = " + 2100 / 1000 + "\n");
+print("2100 / 1000 = " + 2100 / 1000 + "\n");
 
-Serial.print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
+print("add(1, 2, 3) = " + add(1, 2, 3) + "\n");
 var b = [ 1, 2, 3 ];
 var c = 12.5;
 var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
 var d = 5;
 d *= 3;
-Serial.print("Array b[1] = " + b[1] + "\n");
-Serial.print("Object a[54325667] = " + a[54325667] + "\n");
-Serial.print("Object a.b = " + a.b + "\n");
-Serial.print("d=" + d + "\n");
+print("Array b[1] = " + b[1] + "\n");
+print("Object a[54325667] = " + a[54325667] + "\n");
+print("Object a.b = " + a.b + "\n");
+print("d=" + d + "\n");
 
 var e = 4;
 var a = c * c + e * e;
 
-Serial.print("a = " + a + "\n");
+print("a = " + a + "\n");
 
 function multi(x)
 {
@@ -48,7 +48,7 @@ function multi(x)
 }
 
 var a = multi(4);
-Serial.print("a=" + a + "\n");
+print("a=" + a + "\n");
 
 for (var i = 0; i < 1000; ++i) {
 	var x = "String " + i;

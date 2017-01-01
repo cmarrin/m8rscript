@@ -44,22 +44,30 @@ using namespace m8r;
 
 Global::Global(Program* program)
     : _arguments(program)
-    , _serial(program)
-    , _system(program)
-    , _date(program)
     , _base64(program)
     , _gpio(program)
     , _iterator(program)
+    , _currentTime(currentTime)
+    , _delay(delay)
+    , _print(print)
+    , _printf(printf)
 {
     program->addObject(this, false);
     
+    program->addObject(&_currentTime, false);
+    program->addObject(&_delay, false);
+    program->addObject(&_print, false);
+    program->addObject(&_printf, false);
+    
     _ArgumentsAtom = program->atomizeString(ROMSTR("arguments"));
-    _DateAtom = program->atomizeString(ROMSTR("Date"));
-    _SystemAtom = program->atomizeString(ROMSTR("System"));
-    _SerialAtom = program->atomizeString(ROMSTR("Serial"));
+    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
     _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
     _IteratorAtom = program->atomizeString(ROMSTR("Iterator"));
-    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
+
+    _currentTimeAtom = program->atomizeString(ROMSTR("currentTime"));    
+    _delayAtom = program->atomizeString(ROMSTR("delay"));    
+    _printAtom = program->atomizeString(ROMSTR("print"));
+    _printfAtom = program->atomizeString(ROMSTR("printf"));
 }
 
 Global::~Global()
@@ -71,15 +79,6 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
     if (name == _ArgumentsAtom) {
         return Value(_arguments.objectId());
     }
-    if (name == _SerialAtom) {
-        return Value(_serial.objectId());
-    }
-    if (name == _SystemAtom) {
-        return Value(_system.objectId());
-    }
-    if (name == _DateAtom) {
-        return Value(_date.objectId());
-    }
     if (name == _Base64Atom) {
         return Value(_base64.objectId());
     }
@@ -89,19 +88,32 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
     if (name == _IteratorAtom) {
         return Value(_iterator.objectId());
     }
+    if (name == _currentTimeAtom) {
+        return Value(_currentTime.objectId());
+    }
+    if (name == _delayAtom) {
+        return Value(_delay.objectId());
+    }
+    if (name == _printAtom) {
+        return Value(_print.objectId());
+    }
+    if (name == _printfAtom) {
+        return Value(_printf.objectId());
+    }
     return Value();
 }
 
 Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
 {
     switch(index) {
-        case 0: return _SerialAtom;
-        case 1: return _SystemAtom;
-        case 2: return _DateAtom;
-        case 3: return _Base64Atom;
-        case 4: return _GPIOAtom;
-        case 5: return _ArgumentsAtom;
-        case 6: return _IteratorAtom;
+        case 0: return _ArgumentsAtom;
+        case 1: return _Base64Atom;
+        case 2: return _GPIOAtom;
+        case 3: return _IteratorAtom;
+        case 4: return _currentTimeAtom;
+        case 5: return _delayAtom;
+        case 6: return _printAtom;
+        case 7: return _printfAtom;
         default: return Atom();
     }
 }
@@ -109,4 +121,31 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
 uint32_t Global::propertyCount(ExecutionUnit*) const
 {
     return PropertyCount;
+}
+
+CallReturnValue Global::currentTime(ExecutionUnit* eu, uint32_t nparams)
+{
+    uint64_t t = SystemInterface::shared()->currentMicroseconds();
+    eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
+CallReturnValue Global::delay(ExecutionUnit* eu, uint32_t nparams)
+{
+    uint32_t ms = eu->stack().top().toIntValue(eu);
+    return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
+}
+
+CallReturnValue Global::print(ExecutionUnit* eu, uint32_t nparams)
+{
+    for (int32_t i = 1 - nparams; i <= 0; ++i) {
+        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+    }
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue Global::printf(ExecutionUnit*, uint32_t nparams)
+{
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
 }

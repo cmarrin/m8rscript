@@ -37,11 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Arguments.h"
 #include "Base64.h"
-#include "Date.h"
 #include "GPIO.h"
 #include "Iterator.h"
-#include "Serial.h"
-#include "System.h"
 #include "Object.h"
 
 namespace m8r {
@@ -70,24 +67,33 @@ protected:
         return true;
     }
 
-    static constexpr size_t PropertyCount = 7; // Arguments, Date, GPIO, Iterator, Serial, Base64 and System
+    static constexpr size_t PropertyCount = 8; // Arguments, Base64, GPIO, Iterator, currentTime, delay, print, printf
     
 private:        
     Atom _ArgumentsAtom;
-    Atom _DateAtom;
+    Atom _Base64Atom;
     Atom _GPIOAtom;
     Atom _IteratorAtom;
-    Atom _SerialAtom;
-    Atom _Base64Atom;
-    Atom _SystemAtom;
+
+    Atom _currentTimeAtom;
+    Atom _delayAtom;
+    Atom _printAtom;
+    Atom _printfAtom;
 
     Arguments _arguments;
-    Serial _serial;
-    System _system;
-    Date _date;
     Base64 _base64;
     GPIO _gpio;
     Iterator _iterator;
+
+    static CallReturnValue currentTime(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue delay(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue print(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue printf(ExecutionUnit*, uint32_t nparams);
+
+    NativeFunction _currentTime;
+    NativeFunction _delay;
+    NativeFunction _print;
+    NativeFunction _printf;
 };
     
 }

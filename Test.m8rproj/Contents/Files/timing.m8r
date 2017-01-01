@@ -6,7 +6,7 @@ var n = 3000;
 var a = [ ];
 a.length = n;
 
-var startTime = Date.now();
+var startTime = currentTime();
 
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
@@ -15,8 +15,8 @@ for (var i = 0; i < n; ++i) {
     }
 }
 
-var t = Date.now() - startTime;
-Serial.print("Run time: " + (t * 1000.) + "ms\n");
+var t = currentTime() - startTime;
+print("Run time: " + (t * 1000.) + "ms\n");
 
-Serial.print("a[100] = " + a[100] + "\n");
+print("a[100] = " + a[100] + "\n");
 
