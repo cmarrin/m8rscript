@@ -53,9 +53,9 @@ public:
 
     // Global has built-in properties. Handle those here
     virtual const Value property(ExecutionUnit*, const Atom&) const override;
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual uint32_t propertyCount(ExecutionUnit*) const override;
     
+    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override;
+
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
     {

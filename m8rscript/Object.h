@@ -67,19 +67,15 @@ public:
     virtual void gcMark(ExecutionUnit*) { }
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value) { return false; }
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const { return Atom(); }
-    virtual Value* addProperty(ExecutionUnit*, const Atom&) { return nullptr; }
-    virtual uint32_t propertyCount(ExecutionUnit*) const { return 0; }
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) { return false; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) { return setProperty(eu, elt.toIdValue(eu), value); }
-    virtual bool appendElement(ExecutionUnit*, const Value&) { return false; }
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) { return setProperty(eu, elt.toIdValue(eu), value, append); }
     
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
-    virtual uint32_t iteratorCount(ExecutionUnit*) const { return 0; }
-    virtual Value iterator(ExecutionUnit*, uint32_t index) { return Value(); }
+    virtual Value iterate(ExecutionUnit*, int32_t index) const { return Value(); }
 
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
@@ -140,9 +136,19 @@ public:
         auto it = _properties.find(prop);
         return (it != _properties.end()) ? it->value : Value();
     }
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v) override
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, bool add) override
     {
         auto it = _properties.find(prop);
+        if (add) {
+            if (it != _properties.end()) {
+                return false;
+            }
+            auto ret = _properties.emplace(prop, Value());
+            assert(ret.second);
+            ret.first->value = v;
+            return true;
+        }
+        
         if (it == _properties.end()) {
             return false;
         }
@@ -150,22 +156,13 @@ public:
         return true;
     }
     
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override { return (_properties.begin() + index)->key; }
-    virtual Value* addProperty(ExecutionUnit*, const Atom& prop) override
+    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
     {
-        auto it = _properties.find(prop);
-        if (it != _properties.end()) {
-            return nullptr;
+        if (index < 0) {
+            return Value(static_cast<int32_t>(_properties.size()));
         }
-        auto ret = _properties.emplace(prop, Value());
-        assert(ret.second);
-        return &(ret.first->value);
+        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
     }
-
-    virtual uint32_t propertyCount(ExecutionUnit*) const override { return static_cast<uint32_t>(_properties.size()); }
-
-    virtual uint32_t iteratorCount(ExecutionUnit* eu) const override { return propertyCount(eu); }
-    virtual Value iterator(ExecutionUnit* eu, uint32_t index) override { return propertyName(eu, index); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;

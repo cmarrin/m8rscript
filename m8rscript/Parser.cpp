@@ -427,9 +427,7 @@ int32_t Parser::emitDeferred()
 void Parser::addNamedFunction(ObjectId functionId, const Atom& name)
 {
     assert(name);
-    Value* value = currentFunction()->addProperty(nullptr, name);
-    assert(value);
-    *value = Value(functionId);
+    currentFunction()->setProperty(nullptr, name, Value(functionId), true);
 }
 
 void Parser::functionAddParam(const Atom& atom)

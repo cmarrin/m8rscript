@@ -51,8 +51,11 @@ const Value Arguments::element(ExecutionUnit* eu, const Value& elt) const
     int32_t index = elt.toIntValue(eu);
     return (index >= 0 && index < argCount(eu)) ? eu->argument(index) : Value();
 }
-bool Arguments::setElement(ExecutionUnit* eu, const Value& elt, const Value& value)
+bool Arguments::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
 {
+    if (append) {
+        return false;
+    }
     int32_t index = elt.toIntValue(eu);
     if (index < 0 || index >= argCount(eu)) {
         return false;
@@ -66,6 +69,11 @@ uint32_t Arguments::argCount(ExecutionUnit* eu) const
     return eu->argumentCount();
 }
 
+const Value& Arguments::arg(ExecutionUnit* eu, uint32_t index) const
+{
+    return eu->argument(index);
+}
+
 Value& Arguments::arg(ExecutionUnit* eu, uint32_t index)
 {
     return eu->argument(index);
@@ -76,23 +84,13 @@ const Value Arguments::property(ExecutionUnit* eu, const Atom& name) const
     return (name == _lengthAtom) ? Value(static_cast<int32_t>(argCount(eu))) : Value();
 }
 
-bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value)
+bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, bool add)
 {
+    if (add) {
+        return false;
+    }
     if (name == _lengthAtom) {
         Error::printError(Error::Code::RuntimeError, -1, "length property of arguments is read-only");
     }
     return false;
-}
-
-Atom Arguments::propertyName(ExecutionUnit*, uint32_t index) const
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Length: return _lengthAtom;
-        default: return Atom();
-    }
-}
-
-uint32_t Arguments::propertyCount(ExecutionUnit*) const
-{
-    return PropertyCount;
 }

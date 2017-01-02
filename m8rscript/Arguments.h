@@ -46,21 +46,23 @@ public:
     virtual const char* typeName() const override { return "arguments"; }
 
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual uint32_t propertyCount(ExecutionUnit*) const override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, bool add) override;
 
-    virtual uint32_t iteratorCount(ExecutionUnit* eu) const override { return argCount(eu); }
-    virtual Value iterator(ExecutionUnit* eu, uint32_t index) override { return arg(eu, index); }
+    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
+    {
+        if (index < 0) {
+            return Value(static_cast<int32_t>(argCount(eu)));
+        }
+        return arg(eu, index);
+    }
 
 private:
     uint32_t argCount(ExecutionUnit*) const;
+    const Value& arg(ExecutionUnit*, uint32_t index) const;
     Value& arg(ExecutionUnit*, uint32_t index);
-    
-    static constexpr size_t PropertyCount = 1; // length
 
     enum class Property : uint8_t { Length };
 

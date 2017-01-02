@@ -49,24 +49,14 @@ const Value Array::property(ExecutionUnit*, const Atom& name) const
     return (name == _lengthAtom) ? Value(static_cast<int32_t>(_array.size())) : Value();
 }
 
-bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value)
+bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, bool add)
 {
+    if (add) {
+        return false;
+    }
     if (name == _lengthAtom) {
         _array.resize(value.toIntValue(eu));
         return true;
     }
     return false;
-}
-
-Atom Array::propertyName(ExecutionUnit*, uint32_t index) const
-{
-    switch(static_cast<Property>(index)) {
-        case Property::Length: return _lengthAtom;
-        default: return Atom();
-    }
-}
-
-uint32_t Array::propertyCount(ExecutionUnit*) const
-{
-    return PropertyCount;
 }

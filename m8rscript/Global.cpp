@@ -110,8 +110,11 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
     return Value();
 }
 
-Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
+Value Global::iterate(ExecutionUnit*, int32_t index) const
 {
+    if (index < 0) {
+        return 9;
+    }
     switch(index) {
         case 0: return _ArgumentsAtom;
         case 1: return _Base64Atom;
@@ -124,11 +127,6 @@ Atom Global::propertyName(ExecutionUnit*, uint32_t index) const
         case 8: return _printlnAtom;
         default: return Atom();
     }
-}
-
-uint32_t Global::propertyCount(ExecutionUnit*) const
-{
-    return 9;
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, uint32_t nparams)

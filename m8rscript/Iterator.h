@@ -47,7 +47,7 @@ public:
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
 
-    virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     

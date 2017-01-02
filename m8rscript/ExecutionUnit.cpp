@@ -202,7 +202,6 @@ static const uint16_t GCCount = 1000;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
-    Value* valuePtr;
     ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
@@ -310,7 +309,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()))) {
+        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), false)) {
             printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
@@ -321,7 +320,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        if (!objectValue->setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()))) {
+        if (!objectValue->setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
             printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
@@ -331,19 +330,17 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        objectValue->appendElement(this, regOrConst(inst.rb()));
+        objectValue->setElement(this, regOrConst(inst.rb()), Value(), true);
         DISPATCH;
     L_APPENDPROP:
         objectValue = toObject(regOrConst(inst.ra()), "APPENDPROP");
         if (!objectValue) {
             DISPATCH;
         }
-        valuePtr = objectValue->addProperty(this, regOrConst(inst.rb()).toIdValue(this));
-        if (!valuePtr) {
+        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), true)) {
             printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
             DISPATCH;
         }
-        *valuePtr = regOrConst(inst.rc());
         DISPATCH;
     L_LOADTRUE:
         setInFrame(inst.ra(), Value(true));

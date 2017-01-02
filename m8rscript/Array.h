@@ -64,8 +64,13 @@ public:
         int32_t index = elt.toIntValue(eu);
         return (index >= 0 && index < _array.size()) ? _array[index] : Value();
     }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value) override
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override
     {
+        if (append) {
+            _array.push_back(value);
+            return true;
+        }
+        
         int32_t index = elt.toIntValue(eu);
         if (index < 0 || index >= _array.size()) {
             return false;
@@ -74,16 +79,18 @@ public:
         _needsGC = value.needsGC();
         return true;
     }
-    virtual bool appendElement(ExecutionUnit*, const Value& value) override { _array.push_back(value); return true; }
 
     // Array has built-in properties. Handle those here
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&) override;
-    virtual Atom propertyName(ExecutionUnit*, uint32_t index) const override;
-    virtual uint32_t propertyCount(ExecutionUnit*) const override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, bool add) override;
 
-    virtual uint32_t iteratorCount(ExecutionUnit*) const override { return static_cast<uint32_t>(_array.size()); }
-    virtual Value iterator(ExecutionUnit*, uint32_t index) override { return _array[index]; }
+    virtual Value iterate(ExecutionUnit*, int32_t index) const override
+    {
+        if (index < 0) {
+            return Value(static_cast<int32_t>(_array.size()));
+        }
+        return _array[index];
+    }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
@@ -99,8 +106,6 @@ protected:
     }
 
 private:
-    static constexpr size_t PropertyCount = 1; // length
-
     enum class Property : uint8_t { Length };
 
     Atom _lengthAtom;
