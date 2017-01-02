@@ -400,6 +400,18 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     });
 }
 
+- (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName
+{
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"mv %@ %@\r\n", oldName, newName];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_delegate markDirty];
+        });
+    });
+}
+
 - (NSString*)trimTrailingDot:(NSString*)s
 {
     if ([s characterAtIndex:s.length - 1] == '.') {

@@ -59,16 +59,16 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="File" id="dMs-cI-mzQ">
+                <menuItem title="Project" id="dMs-cI-mzQ" userLabel="Project">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="File" id="bib-Uj-vzu">
+                    <menu key="submenu" title="Project" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="New" keyEquivalent="n" id="Was-JA-tGl">
+                            <menuItem title="New" keyEquivalent="N" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="newDocument:" target="-1" id="4Si-XN-c54"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9" userLabel="Open Project…">
+                            <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                 <connections>
                                     <action selector="openDocument:" target="-1" id="bVn-NM-KNZ"/>
                                 </connections>
@@ -108,29 +108,55 @@
                                     <action selector="revertDocumentToSaved:" target="-1" id="iJ3-Pv-kwq"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
-                            <menuItem title="Import Binary..." id="Hdc-Cy-h0k" userLabel="Import Binary...">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="File" id="9r7-ug-5Ty">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="File" id="Xpr-Bv-aJc">
+                        <items>
+                            <menuItem title="New" keyEquivalent="n" id="XV6-rC-y3i">
                                 <connections>
-                                    <action selector="importBinary:" target="-1" id="kFi-Jk-oZV"/>
+                                    <action selector="newFile:" target="-1" id="DFh-XL-iCJ"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Export Binary..." id="C5j-Sz-Ih8">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Add…" keyEquivalent="A" id="6PC-6B-GMJ" userLabel="Add…">
                                 <connections>
-                                    <action selector="exportBinary:" target="-1" id="Cwv-9Q-VmV"/>
+                                    <action selector="addFiles:" target="-1" id="RkZ-Ri-vLy"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="rj2-Hq-OMa"/>
-                            <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
+                            <menuItem title="Remove" id="ESB-VA-uKQ" userLabel="Remove">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="removeFiles:" target="-1" id="COe-QV-oiQ"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Rename…" id="5c1-Ii-l9f" userLabel="Rename…">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="renameFile:" target="-1" id="tdf-RP-SbE"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="PZu-A9-X5c"/>
+                            <menuItem title="Save…" keyEquivalent="s" id="cM7-UO-cyG"/>
+                            <menuItem title="Save As…" keyEquivalent="S" id="Awu-UB-yTT"/>
+                            <menuItem isSeparatorItem="YES" id="OuG-AN-MeA"/>
+                            <menuItem title="Add Binary" id="CSZ-5j-hu4" userLabel="Add Binary">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="saveBinary:" target="-1" id="y8R-5K-MLo"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="4nt-Cz-B8B"/>
+                            <menuItem title="Page Setup…" keyEquivalent="P" id="VBk-E9-MSw">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>
-                                    <action selector="runPageLayout:" target="-1" id="Din-rz-gC5"/>
+                                    <action selector="runPageLayout:" target="-1" id="RSX-qg-Mh9"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Print…" keyEquivalent="p" id="aTl-1u-JFS">
+                            <menuItem title="Print…" keyEquivalent="p" id="qoI-Rd-7Uy">
                                 <connections>
-                                    <action selector="printDocument:" target="-1" id="qaZ-4w-aoO"/>
+                                    <action selector="printDocument:" target="-1" id="imp-j8-oUZ"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -633,6 +659,12 @@
                                     <action selector="runToolbarCustomizationPalette:" target="-1" id="pQI-g3-MTW"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Scu-to-npr"/>
+                            <menuItem title="Reload" keyEquivalent="r" id="uzC-OP-xJR" userLabel="Reload">
+                                <connections>
+                                    <action selector="reloadFiles:" target="-1" id="jwv-q1-lKq"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -644,6 +676,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="renameDevice:" target="-1" id="fDs-CY-bke"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Upload" id="14O-3I-Jts" userLabel="Upload">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="upload:" target="-1" id="oY2-F1-TjW"/>
                                 </connections>
                             </menuItem>
                         </items>

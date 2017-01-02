@@ -93,6 +93,56 @@
     [_document selectFile:index];
 }
 
+- (void)selectFile:(NSString*)name
+{
+    NSInteger index = 0;
+    for (NSDictionary* entry in _currentFileList) {
+        if ([entry[@"name"] isEqualToString:name]) {
+            [_document selectFile:index];
+            return;
+        }
+        index++;
+    }
+}
+
+- (NSInteger)selectedFileCount
+{
+    NSIndexSet* indexes = fileListView.selectedRowIndexes;
+    return indexes.count;
+}
+
+- (NSString*)selectedFileName
+{
+    if ([self selectedFileCount] != 1) {
+        return nil;
+    }
+
+    NSIndexSet* indexes = fileListView.selectedRowIndexes;
+    NSUInteger i = 0;
+    for (NSDictionary* entry in _currentFileList) {
+        if ([indexes containsIndex:i++]) {
+            return entry[@"name"];
+        }
+    }
+    return nil;
+}
+
+- (void)newFile
+{
+    NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData data]];
+    NSString* name = @"Untitled";
+    uint32_t n = 1;
+    while ([self fileListContains:name]) {
+        name = [NSString stringWithFormat:@"Untitled%d", n++];
+    }
+
+    file.preferredFilename = name;
+    file.filename = name;
+    [_document addFile:file];
+    [fileListView deselectAll:self];
+    [_document reloadFiles];
+}
+
 - (void)addFiles
 {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
@@ -145,6 +195,51 @@
             [fileListView deselectAll:self];
             [_document reloadFiles];
         }
+    }];
+}
+
+- (void)renameFile
+{
+    NSString* oldName = [self selectedFileName];
+    if (!oldName) {
+        return;
+    }
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    NSString* __block newName = nil;
+    
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:[NSString stringWithFormat:@"Rename %@:", oldName]];
+    [alert setAccessoryView:renameDeviceTextField];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            return;
+        }
+        newName = renameDeviceTextField.stringValue;
+        if ([newName isEqualToString:oldName]) {
+            return;
+        }
+
+        if ([self fileListContains:newName]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"No"];
+            [alert addButtonWithTitle:@"Yes"];
+            [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", newName]];
+            [alert setInformativeText:@"This operation cannot be undone."];
+            [alert setAlertStyle:NSWarningAlertStyle];
+
+            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+                if (returnCode == NSAlertFirstButtonReturn) {
+                    // No
+                    return;
+                }
+                [_document removeFile:newName];
+            }];
+        }
+        
+        [_document renameFileFrom:oldName to:newName];
     }];
 }
 
@@ -237,12 +332,6 @@
     }];
     
     return name;
-}
-
-- (NSInteger)selectedFileCount
-{
-    NSIndexSet* indexes = fileListView.selectedRowIndexes;
-    return indexes.count;
 }
 
 // fileListView dataSource

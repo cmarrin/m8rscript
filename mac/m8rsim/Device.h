@@ -48,6 +48,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
 - (void)removeFile:(NSString*)name;
+- (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName;
 - (void)setDevice:(NSString*)device;
 - (void)clearContents;
 

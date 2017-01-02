@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)file;
 - (void)removeFile:(NSString*)name;
+- (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName;
 - (void)reloadFiles;
 - (void)setDevice:(NSString*)name;
 

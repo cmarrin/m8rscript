@@ -250,7 +250,7 @@
                             <action selector="simulate:" target="-2" id="8IB-Vx-VLZ"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="94C3ECA5-5042-4ED5-8A3B-B710D80F7DBC" label="Save Binary" paletteLabel="Save Binary" tag="-1" image="savebinary" id="USW-dK-eBA" userLabel="SaveBinary Button">
+                    <toolbarItem implicitItemIdentifier="94C3ECA5-5042-4ED5-8A3B-B710D80F7DBC" label="Add Binary" paletteLabel="Add Binary" tag="-1" image="savebinary" id="USW-dK-eBA" userLabel="Add Binary Button">
                         <connections>
                             <action selector="saveBinary:" target="-2" id="BWl-HC-FMA"/>
                         </connections>
