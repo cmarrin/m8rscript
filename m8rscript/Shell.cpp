@@ -263,6 +263,17 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
                 sendString(ROMSTR("removed file\n"));
             }
         }
+    } else if (array[0] == "mv") {
+        if (array.size() < 3) {
+            showError(ROMSTR("source and destination filenames required"));
+        } else {
+            if (!m8r::FS::sharedFS()->rename(array[1].c_str(), array[2].c_str())) {
+                showError(ROMSTR("could not rename file"));
+            } else {
+                _state = State::NeedPrompt;
+                sendString(ROMSTR("renamed file\n"));
+            }
+        }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
             showError(ROMSTR("device name required"));

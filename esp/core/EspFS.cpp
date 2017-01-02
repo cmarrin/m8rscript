@@ -143,6 +143,11 @@ bool EspFS::remove(const char* name)
     return SPIFFS_remove(&_spiffsFileSystem, name) == SPIFFS_OK;
 }
 
+bool EspFS::rename(const char* src, const char* dst)
+{
+    return SPIFFS_rename(&_spiffsFileSystem, src, dst) == SPIFFS_OK;
+}
+
 int32_t EspFS::internalMount()
 {
     return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,

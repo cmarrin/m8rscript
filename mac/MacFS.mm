@@ -115,6 +115,16 @@ bool MacFS::remove(const char* name)
     return true;
 }
 
+bool MacFS::rename(const char* src, const char* dst)
+{
+    if (!mounted()) {
+        return false;
+    }
+    NSFileWrapper* file = _files.fileWrappers[[NSString stringWithUTF8String:src]];
+    file.preferredFilename = [NSString stringWithUTF8String:dst];
+    return true;
+}
+
 MacDirectoryEntry::MacDirectoryEntry()
 {
 	_index = -1;

@@ -110,6 +110,7 @@ public:
     
     virtual File* open(const char* name, const char* mode) = 0;
     virtual bool remove(const char* name) = 0;
+    virtual bool rename(const char* src, const char* dst) = 0;
     
 private:
     static FS* _sharedFS;

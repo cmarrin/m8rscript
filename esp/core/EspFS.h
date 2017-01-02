@@ -88,6 +88,7 @@ public:
     
     virtual File* open(const char* name, const char* mode) override;
     virtual bool remove(const char* name) override;
+    virtual bool rename(const char* src, const char* dst) override;
 
     static spiffs* sharedSpiffs()
     {
