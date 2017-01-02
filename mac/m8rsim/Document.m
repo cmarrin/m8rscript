@@ -36,7 +36,7 @@
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
-    __weak IBOutlet NSToolbarItem *SaveBinaryButton;
+    __weak IBOutlet NSToolbarItem *saveBinaryButton;
     
     NSString* _source;
     NSFont* _font;
@@ -150,10 +150,20 @@
     if (item == uploadButton) {
         return [_device canUpload];
     }
-    if (item == SaveBinaryButton) {
+    if (item == saveBinaryButton) {
         return [_device canSaveBinary];
     }
     return NO;
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)item
+{
+    SEL action = [item action];
+    if (action == @selector(renameFile:)) {
+        return [_fileBrowser selectedFileCount] == 1;
+    }
+
+    return YES;
 }
 
 + (BOOL)autosavesInPlace {
@@ -246,6 +256,16 @@
     [_fileBrowser removeFiles];
 }
 
+- (IBAction)renameFile:(id)sender
+{
+    [_fileBrowser renameFile];
+}
+
+- (IBAction)newFile:(id)sender
+{
+    [_fileBrowser newFile];
+}
+
 - (void)markDirty
 {
     [self updateChangeCount:NSChangeDone];
@@ -336,6 +356,11 @@
 - (void)removeFile:(NSString*)name
 {
     [_device removeFile:name];
+}
+
+- (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName
+{
+    return [_device renameFileFrom:oldName to:newName];
 }
 
 - (void)setDevice:(NSString*)name
