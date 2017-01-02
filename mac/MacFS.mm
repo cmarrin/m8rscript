@@ -121,8 +121,13 @@ bool MacFS::rename(const char* src, const char* dst)
         return false;
     }
     NSFileWrapper* file = _files.fileWrappers[[NSString stringWithUTF8String:src]];
-    file.preferredFilename = [NSString stringWithUTF8String:dst];
-    return true;
+    if (file) {
+        [_files removeFileWrapper:file];
+        file.preferredFilename = [NSString stringWithUTF8String:dst];
+        [_files addFileWrapper:file];
+        return true;
+    }
+    return false;
 }
 
 MacDirectoryEntry::MacDirectoryEntry()
