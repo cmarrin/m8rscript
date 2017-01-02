@@ -198,51 +198,6 @@
     }];
 }
 
-- (void)renameFile
-{
-    NSString* oldName = [self selectedFileName];
-    if (!oldName) {
-        return;
-    }
-    
-    NSAlert *alert = [[NSAlert alloc] init];
-    NSString* __block newName = nil;
-    
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:[NSString stringWithFormat:@"Rename %@:", oldName]];
-    [alert setAccessoryView:renameDeviceTextField];
-    [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            return;
-        }
-        newName = renameDeviceTextField.stringValue;
-        if ([newName isEqualToString:oldName]) {
-            return;
-        }
-
-        if ([self fileListContains:newName]) {
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:@"No"];
-            [alert addButtonWithTitle:@"Yes"];
-            [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", newName]];
-            [alert setInformativeText:@"This operation cannot be undone."];
-            [alert setAlertStyle:NSWarningAlertStyle];
-
-            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-                if (returnCode == NSAlertFirstButtonReturn) {
-                    // No
-                    return;
-                }
-                [_document removeFile:newName];
-            }];
-        }
-        
-        [_document renameFileFrom:oldName to:newName];
-    }];
-}
-
 - (void)removeFiles
 {
     NSIndexSet* indexes = fileListView.selectedRowIndexes;
@@ -340,7 +295,7 @@
     return [_currentFileList count];
 }
 
-// TableView delegagte
+// TableView delegate
 - (id)tableView:(NSTableView *)aTableView
 objectValueForTableColumn:(NSTableColumn *)aTableColumn
             row:(NSInteger)rowIndex
@@ -356,7 +311,32 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
    forTableColumn:(NSTableColumn *)aTableColumn
               row:(NSInteger)rowIndex
 {
-    return;
+    // The name cell is the only thing modifiable. Assume it's that.
+    // Name in cell in rowIndex has been changed to the string in anObject
+    NSString* oldName = [_currentFileList objectAtIndex:rowIndex][@"name"];
+    if (!oldName || ![anObject isKindOfClass:[NSString class]]) {
+        return;
+    }
+    
+    NSString* newName = (NSString*) anObject;
+    
+    if ([self fileListContains:newName]) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"No"];
+        [alert addButtonWithTitle:@"Yes"];
+        [alert setMessageText:[NSString stringWithFormat:@"%@ exists, overwrite?", newName]];
+        [alert setInformativeText:@"This operation cannot be undone."];
+        [alert setAlertStyle:NSWarningAlertStyle];
+
+        if ([alert runModal] == NSAlertFirstButtonReturn) {
+            return;
+        }
+        [_document removeFile:newName];
+    }
+        
+    [_document renameFileFrom:oldName to:newName];
+    [fileListView deselectAll:self];
+    [_document reloadFiles];
 }
 
 - (void)addDevice:(NSString*)name

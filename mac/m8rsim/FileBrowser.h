@@ -17,7 +17,6 @@
 
 - (void)newFile;
 - (void)addFiles;
-- (void)renameFile;
 - (void)removeFiles;
 - (BOOL)isFileSourceLocal;
 - (NSInteger)selectedFileCount;

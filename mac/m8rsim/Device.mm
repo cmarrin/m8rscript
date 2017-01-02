@@ -402,9 +402,9 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
 
 - (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName
 {
+    NSString* __block command = [NSString stringWithFormat:@"mv %@ %@\r\n", oldName, newName];
     dispatch_async(_serialQueue, ^() {        
         NSNetService* service = _currentDevice[@"service"];
-        NSString* command = [NSString stringWithFormat:@"mv %@ %@\r\n", oldName, newName];
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];

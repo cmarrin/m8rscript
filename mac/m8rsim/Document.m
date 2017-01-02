@@ -158,10 +158,10 @@
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {
-    SEL action = [item action];
-    if (action == @selector(renameFile:)) {
-        return [_fileBrowser selectedFileCount] == 1;
-    }
+//    SEL action = [item action];
+//    if (action == @selector(renameFile:)) {
+//        return [_fileBrowser selectedFileCount] == 1;
+//    }
 
     return YES;
 }
@@ -256,9 +256,8 @@
     [_fileBrowser removeFiles];
 }
 
-- (IBAction)renameFile:(id)sender
+- (void)controlTextDidChange:(NSNotification *)aNotification
 {
-    [_fileBrowser renameFile];
 }
 
 - (IBAction)newFile:(id)sender
