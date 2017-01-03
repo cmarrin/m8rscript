@@ -110,14 +110,6 @@ private:
     bool _collectable = false;
 };
 
-class PseudoObject : public Object {
-public:
-    
-private:
-    Object* _master;
-    uint32_t _index;
-};
-    
 class MaterObject : public Object {
 public:    
     virtual ~MaterObject() { }
