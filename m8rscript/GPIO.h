@@ -91,10 +91,10 @@ private:
     Atom _PinModeAtom;
     Atom _TriggerAtom;
 
-    static CallReturnValue setPinMode(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalWrite(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue digitalRead(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue onInterrupt(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
     NativeFunction _setPinMode;
     NativeFunction _digitalWrite;

@@ -84,11 +84,11 @@ private:
     GPIO _gpio;
     Iterator _iterator;
 
-    static CallReturnValue currentTime(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue delay(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue print(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue printf(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue println(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue print(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue printf(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue println(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
     NativeFunction _currentTime;
     NativeFunction _delay;

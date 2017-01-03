@@ -230,7 +230,7 @@ static const uint16_t GCCount = 1000;
             callReturnValue = CallReturnValue();
         }
         else {
-            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, inst.nparams());
         }
         
         // The stack now contains:
@@ -419,12 +419,12 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_NEW:
     L_CALL:
-        objectValue = toObject(regOrConst(inst.rn()), (inst.op() == Op::CALL) ? "CALL" : "NEW");
+        objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALL) ? "CALL" : "NEW");
         if (!objectValue) {
             DISPATCH;
         }
-        uintValue = inst.un();
-        callReturnValue = (inst.op() == Op::CALL) ? objectValue->call(this, uintValue) : objectValue->construct(this, uintValue);
+        uintValue = inst.nparams();
+        callReturnValue = (inst.op() == Op::CALL) ? objectValue->call(this, regOrConst(inst.rcall()), uintValue) : objectValue->construct(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue

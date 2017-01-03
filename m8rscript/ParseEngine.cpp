@@ -464,7 +464,7 @@ bool ParseEngine::jumpStatement()
         if (expression()) {
             count = 1;
         }
-        _parser->emitWithCount(m8r::Op::RET, count);
+        _parser->emitCallRet(m8r::Op::RET, -1, count);
         expect(Token::Semicolon);
         return true;
     }
@@ -579,23 +579,26 @@ bool ParseEngine::leftHandSideExpression()
     if (!memberExpression()) {
         return false;
     }
+    
+    int32_t objectReg = -1;
     while(1) {
         if (getToken() == Token::LParen) {
             retireToken();
             uint32_t argCount = argumentList();
             expect(Token::RParen);
-            _parser->emitWithCount(m8r::Op::CALL, argCount);
+            _parser->emitCallRet(m8r::Op::CALL, objectReg, argCount);
+            objectReg = -1;
         } else if (getToken() == Token::LBracket) {
             retireToken();
             expression();
             expect(Token::RBracket);
-            _parser->emitDeref(false);
+            objectReg = _parser->emitDeref(false);
         } else if (getToken() == Token::Period) {
             retireToken();
             Atom name = getTokenValue().atom;
             if (expect(Token::Identifier)) {
                 _parser->emitId(name, Parser::IdType::NotLocal);
-                _parser->emitDeref(true);
+                objectReg = _parser->emitDeref(true);
             }
         } else {
             return true;
@@ -614,7 +617,7 @@ bool ParseEngine::memberExpression()
             argCount = argumentList();
             expect(Token::RParen);
         }
-            _parser->emitWithCount(m8r::Op::NEW, argCount);
+            _parser->emitCallRet(m8r::Op::NEW, -1, argCount);
         return true;
     }
     
@@ -624,26 +627,7 @@ bool ParseEngine::memberExpression()
         _parser->pushK(f);
         return true;
     }
-    if (!primaryExpression()) {
-        return false;
-    }
-    while(1) {
-        if (getToken() == Token::LBracket) {
-            retireToken();
-            expression();
-            expect(Token::RBracket);
-            _parser->emitDeref(false);
-        } else if (getToken() == Token::Period) {
-            retireToken();
-            Atom name = getTokenValue().atom;
-            if (expect(Token::Identifier)) {
-                _parser->emitId(name, Parser::IdType::NotLocal);
-                _parser->emitDeref(true);
-            }
-        } else {
-            return true;
-        }
-    }
+    return primaryExpression();
 }
 
 uint32_t ParseEngine::argumentList()

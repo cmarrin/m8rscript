@@ -112,7 +112,7 @@ const Value Global::property(ExecutionUnit*, const Atom& name) const
 
 Value Global::iterate(ExecutionUnit*, int32_t index) const
 {
-    if (index < 0) {
+    if (index == Object::IteratorCount) {
         return 9;
     }
     switch(index) {
@@ -129,20 +129,20 @@ Value Global::iterate(ExecutionUnit*, int32_t index) const
     }
 }
 
-CallReturnValue Global::currentTime(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint64_t t = SystemInterface::shared()->currentMicroseconds();
     eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Global::delay(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint32_t ms = eu->stack().top().toIntValue(eu);
     return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
 }
 
-CallReturnValue Global::print(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
@@ -150,7 +150,7 @@ CallReturnValue Global::print(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue Global::printf(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     static const char* formatRegex = "(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])";
     
@@ -218,7 +218,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, uint32_t nparams)
     }
 }
 
-CallReturnValue Global::println(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());

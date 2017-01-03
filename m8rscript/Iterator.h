@@ -45,6 +45,8 @@ public:
 
     virtual const char* typeName() const override { return "Iterator"; }
 
+    virtual String toString(ExecutionUnit* eu) const override { return value(eu).toStringValue(eu); }
+
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
@@ -52,11 +54,13 @@ public:
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     
 private:
+    Value value(ExecutionUnit*) const;
+    
     Atom _nextAtom;
     Atom _endAtom;
     Atom _valueAtom;
 
-    static CallReturnValue next(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
     NativeFunction _next;
     
     Value _object;

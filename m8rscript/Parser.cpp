@@ -161,6 +161,11 @@ void Parser::emitCodeRSN(Op op, uint32_t rn, int32_t n)
     addCode(Instruction(op, rn, n));
 }
 
+void Parser::emitCodeCall(Op op, uint32_t rcall, uint32_t rthis, uint32_t nparams)
+{
+    addCode(Instruction(op, rcall, rthis, nparams, true));
+}
+
 void Parser::addCode(Instruction inst)
 {
     if (_deferred) {
@@ -250,12 +255,13 @@ void Parser::emitMove()
     }
 }
 
-void Parser::emitDeref(bool prop)
+uint32_t Parser::emitDeref(bool prop)
 {
     uint32_t derefReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t objectReg = _parseStack.bake();
     _parseStack.replaceTop(prop ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
+    return objectReg;
 }
 
 void Parser::emitDup()
@@ -385,12 +391,16 @@ void Parser::emitEnd()
     emitCodeRRR(Op::END);
 }
 
-void Parser::emitWithCount(Op value, uint32_t nparams)
+void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
 {
     assert(nparams < 256);
     assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
     
     uint32_t calleeReg = 0;
+    if (thisReg < 0) {
+        // This uses a dummy value for this
+        thisReg = MaxRegister;
+    }
     
     if (value == Op::CALL || value == Op::NEW) {
         calleeReg = _parseStack.bake();
@@ -402,7 +412,7 @@ void Parser::emitWithCount(Op value, uint32_t nparams)
         }
     }
         
-    emitCodeRUN(value, calleeReg, nparams);
+    emitCodeCall(value, calleeReg, thisReg, nparams);
     
     if (value == Op::CALL || value == Op::NEW) {
         // On return there will be a value on the runtime stack. Pop it into a register

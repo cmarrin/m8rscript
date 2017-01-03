@@ -63,7 +63,7 @@ public:
     Atom localName(int32_t index) const { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
     size_t localSize() const { return _locals.size() + _tempRegisterCount; }
     
-    virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) override;
     
     ConstantId addConstant(const Value&);
 

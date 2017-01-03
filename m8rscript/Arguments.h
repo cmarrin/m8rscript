@@ -53,7 +53,7 @@ public:
 
     virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
     {
-        if (index < 0) {
+        if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(argCount(eu)));
         }
         return arg(eu, index);

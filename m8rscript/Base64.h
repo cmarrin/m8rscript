@@ -53,8 +53,8 @@ public:
 private:
     Atom _encodeAtom;
     Atom _decodeAtom;
-    static CallReturnValue encode(ExecutionUnit*, uint32_t nparams);
-    static CallReturnValue decode(ExecutionUnit*, uint32_t nparams);
+    static CallReturnValue encode(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue decode(ExecutionUnit*, Value thisValue, uint32_t nparams);
     NativeFunction _encode;
     NativeFunction _decode;
 };

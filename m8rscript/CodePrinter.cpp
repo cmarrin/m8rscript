@@ -117,6 +117,12 @@ void CodePrinter::generateRN(m8r::String& str, uint32_t addr, Op op, uint32_t d,
     str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n) + "\n";
 }
 
+void CodePrinter::generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
+{
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(rcall) + ", " + regString(rthis) + ", " + Value::toString(nparams) + "\n";
+}
+
 m8r::String CodePrinter::generateCodeString(const Program* program, const Function* obj, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
@@ -180,7 +186,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     _nestingLevel++;
     
     // Output all the function properties
-    int32_t count = obj->iterate(nullptr, -1).asIntValue();
+    int32_t count = obj->iterate(nullptr, Object::IteratorCount).asIntValue();
     for (uint32_t i = 0; i < count; ++i) {
         Atom name = obj->iterate(nullptr, i).asIdValue();
         if (!name) {
@@ -289,14 +295,19 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         generateRRR(outputString, i - 1, op, inst.ra(), inst.rb(), inst.rc());
         DISPATCH;
     L_RET:
+        generateXN(outputString, i - 1, op, inst.nparams());
+        DISPATCH;
     L_JMP:
         generateXN(outputString, i - 1, op, inst.sn());
         DISPATCH;
     L_JT: L_JF:
         generateRN(outputString, i - 1, op, inst.rn(), inst.sn());
         DISPATCH;
-    L_CALL: L_NEW:
-        generateRN(outputString, i - 1, op, inst.rn(), inst.un());
+    L_CALL:
+        generateCall(outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        DISPATCH;
+    L_NEW:
+        generateRN(outputString, i - 1, op, inst.rcall(), inst.nparams());
         DISPATCH;
 }
 

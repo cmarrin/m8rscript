@@ -1,8 +1,11 @@
 // Tests of the Iterator object
 
-var obj = [ "one", "two", "three" ];
-var it = new Iterator(obj);
+var obj = [ 1, 2, 3 ];
+var n = 0;
+for (var it = new Iterator(obj); !it.end; it.next()) {
+	n += it;
+}
 
-println("it: " + it.value);
+println("n: " + n);
 
 //for (var s : 

@@ -64,7 +64,7 @@ GPIO::GPIO(Program* program)
     program->addObject(&_onInterrupt, false);
 }
 
-CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
@@ -72,7 +72,7 @@ CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
@@ -80,13 +80,13 @@ CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);

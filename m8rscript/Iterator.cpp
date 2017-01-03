@@ -61,10 +61,10 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Iterator::next(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-//    Object* obj = eu->program()->obj(_object);
-//    int32_t count = obj ? obj->iterate(eu, -1);
+//    Object* obj = eu->program()->obj(thisValue);
+//    int32_t count = obj ? obj->iterate(eu, -1) : 0;
 //    if (_index < count) {
 //        _index++;
 //    }
@@ -82,11 +82,14 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
         // FIXME: Implement
         return Value(obj ? true : true);
     }
-    if (prop == _valueAtom) {
-        Object* obj = eu->program()->obj(_object);
-        
-        return obj ? obj->iterate(eu, _index) : Value();
+    if (prop == _valueAtom) {        
+        return value(eu);
     }
     return Value();
 }
 
+Value Iterator::value(ExecutionUnit* eu) const
+{
+    Object* obj = eu->program()->obj(_object);
+    return obj ? obj->iterate(eu, _index) : Value();
+}

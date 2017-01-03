@@ -73,8 +73,10 @@ public:
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) { return setProperty(eu, elt.toIdValue(eu), value, append); }
     
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
-    virtual CallReturnValue call(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
+    static constexpr int32_t IteratorCount = -1;
+    static constexpr int32_t IteratorNext = -2;
     virtual Value iterate(ExecutionUnit*, int32_t index) const { return Value(); }
 
     bool serializeObject(Stream*, Error&, Program*) const;
@@ -158,7 +160,7 @@ public:
     
     virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
     {
-        if (index < 0) {
+        if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(_properties.size()));
         }
         return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
@@ -174,13 +176,13 @@ private:
 
 class NativeFunction : public Object {
 public:
-    typedef CallReturnValue (*Func)(ExecutionUnit*, uint32_t nparams);
+    typedef CallReturnValue (*Func)(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
     NativeFunction(Func func) : _func(func) { }
     
     virtual const char* typeName() const override { return "NativeFunction"; }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, uint32_t nparams) override { return _func(eu, nparams); }
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams) override { return _func(eu, thisValue, nparams); }
 
 private:
     Func _func = nullptr;

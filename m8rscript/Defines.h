@@ -112,7 +112,7 @@ struct Label {
     RET         X, N
     END         X, X, X
     
-    MOVE        R[d], RK[s], X                             ; (4)
+    MOVE        R[d], RK[s], X
     LOADREFK    R[d], RK[s], X
     APPENDELT   R[d], RK[s], X
  
@@ -132,7 +132,7 @@ struct Label {
     STOPROP     RK[o], K[p], RK[s]
     STOELT      RK[o], RK[e], RK[s]
     
-    <binop> ==> LOR, LAND,                                  ; (20)
+    <binop> ==> LOR, LAND,                          ; (20)
                 OR, AND, XOR,
                 EQ, NE, LT, LE, GT, GE,
                 SHL, SHR, SAR,
@@ -140,19 +140,19 @@ struct Label {
  
     <binop>RR   R[d], RK[s1], RK[s2]
  
-    <unop> ==>  UMINUS, UNOT, UNEG                          ; (7)
+    <unop> ==>  UMINUS, UNOT, UNEG                  ; (7)
                 PREINC, PREDEC, POSTINC, POSTDEC
                 
     <unop>R     R[d], R[s], X
  
-    CALL        RK[s], N                                    ; (8)
-    NEW         RK[s], N
+    CALL        RK[call], RK[this], nparams
+    NEW         RK[call], nparams
  
     JMP         X, N
     JT          RK[s], N
     JF          RK[s], N
  
-    Total: 39 instructions
+    Total: 49 instructions
 */
 
 static constexpr uint32_t MaxRegister = 255;
@@ -182,12 +182,18 @@ class Instruction {
 public:
     Instruction() { _v = 0; }
     
-    Instruction(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+    Instruction(Op op, uint32_t ra, uint32_t rb, uint32_t rc, bool call = false)
     {
         _op = static_cast<uint32_t>(op);
-        _ra = ra;
-        _rb = rb;
-        _rc = rc;
+        if (call) {
+            _rcall = ra;
+            _rthis = rb;
+            _nparams = rc;
+        } else {
+            _ra = ra;
+            _rb = rb;
+            _rc = rc;
+        }
     }
     
     Instruction(Op op, uint32_t rn, uint32_t n)
@@ -211,6 +217,9 @@ public:
     uint32_t rn() const { return _rn; }
     uint32_t un() const { return _un; }
     int32_t sn() const { return _sn; }
+    uint32_t rcall() const { return _rcall; }
+    uint32_t rthis() const { return _rthis; }
+    uint32_t nparams() const { return _nparams; }
     
 private:
     union {
@@ -222,11 +231,17 @@ private:
         };
         struct {
             uint32_t _ : 6;
+            uint32_t _rcall : 9;
+            uint32_t _rthis : 9;
+            uint32_t _nparams : 8;
+        };
+        struct {
+            uint32_t __ : 6;
             uint32_t _rn : 9;
             int32_t _sn : 17;
         };
         struct {
-            uint32_t __ : 15;
+            uint32_t ___ : 15;
             uint32_t _un : 17;
         };
         uint32_t _v;

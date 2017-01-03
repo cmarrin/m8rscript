@@ -135,7 +135,7 @@ Base64::Base64(Program* program)
     program->addObject(&_decode, false);
 }
 
-CallReturnValue Base64::encode(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
     size_t inLength = inString.size();
@@ -161,7 +161,7 @@ CallReturnValue Base64::encode(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Base64::decode(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
     size_t inLength = inString.size();

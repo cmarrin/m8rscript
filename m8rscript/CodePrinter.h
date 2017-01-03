@@ -60,6 +60,7 @@ private:
     void generateRRR(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const;
     void generateXN(m8r::String&, uint32_t addr, Op op, int32_t n) const;
     void generateRN(m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;
+    void generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const;
  
     void showValue(const Program*, m8r::String&, const Value&) const;
     Value* valueFromId(Atom, const Object*) const;

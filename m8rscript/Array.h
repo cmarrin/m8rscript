@@ -86,7 +86,7 @@ public:
 
     virtual Value iterate(ExecutionUnit*, int32_t index) const override
     {
-        if (index < 0) {
+        if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(_array.size()));
         }
         return _array[index];

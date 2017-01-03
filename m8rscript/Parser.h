@@ -148,7 +148,7 @@ private:
 
     void emitDup();
     void emitMove();
-    void emitDeref(bool prop);
+    uint32_t emitDeref(bool prop);
     void emitAppendElt();
     void emitAppendProp();
     void emitStoProp();
@@ -161,7 +161,7 @@ private:
     void emitEnd();
     
     void addNamedFunction(ObjectId functionId, const Atom& name);
-    void emitWithCount(Op value, uint32_t count);
+    void emitCallRet(Op value, int32_t thisReg, uint32_t count);
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     
     void discardResult() { _parseStack.pop(); }
@@ -177,6 +177,7 @@ private:
     void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
     void emitCodeRUN(Op, uint32_t rn, uint32_t n);
     void emitCodeRSN(Op, uint32_t rn, int32_t n);
+    void emitCodeCall(Op, uint32_t rcall, uint32_t rthis, uint32_t nparams);
     
     void reconcileRegisters(Function*);
 
