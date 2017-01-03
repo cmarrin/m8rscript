@@ -401,6 +401,17 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
         // This uses a dummy value for this
         thisReg = MaxRegister;
     }
+
+    if (value == Op::CALL) {
+        // If tos is a PropRef or EltRef, emit CALLPROP with the object and property
+        if (_parseStack.topType() == ParseStack::Type::PropRef || _parseStack.topType() == ParseStack::Type::EltRef) {
+            emitCodeCall(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
+            _parseStack.pop();
+            emitPop();
+            return;
+        }
+    }
+            
     
     if (value == Op::CALL || value == Op::NEW) {
         calleeReg = _parseStack.bake();
@@ -492,8 +503,8 @@ void Parser::reconcileRegisters(Function* function)
         Op op = static_cast<Op>(inst.op());
         uint32_t rn = regFromTempReg(inst.rn(), numLocals);
         
-        if (op == Op::RET || op == Op::CALL || op == Op::NEW) {
-            code[i] = Instruction(op, rn, inst.un());
+        if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
+            code[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
             code[i] = Instruction(op, rn, inst.sn());
         } else if (op == Op::PUSH) {

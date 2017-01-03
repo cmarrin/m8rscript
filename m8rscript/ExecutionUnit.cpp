@@ -160,8 +160,8 @@ int32_t ExecutionUnit::continueExecution()
 
         /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
         /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
-        /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
-        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
+        /* 0x38 */ OP(NEW)  OP(CALLPROP) OP(JMP)  OP(JT)
+        /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
     };
  
 //static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
@@ -399,7 +399,7 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_UMINUS: setInFrame(inst.ra(), -regOrConst(inst.rb()).toFloatValue(this)); DISPATCH;
-    L_UNOT: setInFrame(inst.ra(), ~regOrConst(inst.rb()).toIntValue(this)); DISPATCH;
+    L_UNOT: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0); DISPATCH;
     L_UNEG: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1); DISPATCH;
     L_PREINC:
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
@@ -419,12 +419,27 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_NEW:
     L_CALL:
-        objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALL) ? "CALL" : "NEW");
+    L_CALLPROP:
+    
+        objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
         if (!objectValue) {
+            // Push a dummy value onto the stack for a return value
+            _stack.push(Value());
             DISPATCH;
         }
         uintValue = inst.nparams();
-        callReturnValue = (inst.op() == Op::CALL) ? objectValue->call(this, regOrConst(inst.rcall()), uintValue) : objectValue->construct(this, uintValue);
+        switch(inst.op()) {
+            default: break;
+            case Op::CALL:
+                callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue);
+                break;
+            case Op::NEW:
+                callReturnValue = objectValue->construct(this, uintValue);
+                break;
+            case Op::CALLPROP:
+                callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
+                break;
+        }
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue

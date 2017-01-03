@@ -42,12 +42,10 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Iterator::Iterator(Program* program)
-    : _next(next)
 {
     _nextAtom = program->atomizeString(ROMSTR("next"));    
     _endAtom = program->atomizeString(ROMSTR("end"));    
     _valueAtom = program->atomizeString(ROMSTR("value"));    
-    program->addObject(&_next, false);
     
     program->addObject(this, false);
 }
@@ -61,26 +59,26 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-//    Object* obj = eu->program()->obj(thisValue);
-//    int32_t count = obj ? obj->iterate(eu, -1) : 0;
-//    if (_index < count) {
-//        _index++;
-//    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    if (prop == _nextAtom) {
+        Object* obj = eu->program()->obj(_object);
+        int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        if (_index < count) {
+            ++_index;
+        }
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == _nextAtom) {
-        return Value(_next.objectId());
-    }
     if (prop == _endAtom) {
         Object* obj = eu->program()->obj(_object);
+        int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
-        // FIXME: Implement
-        return Value(obj ? true : true);
+        return Value(_index >= count);
     }
     if (prop == _valueAtom) {        
         return value(eu);
@@ -91,5 +89,6 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 Value Iterator::value(ExecutionUnit* eu) const
 {
     Object* obj = eu->program()->obj(_object);
-    return obj ? obj->iterate(eu, _index) : Value();
+    int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).asIntValue() : 0;
+    return (obj && _index < count) ? obj->iterate(eu, _index) : Value();
 }

@@ -596,10 +596,9 @@ bool ParseEngine::leftHandSideExpression()
         } else if (getToken() == Token::Period) {
             retireToken();
             Atom name = getTokenValue().atom;
-            if (expect(Token::Identifier)) {
-                _parser->emitId(name, Parser::IdType::NotLocal);
-                objectReg = _parser->emitDeref(true);
-            }
+            expect(Token::Identifier);
+            _parser->emitId(name, Parser::IdType::NotLocal);
+            objectReg = _parser->emitDeref(true);
         } else {
             return true;
         }

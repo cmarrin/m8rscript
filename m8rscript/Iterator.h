@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Iterator : public Object {
+class Iterator : public MaterObject {
 public:
     Iterator(Program*);
 
@@ -51,6 +51,8 @@ public:
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
+
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     
 private:
@@ -59,12 +61,9 @@ private:
     Atom _nextAtom;
     Atom _endAtom;
     Atom _valueAtom;
-
-    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    NativeFunction _next;
     
     Value _object;
-    uint32_t _index = 0;
+    mutable uint32_t _index = 0;
 };
     
 }

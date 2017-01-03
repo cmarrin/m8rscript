@@ -145,8 +145,8 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
 
         /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
         /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
-        /* 0x38 */ OP(NEW)  OP(JMP)  OP(JT)  OP(JF)        
-        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
+        /* 0x38 */ OP(NEW)  OP(CALLPROP) OP(JMP)  OP(JT)
+        /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
     };
     
 //static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
@@ -309,6 +309,9 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     L_NEW:
         generateRN(outputString, i - 1, op, inst.rcall(), inst.nparams());
         DISPATCH;
+    L_CALLPROP:
+        generateCall(outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        DISPATCH;
 }
 
 struct CodeMap
@@ -336,7 +339,7 @@ static CodeMap opcodes[] = {
     
     OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
     
-    OP(CALL) OP(NEW) OP(JMP) OP(JT) OP(JF) 
+    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF)
 };
 
 const char* CodePrinter::stringFromOp(Op op)

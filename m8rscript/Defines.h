@@ -131,7 +131,7 @@ struct Label {
     LOADELT     R[d], RK[o], RK[e]
     STOPROP     RK[o], K[p], RK[s]
     STOELT      RK[o], RK[e], RK[s]
-    
+ 
     <binop> ==> LOR, LAND,                          ; (20)
                 OR, AND, XOR,
                 EQ, NE, LT, LE, GT, GE,
@@ -145,14 +145,15 @@ struct Label {
                 
     <unop>R     R[d], R[s], X
  
-    CALL        RK[call], RK[this], nparams
-    NEW         RK[call], nparams
+    CALL        RK[call], RK[this], NPARAMS
+    NEW         RK[call], NPARAMS
+    CALLPROP    RK[o], RK[p], NPARAMS
  
     JMP         X, N
     JT          RK[s], N
     JF          RK[s], N
  
-    Total: 49 instructions
+    Total: 51 instructions
 */
 
 static constexpr uint32_t MaxRegister = 255;
@@ -169,7 +170,7 @@ enum class Op : uint8_t {
     ADD, SUB, MUL, DIV, MOD,
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
-    CALL, NEW, JMP, JT, JF,
+    CALL, NEW, CALLPROP, JMP, JT, JF,
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
