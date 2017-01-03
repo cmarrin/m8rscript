@@ -4,9 +4,6 @@
 
 printf("Here is a number: %1.25d and a string: '%2.1s'\n", 5, "hello");
 
-//var a = [ "one", "two", "three" ];
-//for (var s : 
-
 function add()
 {
 	var n = 0;

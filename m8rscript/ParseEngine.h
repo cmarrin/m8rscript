@@ -106,6 +106,7 @@ private:
     bool expression(uint8_t minPrec = 1);
     
     bool leftHandSideExpression();
+    bool memberExpression();
     bool primaryExpression();
     
     ObjectId function();

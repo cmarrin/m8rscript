@@ -330,7 +330,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        objectValue->setElement(this, regOrConst(inst.rb()), Value(), true);
+        objectValue->setElement(this, Value(), regOrConst(inst.rb()), true);
         DISPATCH;
     L_APPENDPROP:
         objectValue = toObject(regOrConst(inst.ra()), "APPENDPROP");
@@ -419,12 +419,12 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_NEW:
     L_CALL:
-        objectValue = toObject(regOrConst(inst.rn()), "CALL");
+        objectValue = toObject(regOrConst(inst.rn()), (inst.op() == Op::CALL) ? "CALL" : "NEW");
         if (!objectValue) {
             DISPATCH;
         }
         uintValue = inst.un();
-        callReturnValue = objectValue->call(this, uintValue);
+        callReturnValue = (inst.op() == Op::CALL) ? objectValue->call(this, uintValue) : objectValue->construct(this, uintValue);
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
         // setup the EU to execute it. In that case just continue

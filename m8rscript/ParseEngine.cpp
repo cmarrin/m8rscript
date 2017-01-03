@@ -576,20 +576,7 @@ bool ParseEngine::expression(uint8_t minPrec)
 
 bool ParseEngine::leftHandSideExpression()
 {
-    if (getToken() == Token::New) {
-        retireToken();
-        leftHandSideExpression();
-        return true;
-    }
-    
-    if (getToken() == Token::Function) {
-        retireToken();
-        ObjectId f = function();
-        _parser->pushK(f);
-        return true;
-    }
-    
-    if (!primaryExpression()) {
+    if (!memberExpression()) {
         return false;
     }
     while(1) {
@@ -599,6 +586,49 @@ bool ParseEngine::leftHandSideExpression()
             expect(Token::RParen);
             _parser->emitWithCount(m8r::Op::CALL, argCount);
         } else if (getToken() == Token::LBracket) {
+            retireToken();
+            expression();
+            expect(Token::RBracket);
+            _parser->emitDeref(false);
+        } else if (getToken() == Token::Period) {
+            retireToken();
+            Atom name = getTokenValue().atom;
+            if (expect(Token::Identifier)) {
+                _parser->emitId(name, Parser::IdType::NotLocal);
+                _parser->emitDeref(true);
+            }
+        } else {
+            return true;
+        }
+    }
+}
+
+bool ParseEngine::memberExpression()
+{
+    if (getToken() == Token::New) {
+        retireToken();
+        memberExpression();
+        uint32_t argCount = 0;
+        if (getToken() == Token::LParen) {
+            retireToken();
+            argCount = argumentList();
+            expect(Token::RParen);
+        }
+            _parser->emitWithCount(m8r::Op::NEW, argCount);
+        return true;
+    }
+    
+    if (getToken() == Token::Function) {
+        retireToken();
+        ObjectId f = function();
+        _parser->pushK(f);
+        return true;
+    }
+    if (!primaryExpression()) {
+        return false;
+    }
+    while(1) {
+        if (getToken() == Token::LBracket) {
             retireToken();
             expression();
             expect(Token::RBracket);

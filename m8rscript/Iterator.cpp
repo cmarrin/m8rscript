@@ -41,19 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Atom Iterator::_nextAtom;
-Atom Iterator::_endAtom;
-Atom Iterator::_valueAtom;
-NativeFunction Iterator::_next(Iterator::next);
-
 Iterator::Iterator(Program* program)
+    : _next(next)
 {
-    if (!_nextAtom) {
-        _nextAtom = program->atomizeString(ROMSTR("next"));    
-        _endAtom = program->atomizeString(ROMSTR("end"));    
-        _valueAtom = program->atomizeString(ROMSTR("value"));    
-        program->addObject(&_next, false);
-    }
+    _nextAtom = program->atomizeString(ROMSTR("next"));    
+    _endAtom = program->atomizeString(ROMSTR("end"));    
+    _valueAtom = program->atomizeString(ROMSTR("value"));    
+    program->addObject(&_next, false);
     
     program->addObject(this, false);
 }
@@ -69,7 +63,11 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
 
 CallReturnValue Iterator::next(ExecutionUnit* eu, uint32_t nparams)
 {
-    // FIXME: Implement
+//    Object* obj = eu->program()->obj(_object);
+//    int32_t count = obj ? obj->iterate(eu, -1);
+//    if (_index < count) {
+//        _index++;
+//    }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
@@ -87,8 +85,7 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
     if (prop == _valueAtom) {
         Object* obj = eu->program()->obj(_object);
         
-        // FIXME: Implement
-        return Value(obj ? 0 : 1);
+        return obj ? obj->iterate(eu, _index) : Value();
     }
     return Value();
 }

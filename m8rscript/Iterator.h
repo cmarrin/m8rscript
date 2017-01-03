@@ -52,12 +52,12 @@ public:
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     
 private:
-    static Atom _nextAtom;
-    static Atom _endAtom;
-    static Atom _valueAtom;
+    Atom _nextAtom;
+    Atom _endAtom;
+    Atom _valueAtom;
 
     static CallReturnValue next(ExecutionUnit*, uint32_t nparams);
-    static NativeFunction _next;
+    NativeFunction _next;
     
     Value _object;
     uint32_t _index = 0;
