@@ -63,6 +63,7 @@ public:
     virtual bool isFunction() const { return false; }
 
     virtual String toString(ExecutionUnit*) const { return String(typeName()) + "{ }"; }
+    virtual bool toNumber(ExecutionUnit*, Float&) const { return false; }
     
     virtual void gcMark(ExecutionUnit*) { }
     

@@ -43,11 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 GPIO::GPIO(Program* program)
-    : _setPinMode(setPinMode)
-    , _digitalWrite(digitalWrite)
-    , _digitalRead(digitalRead)
-    , _onInterrupt(onInterrupt)
-    , _pinMode(program)
+    : _pinMode(program)
     , _trigger(program)
 {
     _setPinModeAtom = program->atomizeString(ROMSTR("setPinMode"));    
@@ -58,54 +54,10 @@ GPIO::GPIO(Program* program)
     _TriggerAtom = program->atomizeString(ROMSTR("Trigger"));
     
     program->addObject(this, false);
-    program->addObject(&_setPinMode, false);
-    program->addObject(&_digitalWrite, false);
-    program->addObject(&_digitalRead, false);
-    program->addObject(&_onInterrupt, false);
-}
-
-CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-    GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
-    SystemInterface::shared()->gpio().setPinMode(pin, mode);
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-    bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
-    SystemInterface::shared()->gpio().digitalWrite(pin, level);
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
-}
-
-CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value GPIO::property(ExecutionUnit*, const Atom& prop) const
 {
-    if (prop == _setPinModeAtom) {
-        return Value(_setPinMode.objectId());
-    }
-    if (prop == _digitalWriteAtom) {
-        return Value(_digitalWrite.objectId());
-    }
-    if (prop == _digitalReadAtom) {
-        return Value(_digitalRead.objectId());
-    }
-    if (prop == _onInterruptAtom) {
-        return Value(_onInterrupt.objectId());
-    }
     if (prop == _PinModeAtom) {
         return Value(_pinMode.objectId());
     }
@@ -113,6 +65,31 @@ const Value GPIO::property(ExecutionUnit*, const Atom& prop) const
         return Value(_trigger.objectId());
     }
     return Value();
+}
+
+CallReturnValue GPIO::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+{
+    if (prop == _setPinModeAtom) {
+        uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+        GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
+        SystemInterface::shared()->gpio().setPinMode(pin, mode);
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    if (prop == _digitalWriteAtom) {
+        uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+        bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
+        SystemInterface::shared()->gpio().digitalWrite(pin, level);
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    if (prop == _digitalReadAtom) {
+        // FIXME: Implement
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    if (prop == _onInterruptAtom) {
+        // FIXME: Implement
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 PinMode::PinMode(Program* program)

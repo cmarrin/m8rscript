@@ -420,7 +420,6 @@ static const uint16_t GCCount = 1000;
     L_NEW:
     L_CALL:
     L_CALLPROP:
-    
         objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
         if (!objectValue) {
             // Push a dummy value onto the stack for a return value

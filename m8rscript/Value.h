@@ -156,12 +156,7 @@ public:
         return _toIdValue(eu);
     }
     
-    bool isInteger() const { return type() == Type::Integer; }
-    bool isFloat() const { return type() == Type::Float; }
-    bool isNumber() const { return isInteger() || isFloat(); }
-    
     bool isNone() const { return type() == Type::None; }
-    bool isAtom() const { return type() == Type::Id; }
     bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject; }
     
     static m8r::String toString(Float value);

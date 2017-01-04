@@ -83,6 +83,8 @@ public:
 
     virtual const Value property(ExecutionUnit*, const Atom&) const override;
 
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
+
 private:
     Atom _setPinModeAtom;
     Atom _digitalWriteAtom;
@@ -91,16 +93,6 @@ private:
     Atom _PinModeAtom;
     Atom _TriggerAtom;
 
-    static CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _setPinMode;
-    NativeFunction _digitalWrite;
-    NativeFunction _digitalRead;
-    NativeFunction _onInterrupt;
-    
     m8r::PinMode _pinMode;
     m8r::Trigger _trigger;
 };
