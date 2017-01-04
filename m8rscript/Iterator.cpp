@@ -89,6 +89,6 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 Value Iterator::value(ExecutionUnit* eu) const
 {
     Object* obj = eu->program()->obj(_object);
-    int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).asIntValue() : 0;
+    int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
     return (obj && _index < count) ? obj->iterate(eu, _index) : Value();
 }
