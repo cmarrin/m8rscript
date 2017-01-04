@@ -131,7 +131,7 @@ public:
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     
     m8r::String toStringValue(ExecutionUnit*) const;
-    bool toBoolValue(ExecutionUnit* eu) const { return toFloatValue(eu); }
+    bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
     Float toFloatValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Float) {
@@ -201,7 +201,7 @@ private:
         RawValue() { _raw = 0; }
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { _raw = 0; _raw = Float(i, 0).raw(); setType(Type::Float); }
+        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
         RawValue(uint32_t i, Type type)
         {
             assert(type == Type::PreviousPC || type == Type::PreviousFrame || type == Type::PreviousParamCount);

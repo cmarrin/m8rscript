@@ -137,6 +137,11 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     _framePtr =_stack.framePtr();
 }
 
+static inline bool valuesAreInt(const Value& a, const Value& b)
+{
+    return a.isInteger() && b.isInteger();
+}
+
 int32_t ExecutionUnit::continueExecution()
 {
     #undef OP
@@ -374,21 +379,102 @@ static const uint16_t GCCount = 1000;
         }
         setInFrame(inst.ra(), Value(leftIntValue));
         DISPATCH;
-    L_EQ: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) == regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_NE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) != regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_LT: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) < regOrConst(inst.rc()).toFloatValue(this)));  DISPATCH;
-    L_LE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) <= regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_GT: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) > regOrConst(inst.rc()).toFloatValue(this)));  DISPATCH;
-    L_GE: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) >= regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_SUB: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) - regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_MUL: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) * regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_DIV: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) / regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
-    L_MOD: setInFrame(inst.ra(), Value(regOrConst(inst.rb()).toFloatValue(this) % regOrConst(inst.rc()).toFloatValue(this))); DISPATCH;
+    L_EQ: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() == rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) == rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_NE: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() != rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) != rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_LT: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() < rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) < rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_LE: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() <= rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) <= rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_GT: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() > rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) > rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_GE: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() >= rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) >= rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_SUB: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() - rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) - rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_MUL: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() * rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) * rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_DIV: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() / rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) / rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
+    L_MOD: 
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() % rightValue.asIntValue()));
+        } else {
+            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) % rightValue.toFloatValue(this)));
+        }
+        DISPATCH;
     L_ADD:
         leftValue = regOrConst(inst.rb());
         rightValue = regOrConst(inst.rc());
-
-        if (leftValue.isNumber() && rightValue.isNumber()) {
+        if (valuesAreInt(leftValue, rightValue)) {
+            setInFrame(inst.ra(), Value(leftValue.asIntValue() + rightValue.asIntValue()));
+        } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
             StringId stringId = _program->createString();
@@ -398,7 +484,14 @@ static const uint16_t GCCount = 1000;
             setInFrame(inst.ra(), Value(stringId));
         }
         DISPATCH;
-    L_UMINUS: setInFrame(inst.ra(), -regOrConst(inst.rb()).toFloatValue(this)); DISPATCH;
+    L_UMINUS:
+        leftValue = regOrConst(inst.rb());
+        if (leftValue.isInteger()) {
+            setInFrame(inst.ra(), -leftValue.asIntValue());
+        } else {
+            setInFrame(inst.ra(), -leftValue.toFloatValue(this));
+        }
+        DISPATCH;
     L_UNOT: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0); DISPATCH;
     L_UNEG: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1); DISPATCH;
     L_PREINC:
