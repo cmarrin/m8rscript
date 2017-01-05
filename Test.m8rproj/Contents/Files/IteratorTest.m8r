@@ -1,6 +1,13 @@
 // Tests of the Iterator object
-
 var obj = [ 1, 2, 3 ];
+
+var n = 0;
+for (var it : obj) {
+	n += it.value;
+}
+
+println("n: " + n);
+
 var n = 0;
 for (var it = new Iterator(obj); !it.end; it.next()) {
 	n += it.value;
@@ -8,4 +15,19 @@ for (var it = new Iterator(obj); !it.end; it.next()) {
 
 println("n: " + n);
 
+var n = 0;
+var it;
+for (it = new Iterator(obj); !it.end; it.next()) {
+	n += it.value;
+}
+
+println("n: " + n);
+
+var n = 0;
+var it;
+for (it : obj) {
+	n += it.value;
+}
+
+println("n: " + n);
 //for (var s : 

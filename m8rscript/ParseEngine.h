@@ -112,6 +112,7 @@ private:
     ObjectId function();
     uint32_t argumentList();
     void forLoopCondAndIt();
+    void forVarIteration(Atom iteratorName);
     void forIteration();
     bool propertyAssignment();
     bool propertyName();

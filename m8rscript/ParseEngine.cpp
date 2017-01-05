@@ -307,39 +307,33 @@ void ParseEngine::forLoopCondAndIt()
     _parser->matchJump(label);
 }
 
-void ParseEngine::forIteration()
+void ParseEngine::forVarIteration(Atom iteratorName)
 {
-    // On entry we just parsed the object expression and it is
-    // on the stack. We also parsed the end paren, so we're ready
-    // to parse the statement
+    // On entry we just parsed the colon.
 
     // Stack now has the result of the object expression. We also have the name of 
     // the identifier that will receive the next iteration on each pass.
-    // We need to generate the following:
+    // We need to generate the equivalent of the following:
     //
-    //          MOVE T[i], K[0] // T[i] = i, K[0] = the constant 0
-    //      L1: LTIT T[1], T[i], R[n] // R[n] is the result of the object expression
-    //          JF T[1], L2
-    //          LOADIT R[m], R[n], T[i] // R[m] is the receiver of the iteration value
-    //          <statement>
-    //          PREDEC (T[1], T[i]
-    //          JMP l1
-    //      L2: ...
-
-
-
-
-    // On entry, we are at the semicolon before the cond expr
-    expect(Token::Semicolon);
-    Label label = _parser->label();
-    expression(); // cond expr
-    _parser->addMatchedJump(m8r::Op::JF, label);
-    _parser->startDeferred();
-    expect(Token::Semicolon);
-    expression(); // iterator
-    _parser->discardResult();
-    _parser->endDeferred();
+    //      for (iteratorName = new Iterator(tos()); !iteratorName.end; iteratorName.next()) ...
+    
+    leftHandSideExpression();
     expect(Token::RParen);
+
+    _parser->emitPush();
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    _parser->emitId("Iterator", Parser::IdType::MightBeLocal);
+    _parser->emitCallRet(Op::NEW, -1, 1);
+    _parser->emitMove();
+    _parser->discardResult();
+    
+    Label label = _parser->label();
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    _parser->emitId("end", Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+
+    _parser->addMatchedJump(m8r::Op::JT, label);
+
     statement();
 
     // resolve the continue statements
@@ -347,7 +341,54 @@ void ParseEngine::forIteration()
         _parser->matchJump(it);
     }
 
-    _parser->emitDeferred();
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    _parser->emitId("next", Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::CALL, -1, 0);
+    _parser->discardResult();
+
+    _parser->jumpToLabel(Op::JMP, label);
+    _parser->matchJump(label);
+}
+
+void ParseEngine::forIteration()
+{
+    // On entry we just parsed the colon.
+
+    // Stack now has the result of the object expression. We also have the name of 
+    // the identifier that will receive the next iteration on each pass.
+    // We need to generate the equivalent of the following:
+    //
+    //      for (iteratorName = new Iterator(tos()); !iteratorName.end; iteratorName.next()) ...
+
+    leftHandSideExpression();
+    expect(Token::RParen);
+
+    _parser->emitPush();
+    _parser->emitId("Iterator", Parser::IdType::MightBeLocal);
+    _parser->emitCallRet(Op::NEW, -1, 1);
+    _parser->emitMove();
+    
+    Label label = _parser->label();
+    _parser->emitDup();
+    _parser->emitId("end", Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+
+    _parser->addMatchedJump(m8r::Op::JT, label);
+
+    statement();
+
+    // resolve the continue statements
+    for (auto it : _continueStack.back()) {
+        _parser->matchJump(it);
+    }
+
+    _parser->emitDup();
+    _parser->emitId("next", Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::CALL, -1, 0);
+    _parser->discardResult();
+
     _parser->jumpToLabel(Op::JMP, label);
     _parser->matchJump(label);
 }
@@ -410,9 +451,7 @@ bool ParseEngine::iterationStatement()
                 // for-in case with var
                 expect(Token::OneVarDeclAllowed, count == 1);
                 retireToken();
-                expression();
-                expect(Token::RParen);
-                forIteration();
+                forVarIteration(name);
             } else {
                 expect(Token::MissingVarDecl, count > 0);
                 forLoopCondAndIt();
@@ -422,7 +461,7 @@ bool ParseEngine::iterationStatement()
                 if (getToken() == Token::Colon) {
                     // for-in case with left hand expr
                     retireToken();
-                    leftHandSideExpression();
+                    forIteration();
                 } else {
                     forLoopCondAndIt();
                 }
@@ -592,13 +631,13 @@ bool ParseEngine::leftHandSideExpression()
             retireToken();
             expression();
             expect(Token::RBracket);
-            objectReg = _parser->emitDeref(false);
+            objectReg = _parser->emitDeref(Parser::DerefType::Elt);
         } else if (getToken() == Token::Period) {
             retireToken();
             Atom name = getTokenValue().atom;
             expect(Token::Identifier);
             _parser->emitId(name, Parser::IdType::NotLocal);
-            objectReg = _parser->emitDeref(true);
+            objectReg = _parser->emitDeref(Parser::DerefType::Prop);
         } else {
             return true;
         }

@@ -108,7 +108,6 @@ Label Parser::label()
 void Parser::addMatchedJump(Op op, Label& label)
 {
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
-    label.matchedAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
 
     uint32_t reg = 0;
     if (op != Op::JMP) {
@@ -116,6 +115,7 @@ void Parser::addMatchedJump(Op op, Label& label)
         _parseStack.pop();
     }
     // Emit opcode with a dummy address
+    label.matchedAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
     emitCodeRSN(op, reg, 0);
 }
 
@@ -182,6 +182,12 @@ void Parser::pushK(StringLiteral::Raw s)
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
+void Parser::pushK(const char* s)
+{
+    ConstantId id = currentFunction()->addConstant(_program->addStringLiteral(s));
+    _parseStack.push(ParseStack::Type::Constant, id.raw());
+}
+
 void Parser::pushK(uint32_t value)
 {
     ConstantId id = currentFunction()->addConstant(value);
@@ -215,6 +221,11 @@ void Parser::pushK(ObjectId function)
     obj->setCollectable(false);
     ConstantId id = currentFunction()->addConstant(function);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
+}
+
+void Parser::emitId(const char* s, IdType type)
+{
+    emitId(_program->atomizeString(s), type);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
@@ -255,12 +266,12 @@ void Parser::emitMove()
     }
 }
 
-uint32_t Parser::emitDeref(bool prop)
+uint32_t Parser::emitDeref(DerefType type)
 {
     uint32_t derefReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t objectReg = _parseStack.bake();
-    _parseStack.replaceTop(prop ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
+    _parseStack.replaceTop((type == DerefType::Prop) ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
     return objectReg;
 }
 

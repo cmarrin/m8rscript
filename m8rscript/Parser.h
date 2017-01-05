@@ -137,6 +137,7 @@ private:
     ObjectId functionEnd();
         
     void pushK(StringLiteral::Raw value);
+    void pushK(const char* value);
     void pushK(uint32_t value);
     void pushK(Float value);
     void pushK(bool value);
@@ -145,10 +146,13 @@ private:
     
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
+    void emitId(const char*, IdType);
 
     void emitDup();
     void emitMove();
-    uint32_t emitDeref(bool prop);
+    
+    enum class DerefType { Prop, Elt };
+    uint32_t emitDeref(DerefType);
     void emitAppendElt();
     void emitAppendProp();
     void emitStoProp();
