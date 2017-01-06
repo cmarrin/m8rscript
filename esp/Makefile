@@ -57,16 +57,16 @@ ifeq ($(PARSER_SUPPORT), 1)
 endif
 
 # Arduino based tools
-ESP_ROOT ?= $(HOME)/esp8266
-TOOLS_ROOT ?= $(ESP_ROOT)/tools
-SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
-FLASH_LAYOUT ?= eagle.flash.4m.ld
+#ESP_ROOT ?= $(HOME)/esp8266
+#TOOLS_ROOT ?= $(ESP_ROOT)/tools
+#SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
+#FLASH_LAYOUT ?= eagle.flash.4m.ld
 
 # ESP open SDK base tools
-#ESP_ROOT ?= $(HOME)/esp-open-sdk
-#TOOLS_ROOT = $(ESP_ROOT)
-#SDK_ROOT = $(TOOLS_ROOT)/sdk
-#FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
+ESP_ROOT ?= $(HOME)/esp-open-sdk
+TOOLS_ROOT = $(ESP_ROOT)
+SDK_ROOT = $(TOOLS_ROOT)/sdk
+FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
 #FLASH_LAYOUT ?= eagle.app.v6.ld
 
 ESP_TOOL_BIN = ./esptool
@@ -241,7 +241,7 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)
-	$(ESP_TOOL_BIN) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+	$(ESP_TOOL_BIN) -eo $(CORE_DIR)/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 	$(TOOLS_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
