@@ -66,6 +66,7 @@ endif
 ESP_ROOT ?= $(HOME)/esp-open-sdk
 TOOLS_ROOT = $(ESP_ROOT)
 SDK_ROOT = $(TOOLS_ROOT)/sdk
+LWIP_ROOT = $(SDK_ROOT)/examples/lwip_open_src_template_proj
 FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
 #FLASH_LAYOUT ?= eagle.app.v6.ld
 
@@ -139,7 +140,7 @@ C_DEFINES += -DNO_PARSER_SUPPORT
 endif
 
 # The xtensa folder inside gdbstub is technically a system library, it just doesn't happen to be in the non-os SDK. So make gdbstub look like a system dir
-C_INCLUDES = -isystem $(SDK_ROOT)/include
+C_INCLUDES = -isystem $(SDK_ROOT)/include -isystem $(LWIP_ROOT)/include
 ifeq ($(DEBUG), 1)
 C_INCLUDES = -isystem $(GDB_DIR)
 endif
