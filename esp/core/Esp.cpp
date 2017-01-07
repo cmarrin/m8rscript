@@ -19,6 +19,8 @@
  */
 
 #include "Esp.h"
+
+#include "EspUDP.h"
 #include "EspGPIOInterface.h"
 #include "FS.h"
 #include "MDNSResponder.h"
@@ -118,6 +120,13 @@ static uint32_t micros_at_last_overflow_tick = 0;
 static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
 static bool _calledInitializeCB = false;
+
+m8r::IPAddr m8r::IPAddr::myIPAddr()
+{
+    struct ip_info info;
+    wifi_get_ip_info(STATION_IF, &info);
+    return m8r::IPAddr(info.ip.addr);
+}
 
 void initmdns();
 

@@ -53,14 +53,6 @@ public:
     EspTCP(TCPDelegate*, uint16_t, IPAddr);
 
 private:
-    static void connectCB(void*);
-    static void disconnectCB(void*);
-    static void reconnectCB(void*, int8_t error);
-    static void sentCB(void*);
-    static void receiveCB(void*, char* data, uint16_t length);
-
-    espconn _conn;
-    esp_tcp _tcp;
     bool _connected = false;
     bool _sending = false;
     String _buffer;

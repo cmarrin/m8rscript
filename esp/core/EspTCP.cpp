@@ -35,6 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EspTCP.h"
 
+#include <lwip/init.h>
+#include <lwip/tcp.h>
+
 using namespace m8r;
 
 TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
@@ -51,25 +54,18 @@ EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     : TCP(delegate, port, ip)
 {
     assert(!ip); // client not yet supported
-    
-    _conn.type = ESPCONN_TCP;
-    _conn.state = ESPCONN_NONE;
-    _conn.proto.tcp = &_tcp;
-    _conn.proto.tcp->local_port = port;
-    _conn.reverse = this;
-    
-    espconn_regist_connectcb(&_conn, connectCB);
-    int8_t result = espconn_accept(&_conn);
-    if (result != 0) {
-        os_printf("ERROR: espconn_accept (%d)\n", result);
-        return;
-    }
+
+    lwip_init();
+
+    tcp_pcb* pcb = tcp_new();
+    tcp_arg(pcb, this);
+    tcp_bind(pcb, IP_ADDR_ANY, port);
+    pcb = tcp_listen(pcb);
+    tcp_accept(pcb, nullptr);
 }
 
 EspTCP::~EspTCP()
 {
-    espconn_abort(&_conn);
-    espconn_disconnect(&_conn);
 }
 
 void EspTCP::send(char c)
@@ -83,9 +79,9 @@ void EspTCP::send(char c)
     }
 
     _sending = true;
-    int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(&c), 1);
+    int8_t result = 0;
     if (result != 0) {
-        os_printf("TCP ERROR: failed to send char to port %d\n", _conn.proto.tcp->local_port);
+        os_printf("TCP ERROR: failed to send char to port %d\n", _port);
     }
 }
 
@@ -104,9 +100,9 @@ void EspTCP::send(const char* data, uint16_t length)
     }
 
     _sending = true;
-    int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(data)), length);
+    int8_t result = 0;
     if (result != 0) {
-        os_printf("TCP ERROR: failed to send %d bytes to port %d\n", length, _conn.proto.tcp->local_port);
+        os_printf("TCP ERROR: failed to send %d bytes to port %d\n", length, _port);
     }
 }
 
@@ -115,73 +111,4 @@ void EspTCP::disconnect()
     if (!_connected) {
         return;
     }
-    espconn_disconnect(&_conn);
-}
-
-void EspTCP::connectCB(void* arg)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
-
-    self->_sending = false;
-    self->_connected = true;
-    os_printf("TCP: connection established to port %d\n", conn->proto.tcp->local_port);
-
-    espconn_regist_time(conn, DefaultTimeout, 1);
-    espconn_regist_recvcb(conn, receiveCB);
-    espconn_regist_reconcb(conn, reconnectCB);
-    espconn_regist_disconcb(conn, disconnectCB);
-    espconn_regist_sentcb(conn, sentCB);
-    
-    self->_delegate->TCPconnected(self);
-}
-
-void EspTCP::disconnectCB(void* arg)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
-
-    self->_sending = false;
-    self->_connected = false;
-    os_printf("TCP: disconnected from port %d\n", conn->proto.tcp->local_port);
-
-    self->_delegate->TCPdisconnected(self);
-}
-
-void EspTCP::reconnectCB(void* arg, int8_t error)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
-
-    self->_sending = false;
-    self->_connected = true;
-    os_printf("TCP: reconnected to port %d, error=%d\n", conn->proto.tcp->local_port, error);
-    
-    self->_delegate->TCPreconnected(self);
-}
-
-void EspTCP::receiveCB(void* arg, char* data, uint16_t length)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
-
-    self->_delegate->TCPreceivedData(self, data, length);
-}
-
-void EspTCP::sentCB(void* arg)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspTCP* self = reinterpret_cast<EspTCP*>(conn->reverse);
-    assert(self->_sending);
-    if (!self->_buffer.empty()) {
-        int8_t result = espconn_send(&self->_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(self->_buffer.c_str())), self->_buffer.size());
-        if (result != 0) {
-            os_printf("TCP ERROR: failed to send %d bytes to port %d\n", self->_buffer.size(), self->_conn.proto.tcp->local_port);
-        }
-        self->_buffer.clear();
-        return;
-    }
-    
-    self->_sending = false;
-    self->_delegate->TCPsentData(self);
 }
