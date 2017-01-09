@@ -59,46 +59,82 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-class MyShell : public m8r::Shell, public m8r::TCPDelegate {
-public:
-    MyShell(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
-    
-    // TCPDelegate
-    virtual void TCPconnected(m8r::TCP*, uint16_t connectionId) override { connected(); }
-    virtual void TCPdisconnected(m8r::TCP*, uint16_t connectionId) override { disconnected(); }
-    
-    virtual void TCPreceivedData(m8r::TCP* tcp, uint16_t connectionId, const char* data, uint16_t length) override
-    {
-        if (!received(data, length)) {
-            tcp->disconnect();
-        }
-    }
+class MyTCP;
 
-    virtual void TCPsentData(m8r::TCP*, uint16_t connectionId) override { sendComplete(); }
+m8r::Application _application;
+MyTCP* _tcp;
+
+class MyShell : public m8r::Shell {
+public:
+    MyShell(m8r::Application* application, m8r::TCP* tcp, uint16_t connectionId) : Shell(application), _tcp(tcp), _connectionId(connectionId) { }
     
     // Shell Delegate
-    virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(data, size); }
+    virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(_connectionId, data, size); }
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
 
 private:
     m8r::TCP* _tcp;
+    uint16_t _connectionId;
 };
 
-MyShell* _shell;
+class MyTCP : public m8r::TCPDelegate {
+public:
+    MyTCP(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
+    
+    // TCPDelegate
+    virtual void TCPconnected(m8r::TCP*, uint16_t connectionId) override
+    {
+        _shells[connectionId] = new MyShell(&_application, _tcp, connectionId);
+        _shells[connectionId]->connected();
+    }
+    virtual void TCPdisconnected(m8r::TCP*, uint16_t connectionId) override
+    {
+        if (_shells[connectionId]) {
+            _shells[connectionId]->disconnected();
+            delete _shells[connectionId];
+            _shells[connectionId] = nullptr;
+        }
+    }
+    
+    virtual void TCPreceivedData(m8r::TCP* tcp, uint16_t connectionId, const char* data, uint16_t length) override
+    {
+        if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
+            tcp->disconnect(connectionId);
+        }
+    }
+
+    virtual void TCPsentData(m8r::TCP*, uint16_t connectionId) override
+    {
+        if (_shells[connectionId]) {
+            _shells[connectionId]->sendComplete();
+        }
+    }
+
+private:
+    m8r::TCP* _tcp;
+    MyShell* _shells[m8r::TCP::MaxConnections];
+};
 
 void ICACHE_FLASH_ATTR runScript()
 {
     m8r::SystemInterface::shared()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
     m8r::SystemInterface::shared()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
-    _shell->load(nullptr);
-    _shell->run([]{
-        m8r::SystemInterface::shared()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
-    });
+    
+    m8r::Error error;
+    if (!_application.load(error)) {
+        error.showError();
+    } else if (!_application.program()) {
+        m8r::SystemInterface::shared()->printf(ROMSTR("Error:failed to compile application"));
+    } else {
+        _application.run([]{
+            m8r::SystemInterface::shared()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+        });
+    }
 }
 
 void systemInitialized()
 {
-    _shell = new MyShell(22);
+    _tcp = new MyTCP(22);
     runScript();
 }
 

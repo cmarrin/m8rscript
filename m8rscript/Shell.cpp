@@ -64,11 +64,11 @@ void Shell::init()
 bool Shell::load(const char* filename)
 {
     Error error;
-    if (!_application.load(error, filename)) {
+    if (!_application->load(error, filename)) {
         error.showError();
         return false;
     }
-    if (!_application.program()) {
+    if (!_application->program()) {
         showError(ROMSTR("failed to compile application"));
         return false;
     }
@@ -77,11 +77,11 @@ bool Shell::load(const char* filename)
 
 void Shell::run(std::function<void()> function)
 {
-    if (!_application.program()) {
+    if (!_application->program()) {
         showError(ROMSTR("no application to run"));
         return;
     }
-    _application.run(function);
+    _application->run(function);
 }
 
 bool Shell::received(const char* data, uint16_t size)
@@ -350,13 +350,3 @@ void Shell::sendString(const char* s)
     ROMCopyString(_buffer, s);
     shellSend(_buffer);
 }
-
-void Shell::vprintf(const char* fmt, va_list args)
-{
-    char* buf = new char[128];
-    ROMCopyString(_buffer, fmt);
-    vsnprintf(buf, 127, _buffer, args);
-    shellSend(buf);
-    delete[ ] buf;
-}
-

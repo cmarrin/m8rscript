@@ -51,7 +51,7 @@ public:
     
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
-    Shell() : _application() { }
+    Shell(Application* application) : _application(application) { }
     
     void connected();
     void disconnected() { }
@@ -61,12 +61,9 @@ public:
     
     bool load(const char*);
     void run(std::function<void()>);
-    void clear() { _application.clear(); }
-    void stop() { _application.stop(); }
-    Program* program() const { return _application.program(); }
-    
-    void vprintf(const char*, va_list);
-
+    void clear() { _application->clear(); }
+    void stop() { _application->stop(); }
+    Program* program() const { return _application->program(); }
     
     long send(const void* data, long size);
     long receive(void* data, long size);
@@ -86,7 +83,7 @@ private:
     
     mutable char _buffer[BufferSize];
     
-    Application _application;
+    Application* _application;
 
 };
 

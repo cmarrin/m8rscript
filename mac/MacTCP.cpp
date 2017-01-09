@@ -203,12 +203,12 @@ MacTCP::~MacTCP()
     dispatch_release(_queue);
 }
 
-void MacTCP::send(char c)
+void MacTCP::send(uint16_t connectionId, char c)
 {
-    send(&c, 1);
+    send(connectionId, &c, 1);
 }
 
-void MacTCP::send(const char* data, uint16_t length)
+void MacTCP::send(uint16_t connectionId, const char* data, uint16_t length)
 {
     if (_server) {
         _mutex.lock();
@@ -232,7 +232,7 @@ void MacTCP::send(const char* data, uint16_t length)
     });
 }
 
-void MacTCP::disconnect()
+void MacTCP::disconnect(uint16_t connectionId)
 {
     close(_socketFD);
     _socketFD = -1;

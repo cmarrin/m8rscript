@@ -49,13 +49,22 @@ class EspTCP : public TCP {
 public:
     virtual ~EspTCP();
     
-    virtual void send(uint16_t connectionId, char c) override { send(&c, 1); }
+    virtual void send(uint16_t connectionId, char c) override { send(connectionId, &c, 1); }
     virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) override
     {
         if (!_clients[connectionId].inUse()) {
             return;
         }
-    virtual void disconnect(uint16_t connectionId) override;
+        _clients[connectionId].send(data, length);
+    }
+    
+    virtual void disconnect(uint16_t connectionId) override
+    {
+        if (!_clients[connectionId].inUse()) {
+            return;
+        }
+        _clients[connectionId].disconnect();
+    }
     
     EspTCP(TCPDelegate*, uint16_t, IPAddr);
 
@@ -72,7 +81,6 @@ private:
         
         bool inUse() const { return _pcb; }
 
-        void send(char c) { send(&c, 1); }
         void send(const char* data, uint16_t length = 0);
         void disconnect();
         

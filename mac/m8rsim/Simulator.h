@@ -80,10 +80,11 @@ public:
 private:
     class MyShell : public m8r::Shell {
     public:
-        MyShell(Simulator* simulator) : Shell(), _simulator(simulator) { }
+        MyShell(Simulator* simulator) : Shell(&_application), _simulator(simulator) { }
         virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
 
     private:
+        m8r::Application _application;
         Simulator* _simulator;
     };
     
