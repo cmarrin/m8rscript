@@ -44,14 +44,13 @@ namespace m8r {
 
 class MacTCP : public TCP {
 public:
-    static constexpr int MaxConnections = 4;
     static constexpr int BufferSize = 1024;
     
     virtual ~MacTCP();
     
-    virtual void send(char c) override;
-    virtual void send(const char* data, uint16_t length = 0) override;
-    virtual void disconnect() override;
+    virtual void send(uint16_t connectionId, char c) override;
+    virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) override;
+    virtual void disconnect(uint16_t connectionId) override;
     
     MacTCP(TCPDelegate*, uint16_t, IPAddr);
 

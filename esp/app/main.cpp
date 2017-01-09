@@ -64,17 +64,17 @@ public:
     MyShell(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
-    virtual void TCPconnected(m8r::TCP*) override { connected(); }
-    virtual void TCPdisconnected(m8r::TCP*) override { disconnected(); }
+    virtual void TCPconnected(m8r::TCP*, uint16_t connectionId) override { connected(); }
+    virtual void TCPdisconnected(m8r::TCP*, uint16_t connectionId) override { disconnected(); }
     
-    virtual void TCPreceivedData(m8r::TCP* tcp, const char* data, uint16_t length) override
+    virtual void TCPreceivedData(m8r::TCP* tcp, uint16_t connectionId, const char* data, uint16_t length) override
     {
         if (!received(data, length)) {
             tcp->disconnect();
         }
     }
 
-    virtual void TCPsentData(m8r::TCP*) override { sendComplete(); }
+    virtual void TCPsentData(m8r::TCP*, uint16_t connectionId) override { sendComplete(); }
     
     // Shell Delegate
     virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(data, size); }

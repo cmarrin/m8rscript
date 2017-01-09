@@ -35,9 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EspTCP.h"
 
-#include <lwip/init.h>
-#include <lwip/tcp.h>
-
 using namespace m8r;
 
 TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
@@ -55,34 +52,40 @@ EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 {
     assert(!ip); // client not yet supported
 
-    lwip_init();
-
-    tcp_pcb* pcb = tcp_new();
-    tcp_arg(pcb, this);
-    tcp_bind(pcb, IP_ADDR_ANY, port);
-    pcb = tcp_listen(pcb);
-    tcp_accept(pcb, nullptr);
+    _listenpcb = tcp_new();
+    tcp_bind(_listenpcb, IP_ADDR_ANY, port);
+    _listenpcb = tcp_listen(_listenpcb);
+    tcp_arg(_listenpcb, this);
+    tcp_accept(_listenpcb, _accept);
 }
 
 EspTCP::~EspTCP()
 {
 }
 
-void EspTCP::send(char c)
+err_t EspTCP::accept(tcp_pcb* pcb, int8_t err)
 {
-    if (!_connected) {
-        return;
+    tcp_accepted(_listenpcb);
+    
+    for (auto& it : _clients) {
+        if (!it.inUse()) {
+            it = Client(pcb, this);
+            _delegate->TCPconnected(this, &it - _clients);
+            return 0;
+        }
     }
-    if (_sending) {
-        _buffer += c;
-        return;
-    }
+    tcp_abort(pcb);
+    return 0;
+}
 
-    _sending = true;
-    int8_t result = 0;
-    if (result != 0) {
-        os_printf("TCP ERROR: failed to send char to port %d\n", _port);
-    }
+err_t EspTCP::recv(tcp_pcb* pcb, pbuf*, int8_t err)
+{
+    return 0;
+}
+
+err_t EspTCP::sent(tcp_pcb* pcb, u16_t len)
+{
+    return 0;
 }
 
 void EspTCP::send(const char* data, uint16_t length)
@@ -100,6 +103,7 @@ void EspTCP::send(const char* data, uint16_t length)
     }
 
     _sending = true;
+    uint16_t maxSize = tcp_sndbuf(
     int8_t result = 0;
     if (result != 0) {
         os_printf("TCP ERROR: failed to send %d bytes to port %d\n", length, _port);

@@ -177,9 +177,9 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return &_gSystemInterface
 
 class MyLogTCPDelegate : public m8r::TCPDelegate {
 public:
-    virtual void TCPconnected(m8r::TCP* tcp) override { tcp->send("Start m8rscript Log\n\n"); }    
-    virtual void TCPdisconnected(m8r::TCP*) override { }
-    virtual void TCPsentData(m8r::TCP*) override { }
+    virtual void TCPconnected(m8r::TCP* tcp, uint16_t connectionId) override { tcp->send("Start m8rscript Log\n\n"); }    
+    virtual void TCPdisconnected(m8r::TCP*, uint16_t connectionId) override { }
+    virtual void TCPsentData(m8r::TCP*, uint16_t connectionId) override { }
 
 private:
 };

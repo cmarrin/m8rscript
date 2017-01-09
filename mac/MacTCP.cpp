@@ -145,7 +145,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     assert(clientSocket == -1);
                     
                     dispatch_sync(dispatch_get_main_queue(), ^{
-                        _delegate->TCPconnected(this);
+                        _delegate->TCPconnected(this, 0);
                     });
                 }
 
@@ -159,7 +159,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             getpeername(socket, (struct sockaddr*) &sa, (socklen_t*) &addrlen);
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
                             dispatch_sync(dispatch_get_main_queue(), ^{
-                                _delegate->TCPdisconnected(this);
+                                _delegate->TCPdisconnected(this, 0);
                             });
                             close(socket);
                             _mutex.lock();
@@ -168,7 +168,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             printf("ERROR: read returned %zd, error=%d\n", result, errno);
                         } else {
                             dispatch_sync(dispatch_get_main_queue(), ^{
-                                _delegate->TCPreceivedData(this, _receiveBuffer, result);
+                                _delegate->TCPreceivedData(this, 0, _receiveBuffer, result);
                             });
                         }
                     }
@@ -179,7 +179,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                 if (result == 0) {
                     // Disconnect
                     dispatch_sync(dispatch_get_main_queue(), ^{
-                        _delegate->TCPdisconnected(this);
+                        _delegate->TCPdisconnected(this, 0);
                     });
                     shutdown(_socketFD, SHUT_RDWR);
                     close(_socketFD);
@@ -189,7 +189,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     printf("ERROR: read returned %zd, error=%d\n", result, errno);
                 } else {
                     dispatch_sync(dispatch_get_main_queue(), ^{
-                        _delegate->TCPreceivedData(this, _receiveBuffer, result);
+                        _delegate->TCPreceivedData(this, 0, _receiveBuffer, result);
                     });
                 }
             }
@@ -228,7 +228,7 @@ void MacTCP::send(const char* data, uint16_t length)
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        _delegate->TCPsentData(this);
+        _delegate->TCPsentData(this, 0);
     });
 }
 

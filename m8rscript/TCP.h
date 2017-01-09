@@ -44,24 +44,25 @@ class TCP;
 
 class TCPDelegate {
 public:
-    virtual void TCPconnected(TCP*) { }
-    virtual void TCPreconnected(TCP*) { }
-    virtual void TCPdisconnected(TCP*) { }
-    virtual void TCPreceivedData(TCP*, const char* data, uint16_t length) { }
-    virtual void TCPsentData(TCP*) { }
+    virtual void TCPconnected(TCP*, uint16_t connectionId) { }
+    virtual void TCPreconnected(TCP*, uint16_t connectionId) { }
+    virtual void TCPdisconnected(TCP*, uint16_t connectionId) { }
+    virtual void TCPreceivedData(TCP*, uint16_t connectionId, const char* data, uint16_t length) { }
+    virtual void TCPsentData(TCP*, uint16_t connectionId) { }
 };
 
 class TCP {
 public:
+    static constexpr int MaxConnections = 4;
     static constexpr uint32_t DefaultTimeout = 7200;
      
     static TCP* create(TCPDelegate*, uint16_t port);
     static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
     virtual ~TCP() { }
     
-    virtual void send(char c) = 0;
-    virtual void send(const char* data, uint16_t length = 0) = 0;
-    virtual void disconnect() = 0;
+    virtual void send(uint16_t connectionId, char c) = 0;
+    virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) = 0;
+    virtual void disconnect(uint16_t connectionId) = 0;
 
 protected:
     TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
