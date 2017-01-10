@@ -78,10 +78,27 @@ err_t EspTCP::accept(tcp_pcb* pcb, int8_t err)
     return 0;
 }
 
-err_t EspTCP::recv(tcp_pcb* pcb, pbuf*, int8_t err)
+int16_t EspTCP::findConnection(tcp_pcb* pcb)
 {
-    // FIXME: Implement
+    for (auto& it : _clients) {
+        if (it.matches(pcb)) {
+            return &it - _clients;
+        }
+    }
+    return -1;
+}
+
+err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
+{
+    int16_t connectionId = findConnection(pcb);
+    if (connectionId < 0) {
+        return -1;
+    }
     
+    assert(buf->len == buf->tot_len);
+    _delegate->TCPreceivedData(this, connectionId, reinterpret_cast<const char*>(buf->payload), buf->len);
+    tcp_recved(pcb, buf->tot_len);
+    pbuf_free(buf);
     return 0;
 }
 

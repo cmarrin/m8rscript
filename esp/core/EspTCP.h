@@ -84,10 +84,11 @@ private:
         void send(const char* data, uint16_t length = 0);
         void disconnect();
         
+        bool matches(tcp_pcb* pcb) { return pcb == _pcb; }
+        
     private:
         tcp_pcb* _pcb;
     };
-
 
     static err_t _accept(void *arg, tcp_pcb* pcb, int8_t err) { return reinterpret_cast<EspTCP*>(arg)->accept(pcb, err); }
     static err_t _recv(void *arg, tcp_pcb* pcb, pbuf* buf, int8_t err) { return reinterpret_cast<EspTCP*>(arg)->recv(pcb, buf, err); }
@@ -97,6 +98,8 @@ private:
     err_t recv(tcp_pcb*, pbuf*, int8_t err);
     err_t sent(tcp_pcb*, u16_t len);
 
+    int16_t findConnection(tcp_pcb*);
+    
     tcp_pcb* _listenpcb;
     
     bool _connected = false;
