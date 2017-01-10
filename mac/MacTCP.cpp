@@ -231,7 +231,7 @@ void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        _delegate->TCPsentData(this, 0);
+        _delegate->TCPsentData(this, connectionId);
     });
 }
 

@@ -88,6 +88,8 @@ private:
         
     private:
         tcp_pcb* _pcb;
+        bool _sending = false;
+        String _buffer;
     };
 
     static err_t _accept(void *arg, tcp_pcb* pcb, int8_t err) { return reinterpret_cast<EspTCP*>(arg)->accept(pcb, err); }
@@ -101,11 +103,7 @@ private:
     int16_t findConnection(tcp_pcb*);
     
     tcp_pcb* _listenpcb;
-    
-    bool _connected = false;
-    bool _sending = false;
-    String _buffer;
-    
+        
     Client _clients[MaxConnections];
 };
 

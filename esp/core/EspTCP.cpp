@@ -104,40 +104,39 @@ err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
 
 err_t EspTCP::sent(tcp_pcb* pcb, u16_t len)
 {
-    // FIXME: Implement
-    
+    // FIXME: Check to make sure len says that we sent all the data
+    int16_t connectionId = findConnection(pcb);
+    _delegate->TCPsentData(this, connectionId);
     return 0;
 }
 
 void EspTCP::Client::send(const char* data, uint16_t length)
 {
-    // FIXME: Implement
+    if (!length) {
+        length = strlen(data);
+    }
+
+    if (_sending) {
+        _buffer += String(data, length);
+        return;
+    }
+
+    _sending = true;
     
-//    if (!_connected) {
-//        return;
-//    }
-//    if (!length) {
-//        length = strlen(data);
-//    }
-//
-//    if (_sending) {
-//        _buffer += String(data, length);
-//        return;
-//    }
-//
-//    _sending = true;
-//    //uint16_t maxSize = tcp_sndbuf(
-//    int8_t result = 0;
-//    if (result != 0) {
-//        os_printf("TCP ERROR: failed to send %d bytes to port %d\n", length, _port);
-//    }
+    uint16_t maxSize = tcp_sndbuf(_pcb);
+    if (maxSize < length) {
+        // Put the remainder in the buffer
+        _buffer = String(data + maxSize, length - maxSize);
+        length = maxSize;
+    }
+    int8_t result = tcp_write(_pcb, data, length, 0);
+    if (result != 0) {
+        os_printf("TCP ERROR(%d): failed to send %d bytes to port %d\n", result, length, _pcb->local_port);
+    }
 }
 
 void EspTCP::Client::disconnect()
 {
-    // FIXME: Implement
-    
-//    if (!_connected) {
-//        return;
-//    }
+    tcp_abort(_pcb);
+    _pcb = nullptr;
 }
