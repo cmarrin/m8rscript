@@ -48,9 +48,9 @@ public:
     
     virtual ~MacTCP();
     
-    virtual void send(uint16_t connectionId, char c) override;
-    virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) override;
-    virtual void disconnect(uint16_t connectionId) override;
+    virtual void send(int16_t connectionId, char c) override { send(connectionId, &c, 1); }
+    virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) override;
+    virtual void disconnect(int16_t connectionId) override;
     
     MacTCP(TCPDelegate*, uint16_t, IPAddr);
 

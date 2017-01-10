@@ -49,18 +49,18 @@ class EspTCP : public TCP {
 public:
     virtual ~EspTCP();
     
-    virtual void send(uint16_t connectionId, char c) override { send(connectionId, &c, 1); }
-    virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) override
+    virtual void send(int16_t connectionId, char c) override { send(connectionId, &c, 1); }
+    virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) override
     {
-        if (!_clients[connectionId].inUse()) {
+        if (connectionId < 0 || connectionId >= MaxConnections || !_clients[connectionId].inUse()) {
             return;
         }
         _clients[connectionId].send(data, length);
     }
     
-    virtual void disconnect(uint16_t connectionId) override
+    virtual void disconnect(int16_t connectionId) override
     {
-        if (!_clients[connectionId].inUse()) {
+        if (connectionId < 0 || connectionId >= MaxConnections || !_clients[connectionId].inUse()) {
             return;
         }
         _clients[connectionId].disconnect();

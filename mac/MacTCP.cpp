@@ -134,24 +134,32 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                         continue;
                     }
                     printf("New connection , socket fd=%d, ip=%s, port=%d\n", clientSocket, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
+                    int16_t connectionId = -1;
                     for (int& socket : _clientSockets) {
                         if (!socket) {
                             _mutex.lock();
                             socket = clientSocket;
-                            clientSocket = -1;
+                            connectionId = &socket - _clientSockets;
                             break;
                         }
                     }
-                    assert(clientSocket == -1);
+                    
+                    if (connectionId < 0) {
+                        close(clientSocket);
+                        printf("Too many connections on port %d\n", ntohs(sa.sin_port));
+                        return;
+                    }
                     
                     dispatch_sync(dispatch_get_main_queue(), ^{
-                        _delegate->TCPconnected(this, 0);
+                        _delegate->TCPconnected(this, connectionId);
                     });
                 }
 
                 for (int& socket : _clientSockets) {
                     if (FD_ISSET(socket, &readfds)) {
                         // Something came in on this client socket
+                        int16_t connectionId = &socket - _clientSockets;
+                        
                         ssize_t result = read(socket, _receiveBuffer, BufferSize - 1);
                         if (result == 0) {
                             // Disconnect
@@ -159,7 +167,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             getpeername(socket, (struct sockaddr*) &sa, (socklen_t*) &addrlen);
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
                             dispatch_sync(dispatch_get_main_queue(), ^{
-                                _delegate->TCPdisconnected(this, 0);
+                                _delegate->TCPdisconnected(this, connectionId);
                             });
                             close(socket);
                             _mutex.lock();
@@ -168,7 +176,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             printf("ERROR: read returned %zd, error=%d\n", result, errno);
                         } else {
                             dispatch_sync(dispatch_get_main_queue(), ^{
-                                _delegate->TCPreceivedData(this, 0, _receiveBuffer, result);
+                                _delegate->TCPreceivedData(this, connectionId, _receiveBuffer, result);
                             });
                         }
                     }
@@ -203,12 +211,7 @@ MacTCP::~MacTCP()
     dispatch_release(_queue);
 }
 
-void MacTCP::send(uint16_t connectionId, char c)
-{
-    send(connectionId, &c, 1);
-}
-
-void MacTCP::send(uint16_t connectionId, const char* data, uint16_t length)
+void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
 {
     if (_server) {
         _mutex.lock();
@@ -232,8 +235,12 @@ void MacTCP::send(uint16_t connectionId, const char* data, uint16_t length)
     });
 }
 
-void MacTCP::disconnect(uint16_t connectionId)
+void MacTCP::disconnect(int16_t connectionId)
 {
-    close(_socketFD);
-    _socketFD = -1;
+    if (connectionId < 0 || connectionId >= MaxConnections) {
+        return;
+    }
+    
+    close(_clientSockets[connectionId]);
+    _clientSockets[connectionId] = 0;
 }

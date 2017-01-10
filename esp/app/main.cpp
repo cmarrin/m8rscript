@@ -82,12 +82,12 @@ public:
     MyTCP(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
-    virtual void TCPconnected(m8r::TCP*, uint16_t connectionId) override
+    virtual void TCPconnected(m8r::TCP*, int16_t connectionId) override
     {
         _shells[connectionId] = new MyShell(&_application, _tcp, connectionId);
         _shells[connectionId]->connected();
     }
-    virtual void TCPdisconnected(m8r::TCP*, uint16_t connectionId) override
+    virtual void TCPdisconnected(m8r::TCP*, int16_t connectionId) override
     {
         if (_shells[connectionId]) {
             _shells[connectionId]->disconnected();
@@ -96,14 +96,14 @@ public:
         }
     }
     
-    virtual void TCPreceivedData(m8r::TCP* tcp, uint16_t connectionId, const char* data, uint16_t length) override
+    virtual void TCPreceivedData(m8r::TCP* tcp, int16_t connectionId, const char* data, uint16_t length) override
     {
         if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
             tcp->disconnect(connectionId);
         }
     }
 
-    virtual void TCPsentData(m8r::TCP*, uint16_t connectionId) override
+    virtual void TCPsentData(m8r::TCP*, int16_t connectionId) override
     {
         if (_shells[connectionId]) {
             _shells[connectionId]->sendComplete();

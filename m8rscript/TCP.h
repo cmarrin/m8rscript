@@ -44,11 +44,11 @@ class TCP;
 
 class TCPDelegate {
 public:
-    virtual void TCPconnected(TCP*, uint16_t connectionId) { }
-    virtual void TCPreconnected(TCP*, uint16_t connectionId) { }
-    virtual void TCPdisconnected(TCP*, uint16_t connectionId) { }
-    virtual void TCPreceivedData(TCP*, uint16_t connectionId, const char* data, uint16_t length) { }
-    virtual void TCPsentData(TCP*, uint16_t connectionId) { }
+    virtual void TCPconnected(TCP*, int16_t connectionId) { }
+    virtual void TCPreconnected(TCP*, int16_t connectionId) { }
+    virtual void TCPdisconnected(TCP*, int16_t connectionId) { }
+    virtual void TCPreceivedData(TCP*, int16_t connectionId, const char* data, uint16_t length) { }
+    virtual void TCPsentData(TCP*, int16_t connectionId) { }
 };
 
 class TCP {
@@ -60,9 +60,9 @@ public:
     static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
     virtual ~TCP() { }
     
-    virtual void send(uint16_t connectionId, char c) = 0;
-    virtual void send(uint16_t connectionId, const char* data, uint16_t length = 0) = 0;
-    virtual void disconnect(uint16_t connectionId) = 0;
+    virtual void send(int16_t connectionId, char c) = 0;
+    virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
+    virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
     TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
