@@ -82,6 +82,7 @@ private:
         bool inUse() const { return _pcb; }
 
         void send(const char* data, uint16_t length = 0);
+        void sent(uint16_t len);
         void disconnect();
         
         bool matches(tcp_pcb* pcb) { return pcb == _pcb; }

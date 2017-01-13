@@ -134,6 +134,7 @@ bool Shell::received(const char* data, uint16_t size)
 
 void Shell::sendComplete()
 {
+os_printf("***** Shell::sendComplete - enter\n");
     switch(_state) {
         case State::Init:
             _state = State::NeedPrompt;

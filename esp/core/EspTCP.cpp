@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "EspTCP.h"
 
+#include "SystemInterface.h"
+
 using namespace m8r;
 
 TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
@@ -53,7 +55,7 @@ EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     assert(!ip); // client not yet supported
 
     _listenpcb = tcp_new();
-    tcp_bind(_listenpcb, IP_ADDR_ANY, port);
+    err_t err = tcp_bind(_listenpcb, IP_ADDR_ANY, port);
     _listenpcb = tcp_listen(_listenpcb);
     tcp_arg(_listenpcb, this);
     tcp_accept(_listenpcb, _accept);
@@ -104,14 +106,17 @@ err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
 
 err_t EspTCP::sent(tcp_pcb* pcb, u16_t len)
 {
-    // FIXME: Check to make sure len says that we sent all the data
     int16_t connectionId = findConnection(pcb);
+    assert(_clients[connectionId].inUse());
+    
+    _clients[connectionId].sent(len);
     _delegate->TCPsentData(this, connectionId);
     return 0;
 }
 
 void EspTCP::Client::send(const char* data, uint16_t length)
 {
+os_printf("***** send - enter\n");
     if (!length) {
         length = strlen(data);
     }
@@ -121,22 +126,48 @@ void EspTCP::Client::send(const char* data, uint16_t length)
         return;
     }
 
+os_printf("***** send - not sending\n");
+
     _sending = true;
     
     uint16_t maxSize = tcp_sndbuf(_pcb);
+os_printf("***** send - maxSize=%d\n", maxSize);
+
     if (maxSize < length) {
         // Put the remainder in the buffer
         _buffer = String(data + maxSize, length - maxSize);
         length = maxSize;
     }
     int8_t result = tcp_write(_pcb, data, length, 0);
+os_printf("***** send - tcp_write result=%d\n", result);
     if (result != 0) {
-        os_printf("TCP ERROR(%d): failed to send %d bytes to port %d\n", result, length, _pcb->local_port);
+        SystemInterface::shared()->printf("TCP ERROR(%d): failed to send %d bytes to port %d\n", result, length, _pcb->local_port);
     }
+}
+
+void EspTCP::Client::sent(uint16_t len)
+{
+    assert(_sending);
+
+    if (!_buffer.empty()) {
+        uint16_t maxSize = tcp_sndbuf(_pcb);
+        if (maxSize < _buffer.size()) {
+            int8_t result = tcp_write(_pcb, _buffer.c_str(), maxSize, 0);
+            _buffer = _buffer.slice(maxSize);
+            return;
+        }
+        
+        int8_t result = tcp_write(_pcb, _buffer.c_str(), _buffer.size(), 0);
+        _buffer.clear();
+        return;
+    }
+    
+    _sending = false;
 }
 
 void EspTCP::Client::disconnect()
 {
+    ("*** EspTCP::disconnect - enter\n");
     tcp_abort(_pcb);
     _pcb = nullptr;
 }
