@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCP.h"
 
-#include "EspUDP.h"
 #include "Containers.h"
 
 #include <lwip/init.h>
