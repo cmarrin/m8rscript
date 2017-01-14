@@ -97,6 +97,12 @@ err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
         return -1;
     }
     
+    if (!buf) {
+        // Disconnected
+        _clients[connectionId].disconnect();
+        return 0;
+    }
+    
     assert(buf->len == buf->tot_len);
     _delegate->TCPreceivedData(this, connectionId, reinterpret_cast<const char*>(buf->payload), buf->len);
     tcp_recved(pcb, buf->tot_len);
@@ -116,7 +122,6 @@ err_t EspTCP::sent(tcp_pcb* pcb, u16_t len)
 
 void EspTCP::Client::send(const char* data, uint16_t length)
 {
-os_printf("***** send - enter\n");
     if (!length) {
         length = strlen(data);
     }
@@ -126,12 +131,9 @@ os_printf("***** send - enter\n");
         return;
     }
 
-os_printf("***** send - not sending\n");
-
     _sending = true;
     
     uint16_t maxSize = tcp_sndbuf(_pcb);
-os_printf("***** send - maxSize=%d\n", maxSize);
 
     if (maxSize < length) {
         // Put the remainder in the buffer
@@ -139,7 +141,6 @@ os_printf("***** send - maxSize=%d\n", maxSize);
         length = maxSize;
     }
     int8_t result = tcp_write(_pcb, data, length, 0);
-os_printf("***** send - tcp_write result=%d\n", result);
     if (result != 0) {
         SystemInterface::shared()->printf("TCP ERROR(%d): failed to send %d bytes to port %d\n", result, length, _pcb->local_port);
     }
@@ -167,7 +168,6 @@ void EspTCP::Client::sent(uint16_t len)
 
 void EspTCP::Client::disconnect()
 {
-    ("*** EspTCP::disconnect - enter\n");
     tcp_abort(_pcb);
     _pcb = nullptr;
 }
