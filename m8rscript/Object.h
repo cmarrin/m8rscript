@@ -127,11 +127,34 @@ public:
         }
     }
     
-    virtual const Value property(ExecutionUnit*, const Atom& prop) const override
+    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
+
+    virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override
     {
         auto it = _properties.find(prop);
         return (it != _properties.end()) ? it->value : Value();
     }
+
+    bool setProperty(const Atom& prop, const Value& v, bool add)
+    {
+        auto it = _properties.find(prop);
+        if (add) {
+            if (it != _properties.end()) {
+                return false;
+            }
+            auto ret = _properties.emplace(prop, Value());
+            assert(ret.second);
+            ret.first->value = v;
+            return true;
+        }
+        
+        if (it == _properties.end()) {
+            return false;
+        }
+        it->value = v;
+        return true;
+    }
+
     virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
     {
         if (index == Object::IteratorCount) {
@@ -155,22 +178,7 @@ public:
 
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, bool add) override
     {
-        auto it = _properties.find(prop);
-        if (add) {
-            if (it != _properties.end()) {
-                return false;
-            }
-            auto ret = _properties.emplace(prop, Value());
-            assert(ret.second);
-            ret.first->value = v;
-            return true;
-        }
-        
-        if (it == _properties.end()) {
-            return false;
-        }
-        it->value = v;
-        return true;
+        return PropertyObject::setProperty(prop, v, add);
     }
 };
 
@@ -186,6 +194,19 @@ public:
 
 private:
     Func _func = nullptr;
+};
+
+class ObjectFactory {
+public:
+    ObjectFactory(Program*);
+    
+    void addObject(Program*, const char* prop, Object*);
+    
+    Object* obj() { return &_obj; }
+    ObjectId objectId() const { return _obj.objectId(); }
+
+protected:
+    PropertyObject _obj;
 };
     
 }

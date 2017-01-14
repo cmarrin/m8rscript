@@ -265,6 +265,16 @@ String PropertyObject::toString(ExecutionUnit* eu) const
     return s;
 }
 
+CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+{
+    Object* obj = eu->program()->obj(property(eu, prop));
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
+    return obj->call(eu, Value(), nparams);
+}
+
 bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the Function properties
@@ -341,4 +351,15 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
     }
     
     return true;
+}
+
+ObjectFactory::ObjectFactory(Program* program)
+{
+    program->addObject(&_obj, false);
+}
+
+void ObjectFactory::addObject(Program* program, const char* prop, Object* obj)
+{
+    program->addObject(obj, false);
+    _obj.setProperty(program->atomizeString(prop), Value(obj->objectId()), true);
 }

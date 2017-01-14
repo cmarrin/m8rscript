@@ -1,0 +1,8 @@
+//
+// Test of Base64 Functionality
+//
+
+var enc = Base64.encode("Hello");
+var dec = Base64.decode(enc);
+printf("'Hello' encoded in Base64: %s\n", enc);
+printf("                  decoded: %s\n", dec);

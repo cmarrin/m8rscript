@@ -39,20 +39,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Base64 : public Object {
+class Base64 : public ObjectFactory {
 public:
     Base64(Program*);
 
-    virtual const char* typeName() const override { return "Base64"; }
-
-    virtual const Value property(ExecutionUnit*, const Atom&) const override;
-    
     static int encode(size_t in_len, const unsigned char *in, size_t out_len, char *out);
     static int decode(size_t in_len, const char *in, size_t out_len, unsigned char *out);
 
 private:
-    Atom _encodeAtom;
-    Atom _decodeAtom;
     static CallReturnValue encode(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue decode(ExecutionUnit*, Value thisValue, uint32_t nparams);
     NativeFunction _encode;

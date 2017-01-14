@@ -63,7 +63,6 @@ Global::Global(Program* program)
     program->addObject(&_println, false);
     
     _ArgumentsAtom = program->atomizeString(ROMSTR("arguments"));
-    _Base64Atom = program->atomizeString(ROMSTR("Base64"));
     _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
     _IteratorAtom = program->atomizeString(ROMSTR("Iterator"));
 
@@ -72,19 +71,23 @@ Global::Global(Program* program)
     _printAtom = program->atomizeString(ROMSTR("print"));
     _printfAtom = program->atomizeString(ROMSTR("printf"));
     _printlnAtom = program->atomizeString(ROMSTR("println"));
+    
+    setProperty(program->atomizeString(ROMSTR("Base64")), Value(_base64.objectId()), true);
 }
 
 Global::~Global()
 {
 }
 
-const Value Global::property(ExecutionUnit*, const Atom& name) const
+const Value Global::property(ExecutionUnit* eu, const Atom& name) const
 {
+    Value value = PropertyObject::property(eu, name);
+    if (value) {
+        return value;
+    }
+    
     if (name == _ArgumentsAtom) {
         return Value(_arguments.objectId());
-    }
-    if (name == _Base64Atom) {
-        return Value(_base64.objectId());
     }
     if (name == _GPIOAtom) {
         return Value(_gpio.objectId());
@@ -115,9 +118,10 @@ Value Global::iterate(ExecutionUnit*, int32_t index) const
     if (index == Object::IteratorCount) {
         return 9;
     }
+    
+    // FIXME: Enumerate Base64 object
     switch(index) {
         case 0: return _ArgumentsAtom;
-        case 1: return _Base64Atom;
         case 2: return _GPIOAtom;
         case 3: return _IteratorAtom;
         case 4: return _currentTimeAtom;

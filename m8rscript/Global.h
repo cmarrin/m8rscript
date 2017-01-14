@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Global : public Object {
+class Global : public PropertyObject {
 public:
     Global(Program*);
     
@@ -69,7 +69,6 @@ protected:
     
 private:        
     Atom _ArgumentsAtom;
-    Atom _Base64Atom;
     Atom _GPIOAtom;
     Atom _IteratorAtom;
 

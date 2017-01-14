@@ -125,14 +125,12 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 }
 
 Base64::Base64(Program* program)
-    : _encode(encode)
+    : ObjectFactory(program)
+    , _encode(encode)
     , _decode(decode)
 {
-    _encodeAtom = program->atomizeString(ROMSTR("encode"));    
-    _decodeAtom = program->atomizeString(ROMSTR("decode"));    
-    program->addObject(this, false);
-    program->addObject(&_encode, false);
-    program->addObject(&_decode, false);
+    addObject(program, ROMSTR("encode"), &_encode);
+    addObject(program, ROMSTR("decode"), &_decode);
 }
 
 CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -183,15 +181,4 @@ CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t npar
         free(outString);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-const Value Base64::property(ExecutionUnit*, const Atom& prop) const
-{
-    if (prop == _encodeAtom) {
-        return Value(_encode.objectId());
-    }
-    if (prop == _decodeAtom) {
-        return Value(_decode.objectId());
-    }
-    return Value();
 }
