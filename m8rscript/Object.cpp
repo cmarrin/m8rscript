@@ -246,7 +246,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
-String MaterObject::toString(ExecutionUnit* eu) const
+String PropertyObject::toString(ExecutionUnit* eu) const
 {
     // FIXME: Pretty print
     String s = "{ ";
@@ -265,7 +265,7 @@ String MaterObject::toString(ExecutionUnit* eu) const
     return s;
 }
 
-bool MaterObject::serialize(Stream* stream, Error& error, Program* program) const
+bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the Function properties
     if (!serializeWrite(stream, error, ObjectDataType::PropertyCount)) {
@@ -300,7 +300,7 @@ bool MaterObject::serialize(Stream* stream, Error& error, Program* program) cons
     return true;
 }
 
-bool MaterObject::deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
+bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
     // Read the Function Properties
     ObjectDataType type;

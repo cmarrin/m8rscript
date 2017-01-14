@@ -111,11 +111,12 @@ private:
     bool _collectable = false;
 };
 
-class MaterObject : public Object {
+// This is an object with a property map, which is read only from m8rscript
+class PropertyObject : public Object {
 public:    
-    virtual ~MaterObject() { }
+    virtual ~PropertyObject() { }
 
-    virtual const char* typeName() const override { return "Object"; }
+    virtual const char* typeName() const override { return "ROObject"; }
 
     virtual String toString(ExecutionUnit*) const override;
 
@@ -131,6 +132,27 @@ public:
         auto it = _properties.find(prop);
         return (it != _properties.end()) ? it->value : Value();
     }
+    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
+    {
+        if (index == Object::IteratorCount) {
+            return Value(static_cast<int32_t>(_properties.size()));
+        }
+        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
+    }
+
+protected:
+    virtual bool serialize(Stream*, Error&, Program*) const override;
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
+
+    Value::Map _properties;
+};
+
+class MaterObject : public PropertyObject {
+public:    
+    virtual ~MaterObject() { }
+
+    virtual const char* typeName() const override { return "Object"; }
+
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, bool add) override
     {
         auto it = _properties.find(prop);
@@ -150,21 +172,6 @@ public:
         it->value = v;
         return true;
     }
-    
-    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
-    {
-        if (index == Object::IteratorCount) {
-            return Value(static_cast<int32_t>(_properties.size()));
-        }
-        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
-    }
-
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override;
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
-
-private:
-    Value::Map _properties;
 };
 
 class NativeFunction : public Object {
