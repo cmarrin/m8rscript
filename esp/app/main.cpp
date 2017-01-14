@@ -105,11 +105,9 @@ public:
 
     virtual void TCPsentData(m8r::TCP*, int16_t connectionId) override
     {
-os_printf("***** TCPsentData - enter (%p)\n", _shells[connectionId]);
         if (_shells[connectionId]) {
             _shells[connectionId]->sendComplete();
         }
-os_printf("***** TCPsentData - exit\n");
     }
 
 private:
