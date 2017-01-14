@@ -201,8 +201,10 @@ public:
     ObjectFactory(Program*);
     
     void addObject(Program*, const char* prop, Object*);
+    void addValue(Program*, const char* prop, const Value&);
     
     Object* obj() { return &_obj; }
+    const Object* obj() const { return &_obj; }
     ObjectId objectId() const { return _obj.objectId(); }
 
 protected:

@@ -43,117 +43,68 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 GPIO::GPIO(Program* program)
-    : _pinMode(program)
+    : ObjectFactory(program)
+    , _pinMode(program)
     , _trigger(program)
+    , _setPinMode(setPinMode)
+    , _digitalWrite(digitalWrite)
+    , _digitalRead(digitalRead)
+    , _onInterrupt(onInterrupt)
 {
-    _setPinModeAtom = program->atomizeString(ROMSTR("setPinMode"));    
-    _digitalWriteAtom = program->atomizeString(ROMSTR("digitalWrite"));    
-    _digitalReadAtom = program->atomizeString(ROMSTR("digitalRead"));    
-    _onInterruptAtom = program->atomizeString(ROMSTR("onInterrupt"));
-    _PinModeAtom = program->atomizeString(ROMSTR("PinMode"));
-    _TriggerAtom = program->atomizeString(ROMSTR("Trigger"));
+    addObject(program, ROMSTR("setPinMode"), &_setPinMode);
+    addObject(program, ROMSTR("digitalWrite"), &_digitalWrite);
+    addObject(program, ROMSTR("digitalRead"), &_digitalRead);
+    addObject(program, ROMSTR("onInterrupt"), &_onInterrupt);
     
-    program->addObject(this, false);
+    addValue(program, ROMSTR("PinMode"), _pinMode.objectId());
+    addValue(program, ROMSTR("Trigger"), _trigger. objectId());
 }
 
-const Value GPIO::property(ExecutionUnit*, const Atom& prop) const
+CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (prop == _PinModeAtom) {
-        return Value(_pinMode.objectId());
-    }
-    if (prop == _TriggerAtom) {
-        return Value(_trigger.objectId());
-    }
-    return Value();
+    uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+    GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
+    SystemInterface::shared()->gpio().setPinMode(pin, mode);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue GPIO::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (prop == _setPinModeAtom) {
-        uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-        GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
-        SystemInterface::shared()->gpio().setPinMode(pin, mode);
-        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-    }
-    if (prop == _digitalWriteAtom) {
-        uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
-        bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
-        SystemInterface::shared()->gpio().digitalWrite(pin, level);
-        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-    }
-    if (prop == _digitalReadAtom) {
-        // FIXME: Implement
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-    if (prop == _onInterruptAtom) {
-        // FIXME: Implement
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
+    uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+    bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
+    SystemInterface::shared()->gpio().digitalWrite(pin, level);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 PinMode::PinMode(Program* program)
+    : ObjectFactory(program)
 {
-    _OutputAtom = program->atomizeString(ROMSTR("Output"));
-    _OutputOpenDrainAtom = program->atomizeString(ROMSTR("OutputOpenDrain"));
-    _InputAtom = program->atomizeString(ROMSTR("Input"));
-    _InputPullupAtom = program->atomizeString(ROMSTR("InputPullup"));
-    _InputPulldownAtom = program->atomizeString(ROMSTR("InputPulldown"));
-    
-    program->addObject(this, false);
-}
-
-const Value PinMode::property(ExecutionUnit*, const Atom& prop) const
-{
-    if (prop == _OutputAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output));
-    }
-    if (prop == _OutputOpenDrainAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::PinMode::OutputOpenDrain));
-    }
-    if (prop == _InputAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::PinMode::Input));
-    }
-    if (prop == _InputPullupAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPullup));
-    }
-    if (prop == _InputPulldownAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPulldown));
-    }
-    return Value();
+    addValue(program, ROMSTR("Output"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output)));
+    addValue(program, ROMSTR("OutputOpenDrain"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
+    addValue(program, ROMSTR("Input"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Input)));
+    addValue(program, ROMSTR("InputPullup"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPullup)));
+    addValue(program, ROMSTR("InputPulldown"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
 Trigger::Trigger(Program* program)
+    : ObjectFactory(program)
 {
-    _NoneAtom = program->atomizeString(ROMSTR("None"));
-    _RisingEdgeAtom = program->atomizeString(ROMSTR("RisingEdge"));
-    _FallingEdgeAtom = program->atomizeString(ROMSTR("FallingEdge"));
-    _BothEdgesAtom = program->atomizeString(ROMSTR("BothEdges"));
-    _LowAtom = program->atomizeString(ROMSTR("Low"));
-    _HighAtom = program->atomizeString(ROMSTR("High"));
-    
-    program->addObject(this, false);
-}
-
-const Value Trigger::property(ExecutionUnit*, const Atom& prop) const
-{
-    if (prop == _NoneAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::None));
-    }
-    if (prop == _RisingEdgeAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::RisingEdge));
-    }
-    if (prop == _FallingEdgeAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::FallingEdge));
-    }
-    if (prop == _BothEdgesAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::BothEdges));
-    }
-    if (prop == _LowAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::Low));
-    }
-    if (prop == _HighAtom) {
-        return Value(static_cast<uint32_t>(GPIOInterface::Trigger::High));
-    }
-    return Value();
+    addValue(program, ROMSTR("None"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::None)));
+    addValue(program, ROMSTR("RisingEdge"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::RisingEdge)));
+    addValue(program, ROMSTR("FallingEdge"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::FallingEdge)));
+    addValue(program, ROMSTR("BothEdges"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::BothEdges)));
+    addValue(program, ROMSTR("Low"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::Low)));
+    addValue(program, ROMSTR("High"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::High)));
 }

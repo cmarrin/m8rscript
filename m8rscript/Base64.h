@@ -49,6 +49,7 @@ public:
 private:
     static CallReturnValue encode(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue decode(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
     NativeFunction _encode;
     NativeFunction _decode;
 };

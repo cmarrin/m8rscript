@@ -51,8 +51,8 @@ public:
     
     virtual const char* typeName() const override { return "Program"; }
 
-    const Object* global() const { return &_global; }
-    Object* global() { return &_global; }
+    const Object* global() const { return _global.obj(); }
+    Object* global() { return _global.obj(); }
     
     void setStack(Object* stack) { _stackId = _objectStore.add(stack); }
     

@@ -44,7 +44,8 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Global::Global(Program* program)
-    : _arguments(program)
+    : ObjectFactory(program)
+    , _arguments(program)
     , _base64(program)
     , _gpio(program)
     , _iterator(program)
@@ -54,83 +55,17 @@ Global::Global(Program* program)
     , _printf(printf)
     , _println(println)
 {
-    program->addObject(this, false);
-    
-    program->addObject(&_currentTime, false);
-    program->addObject(&_delay, false);
-    program->addObject(&_print, false);
-    program->addObject(&_printf, false);
-    program->addObject(&_println, false);
-    
-    _ArgumentsAtom = program->atomizeString(ROMSTR("arguments"));
-    _GPIOAtom = program->atomizeString(ROMSTR("GPIO"));
-    _IteratorAtom = program->atomizeString(ROMSTR("Iterator"));
+    addObject(program, ROMSTR("currentTime"), &_currentTime);
+    addObject(program, ROMSTR("delay"), &_delay);
+    addObject(program, ROMSTR("print"), &_print);
+    addObject(program, ROMSTR("printf"), &_printf);
+    addObject(program, ROMSTR("println"), &_println);
 
-    _currentTimeAtom = program->atomizeString(ROMSTR("currentTime"));    
-    _delayAtom = program->atomizeString(ROMSTR("delay"));    
-    _printAtom = program->atomizeString(ROMSTR("print"));
-    _printfAtom = program->atomizeString(ROMSTR("printf"));
-    _printlnAtom = program->atomizeString(ROMSTR("println"));
+    addObject(program, ROMSTR("arguments"), &_arguments);
+    addObject(program, ROMSTR("Iterator"), &_iterator);
     
-    setProperty(program->atomizeString(ROMSTR("Base64")), Value(_base64.objectId()), true);
-}
-
-Global::~Global()
-{
-}
-
-const Value Global::property(ExecutionUnit* eu, const Atom& name) const
-{
-    Value value = PropertyObject::property(eu, name);
-    if (value) {
-        return value;
-    }
-    
-    if (name == _ArgumentsAtom) {
-        return Value(_arguments.objectId());
-    }
-    if (name == _GPIOAtom) {
-        return Value(_gpio.objectId());
-    }
-    if (name == _IteratorAtom) {
-        return Value(_iterator.objectId());
-    }
-    if (name == _currentTimeAtom) {
-        return Value(_currentTime.objectId());
-    }
-    if (name == _delayAtom) {
-        return Value(_delay.objectId());
-    }
-    if (name == _printAtom) {
-        return Value(_print.objectId());
-    }
-    if (name == _printfAtom) {
-        return Value(_printf.objectId());
-    }
-    if (name == _printlnAtom) {
-        return Value(_println.objectId());
-    }
-    return Value();
-}
-
-Value Global::iterate(ExecutionUnit*, int32_t index) const
-{
-    if (index == Object::IteratorCount) {
-        return 9;
-    }
-    
-    // FIXME: Enumerate Base64 object
-    switch(index) {
-        case 0: return _ArgumentsAtom;
-        case 2: return _GPIOAtom;
-        case 3: return _IteratorAtom;
-        case 4: return _currentTimeAtom;
-        case 5: return _delayAtom;
-        case 6: return _printAtom;
-        case 7: return _printfAtom;
-        case 8: return _printlnAtom;
-        default: return Atom();
-    }
+    addValue(program, ROMSTR("Base64"), Value(_base64.objectId()));
+    addValue(program, ROMSTR("GPIO"), Value(_gpio.objectId()));
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

@@ -361,5 +361,10 @@ ObjectFactory::ObjectFactory(Program* program)
 void ObjectFactory::addObject(Program* program, const char* prop, Object* obj)
 {
     program->addObject(obj, false);
-    _obj.setProperty(program->atomizeString(prop), Value(obj->objectId()), true);
+    addValue(program, prop, Value(obj->objectId()));
+}
+
+void ObjectFactory::addValue(Program* program, const char* prop, const Value& value)
+{
+    _obj.setProperty(program->atomizeString(prop), value, true);
 }

@@ -41,60 +41,33 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class PinMode : public Object {
+class PinMode : public ObjectFactory {
 public:
     PinMode(Program*);
-
-    virtual const char* typeName() const override { return "PinMode"; }
-
-    virtual const Value property(ExecutionUnit*, const Atom&) const override;
-
-private:
-    Atom _OutputAtom;
-    Atom _OutputOpenDrainAtom;
-    Atom _InputAtom;
-    Atom _InputPullupAtom;
-    Atom _InputPulldownAtom;
 };
 
-class Trigger : public Object {
+class Trigger : public ObjectFactory {
 public:
     Trigger(Program*);
-
-    virtual const char* typeName() const override { return "Trigger"; }
-
-    virtual const Value property(ExecutionUnit*, const Atom&) const override;
-
-private:
-    Atom _NoneAtom;
-    Atom _RisingEdgeAtom;
-    Atom _FallingEdgeAtom;
-    Atom _BothEdgesAtom;
-    Atom _LowAtom;
-    Atom _HighAtom;
 };
 
-class GPIO : public Object {
+class GPIO : public ObjectFactory {
 public:
     GPIO(Program*);
-    virtual ~GPIO() { }
     
-    virtual const char* typeName() const override { return "GPIO"; }
-
-    virtual const Value property(ExecutionUnit*, const Atom&) const override;
-
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
-
 private:
-    Atom _setPinModeAtom;
-    Atom _digitalWriteAtom;
-    Atom _digitalReadAtom;
-    Atom _onInterruptAtom;
-    Atom _PinModeAtom;
-    Atom _TriggerAtom;
+    PinMode _pinMode;
+    Trigger _trigger;
 
-    m8r::PinMode _pinMode;
-    m8r::Trigger _trigger;
+    static CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _setPinMode;
+    NativeFunction _digitalWrite;
+    NativeFunction _digitalRead;
+    NativeFunction _onInterrupt;
 };
 
 }

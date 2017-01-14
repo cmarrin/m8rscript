@@ -43,41 +43,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Global : public PropertyObject {
+class Global : public ObjectFactory {
 public:
     Global(Program*);
-    
-    virtual ~Global();
-    
-    virtual const char* typeName() const override { return "Global"; }
 
-    // Global has built-in properties. Handle those here
-    virtual const Value property(ExecutionUnit*, const Atom&) const override;
-    
-    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override;
-
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override
-    {
-        return true;
-    }
-
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
-    {
-        return true;
-    }
-    
 private:        
-    Atom _ArgumentsAtom;
-    Atom _GPIOAtom;
-    Atom _IteratorAtom;
-
-    Atom _currentTimeAtom;
-    Atom _delayAtom;
-    Atom _printAtom;
-    Atom _printfAtom;
-    Atom _printlnAtom;
-
     Arguments _arguments;
     Base64 _base64;
     GPIO _gpio;
