@@ -38,8 +38,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "UDP.h"
 
 extern "C" {
+#include <ip_addr.h>
+#include <espconn.h>
 #include <osapi.h>
 #include <ets_sys.h>
+#include "user_interface.h"
 }
 
 namespace m8r {
@@ -57,6 +60,9 @@ public:
 private:    
     static void receiveCB(void* arg, char* data, uint16_t length);
     static void sentCB(void*);
+
+    espconn _conn;
+    esp_udp _udp;
 };
 
 }
