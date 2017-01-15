@@ -55,22 +55,50 @@ class AtomTable {
     friend class Program;
     
 public:
-    Atom atomizeString(const char*) const;
+    enum class SharedAtom {
+        end,
+        length,
+        next,
+        value,
+        __count__
+    };
+    
+    AtomTable();
+
+    Atom atomizeString(const char* s) const { return atomizeString(s, false); }
     m8r::String stringFromAtom(const Atom atom) const
     {
         uint16_t index = atom.raw();
-        
-        return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
+        if (index >= _sharedTable.size()) {
+            index -= _sharedTable.size();
+        }
+        std::vector<int8_t>& table = (index >= _sharedTable.size()) ? _table : _sharedTable;
+        return m8r::String(reinterpret_cast<const char*>(&(table[index + 1])), -table[index]);
     }
     
     const std::vector<int8_t>& stringTable() const { return _table; }
+    
+    static Atom sharedAtom(SharedAtom id)
+    {
+        auto it = _sharedAtomMap.find(static_cast<uint16_t>(id));
+        if (it == _sharedAtomMap.end()) {
+            return Atom();
+        }
+        return it->value;
+    }
 
 private:
+    Atom atomizeString(const char*, bool shared) const;
+    int32_t findAtom(const char* s, bool shared) const;
+
     std::vector<int8_t>& stringTable() { return _table; }
 
     static constexpr uint8_t MaxAtomSize = 127;
 
     mutable std::vector<int8_t> _table;
+    
+    static std::vector<int8_t> _sharedTable;
+    static Map<uint16_t, Atom> _sharedAtomMap;
 };
 
 }

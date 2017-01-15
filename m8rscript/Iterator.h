@@ -58,10 +58,6 @@ public:
 private:
     Value value(ExecutionUnit*) const;
     
-    Atom _nextAtom;
-    Atom _endAtom;
-    Atom _valueAtom;
-    
     Value _object;
     mutable uint32_t _index = 0;
 };

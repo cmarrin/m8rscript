@@ -147,7 +147,7 @@ int32_t ExecutionUnit::continueExecution()
     #undef OP
     #define OP(op) &&L_ ## op,
     
-    static const void* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR dispatchTable[] {
+    static const void* RODATA_ATTR dispatchTable[] {
         /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
         /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
         /* 0x08 */ OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE) OP(LOADFALSE)
@@ -169,7 +169,7 @@ int32_t ExecutionUnit::continueExecution()
         /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
     };
  
-//static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
+static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
 static const uint16_t YieldCount = 10;
 static const uint16_t GCCount = 1000;

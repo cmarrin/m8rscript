@@ -41,12 +41,11 @@ using namespace m8r;
 
 Array::Array(Program* program)
 {
-    _lengthAtom = program->atomizeString("length");
 }
 
 const Value Array::property(ExecutionUnit*, const Atom& name) const
 {
-    return (name == _lengthAtom) ? Value(static_cast<int32_t>(_array.size())) : Value();
+    return (name == AtomTable::sharedAtom(AtomTable::SharedAtom::length)) ? Value(static_cast<int32_t>(_array.size())) : Value();
 }
 
 bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, bool add)
@@ -54,7 +53,7 @@ bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value,
     if (add) {
         return false;
     }
-    if (name == _lengthAtom) {
+    if (name == AtomTable::sharedAtom(AtomTable::SharedAtom::length)) {
         _array.resize(value.toIntValue(eu));
         return true;
     }

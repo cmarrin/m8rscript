@@ -39,10 +39,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #ifdef __APPLE__
-    #define ICACHE_RODATA_ATTR
-    #define ICACHE_STORE_ATTR
-    #define ICACHE_FLASH_ATTR
-    static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
+    #define RODATA_ATTR
+    #define ROMSTR_ATTR
+    #define FLASH_ATTR
+    static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
     #define ROMmemcpy memcpy
     #define ROMstrlen strlen
     #define ROMstrcmp strcmp

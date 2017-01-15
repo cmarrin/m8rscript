@@ -43,10 +43,6 @@ using namespace m8r;
 
 Iterator::Iterator(Program* program)
 {
-    _nextAtom = program->atomizeString(ROMSTR("next"));    
-    _endAtom = program->atomizeString(ROMSTR("end"));    
-    _valueAtom = program->atomizeString(ROMSTR("value"));    
-    
     program->addObject(this, false);
 }
 
@@ -61,7 +57,7 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
 
 CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == _nextAtom) {
+    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::next)) {
         Object* obj = eu->program()->obj(_object);
         int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
@@ -74,13 +70,13 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == _endAtom) {
+    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::end)) {
         Object* obj = eu->program()->obj(_object);
         int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
-    if (prop == _valueAtom) {        
+    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::value)) {        
         return value(eu);
     }
     return Value();

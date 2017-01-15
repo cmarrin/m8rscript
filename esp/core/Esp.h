@@ -102,20 +102,19 @@ void timer1_write(uint32_t ticks); //maximum ticks 8388607
 #ifndef __STRINGIFY
 #define __STRINGIFY(a) #a
 #endif
-#define ICACHE_FLASH_ATTR   __attribute__((section(".irom0.text")))
-#define ICACHE_RAM_ATTR     __attribute__((section(".iram.text")))
-#define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
-#define ICACHE_ROMSTR_ATTR  __attribute__((section(".irom.text.romstr")))
-#define ICACHE_STORE_ATTR   __attribute__((aligned(4)))
+#define FLASH_ATTR   __attribute__((section(".irom0.text")))
+#define RAM_ATTR     __attribute__((section(".iram.text")))
+#define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
+#define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
 
-static inline uint8_t ICACHE_FLASH_ATTR readRomByte(const uint8_t* addr)
+static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr)
 {
     uint32_t bytes;
     bytes = *(uint32_t*)((uint32_t)addr & ~3);
     return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
 }
 
-#define ROMSTR(s) (__extension__({static const char __c[] ICACHE_ROMSTR_ATTR ICACHE_STORE_ATTR = (s); &__c[0];}))
+#define ROMSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
 
 // Returns dst, just like memcpy
 void* ROMmemcpy(void* dst, const void* src, size_t len);

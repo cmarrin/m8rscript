@@ -106,10 +106,6 @@ protected:
     }
 
 private:
-    enum class Property : uint8_t { Length };
-
-    Atom _lengthAtom;
-    
     std::vector<Value> _array;
     
     bool _needsGC = false;

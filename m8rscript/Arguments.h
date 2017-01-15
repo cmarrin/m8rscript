@@ -63,10 +63,6 @@ private:
     uint32_t argCount(ExecutionUnit*) const;
     const Value& arg(ExecutionUnit*, uint32_t index) const;
     Value& arg(ExecutionUnit*, uint32_t index);
-
-    enum class Property : uint8_t { Length };
-
-    Atom _lengthAtom;
 };
     
 }

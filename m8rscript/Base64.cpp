@@ -43,9 +43,9 @@ using namespace m8r;
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
-static const uint8_t ICACHE_RODATA_ATTR ICACHE_STORE_ATTR base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const uint8_t RODATA_ATTR base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static const uint8_t ICACHE_RODATA_ATTR ICACHE_STORE_ATTR base64dec_tab[256]= {
+static const uint8_t RODATA_ATTR base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,

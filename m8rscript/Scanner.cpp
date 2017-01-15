@@ -58,7 +58,7 @@ struct Keyword
 	Token token;
 };
 
-static const char* ICACHE_RODATA_ATTR ICACHE_STORE_ATTR keywordString =
+static const char* RODATA_ATTR keywordString =
        "break\0case\0continue\0default\0delete\0do\0else\0false\0for\0function\0if\0new\0null\0return\0switch\0true\0var\0while";
     //  000000 00000 000000000 00000000 0000000 000 00000 000000 0000 000000000 000 0000 00000 0000000 0000000 00000 0000 00011
     //  000000 00001 111111111 22222222 2233333 333 33444 444444 4555 555555566 666 6666 67777 7777778 8888888 88999 9999 99900

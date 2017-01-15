@@ -49,7 +49,7 @@ using namespace m8r;
 
 #define PinEntry(name, func) (static_cast<uint8_t>(name - PERIPHS_IO_MUX)), func
 
-const uint8_t ICACHE_RODATA_ATTR ICACHE_STORE_ATTR EspGPIOInterface::_pins[PinCount * 2] = {
+const uint8_t RODATA_ATTR EspGPIOInterface::_pins[PinCount * 2] = {
     PinEntry(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0),
     PinEntry(PERIPHS_IO_MUX_U0TXD_U, FUNC_GPIO1),
     PinEntry(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2),

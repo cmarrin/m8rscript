@@ -43,7 +43,6 @@ using namespace m8r;
 Arguments::Arguments(Program* program)
 {
     program->addObject(this, false);
-    _lengthAtom = program->atomizeString("length");
 }
 
 const Value Arguments::element(ExecutionUnit* eu, const Value& elt) const
@@ -81,7 +80,7 @@ Value& Arguments::arg(ExecutionUnit* eu, uint32_t index)
 
 const Value Arguments::property(ExecutionUnit* eu, const Atom& name) const
 {
-    return (name == _lengthAtom) ? Value(static_cast<int32_t>(argCount(eu))) : Value();
+    return (name == AtomTable::sharedAtom(AtomTable::SharedAtom::length)) ? Value(static_cast<int32_t>(argCount(eu))) : Value();
 }
 
 bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, bool add)
@@ -89,7 +88,7 @@ bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& va
     if (add) {
         return false;
     }
-    if (name == _lengthAtom) {
+    if (name == AtomTable::sharedAtom(AtomTable::SharedAtom::length)) {
         Error::printError(Error::Code::RuntimeError, -1, "length property of arguments is read-only");
     }
     return false;

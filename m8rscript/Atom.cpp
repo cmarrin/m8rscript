@@ -37,22 +37,87 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Atom AtomTable::atomizeString(const char* romstr) const
+std::vector<int8_t> AtomTable::_sharedTable;
+Map<uint16_t, Atom> AtomTable::_sharedAtomMap;
+
+struct SharedAtomTableEntry { uint16_t id; const char* name; };
+
+#define ATOM(a) { static_cast<uint16_t>(AtomTable::SharedAtom::a), _##a }
+
+static const char _end[] ROMSTR_ATTR = "end";
+static const char _length[] ROMSTR_ATTR = "length";
+static const char _next[] ROMSTR_ATTR = "next";
+static const char _value[] ROMSTR_ATTR = "value";
+
+static SharedAtomTableEntry sharedAtoms[] = {
+    ATOM(end),
+    ATOM(length),
+    ATOM(next),
+    ATOM(value),
+};
+
+static_assert (sizeof(sharedAtoms) / sizeof(SharedAtomTableEntry) == static_cast<size_t>(AtomTable::SharedAtom::__count__), "sharedAtomMap is incomplete");
+    
+AtomTable::AtomTable()
+{
+    if (_sharedTable.empty()) {
+        for (auto it : sharedAtoms) {
+            Atom atom = atomizeString(it.name, true);
+            _sharedAtomMap.emplace(static_cast<uint16_t>(it.id), atom);
+        }
+    }
+}
+
+Atom AtomTable::atomizeString(const char* romstr, bool shared) const
 {
     size_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
-    
-    if (_table.size() == 0) {
-        _table.push_back('\0');
-    }
-    
+
     char* s = new char[len + 1];
     ROMCopyString(s, romstr);
+    
+    int32_t index = findAtom(s, true);
+    if (index >= 0) {
+        delete [ ] s;
+        return Atom(static_cast<uint16_t>(index));
+    }
+    
+    index = findAtom(s, false);
+    if (index >= 0) {
+        delete [ ] s;
+        return Atom(static_cast<uint16_t>(index) + (shared ? 0 : _sharedTable.size()));
+    }
 
-    if (_table.size() > 1) {
-        const char* start = reinterpret_cast<const char*>(&(_table[0]));
+    // Atom wasn't in either table add it to the one requested
+    std::vector<int8_t>& table = shared ? _sharedTable : _table;
+
+    if (table.size() == 0) {
+        table.push_back('\0');
+    }
+    
+    Atom a(static_cast<Atom::value_type>(table.size() - 1 + (shared ? 0 : _sharedTable.size())));
+    table[table.size() - 1] = -static_cast<int8_t>(len);
+    for (size_t i = 0; i < len; ++i) {
+        table.push_back(s[i]);
+    }
+    table.push_back('\0');
+    delete [ ] s;
+    return a;
+}
+
+int32_t AtomTable::findAtom(const char* s, bool shared) const
+{
+    size_t len = strlen(s);
+    std::vector<int8_t>& table = shared ? _sharedTable : _table;
+
+    if (table.size() == 0) {
+        return -1;
+    }
+
+    if (table.size() > 1) {
+        const char* start = reinterpret_cast<const char*>(&(table[0]));
         const char* p = start;
         while(p && *p != '\0') {
             p++;
@@ -61,19 +126,11 @@ Atom AtomTable::atomizeString(const char* romstr) const
             if (p && static_cast<int8_t>(p[-1]) < 0) {
                 // The next char either needs to be negative (meaning the start of the next word) or the end of the string
                 if (static_cast<int8_t>(p[len]) <= 0) {
-                    delete [ ] s;
-                    return Atom(Atom::Raw(static_cast<Atom::value_type>(p - start - 1)));
+                    return static_cast<int32_t>(p - start - 1);
                 }
             }
         }
     }
     
-    Atom a(static_cast<Atom::value_type>(_table.size() - 1));
-    _table[_table.size() - 1] = -static_cast<int8_t>(len);
-    for (size_t i = 0; i < len; ++i) {
-        _table.push_back(s[i]);
-    }
-    _table.push_back('\0');
-    delete [ ] s;
-    return a;
+    return -1;
 }

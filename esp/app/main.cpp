@@ -115,7 +115,7 @@ private:
     MyShell* _shells[m8r::TCP::MaxConnections];
 };
 
-void ICACHE_FLASH_ATTR runScript()
+void FLASH_ATTR runScript()
 {
     m8r::SystemInterface::shared()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
     m8r::SystemInterface::shared()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
@@ -138,7 +138,7 @@ void systemInitialized()
     runScript();
 }
 
-extern "C" void ICACHE_FLASH_ATTR user_init()
+extern "C" void FLASH_ATTR user_init()
 {
     initializeSystem(systemInitialized);
 }
