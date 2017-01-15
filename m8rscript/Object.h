@@ -118,8 +118,6 @@ public:
 
     virtual const char* typeName() const override { return "ROObject"; }
 
-    virtual String toString(ExecutionUnit*) const override;
-
     virtual void gcMark(ExecutionUnit* eu) override
     {
         for (auto entry : _properties) {
@@ -175,6 +173,7 @@ public:
     virtual ~MaterObject() { }
 
     virtual const char* typeName() const override { return "Object"; }
+    virtual String toString(ExecutionUnit*) const override;
 
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, bool add) override
     {

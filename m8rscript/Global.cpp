@@ -102,7 +102,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
     memset(caps, 0, sizeof(caps));
     while (true) {
         int next = slre_match(formatRegex, s, size, caps, 5, 0);
-        if (next == SLRE_NO_MATCH) {
+        if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
             SystemInterface::shared()->printf(s);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

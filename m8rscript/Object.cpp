@@ -246,25 +246,6 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
-String PropertyObject::toString(ExecutionUnit* eu) const
-{
-    // FIXME: Pretty print
-    String s = "{ ";
-    bool first = true;
-    for (auto prop : _properties) {
-        if (!first) {
-            s += ", ";
-        } else {
-            first = false;
-        }
-        s += eu->program()->stringFromAtom(prop.key);
-        s += " : ";
-        s += prop.value.toStringValue(eu);
-    }
-    s += " }";
-    return s;
-}
-
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = eu->program()->obj(property(eu, prop));
@@ -351,6 +332,25 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
     }
     
     return true;
+}
+
+String MaterObject::toString(ExecutionUnit* eu) const
+{
+    // FIXME: Pretty print
+    String s = "{ ";
+    bool first = true;
+    for (auto prop : _properties) {
+        if (!first) {
+            s += ", ";
+        } else {
+            first = false;
+        }
+        s += eu->program()->stringFromAtom(prop.key);
+        s += " : ";
+        s += prop.value.toStringValue(eu);
+    }
+    s += " }";
+    return s;
 }
 
 ObjectFactory::ObjectFactory(Program* program)
