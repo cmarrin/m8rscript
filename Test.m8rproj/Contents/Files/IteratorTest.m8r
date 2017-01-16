@@ -1,6 +1,10 @@
 // Tests of the Iterator object
 var obj = [ 1, 2, 3 ];
 
+for (var it : obj) {
+	it.value *= 2;
+}
+
 var n = 0;
 for (var it : obj) {
 	n += it.value;

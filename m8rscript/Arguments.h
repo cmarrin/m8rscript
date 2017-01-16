@@ -51,7 +51,7 @@ public:
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, bool add) override;
 
-    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
+    virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
     {
         if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(argCount(eu)));

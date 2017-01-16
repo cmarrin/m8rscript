@@ -78,7 +78,8 @@ public:
     
     static constexpr int32_t IteratorCount = -1;
     static constexpr int32_t IteratorNext = -2;
-    virtual Value iterate(ExecutionUnit*, int32_t index) const { return Value(); }
+    virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&) { return false; }
 
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
@@ -154,7 +155,7 @@ public:
         return true;
     }
 
-    virtual Value iterate(ExecutionUnit* eu, int32_t index) const override
+    virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
     {
         if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(_properties.size()));

@@ -59,7 +59,7 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 {
     if (prop == ATOM(next)) {
         Object* obj = eu->program()->obj(_object);
-        int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
             ++_index;
         }
@@ -72,7 +72,7 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
     if (prop == ATOM(end)) {
         Object* obj = eu->program()->obj(_object);
-        int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
@@ -82,9 +82,20 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
     return Value();
 }
 
-Value Iterator::value(ExecutionUnit* eu) const
+bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, bool add)
+{
+    if (add) {
+        return false;
+    }
+    
+    Object* obj = eu->program()->obj(_object);
+    int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value) : false;
+}
+
+const Value Iterator::value(ExecutionUnit* eu) const
 {
     Object* obj = eu->program()->obj(_object);
-    int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (obj && _index < count) ? obj->iterate(eu, _index) : Value();
+    int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (obj && _index < count) ? obj->iteratedValue(eu, _index) : Value();
 }

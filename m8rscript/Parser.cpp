@@ -278,11 +278,14 @@ uint32_t Parser::emitDeref(DerefType type)
 void Parser::emitDup()
 {
     ParseStack::Type type = _parseStack.topType();
+    uint32_t reg = _parseStack.topReg();
+    uint32_t derefReg = _parseStack.topDerefReg();
+    
     switch(type) {
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
             uint32_t r = _parseStack.push(ParseStack::Type::Register);
-            emitCodeRRR((type == ParseStack::Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, _parseStack.topReg(), _parseStack.topDerefReg());
+            emitCodeRRR((type == ParseStack::Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, reg, derefReg);
             break;
         }
         

@@ -186,9 +186,9 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     _nestingLevel++;
     
     // Output all the function properties
-    int32_t count = obj->iterate(nullptr, Object::IteratorCount).toIntValue(nullptr);
+    int32_t count = obj->iteratedValue(nullptr, Object::IteratorCount).toIntValue(nullptr);
     for (uint32_t i = 0; i < count; ++i) {
-        Atom name = obj->iterate(nullptr, i).asIdValue();
+        Atom name = obj->iteratedValue(nullptr, i).asIdValue();
         if (!name) {
             break;
         }

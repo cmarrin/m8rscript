@@ -84,12 +84,21 @@ public:
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, bool add) override;
 
-    virtual Value iterate(ExecutionUnit*, int32_t index) const override
+    virtual Value iteratedValue(ExecutionUnit*, int32_t index) const override
     {
         if (index == Object::IteratorCount) {
             return Value(static_cast<int32_t>(_array.size()));
         }
         return _array[index];
+    }
+    
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value& value) override
+    {
+        if (index < 0 || index >= _array.size()) {
+            return false;
+        }
+        _array[index] = value;
+        return true;
     }
 
 protected:

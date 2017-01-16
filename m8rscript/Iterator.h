@@ -48,6 +48,7 @@ public:
     virtual String toString(ExecutionUnit* eu) const override { return value(eu).toStringValue(eu); }
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) override;
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
@@ -56,7 +57,7 @@ public:
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     
 private:
-    Value value(ExecutionUnit*) const;
+    const Value value(ExecutionUnit*) const;
     
     Value _object;
     mutable uint32_t _index = 0;
