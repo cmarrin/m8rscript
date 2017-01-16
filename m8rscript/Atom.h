@@ -56,11 +56,39 @@ class AtomTable {
     
 public:
     enum class SharedAtom {
+        Base64,
+        BothEdges,
+        FallingEdge,
+        GPIO,
+        High,
+        Input,
+        InputPulldown,
+        InputPullup,
+        Iterator,
+        Low,
+        None,
+        Output,
+        OutputOpenDrain,
+        PinMode,
+        RisingEdge,
+        Trigger,
+        arguments,
+        currentTime,
+        decode,
+        delay,
+        digitalRead,
+        digitalWrite,
+        encode,
         end,
         length,
         next,
-        __typeName,
+        onInterrupt,
+        print,
+        printf,
+        println,
+        setPinMode,
         value,
+        __typeName,
         __count__
     };
     
@@ -102,5 +130,7 @@ private:
     static std::vector<int8_t> _sharedTable;
     static Map<uint16_t, Atom> _sharedAtomMap;
 };
+
+#define ATOM(a) m8r::AtomTable::sharedAtom(m8r::AtomTable::SharedAtom::a)
 
 }

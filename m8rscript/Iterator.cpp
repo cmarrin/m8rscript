@@ -57,7 +57,7 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
 
 CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::next)) {
+    if (prop == ATOM(next)) {
         Object* obj = eu->program()->obj(_object);
         int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
@@ -70,13 +70,13 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::end)) {
+    if (prop == ATOM(end)) {
         Object* obj = eu->program()->obj(_object);
         int32_t count = obj ? obj->iterate(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
-    if (prop == AtomTable::sharedAtom(AtomTable::SharedAtom::value)) {        
+    if (prop == ATOM(value)) {        
         return value(eu);
     }
     return Value();

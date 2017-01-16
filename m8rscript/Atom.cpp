@@ -42,20 +42,77 @@ Map<uint16_t, Atom> AtomTable::_sharedAtomMap;
 
 struct SharedAtomTableEntry { uint16_t id; const char* name; };
 
-#define ATOM(a) { static_cast<uint16_t>(AtomTable::SharedAtom::a), _##a }
+#define AtomEntry(a) { static_cast<uint16_t>(AtomTable::SharedAtom::a), _##a }
 
+static const char _Base64[] ROMSTR_ATTR = "Base64";
+static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
+static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
+static const char _High[] ROMSTR_ATTR = "High";
+static const char _GPIO[] ROMSTR_ATTR = "GPIO";
+static const char _Input[] ROMSTR_ATTR = "Input";
+static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
+static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
+static const char _Iterator[] ROMSTR_ATTR = "Iterator";
+static const char _Low[] ROMSTR_ATTR = "Low";
+static const char _None[] ROMSTR_ATTR = "None";
+static const char _Output[] ROMSTR_ATTR = "Output";
+static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
+static const char _PinMode[] ROMSTR_ATTR = "PinMode";
+static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
+static const char _Trigger[] ROMSTR_ATTR = "Trigger";
+static const char _arguments[] ROMSTR_ATTR = "arguments";
+static const char _currentTime[] ROMSTR_ATTR = "currentTime";
+static const char _decode[] ROMSTR_ATTR = "decode";
+static const char _delay[] ROMSTR_ATTR = "delay";
+static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
+static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
+static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _end[] ROMSTR_ATTR = "end";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _next[] ROMSTR_ATTR = "next";
-static const char ___typeName[] ROMSTR_ATTR = "__typeName";
+static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
+static const char _print[] ROMSTR_ATTR = "print";
+static const char _printf[] ROMSTR_ATTR = "printf";
+static const char _println[] ROMSTR_ATTR = "println";
+static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
 static SharedAtomTableEntry sharedAtoms[] = {
-    ATOM(end),
-    ATOM(length),
-    ATOM(next),
-    ATOM(__typeName),
-    ATOM(value),
+    AtomEntry(Base64),
+    AtomEntry(BothEdges),
+    AtomEntry(FallingEdge),
+    AtomEntry(GPIO),
+    AtomEntry(High),
+    AtomEntry(Input),
+    AtomEntry(InputPulldown),
+    AtomEntry(InputPullup),
+    AtomEntry(Iterator),
+    AtomEntry(Low),
+    AtomEntry(None),
+    AtomEntry(Output),
+    AtomEntry(OutputOpenDrain),
+    AtomEntry(PinMode),
+    AtomEntry(RisingEdge),
+    AtomEntry(Trigger),
+    
+    AtomEntry(arguments),
+    AtomEntry(currentTime),
+    AtomEntry(decode),
+    AtomEntry(delay),
+    AtomEntry(digitalRead),
+    AtomEntry(digitalWrite),
+    AtomEntry(encode),
+    AtomEntry(end),
+    AtomEntry(length),
+    AtomEntry(next),
+    AtomEntry(onInterrupt),
+    AtomEntry(print),
+    AtomEntry(printf),
+    AtomEntry(println),
+    AtomEntry(setPinMode),
+    AtomEntry(value),
+    AtomEntry(__typeName),
 };
 
 static_assert (sizeof(sharedAtoms) / sizeof(SharedAtomTableEntry) == static_cast<size_t>(AtomTable::SharedAtom::__count__), "sharedAtomMap is incomplete");

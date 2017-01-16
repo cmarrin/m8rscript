@@ -200,8 +200,8 @@ class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name);
     
-    void addObject(Program*, const char* prop, Object*);
-    void addValue(Program*, const char* prop, const Value&);
+    void addObject(Program*, Atom prop, Object*);
+    void addValue(Program*, Atom prop, const Value&);
     
     Object* obj() { return &_obj; }
     const Object* obj() const { return &_obj; }

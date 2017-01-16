@@ -248,7 +248,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
 
 String PropertyObject::toString(ExecutionUnit* eu) const
 {
-    return eu->program()->stringFromAtom(property(eu, AtomTable::sharedAtom(AtomTable::SharedAtom::__typeName)).asIdValue()) + " { }";
+    return eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
 }
 
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -361,16 +361,16 @@ String MaterObject::toString(ExecutionUnit* eu) const
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     program->addObject(&_obj, false);
-    _obj.setProperty(AtomTable::sharedAtom(AtomTable::SharedAtom::__typeName), program->atomizeString(name), true);
+    _obj.setProperty(ATOM(__typeName), program->atomizeString(name), true);
 }
 
-void ObjectFactory::addObject(Program* program, const char* prop, Object* obj)
+void ObjectFactory::addObject(Program* program, Atom prop, Object* obj)
 {
     program->addObject(obj, false);
     addValue(program, prop, Value(obj->objectId()));
 }
 
-void ObjectFactory::addValue(Program* program, const char* prop, const Value& value)
+void ObjectFactory::addValue(Program* program, Atom prop, const Value& value)
 {
-    _obj.setProperty(program->atomizeString(prop), value, true);
+    _obj.setProperty(prop, value, true);
 }

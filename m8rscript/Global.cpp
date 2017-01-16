@@ -55,17 +55,17 @@ Global::Global(Program* program)
     , _printf(printf)
     , _println(println)
 {
-    addObject(program, ROMSTR("currentTime"), &_currentTime);
-    addObject(program, ROMSTR("delay"), &_delay);
-    addObject(program, ROMSTR("print"), &_print);
-    addObject(program, ROMSTR("printf"), &_printf);
-    addObject(program, ROMSTR("println"), &_println);
+    addObject(program, ATOM(currentTime), &_currentTime);
+    addObject(program, ATOM(delay), &_delay);
+    addObject(program, ATOM(print), &_print);
+    addObject(program, ATOM(printf), &_printf);
+    addObject(program, ATOM(println), &_println);
 
-    addObject(program, ROMSTR("arguments"), &_arguments);
-    addObject(program, ROMSTR("Iterator"), &_iterator);
+    addObject(program, ATOM(arguments), &_arguments);
+    addObject(program, ATOM(Iterator), &_iterator);
     
-    addValue(program, ROMSTR("Base64"), Value(_base64.objectId()));
-    addValue(program, ROMSTR("GPIO"), Value(_gpio.objectId()));
+    addValue(program, ATOM(Base64), Value(_base64.objectId()));
+    addValue(program, ATOM(GPIO), Value(_gpio.objectId()));
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
