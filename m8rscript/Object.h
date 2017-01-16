@@ -62,7 +62,7 @@ public:
     
     virtual bool isFunction() const { return false; }
 
-    virtual String toString(ExecutionUnit*) const { return String(typeName()) + "{ }"; }
+    virtual String toString(ExecutionUnit* eu) const { return String(typeName()) + "{ }"; }
     
     virtual void gcMark(ExecutionUnit*) { }
     
@@ -116,7 +116,8 @@ class PropertyObject : public Object {
 public:    
     virtual ~PropertyObject() { }
 
-    virtual const char* typeName() const override { return "ROObject"; }
+    virtual const char* typeName() const override { return ""; }
+    virtual String toString(ExecutionUnit* eu) const override;
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
@@ -197,7 +198,7 @@ private:
 
 class ObjectFactory {
 public:
-    ObjectFactory(Program*);
+    ObjectFactory(Program*, const char* name);
     
     void addObject(Program*, const char* prop, Object*);
     void addValue(Program*, const char* prop, const Value&);

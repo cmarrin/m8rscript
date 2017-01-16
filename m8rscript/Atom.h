@@ -59,6 +59,7 @@ public:
         end,
         length,
         next,
+        __typeName,
         value,
         __count__
     };
@@ -69,10 +70,11 @@ public:
     m8r::String stringFromAtom(const Atom atom) const
     {
         uint16_t index = atom.raw();
-        if (index >= _sharedTable.size()) {
+        bool shared = index < _sharedTable.size();
+        if (!shared) {
             index -= _sharedTable.size();
         }
-        std::vector<int8_t>& table = (index >= _sharedTable.size()) ? _table : _sharedTable;
+        std::vector<int8_t>& table = shared ? _sharedTable : _table;
         return m8r::String(reinterpret_cast<const char*>(&(table[index + 1])), -table[index]);
     }
     

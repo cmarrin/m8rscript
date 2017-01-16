@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 GPIO::GPIO(Program* program)
-    : ObjectFactory(program)
+    : ObjectFactory(program, "GPIO")
     , _pinMode(program)
     , _trigger(program)
     , _setPinMode(setPinMode)
@@ -89,7 +89,7 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 }
 
 PinMode::PinMode(Program* program)
-    : ObjectFactory(program)
+    : ObjectFactory(program, "PinMode")
 {
     addValue(program, ROMSTR("Output"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output)));
     addValue(program, ROMSTR("OutputOpenDrain"), Value(static_cast<uint32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
@@ -99,7 +99,7 @@ PinMode::PinMode(Program* program)
 }
 
 Trigger::Trigger(Program* program)
-    : ObjectFactory(program)
+    : ObjectFactory(program, "Trigger")
 {
     addValue(program, ROMSTR("None"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::None)));
     addValue(program, ROMSTR("RisingEdge"), Value(static_cast<uint32_t>(GPIOInterface::Trigger::RisingEdge)));

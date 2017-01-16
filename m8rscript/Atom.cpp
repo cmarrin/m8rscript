@@ -47,12 +47,14 @@ struct SharedAtomTableEntry { uint16_t id; const char* name; };
 static const char _end[] ROMSTR_ATTR = "end";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _next[] ROMSTR_ATTR = "next";
+static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _value[] ROMSTR_ATTR = "value";
 
 static SharedAtomTableEntry sharedAtoms[] = {
     ATOM(end),
     ATOM(length),
     ATOM(next),
+    ATOM(__typeName),
     ATOM(value),
 };
 
