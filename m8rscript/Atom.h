@@ -110,7 +110,7 @@ public:
     
     static Atom sharedAtom(SharedAtom id)
     {
-        auto it = _sharedAtomMap.find(static_cast<uint16_t>(id));
+        auto it = _sharedAtomMap.find(static_cast<uint32_t>(id));
         if (it == _sharedAtomMap.end()) {
             return Atom();
         }

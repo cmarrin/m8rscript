@@ -40,9 +40,9 @@ using namespace m8r;
 std::vector<int8_t> AtomTable::_sharedTable;
 Map<uint16_t, Atom> AtomTable::_sharedAtomMap;
 
-struct SharedAtomTableEntry { uint16_t id; const char* name; };
+struct SharedAtomTableEntry { uint32_t id; const char* name; };
 
-#define AtomEntry(a) { static_cast<uint16_t>(AtomTable::SharedAtom::a), _##a }
+#define AtomEntry(a) { static_cast<uint32_t>(AtomTable::SharedAtom::a), _##a }
 
 static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
@@ -78,7 +78,7 @@ static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
-static SharedAtomTableEntry sharedAtoms[] = {
+static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Base64),
     AtomEntry(BothEdges),
     AtomEntry(FallingEdge),
@@ -122,7 +122,7 @@ AtomTable::AtomTable()
     if (_sharedTable.empty()) {
         for (auto it : sharedAtoms) {
             Atom atom = atomizeString(it.name, true);
-            _sharedAtomMap.emplace(static_cast<uint16_t>(it.id), atom);
+            _sharedAtomMap.emplace(static_cast<uint32_t>(it.id), atom);
         }
     }
 }
