@@ -82,31 +82,32 @@ public:
     MyTCP(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
-    virtual void TCPconnected(m8r::TCP*, int16_t connectionId) override
+    virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length) override
     {
-        _shells[connectionId] = new MyShell(&_application, _tcp, connectionId);
-        _shells[connectionId]->connected();
-    }
-    virtual void TCPdisconnected(m8r::TCP*, int16_t connectionId) override
-    {
-        if (_shells[connectionId]) {
-            _shells[connectionId]->disconnected();
-            delete _shells[connectionId];
-            _shells[connectionId] = nullptr;
-        }
-    }
-    
-    virtual void TCPreceivedData(m8r::TCP* tcp, int16_t connectionId, const char* data, uint16_t length) override
-    {
-        if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
-            tcp->disconnect(connectionId);
-        }
-    }
-
-    virtual void TCPsentData(m8r::TCP*, int16_t connectionId) override
-    {
-        if (_shells[connectionId]) {
-            _shells[connectionId]->sendComplete();
+        switch(event) {
+            case m8r::TCPDelegate::Event::Connected:
+                _shells[connectionId] = new MyShell(&_application, _tcp, connectionId);
+                _shells[connectionId]->connected();
+                break;
+            case m8r::TCPDelegate::Event::Disconnected:
+                if (_shells[connectionId]) {
+                    _shells[connectionId]->disconnected();
+                    delete _shells[connectionId];
+                    _shells[connectionId] = nullptr;
+                }
+                break;
+            case m8r::TCPDelegate::Event::ReceivedData:
+                if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
+                    _tcp->disconnect(connectionId);
+                }
+                break;
+            case m8r::TCPDelegate::Event::SentData:
+                if (_shells[connectionId]) {
+                    _shells[connectionId]->sendComplete();
+                }
+                break;
+            default:
+                break;
         }
     }
 

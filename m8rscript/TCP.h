@@ -44,11 +44,9 @@ class TCP;
 
 class TCPDelegate {
 public:
-    virtual void TCPconnected(TCP*, int16_t connectionId) { }
-    virtual void TCPreconnected(TCP*, int16_t connectionId) { }
-    virtual void TCPdisconnected(TCP*, int16_t connectionId) { }
-    virtual void TCPreceivedData(TCP*, int16_t connectionId, const char* data, uint16_t length) { }
-    virtual void TCPsentData(TCP*, int16_t connectionId) { }
+    enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData };
+    
+    virtual void TCPevent(TCP*, Event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0) = 0;
 };
 
 class TCP {
