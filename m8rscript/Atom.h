@@ -88,6 +88,7 @@ public:
         println,
         setPinMode,
         value,
+        __construct,
         __typeName,
         __count__
     };

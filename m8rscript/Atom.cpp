@@ -76,6 +76,7 @@ static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char ___construct[] ROMSTR_ATTR = "__construct";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
 static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
@@ -112,6 +113,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(println),
     AtomEntry(setPinMode),
     AtomEntry(value),
+    AtomEntry(__construct),
     AtomEntry(__typeName),
 };
 
