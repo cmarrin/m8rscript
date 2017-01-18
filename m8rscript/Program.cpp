@@ -62,13 +62,21 @@ void Program::gc(ExecutionUnit* eu)
     _stringStore.gcMark(StringId(0));
     
     eu->stack().gcMark(eu);
-    gcMark(eu);
+    Function::gcMark(eu);
     
     _stringStore.gcSweep();
     _objectStore.gcSweep();
 }
 
-void Program::gcMarkValue(ExecutionUnit* eu, const Value& value)
+void Program::gcMark(ExecutionUnit* eu, const ObjectId& objectId)
+{
+    if (objectId && !_objectStore.isGCMarked(objectId)) {
+        _objectStore.gcMark(objectId);
+        obj(objectId)->gcMark(eu);
+    }
+}
+
+void Program::gcMark(ExecutionUnit* eu, const Value& value)
 {
     StringId stringId = value.asStringIdValue();
     if (stringId) {
@@ -77,10 +85,7 @@ void Program::gcMarkValue(ExecutionUnit* eu, const Value& value)
     }
     
     ObjectId objectId = value.asObjectIdValue();
-    if (objectId && !_objectStore.isGCMarked(objectId)) {
-        _objectStore.gcMark(objectId);
-        obj(objectId)->gcMark(eu);
-    }
+    gcMark(eu, objectId);
 }
 
 bool Program::serialize(Stream* stream, Error& error, Program* program) const

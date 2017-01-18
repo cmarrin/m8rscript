@@ -64,7 +64,7 @@ public:
 
     virtual String toString(ExecutionUnit* eu) const { return String(typeName()) + " { }"; }
     
-    virtual void gcMark(ExecutionUnit*) { }
+    virtual void gcMark(ExecutionUnit* eu) { if (_proto) { _gcMark(eu); } }
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) { return false; }
@@ -93,7 +93,10 @@ public:
     void setCollectable(bool b) { _collectable = b; }
     bool collectable() const { return _collectable; }
     
-protected:    
+protected:
+    void setProto(ObjectId id) { _proto = id; }
+    ObjectId proto() const { return _proto; }
+    
     bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
     
     bool serializeWrite(Stream*, Error&, ObjectDataType) const;
@@ -108,6 +111,9 @@ protected:
     bool deserializeRead(Stream*, Error&, uint16_t&) const;
 
 private:
+    void _gcMark(ExecutionUnit*);
+
+    ObjectId _proto;
     ObjectId _objectId;
     bool _collectable = false;
 };

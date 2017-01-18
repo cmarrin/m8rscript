@@ -42,6 +42,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+void Object::_gcMark(ExecutionUnit* eu)
+{
+    eu->program()->gcMark(eu, _proto);
+}
+
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
 {
     if (!serializeWrite(stream, error, type)) {

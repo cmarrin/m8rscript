@@ -243,5 +243,5 @@ CallReturnValue Value::call(ExecutionUnit* eu, uint32_t nparams)
 
 void Value::_gcMark(ExecutionUnit* eu)
 {
-    eu->program()->gcMarkValue(eu, *this);
+    eu->program()->gcMark(eu, *this);
 }

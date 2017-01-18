@@ -166,16 +166,10 @@ public:
     static m8r::String toString(int32_t value);
     static Float floatFromString(const char*);
     
-    void gcMark(ExecutionUnit* eu)
+    void gcMark(ExecutionUnit* eu) 
     {
-        ObjectId objectId = asObjectIdValue();
-        if (objectId) {
+        if (asObjectIdValue() || asStringIdValue()) {
             _gcMark(eu);
-        } else {
-            StringId stringId = asStringIdValue();
-            if (stringId) {
-                _gcMark(eu);
-            }
         }
     }
     

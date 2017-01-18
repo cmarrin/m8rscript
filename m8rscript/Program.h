@@ -124,7 +124,8 @@ public:
     }
     
     void gc(ExecutionUnit*);
-    void gcMarkValue(ExecutionUnit*, const Value& value);
+    void gcMark(ExecutionUnit*, const Value& value);
+    void gcMark(ExecutionUnit*, const ObjectId& objectId);
     
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
