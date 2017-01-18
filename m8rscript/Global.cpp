@@ -49,7 +49,7 @@ Global::Global(Program* program)
     , _base64(program)
     , _gpio(program)
     , _iterator(program)
-    , _socket(program)
+    , _tcpSocket(program)
     , _currentTime(currentTime)
     , _delay(delay)
     , _print(print)
@@ -67,7 +67,7 @@ Global::Global(Program* program)
     
     addValue(program, ATOM(Base64), Value(_base64.objectId()));
     addValue(program, ATOM(GPIO), Value(_gpio.objectId()));
-    addValue(program, ATOM(Socket), Value(_socket.objectId()));
+    addValue(program, ATOM(TCPSocket), Value(_tcpSocket.objectId()));
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

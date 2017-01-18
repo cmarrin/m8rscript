@@ -54,8 +54,8 @@
 		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
-		49D5FD351E2D9D89001AF5C8 /* Socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* Socket.cpp */; };
-		49D5FD361E2D9D89001AF5C8 /* Socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 49D5FD341E2D9D89001AF5C8 /* Socket.h */; };
+		49D5FD351E2D9D89001AF5C8 /* TCPSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCPSocket.cpp */; };
+		49D5FD361E2D9D89001AF5C8 /* TCPSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 49D5FD341E2D9D89001AF5C8 /* TCPSocket.h */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
 		49D9B8251D1C854700724911 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8231D1C854700724911 /* MainMenu.xib */; };
@@ -194,8 +194,8 @@
 		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
-		49D5FD331E2D9D89001AF5C8 /* Socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Socket.cpp; path = ../m8rscript/Socket.cpp; sourceTree = "<group>"; };
-		49D5FD341E2D9D89001AF5C8 /* Socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Socket.h; path = ../m8rscript/Socket.h; sourceTree = "<group>"; };
+		49D5FD331E2D9D89001AF5C8 /* TCPSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCPSocket.cpp; path = ../m8rscript/TCPSocket.cpp; sourceTree = "<group>"; };
+		49D5FD341E2D9D89001AF5C8 /* TCPSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TCPSocket.h; path = ../m8rscript/TCPSocket.h; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -474,8 +474,8 @@
 				49AE34F71D8330CA00C4E680 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
-				49D5FD331E2D9D89001AF5C8 /* Socket.cpp */,
-				49D5FD341E2D9D89001AF5C8 /* Socket.h */,
+				49D5FD331E2D9D89001AF5C8 /* TCPSocket.cpp */,
+				49D5FD341E2D9D89001AF5C8 /* TCPSocket.h */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				49AB794B1DC143B700DE6332 /* TaskManager.cpp */,
 				49AB794C1DC143B700DE6332 /* TaskManager.h */,
@@ -499,7 +499,7 @@
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
-				49D5FD361E2D9D89001AF5C8 /* Socket.h in Headers */,
+				49D5FD361E2D9D89001AF5C8 /* TCPSocket.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
@@ -652,7 +652,7 @@
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */,
-				49D5FD351E2D9D89001AF5C8 /* Socket.cpp in Sources */,
+				49D5FD351E2D9D89001AF5C8 /* TCPSocket.cpp in Sources */,
 				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,

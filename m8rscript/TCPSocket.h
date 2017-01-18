@@ -40,11 +40,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Socket : public Object, public TCPDelegate {
+class TCPSocket : public Object, public TCPDelegate {
 public:
-    Socket(Program*);
+    TCPSocket(Program*);
 
-    virtual const char* typeName() const override { return "Socket"; }
+    virtual const char* typeName() const override { return "TCPSocket"; }
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) override;
@@ -57,9 +57,9 @@ public:
 private:
 };
 
-class SocketProto : public ObjectFactory {
+class TCPSocketProto : public ObjectFactory {
 public:
-    SocketProto(Program*);
+    TCPSocketProto(Program*);
 
 private:
     static CallReturnValue __construct(ExecutionUnit*, Value thisValue, uint32_t nparams);

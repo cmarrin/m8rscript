@@ -33,7 +33,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Socket.h"
+#include "TCPSocket.h"
 
 #include "Defines.h"
 #include "ExecutionUnit.h"
@@ -41,43 +41,43 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Socket::Socket(Program* program)
+TCPSocket::TCPSocket(Program* program)
 {
     program->addObject(this, false);
 }
 
-const Value Socket::property(ExecutionUnit*, const Atom& prop) const
+const Value TCPSocket::property(ExecutionUnit*, const Atom& prop) const
 {
     // FIXME: Implement
     return Value();
 }
 
-bool Socket::setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add)
+bool TCPSocket::setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add)
 {
     // FIXME: Implement
     return false;
 }
 
-CallReturnValue Socket::callProperty(ExecutionUnit*, Atom prop, uint32_t nparams)
+CallReturnValue TCPSocket::callProperty(ExecutionUnit*, Atom prop, uint32_t nparams)
 {
     // FIXME: Implement
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-void Socket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
 }
 
-SocketProto::SocketProto(Program* program)
-    : ObjectFactory(program, ROMSTR("__Socket"))
+TCPSocketProto::TCPSocketProto(Program* program)
+    : ObjectFactory(program, ROMSTR("__TCPSocket"))
     , ___construct(__construct)
 {
     addObject(program, ATOM(__construct), &___construct);
 }
 
-CallReturnValue SocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Socket* sock = new Socket(eu->program());
+    TCPSocket* sock = new TCPSocket(eu->program());
     eu->stack().push(Value(sock->objectId()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

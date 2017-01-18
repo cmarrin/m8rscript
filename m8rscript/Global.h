@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "GPIO.h"
 #include "Iterator.h"
 #include "Object.h"
-#include "Socket.h"
+#include "TCPSocket.h"
 
 namespace m8r {
 
@@ -53,7 +53,7 @@ private:
     Base64 _base64;
     GPIO _gpio;
     Iterator _iterator;
-    SocketProto _socket;
+    TCPSocketProto _tcpSocket;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
