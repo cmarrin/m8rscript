@@ -3,7 +3,7 @@
 //
 
 printf("TCPSocket Proto = '%s'\n", TCPSocket);
-var sock = new TCPSocket();
+var sock = new TCPSocket(80, function(event) { });
 printf("TCPSocket = '%s'\n", sock);
 
 

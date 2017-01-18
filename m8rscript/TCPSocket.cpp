@@ -41,33 +41,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-TCPSocket::TCPSocket(Program* program)
-{
-    program->addObject(this, false);
-}
-
-const Value TCPSocket::property(ExecutionUnit*, const Atom& prop) const
-{
-    // FIXME: Implement
-    return Value();
-}
-
-bool TCPSocket::setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add)
-{
-    // FIXME: Implement
-    return false;
-}
-
-CallReturnValue TCPSocket::callProperty(ExecutionUnit*, Atom prop, uint32_t nparams)
-{
-    // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
-}
-
-void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
-{
-}
-
 TCPSocketProto::TCPSocketProto(Program* program)
     : ObjectFactory(program, ROMSTR("__TCPSocket"))
     , ___construct(__construct)
@@ -77,10 +50,44 @@ TCPSocketProto::TCPSocketProto(Program* program)
 
 CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    TCPSocket* sock = new TCPSocket(eu->program());
-    eu->stack().push(Value(sock->objectId()));
+    // If 2 params: port number, event function, 3 params is ip, port, func
+    if (nparams < 2) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
+    int32_t port = -1;
+    Value ip;
+    Value func;
+    
+    if (nparams == 2) {
+        port = eu->stack().top(-1).toIntValue(eu);
+        func = eu->stack().top();
+    } else {
+        ip = eu->stack().top(1 - nparams);
+        port = eu->stack().top(2 - nparams).toIntValue(eu);
+        func = eu->stack().top(3 - nparams);
+    }
+
+    // FIXME: Support IP address (client mode)
+    TCPSocket* socket = new TCPSocket(IPAddr(), port, func);
+    eu->program()->addObject(socket, true);
+    
+    eu->stack().push(Value(socket->objectId()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
+
+TCPSocket::TCPSocket(IPAddr ip, uint16_t port, const Value& func)
+    : _func(func)
+{
+    // FIXME: Implement client
+    assert(!ip);
+    _tcp = TCP::create(this, port);
+}
+
+void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+{
+}
+
 
 
 

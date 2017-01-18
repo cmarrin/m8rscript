@@ -40,23 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class TCPSocket : public Object, public TCPDelegate {
-public:
-    TCPSocket(Program*);
-
-    virtual const char* typeName() const override { return "TCPSocket"; }
-
-    virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) override;
-
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
-
-    // TCPDelegate overrides
-    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
-
-private:
-};
-
 class TCPSocketProto : public ObjectFactory {
 public:
     TCPSocketProto(Program*);
@@ -66,5 +49,21 @@ private:
     
     NativeFunction ___construct;
 };
+
+class TCPSocket : public Object, public TCPDelegate {
+public:
+    TCPSocket(IPAddr ip, uint16_t port, const Value& func);
+
+    virtual const char* typeName() const override { return "TCPSocket"; }
+
+    // TCPDelegate overrides
+    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
+
+private:
+    TCP* _tcp;
+    Value _func;
+};
+    
+
     
 }
