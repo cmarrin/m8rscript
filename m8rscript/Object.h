@@ -128,6 +128,7 @@ public:
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
+        Object::gcMark(eu);
         for (auto entry : _properties) {
             entry.value.gcMark(eu);
         }

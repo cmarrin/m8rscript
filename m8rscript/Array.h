@@ -47,6 +47,8 @@ public:
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
+        Object::gcMark(eu);
+        
         if (!_needsGC) {
             return;
         }
