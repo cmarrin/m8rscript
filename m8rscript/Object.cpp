@@ -392,7 +392,9 @@ String MaterObject::toString(ExecutionUnit* eu) const
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     program->addObject(&_obj, false);
-    _obj.setProperty(ATOM(__typeName), program->atomizeString(name), true);
+    if (name) {
+        _obj.setProperty(ATOM(__typeName), program->atomizeString(name), true);
+    }
 }
 
 void ObjectFactory::addObject(Program* program, Atom prop, Object* obj)

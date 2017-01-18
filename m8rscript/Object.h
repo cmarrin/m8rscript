@@ -190,7 +190,7 @@ private:
 
 class ObjectFactory {
 public:
-    ObjectFactory(Program*, const char* name);
+    ObjectFactory(Program*, const char* name = nullptr);
     
     void addObject(Program*, Atom prop, Object*);
     void addValue(Program*, Atom prop, const Value&);
