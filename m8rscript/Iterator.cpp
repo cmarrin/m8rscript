@@ -48,7 +48,8 @@ Iterator::Iterator(Program* program)
 
 CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
 {
-    Iterator* it = new Iterator(eu->program());
+    Iterator* it = new Iterator();
+    eu->program()->addObject(it, true);
     it->_object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
     it->_index = 0;
     eu->stack().push(Value(it->objectId()));

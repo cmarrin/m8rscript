@@ -41,6 +41,7 @@ namespace m8r {
 
 class Iterator : public MaterObject {
 public:
+    Iterator() { }
     Iterator(Program*);
 
     virtual const char* typeName() const override { return "Iterator"; }
