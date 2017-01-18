@@ -46,6 +46,8 @@ struct SharedAtomTableEntry { uint32_t id; const char* name; };
 
 static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
+static const char _Connected[] ROMSTR_ATTR = "Connected";
+static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
 static const char _High[] ROMSTR_ATTR = "High";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
@@ -58,7 +60,10 @@ static const char _None[] ROMSTR_ATTR = "None";
 static const char _Output[] ROMSTR_ATTR = "Output";
 static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
 static const char _PinMode[] ROMSTR_ATTR = "PinMode";
+static const char _ReceivedData[] ROMSTR_ATTR = "ReceivedData";
+static const char _Reconnected[] ROMSTR_ATTR = "Reconnected";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
+static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCPSocket[] ROMSTR_ATTR = "TCPSocket";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
@@ -80,9 +85,13 @@ static const char _value[] ROMSTR_ATTR = "value";
 static const char ___construct[] ROMSTR_ATTR = "__construct";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
+
+
 static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Base64),
     AtomEntry(BothEdges),
+    AtomEntry(Connected),
+    AtomEntry(Disconnected),
     AtomEntry(FallingEdge),
     AtomEntry(GPIO),
     AtomEntry(High),
@@ -95,7 +104,10 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Output),
     AtomEntry(OutputOpenDrain),
     AtomEntry(PinMode),
+    AtomEntry(ReceivedData),
+    AtomEntry(Reconnected),
     AtomEntry(RisingEdge),
+    AtomEntry(SentData),
     AtomEntry(TCPSocket),
     AtomEntry(Trigger),
     

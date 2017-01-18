@@ -46,6 +46,11 @@ TCPSocketProto::TCPSocketProto(Program* program)
     , ___construct(__construct)
 {
     addObject(program, ATOM(__construct), &___construct);
+    addValue(program, ATOM(Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
+    addValue(program, ATOM(Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
+    addValue(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
+    addValue(program, ATOM(ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
+    addValue(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
 }
 
 CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -86,6 +91,7 @@ TCPSocket::TCPSocket(IPAddr ip, uint16_t port, const Value& func)
 
 void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
+    //_func.call(nullptr, <#m8r::Value thisValue#>, <#uint32_t nparams#>)
 }
 
 

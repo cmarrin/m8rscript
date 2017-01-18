@@ -58,6 +58,8 @@ public:
     enum class SharedAtom {
         Base64,
         BothEdges,
+        Connected,
+        Disconnected, 
         FallingEdge,
         GPIO,
         High,
@@ -70,7 +72,10 @@ public:
         Output,
         OutputOpenDrain,
         PinMode,
+        ReceivedData, 
+        Reconnected, 
         RisingEdge,
+        SentData, 
         TCPSocket,
         Trigger,
         arguments,
@@ -93,7 +98,7 @@ public:
         __typeName,
         __count__
     };
-    
+
     AtomTable();
 
     Atom atomizeString(const char* s) const { return atomizeString(s, false); }
