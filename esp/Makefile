@@ -45,6 +45,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Program.cpp \
 		../m8rscript/Shell.cpp \
 		../m8rscript/slre.cpp \
+		../m8rscript/Socket.cpp \
 		../m8rscript/TaskManager.cpp \
 		../m8rscript/Value.cpp \
         app/main.cpp
