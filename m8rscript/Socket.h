@@ -49,16 +49,22 @@ public:
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) override;
 
-    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
-
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
 
-    virtual void gcMark(ExecutionUnit* eu) override { }
-    
     // TCPDelegate overrides
     virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
 
 private:
+};
+
+class SocketProto : public ObjectFactory {
+public:
+    SocketProto(Program*);
+
+private:
+    static CallReturnValue __construct(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction ___construct;
 };
     
 }

@@ -46,13 +46,41 @@ Socket::Socket(Program* program)
     program->addObject(this, false);
 }
 
-CallReturnValue Socket::construct(ExecutionUnit* eu, uint32_t nparams)
+const Value Socket::property(ExecutionUnit*, const Atom& prop) const
+{
+    // FIXME: Implement
+    return Value();
+}
+
+bool Socket::setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add)
+{
+    // FIXME: Implement
+    return false;
+}
+
+CallReturnValue Socket::callProperty(ExecutionUnit*, Atom prop, uint32_t nparams)
+{
+    // FIXME: Implement
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+void Socket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+{
+}
+
+SocketProto::SocketProto(Program* program)
+    : ObjectFactory(program, ROMSTR("__Socket"))
+    , ___construct(__construct)
+{
+    addObject(program, ATOM(__construct), &___construct);
+}
+
+CallReturnValue SocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Socket* sock = new Socket(eu->program());
     eu->stack().push(Value(sock->objectId()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-void Socket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
-{
-}
+
+

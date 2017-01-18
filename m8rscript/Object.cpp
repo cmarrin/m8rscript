@@ -261,6 +261,32 @@ CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint3
     return obj->call(eu, Value(), nparams);
 }
 
+bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
+{
+    auto it = _properties.find(prop);
+    if (add) {
+        if (it != _properties.end()) {
+            return false;
+        }
+        auto ret = _properties.emplace(prop, Value());
+        assert(ret.second);
+        ret.first->value = v;
+        return true;
+    }
+    
+    if (it == _properties.end()) {
+        return false;
+    }
+    it->value = v;
+    return true;
+}
+
+CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
+{
+    auto it = _properties.find(ATOM(__construct));
+    return it->value.call(eu, nparams);
+}
+
 bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the Function properties

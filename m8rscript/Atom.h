@@ -71,6 +71,7 @@ public:
         OutputOpenDrain,
         PinMode,
         RisingEdge,
+        Socket,
         Trigger,
         arguments,
         currentTime,

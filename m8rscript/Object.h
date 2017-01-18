@@ -62,7 +62,7 @@ public:
     
     virtual bool isFunction() const { return false; }
 
-    virtual String toString(ExecutionUnit* eu) const { return String(typeName()) + "{ }"; }
+    virtual String toString(ExecutionUnit* eu) const { return String(typeName()) + " { }"; }
     
     virtual void gcMark(ExecutionUnit*) { }
     
@@ -135,25 +135,9 @@ public:
         return (it != _properties.end()) ? it->value : Value();
     }
 
-    bool setProperty(const Atom& prop, const Value& v, bool add)
-    {
-        auto it = _properties.find(prop);
-        if (add) {
-            if (it != _properties.end()) {
-                return false;
-            }
-            auto ret = _properties.emplace(prop, Value());
-            assert(ret.second);
-            ret.first->value = v;
-            return true;
-        }
-        
-        if (it == _properties.end()) {
-            return false;
-        }
-        it->value = v;
-        return true;
-    }
+    bool setProperty(const Atom& prop, const Value& v, bool add);
+    
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
     virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
     {

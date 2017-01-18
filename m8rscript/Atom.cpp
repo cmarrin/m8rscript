@@ -59,6 +59,7 @@ static const char _Output[] ROMSTR_ATTR = "Output";
 static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
 static const char _PinMode[] ROMSTR_ATTR = "PinMode";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
+static const char _Socket[] ROMSTR_ATTR = "Socket";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
@@ -95,6 +96,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(OutputOpenDrain),
     AtomEntry(PinMode),
     AtomEntry(RisingEdge),
+    AtomEntry(Socket),
     AtomEntry(Trigger),
     
     AtomEntry(arguments),

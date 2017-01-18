@@ -1,0 +1,20 @@
+//
+// Http Server
+//
+
+printf("Socket Proto = '%s'\n", Socket);
+var sock = new Socket();
+printf("Socket = '%s'\n", sock);
+
+
+/*
+function HttpServer(port)
+{
+	var _port = port;
+	var _tcp = TCP(port);
+	_tcp.connect(connection)
+	_tcp.receivedData = function(data)
+	{
+	}
+}
+*/
