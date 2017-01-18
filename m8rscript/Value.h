@@ -173,7 +173,7 @@ public:
         }
     }
     
-    CallReturnValue call(ExecutionUnit* eu, uint32_t nparams);
+    CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
     
     bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::String; }
     

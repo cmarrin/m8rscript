@@ -289,7 +289,7 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
 CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
 {
     auto it = _properties.find(ATOM(__construct));
-    return it->value.call(eu, nparams);
+    return it->value.call(eu, Value(objectId()), nparams);
 }
 
 bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
