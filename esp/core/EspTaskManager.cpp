@@ -50,7 +50,7 @@ EspTaskManager::~EspTaskManager()
 {
 }
 
-TaskManager* TaskManager::sharedTaskManager()
+TaskManager* TaskManager::shared()
 {
     if (!_sharedTaskManager) {
         _sharedTaskManager = new EspTaskManager();

@@ -83,7 +83,7 @@ MacTaskManager::~MacTaskManager()
     delete _eventThread;
 }
 
-TaskManager* TaskManager::sharedTaskManager()
+TaskManager* TaskManager::shared()
 {
     if (!_sharedTaskManager) {
         _sharedTaskManager = new MacTaskManager();

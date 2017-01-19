@@ -47,7 +47,7 @@ class TaskManager {
 protected:
     static constexpr uint8_t MaxTasks = 8;
     
-    static TaskManager* sharedTaskManager();
+    static TaskManager* shared();
     
     TaskManager() { }
     virtual ~TaskManager() { }
@@ -82,12 +82,12 @@ public:
     void runOnce(int32_t delay = 0)
     {
         _repeating = false;
-        TaskManager::sharedTaskManager()->runTask(this, delay);
+        TaskManager::shared()->runTask(this, delay);
     }
     void runRepeating(int32_t delay = 0)
     {
         _repeating = true;
-        TaskManager::sharedTaskManager()->runTask(this, delay);
+        TaskManager::shared()->runTask(this, delay);
     }
     
     virtual bool execute() { return true; }
