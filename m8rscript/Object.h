@@ -188,6 +188,18 @@ private:
     Func _func = nullptr;
 };
 
+class Closure {
+public:
+    Closure(const Value& func) : _func(func) { }
+    
+    void addArg(const Value& value) { _args.push_back(value); }
+    void clearArgs() { _args.clear(); }
+    
+private:
+    Value _func;
+    std::vector<Value> _args;
+};
+
 class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name = nullptr);

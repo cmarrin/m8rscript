@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Object.h"
 #include "Value.h"
 
 namespace m8r {
@@ -48,6 +49,8 @@ public:
 
 private:
     static EventManager* _sharedEventManager;
+    
+    std::vector<Closure> _events;
 };
 
 }
