@@ -426,7 +426,8 @@ public:
     {
         size_t oldFrame = _frame;
         _frame = size() - actualParams;
-        super::resize(size() + localSize - formalParams);
+        size_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
+        super::resize(size() + localSize + extraParams);
         return oldFrame;
     }
     void restoreFrame(size_t frame, size_t localsToPop)

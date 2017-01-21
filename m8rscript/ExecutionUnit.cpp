@@ -249,7 +249,7 @@ static const uint16_t GCCount = 1000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _functionPtr->localSize() + _localOffset;
+        localsToPop = _functionPtr->localSize() + _actualParamCount;
         
         assert(_stack.top().type() == Value::Type::PreviousParamCount);
         _stack.pop(leftValue);
