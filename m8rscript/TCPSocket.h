@@ -53,6 +53,12 @@ private:
 class TCPSocket : public Object, public TCPDelegate {
 public:
     TCPSocket(IPAddr ip, uint16_t port, const Value& func);
+    virtual ~TCPSocket()
+    {
+        if (_tcp) {
+            delete _tcp;
+        }
+    }
 
     virtual const char* typeName() const override { return "TCPSocket"; }
 
@@ -60,7 +66,7 @@ public:
     virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
 
 private:
-    TCP* _tcp;
+    TCP* _tcp = nullptr;
     Value _func;
 };
     
