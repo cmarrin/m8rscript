@@ -67,6 +67,12 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
         return;
     }
 
+    int enable = 1;
+    if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        printf("Error opening TCP socket, setsockopt failed\n");
+        return;
+    }
+    
     String queueName = "TCPSocketQueue-";
     queueName += Value::toString(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
@@ -82,7 +88,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 
     if (_server) {
         if (bind(_socketFD,(struct sockaddr *)&sa, sizeof sa) == -1) {
-            printf("Error: TCP bind failed\n");
+            printf("Error: TCP bind failed, error code=%d\n", errno);
             close(_socketFD);
             _socketFD = -1;
             return;
