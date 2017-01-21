@@ -83,8 +83,7 @@ public:
     
     void startExecution(Program*);
     
-    // Return -1 when finished. Otherwise return value is number of milliseconds to delay before calling again
-    int32_t continueExecution();
+    CallReturnValue continueExecution();
     
     ExecutionStack& stack() { return _stack; }
 

@@ -142,7 +142,7 @@ static inline bool valuesAreInt(const Value& a, const Value& b)
     return a.isInteger() && b.isInteger();
 }
 
-int32_t ExecutionUnit::continueExecution()
+CallReturnValue ExecutionUnit::continueExecution()
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -183,7 +183,7 @@ static const uint16_t GCCount = 1000;
             gcCounter = GCCount; \
             _program->gc(this); \
             if (--yieldCounter == 0) { \
-                return 0; \
+                return CallReturnValue(CallReturnValue::Type::MsDelay, 0); \
             } \
         } \
         inst = _code[_pc++]; \
@@ -191,7 +191,7 @@ static const uint16_t GCCount = 1000;
     }
     
     if (!_program) {
-        return -1;
+        return CallReturnValue(CallReturnValue::Type::Finished);
     }
 
     uint16_t gcCounter = GCCount;
@@ -218,7 +218,7 @@ static const uint16_t GCCount = 1000;
     
     L_UNKNOWN:
         assert(0);
-        return -1;
+        return CallReturnValue(CallReturnValue::Type::Finished);
     L_RET:
     L_RETX:
     L_END:
@@ -229,8 +229,7 @@ static const uint16_t GCCount = 1000;
                     assert(_stack.validateFrame(0, _program->localSize()));
                 }
                 _program->gc(this);
-                _stack.clear();
-                return -1;
+                return CallReturnValue(CallReturnValue::Type::WaitForEvent);
             }
             callReturnValue = CallReturnValue();
         }
@@ -552,7 +551,7 @@ static const uint16_t GCCount = 1000;
         _stack.pop(uintValue);
         _stack.push(returnedValue);
         if (callReturnValue.isMsDelay()) {
-            return callReturnValue.msDelay();
+            return callReturnValue;
         }
         DISPATCH;
     L_JMP:
