@@ -113,13 +113,13 @@ void ExecutionUnit::startExecution(Program* program)
     _formalParamCount = 0;
     _actualParamCount = 0;
     _localOffset = 0;
-    _waitingForEvents = false;
+    _executingEvent = false;
 }
 
 void ExecutionUnit::runNextEvent()
 {
     if (!_eventQueue.empty()) {
-        _waitingForEvents = false;
+        _executingEvent = true;
         startFunction(_eventQueue.front().asObjectIdValue(), 0);
         _eventQueue.erase(_eventQueue.begin());
     }
@@ -227,10 +227,6 @@ static const uint16_t GCCount = 1000;
 
     Instruction inst;
     
-    if (_waitingForEvents) {
-        goto L_END;
-    }
-    
     DISPATCH;
     
     L_UNKNOWN:
@@ -239,17 +235,32 @@ static const uint16_t GCCount = 1000;
     L_RET:
     L_RETX:
     L_END:
-        if (_terminate || inst.op() == Op::END) {
-            if (_terminate || _program == _functionPtr) {
+        if (_terminate) {
+            _stack.clear();
+            _program->gc(this);
+            return CallReturnValue(CallReturnValue::Type::Terminated);
+        }
+            
+        if (inst.op() == Op::END) {
+            if (_program == _functionPtr) {
                 // We've hit the end of the program
-                if (!_terminate) {
-                    assert(_stack.validateFrame(0, _program->localSize()));
+                
+                // If we were executing an event there will be a return value on the stack
+                if (_executingEvent) {
+                    _stack.pop();
+                    _executingEvent = false;
                 }
+                
+                assert(_stack.validateFrame(0, _program->localSize()));
                 _program->gc(this);
+                
+                // Backup the PC to point at the END instruction, so when we return from events
+                // we'll hit the program end again
+                _pc--;
+                assert(_code[_pc].op() == Op::END);
                 
                 // FIXME: For now we always wait for events. But we need to add logic to only do that if we have
                 // something listening. For instance if we have an active TCPSocket or an interval timer
-                _waitingForEvents = true;
                 runNextEvent();
                 return CallReturnValue(CallReturnValue::Type::WaitForEvent);
             }

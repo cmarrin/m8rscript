@@ -222,7 +222,7 @@ private:
     mutable bool _terminate = false;
 
     std::vector<Value> _eventQueue;
-    bool _waitingForEvents = false;
+    bool _executingEvent = false;
 };
     
 }

@@ -54,10 +54,11 @@ public:
     static constexpr uint32_t FunctionStartValue = 1000;
     static constexpr uint32_t ErrorValue = 1001;
     static constexpr uint32_t FinishedValue = 1002;
-    static constexpr uint32_t WaitForEventValue = 1003;
+    static constexpr uint32_t TerminatedValue = 1003;
+    static constexpr uint32_t WaitForEventValue = 1004;
     static constexpr uint32_t MaxMsDelay = 6000000;
     
-    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart = FunctionStartValue, Error = ErrorValue, Finished = FinishedValue, WaitForEvent = WaitForEventValue };
+    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Error, Finished, Terminated, WaitForEvent };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
@@ -67,6 +68,7 @@ public:
             case Type::FunctionStart: _value = FunctionStartValue; break;
             case Type::Error: _value = ErrorValue; break;
             case Type::Finished: _value = FinishedValue; break;
+            case Type::Terminated: _value = TerminatedValue; break;
             case Type::WaitForEvent: _value = WaitForEventValue; break;
         }
     }
@@ -74,6 +76,7 @@ public:
     bool isFunctionStart() const { return _value == FunctionStartValue; }
     bool isError() const { return _value == ErrorValue; }
     bool isFinished() const { return _value == FinishedValue; }
+    bool isTerminated() const { return _value == TerminatedValue; }
     bool isWaitForEvent() const { return _value == WaitForEventValue; }
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
     bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
