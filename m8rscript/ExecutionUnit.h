@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
+#include "EventManager.h"
 #include "Function.h"
 #include "Program.h"
 
@@ -75,11 +76,12 @@ protected:
     }
 };
 
-class ExecutionUnit {
+class ExecutionUnit : public EventListener {
 public:
     friend class Function;
     
-    ExecutionUnit() : _stack(200) { }
+    ExecutionUnit() : _stack(200) { EventManager::shared()->addListener(this); }
+    ~ExecutionUnit() { EventManager::shared()->removeListener(this); }
     
     void startExecution(Program*);
     
@@ -144,8 +146,12 @@ public:
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
+    // EventListener
+    virtual void eventFired(const Value& value) override { _eventQueue.push_back(value); }
+
 private:
     void startFunction(ObjectId function, uint32_t nparams);
+    void runNextEvent();
 
     bool printError(const char* s, ...) const;
     bool checkTooManyErrors() const;
@@ -214,6 +220,9 @@ private:
     ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
     mutable bool _terminate = false;
+
+    std::vector<Value> _eventQueue;
+    bool _waitingForEvents = false;
 };
     
 }

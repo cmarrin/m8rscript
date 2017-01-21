@@ -181,7 +181,7 @@ static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bit
 
 class Instruction {
 public:
-    Instruction() { _v = 0; }
+    Instruction() { _v = 0; _op = static_cast<uint32_t>(Op::END); }
     
     Instruction(Op op, uint32_t ra, uint32_t rb, uint32_t rc, bool call = false)
     {

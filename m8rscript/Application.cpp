@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 
+#include "EventManager.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 
@@ -207,12 +208,13 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 
 bool Application::MyRunTask::execute()
 {
-    int32_t delay = _eu.continueExecution();
-    if (delay >= 0) {
-        runOnce(delay);
-    } else {
+    CallReturnValue returnValue = _eu.continueExecution();
+    if (returnValue.isMsDelay()) {
+        runOnce(returnValue.msDelay());
+    } else if (returnValue.isFinished()) {
         _function();
+    } else if (returnValue.isWaitForEvent()) {
+        runOnce(50);
     }
     return true;
 }
-

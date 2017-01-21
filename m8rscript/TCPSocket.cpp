@@ -91,7 +91,7 @@ TCPSocket::TCPSocket(IPAddr ip, uint16_t port, const Value& func)
 
 void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
-    //_func.call(nullptr, <#m8r::Value thisValue#>, <#uint32_t nparams#>)
+    EventManager::shared()->fireEvent(_func);
 }
 
 

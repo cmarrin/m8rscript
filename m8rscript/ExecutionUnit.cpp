@@ -113,10 +113,23 @@ void ExecutionUnit::startExecution(Program* program)
     _formalParamCount = 0;
     _actualParamCount = 0;
     _localOffset = 0;
+    _waitingForEvents = false;
+}
+
+void ExecutionUnit::runNextEvent()
+{
+    if (!_eventQueue.empty()) {
+        _waitingForEvents = false;
+        startFunction(_eventQueue.front().asObjectIdValue(), 0);
+        _eventQueue.erase(_eventQueue.begin());
+    }
 }
 
 void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
 {
+    assert(_program);
+    assert(function);
+    
     Object* p = _program->obj(function);
     assert(p->isFunction());
     Function* functionPtr = static_cast<Function*>(p);
@@ -214,6 +227,10 @@ static const uint16_t GCCount = 1000;
 
     Instruction inst;
     
+    if (_waitingForEvents) {
+        goto L_END;
+    }
+    
     DISPATCH;
     
     L_UNKNOWN:
@@ -229,6 +246,11 @@ static const uint16_t GCCount = 1000;
                     assert(_stack.validateFrame(0, _program->localSize()));
                 }
                 _program->gc(this);
+                
+                // FIXME: For now we always wait for events. But we need to add logic to only do that if we have
+                // something listening. For instance if we have an active TCPSocket or an interval timer
+                _waitingForEvents = true;
+                runNextEvent();
                 return CallReturnValue(CallReturnValue::Type::WaitForEvent);
             }
             callReturnValue = CallReturnValue();

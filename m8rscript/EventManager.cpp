@@ -7,3 +7,7 @@
 //
 
 #include "EventManager.h"
+
+using namespace m8r;
+
+EventManager EventManager::_sharedEventManager;

@@ -36,21 +36,38 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Object.h"
-#include "Value.h"
 
 namespace m8r {
 
+class EventListener {
+public:
+    virtual void eventFired(const Value& value) = 0;
+};
+
 class EventManager {
 public:
-    static EventManager* shared();
+    static EventManager* shared() { return &_sharedEventManager; }
     
-    EventManager() { }
-    virtual ~EventManager() { }
-
+    void addListener(EventListener* listener) { _listeners.push_back(listener); }
+    void removeListener(EventListener* listener)
+    {
+        auto it = std::find(_listeners.begin(), _listeners.end(), listener);
+        if (it != _listeners.end()) {
+            _listeners.erase(it);
+        }
+    }
+    
+    void fireEvent(const Value& value)
+    {
+        for (auto it : _listeners) {
+            it->eventFired(value);
+        }
+    }
+    
 private:
-    static EventManager* _sharedEventManager;
+    static EventManager _sharedEventManager;
     
-    std::vector<Closure> _events;
+    std::vector<EventListener*> _listeners;
 };
 
 }

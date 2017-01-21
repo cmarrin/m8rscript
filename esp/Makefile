@@ -36,6 +36,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Base64.cpp \
 		../m8rscript/Error.cpp \
+		../m8rscript/EventManager.cpp \
 		../m8rscript/ExecutionUnit.cpp \
 		../m8rscript/Function.cpp \
 		../m8rscript/Global.cpp \
