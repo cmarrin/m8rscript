@@ -50,21 +50,33 @@ class Stream;
 
 class CallReturnValue {
 public:
-    enum class Type { ReturnCount, MsDelay, FunctionStart, Error };
+    static constexpr uint32_t MaxReturnCount = 999;
+    static constexpr uint32_t FunctionStartValue = 1000;
+    static constexpr uint32_t ErrorValue = 1001;
+    static constexpr uint32_t FinishedValue = 1002;
+    static constexpr uint32_t WaitForEventValue = 1003;
+    static constexpr uint32_t MaxMsDelay = 6000000;
+    
+    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart = FunctionStartValue, Error = ErrorValue, Finished = FinishedValue, WaitForEvent = WaitForEventValue };
+    
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
         switch(type) {
-            case Type::ReturnCount: assert(value < 1000); _value = value; break;
-            case Type::MsDelay: assert(value <= 6000000); _value = -value; break;
-            case Type::FunctionStart: _value = 1000; break;
-            case Type::Error: _value = 1001; break;
+            case Type::ReturnCount: assert(value <= MaxReturnCount); _value = value; break;
+            case Type::MsDelay: assert(value <= MaxMsDelay); _value = -value; break;
+            case Type::FunctionStart: _value = FunctionStartValue; break;
+            case Type::Error: _value = ErrorValue; break;
+            case Type::Finished: _value = FinishedValue; break;
+            case Type::WaitForEvent: _value = WaitForEventValue; break;
         }
     }
     
-    bool isFunctionStart() const { return _value == 1000; }
-    bool isError() const { return _value == 1001; }
-    bool isReturnCount() const { return _value >= 0 && _value < 1000; }
-    bool isMsDelay() const { return _value < 0 && _value >= -6000000; }
+    bool isFunctionStart() const { return _value == FunctionStartValue; }
+    bool isError() const { return _value == ErrorValue; }
+    bool isFinished() const { return _value == FinishedValue; }
+    bool isWaitForEvent() const { return _value == WaitForEventValue; }
+    bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
+    bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
     uint32_t msDelay() const { assert(isMsDelay()); return -_value; }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
 
