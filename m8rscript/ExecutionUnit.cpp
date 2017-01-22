@@ -119,9 +119,20 @@ void ExecutionUnit::startExecution(Program* program)
 void ExecutionUnit::runNextEvent()
 {
     if (!_eventQueue.empty()) {
+        assert(_eventQueue.size() >= 2);
+        
         _executingEvent = true;
-        startFunction(_eventQueue.front().asObjectIdValue(), 0);
-        _eventQueue.erase(_eventQueue.begin());
+        Value func = _eventQueue[0];
+        int32_t nargs = _eventQueue[1].asIntValue();
+        assert(_eventQueue.size() >= 2 + nargs);
+        
+        for (int32_t i = 0; i < nargs; ++i) {
+            _stack.push(_eventQueue[2 + i]);
+        }
+        
+        _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 2 + nargs);
+        
+        startFunction(_eventQueue.front().asObjectIdValue(), nargs);
     }
 }
 
@@ -281,7 +292,7 @@ static const uint16_t GCCount = 1000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _functionPtr->localSize() + _actualParamCount;
+        localsToPop = _functionPtr->localSize() + _localOffset;
         
         assert(_stack.top().type() == Value::Type::PreviousParamCount);
         _stack.pop(leftValue);

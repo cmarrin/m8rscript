@@ -41,7 +41,7 @@ namespace m8r {
 
 class EventListener {
 public:
-    virtual void eventFired(const Value& value) = 0;
+    virtual void eventFired(const Value& func, const Value* args, int32_t nargs) = 0;
 };
 
 class EventManager {
@@ -57,10 +57,10 @@ public:
         }
     }
     
-    void fireEvent(const Value& value)
+    void fireEvent(const Value& func, const Value* args, int32_t nargs)
     {
         for (auto it : _listeners) {
-            it->eventFired(value);
+            it->eventFired(func, args, nargs);
         }
     }
     

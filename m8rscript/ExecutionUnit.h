@@ -147,7 +147,16 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     // EventListener
-    virtual void eventFired(const Value& value) override { _eventQueue.push_back(value); }
+    virtual void eventFired(const Value& func, const Value* args, int32_t nargs) override
+    {
+        _eventQueue.push_back(func);
+        if (nargs) {
+            _eventQueue.push_back(Value(nargs));
+            for (int i = 0; i < nargs; i++) {
+                _eventQueue.push_back(args[i]);
+            }
+        }
+    }
 
 private:
     void startFunction(ObjectId function, uint32_t nparams);

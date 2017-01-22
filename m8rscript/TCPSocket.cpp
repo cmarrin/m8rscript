@@ -91,7 +91,18 @@ TCPSocket::TCPSocket(IPAddr ip, uint16_t port, const Value& func)
 
 void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
-    EventManager::shared()->fireEvent(_func);
+    Value args[4];
+    args[0] = Value(static_cast<int32_t>(event));
+    args[1] = Value(static_cast<int32_t>(connectionId));
+    
+    if (data) {
+        // FIXME: We need to be able to create a string without the program object
+        //String s = String(data, length);
+        
+        args[2] = Value();
+        args[3] = Value(static_cast<int32_t>(length));
+    }
+    EventManager::shared()->fireEvent(_func, args, data ? 4 : 2);
 }
 
 
