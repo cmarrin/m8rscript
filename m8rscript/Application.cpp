@@ -213,6 +213,8 @@ bool Application::MyRunTask::execute()
     CallReturnValue returnValue = _eu.continueExecution();
     if (returnValue.isMsDelay()) {
         runOnce(returnValue.msDelay());
+    } else if (returnValue.isContinue()) {
+        runOnce(0);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
         _function();
         _running = false;

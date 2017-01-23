@@ -210,7 +210,7 @@ static const uint16_t GCCount = 1000;
             gcCounter = GCCount; \
             Global::gc(this); \
             if (--yieldCounter == 0) { \
-                return CallReturnValue(CallReturnValue::Type::MsDelay, 0); \
+                return CallReturnValue(CallReturnValue::Type::Continue); \
             } \
         } \
         inst = _code[_pc++]; \
