@@ -83,6 +83,13 @@ Global::Global(Program* program)
     addProperty(program, ATOM(TCPSocket), Value(_tcpSocket.objectId()));
 }
 
+Global::~Global()
+{
+    Global::removeObject(_base64.nativeObject()->objectId());
+    Global::removeObject(_gpio.nativeObject()->objectId());
+    Global::removeObject(_tcpSocket.nativeObject()->objectId());
+}
+
 void Global::gc(ExecutionUnit* eu)
 {
     _stringStore.gcClear();
@@ -144,13 +151,14 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     int32_t nextParam = 1 - nparams;
 
-    const String& format = eu->stack().top(nextParam++).toStringValue(eu);
+    String format = eu->stack().top(nextParam++).toStringValue(eu);
     int size = static_cast<int>(format.size());
-    const char* s = format.c_str();
+    const char* start = format.c_str();
+    const char* s = start;
     struct slre_cap caps[5];
     memset(caps, 0, sizeof(caps));
     while (true) {
-        int next = slre_match(formatRegex, s, size, caps, 5, 0);
+        int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
             SystemInterface::shared()->printf(s);

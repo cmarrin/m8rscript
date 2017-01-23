@@ -293,6 +293,16 @@ CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
     return it->value.call(eu, Value(objectId()), nparams);
 }
 
+void PropertyObject::removeNoncollectableObjects()
+{
+    for (auto it : _properties) {
+        Object* obj = Global::obj(it.value);
+        if (obj && !obj->collectable()) {
+            Global::removeObject(it.value.asObjectIdValue());
+        }
+    }
+}
+
 bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
 {
     // Write the Function properties

@@ -49,6 +49,7 @@ class Function;
 class Global : public ObjectFactory {
 public:
     Global(Program*);
+    virtual ~Global();
 
     static ObjectId addObject(Object* obj, bool collectable)
     {

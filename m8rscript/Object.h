@@ -120,6 +120,8 @@ private:
 
 // This is an object with a property map, which is read only from m8rscript
 class PropertyObject : public Object {
+    friend class ObjectFactory;
+    
 public:    
     virtual ~PropertyObject() { }
 
@@ -157,6 +159,8 @@ public:
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
+    
+    void removeNoncollectableObjects();
 
     Value::Map _properties;
 };
@@ -203,6 +207,7 @@ private:
 class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name = nullptr);
+    ~ObjectFactory() { _obj.removeNoncollectableObjects(); }
     
     void addProperty(Program*, Atom prop, Object*);
     void addProperty(Program*, Atom prop, const Value&);
