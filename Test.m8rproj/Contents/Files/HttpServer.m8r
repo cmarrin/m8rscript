@@ -3,8 +3,14 @@
 //
 
 printf("TCPSocket Proto = '%s'\n", TCPSocket);
-var sock = new TCPSocket(8080, function(event) {
-	println("TCPSocket fired!");
+var sock = new TCPSocket(8080, function(event, connectionId) {
+	switch(event) {
+		case TCPSocket.Connected:
+			printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
+		default:
+			printf("TCPSocket fired. event=%d\n", event);
+	}
+	
 });
 printf("TCPSocket = '%s'\n", sock);
 
