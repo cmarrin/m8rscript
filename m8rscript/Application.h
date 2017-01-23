@@ -56,10 +56,10 @@ public:
     void run(std::function<void()>);
     void clear()
     {
+        stop();
         if (!_program) {
             return;
         }
-        delete _program;
         _program = nullptr;
     }
     void pause();
@@ -78,20 +78,30 @@ private:
         
         void run(Program* program, std::function<void()> function)
         {
+            stop();
             _function = function;
+            _running = true;
             _eu.startExecution(program);
             runOnce();
         }
         
         void pause() { }
         
-        void stop() { _eu.requestTermination(); }
+        bool stop()
+        {
+            if (_running) {
+                _eu.requestTermination();
+                return true;
+            }
+            return false;
+        }
 
     private:
         virtual bool execute() override;
         
         ExecutionUnit _eu;
         std::function<void()> _function;
+        bool _running = false;
     };
 
     class MyHeartbeatTask : public m8r::Task {

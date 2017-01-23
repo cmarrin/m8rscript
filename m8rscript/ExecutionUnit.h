@@ -80,9 +80,29 @@ class ExecutionUnit : public EventListener {
 public:
     friend class Function;
     
-    ExecutionUnit() : _stack(200) { EventManager::shared()->addListener(this); }
-    ~ExecutionUnit() { EventManager::shared()->removeListener(this); }
+    ExecutionUnit()
+        : _stack(200)
+    {
+        Global::addObject(&_stack, false);
+        EventManager::shared()->addListener(this);
+    }
+    ~ExecutionUnit()
+    {
+        Global::removeObject(_stack.objectId());
+        EventManager::shared()->removeListener(this);
+    }
     
+    void gcMark()
+    {
+        Global::gcMark(this, _program->objectId());
+        Global::gcMark(this, _object);
+        _stack.gcMark(this);
+        _program->gcMark(this);
+        for (auto it : _eventQueue) {
+            it.gcMark(this);
+        }
+    }
+
     void startExecution(Program*);
     
     CallReturnValue continueExecution();
@@ -175,13 +195,12 @@ private:
         assert(_object);
         assert(_functionPtr->code());
         _codeSize = _functionPtr->code()->size();
-        assert(_codeSize);
         _code = &(_functionPtr->code()->at(0));
     }
     
     Object* toObject(const Value& v, const char* s)
     {
-        Object* obj = _program->obj(v);
+        Object* obj = Global::obj(v);
         if (!obj) {
             objectError(s);
             return nullptr;

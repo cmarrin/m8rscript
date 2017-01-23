@@ -54,6 +54,15 @@ public:
     virtual const char* typeName() const override { return "Function"; }
     
     virtual bool isFunction() const override { return true; }
+    
+    virtual void gcMark(ExecutionUnit* eu) override
+    {
+        MaterObject::gcMark(eu);
+        for (auto it : _constants) {
+            it.gcMark(eu);
+        }
+    }
+
 
     const Code* code() const { return &_code; }
     Code* code() { return &_code; }

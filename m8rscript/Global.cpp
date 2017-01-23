@@ -43,6 +43,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+Global::IdStore<StringId, String> Global::_stringStore;
+Global::IdStore<ObjectId, Object> Global::_objectStore;
+
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
     , _arguments(program)
@@ -56,18 +59,62 @@ Global::Global(Program* program)
     , _printf(printf)
     , _println(println)
 {
-    addObject(program, ATOM(currentTime), &_currentTime);
-    addObject(program, ATOM(delay), &_delay);
-    addObject(program, ATOM(print), &_print);
-    addObject(program, ATOM(printf), &_printf);
-    addObject(program, ATOM(println), &_println);
-
-    addObject(program, ATOM(arguments), &_arguments);
-    addObject(program, ATOM(Iterator), &_iterator);
+    // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
+    if (_stringStore.empty()) {
+        StringId dummy = Global::createString();
+        Global::str(dummy) = "*** ERROR:INVALID STRING ***";
+        assert(dummy.raw() == 0);
+    }
     
-    addValue(program, ATOM(Base64), Value(_base64.objectId()));
-    addValue(program, ATOM(GPIO), Value(_gpio.objectId()));
-    addValue(program, ATOM(TCPSocket), Value(_tcpSocket.objectId()));
+    addProperty(program, ATOM(currentTime), &_currentTime);
+    addProperty(program, ATOM(delay), &_delay);
+    addProperty(program, ATOM(print), &_print);
+    addProperty(program, ATOM(printf), &_printf);
+    addProperty(program, ATOM(println), &_println);
+
+    addProperty(program, ATOM(arguments), &_arguments);
+    addProperty(program, ATOM(Iterator), &_iterator);
+    
+    Global::addObject(_base64.nativeObject(), false);
+    addProperty(program, ATOM(Base64), Value(_base64.objectId()));
+    Global::addObject(_gpio.nativeObject(), false);
+    addProperty(program, ATOM(GPIO), Value(_gpio.objectId()));
+    Global::addObject(_tcpSocket.nativeObject(), false);
+    addProperty(program, ATOM(TCPSocket), Value(_tcpSocket.objectId()));
+}
+
+void Global::gc(ExecutionUnit* eu)
+{
+    _stringStore.gcClear();
+    _objectStore.gcClear();
+    
+    // Mark string 0 (the dummy string)
+    _stringStore.gcMark(StringId(0));
+    
+    eu->gcMark();
+    
+    _stringStore.gcSweep();
+    _objectStore.gcSweep();
+}
+
+void Global::gcMark(ExecutionUnit* eu, const ObjectId& objectId)
+{
+    if (objectId && !_objectStore.isGCMarked(objectId)) {
+        _objectStore.gcMark(objectId);
+        obj(objectId)->gcMark(eu);
+    }
+}
+
+void Global::gcMark(ExecutionUnit* eu, const Value& value)
+{
+    StringId stringId = value.asStringIdValue();
+    if (stringId) {
+        _stringStore.gcMark(stringId);
+        return;
+    }
+    
+    ObjectId objectId = value.asObjectIdValue();
+    gcMark(eu, objectId);
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

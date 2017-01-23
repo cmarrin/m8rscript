@@ -196,7 +196,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         if (value.isNone()) {
             continue;
         }
-        Object* object = program->obj(value);
+        Object* object = Global::obj(value);
         if (object && object->isFunction()) {
             outputString += generateCodeString(program, static_cast<Function*>(object), program->stringFromAtom(name).c_str(), _nestingLevel);
             outputString += "\n";
@@ -374,7 +374,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::PreviousParamCount: s += "***PreviousParamCount***"; break;
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();
-            Object* obj = program->obj(objectId);
+            Object* obj = Global::obj(objectId);
             if (obj && obj->isFunction()) {
                 _nestingLevel++;
                 s += "\n";

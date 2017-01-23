@@ -104,9 +104,9 @@ void ExecutionUnit::startExecution(Program* program)
     _pc = 0;
     _program = program;
     _object = _program->objectId();
+    assert(_object);
     _functionPtr =  _program;
     _constantsPtr = _functionPtr->constantsPtr();
-    _program->setStack(&_stack);
     _stack.clear();
     _stack.setLocalFrame(0, 0, _functionPtr->localSize());
     _framePtr =_stack.framePtr();
@@ -141,10 +141,12 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     assert(_program);
     assert(function);
     
-    Object* p = _program->obj(function);
+    Object* p = Global::obj(function);
     assert(p->isFunction());
     Function* functionPtr = static_cast<Function*>(p);
     _functionPtr =  static_cast<Function*>(functionPtr);
+    assert(_functionPtr->code()->size());
+
     _constantsPtr = _functionPtr->constantsPtr();
     _formalParamCount = _functionPtr->formalParamCount();
     uint32_t prevActualParamCount = _actualParamCount;
@@ -157,6 +159,7 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     _stack.push(Value(_object, Value::Type::PreviousObject));
     _stack.push(Value(prevActualParamCount, Value::Type::PreviousParamCount));
     _object = function;
+    assert(_object);
 
     _framePtr =_stack.framePtr();
 }
@@ -205,7 +208,7 @@ static const uint16_t GCCount = 1000;
         } \
         if (--gcCounter == 0) { \
             gcCounter = GCCount; \
-            _program->gc(this); \
+            Global::gc(this); \
             if (--yieldCounter == 0) { \
                 return CallReturnValue(CallReturnValue::Type::MsDelay, 0); \
             } \
@@ -248,7 +251,7 @@ static const uint16_t GCCount = 1000;
     L_END:
         if (_terminate) {
             _stack.clear();
-            _program->gc(this);
+            Global::gc(this);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
             
@@ -263,7 +266,7 @@ static const uint16_t GCCount = 1000;
                 }
                 
                 assert(_stack.validateFrame(0, _program->localSize()));
-                _program->gc(this);
+                Global::gc(this);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
                 // we'll hit the program end again
@@ -301,9 +304,11 @@ static const uint16_t GCCount = 1000;
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
-        objectValue = _program->obj(_object);
+        assert(_object);
+        objectValue = Global::obj(_object);
         assert(objectValue->isFunction());
         _functionPtr = static_cast<Function*>(objectValue);
+        assert(_functionPtr->code()->size());
         _constantsPtr = _functionPtr->constantsPtr();
         
         assert(_stack.top().type() == Value::Type::PreviousPC);
@@ -334,7 +339,7 @@ static const uint16_t GCCount = 1000;
         } else {
             objectValue = new MaterObject();
         }
-        objectId = _program->addObject(objectValue, true);
+        objectId = Global::addObject(objectValue, true);
         objectValue->setObjectId(objectId);
         setInFrame(inst.ra(), Value(objectId));
         DISPATCH;
@@ -520,8 +525,8 @@ static const uint16_t GCCount = 1000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            StringId stringId = _program->createString();
-            String& s = _program->str(stringId);
+            StringId stringId = Global::createString();
+            String& s = Global::str(stringId);
             s = leftValue.toStringValue(this);
             s += rightValue.toStringValue(this);
             setInFrame(inst.ra(), Value(stringId));

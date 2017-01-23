@@ -45,12 +45,12 @@ TCPSocketProto::TCPSocketProto(Program* program)
     : ObjectFactory(program, ROMSTR("__TCPSocket"))
     , ___construct(__construct)
 {
-    addObject(program, ATOM(__construct), &___construct);
-    addValue(program, ATOM(Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
-    addValue(program, ATOM(Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
-    addValue(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
-    addValue(program, ATOM(ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
-    addValue(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
+    addProperty(program, ATOM(__construct), &___construct);
+    addProperty(program, ATOM(Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
+    addProperty(program, ATOM(Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
+    addProperty(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
+    addProperty(program, ATOM(ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
+    addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
 }
 
 CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -75,7 +75,7 @@ CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, 
 
     // FIXME: Support IP address (client mode)
     TCPSocket* socket = new TCPSocket(IPAddr(), port, func);
-    eu->program()->addObject(socket, true);
+    Global::addObject(socket, true);
     
     eu->stack().push(Value(socket->objectId()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);

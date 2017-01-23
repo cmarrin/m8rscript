@@ -42,7 +42,6 @@ using namespace m8r;
 
 Arguments::Arguments(Program* program)
 {
-    program->addObject(this, false);
 }
 
 const Value Arguments::element(ExecutionUnit* eu, const Value& elt) const

@@ -44,7 +44,8 @@ using namespace m8r;
 
 void Object::_gcMark(ExecutionUnit* eu)
 {
-    eu->program()->gcMark(eu, _proto);
+    Global::gcMark(eu, objectId());
+    Global::gcMark(eu, _proto);
 }
 
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
@@ -258,7 +259,7 @@ String PropertyObject::toString(ExecutionUnit* eu) const
 
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    Object* obj = eu->program()->obj(property(eu, prop));
+    Object* obj = Global::obj(property(eu, prop));
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -305,7 +306,7 @@ bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) c
         return false;
     }
     for (auto entry : _properties) {
-        Object* obj = program->obj(entry.value);
+        Object* obj = Global::obj(entry.value);
         // Only store functions
         if (!obj || !obj->isFunction()) {
             continue;
@@ -362,7 +363,7 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
         String idString = atomTable.stringFromAtom(Atom(id));
         //Atom atom = program->atomizeString(idString.c_str());
         
-        ObjectId functionId = program->addObject(function, true);
+        ObjectId functionId = Global::addObject(function, true);
         function->setObjectId(functionId);
         //_properties.push_back({ atom.raw(), functionId });
     }
@@ -391,19 +392,18 @@ String MaterObject::toString(ExecutionUnit* eu) const
 
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
-    program->addObject(&_obj, false);
     if (name) {
         _obj.setProperty(ATOM(__typeName), program->atomizeString(name), true);
     }
 }
 
-void ObjectFactory::addObject(Program* program, Atom prop, Object* obj)
+void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 {
-    program->addObject(obj, false);
-    addValue(program, prop, Value(obj->objectId()));
+    Global::addObject(obj, false);
+    addProperty(program, prop, Value(obj->objectId()));
 }
 
-void ObjectFactory::addValue(Program* program, Atom prop, const Value& value)
+void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
 {
     _obj.setProperty(prop, value, true);
 }

@@ -51,13 +51,13 @@ GPIO::GPIO(Program* program)
     , _digitalRead(digitalRead)
     , _onInterrupt(onInterrupt)
 {
-    addObject(program, ATOM(setPinMode), &_setPinMode);
-    addObject(program, ATOM(digitalWrite), &_digitalWrite);
-    addObject(program, ATOM(digitalRead), &_digitalRead);
-    addObject(program, ATOM(onInterrupt), &_onInterrupt);
+    addProperty(program, ATOM(setPinMode), &_setPinMode);
+    addProperty(program, ATOM(digitalWrite), &_digitalWrite);
+    addProperty(program, ATOM(digitalRead), &_digitalRead);
+    addProperty(program, ATOM(onInterrupt), &_onInterrupt);
     
-    addValue(program, ATOM(PinMode), _pinMode.objectId());
-    addValue(program, ATOM(Trigger), _trigger. objectId());
+    addProperty(program, ATOM(PinMode), _pinMode.objectId());
+    addProperty(program, ATOM(Trigger), _trigger. objectId());
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -91,20 +91,20 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 PinMode::PinMode(Program* program)
     : ObjectFactory(program, ROMSTR("PinMode"))
 {
-    addValue(program, ATOM(Output), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output)));
-    addValue(program, ATOM(OutputOpenDrain), Value(static_cast<uint32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
-    addValue(program, ATOM(Input), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Input)));
-    addValue(program, ATOM(InputPullup), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPullup)));
-    addValue(program, ATOM(InputPulldown), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPulldown)));
+    addProperty(program, ATOM(Output), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Output)));
+    addProperty(program, ATOM(OutputOpenDrain), Value(static_cast<uint32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
+    addProperty(program, ATOM(Input), Value(static_cast<uint32_t>(GPIOInterface::PinMode::Input)));
+    addProperty(program, ATOM(InputPullup), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPullup)));
+    addProperty(program, ATOM(InputPulldown), Value(static_cast<uint32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
 Trigger::Trigger(Program* program)
     : ObjectFactory(program, ROMSTR("Trigger"))
 {
-    addValue(program, ATOM(None), Value(static_cast<uint32_t>(GPIOInterface::Trigger::None)));
-    addValue(program, ATOM(RisingEdge), Value(static_cast<uint32_t>(GPIOInterface::Trigger::RisingEdge)));
-    addValue(program, ATOM(FallingEdge), Value(static_cast<uint32_t>(GPIOInterface::Trigger::FallingEdge)));
-    addValue(program, ATOM(BothEdges), Value(static_cast<uint32_t>(GPIOInterface::Trigger::BothEdges)));
-    addValue(program, ATOM(Low), Value(static_cast<uint32_t>(GPIOInterface::Trigger::Low)));
-    addValue(program, ATOM(High), Value(static_cast<uint32_t>(GPIOInterface::Trigger::High)));
+    addProperty(program, ATOM(None), Value(static_cast<uint32_t>(GPIOInterface::Trigger::None)));
+    addProperty(program, ATOM(RisingEdge), Value(static_cast<uint32_t>(GPIOInterface::Trigger::RisingEdge)));
+    addProperty(program, ATOM(FallingEdge), Value(static_cast<uint32_t>(GPIOInterface::Trigger::FallingEdge)));
+    addProperty(program, ATOM(BothEdges), Value(static_cast<uint32_t>(GPIOInterface::Trigger::BothEdges)));
+    addProperty(program, ATOM(Low), Value(static_cast<uint32_t>(GPIOInterface::Trigger::Low)));
+    addProperty(program, ATOM(High), Value(static_cast<uint32_t>(GPIOInterface::Trigger::High)));
 }

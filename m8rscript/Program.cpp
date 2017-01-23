@@ -41,51 +41,10 @@ using namespace m8r;
 
 Program::Program() : _global(this)
 {
-    addObject(this, false);
-    
-    // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
-    StringId dummy = createString();
-    str(dummy) = "*** ERROR:INVALID STRING ***";
-    assert(dummy.raw() == 0);
 }
 
 Program::~Program()
 {
-}
-
-void Program::gc(ExecutionUnit* eu)
-{
-    _stringStore.gcClear();
-    _objectStore.gcClear();
-    
-    // Mark string 0 (the dummy string)
-    _stringStore.gcMark(StringId(0));
-    
-    eu->stack().gcMark(eu);
-    Function::gcMark(eu);
-    
-    _stringStore.gcSweep();
-    _objectStore.gcSweep();
-}
-
-void Program::gcMark(ExecutionUnit* eu, const ObjectId& objectId)
-{
-    if (objectId && !_objectStore.isGCMarked(objectId)) {
-        _objectStore.gcMark(objectId);
-        obj(objectId)->gcMark(eu);
-    }
-}
-
-void Program::gcMark(ExecutionUnit* eu, const Value& value)
-{
-    StringId stringId = value.asStringIdValue();
-    if (stringId) {
-        _stringStore.gcMark(stringId);
-        return;
-    }
-    
-    ObjectId objectId = value.asObjectIdValue();
-    gcMark(eu, objectId);
 }
 
 bool Program::serialize(Stream* stream, Error& error, Program* program) const
@@ -115,10 +74,10 @@ bool Program::serialize(Stream* stream, Error& error, Program* program) const
 //    }
     
     for (uint16_t i = 0; ; i++) {
-        if (!isValid(ObjectId(i))) {
+        if (!Global::isValid(ObjectId(i))) {
             break;
         }
-        Object* object = obj(ObjectId(i));
+        Object* object = Global::obj(ObjectId(i));
         
         // Only store functions
         if (!object->isFunction()) {

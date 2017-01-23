@@ -204,11 +204,11 @@ class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name = nullptr);
     
-    void addObject(Program*, Atom prop, Object*);
-    void addValue(Program*, Atom prop, const Value&);
+    void addProperty(Program*, Atom prop, Object*);
+    void addProperty(Program*, Atom prop, const Value&);
     
-    Object* obj() { return &_obj; }
-    const Object* obj() const { return &_obj; }
+    Object* nativeObject() { return &_obj; }
+    const Object* nativeObject() const { return &_obj; }
     ObjectId objectId() const { return _obj.objectId(); }
 
 protected:

@@ -176,12 +176,12 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: return String("null");
         case Type::Object: {
-            Object* obj = eu->program()->obj(*this);
+            Object* obj = Global::obj(*this);
             return obj ? obj->toString(eu) : String("null");
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
-        case Type::String: return eu->program()->str(stringIdFromValue());
+        case Type::String: return Global::str(stringIdFromValue());
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
         case Type::Id: return m8r::String(eu->program()->stringFromAtom(atomFromValue()));
         default: assert(0); return m8r::String();
@@ -193,13 +193,13 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: break;
         case Type::Object: {
-            Object* obj = eu->program()->obj(*this);
+            Object* obj = Global::obj(*this);
             return obj ? floatFromString(obj->toString(eu).c_str()) : Float();
         }
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(intFromValue(), 0);
         case Type::String: {
-            const String& s = eu->program()->str(stringIdFromValue());
+            const String& s = Global::str(stringIdFromValue());
             return floatFromString(s.c_str());
         }
         case Type::StringLiteral: {
@@ -217,13 +217,13 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: break;
         case Type::Object: {
-            Object* obj = eu->program()->obj(*this);
+            Object* obj = Global::obj(*this);
             return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
         }
         case Type::Integer:
         case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
         case Type::String: {
-            const String& s = eu->program()->str(stringIdFromValue());
+            const String& s = Global::str(stringIdFromValue());
             return eu->program()->atomizeString(s.c_str());
         }
         case Type::StringLiteral: {
@@ -237,11 +237,11 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = eu->program()->obj(*this);
+    Object* obj = Global::obj(*this);
     return obj ? obj->call(eu, thisValue, nparams) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::_gcMark(ExecutionUnit* eu)
 {
-    eu->program()->gcMark(eu, *this);
+    Global::gcMark(eu, *this);
 }

@@ -129,8 +129,8 @@ Base64::Base64(Program* program)
     , _encode(encode)
     , _decode(decode)
 {
-    addObject(program, ATOM(encode), &_encode);
-    addObject(program, ATOM(decode), &_decode);
+    addProperty(program, ATOM(encode), &_encode);
+    addProperty(program, ATOM(decode), &_decode);
 }
 
 CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -142,16 +142,16 @@ CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t npar
         char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
+        StringId stringId = Global::createString();
+        String& s = Global::str(stringId);
         s = String(outString, actualLength);
         eu->stack().push(stringId);
     } else {
         char* outString = static_cast<char*>(malloc(outLength));
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
+        StringId stringId = Global::createString();
+        String& s = Global::str(stringId);
         s = String(outString, actualLength);
         eu->stack().push(stringId);
         free(outString);
@@ -167,15 +167,15 @@ CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t npar
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
+        StringId stringId = Global::createString();
+        String& s = Global::str(stringId);
         s = String(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(stringId);
     } else {
         unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = eu->program()->createString();
-        String& s = eu->program()->str(stringId);
+        StringId stringId = Global::createString();
+        String& s = Global::str(stringId);
         s = String(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(stringId);
         free(outString);

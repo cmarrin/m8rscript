@@ -53,10 +53,7 @@ Application::Application()
 
 bool Application::load(Error& error, const char* filename)
 {
-    if (_program) {
-        delete _program;
-        _program = nullptr;
-    }
+    _program = nullptr;
     
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
         FileStream m8rbStream(filename);
@@ -70,7 +67,6 @@ bool Application::load(Error& error, const char* filename)
         if (_program->deserializeObject(&m8rbStream, error, nullptr, AtomTable(), std::vector<char>())) {
             return true;
         }
-        delete _program;
         _program = nullptr;
         if (error.code() != Error::Code::SerialHeader) {
             return false;
@@ -116,6 +112,7 @@ bool Application::load(Error& error, const char* filename)
     
     if (m8rbMainStream.loaded()) {
         _program = new m8r::Program();
+        Global::addObject(_program, true);
         return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
      }
 
@@ -146,6 +143,7 @@ bool Application::load(Error& error, const char* filename)
 
 void Application::run(std::function<void()> function)
 {
+    stop();
     SystemInterface::shared()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
     _runTask.run(_program, function);
 }
@@ -157,8 +155,9 @@ void Application::pause()
 
 void Application::stop()
 {
-    _runTask.stop();
-    SystemInterface::shared()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
+    if (_runTask.stop()) {
+        SystemInterface::shared()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
+    }
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)
@@ -208,11 +207,15 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 
 bool Application::MyRunTask::execute()
 {
+    if (!_running) {
+        return false;
+    }
     CallReturnValue returnValue = _eu.continueExecution();
     if (returnValue.isMsDelay()) {
         runOnce(returnValue.msDelay());
-    } else if (returnValue.isFinished()) {
+    } else if (returnValue.isFinished() || returnValue.isTerminated()) {
         _function();
+        _running = false;
     } else if (returnValue.isWaitForEvent()) {
         runOnce(50);
     }
