@@ -11,3 +11,13 @@
 using namespace m8r;
 
 EventManager EventManager::_sharedEventManager;
+
+void EventManager::removeListener(EventListener* listener)
+{
+    for (int i = 0; i < _listeners.size(); ++i) {
+        if (_listeners[i] == listener) {
+            _listeners.erase(_listeners.begin() + i);
+            break;
+        }
+    }
+}

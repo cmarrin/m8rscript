@@ -49,13 +49,7 @@ public:
     static EventManager* shared() { return &_sharedEventManager; }
     
     void addListener(EventListener* listener) { _listeners.push_back(listener); }
-    void removeListener(EventListener* listener)
-    {
-        auto it = std::find(_listeners.begin(), _listeners.end(), listener);
-        if (it != _listeners.end()) {
-            _listeners.erase(it);
-        }
-    }
+    void removeListener(EventListener* listener);
     
     void fireEvent(const Value& func, const Value* args, int32_t nargs)
     {
