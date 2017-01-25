@@ -284,7 +284,7 @@ const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
         Object* obj = Global::obj(proto());
         return obj ? obj->property(eu, prop) : Value();
     }
-    return (it != _properties.end()) ? it->value : Value();
+    return it->value;
 }
 
 bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
