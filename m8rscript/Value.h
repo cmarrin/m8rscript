@@ -96,7 +96,7 @@ public:
     
     enum class Type : uint8_t {
         None = 0,
-        Object, Float, Integer, String, StringLiteral, Id,
+        Object, Float, Integer, String, StringLiteral, Id, Null,
         PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount, PreviousThis,
     };
 
@@ -105,6 +105,7 @@ public:
     Value(Value&& other) { _value._raw = other._value._raw; }
     
     Value(ObjectId objectId, Type type = Type::Object) : _value(objectId, type) { }
+    Value(Type type) : _value(type) { }
     Value(Float value) : _value(value) { }
     Value(int32_t value) : _value(value) { }
     Value(uint32_t value, Type type) : _value(value, type) { }
@@ -212,7 +213,8 @@ private:
     inline uint16_t indexFromValue() const { return _value._d; }
     
     struct RawValue {
-        RawValue() { _raw = 0; }
+        RawValue() { _raw = 0; setType(Type::None); }
+        RawValue(Type type) { _raw = 0; setType(type); }
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
         RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }

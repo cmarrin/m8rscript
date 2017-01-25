@@ -209,8 +209,7 @@ void Parser::pushK(bool value)
 
 void Parser::pushK()
 {
-    // FIXME: Represent Null as its own value type to distinguish it from an error
-    ConstantId id = currentFunction()->addConstant(Value());
+    ConstantId id = currentFunction()->addConstant(Value(Value::Type::Null));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
