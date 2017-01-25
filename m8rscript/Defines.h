@@ -187,12 +187,18 @@ public:
     {
         _op = static_cast<uint32_t>(op);
         if (call) {
+            assert(ra < (1 << 9));
             _rcall = ra;
+            assert(rb < (1 << 9));
             _rthis = rb;
+            assert(rc < (1 << 8));
             _nparams = rc;
         } else {
+            assert(ra < (1 << 8));
             _ra = ra;
+            assert(rb < (1 << 9));
             _rb = rb;
+            assert(rc < (1 << 9));
             _rc = rc;
         }
     }
@@ -200,14 +206,18 @@ public:
     Instruction(Op op, uint32_t rn, uint32_t n)
     {
         _op = static_cast<uint32_t>(op);
+        assert(rn < (1 << 9));
         _rn = rn;
+        assert(n < (1 << 17));
         _un = n;
     }
     
     Instruction(Op op, uint32_t rn, int32_t n)
     {
         _op = static_cast<uint32_t>(op);
+        assert(rn < (1 << 9));
         _rn = rn;
+        assert(n < (1 << 17));
         _sn = n;
     }
     
