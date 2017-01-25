@@ -209,7 +209,7 @@ void Parser::pushK(bool value)
 
 void Parser::pushK()
 {
-    // FIXME: Represent Null as its own value type to distinguish it from and error
+    // FIXME: Represent Null as its own value type to distinguish it from an error
     ConstantId id = currentFunction()->addConstant(Value());
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
@@ -412,7 +412,7 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
     uint32_t calleeReg = 0;
     if (thisReg < 0) {
         // This uses a dummy value for this
-        thisReg = MaxRegister;
+        thisReg = MaxRegister + 1;
     }
 
     if (value == Op::CALL) {
@@ -502,7 +502,7 @@ ObjectId Parser::functionEnd()
 
 static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
 {
-    return (reg > numLocals && reg < 256) ? (255 - reg + numLocals) : reg;
+    return (reg > numLocals && reg <= MaxRegister) ? (MaxRegister - reg + numLocals) : reg;
 }
 
 void Parser::reconcileRegisters(Function* function)

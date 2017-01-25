@@ -78,7 +78,7 @@ inline String regString(uint32_t reg)
     if (reg <= MaxRegister) {
         return String("R[") + Value::toString(reg) + "]";
     }
-    return String("K[") + Value::toString(reg - MaxRegister) + "]";
+    return String("K[") + Value::toString(reg - MaxRegister - 1) + "]";
 }
 
 void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
@@ -371,6 +371,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::PreviousFrame: s += "***PreviousFrame***"; break;
         case Value::Type::PreviousPC: s += "***PreviousPC***"; break;
         case Value::Type::PreviousObject: s += "***PreviousObject***"; break;
+        case Value::Type::PreviousThis: s += "***PreviousThis***"; break;
         case Value::Type::PreviousParamCount: s += "***PreviousParamCount***"; break;
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();

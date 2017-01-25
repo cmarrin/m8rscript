@@ -95,6 +95,7 @@ public:
         setPinMode,
         value,
         __construct,
+        __this,
         __typeName,
         __count__
     };

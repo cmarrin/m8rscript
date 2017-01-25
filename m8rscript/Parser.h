@@ -213,7 +213,7 @@ private:
                 , _derefReg(derefReg)
             {
                 if (_type == Type::Constant || _type == Type::RefK) {
-                    _reg += MaxRegister;
+                    _reg += MaxRegister + 1;
                 }
             }
             

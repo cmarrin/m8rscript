@@ -97,7 +97,7 @@ public:
     enum class Type : uint8_t {
         None = 0,
         Object, Float, Integer, String, StringLiteral, Id,
-        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount,
+        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount, PreviousThis,
     };
 
     Value() { }
@@ -138,7 +138,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
+    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
@@ -178,7 +178,7 @@ public:
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
-    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject; }
+    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -193,7 +193,7 @@ public:
     
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
     
-    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::String; }
+    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis || type() == Type::String; }
     
 private:
     static constexpr uint8_t TypeBitCount = 4;

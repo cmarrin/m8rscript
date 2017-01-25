@@ -76,18 +76,32 @@ Value ExecutionUnit::derefId(Atom atom)
         printError(ROMSTR("Value in PUSHREFK must be an Atom"));
         return Value();
     }
+    
+    if (atom == ATOM(__this)) {
+        return Value(_this);
+    }
 
-    // This atom is a property of the Program or Global objects
-    Value value = _program->property(this, atom);
-    if (!value) {
-        value = _program->global()->property(this, atom);
-        if (!value) {
-            printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
-            return Value();
+    // Look in this then program then global
+    Value value;
+    if (_thisPtr) {
+        value = _thisPtr->property(this, atom);
+        if (value) {
+            return value;
         }
     }
+
+    value = _program->property(this, atom);
+    if (value) {
+        return value;
+    }
     
-    return value;
+    value = _program->global()->property(this, atom);
+    if (value) {
+        return value;
+    }
+    
+    printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
+    return Value();
 }
 
 void ExecutionUnit::startExecution(Program* program)
@@ -95,6 +109,7 @@ void ExecutionUnit::startExecution(Program* program)
     if (!program) {
         _terminate = true;
         _functionPtr = nullptr;
+        _thisPtr = nullptr;
         _constantsPtr = nullptr;
         _stack.clear();
         return;
@@ -107,6 +122,10 @@ void ExecutionUnit::startExecution(Program* program)
     assert(_object);
     _functionPtr =  _program;
     _constantsPtr = _functionPtr->constantsPtr();
+    
+    _this = ObjectId();
+    _thisPtr = nullptr;
+    
     _stack.clear();
     _stack.setLocalFrame(0, 0, _functionPtr->localSize());
     _framePtr =_stack.framePtr();
@@ -132,11 +151,11 @@ void ExecutionUnit::runNextEvent()
         
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 2 + nargs);
         
-        startFunction(_eventQueue.front().asObjectIdValue(), nargs);
+        startFunction(_eventQueue.front().asObjectIdValue(), ObjectId(), nargs);
     }
 }
 
-void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
+void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams)
 {
     assert(_program);
     assert(function);
@@ -153,10 +172,14 @@ void ExecutionUnit::startFunction(ObjectId function, uint32_t nparams)
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
+    _this = thisObject;
+    _thisPtr = Global::obj(_this);
+    
     _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize())), Value::Type::PreviousFrame));
     _stack.push(Value(_pc, Value::Type::PreviousPC));
     _pc = 0;
     _stack.push(Value(_object, Value::Type::PreviousObject));
+    _stack.push(Value(_this, Value::Type::PreviousThis));
     _stack.push(Value(prevActualParamCount, Value::Type::PreviousParamCount));
     _object = function;
     assert(_object);
@@ -258,14 +281,20 @@ static const uint16_t GCCount = 1000;
         if (inst.op() == Op::END) {
             if (_program == _functionPtr) {
                 // We've hit the end of the program
-                
                 // If we were executing an event there will be a return value on the stack
                 if (_executingEvent) {
                     _stack.pop();
                     _executingEvent = false;
                 }
                 
-                assert(_stack.validateFrame(0, _program->localSize()));
+                if (!_stack.validateFrame(0, _program->localSize())) {
+                    printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
+                    _terminate = true;
+                    _stack.clear();
+                    Global::gc(this);
+                    return CallReturnValue(CallReturnValue::Type::Terminated);
+                }
+                
                 Global::gc(this);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
@@ -301,6 +330,12 @@ static const uint16_t GCCount = 1000;
         _stack.pop(leftValue);
         _actualParamCount = leftValue.asPreviousParamCountValue();
 
+        assert(_stack.top().type() == Value::Type::PreviousThis);
+        _stack.pop(leftValue);
+        _this = leftValue.asObjectIdValue();
+        assert(_this);
+        _thisPtr = Global::obj(_this);
+        
         assert(_stack.top().type() == Value::Type::PreviousObject);
         _stack.pop(leftValue);
         _object = leftValue.asObjectIdValue();
@@ -562,23 +597,27 @@ static const uint16_t GCCount = 1000;
     L_CALL:
     L_CALLPROP:
         objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
-        if (!objectValue) {
-            // Push a dummy value onto the stack for a return value
-            _stack.push(Value());
-            DISPATCH;
-        }
         uintValue = inst.nparams();
-        switch(inst.op()) {
-            default: break;
-            case Op::CALL:
-                callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue);
-                break;
-            case Op::NEW:
-                callReturnValue = objectValue->construct(this, uintValue);
-                break;
-            case Op::CALLPROP:
-                callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
-                break;
+        if (objectValue) {
+            switch(inst.op()) {
+                default: break;
+                case Op::CALL:
+                    callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue);
+                    break;
+                case Op::NEW:
+                    callReturnValue = objectValue->construct(this, uintValue);
+                    break;
+                case Op::CALLPROP:
+                    callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
+                    break;
+            }
+        } else {
+            // Simulate a return count of 0. No need to flag this as an error. We already showed an error above
+            callReturnValue = CallReturnValue();
+        }
+        
+        if (callReturnValue.isError()) {
+            printError(ROMSTR("function cannot be %sed"), (inst.op() == Op::NEW) ? "construct" : "call");
         }
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
