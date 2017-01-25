@@ -128,10 +128,10 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     #undef OP
     #define OP(op) &&L_ ## op,
     static const void* dispatchTable[] {
-        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x08 */ OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE) OP(LOADFALSE)
-        /* 0x0C */ OP(LOADNULL) OP(PUSH) OP(POP) OP(UNKNOWN)
+        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA)
+        /* 0x04 */ OP(LOADLITO) OP(LOADPROP) OP(LOADELT) OP(STOPROP)
+        /* 0x08 */ OP(STOELT) OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE)
+        /* 0x0C */ OP(LOADFALSE) OP(LOADNULL) OP(PUSH) OP(POP)
 
         /* 0x10 */ OP(LOR) OP(LAND) OP(OR) OP(AND)
         /* 0x14 */ OP(XOR) OP(EQ) OP(NE) OP(LT)
@@ -286,6 +286,9 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     L_APPENDELT:
         generateRRX(outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
+    L_STOREFK:
+        generateRRX(outputString, i - 1, op, inst.rb(), inst.rc());
+        DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
@@ -327,7 +330,7 @@ static CodeMap opcodes[] = {
     OP(RET)
     OP(END)
     
-    OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
+    OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) OP(LOADLITO)
     OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
     OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
     OP(PUSH) OP(POP)
@@ -363,6 +366,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
 {
     switch(value.type()) {
         case Value::Type::None: s += "NONE"; break;
+        case Value::Type::Null: s += "Null"; break;
         case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
         case Value::Type::Integer: s += "INT(" + Value::toString(value.asIntValue()) + ")"; break;
         case Value::Type::String: s += "***String***"; break;

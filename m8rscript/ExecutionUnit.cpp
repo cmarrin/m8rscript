@@ -70,6 +70,29 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
     return nullptr;
 }
 
+void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
+{
+    if (!atom) {
+        printError(ROMSTR("Destination in STOREFK must be an Atom"));
+        return;
+    }
+    
+    // If property exists in this, store it there
+    if (_thisPtr) {
+        Value oldValue = _thisPtr->property(this, atom);
+        if (oldValue) {
+            if (!_thisPtr->setProperty(this, atom, value, false)) {
+                printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
+            }
+            return;
+        }
+    }
+    
+    // FIXME: Do we ever want to set a property in program or global object?
+    printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom).c_str());
+    return;
+}
+
 Value ExecutionUnit::derefId(Atom atom)
 {
     if (!atom) {
@@ -198,10 +221,10 @@ CallReturnValue ExecutionUnit::continueExecution()
     #define OP(op) &&L_ ## op,
     
     static const void* RODATA_ATTR dispatchTable[] {
-        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(LOADLITA) OP(LOADLITO)
-        /* 0x04 */ OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT)
-        /* 0x08 */ OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE) OP(LOADFALSE)
-        /* 0x0C */ OP(LOADNULL) OP(PUSH) OP(POP) OP(UNKNOWN)
+        /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA)
+        /* 0x04 */ OP(LOADLITO) OP(LOADPROP) OP(LOADELT) OP(STOPROP)
+        /* 0x08 */ OP(STOELT) OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE)
+        /* 0x0C */ OP(LOADFALSE) OP(LOADNULL) OP(PUSH) OP(POP)
 
         /* 0x10 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
         /* 0x14 */ OP(BINIOP) OP(EQ) OP(NE) OP(LT)
@@ -366,6 +389,9 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_LOADREFK:
         setInFrame(inst.ra(), derefId(regOrConst(inst.rb()).asIdValue()));
+        DISPATCH;
+    L_STOREFK:
+        stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:

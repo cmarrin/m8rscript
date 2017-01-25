@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdint>
 #include <vector>
+#include <cassert>
 
 #ifdef __APPLE__
     #define RODATA_ATTR
@@ -114,6 +115,7 @@ struct Label {
     
     MOVE        R[d], RK[s], X
     LOADREFK    R[d], RK[s], X
+    STOREFK     X, RK[d], RK[s]
     APPENDELT   R[d], RK[s], X
  
     APPENDPROP  R[d], RK[p], RK[s]
@@ -129,8 +131,8 @@ struct Label {
  
     LOADPROP    R[d], RK[o], K[p]
     LOADELT     R[d], RK[o], RK[e]
-    STOPROP     RK[o], K[p], RK[s]
-    STOELT      RK[o], RK[e], RK[s]
+    STOPROP     R[o], K[p], RK[s]
+    STOELT      R[o], RK[e], RK[s]
  
     <binop> ==> LOR, LAND,                          ; (20)
                 OR, AND, XOR,
@@ -160,7 +162,7 @@ static constexpr uint32_t MaxRegister = 255;
 
 enum class Op : uint8_t {
     
-    MOVE = 0x00, LOADREFK, LOADLITA, LOADLITO,
+    MOVE = 0x00, LOADREFK, STOREFK, LOADLITA, LOADLITO,
     LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT, APPENDPROP,
     LOADTRUE, LOADFALSE, LOADNULL, PUSH, POP,
 

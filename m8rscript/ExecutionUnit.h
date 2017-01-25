@@ -209,6 +209,7 @@ private:
     }
     
     Value derefId(Atom);
+    void stoIdRef(Atom, const Value&);
     
     void setInFrame(uint32_t r, const Value& v)
     {

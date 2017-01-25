@@ -253,12 +253,22 @@ void Parser::emitMove()
     ParseStack::Type dstType = _parseStack.topType();
     
     switch(dstType) {
+        case ParseStack::Type::Unknown:
+        case ParseStack::Type::Constant:
+            assert(0);
+            break;
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
             emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             break;
-        default:
+        case ParseStack::Type::Local:
+        case ParseStack::Type::Register:
             emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            break;
+        case ParseStack::Type::RefK:
+            emitCodeRRR(Op::STOREFK, 0, _parseStack.topReg(), srcReg);
+            _parseStack.pop();
+            _parseStack.push(ParseStack::Type::Register, srcReg);
             break;
         }
     }
