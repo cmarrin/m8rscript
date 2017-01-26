@@ -71,8 +71,8 @@ public:
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) { return setProperty(eu, elt.toIdValue(eu), value, append); }
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams);
     
-    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
@@ -138,11 +138,7 @@ public:
     
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
 
-    virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override
-    {
-        auto it = _properties.find(prop);
-        return (it != _properties.end()) ? it->value : Value();
-    }
+    virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
 
     bool setProperty(const Atom& prop, const Value& v, bool add);
     

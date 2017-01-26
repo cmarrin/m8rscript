@@ -229,8 +229,7 @@ void Parser::pushK()
 {
     if (_nerrors) return;
     
-    // FIXME: Represent Null as its own value type to distinguish it from and error
-    ConstantId id = currentFunction()->addConstant(Value());
+    ConstantId id = currentFunction()->addConstant(Value(Value::Type::Null));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -282,12 +281,22 @@ void Parser::emitMove()
     ParseStack::Type dstType = _parseStack.topType();
     
     switch(dstType) {
+        case ParseStack::Type::Unknown:
+        case ParseStack::Type::Constant:
+            assert(0);
+            break;
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
             emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             break;
-        default:
+        case ParseStack::Type::Local:
+        case ParseStack::Type::Register:
             emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            break;
+        case ParseStack::Type::RefK:
+            emitCodeRRR(Op::STOREFK, 0, _parseStack.topReg(), srcReg);
+            _parseStack.pop();
+            _parseStack.push(ParseStack::Type::Register, srcReg);
             break;
         }
     }
@@ -466,7 +475,7 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
     uint32_t calleeReg = 0;
     if (thisReg < 0) {
         // This uses a dummy value for this
-        thisReg = MaxRegister;
+        thisReg = MaxRegister + 1;
     }
 
     if (value == Op::CALL) {
@@ -568,7 +577,7 @@ ObjectId Parser::functionEnd()
 
 static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
 {
-    return (reg > numLocals && reg < 256) ? (255 - reg + numLocals) : reg;
+    return (reg > numLocals && reg <= MaxRegister) ? (MaxRegister - reg + numLocals) : reg;
 }
 
 void Parser::reconcileRegisters(Function* function)

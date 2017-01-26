@@ -41,7 +41,7 @@ using namespace m8r;
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    eu->startFunction(objectId(), nparams);
+    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

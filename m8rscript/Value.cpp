@@ -191,7 +191,8 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
 Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::None: break;
+        case Type::None:
+        case Type::Null: break;
         case Type::Object: {
             Object* obj = Global::obj(*this);
             return obj ? floatFromString(obj->toString(eu).c_str()) : Float();

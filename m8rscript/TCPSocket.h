@@ -45,9 +45,9 @@ public:
     TCPSocketProto(Program*);
 
 private:
-    static CallReturnValue __construct(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
-    NativeFunction ___construct;
+    NativeFunction _constructor;
 };
 
 class TCPSocket : public Object, public TCPDelegate {

@@ -179,7 +179,7 @@ public:
     }
 
 private:
-    void startFunction(ObjectId function, uint32_t nparams);
+    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams);
     void runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -209,6 +209,7 @@ private:
     }
     
     Value derefId(Atom);
+    void stoIdRef(Atom, const Value&);
     
     void setInFrame(uint32_t r, const Value& v)
     {
@@ -224,7 +225,7 @@ private:
     Value& regOrConst(uint32_t r)
     {
         if (r > MaxRegister) {
-            return _constantsPtr[r - MaxRegister];
+            return _constantsPtr[r - MaxRegister - 1];
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
@@ -235,7 +236,9 @@ private:
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
+    ObjectId _this;
     Function* _functionPtr;
+    Object* _thisPtr;
     Value* _constantsPtr;
     Value* _framePtr;
     uint32_t _localOffset = 0;

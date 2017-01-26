@@ -43,9 +43,9 @@ using namespace m8r;
 
 TCPSocketProto::TCPSocketProto(Program* program)
     : ObjectFactory(program, ROMSTR("__TCPSocket"))
-    , ___construct(__construct)
+    , _constructor(constructor)
 {
-    addProperty(program, ATOM(__construct), &___construct);
+    addProperty(program, ATOM(constructor), &_constructor);
     addProperty(program, ATOM(Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
     addProperty(program, ATOM(Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
     addProperty(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
@@ -53,7 +53,7 @@ TCPSocketProto::TCPSocketProto(Program* program)
     addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
 }
 
-CallReturnValue TCPSocketProto::__construct(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue TCPSocketProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // If 2 params: port number, event function, 3 params is ip, port, func
     if (nparams < 2) {

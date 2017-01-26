@@ -48,6 +48,16 @@ void Object::_gcMark(ExecutionUnit* eu)
     Global::gcMark(eu, _proto);
 }
 
+CallReturnValue Object::construct(ExecutionUnit* eu, uint32_t nparams)
+{
+    MaterObject* obj = new MaterObject();
+    Value id(Global::addObject(obj, true));
+    obj->setProto(objectId());
+    obj->call(eu, id, nparams);
+    eu->stack().push(id);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
 {
     if (!serializeWrite(stream, error, type)) {
@@ -264,7 +274,17 @@ CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint3
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    return obj->call(eu, Value(), nparams);
+    return obj->call(eu, objectId(), nparams);
+}
+
+const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
+{
+    auto it = _properties.find(prop);
+    if (it == _properties.end()) {
+        Object* obj = Global::obj(proto());
+        return obj ? obj->property(eu, prop) : Value();
+    }
+    return it->value;
 }
 
 bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
@@ -289,8 +309,11 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
 
 CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
 {
-    auto it = _properties.find(ATOM(__construct));
-    return it->value.call(eu, Value(objectId()), nparams);
+    auto it = _properties.find(ATOM(constructor));
+    if (it != _properties.end()) {
+        return it->value.call(eu, Value(objectId()), nparams);
+    }
+    return Object::construct(eu, nparams);
 }
 
 void PropertyObject::removeNoncollectableObjects()
@@ -394,7 +417,13 @@ String MaterObject::toString(ExecutionUnit* eu) const
         }
         s += eu->program()->stringFromAtom(prop.key);
         s += " : ";
-        s += prop.value.toStringValue(eu);
+        
+        // Avoid loops
+        if (prop.value.isObjectId()) {
+            s += PropertyObject::toString(eu);
+        } else {
+            s += prop.value.toStringValue(eu);
+        }
     }
     s += " }";
     return s;

@@ -96,8 +96,8 @@ public:
     
     enum class Type : uint8_t {
         None = 0,
-        Object, Float, Integer, String, StringLiteral, Id,
-        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount,
+        Object, Float, Integer, String, StringLiteral, Id, Null,
+        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount, PreviousThis,
     };
 
     Value() { }
@@ -105,6 +105,7 @@ public:
     Value(Value&& other) { _value._raw = other._value._raw; }
     
     Value(ObjectId objectId, Type type = Type::Object) : _value(objectId, type) { }
+    Value(Type type) : _value(type) { }
     Value(Float value) : _value(value) { }
     Value(int32_t value) : _value(value) { }
     Value(uint32_t value, Type type) : _value(value, type) { }
@@ -138,7 +139,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject) ? objectIdFromValue() : ObjectId(); }
+    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
@@ -178,7 +179,7 @@ public:
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
-    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject; }
+    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -193,7 +194,7 @@ public:
     
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
     
-    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::String; }
+    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis || type() == Type::String; }
     
 private:
     static constexpr uint8_t TypeBitCount = 4;
@@ -212,7 +213,8 @@ private:
     inline uint16_t indexFromValue() const { return _value._d; }
     
     struct RawValue {
-        RawValue() { _raw = 0; }
+        RawValue() { _raw = 0; setType(Type::None); }
+        RawValue(Type type) { _raw = 0; setType(type); }
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
         RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
