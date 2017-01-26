@@ -1,0 +1,29 @@
+//
+// ClassTest.m8r
+//
+// Tests class functionality
+
+/*
+class MyClass(a, b, c)
+{
+	var _myVar = a + b + c;
+	
+	function doSomething(x) {
+		printf("The value of _myVar is %d, the value of x is %s\n", _myVar, x);
+	}
+}
+*/
+
+var MyClass = {
+	_myVar : null,
+	doSomething : function(x) {
+		printf("The value of _myVar is %d, the value of x is %s\n", _myVar, x);
+	},
+	__construct : function(a, b, c) {
+		_myVar = a + b + c;
+		return this;
+	}
+};
+
+var myClass = new MyClass(1, 2, 3);
+myClass.doSomething("Hello");
