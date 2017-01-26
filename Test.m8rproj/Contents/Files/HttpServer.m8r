@@ -1,28 +1,29 @@
 //
 // Http Server
 //
-
-printf("TCPSocket Proto = '%s'\n", TCPSocket);
-var sock = new TCPSocket(8080, function(event, connectionId) {
-	switch(event) {
-		case TCPSocket.Connected:
-			printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
-		default:
-			printf("TCPSocket fired. event=%d\n", event);
+class HttpServer(port, func)
+{
+	class HttpConnection(sock, connectionId)
+	{
+		var _sock = sock;
+		var _connectionId = connectionId;
 	}
 	
-});
-printf("TCPSocket = '%s'\n", sock);
-
-
-/*
-function HttpServer(port)
-{
-	var _port = port;
-	var _tcp = TCP(port);
-	_tcp.connect(connection)
-	_tcp.receivedData = function(data)
-	{
-	}
+	var _connections = [ ];
+	
+	var _sock = new TCPSocket(port, function(event, connectionId) {
+		switch(event) {
+			case TCPSocket.Connected:
+				printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
+				connection[connectionId] = new HttpConnection(_sock, connectionId);
+				send(connectionId, "Hello there\n");
+			case TCPSocket.Disconnected:
+				printf("TCPSocket disconnected. ConnectionId=%d\n", connectionId);
+				connection[connectionId] = null;
+			default:
+				printf("TCPSocket fired. event=%d\n", event);
+		}
+	});
 }
-*/
+
+var server = new HttpServer(8080, function() { printf("Got it!\n"); });
