@@ -307,8 +307,10 @@ uint32_t Parser::emitDeref(DerefType type)
     if (_nerrors) return 0;
     
     uint32_t derefReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t objectReg = _parseStack.bake();
+    _parseStack.swap();
+    _parseStack.pop();
     _parseStack.replaceTop((type == DerefType::Prop) ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
     return objectReg;
 }
@@ -346,8 +348,10 @@ void Parser::emitAppendElt()
     // tos value to store
     // leave object on tos
     uint32_t srcReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t objectReg = _parseStack.bake();
+    _parseStack.swap();
+    _parseStack.pop();
     
     emitCodeRRR(Op::APPENDELT, objectReg, srcReg);
 }
@@ -361,10 +365,12 @@ void Parser::emitAppendProp()
     // tos value to store
     // leave object on tos
     uint32_t srcReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t propReg = _parseStack.bake();
     _parseStack.pop();
-    uint32_t objectReg = _parseStack.bake();
+    _parseStack.pop();
+    assert(!_parseStack.needsBaking());
+    uint32_t objectReg = _parseStack.topReg();
     
     emitCodeRRR(Op::APPENDPROP, objectReg, propReg, srcReg);
 }
@@ -378,10 +384,12 @@ void Parser::emitStoProp()
     // tos value to store
     // leave object on tos
     uint32_t srcReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t derefReg = _parseStack.bake();
     _parseStack.pop();
-    uint32_t objectReg = _parseStack.bake();
+    _parseStack.pop();
+    assert(!_parseStack.needsBaking());
+    uint32_t objectReg = _parseStack.topReg();
     
     emitCodeRRR(Op::STOPROP, objectReg, derefReg, srcReg);
 }
@@ -396,8 +404,9 @@ void Parser::emitBinOp(Op op)
     }
     
     uint32_t rightReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t leftReg = _parseStack.bake();
+    _parseStack.pop();
     _parseStack.pop();
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
 
@@ -410,8 +419,10 @@ void Parser::emitCaseTest()
     
     // This is like emitBinOp(Op::EQ), but does not pop the left operand
     uint32_t rightReg = _parseStack.bake();
-    _parseStack.pop();
+    _parseStack.swap();
     uint32_t leftReg = _parseStack.bake();
+    _parseStack.swap();
+    _parseStack.pop();
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
 
     emitCodeRRR(Op::EQ, dst, leftReg, rightReg);
@@ -626,6 +637,14 @@ void Parser::ParseStack::pop()
         _parser->_functions.back()._nextReg++;
     }
     _stack.pop();
+}
+
+void Parser::ParseStack::swap()
+{
+    assert(_stack.size() >= 2);
+    Entry t = _stack.top();
+    _stack.top() = _stack.top(-1);
+    _stack.top(-1) = t;
 }
 
 uint32_t Parser::ParseStack::bake()

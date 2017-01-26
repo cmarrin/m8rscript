@@ -193,6 +193,7 @@ private:
         
         uint32_t push(Type, uint32_t reg = 0, uint32_t derefReg = 0);
         void pop();
+        void swap();
         
         Type topType() const { return empty() ? Type::Unknown : _stack.top()._type; }
         uint32_t topReg() const { return empty() ? 0 : _stack.top()._reg; }
@@ -201,6 +202,7 @@ private:
         void clear() { _stack.clear(); }
         
         uint32_t bake();
+        bool needsBaking() const { return _stack.top()._type == Type::PropRef || _stack.top()._type == Type::EltRef || _stack.top()._type == Type::RefK; }
         void replaceTop(Type, uint32_t reg = 0, uint32_t derefReg = 0);
         
     private:

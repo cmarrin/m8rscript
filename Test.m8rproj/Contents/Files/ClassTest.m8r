@@ -26,7 +26,6 @@ class Circle
 	
 	function area() { return PI * _radius * _radius; }
 }
-
 */
 
 var MyClass = {
@@ -40,15 +39,18 @@ var MyClass = {
 	}
 };
 
+var myClass = new MyClass(1, 2, 3);
+myClass.doSomething("Hello");
+
 var Circle = {
 	_radius : null,
 	PI : 3.14159,
-	constructor : function(radius) { _radius = radius; },
+	constructor : function(radius) {
+		_radius = radius;
+		return this;
+	},
 	area : function() { return PI * _radius * _radius; }
 };
-
-var myClass = new MyClass(1, 2, 3);
-myClass.doSomething("Hello");
 
 var myCircle = new Circle(6);
 printf("myCircle(6) area = %f\n", myCircle.area());
