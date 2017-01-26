@@ -100,13 +100,17 @@ void Parser::expectedError(Token token)
 Label Parser::label()
 {
     Label label;
-    label.label = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
-    label.uniqueID = _nextLabelId++;
+    if (!_nerrors) {
+        label.label = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
+        label.uniqueID = _nextLabelId++;
+    }
     return label;
 }
 
 void Parser::addMatchedJump(Op op, Label& label)
 {
+    if (_nerrors) return;
+    
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
 
     uint32_t reg = 0;
@@ -121,6 +125,8 @@ void Parser::addMatchedJump(Op op, Label& label)
 
 void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
 {
+    if (_nerrors) return;
+    
     if (jumpAddr < -32767 || jumpAddr > 32767) {
         printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
         return;
@@ -134,6 +140,8 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
 
 void Parser::jumpToLabel(Op op, Label& label)
 {
+    if (_nerrors) return;
+    
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(currentFunction()->code()->size());
     
@@ -178,30 +186,40 @@ void Parser::addCode(Instruction inst)
 
 void Parser::pushK(StringLiteral::Raw s)
 {
+    if (_nerrors) return;
+    
     ConstantId id = currentFunction()->addConstant(StringLiteral(s));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
 void Parser::pushK(const char* s)
 {
+    if (_nerrors) return;
+    
     ConstantId id = currentFunction()->addConstant(_program->addStringLiteral(s));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
 void Parser::pushK(uint32_t value)
 {
+    if (_nerrors) return;
+    
     ConstantId id = currentFunction()->addConstant(value);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
 void Parser::pushK(Float value)
 {
+    if (_nerrors) return;
+    
     ConstantId id = currentFunction()->addConstant(value);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
 void Parser::pushK(bool value)
 {
+    if (_nerrors) return;
+    
     // FIXME: Support booleans as a first class type
     ConstantId id = currentFunction()->addConstant(value ? 1 : 0);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
@@ -209,6 +227,8 @@ void Parser::pushK(bool value)
 
 void Parser::pushK()
 {
+    if (_nerrors) return;
+    
     // FIXME: Represent Null as its own value type to distinguish it from and error
     ConstantId id = currentFunction()->addConstant(Value());
     _parseStack.push(ParseStack::Type::Constant, id.raw());
@@ -216,6 +236,8 @@ void Parser::pushK()
 
 void Parser::pushK(ObjectId function)
 {
+    if (_nerrors) return;
+    
     Object* obj = Global::obj(function);
     assert(obj);
     ConstantId id = currentFunction()->addConstant(function);
@@ -224,11 +246,15 @@ void Parser::pushK(ObjectId function)
 
 void Parser::emitId(const char* s, IdType type)
 {
+    if (_nerrors) return;
+    
     emitId(_program->atomizeString(s), type);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
 {
+    if (_nerrors) return;
+    
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         int32_t index = currentFunction()->localIndex(atom);
         if (index < 0 && type == IdType::MustBeLocal) {
@@ -249,6 +275,8 @@ void Parser::emitId(const Atom& atom, IdType type)
 
 void Parser::emitMove()
 {
+    if (_nerrors) return;
+    
     uint32_t srcReg = _parseStack.bake();
     _parseStack.pop();
     ParseStack::Type dstType = _parseStack.topType();
@@ -267,6 +295,8 @@ void Parser::emitMove()
 
 uint32_t Parser::emitDeref(DerefType type)
 {
+    if (_nerrors) return 0;
+    
     uint32_t derefReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t objectReg = _parseStack.bake();
@@ -276,6 +306,8 @@ uint32_t Parser::emitDeref(DerefType type)
 
 void Parser::emitDup()
 {
+    if (_nerrors) return;
+    
     ParseStack::Type type = _parseStack.topType();
     uint32_t reg = _parseStack.topReg();
     uint32_t derefReg = _parseStack.topDerefReg();
@@ -299,6 +331,8 @@ void Parser::emitDup()
 
 void Parser::emitAppendElt()
 {
+    if (_nerrors) return;
+    
     // tos-1 object to append to
     // tos value to store
     // leave object on tos
@@ -311,6 +345,8 @@ void Parser::emitAppendElt()
 
 void Parser::emitAppendProp()
 {
+    if (_nerrors) return;
+    
     // tos-2 object to append to
     // tos-1 property on that object
     // tos value to store
@@ -326,6 +362,8 @@ void Parser::emitAppendProp()
 
 void Parser::emitStoProp()
 {
+    if (_nerrors) return;
+    
     // tos-2 object to store into
     // tos-1 property of this object to store into
     // tos value to store
@@ -341,6 +379,8 @@ void Parser::emitStoProp()
 
 void Parser::emitBinOp(Op op)
 {
+    if (_nerrors) return;
+    
     if (op == Op::MOVE) {
         emitMove();
         return;
@@ -357,6 +397,8 @@ void Parser::emitBinOp(Op op)
 
 void Parser::emitCaseTest()
 {
+    if (_nerrors) return;
+    
     // This is like emitBinOp(Op::EQ), but does not pop the left operand
     uint32_t rightReg = _parseStack.bake();
     _parseStack.pop();
@@ -368,6 +410,8 @@ void Parser::emitCaseTest()
 
 void Parser::emitUnOp(Op op)
 {
+    if (_nerrors) return;
+    
     uint32_t srcReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
@@ -376,12 +420,16 @@ void Parser::emitUnOp(Op op)
 
 void Parser::emitLoadLit(bool array)
 {
+    if (_nerrors) return;
+    
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
     emitCodeRRR(array ? Op::LOADLITA : Op::LOADLITO, dst);
 }
 
 void Parser::emitPush()
 {
+    if (_nerrors) return;
+    
     uint32_t src = _parseStack.bake();
     _parseStack.pop();
     
@@ -391,12 +439,16 @@ void Parser::emitPush()
 
 void Parser::emitPop()
 {
+    if (_nerrors) return;
+    
     uint32_t dst = _parseStack.push(ParseStack::Type::Register);
     emitCodeRRR(Op::POP, dst);
 }
 
 void Parser::emitEnd()
 {
+    if (_nerrors) return;
+    
     // If we have no errors we expect an empty stack, otherwise, there might be cruft left over
     if (_nerrors) {
         _parseStack.clear();
@@ -406,6 +458,8 @@ void Parser::emitEnd()
 
 void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
 {
+    if (_nerrors) return;
+    
     assert(nparams < 256);
     assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
     
@@ -446,6 +500,8 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
 
 int32_t Parser::emitDeferred()
 {
+    if (_nerrors) return 0;
+    
     assert(!_deferred);
     assert(_deferredCodeBlocks.size() > 0);
     int32_t start = static_cast<int32_t>(currentFunction()->code()->size());
@@ -460,12 +516,16 @@ int32_t Parser::emitDeferred()
 
 void Parser::addNamedFunction(ObjectId functionId, const Atom& name)
 {
+    if (_nerrors) return;
+    
     assert(name);
     currentFunction()->setProperty(nullptr, name, Value(functionId), true);
 }
 
 void Parser::functionAddParam(const Atom& atom)
 {
+    if (_nerrors) return;
+    
     if (currentFunction()->addLocal(atom) < 0) {
         m8r::String s = "param '";
         s += _program->stringFromAtom(atom);
@@ -476,6 +536,8 @@ void Parser::functionAddParam(const Atom& atom)
 
 void Parser::functionStart()
 {
+    if (_nerrors) return;
+    
     _functions.emplace_back(new Function());
     ObjectId functionId = Global::addObject(currentFunction(), true);
     currentFunction()->setObjectId(functionId);
@@ -483,11 +545,15 @@ void Parser::functionStart()
 
 void Parser::functionParamsEnd()
 {
+    if (_nerrors) return;
+    
     currentFunction()->markParamEnd();
 }
 
 ObjectId Parser::functionEnd()
 {
+    if (_nerrors) return ObjectId();
+    
     assert(_functions.size());
     emitEnd();
     Function* function = currentFunction();

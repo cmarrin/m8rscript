@@ -655,7 +655,7 @@ bool ParseEngine::memberExpression()
             argCount = argumentList();
             expect(Token::RParen);
         }
-            _parser->emitCallRet(m8r::Op::NEW, -1, argCount);
+        _parser->emitCallRet(m8r::Op::NEW, -1, argCount);
         return true;
     }
     
