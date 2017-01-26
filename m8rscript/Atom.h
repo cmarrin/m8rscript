@@ -79,6 +79,7 @@ public:
         TCPSocket,
         Trigger,
         arguments,
+        constructor,
         currentTime,
         decode,
         delay,
@@ -94,7 +95,6 @@ public:
         println,
         setPinMode,
         value,
-        __construct,
         __this,
         __typeName,
         __count__

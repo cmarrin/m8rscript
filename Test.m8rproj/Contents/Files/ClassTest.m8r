@@ -4,9 +4,13 @@
 // Tests class functionality
 
 /*
-class MyClass(a, b, c)
+class MyClass
 {
-	var _myVar = a + b + c;
+	var _myVar;
+	
+	constructor(a, b, c) {
+		_myVar = a + b + c;
+	}
 	
 	function doSomething(x) {
 		printf("The value of _myVar is %d, the value of x is %s\n", _myVar, x);
@@ -19,7 +23,7 @@ var MyClass = {
 	doSomething : function(x) {
 		printf("The value of _myVar is %d, the value of x is %s\n", _myVar, x);
 	},
-	__construct : function(a, b, c) {
+	constructor : function(a, b, c) {
 		_myVar = a + b + c;
 		return this;
 	}

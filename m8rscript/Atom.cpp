@@ -67,6 +67,7 @@ static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCPSocket[] ROMSTR_ATTR = "TCPSocket";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
+static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
 static const char _decode[] ROMSTR_ATTR = "decode";
 static const char _delay[] ROMSTR_ATTR = "delay";
@@ -82,7 +83,6 @@ static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
-static const char ___construct[] ROMSTR_ATTR = "__construct";
 static const char ___this[] ROMSTR_ATTR = "this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
@@ -113,6 +113,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Trigger),
     
     AtomEntry(arguments),
+    AtomEntry(constructor),
     AtomEntry(currentTime),
     AtomEntry(decode),
     AtomEntry(delay),
@@ -128,7 +129,6 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(println),
     AtomEntry(setPinMode),
     AtomEntry(value),
-    AtomEntry(__construct),
     AtomEntry(__this),
     AtomEntry(__typeName),
 };
