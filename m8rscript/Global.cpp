@@ -202,7 +202,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
             case 'E':
             case 'g':
             case 'G':
-                // FIXME: Implement
+                SystemInterface::shared()->printf("%s", value.toStringValue(eu).c_str());
                 break;
             case 'p':
                 SystemInterface::shared()->printf("%p", *(reinterpret_cast<void**>(&value)));
