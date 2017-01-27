@@ -59,42 +59,39 @@ struct Keyword
 };
 
 static const char* RODATA_ATTR keywordString =
-       "break\0case\0continue\0default\0delete\0do\0else\0false\0for\0function\0if\0new\0null\0return\0switch\0true\0var\0while";
-    //  000000 00000 000000000 00000000 0000000 000 00000 000000 0000 000000000 000 0000 00000 0000000 0000000 00000 0000 00011
-    //  000000 00001 111111111 22222222 2233333 333 33444 444444 4555 555555566 666 6666 67777 7777778 8888888 88999 9999 99900
-    //  012345 67890 123456789 01234567 8901234 567 89012 345678 9012 345678901 234 5678 90123 4567890 1234567 89012 3456 78901
-    //
-
-static Keyword keywords[] = {
-	{ 0,	Token::Break },
-	{ 6,	Token::Case },
-	{ 11,	Token::Continue },
-	{ 20,	Token::Default },
-	{ 28,	Token::Delete },
-	{ 35,	Token::Do },
-	{ 38,	Token::Else },
-	{ 43,	Token::False },
-	{ 49,	Token::For },
-	{ 53,	Token::Function },
-	{ 62,	Token::If },
-	{ 65,	Token::New },
-	{ 69,	Token::Null },
-	{ 74,	Token::Return },
-	{ 81,	Token::Switch },
-	{ 88,	Token::True },
-	{ 93,	Token::Var },
-	{ 97,	Token::While },
-};
+    "\x01" "break"
+    "\x02" "case"
+    "\x03" "class"
+    "\x04" "constructor"
+    "\x05" "continue"
+    "\x06" "default"
+    "\x07" "delete"
+    "\x08" "do"
+    "\x09" "else"
+    "\x0a" "false"
+    "\x0b" "for"
+    "\x0c" "function"
+    "\x0d" "if"
+    "\x0e" "new"
+    "\x0f" "null"
+    "\x10" "return"
+    "\x11" "switch"
+    "\x12" "this"
+    "\x13" "true"
+    "\x14" "var"
+    "\x15" "while"
+;
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
 {
-	for (size_t i = 0; i < sizeof(keywords) / sizeof(Keyword); ++i) {
-		if (ROMstrcmp(keywordString + keywords[i].index, s) == 0) {
-			return keywords[i].token;
-		}
-	}
-	return Token::Unknown;
+    size_t len = strlen(s);
+    const char* result = ROMstrstr(keywordString, s);
+    if (!result || result[len] >= 0x20) {
+        return Token::Unknown;
+    }
+    
+    return static_cast<Token>(result[-1]);
 }
 
 Token Scanner::scanString(char terminal)

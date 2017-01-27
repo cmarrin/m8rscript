@@ -194,6 +194,36 @@ int ROMstrcmp(const char* s1, const char* s2)
     return c1 - c2;
 }
 
+const char* ROMstrstr(const char* s1, const char* s2)
+{
+    int i, j;
+
+    if ((s1 == nullptr || s2 == nullptr)) {
+        return nullptr;
+    }
+
+    for( i = 0; ; i++) {
+        char c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + i));
+        if (c1 == '\0') {
+            return nullptr;
+        }
+        
+        char c2 = readRomByte(reinterpret_cast<const uint8_t*>(s2));
+        if (c1 == c2) {
+            for (j = i; ; j++) {
+                c2 = readRomByte(reinterpret_cast<const uint8_t*>(s2 + (j - i)));
+                if (c2 == '\0') {
+                    return s1 + i;
+                }
+                c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + j));
+                if (c1 != c2) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void micros_overflow_tick(void* arg) {
     uint32_t m = system_get_time();
     if(m < micros_at_last_overflow_tick) {
