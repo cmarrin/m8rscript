@@ -61,6 +61,7 @@ public:
     }
   
     bool statement();
+    bool classContentsStatement();
 
 private:
     struct OpInfo {
@@ -93,14 +94,17 @@ private:
     
     void retireToken() { _currentToken = Token::None; }
 
-    bool functionDeclaration();
+    bool functionStatement();
+    bool classStatement();
     bool compoundStatement();
     bool selectionStatement();
     bool switchStatement();
     bool iterationStatement();
     bool jumpStatement();
-    uint32_t variableDeclarationList();
-    bool variableDeclaration();
+    
+    enum class VariableDeclType { Statement, Class };
+    uint32_t variableDeclarationList(VariableDeclType);
+    bool variableDeclaration(VariableDeclType);
     
     bool arithmeticPrimary();
     bool expression(uint8_t minPrec = 1);
@@ -109,7 +113,8 @@ private:
     bool memberExpression();
     bool primaryExpression();
     
-    ObjectId function();
+    ObjectId functionExpression();
+    bool classExpression();
     uint32_t argumentList();
     void forLoopCondAndIt();
     void forVarIteration(Atom iteratorName);

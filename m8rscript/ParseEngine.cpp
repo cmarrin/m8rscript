@@ -98,9 +98,6 @@ bool ParseEngine::expect(Token token, bool expected)
 bool ParseEngine::statement()
 {
     while (1) {
-        if (functionDeclaration()) {
-            return true;
-        }
         if (getToken() == Token::EndOfFile) {
             return false;
         }
@@ -108,13 +105,19 @@ bool ParseEngine::statement()
             retireToken();
             return true;
         }
-        if (compoundStatement() || selectionStatement() || 
+        if (functionStatement()) {
+            return true;
+        }
+        if (classStatement()) {
+            return true;
+        }
+        if (compoundStatement() || selectionStatement() ||
             switchStatement() || iterationStatement() || jumpStatement()) {
             return true;
         }
         if (getToken() == Token::Var) {
             retireToken();
-            expect(Token::MissingVarDecl, variableDeclarationList() > 0);
+            expect(Token::MissingVarDecl, variableDeclarationList(VariableDeclType::Statement) > 0);
             expect(Token::Semicolon);
             return true;
         } else if (getToken() == Token::Delete) {
@@ -132,7 +135,39 @@ bool ParseEngine::statement()
     }
 }
 
-bool ParseEngine::functionDeclaration()
+bool ParseEngine::classContentsStatement()
+{
+    if (getToken() == Token::EndOfFile) {
+        return false;
+    }
+    if (getToken() == Token::Function) {
+        retireToken();
+        Atom name = getTokenValue().atom;
+        expect(Token::Identifier);
+        ObjectId f = functionExpression();
+        _parser->emitId(name, Parser::IdType::NotLocal);
+        _parser->pushK(f);
+        _parser->emitAppendProp();
+        return true;
+    }
+    if (getToken() == Token::Constructor) {
+        retireToken();
+        ObjectId f = functionExpression();
+        _parser->emitId(ATOM(constructor), Parser::IdType::NotLocal);
+        _parser->pushK(f);
+        _parser->emitAppendProp();
+        return true;
+    }
+    if (getToken() == Token::Var) {
+        retireToken();
+        expect(Token::MissingVarDecl, variableDeclarationList(VariableDeclType::Class) > 0);
+        expect(Token::Semicolon);
+        return true;
+    }
+    return false;
+}
+
+bool ParseEngine::functionStatement()
 {
     if (getToken() != Token::Function) {
         return false;
@@ -140,8 +175,26 @@ bool ParseEngine::functionDeclaration()
     retireToken();
     Atom name = getTokenValue().atom;
     expect(Token::Identifier);
-    ObjectId f = function();
-    _parser->addNamedFunction(f, name);
+    ObjectId f = functionExpression();
+    _parser->addNamedObject(f, name);
+    return true;
+}
+
+bool ParseEngine::classStatement()
+{
+    if (getToken() != Token::Class) {
+        return false;
+    }
+    retireToken();
+    Atom name = getTokenValue().atom;
+    expect(Token::Identifier);
+    _parser->addVar(name);
+    _parser->emitId(name, Parser::IdType::MustBeLocal);
+    if (!expect(Token::Expr, classExpression())) {
+        return false;
+    }
+    _parser->emitMove();
+    _parser->discardResult();
     return true;
 }
 
@@ -445,7 +498,7 @@ bool ParseEngine::iterationStatement()
                 name = getTokenValue().atom;
             }
             
-            uint32_t count = variableDeclarationList();
+            uint32_t count = variableDeclarationList(VariableDeclType::Statement);
             expect(Token::MissingVarDecl, count  > 0);
             if (getToken() == Token::Colon) {
                 // for-in case with var
@@ -510,10 +563,10 @@ bool ParseEngine::jumpStatement()
     return false;
 }
 
-uint32_t ParseEngine::variableDeclarationList()
+uint32_t ParseEngine::variableDeclarationList(VariableDeclType type)
 {
     uint32_t count = 0;
-    while (variableDeclaration()) {
+    while (variableDeclaration(type)) {
         ++count;
         if (getToken() != Token::Comma) {
             break;
@@ -523,25 +576,39 @@ uint32_t ParseEngine::variableDeclarationList()
     return count;
 }
 
-bool ParseEngine::variableDeclaration()
+bool ParseEngine::variableDeclaration(VariableDeclType type)
 {
     if (getToken() != Token::Identifier) {
         return false;
     }
     Atom name = getTokenValue().atom;
-    _parser->addVar(name);
+    if (type == VariableDeclType::Statement) {
+        _parser->addVar(name);
+    } else {
+        _parser->emitId(name, Parser::IdType::NotLocal);
+    }
     retireToken();
     if (getToken() != Token::STO) {
+        if (type == VariableDeclType::Class) {
+            _parser->pushK();
+            _parser->emitAppendProp();
+        }
         return true;
     }
     retireToken();
-    _parser->emitId(name, Parser::IdType::MustBeLocal);
+    if (type == VariableDeclType::Statement) {
+        _parser->emitId(name, Parser::IdType::MustBeLocal);
+    }
     if (!expect(Token::Expr, expression())) {
         return false;
     }
         
-    _parser->emitMove();
-    _parser->discardResult();
+    if (type == VariableDeclType::Statement) {
+        _parser->emitMove();
+        _parser->discardResult();
+    } else {
+        _parser->emitAppendProp();
+    }
     return true;
 }
 
@@ -661,8 +728,13 @@ bool ParseEngine::memberExpression()
     
     if (getToken() == Token::Function) {
         retireToken();
-        ObjectId f = function();
+        ObjectId f = functionExpression();
         _parser->pushK(f);
+        return true;
+    }
+    if (getToken() == Token::Class) {
+        retireToken();
+        classExpression();
         return true;
     }
     return primaryExpression();
@@ -690,6 +762,7 @@ bool ParseEngine::primaryExpression()
 {
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::MightBeLocal); retireToken(); break;
+        case Token::This: _parser->emitId(ATOM(__this), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); break;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); break;
         case Token::String: _parser->pushK(getTokenValue().string); retireToken(); break;
@@ -753,7 +826,7 @@ bool ParseEngine::propertyName()
     }
 }
 
-ObjectId ParseEngine::function()
+ObjectId ParseEngine::functionExpression()
 {
     expect(Token::LParen);
     _parser->functionStart();
@@ -764,6 +837,15 @@ ObjectId ParseEngine::function()
     while(statement()) { }
     expect(Token::RBrace);
     return _parser->functionEnd();
+}
+
+bool ParseEngine::classExpression()
+{
+    _parser->emitLoadLit(false);
+    expect(Token::LBrace);
+    while(classContentsStatement()) { }
+    expect(Token::RBrace);
+    return true;
 }
 
 void ParseEngine::formalParameterList()

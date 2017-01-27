@@ -164,7 +164,7 @@ private:
     void emitPop();
     void emitEnd();
     
-    void addNamedFunction(ObjectId functionId, const Atom& name);
+    void addNamedObject(ObjectId functionId, const Atom& name);
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     

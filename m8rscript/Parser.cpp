@@ -239,6 +239,7 @@ void Parser::pushK(ObjectId function)
     
     Object* obj = Global::obj(function);
     assert(obj);
+    (void) obj;
     ConstantId id = currentFunction()->addConstant(function);
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
@@ -534,7 +535,7 @@ int32_t Parser::emitDeferred()
     return start;
 }
 
-void Parser::addNamedFunction(ObjectId functionId, const Atom& name)
+void Parser::addNamedObject(ObjectId functionId, const Atom& name)
 {
     if (_nerrors) return;
     
