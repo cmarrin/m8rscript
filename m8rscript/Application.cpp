@@ -53,6 +53,7 @@ Application::Application()
 
 bool Application::load(Error& error, const char* filename)
 {
+    stop();
     _program = nullptr;
     
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
