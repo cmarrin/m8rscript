@@ -56,7 +56,9 @@ GPIO::GPIO(Program* program)
     addProperty(program, ATOM(digitalRead), &_digitalRead);
     addProperty(program, ATOM(onInterrupt), &_onInterrupt);
     
+    Global::addObject(_pinMode.nativeObject(), false);
     addProperty(program, ATOM(PinMode), _pinMode.objectId());
+    Global::addObject(_trigger.nativeObject(), false);
     addProperty(program, ATOM(Trigger), _trigger. objectId());
 }
 
