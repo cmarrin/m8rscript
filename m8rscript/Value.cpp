@@ -236,10 +236,10 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     return Atom();
 }
 
-CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     Object* obj = Global::obj(*this);
-    return obj ? obj->call(eu, thisValue, nparams) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::_gcMark(ExecutionUnit* eu)

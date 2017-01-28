@@ -264,7 +264,7 @@ CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint3
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    return obj->call(eu, objectId(), nparams);
+    return obj->call(eu, objectId(), nparams, false);
 }
 
 const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -307,7 +307,7 @@ CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        return it->value.call(eu, id, nparams);
+        return it->value.call(eu, id, nparams, true);
     }
     return Object::construct(eu, nparams);
 }

@@ -179,7 +179,7 @@ public:
     }
 
 private:
-    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams);
+    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor);
     void runNextEvent();
 
     bool printError(const char* s, ...) const;

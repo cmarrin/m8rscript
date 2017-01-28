@@ -39,9 +39,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams);
+    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams, ctor);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

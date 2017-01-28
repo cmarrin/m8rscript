@@ -80,7 +80,7 @@ public:
     
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
     static constexpr int32_t IteratorCount = -1;
@@ -189,7 +189,7 @@ public:
     
     virtual const char* typeName() const override { return "NativeFunction"; }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams) override { return _func(eu, thisValue, nparams); }
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override { return _func(eu, thisValue, nparams); }
 
 private:
     Func _func = nullptr;

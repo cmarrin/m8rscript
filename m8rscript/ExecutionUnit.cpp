@@ -174,11 +174,11 @@ void ExecutionUnit::runNextEvent()
         
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 2 + nargs);
         
-        startFunction(_eventQueue.front().asObjectIdValue(), ObjectId(), nargs);
+        startFunction(_eventQueue.front().asObjectIdValue(), ObjectId(), nargs, false);
     }
 }
 
-void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams)
+void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor)
 {
     assert(_program);
     assert(function);
@@ -203,7 +203,7 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _stack.push(Value(_pc, _object));
     _pc = 0;
     
-    _stack.push(Value(prevFrame, _this, prevActualParamCount, false));
+    _stack.push(Value(prevFrame, _this, prevActualParamCount, ctor));
     _object = function;
     assert(_object);
 
@@ -284,6 +284,8 @@ static const uint16_t GCCount = 1000;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
+    bool ctor;
+    ObjectId prevThis;
 
     Instruction inst;
     
@@ -354,7 +356,9 @@ static const uint16_t GCCount = 1000;
         assert(_stack.top().type() == Value::Type::PreviousContextA);
         _stack.pop(rightValue);
         
-        // FIXME: Handle Ctor value. If true, need to push the current this value onto the return stack
+        ctor = leftValue.asCtorValue();
+        prevThis = _this;
+        
         _actualParamCount = leftValue.asPreviousParamCountValue();
         _this = leftValue.asObjectIdValue();
         assert(_this);
@@ -375,7 +379,11 @@ static const uint16_t GCCount = 1000;
 
         updateCodePointer();
     
-        _stack.push(returnedValue);
+        if (!returnedValue && ctor) {
+            _stack.push(Value(prevThis));
+        } else {
+            _stack.push(returnedValue);
+        }
         DISPATCH;
     L_MOVE:
         setInFrame(inst.ra(), regOrConst(inst.rb()));
@@ -621,7 +629,7 @@ static const uint16_t GCCount = 1000;
             switch(inst.op()) {
                 default: break;
                 case Op::CALL:
-                    callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue);
+                    callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue, false);
                     break;
                 case Op::NEW:
                     callReturnValue = objectValue->construct(this, uintValue);
