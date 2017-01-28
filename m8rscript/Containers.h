@@ -422,16 +422,16 @@ public:
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
     
-    size_t setLocalFrame(size_t formalParams, size_t actualParams, size_t localSize)
+    uint32_t setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
     {
-        size_t oldFrame = _frame;
-        _frame = size() - actualParams;
-        size_t temps = localSize - formalParams;
-        size_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
+        uint32_t oldFrame = _frame;
+        _frame = static_cast<uint32_t>(size()) - actualParams;
+        uint32_t temps = localSize - formalParams;
+        uint32_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
         super::resize(size() + temps + extraParams);
         return oldFrame;
     }
-    void restoreFrame(size_t frame, size_t localsToPop)
+    void restoreFrame(uint32_t frame, uint32_t localsToPop)
     {
         assert(frame <= size() && frame <= _frame);
         pop(localsToPop);
@@ -453,7 +453,7 @@ public:
     type* framePtr() { return &super::at(_frame); }
 
 private:
-    size_t _frame = 0;
+    uint32_t _frame = 0;
 };
 
 }

@@ -97,21 +97,22 @@ public:
     enum class Type : uint8_t {
         None = 0,
         Object, Float, Integer, String, StringLiteral, Id, Null,
-        PreviousFrame, PreviousPC, PreviousObject, PreviousParamCount, PreviousThis,
+        PreviousContextA, PreviousContextB,
     };
 
     Value() { }
     Value(const Value& other) { _value._raw = other._value._raw; }
     Value(Value&& other) { _value._raw = other._value._raw; }
     
-    Value(ObjectId objectId, Type type = Type::Object) : _value(objectId, type) { }
+    Value(ObjectId objectId) : _value(objectId) { }
     Value(Type type) : _value(type) { }
     Value(Float value) : _value(value) { }
     Value(int32_t value) : _value(value) { }
-    Value(uint32_t value, Type type) : _value(value, type) { }
     Value(Atom value) : _value(value) { }
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
+    Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
+    Value(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
     
     Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
     operator bool() const { return type() != Type::None; }
@@ -139,13 +140,14 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis) ? objectIdFromValue() : ObjectId(); }
+    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
-    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousPC) ? intFromValue() : 0; }
-    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousFrame) ? intFromValue() : 0; }
-    uint32_t asPreviousParamCountValue() const { return (type() == Type::PreviousParamCount) ? intFromValue() : 0; }
+    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousContextA) ? intFromValue() : 0; }
+    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousContextB) ? intFromValue() : 0; }
+    uint32_t asPreviousParamCountValue() const { return (type() == Type::PreviousContextB) ? paramCountFromValue() : 0; }
+    bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     
@@ -179,7 +181,7 @@ public:
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
-    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis; }
+    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -194,7 +196,7 @@ public:
     
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
     
-    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousObject || type() == Type::PreviousThis || type() == Type::String; }
+    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB || type() == Type::String; }
     
 private:
     static constexpr uint8_t TypeBitCount = 4;
@@ -207,10 +209,12 @@ private:
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return _value._i; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
-    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._i)); }
-    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._i)); }
+    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._d)); }
+    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._d)); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._i)); }
     inline uint16_t indexFromValue() const { return _value._d; }
+    inline uint16_t paramCountFromValue() const { return _value._paramCount; }
+    inline bool ctorFromValue() const { return _value._ctor; }
     
     struct RawValue {
         RawValue() { _raw = 0; setType(Type::None); }
@@ -218,18 +222,28 @@ private:
         RawValue(uint64_t v) { _raw = v; }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
         RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
-        RawValue(uint32_t i, Type type)
-        {
-            assert(type == Type::PreviousPC || type == Type::PreviousFrame || type == Type::PreviousParamCount);
-            _raw = 0;
-            _i = i;
-            setType(type);
-        }
         RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
-        RawValue(StringId id) { _raw = 0; _i = id.raw(); setType(Type::String); }
+        RawValue(StringId id) { _raw = 0; _d = id.raw(); setType(Type::String); }
         RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }
-        RawValue(ObjectId id, Type type = Type::Object) { _raw = 0; _i = id.raw(); setType(type); }
-        RawValue(ObjectId id, uint16_t index, Type type) { _raw = 0; _i = id.raw(); _d = index; setType(type); }
+        RawValue(ObjectId id) { _raw = 0; _d = id.raw(); setType(Type::Object); }
+        
+        RawValue(uint32_t prevPC, ObjectId prevObj)
+        {
+            _raw = 0;
+            _i = prevPC;
+            _d = prevObj.raw();
+            setType(Type::PreviousContextA);
+        }
+        
+        RawValue(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor)
+        {
+            _raw = 0;
+            _i = prevFrame;
+            _d = prevThis.raw();
+            _paramCount = prevParamCount;
+            _ctor = ctor;
+            setType(Type::PreviousContextB);
+        }
         
         Type type() const { return static_cast<Type>(_type); }
 #ifdef __APPLE__
@@ -245,7 +259,9 @@ private:
 #else
                 uint32_t _type : TypeBitCount;
 #endif
-                uint16_t _ : 12;
+                uint16_t _paramCount : 10;
+                uint16_t _ctor : 1;
+                uint16_t _ : 1;
                 uint16_t _d : 16;
                 uint32_t _i : 32;
             };

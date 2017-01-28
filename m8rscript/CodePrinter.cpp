@@ -372,11 +372,8 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
-        case Value::Type::PreviousFrame: s += "***PreviousFrame***"; break;
-        case Value::Type::PreviousPC: s += "***PreviousPC***"; break;
-        case Value::Type::PreviousObject: s += "***PreviousObject***"; break;
-        case Value::Type::PreviousThis: s += "***PreviousThis***"; break;
-        case Value::Type::PreviousParamCount: s += "***PreviousParamCount***"; break;
+        case Value::Type::PreviousContextA: s += "***PreviousContextA***"; break;
+        case Value::Type::PreviousContextB: s += "***PreviousContextB***"; break;
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();
             Object* obj = Global::obj(objectId);

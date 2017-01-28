@@ -198,12 +198,12 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _this = thisObject;
     _thisPtr = Global::obj(_this);
     
-    _stack.push(Value(static_cast<uint32_t>(_stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize())), Value::Type::PreviousFrame));
-    _stack.push(Value(_pc, Value::Type::PreviousPC));
+    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize());
+    
+    _stack.push(Value(_pc, _object));
     _pc = 0;
-    _stack.push(Value(_object, Value::Type::PreviousObject));
-    _stack.push(Value(_this, Value::Type::PreviousThis));
-    _stack.push(Value(prevActualParamCount, Value::Type::PreviousParamCount));
+    
+    _stack.push(Value(prevFrame, _this, prevActualParamCount, false));
     _object = function;
     assert(_object);
 
@@ -283,7 +283,7 @@ static const uint16_t GCCount = 1000;
     ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
-    size_t localsToPop;
+    uint32_t localsToPop;
 
     Instruction inst;
     
@@ -349,37 +349,30 @@ static const uint16_t GCCount = 1000;
         
         localsToPop = _functionPtr->localSize() + _localOffset;
         
-        assert(_stack.top().type() == Value::Type::PreviousParamCount);
+        assert(_stack.top().type() == Value::Type::PreviousContextB);
         _stack.pop(leftValue);
+        assert(_stack.top().type() == Value::Type::PreviousContextA);
+        _stack.pop(rightValue);
+        
+        // FIXME: Handle Ctor value. If true, need to push the current this value onto the return stack
         _actualParamCount = leftValue.asPreviousParamCountValue();
-
-        assert(_stack.top().type() == Value::Type::PreviousThis);
-        _stack.pop(leftValue);
         _this = leftValue.asObjectIdValue();
         assert(_this);
         _thisPtr = Global::obj(_this);
+        _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
+        _framePtr =_stack.framePtr();
+        _formalParamCount = _functionPtr->formalParamCount();
+        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
         
-        assert(_stack.top().type() == Value::Type::PreviousObject);
-        _stack.pop(leftValue);
-        _object = leftValue.asObjectIdValue();
+        _pc = rightValue.asPreviousPCValue();
+        _object = rightValue.asObjectIdValue();
         assert(_object);
         objectValue = Global::obj(_object);
         assert(objectValue->isFunction());
         _functionPtr = static_cast<Function*>(objectValue);
         assert(_functionPtr->code()->size());
         _constantsPtr = _functionPtr->constantsPtr();
-        
-        assert(_stack.top().type() == Value::Type::PreviousPC);
-        _stack.pop(leftValue);
-        _pc = leftValue.asPreviousPCValue();
-        
-        assert(_stack.top().type() == Value::Type::PreviousFrame);
-        _stack.pop(leftValue);
-        _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
-        _framePtr =_stack.framePtr();
-        _formalParamCount = _functionPtr->formalParamCount();
-        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
-        
+
         updateCodePointer();
     
         _stack.push(returnedValue);
