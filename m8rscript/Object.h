@@ -67,11 +67,18 @@ public:
     virtual void gcMark(ExecutionUnit* eu) { if (_proto) { _gcMark(eu); } }
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) { return false; }
+    
+    enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, SetPropertyType) { return false; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) { return setProperty(eu, elt.toIdValue(eu), value, append); }
-    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams);
+    
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+    {
+        return setProperty(eu, elt.toIdValue(eu), value, append ? SetPropertyType::AlwaysAdd : SetPropertyType::NeverAdd);
+    }
+    
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
@@ -140,7 +147,7 @@ public:
 
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
 
-    bool setProperty(const Atom& prop, const Value& v, bool add);
+    bool setProperty(const Atom& prop, const Value& v, SetPropertyType);
     
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
@@ -168,9 +175,9 @@ public:
     virtual const char* typeName() const override { return "Object"; }
     virtual String toString(ExecutionUnit*) const override;
 
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, bool add) override
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, SetPropertyType type) override
     {
-        return PropertyObject::setProperty(prop, v, add);
+        return PropertyObject::setProperty(prop, v, type);
     }
 };
 

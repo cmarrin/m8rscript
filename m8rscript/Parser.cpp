@@ -540,7 +540,7 @@ void Parser::addNamedObject(ObjectId functionId, const Atom& name)
     if (_nerrors) return;
     
     assert(name);
-    currentFunction()->setProperty(nullptr, name, Value(functionId), true);
+    currentFunction()->setProperty(nullptr, name, Value(functionId), Object::SetPropertyType::AlwaysAdd);
 }
 
 void Parser::functionAddParam(const Atom& atom)

@@ -49,7 +49,7 @@ public:
     virtual String toString(ExecutionUnit* eu) const override { return value(eu).toStringValue(eu); }
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, bool add) override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, SetPropertyType) override;
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 

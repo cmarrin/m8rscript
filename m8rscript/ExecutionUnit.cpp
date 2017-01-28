@@ -81,7 +81,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     if (_thisPtr) {
         Value oldValue = _thisPtr->property(this, atom);
         if (oldValue) {
-            if (!_thisPtr->setProperty(this, atom, value, false)) {
+            if (!_thisPtr->setProperty(this, atom, value, Object::SetPropertyType::AddIfNeeded)) {
                 printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
             }
             return;
@@ -423,7 +423,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), false)) {
+        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::NeverAdd)) {
             printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
@@ -451,7 +451,7 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), true)) {
+        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::AlwaysAdd)) {
             printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
             DISPATCH;
         }

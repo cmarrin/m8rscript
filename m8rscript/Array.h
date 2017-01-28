@@ -84,7 +84,7 @@ public:
 
     // Array has built-in properties. Handle those here
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, bool add) override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, SetPropertyType) override;
 
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const override
     {

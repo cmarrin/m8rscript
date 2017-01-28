@@ -48,16 +48,6 @@ void Object::_gcMark(ExecutionUnit* eu)
     Global::gcMark(eu, _proto);
 }
 
-CallReturnValue Object::construct(ExecutionUnit* eu, uint32_t nparams)
-{
-    MaterObject* obj = new MaterObject();
-    Value id(Global::addObject(obj, true));
-    obj->setProto(objectId());
-    obj->call(eu, id, nparams);
-    eu->stack().push(id);
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
 {
     if (!serializeWrite(stream, error, type)) {
@@ -287,31 +277,37 @@ const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
     return it->value;
 }
 
-bool PropertyObject::setProperty(const Atom& prop, const Value& v, bool add)
+bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyType type)
 {
     auto it = _properties.find(prop);
-    if (add) {
-        if (it != _properties.end()) {
-            return false;
-        }
+    bool found = it != _properties.end();
+    if (found && type == SetPropertyType::AlwaysAdd) {
+        return false;
+    }
+    if (!found && type == SetPropertyType::NeverAdd) {
+        return false;
+    }
+    
+    if (!found) {
         auto ret = _properties.emplace(prop, Value());
         assert(ret.second);
         ret.first->value = v;
         return true;
     }
     
-    if (it == _properties.end()) {
-        return false;
-    }
     it->value = v;
     return true;
 }
 
 CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
 {
+    MaterObject* obj = new MaterObject();
+    Value id(Global::addObject(obj, true));
+    obj->setProto(objectId());
+
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        return it->value.call(eu, Value(objectId()), nparams);
+        return it->value.call(eu, id, nparams);
     }
     return Object::construct(eu, nparams);
 }
@@ -432,7 +428,7 @@ String MaterObject::toString(ExecutionUnit* eu) const
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {
-        _obj.setProperty(ATOM(__typeName), program->atomizeString(name), true);
+        _obj.setProperty(ATOM(__typeName), program->atomizeString(name), Object::SetPropertyType::AlwaysAdd);
     }
 }
 
@@ -444,5 +440,5 @@ void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 
 void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
 {
-    _obj.setProperty(prop, value, true);
+    _obj.setProperty(prop, value, Object::SetPropertyType::AlwaysAdd);
 }
