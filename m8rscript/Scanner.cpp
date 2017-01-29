@@ -58,7 +58,7 @@ struct Keyword
 	Token token;
 };
 
-static const char* RODATA_ATTR keywordString =
+static const char keywordString[] ROMSTR_ATTR =
     "\x01" "break"
     "\x02" "case"
     "\x03" "class"
