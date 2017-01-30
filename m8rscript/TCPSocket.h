@@ -50,7 +50,7 @@ private:
     NativeFunction _constructor;
 };
 
-class TCPSocket : public Object, public TCPDelegate {
+class TCPSocket : public MaterObject, public TCPDelegate {
 public:
     TCPSocket(IPAddr ip, uint16_t port, const Value& func);
     virtual ~TCPSocket()
