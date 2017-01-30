@@ -159,6 +159,7 @@ IdType Global::IdStore<IdType, ValueType>::add(ValueType* value)
     if (_freeValueId) {
         assert(_freeValueIdCount);
         IdType id = _freeValueId;
+        _values[id.raw()] = value;
         _freeValueId = IdType();
         _freeValueIdCount--;
         return id;
