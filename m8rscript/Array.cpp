@@ -50,7 +50,7 @@ const Value Array::property(ExecutionUnit*, const Atom& name) const
 
 bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, SetPropertyType type)
 {
-    if (type != SetPropertyType::NeverAdd) {
+    if (type == SetPropertyType::AlwaysAdd) {
         return false;
     }
     if (name == ATOM(length)) {

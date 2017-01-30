@@ -427,14 +427,14 @@ static const uint16_t GCCount = 1000;
         if (!objectValue) {
             DISPATCH;
         }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::NeverAdd)) {
+        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::AddIfNeeded)) {
             printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
             checkTooManyErrors();
         }
             
         DISPATCH;
     L_STOELT:
-        objectValue = toObject(regOrConst(inst.ra()), "STOPROP");
+        objectValue = toObject(regOrConst(inst.ra()), "STOELT");
         if (!objectValue) {
             DISPATCH;
         }

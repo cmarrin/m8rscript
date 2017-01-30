@@ -84,7 +84,7 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 
 bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, SetPropertyType type)
 {
-    if (type != SetPropertyType::NeverAdd) {
+    if (type == SetPropertyType::AlwaysAdd) {
         return false;
     }
     
