@@ -279,16 +279,17 @@ const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
 
 bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyType type)
 {
-    auto it = _properties.find(prop);
-    bool found = it != _properties.end();
-    if (found && type == SetPropertyType::AlwaysAdd) {
+    Value oldValue = property(nullptr, prop);
+    
+    if (oldValue && type == SetPropertyType::AlwaysAdd) {
         return false;
     }
-    if (!found && type == SetPropertyType::NeverAdd) {
+    if (!oldValue && type == SetPropertyType::NeverAdd) {
         return false;
     }
     
-    if (!found) {
+    auto it = _properties.find(prop);
+    if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
         assert(ret.second);
         ret.first->value = v;

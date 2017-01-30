@@ -47,6 +47,8 @@ class Program;
 class Stream;
 
 class Object {
+    friend class PropertyObject;
+    
 public:
     virtual ~Object() { }
     
