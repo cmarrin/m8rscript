@@ -1,0 +1,45 @@
+//
+// TCPSocket Test 
+//
+
+class TCPConnection
+{
+	var _server;
+	var _connectionId;
+	
+	constructor() { }
+}
+
+class TCPServer
+{
+	var _sock;
+	var _connections = [ ];
+	
+	constructor(port, func) {
+		_sock = new TCPSocket(port, function(event, connectionId) {
+			switch(event) {
+				case TCPSocket.Connected: {
+					printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
+					var connection = new TCPConnection();
+					connection._server = this;
+					connection._connectionId = connectionId;
+					_server._connections[connectionId] = connection;
+					send(connectionId, "Hello there\n");
+				}
+				
+				case TCPSocket.Disconnected: {
+					printf("TCPSocket disconnected. ConnectionId=%d\n", connectionId);
+					_connections[connectionId] = null;
+				}
+				
+				default: {
+					printf("TCPSocket fired. event=%d\n", event);
+				}
+			}
+		});
+		
+		//var _sock._server = this;
+	}
+}
+
+var server = new TCPServer(8080, function() { printf("Got it!\n"); });
