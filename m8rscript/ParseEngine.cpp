@@ -186,10 +186,14 @@ bool ParseEngine::classStatement()
         return false;
     }
     retireToken();
+    _parser->emitId(ATOM(__this), Parser::IdType::MightBeLocal);
     Atom name = getTokenValue().atom;
+    _parser->addNamedObject(ObjectId(), name);
+    _parser->emitId(name, Parser::IdType::NotLocal);
     expect(Token::Identifier);
-    _parser->addVar(name);
-    _parser->emitId(name, Parser::IdType::MustBeLocal);
+    
+    _parser->emitDeref(Parser::DerefType::Prop);
+    
     if (!expect(Token::Expr, classExpression())) {
         return false;
     }

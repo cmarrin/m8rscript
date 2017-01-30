@@ -535,12 +535,12 @@ int32_t Parser::emitDeferred()
     return start;
 }
 
-void Parser::addNamedObject(ObjectId functionId, const Atom& name)
+void Parser::addNamedObject(ObjectId object, const Atom& name)
 {
     if (_nerrors) return;
     
     assert(name);
-    currentFunction()->setProperty(nullptr, name, Value(functionId), Object::SetPropertyType::AlwaysAdd);
+    currentFunction()->setProperty(nullptr, name, Value(object), Object::SetPropertyType::AlwaysAdd);
 }
 
 void Parser::functionAddParam(const Atom& atom)
