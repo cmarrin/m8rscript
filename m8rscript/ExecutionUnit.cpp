@@ -160,21 +160,24 @@ void ExecutionUnit::startExecution(Program* program)
 
 void ExecutionUnit::runNextEvent()
 {
+    // Each event is at least 3 entries long. First is the function, followed by the this pointer
+    // followed by the number of args. That number of args then follows
     if (!_eventQueue.empty()) {
-        assert(_eventQueue.size() >= 2);
+        assert(_eventQueue.size() >= 3);
         
         _executingEvent = true;
         Value func = _eventQueue[0];
-        int32_t nargs = _eventQueue[1].asIntValue();
-        assert(_eventQueue.size() >= 2 + nargs);
+        Value thisValue = _eventQueue[1];
+        int32_t nargs = _eventQueue[2].asIntValue();
+        assert(_eventQueue.size() >= 3 + nargs);
         
         for (int32_t i = 0; i < nargs; ++i) {
-            _stack.push(_eventQueue[2 + i]);
+            _stack.push(_eventQueue[3 + i]);
         }
         
-        _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 2 + nargs);
+        _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
         
-        startFunction(_eventQueue.front().asObjectIdValue(), ObjectId(), nargs, false);
+        startFunction(_eventQueue.front().asObjectIdValue(), thisValue.asObjectIdValue(), nargs, false);
     }
 }
 

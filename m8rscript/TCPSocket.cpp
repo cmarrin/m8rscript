@@ -102,7 +102,7 @@ void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char
         args[2] = Value();
         args[3] = Value(static_cast<int32_t>(length));
     }
-    EventManager::shared()->fireEvent(_func, args, data ? 4 : 2);
+    EventManager::shared()->fireEvent(_func, Value(objectId()), args, data ? 4 : 2);
 }
 
 

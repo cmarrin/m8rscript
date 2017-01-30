@@ -167,9 +167,10 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     // EventListener
-    virtual void eventFired(const Value& func, const Value* args, int32_t nargs) override
+    virtual void eventFired(const Value& func, const Value& thisValue, const Value* args, int32_t nargs) override
     {
         _eventQueue.push_back(func);
+        _eventQueue.push_back(thisValue);
         if (nargs) {
             _eventQueue.push_back(Value(nargs));
             for (int i = 0; i < nargs; i++) {
