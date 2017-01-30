@@ -81,14 +81,3 @@ const Value Arguments::property(ExecutionUnit* eu, const Atom& name) const
 {
     return (name == ATOM(length)) ? Value(static_cast<int32_t>(argCount(eu))) : Value();
 }
-
-bool Arguments::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, SetPropertyType type)
-{
-    if (type != SetPropertyType::NeverAdd) {
-        return false;
-    }
-    if (name == ATOM(length)) {
-        Error::printError(Error::Code::RuntimeError, -1, "length property of arguments is read-only");
-    }
-    return false;
-}

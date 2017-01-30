@@ -49,7 +49,6 @@ public:
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value&, SetPropertyType) override;
 
     virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
     {
