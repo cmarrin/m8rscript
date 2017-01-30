@@ -13,9 +13,10 @@ class TCPConnection
 class TCPServer
 {
 	var _sock;
-	var _connections = [ ];
 	
 	constructor(port, func) {
+		var MaxConnections = 8;
+
 		_sock = new TCPSocket(port, function(event, connectionId) {
 			switch(event) {
 				case TCPSocket.Connected: {
@@ -23,7 +24,7 @@ class TCPServer
 					var connection = new TCPConnection();
 					connection._server = this;
 					connection._connectionId = connectionId;
-					_server._connections[connectionId] = connection;
+					_connections[connectionId] = connection;
 					send(connectionId, "Hello there\n");
 				}
 				
@@ -38,7 +39,8 @@ class TCPServer
 			}
 		});
 		
-		//var _sock._server = this;
+		_sock._connections = [ ];
+		_sock._connections.length = MaxConnections;
 	}
 }
 
