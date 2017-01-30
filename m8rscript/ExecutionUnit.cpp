@@ -146,8 +146,8 @@ void ExecutionUnit::startExecution(Program* program)
     _functionPtr =  _program;
     _constantsPtr = _functionPtr->constantsPtr();
     
-    _this = ObjectId();
-    _thisPtr = nullptr;
+    _this = program->objectId();
+    _thisPtr = program;
     
     _stack.clear();
     _stack.setLocalFrame(0, 0, _functionPtr->localSize());
