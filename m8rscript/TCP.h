@@ -35,8 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "TaskManager.h"
 #include "UDP.h"
 #include <cstdint>
+#include <cstring>
 
 namespace m8r {
 
@@ -50,6 +52,8 @@ public:
 };
 
 class TCP {
+    friend class MyEventTask;
+    
 public:
     static constexpr int MaxConnections = 4;
     static constexpr uint32_t DefaultTimeout = 7200;
@@ -63,6 +67,62 @@ public:
     virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
+    struct MyEventTask : public Task {
+        MyEventTask(TCP* tcp, TCPDelegate* delegate) : _tcp(tcp), _delegate(delegate) { }
+        
+        void fire(TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length)
+        {
+            _event = event;
+            _connectionId = connectionId;
+            _data = new char[length];
+            memcpy(_data, data, length);
+            _length = length;
+            runOnce();
+        }
+        
+        void release()
+        {
+            delete [ ] _data;
+        }
+        
+        virtual bool execute() override
+        {
+            _delegate->TCPevent(_tcp, _event, _connectionId, _data, _length);
+            delete [ ] _data;
+            _tcp->releaseEventTask(this);
+            return true;
+        }
+        
+        TCP* _tcp;
+        TCPDelegate* _delegate;
+        
+        TCPDelegate::Event _event;
+        int16_t _connectionId;
+        char* _data;
+        uint16_t _length;
+        
+        MyEventTask* _next = nullptr;
+    };
+    
+    void fireEventTask(TCPDelegate::Event event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0)
+    {
+        if (!_eventPool) {
+            _eventPool = new MyEventTask(this, _delegate);
+        }
+        MyEventTask* task = _eventPool;
+        _eventPool = task->_next;
+        
+        task->fire(event, connectionId, data, length);
+    }
+    
+    void releaseEventTask(MyEventTask* task)
+    {
+        task->_next = _eventPool;
+        _eventPool = task;
+    }
+
+    MyEventTask* _eventPool = nullptr;
+    
     TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
 
     TCPDelegate* _delegate;

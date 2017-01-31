@@ -72,7 +72,7 @@ err_t EspTCP::accept(tcp_pcb* pcb, int8_t err)
     for (auto& it : _clients) {
         if (!it.inUse()) {
             it = Client(pcb, this);
-            _delegate->TCPevent(this, TCPDelegate::Event::Connected, &it - _clients);
+            fireEventTask(TCPDelegate::Event::Connected, &it - _clients);
             return 0;
         }
     }
@@ -104,7 +104,7 @@ err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
     }
     
     assert(buf->len == buf->tot_len);
-    _delegate->TCPevent(this, TCPDelegate::Event::ReceivedData, connectionId, reinterpret_cast<const char*>(buf->payload), buf->len);
+    fireEventTask(TCPDelegate::Event::ReceivedData, connectionId, reinterpret_cast<const char*>(buf->payload), buf->len);
     tcp_recved(pcb, buf->tot_len);
     pbuf_free(buf);
     return 0;
@@ -116,7 +116,7 @@ err_t EspTCP::sent(tcp_pcb* pcb, u16_t len)
     assert(_clients[connectionId].inUse());
     
     _clients[connectionId].sent(len);
-    _delegate->TCPevent(this, TCPDelegate::Event::SentData, connectionId);
+    fireEventTask(TCPDelegate::Event::SentData, connectionId);
     return 0;
 }
 
