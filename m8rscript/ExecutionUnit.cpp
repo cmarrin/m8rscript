@@ -369,8 +369,6 @@ static const uint16_t GCCount = 1000;
         _thisPtr = Global::obj(_this);
         _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
         _framePtr =_stack.framePtr();
-        _formalParamCount = _functionPtr->formalParamCount();
-        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
         
         _pc = rightValue.asPreviousPCValue();
         _object = rightValue.asObjectIdValue();
@@ -380,6 +378,9 @@ static const uint16_t GCCount = 1000;
         _functionPtr = static_cast<Function*>(objectValue);
         assert(_functionPtr->code()->size());
         _constantsPtr = _functionPtr->constantsPtr();
+
+        _formalParamCount = _functionPtr->formalParamCount();
+        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
 
         updateCodePointer();
     
