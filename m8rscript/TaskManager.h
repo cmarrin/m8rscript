@@ -54,6 +54,8 @@ protected:
     
     virtual void runTask(Task*, int32_t delay);
     
+    void removeTask(Task*);
+    
     void fireEvent();
     
     bool empty() const { return !_head; }

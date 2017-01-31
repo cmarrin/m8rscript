@@ -85,6 +85,22 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     prepareForNextEvent();
 }
 
+void TaskManager::removeTask(Task* task)
+{
+    Task* prev = nullptr;
+    for (Task* t = _head; t; t = t->_next) {
+        if (t == task) {
+            if (!prev) {
+                _head = _head->_next;
+            } else {
+                prev->_next = t->_next;
+            }
+            return;
+        }
+        prev = t;
+    }
+}
+
 void TaskManager::fireEvent()
 {
     assert(_head);
