@@ -66,7 +66,8 @@ public:
         _objectStore.remove(objectId, false);
     }
     
-    static StringId createString() { return _stringStore.add(new String()); }
+    static StringId createString(const char* s, int32_t length = -1) { return _stringStore.add(new String(s, length)); }
+    static StringId createString(const String& s) { return _stringStore.add(new String(s)); }
 
     static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
     static bool isValid(const StringId& id) { return _stringStore.isValid(id); }

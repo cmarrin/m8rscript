@@ -61,8 +61,7 @@ Global::Global(Program* program)
 {
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
     if (_stringStore.empty()) {
-        StringId dummy = Global::createString();
-        Global::str(dummy) = "*** ERROR:INVALID STRING ***";
+        StringId dummy = Global::createString("*** ERROR:INVALID STRING ***");
         assert(dummy.raw() == 0);
     }
     

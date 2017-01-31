@@ -591,10 +591,7 @@ static const uint16_t GCCount = 1000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            StringId stringId = Global::createString();
-            String& s = Global::str(stringId);
-            s = leftValue.toStringValue(this);
-            s += rightValue.toStringValue(this);
+            StringId stringId = Global::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(stringId));
         }
         DISPATCH;
