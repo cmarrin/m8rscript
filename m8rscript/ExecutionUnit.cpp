@@ -198,6 +198,7 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
+    ObjectId prevThis = _this;
     _this = thisObject;
     _thisPtr = Global::obj(_this);
     
@@ -206,7 +207,7 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _stack.push(Value(_pc, _object));
     _pc = 0;
     
-    _stack.push(Value(prevFrame, _this, prevActualParamCount, ctor));
+    _stack.push(Value(prevFrame, prevThis, prevActualParamCount, ctor));
     _object = function;
     assert(_object);
 
