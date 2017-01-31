@@ -17,7 +17,7 @@ class TCPServer
 	constructor(port, func) {
 		var MaxConnections = 8;
 
-		_sock = new TCPSocket(port, function(event, connectionId) {
+		_sock = new TCPSocket(port, function(event, connectionId, dataValue) {
 			switch(event) {
 				case TCPSocket.Connected: {
 					printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
@@ -31,6 +31,10 @@ class TCPServer
 				case TCPSocket.Disconnected: {
 					printf("TCPSocket disconnected. ConnectionId=%d\n", connectionId);
 					_connections[connectionId] = null;
+				}
+				
+				case TCPSocket.ReceivedData: {
+					printf("TCPSocket received data: %s\n", dataValue);
 				}
 				
 				default: {

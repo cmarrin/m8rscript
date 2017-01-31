@@ -96,10 +96,9 @@ void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char
     args[1] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
-        // FIXME: We need to be able to create a string without the program object
-        //String s = String(data, length);
+        StringId dataString = Global::createString(data, length);
         
-        args[2] = Value();
+        args[2] = Value(dataString);
         args[3] = Value(static_cast<int32_t>(length));
     }
     EventManager::shared()->fireEvent(_func, Value(objectId()), args, data ? 4 : 2);
