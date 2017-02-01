@@ -92,6 +92,8 @@ public:
         TaskManager::shared()->runTask(this, delay);
     }
     
+    void remove() { TaskManager::shared()->removeTask(this); }
+    
     virtual bool execute() { return true; }
     
 private:

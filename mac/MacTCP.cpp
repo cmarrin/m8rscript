@@ -127,6 +127,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
             int result = select(maxsd + 1, &readfds, NULL, NULL, NULL);
             if (result < 0 && errno != EINTR) {
                 printf("ERROR: select returned %d, error=%d\n", result, errno);
+                return;
             }
             
             if (_server) {
@@ -204,6 +205,11 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 MacTCP::~MacTCP()
 {
     close(_socketFD);
+    for (int& socket : _clientSockets) {
+        if (socket) {
+            close(socket);
+        }
+    }
     dispatch_release(_queue);
 }
 

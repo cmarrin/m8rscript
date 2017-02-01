@@ -60,7 +60,20 @@ public:
      
     static TCP* create(TCPDelegate*, uint16_t port);
     static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
-    virtual ~TCP() { }
+    virtual ~TCP()
+    {
+        while (_eventsInFlight) {
+            MyEventTask* task = _eventsInFlight;
+            _eventsInFlight = _eventsInFlight->_next;
+            task->remove();
+            delete task;
+        }
+        while (_eventPool) {
+            MyEventTask* task = _eventPool;
+            _eventPool = _eventPool->_next;
+            delete task;
+        }
+    }
     
     virtual void send(int16_t connectionId, char c) = 0;
     virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
@@ -112,16 +125,30 @@ protected:
         MyEventTask* task = _eventPool;
         _eventPool = task->_next;
         
+        task->_next = _eventsInFlight;
+        _eventsInFlight = task;
         task->fire(event, connectionId, data, length);
     }
     
     void releaseEventTask(MyEventTask* task)
     {
+        MyEventTask* prev = nullptr;
+        for (MyEventTask* t = _eventsInFlight; t; t = t->_next) {
+            if (t == task) {
+                if (!prev) {
+                    _eventsInFlight = task->_next;
+                } else {
+                    prev->_next = task->_next;
+                }
+                break;
+            }
+        }
         task->_next = _eventPool;
         _eventPool = task;
     }
 
     MyEventTask* _eventPool = nullptr;
+    MyEventTask* _eventsInFlight = nullptr;
     
     TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
 
