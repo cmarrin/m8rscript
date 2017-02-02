@@ -54,7 +54,7 @@ private:
     NativeFunction _disconnect;
 };
 
-class MyTCPDelegate : public TCPDelegate {
+class MyTCPDelegate : public NativeObject, public TCPDelegate {
 public:
     MyTCPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent);
     virtual ~MyTCPDelegate()

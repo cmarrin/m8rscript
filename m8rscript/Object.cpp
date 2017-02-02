@@ -252,6 +252,17 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
+PropertyObject::~PropertyObject()
+{
+    auto it = _properties.find(ATOM(__nativeObject));
+    if (it != _properties.end()) {
+        NativeObject* obj = it->value.asNativeObject();
+        if (obj) {
+            delete obj;
+        }
+    }
+}
+
 String PropertyObject::toString(ExecutionUnit* eu) const
 {
     return eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";

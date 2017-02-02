@@ -43,6 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class Object;
+class NativeObject;
 class Value;
 class ExecutionUnit;
 class Program;
@@ -111,7 +112,7 @@ public:
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
     Value(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
-    explicit Value(void* obj) : _value(obj) { }
+    Value(NativeObject* obj) : _value(obj) { }
     
     operator bool() const { return type() != Type::None; }
     bool operator==(const Value& other) { return _value == other._value; }
@@ -147,7 +148,7 @@ public:
     bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
-    void* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
+    NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -213,7 +214,7 @@ private:
     inline uint16_t indexFromValue() const { return _value._d; }
     inline uint16_t paramCountFromValue() const { return _value._paramCount; }
     inline bool ctorFromValue() const { return _value._ctor; }
-    inline void* nativeObjectFromValue() const { return reinterpret_cast<void*>(_value._i); }
+    inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._i); }
     
     struct RawValue {
         RawValue() { _raw[0] = 0; _raw[1] = 0; setType(Type::None); }
@@ -224,7 +225,7 @@ private:
         RawValue(StringId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::String); }
         RawValue(StringLiteral id) { _raw[0] = 0; _raw[1] = 0; _i = id.raw(); setType(Type::StringLiteral); }
         RawValue(ObjectId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::Object); }
-        explicit RawValue(void* obj)
+        RawValue(NativeObject* obj)
         {
             static_assert(sizeof(_i) == sizeof(void*), "sizeof _i and void* must be the same");
             _raw[0] = 0;
@@ -253,12 +254,13 @@ private:
             setType(Type::PreviousContextB);
         }
         
+        bool operator==(const RawValue& other) { return _raw[0] == other._raw[0] && _raw[1] == other._raw[1]; }
+        bool operator!=(const RawValue& other) { return !(*this == other); }
+
         Type type() const { return static_cast<Type>(_type); }
 #ifdef __APPLE__
         typedef uint64_t RawIntType;
         void setType(Type type) { _type = type; }
-        bool operator==(const RawValue& other) { return _raw[0] == other._raw[0] && _raw[1] == other._raw[1]; }
-        bool operator!=(const RawValue& other) { return !(*this == other); }
 #else
         typedef uint32_t RawIntType;
         void setType(Type type) { _type = static_cast<uint32_t>(type); }

@@ -132,7 +132,7 @@ class PropertyObject : public Object {
     friend class ObjectFactory;
     
 public:    
-    virtual ~PropertyObject() { }
+    virtual ~PropertyObject();
 
     virtual const char* typeName() const override { return ""; }
     virtual String toString(ExecutionUnit* eu) const override;
@@ -195,6 +195,12 @@ public:
 
 private:
     Func _func = nullptr;
+};
+
+class NativeObject {
+public:
+    NativeObject() { }
+    virtual ~NativeObject() { }
 };
 
 class Closure {
