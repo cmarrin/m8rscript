@@ -73,6 +73,7 @@ static const char _decode[] ROMSTR_ATTR = "decode";
 static const char _delay[] ROMSTR_ATTR = "delay";
 static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
 static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
+static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _end[] ROMSTR_ATTR = "end";
 static const char _length[] ROMSTR_ATTR = "length";
@@ -81,8 +82,10 @@ static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
+static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char ___TCPSocket[] ROMSTR_ATTR = "TCPSocket";
 static const char ___this[] ROMSTR_ATTR = "this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
@@ -119,6 +122,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(delay),
     AtomEntry(digitalRead),
     AtomEntry(digitalWrite),
+    AtomEntry(disconnect),
     AtomEntry(encode),
     AtomEntry(end),
     AtomEntry(length),
@@ -127,8 +131,10 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(print),
     AtomEntry(printf),
     AtomEntry(println),
+    AtomEntry(send),
     AtomEntry(setPinMode),
     AtomEntry(value),
+    AtomEntry(__TCPSocket),
     AtomEntry(__this),
     AtomEntry(__typeName),
 };

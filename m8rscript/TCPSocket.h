@@ -46,8 +46,12 @@ public:
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
     NativeFunction _constructor;
+    NativeFunction _send;
+    NativeFunction _disconnect;
 };
 
 class TCPSocket : public MaterObject, public TCPDelegate {
@@ -61,6 +65,22 @@ public:
     }
 
     virtual const char* typeName() const override { return "TCPSocket"; }
+    
+    void send(int16_t connectionId, const char* data, uint16_t size)
+    {
+        if (!_tcp) {
+            return;
+        }
+        _tcp->send(connectionId, data, size);
+    }
+
+    void disconnect(int16_t connectionId)
+    {
+        if (!_tcp) {
+            return;
+        }
+        _tcp->disconnect(connectionId);
+    }
 
     // TCPDelegate overrides
     virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;

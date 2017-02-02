@@ -85,6 +85,7 @@ public:
         delay,
         digitalRead,
         digitalWrite,
+        disconnect,
         encode,
         end,
         length,
@@ -93,8 +94,10 @@ public:
         print,
         printf,
         println,
+        send,
         setPinMode,
         value,
+        __TCPSocket,
         __this,
         __typeName,
         __count__
