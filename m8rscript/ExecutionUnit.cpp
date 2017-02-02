@@ -631,7 +631,11 @@ static const uint16_t GCCount = 1000;
             switch(inst.op()) {
                 default: break;
                 case Op::CALL:
-                    callReturnValue = objectValue->call(this, regOrConst(inst.rcall()), uintValue, false);
+                    leftValue = regOrConst(inst.rthis());
+                    if (!leftValue) {
+                        leftValue = Value(_this);
+                    }
+                    callReturnValue = objectValue->call(this, leftValue, uintValue, false);
                     break;
                 case Op::NEW:
                     callReturnValue = objectValue->construct(this, uintValue);
