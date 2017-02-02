@@ -25,7 +25,7 @@ class TCPServer
 					connection._server = this;
 					connection._connectionId = connectionId;
 					_connections[connectionId] = connection;
-					send(connectionId, "Hello there\n");
+					_func(connection);
 				}
 				
 				case TCPSocket.Disconnected: {
@@ -45,6 +45,8 @@ class TCPServer
 		
 		_sock._connections = [ ];
 		_sock._connections.length = MaxConnections;
+		_sock._func = func;
+
 	}
 }
 
