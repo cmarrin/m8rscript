@@ -112,6 +112,9 @@ CallReturnValue TCPSocketProto::send(ExecutionUnit* eu, Value thisValue, uint32_
     }
     
     MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
+    if (!delegate) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
     
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
     for (int32_t i = 2 - nparams; i <= 0; ++i) {
