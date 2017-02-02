@@ -50,4 +50,27 @@ class TCPServer
 	}
 }
 
-var server = new TCPServer(8080, function() { printf("Got it!\n"); });
+function connectionEvent(event, dataValue)
+{
+	switch(event) {
+		case TCPSocket.Disconnected: {
+			printf("Connection disconnected\n");
+		}
+
+		case TCPSocket.ReceivedData: {
+			printf("Connection received data: %s\n", dataValue);
+		}
+
+		case TCPSocket.SentData: {
+			printf("Connection sent datad\n", event);
+		}
+	}
+}
+
+var server = new TCPServer(8080, function(conn) {
+	printf("New connection\n");
+	_connection = conn;
+	_connection.eventFunc = connectionFired;
+	_connection.send("Hello there!\nPlease enter some text:");
+});
+server._connection = null;
