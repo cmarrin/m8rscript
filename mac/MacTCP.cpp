@@ -144,7 +144,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     int16_t connectionId = -1;
                     for (int& socket : _clientSockets) {
                         if (!socket) {
-                            _mutex.lock();
+                            std::lock_guard<std::mutex> lock(_mutex);
                             socket = clientSocket;
                             connectionId = &socket - _clientSockets;
                             break;
@@ -173,7 +173,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
                             fireEventTask(TCPDelegate::Event::Disconnected, connectionId);
                             close(socket);
-                            _mutex.lock();
+                            std::lock_guard<std::mutex> lock(_mutex);
                             socket = 0;
                         } else if (result < 0) {
                             printf("ERROR: read returned %zd, error=%d\n", result, errno);
@@ -216,7 +216,7 @@ MacTCP::~MacTCP()
 void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
 {
     if (_server) {
-        _mutex.lock();
+        std::lock_guard<std::mutex> lock(_mutex);
         for (int socket : _clientSockets) {
             if (socket) {
                 ssize_t result = ::send(socket, data, length, 0);
