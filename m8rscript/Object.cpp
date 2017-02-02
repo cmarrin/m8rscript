@@ -308,9 +308,13 @@ CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        return it->value.call(eu, id, nparams, true);
+        CallReturnValue retval = it->value.call(eu, id, nparams, true);
+        if (!retval.isReturnCount() || retval.returnCount() > 0) {
+            return retval;
+        }
     }
-    return Object::construct(eu, nparams);
+    eu->stack().push(id);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
 void PropertyObject::removeNoncollectableObjects()
