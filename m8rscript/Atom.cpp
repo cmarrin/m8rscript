@@ -85,7 +85,7 @@ static const char _println[] ROMSTR_ATTR = "println";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _value[] ROMSTR_ATTR = "value";
-static const char ___TCPSocket[] ROMSTR_ATTR = "TCPSocket";
+static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___this[] ROMSTR_ATTR = "this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
@@ -134,7 +134,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(send),
     AtomEntry(setPinMode),
     AtomEntry(value),
-    AtomEntry(__TCPSocket),
+    AtomEntry(__nativeObject),
     AtomEntry(__this),
     AtomEntry(__typeName),
 };

@@ -96,13 +96,11 @@ public:
     
     enum class Type : uint8_t {
         None = 0,
-        Object, Float, Integer, String, StringLiteral, Id, Null,
+        Object, Float, Integer, String, StringLiteral, Id, Null, NativeObject,
         PreviousContextA, PreviousContextB,
     };
 
     Value() { }
-    Value(const Value& other) { _value._raw = other._value._raw; }
-    Value(Value&& other) { _value._raw = other._value._raw; }
     
     Value(ObjectId objectId) : _value(objectId) { }
     Value(Type type) : _value(type) { }
@@ -113,12 +111,11 @@ public:
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
     Value(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
+    explicit Value(void* obj) : _value(obj) { }
     
-    Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
     operator bool() const { return type() != Type::None; }
-    operator uint64_t() const { return _value._raw; }
-    bool operator==(const Value& other) { return _value._raw == other._value._raw; }
-    bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
+    bool operator==(const Value& other) { return _value == other._value; }
+    bool operator!=(const Value& other) { return _value != other._value; }
 
     ~Value() { }
     
@@ -150,6 +147,7 @@ public:
     bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
+    void* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -206,8 +204,8 @@ private:
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
-    inline int32_t intFromValue() const { return _value._i; }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw[0] & ~TypeMask)); }
+    inline int32_t intFromValue() const { return static_cast<int32_t>(_value._i); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._d)); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._d)); }
@@ -215,21 +213,30 @@ private:
     inline uint16_t indexFromValue() const { return _value._d; }
     inline uint16_t paramCountFromValue() const { return _value._paramCount; }
     inline bool ctorFromValue() const { return _value._ctor; }
+    inline void* nativeObjectFromValue() const { return reinterpret_cast<void*>(_value._i); }
     
     struct RawValue {
-        RawValue() { _raw = 0; setType(Type::None); }
-        RawValue(Type type) { _raw = 0; setType(type); }
-        RawValue(uint64_t v) { _raw = v; }
-        RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
-        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
-        RawValue(StringId id) { _raw = 0; _d = id.raw(); setType(Type::String); }
-        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }
-        RawValue(ObjectId id) { _raw = 0; _d = id.raw(); setType(Type::Object); }
+        RawValue() { _raw[0] = 0; _raw[1] = 0; setType(Type::None); }
+        RawValue(Type type) { _raw[0] = 0; _raw[1] = 0; setType(type); }
+        RawValue(Float f) { _raw[0] = f.raw(); _raw[1] = 0; setType(Type::Float); }
+        RawValue(int32_t i) { _raw[0] = 0; _raw[1] = 0; _i = i; setType(Type::Integer); }
+        RawValue(Atom atom) { _raw[0] = 0; _raw[1] = 0; _i = atom.raw(); setType(Type::Id); }
+        RawValue(StringId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::String); }
+        RawValue(StringLiteral id) { _raw[0] = 0; _raw[1] = 0; _i = id.raw(); setType(Type::StringLiteral); }
+        RawValue(ObjectId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::Object); }
+        explicit RawValue(void* obj)
+        {
+            static_assert(sizeof(_i) == sizeof(void*), "sizeof _i and void* must be the same");
+            _raw[0] = 0;
+            _raw[1] = 0;
+            _i = reinterpret_cast<RawIntType>(obj);
+            setType(Type::NativeObject);
+        }
         
         RawValue(uint32_t prevPC, ObjectId prevObj)
         {
-            _raw = 0;
+            _raw[0] = 0;
+            _raw[1] = 0;
             _i = prevPC;
             _d = prevObj.raw();
             setType(Type::PreviousContextA);
@@ -237,7 +244,8 @@ private:
         
         RawValue(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor)
         {
-            _raw = 0;
+            _raw[0] = 0;
+            _raw[1] = 0;
             _i = prevFrame;
             _d = prevThis.raw();
             _paramCount = prevParamCount;
@@ -247,13 +255,18 @@ private:
         
         Type type() const { return static_cast<Type>(_type); }
 #ifdef __APPLE__
+        typedef uint64_t RawIntType;
         void setType(Type type) { _type = type; }
+        bool operator==(const RawValue& other) { return _raw[0] == other._raw[0] && _raw[1] == other._raw[1]; }
+        bool operator!=(const RawValue& other) { return !(*this == other); }
 #else
+        typedef uint32_t RawIntType;
         void setType(Type type) { _type = static_cast<uint32_t>(type); }
 #endif
         union {
-            uint64_t _raw;
+            RawIntType _raw[2];
             struct {
+                RawIntType _i;
 #ifdef __APPLE__
                 Type _type : TypeBitCount;
 #else
@@ -263,14 +276,17 @@ private:
                 uint16_t _ctor : 1;
                 uint16_t _ : 1;
                 uint16_t _d : 16;
-                uint32_t _i : 32;
             };
         };
     };
     
     RawValue _value;
     
+#ifdef __APPLE__
+    static_assert(sizeof(RawValue) == 16, "RawValue must be 128 bits");
+#else
     static_assert(sizeof(RawValue) == 8, "RawValue must be 64 bits");
+#endif
     
     // In order to fit everything, we have some requirements
     static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");

@@ -79,20 +79,24 @@ CallReturnValue TCPSocketProto::constructor(ExecutionUnit* eu, Value thisValue, 
     }
 
     // FIXME: Support IP address (client mode)
-    TCPSocket* socket = new TCPSocket(IPAddr(), port, func);
-    Global::addObject(socket, true);
+    MyTCPDelegate* delegate = new MyTCPDelegate(IPAddr(), port, func, thisValue.asObjectIdValue());
     
-    eu->stack().push(Value(socket->objectId()));
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    Object* obj = Global::obj(thisValue);
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    obj->setProperty(eu, ATOM(__nativeObject), Value(delegate), Object::SetPropertyType::AlwaysAdd);
+
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-TCPSocket::TCPSocket(IPAddr ip, uint16_t port, const Value& func)
+MyTCPDelegate::MyTCPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent)
     : _func(func)
+    , _parent(parent)
 {
     // FIXME: Implement client
     assert(!ip);
 
-    PropertyObject::setProperty(ATOM(__typeName), ATOM(__TCPSocket), Object::SetPropertyType::AlwaysAdd);
     _tcp = TCP::create(this, port);
 }
 
@@ -103,16 +107,16 @@ CallReturnValue TCPSocketProto::send(ExecutionUnit* eu, Value thisValue, uint32_
     }
     
     Object* obj = Global::obj(thisValue);
-    if (!obj || obj->property(eu, ATOM(__typeName)).asIdValue() == ATOM(__TCPSocket)) {
+    if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    TCPSocket* self = static_cast<TCPSocket*>(obj);
+    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
     
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
     for (int32_t i = 2 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
-        self->send(connectionId, s.c_str(), s.size());
+        delegate->send(connectionId, s.c_str(), s.size());
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -124,18 +128,18 @@ CallReturnValue TCPSocketProto::disconnect(ExecutionUnit* eu, Value thisValue, u
     }
     
     Object* obj = Global::obj(thisValue);
-    if (!obj || obj->property(eu, ATOM(__typeName)).asIdValue() == ATOM(__TCPSocket)) {
+    if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    TCPSocket* self = static_cast<TCPSocket*>(obj);
+    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
     
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
-    self->disconnect(connectionId);
+    delegate->disconnect(connectionId);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
     Value args[4];
     args[0] = Value(static_cast<int32_t>(event));
@@ -147,7 +151,7 @@ void TCPSocket::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char
         args[2] = Value(dataString);
         args[3] = Value(static_cast<int32_t>(length));
     }
-    EventManager::shared()->fireEvent(_func, Value(objectId()), args, data ? 4 : 2);
+    EventManager::shared()->fireEvent(_func, _parent, args, data ? 4 : 2);
 }
 
 

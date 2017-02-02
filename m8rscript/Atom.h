@@ -97,7 +97,7 @@ public:
         send,
         setPinMode,
         value,
-        __TCPSocket,
+        __nativeObject,
         __this,
         __typeName,
         __count__

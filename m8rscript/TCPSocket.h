@@ -54,18 +54,16 @@ private:
     NativeFunction _disconnect;
 };
 
-class TCPSocket : public MaterObject, public TCPDelegate {
+class MyTCPDelegate : public TCPDelegate {
 public:
-    TCPSocket(IPAddr ip, uint16_t port, const Value& func);
-    virtual ~TCPSocket()
+    MyTCPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent);
+    virtual ~MyTCPDelegate()
     {
         if (_tcp) {
             delete _tcp;
         }
     }
 
-    virtual const char* typeName() const override { return "TCPSocket"; }
-    
     void send(int16_t connectionId, const char* data, uint16_t size)
     {
         if (!_tcp) {
@@ -88,6 +86,7 @@ public:
 private:
     TCP* _tcp = nullptr;
     Value _func;
+    Value _parent;
 };
     
 

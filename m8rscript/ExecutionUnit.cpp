@@ -96,7 +96,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
 Value ExecutionUnit::derefId(Atom atom)
 {
     if (!atom) {
-        printError(ROMSTR("Value in PUSHREFK must be an Atom"));
+        printError(ROMSTR("Value in LOADREFK must be an Atom"));
         return Value();
     }
     
