@@ -79,6 +79,7 @@ public:
         TCPSocket,
         Trigger,
         arguments,
+        call,
         constructor,
         currentTime,
         decode,

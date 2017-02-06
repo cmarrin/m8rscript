@@ -43,11 +43,7 @@ namespace m8r {
 
 class Function : public MaterObject {
 public:
-    Function()
-    {
-        // Place a dummy constant at index 0 as an error return value
-        _constants.push_back(Value());
-    }
+    Function();
 
     virtual ~Function() { }
 
@@ -96,6 +92,9 @@ protected:
     bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
 private:
+    static CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    NativeFunction _call;
+
     Code _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;

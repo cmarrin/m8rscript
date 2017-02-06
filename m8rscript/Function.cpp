@@ -39,6 +39,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+Function::Function()
+    :_call(call)
+{
+    // Place a dummy constant at index 0 as an error return value
+    _constants.push_back(Value());
+    
+    Global::addObject(&_call, false);
+    PropertyObject::setProperty(ATOM(call), Value(_call.objectId()), Object::SetPropertyType::AlwaysAdd);
+}
+
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams, ctor);
@@ -79,6 +89,21 @@ ConstantId Function::addConstant(const Value& v)
     ConstantId r(static_cast<ConstantId::value_type>(_constants.size()));
     _constants.push_back(v);
     return r;
+}
+
+CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    Object* obj = Global::obj(thisValue);
+    if (nparams < 1 || !obj) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+        
+    // Remove the first element and use it as the this pointer
+    Value self = eu->stack().top(1 - nparams);
+    eu->stack().remove(1 - nparams);
+    nparams--;
+    
+    return obj->call(eu, self, nparams, false);
 }
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const

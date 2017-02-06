@@ -422,6 +422,11 @@ public:
         return super::at(static_cast<int32_t>(super::size()) + relative - 1);
     }
     
+    void remove(int32_t relative)
+    {
+        super::erase(super::begin() + super::size() + relative - 1);
+    }
+    
     uint32_t setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
     {
         uint32_t oldFrame = _frame;
