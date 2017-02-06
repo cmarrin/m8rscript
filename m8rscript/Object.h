@@ -129,8 +129,6 @@ private:
 
 // This is an object with a property map, which is read only from m8rscript
 class PropertyObject : public Object {
-    friend class ObjectFactory;
-    
 public:    
     virtual ~PropertyObject();
 
@@ -218,7 +216,7 @@ private:
 class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name = nullptr);
-    ~ObjectFactory() { _obj.removeNoncollectableObjects(); }
+    ~ObjectFactory() { }
     
     void addProperty(Program*, Atom prop, Object*);
     void addProperty(Program*, Atom prop, const Value&);

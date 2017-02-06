@@ -261,6 +261,7 @@ PropertyObject::~PropertyObject()
             delete obj;
         }
     }
+    removeNoncollectableObjects();
 }
 
 String PropertyObject::toString(ExecutionUnit* eu) const
