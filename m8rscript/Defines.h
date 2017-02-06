@@ -155,6 +155,7 @@ struct Label {
     JMP         X, N
     JT          RK[s], N
     JF          RK[s], N
+    LINENO      X, N
  
     Total: 51 instructions
 */
@@ -171,6 +172,8 @@ enum class Op : uint8_t {
     EQ,  NE, LT, LE, GT, GE,
     SHL, SHR, SAR,
     ADD, SUB, MUL, DIV, MOD,
+    
+    LINENO,
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
     CALL, NEW, CALLPROP, JMP, JT, JF,

@@ -84,6 +84,9 @@ private:
     mutable Annotations annotations;
     
     mutable uint32_t _nerrors = 0;
+    
+    mutable int32_t _lineno = -1;
+    mutable int32_t _emittedLineNumber = -1;
 };
     
 }

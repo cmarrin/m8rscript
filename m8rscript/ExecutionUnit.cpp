@@ -55,7 +55,7 @@ bool ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    Error::vprintError(Error::Code::RuntimeError, -1, format, args);
+    Error::vprintError(Error::Code::RuntimeError, _lineno, format, args);
     return checkTooManyErrors();
 }
 
@@ -235,7 +235,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(BINIOP)
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(UNKNOWN)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
         /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
@@ -295,6 +295,10 @@ static const uint16_t GCCount = 1000;
     
     DISPATCH;
     
+    L_LINENO:
+        _lineno = inst.un();
+        DISPATCH;
+        
     L_UNKNOWN:
         assert(0);
         return CallReturnValue(CallReturnValue::Type::Finished);

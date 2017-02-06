@@ -255,6 +255,7 @@ private:
 
     std::vector<Value> _eventQueue;
     bool _executingEvent = false;
+    uint32_t _lineno = 0;
 };
     
 }

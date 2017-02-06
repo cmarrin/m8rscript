@@ -36,10 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "ExecutionUnit.h"
-#include "MStream.h"
 #include "Scanner.h"
-#include "Program.h"
-#include "Array.h"
 
 namespace m8r {
 
@@ -164,6 +161,16 @@ private:
     void emitPop();
     void emitEnd();
     
+    void emitLineNumber()
+    {
+        uint32_t lineno = _scanner.lineno();
+        if (lineno == _emittedLineNumber) {
+            return;
+        }
+        _emittedLineNumber = lineno;
+        addCode(Instruction(Op::LINENO, 0, lineno));
+    }
+    
     void addNamedObject(ObjectId functionId, const Atom& name);
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
@@ -245,6 +252,7 @@ private:
     std::vector<size_t> _deferredCodeBlocks;
     Code _deferredCode;
     bool _deferred = false;
+    int32_t _emittedLineNumber = -1;
 
     static uint32_t _nextLabelId;
 };

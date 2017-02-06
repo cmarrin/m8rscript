@@ -52,6 +52,18 @@ uint32_t CodePrinter::findAnnotation(uint32_t addr) const
 
 void CodePrinter::preamble(String& s, uint32_t addr) const
 {
+    if (_lineno != _emittedLineNumber) {
+        _emittedLineNumber = _lineno;
+        if (_nestingLevel) {
+            --_nestingLevel;
+            indentCode(s);
+            ++_nestingLevel;
+        }
+        s += "LINENO[";
+        s += Value::toString(_lineno);
+        s += "]\n";
+    }
+    
     uint32_t uniqueID = findAnnotation(addr);
     if (!uniqueID) {
         indentCode(s);
@@ -138,7 +150,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(SHL)
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(UNKNOWN)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
         /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
@@ -315,6 +327,9 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     L_CALLPROP:
         generateCall(outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
         DISPATCH;
+    L_LINENO:
+        _lineno = inst.un();
+        DISPATCH;
 }
 
 struct CodeMap
@@ -342,7 +357,7 @@ static CodeMap opcodes[] = {
     
     OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
     
-    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF)
+    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF) OP(LINENO)
 };
 
 const char* CodePrinter::stringFromOp(Op op)

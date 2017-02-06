@@ -134,6 +134,7 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
     
     Instruction inst = currentFunction()->code()->at(matchAddr);
     Op op = static_cast<Op>(inst.op());
+    assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     uint32_t reg = inst.ra();
     currentFunction()->code()->at(matchAddr) = Instruction(op, reg, jumpAddr);
 }
@@ -156,21 +157,25 @@ void Parser::jumpToLabel(Op op, Label& label)
 
 void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
 {
+    emitLineNumber();
     addCode(Instruction(op, ra, rb, rc));
 }
 
 void Parser::emitCodeRUN(Op op, uint32_t rn, uint32_t n)
 {
+    emitLineNumber();
     addCode(Instruction(op, rn, n));
 }
 
 void Parser::emitCodeRSN(Op op, uint32_t rn, int32_t n)
 {
+    emitLineNumber();
     addCode(Instruction(op, rn, n));
 }
 
 void Parser::emitCodeCall(Op op, uint32_t rcall, uint32_t rthis, uint32_t nparams)
 {
+    emitLineNumber();
     addCode(Instruction(op, rcall, rthis, nparams, true));
 }
 
@@ -603,6 +608,9 @@ void Parser::reconcileRegisters(Function* function)
         Op op = static_cast<Op>(inst.op());
         uint32_t rn = regFromTempReg(inst.rn(), numLocals);
         
+        if (op == Op::LINENO) {
+            continue;
+        }
         if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
             code[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
