@@ -38,8 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
-#include "Function.h"
-#include "Program.h"
+#include "Value.h"
 
 namespace m8r {
 
