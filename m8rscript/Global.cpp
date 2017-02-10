@@ -89,6 +89,31 @@ Global::~Global()
     Global::removeObject(_tcpSocket.nativeObject()->objectId());
 }
 
+ObjectId Global::addObject(Object* obj, bool collectable)
+{
+    assert(!obj->objectId());
+    obj->setCollectable(collectable);
+    ObjectId id = _objectStore.add(obj);
+    obj->setObjectId(id);
+    return id;
+}
+
+void Global::removeObject(ObjectId objectId)
+{
+    assert(_objectStore.ptr(objectId)->objectId() == objectId);
+    _objectStore.remove(objectId, false);
+}
+
+StringId Global::createString(const char* s, int32_t length)
+{
+    return _stringStore.add(new String(s, length));
+}
+
+StringId Global::createString(const String& s)
+{
+    return _stringStore.add(new String(s));
+}
+
 void Global::gc(ExecutionUnit* eu)
 {
     _stringStore.gcClear();

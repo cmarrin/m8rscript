@@ -51,23 +51,11 @@ public:
     Global(Program*);
     virtual ~Global();
 
-    static ObjectId addObject(Object* obj, bool collectable)
-    {
-        assert(!obj->objectId());
-        obj->setCollectable(collectable);
-        ObjectId id = _objectStore.add(obj);
-        obj->setObjectId(id);
-        return id;
-    }
+    static ObjectId addObject(Object* obj, bool collectable);
+    static void removeObject(ObjectId objectId);
     
-    static void removeObject(ObjectId objectId)
-    {
-        assert(_objectStore.ptr(objectId)->objectId() == objectId);
-        _objectStore.remove(objectId, false);
-    }
-    
-    static StringId createString(const char* s, int32_t length = -1) { return _stringStore.add(new String(s, length)); }
-    static StringId createString(const String& s) { return _stringStore.add(new String(s)); }
+    static StringId createString(const char* s, int32_t length = -1);
+    static StringId createString(const String& s);
 
     static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
     static bool isValid(const StringId& id) { return _stringStore.isValid(id); }
@@ -147,7 +135,6 @@ private:
         std::vector<ValueType*> _values;
         std::vector<bool> _valueMarked;
         uint32_t _freeValueIdCount = 0;
-        IdType _freeValueId;
     };
 
     static IdStore<StringId, String> _stringStore;
@@ -157,14 +144,7 @@ private:
 template<typename IdType, typename ValueType>
 IdType Global::IdStore<IdType, ValueType>::add(ValueType* value)
 {
-    if (_freeValueId) {
-        assert(_freeValueIdCount);
-        IdType id = _freeValueId;
-        _values[id.raw()] = value;
-        _freeValueId = IdType();
-        _freeValueIdCount--;
-        return id;
-    } else if (_freeValueIdCount) {
+    if (_freeValueIdCount) {
         for (uint32_t i = 0; i < _values.size(); ++i) {
             if (!_values[i]) {
                 _values[i] = value;
@@ -193,7 +173,6 @@ void Global::IdStore<IdType, ValueType>::remove(IdType id, bool del)
     }
     _values[id.raw()] = nullptr;
     _freeValueIdCount++;
-    _freeValueId = id;
 }
 
 template<>
