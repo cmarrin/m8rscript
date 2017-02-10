@@ -169,8 +169,9 @@ void Parser::emitCodeRUN(Op op, uint32_t rn, uint32_t n)
 
 void Parser::emitCodeRSN(Op op, uint32_t rn, int32_t n)
 {
-    emitLineNumber();
+    // Tbis Op is used for jumps, so we need to put the line number after
     addCode(Instruction(op, rn, n));
+    emitLineNumber();
 }
 
 void Parser::emitCodeCall(Op op, uint32_t rcall, uint32_t rthis, uint32_t nparams)
