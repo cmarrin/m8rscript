@@ -52,7 +52,7 @@ class Application {
 public:
     Application();
     
-    bool load(Error&, const char* name = nullptr);
+    bool load(Error&, bool debug, const char* name = nullptr);
     void run(std::function<void()>);
     void clear()
     {

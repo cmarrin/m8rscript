@@ -15,6 +15,7 @@
                 <outlet property="buildOutput" destination="I74-i4-HVL" id="sej-JK-OMk"/>
                 <outlet property="consoleOutput" destination="kHQ-5K-DHj" id="xuH-kr-DdN"/>
                 <outlet property="editView" destination="E0T-Wz-mD4" id="7tW-Fd-D6A"/>
+                <outlet property="enableDebugButton" destination="xJQ-dg-Ox0" id="cRH-eY-IjE"/>
                 <outlet property="filesContainer" destination="ITH-sx-5DT" id="WZ2-Z6-8pn"/>
                 <outlet property="imageView" destination="np9-g9-QUZ" id="6zF-UC-9yK"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
@@ -177,9 +178,9 @@
                                         </tabViewItems>
                                     </tabView>
                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xJQ-dg-Ox0">
-                                        <rect key="frame" x="18" y="151" width="141" height="18"/>
+                                        <rect key="frame" x="18" y="154" width="133" height="18"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="check" title="Enable Debuggging" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="2HC-cT-kw2">
+                                        <buttonCell key="cell" type="check" title="Enable Debugging" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="2HC-cT-kw2">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>

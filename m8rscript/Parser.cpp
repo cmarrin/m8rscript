@@ -51,8 +51,9 @@ Parser::Parser()
     Global::addObject(_program, true);
 }
 
-void Parser::parse(m8r::Stream* istream)
+void Parser::parse(m8r::Stream* istream, bool debug)
 {
+    _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
     _functions.emplace_back(_program);

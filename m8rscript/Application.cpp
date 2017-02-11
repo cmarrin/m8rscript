@@ -51,7 +51,7 @@ Application::Application()
 {
 }
 
-bool Application::load(Error& error, const char* filename)
+bool Application::load(Error& error, bool debug, const char* filename)
 {
     stop();
     _program = nullptr;
@@ -80,7 +80,7 @@ bool Application::load(Error& error, const char* filename)
         FileStream m8rStream(filename);
         SystemInterface::shared()->printf(ROMSTR("Parsing...\n"));
         Parser parser;
-        parser.parse(&m8rStream);
+        parser.parse(&m8rStream, debug);
         SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             return false;
@@ -131,7 +131,7 @@ bool Application::load(Error& error, const char* filename)
     }
 
     Parser parser;
-    parser.parse(&m8rMainStream);
+    parser.parse(&m8rMainStream, debug);
     SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     if (parser.nerrors()) {
         return false;

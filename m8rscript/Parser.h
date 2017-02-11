@@ -59,7 +59,7 @@ public:
     {
     }
     
-    void parse(m8r::Stream* stream);
+    void parse(m8r::Stream* stream, bool debug);
     
 	void printError(const char* s);
     void expectedError(Token token);
@@ -163,6 +163,9 @@ private:
     
     void emitLineNumber()
     {
+        if (!_debug) {
+            return;
+        }
         uint32_t lineno = _scanner.lineno();
         if (lineno == _emittedLineNumber) {
             return;
@@ -253,6 +256,7 @@ private:
     Code _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
+    bool _debug;
 
     static uint32_t _nextLabelId;
 };

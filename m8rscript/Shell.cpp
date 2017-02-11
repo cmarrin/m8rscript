@@ -61,10 +61,10 @@ void Shell::init()
     sendComplete();
 }
 
-bool Shell::load(const char* filename)
+bool Shell::load(const char* filename, bool debug)
 {
     Error error;
-    if (!_application->load(error, filename)) {
+    if (!_application->load(error, debug, filename)) {
         error.showError();
         return false;
     }
@@ -306,7 +306,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _state = State::NeedPrompt;
         sendString(ROMSTR("erased all files\n"));
     } else if (array[0] == "run") {
-        load((array.size() < 2) ? nullptr : array[1].c_str());
+        load((array.size() < 2) ? nullptr : array[1].c_str(), _debug);
         run([this]{
             SystemInterface::shared()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
@@ -316,6 +316,14 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         stop();
         _state = State::NeedPrompt;
         sendString(ROMSTR("Program stopped\n"));
+    } else if (array[0] == "debug") {
+        _debug = true;
+        _state = State::NeedPrompt;
+        sendString(ROMSTR("Debug true\n"));
+    } else if (array[0] == "nodebug") {
+        _debug = false;
+        _state = State::NeedPrompt;
+        sendString(ROMSTR("Debug false\n"));
     } else if (array[0] == "quit") {
         return false;
     } else {

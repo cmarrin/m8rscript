@@ -517,10 +517,10 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     return _simulator->canSaveBinary();
 }
 
-- (void)buildFile:(NSString*) name
+- (void)buildFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = YES;
-    _simulator->build(name.UTF8String);
+    _simulator->build(name.UTF8String, debug);
 }
 
 - (void)runFile:(NSString*) name

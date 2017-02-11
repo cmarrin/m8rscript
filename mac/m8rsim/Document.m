@@ -38,6 +38,8 @@
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
     __weak IBOutlet NSToolbarItem *saveBinaryButton;
     
+    __weak IBOutlet NSButton *enableDebugButton;
+    
     NSString* _source;
     NSFont* _font;
     NSString* _selectedFilename;
@@ -72,6 +74,8 @@
     [buildOutput setFont:_font];
     [consoleOutput setVerticallyResizable:YES];
     [buildOutput setVerticallyResizable:YES];
+    
+    enableDebugButton.state = NSOffState;
     
     _device = [[Device alloc]init];
     _device.delegate = self;
@@ -176,7 +180,8 @@
 - (IBAction)build:(id)sender
 {
     [self clearOutput:CTBuild];
-    [_device buildFile:_selectedFilename];
+    BOOL debug = enableDebugButton.state == NSOnState;
+    [_device buildFile:_selectedFilename withDebug:debug];
 }
 
 - (IBAction)run:(id)sender
@@ -312,7 +317,7 @@
     
     if ([[name pathExtension] isEqualToString:@"m8rb"]) {
         [self clearOutput:CTBuild];
-        [_device buildFile:name];
+        [_device buildFile:name withDebug: NO];
     }
 }
 

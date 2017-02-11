@@ -89,10 +89,10 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
     return true;
 }
 
-void Simulator::build(const char* name)
+void Simulator::build(const char* name, bool debug)
 {
     _running = false;
-    if (_shell.load(name)) {
+    if (_shell.load(name, debug)) {
 #ifdef PrintCode
         printCode();
 #endif
@@ -146,7 +146,7 @@ void Simulator::stop()
 
 void Simulator::simulate()
 {
-    if (!_shell.load(nullptr)) {
+    if (!_shell.load(nullptr, false)) {
         return;
     }
     _shell.run([]{});
