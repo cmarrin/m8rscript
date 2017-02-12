@@ -122,7 +122,7 @@ void FLASH_ATTR runScript()
     m8r::SystemInterface::shared()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     
     m8r::Error error;
-    if (!_application.load(error)) {
+    if (!_application.load(error, false)) {
         error.showError();
     } else if (!_application.program()) {
         m8r::SystemInterface::shared()->printf(ROMSTR("Error:failed to compile application"));
