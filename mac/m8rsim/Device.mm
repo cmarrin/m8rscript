@@ -499,6 +499,11 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     return _simulator->canRun();
 }
 
+- (BOOL)canBuild
+{
+    return _currentDevice == nil;
+}
+
 - (BOOL)canStop
 {
     return _simulator->canStop();

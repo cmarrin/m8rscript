@@ -134,7 +134,7 @@
 -(BOOL) validateToolbarItem:(NSToolbarItem*) item
 {
     if (item == buildButton) {
-        return [_source length] && [[_selectedFilename pathExtension] isEqualToString:@"m8r"];
+        return [_device canBuild] && [_source length] && [[_selectedFilename pathExtension] isEqualToString:@"m8r"];
     }
     if (item == simulateButton) {
         return [_device canSimulate];

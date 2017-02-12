@@ -53,6 +53,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)clearContents;
 
 - (BOOL)canRun;
+- (BOOL)canBuild;
 - (BOOL)canStop;
 - (BOOL)canUpload;
 - (BOOL)canSimulate;
