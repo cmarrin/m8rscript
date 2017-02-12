@@ -18,6 +18,8 @@
 #import <ctime>
 #import <thread>
 #import <chrono>
+#import <MGSFragaria/MGSFragaria.h>
+
 
 class DeviceSystemInterface;
 
@@ -517,10 +519,26 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     return _simulator->canSaveBinary();
 }
 
-- (void)buildFile:(NSString*) name withDebug:(BOOL)debug
+- (NSArray*)buildFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = YES;
-    _simulator->build(name.UTF8String, debug);
+    const m8r::ErrorList* errors = _simulator->build(name.UTF8String, debug);
+    
+    if (!errors) {
+        return nil;
+    }
+    
+    NSMutableArray* errorArray = [[NSMutableArray alloc] init];
+    for (const auto& entry : *errors) {
+        SMLSyntaxError *syntaxError = [SMLSyntaxError new];
+        syntaxError.description = [NSString stringWithUTF8String:entry._description];
+        syntaxError.line = entry._lineno;
+        syntaxError.character = entry._charno;
+        syntaxError.length = entry._length;
+        [errorArray addObject:syntaxError];
+    }
+    
+    return errorArray;
 }
 
 - (void)runFile:(NSString*) name

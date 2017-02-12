@@ -59,7 +59,7 @@ public:
     void sendComplete();
     void init();
     
-    bool load(const char*, bool debug);
+    const ErrorList* load(const char*, bool debug);
     void run(std::function<void()>);
     void clear() { _application->clear(); }
     void stop() { _application->stop(); }

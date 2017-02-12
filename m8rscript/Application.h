@@ -53,6 +53,7 @@ public:
     Application();
     
     bool load(Error&, bool debug, const char* name = nullptr);
+    const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
     void run(std::function<void()>);
     void clear()
     {
@@ -132,6 +133,8 @@ private:
     Program* _program = nullptr;
     MyRunTask _runTask;
     MyHeartbeatTask _heartbeatTask;
+    
+    ErrorList _syntaxErrors;
 };
     
 }

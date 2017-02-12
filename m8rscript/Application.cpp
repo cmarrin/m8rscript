@@ -55,6 +55,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
 {
     stop();
     _program = nullptr;
+    _syntaxErrors.clear();
     
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
         FileStream m8rbStream(filename);
@@ -83,6 +84,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
         parser.parse(&m8rStream, debug);
         SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
+            _syntaxErrors.swap(parser.syntaxErrors());
             return false;
         }
         _program = parser.program();
@@ -134,6 +136,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     parser.parse(&m8rMainStream, debug);
     SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     if (parser.nerrors()) {
+        _syntaxErrors.swap(parser.syntaxErrors());
         return false;
     }
 

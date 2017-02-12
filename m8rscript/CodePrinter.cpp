@@ -170,7 +170,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    if (!obj->isFunction()) {
+    if (!obj || !obj->isFunction()) {
         return String();
     }
     

@@ -65,35 +65,43 @@ void Parser::parse(m8r::Stream* istream, bool debug)
     functionEnd();
 }
 
-void Parser::printError(const char* s)
+void Parser::printError(const char* format, ...)
 {
     ++_nerrors;
-    Error::printError(Error::Code::ParseError, _scanner.lineno(), s);
+
+    va_list args;
+    va_start(args, format);
+    Error::vprintError(Error::Code::ParseError, _scanner.lineno(), format, args);
+    va_end(args);
+    
+    char s[80];
+    va_start(args, format);
+    vsnprintf(s, 79, format, args);
+    _syntaxErrors.emplace_back(s, _scanner.lineno(), 1, 1);
+    va_end(args);
 }
 
 void Parser::unknownError(Token token)
 {
-    ++_nerrors;
     uint8_t c = static_cast<uint8_t>(token);
-    Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
+    printError(ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
 }
 
 void Parser::expectedError(Token token)
 {
-    ++_nerrors;
-    uint8_t c = static_cast<uint8_t>(token);
-    if (c < 0x80) {
-        Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("syntax error: expected '%c'"), c);
+    char c = static_cast<char>(token);
+    if (c >= 0x20 && c <= 0x7f) {
+        printError(ROMSTR("syntax error: expected '%c'"), c);
     } else {
         switch(token) {
-            case Token::DuplicateDefault: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("multiple default cases not allowed")); break;
-            case Token::Expr: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("expression")); break;
-            case Token::PropertyAssignment: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("property assignment")); break;
-            case Token::Statement: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("statement expected")); break;
-            case Token::Identifier: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("identifier")); break;
-            case Token::MissingVarDecl: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("missing var declaration")); break;
-            case Token::OneVarDeclAllowed: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("only one var declaration allowed here")); break;
-            default: Error::printError(Error::Code::ParseError, _scanner.lineno(), ROMSTR("*** UNKNOWN TOKEN ***")); break;
+            case Token::DuplicateDefault: printError(ROMSTR("multiple default cases not allowed")); break;
+            case Token::Expr: printError(ROMSTR("expression")); break;
+            case Token::PropertyAssignment: printError(ROMSTR("property assignment")); break;
+            case Token::Statement: printError(ROMSTR("statement expected")); break;
+            case Token::Identifier: printError(ROMSTR("identifier")); break;
+            case Token::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;
+            case Token::OneVarDeclAllowed: printError(ROMSTR("only one var declaration allowed here")); break;
+            default: printError(ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
     }
 }

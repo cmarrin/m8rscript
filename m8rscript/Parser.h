@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "Scanner.h"
+#include "SystemInterface.h"
 
 namespace m8r {
 
@@ -61,9 +62,11 @@ public:
     
     void parse(m8r::Stream* stream, bool debug);
     
-	void printError(const char* s);
+	void printError(const char* format, ...);
     void expectedError(Token token);
     void unknownError(Token token);
+    
+    ErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return _nerrors; }
     Program* program() { return _program; }
@@ -259,6 +262,8 @@ private:
     bool _debug;
 
     static uint32_t _nextLabelId;
+
+    ErrorList _syntaxErrors;
 };
 
 }

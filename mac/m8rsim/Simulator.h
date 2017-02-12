@@ -51,7 +51,7 @@ public:
     void importBinary(const char* filename);
     void exportBinary(const char* filename);
     bool exportBinary(std::vector<uint8_t>&);
-    void build(const char* name, bool debug);
+    const m8r::ErrorList* build(const char* name, bool debug);
     void printCode();
     void run();
     void pause();

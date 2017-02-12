@@ -89,15 +89,17 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
     return true;
 }
 
-void Simulator::build(const char* name, bool debug)
+const m8r::ErrorList* Simulator::build(const char* name, bool debug)
 {
     _running = false;
-    if (_shell.load(name, debug)) {
+    const m8r::ErrorList* errors = _shell.load(name, debug);
+    if (!errors) {
 #ifdef PrintCode
         printCode();
 #endif
         m8r::SystemInterface::shared()->printf(ROMSTR("Ready to run\n"));
     }
+    return errors;
 }
 
 void Simulator::printCode()

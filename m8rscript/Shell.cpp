@@ -61,18 +61,18 @@ void Shell::init()
     sendComplete();
 }
 
-bool Shell::load(const char* filename, bool debug)
+const ErrorList* Shell::load(const char* filename, bool debug)
 {
     Error error;
     if (!_application->load(error, debug, filename)) {
         error.showError();
-        return false;
+        return _application->syntaxErrors();
     }
     if (!_application->program()) {
         showError(ROMSTR("failed to compile application"));
-        return false;
+        return _application->syntaxErrors();
     }
-    return true;
+    return nullptr;
 }
 
 void Shell::run(std::function<void()> function)

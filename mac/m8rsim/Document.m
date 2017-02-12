@@ -181,7 +181,7 @@
 {
     [self clearOutput:CTBuild];
     BOOL debug = enableDebugButton.state == NSOnState;
-    [_device buildFile:_selectedFilename withDebug:debug];
+    _fragaria.syntaxErrors = [_device buildFile:_selectedFilename withDebug:debug];
 }
 
 - (IBAction)run:(id)sender
