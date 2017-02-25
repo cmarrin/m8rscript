@@ -83,14 +83,18 @@ protected:
     struct MyEventTask : public Task {
         MyEventTask(TCP* tcp, TCPDelegate* delegate) : _tcp(tcp), _delegate(delegate) { }
         
-        void fire(TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length)
+        void fire(bool immediate, TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length)
         {
             _event = event;
             _connectionId = connectionId;
             _data = new char[length];
             memcpy(_data, data, length);
             _length = length;
-            runOnce();
+            if (immediate) {
+                execute();
+            } else {
+                runOnce();
+            }
         }
         
         void release()
@@ -117,7 +121,7 @@ protected:
         MyEventTask* _next = nullptr;
     };
     
-    void fireEventTask(TCPDelegate::Event event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0)
+    void fireEventTask(bool immediate, TCPDelegate::Event event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0)
     {
         if (!_eventPool) {
             _eventPool = new MyEventTask(this, _delegate);
@@ -127,7 +131,7 @@ protected:
         
         task->_next = _eventsInFlight;
         _eventsInFlight = task;
-        task->fire(event, connectionId, data, length);
+        task->fire(immediate, event, connectionId, data, length);
     }
     
     void releaseEventTask(MyEventTask* task)

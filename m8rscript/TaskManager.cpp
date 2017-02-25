@@ -52,6 +52,7 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     }
     
     newTask->_msSet = delay;
+    newTask->_next = nullptr;
     int32_t msTimeToFire = now + delay;
     newTask->_msTimeToFire = msTimeToFire;
     
