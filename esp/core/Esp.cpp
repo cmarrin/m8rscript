@@ -27,6 +27,10 @@
 #include "SystemInterface.h"
 #include "TCP.h"
 
+#ifndef NDEBUG
+#include <gdbstub.h>
+#endif
+
 extern "C" {
 #include <cxxabi.h>
 #include "user_interface.h"
@@ -477,10 +481,6 @@ void startup(void*)
 
 void initializeSystem(void (*initializedCB)())
 {
-#ifndef NDEBUG
-    gdbstub_init();
-#endif
-
     gpio_init();
     
     wifi_station_set_auto_connect(0);
@@ -489,6 +489,10 @@ void initializeSystem(void (*initializedCB)())
     _initializedCB = initializedCB;
     system_update_cpu_freq(160);
     uart_div_modify(0, UART_CLK_FREQ /74880);
+
+#ifndef NDEBUG
+    gdbstub_init();
+#endif
     
     wifi_set_event_handler_cb(wifiEventHandler);
 

@@ -46,10 +46,6 @@ extern "C" {
 #include <gpio.h>
 #include <osapi.h>
 #include <user_interface.h>
-
-#ifndef NDEBUG
-#include <gdbstub.h>
-#endif
 }
 
 #include <cstdarg>
