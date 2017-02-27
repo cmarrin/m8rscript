@@ -339,7 +339,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
                                                             NSDataBase64EncodingEndLineWithCarriageReturn | 
                                                             NSDataBase64EncodingEndLineWithLineFeed];
     NSString* command = [NSString stringWithFormat:@"put %@\r\n", name];
-    contentString = [NSString stringWithFormat:@"%@\r\n\04\r\n", contentString];
+    contentString = [NSString stringWithFormat:@"%@\r\n\04", contentString];
 
     [self sendCommand:command andString:contentString fromService:service];
 }

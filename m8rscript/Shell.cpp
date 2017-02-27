@@ -69,7 +69,7 @@ const ErrorList* Shell::load(const char* filename, bool debug)
         return _application->syntaxErrors();
     }
     if (!_application->program()) {
-        showError(ROMSTR("failed to compile application"));
+        showMessage(MessageType::Error, ROMSTR("failed to compile application"));
         return _application->syntaxErrors();
     }
     return nullptr;
@@ -78,7 +78,7 @@ const ErrorList* Shell::load(const char* filename, bool debug)
 void Shell::run(std::function<void()> function)
 {
     if (!_application->program()) {
-        showError(ROMSTR("no application to run"));
+        showMessage(MessageType::Error, ROMSTR("no application to run"));
         return;
     }
     _application->run(function);
@@ -87,33 +87,36 @@ void Shell::run(std::function<void()> function)
 bool Shell::received(const char* data, uint16_t size)
 {
     if (_state == State::PutFile) {
-        if (size == 0 || data[0] == '\04') {
-            delete _file;
-            _file = nullptr;
-            _state = State::NeedPrompt;
-            sendComplete();
-            return true;
-        }
-
         if (_binary) {
             // Process line by line
             const char* p = data;
             uint16_t remainingSize = size;
             
             while (1) {
+                if (remainingSize <= 1) {
+                    delete _file;
+                    _file = nullptr;
+                    _state = State::NeedPrompt;
+                    sendComplete();
+                    SystemInterface::shared()->printf(ROMSTR("done\n"));
+                    return true;
+                }
+                
+                SystemInterface::shared()->printf(ROMSTR("."));
+
                 const char* next = reinterpret_cast<const char*>(memchr(p, '\n', remainingSize));
                 size_t lineSize = next ? (next - p + 1) : remainingSize;
             
                 // If line is too large, error
                 if (lineSize > BufferSize) {
-                    showError(ROMSTR("binary 'put' too large"));
+                    showMessage(MessageType::Error, ROMSTR("binary 'put' too large"));
                 }
 
                 int length = Base64::decode(lineSize, p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
                 if (length < 0) {
                     delete _file;
                     _file = nullptr;
-                    showError(ROMSTR("binary decode failed"));
+                    showMessage(MessageType::Error, ROMSTR("binary decode failed"));
                     return false;
                 }
                 _file->write(_buffer, length);
@@ -124,6 +127,13 @@ bool Shell::received(const char* data, uint16_t size)
                 remainingSize -= lineSize;
             }
         } else {
+            if (size <= 1) {
+                delete _file;
+                _file = nullptr;
+                _state = State::NeedPrompt;
+                sendComplete();
+                return true;
+            }
             _file->write(data, size);
         }
         return true;
@@ -137,7 +147,7 @@ void Shell::sendComplete()
     switch(_state) {
         case State::Init:
             _state = State::NeedPrompt;
-            sendString(ROMSTR("\nWelcome to m8rscript\n"));
+            showMessage(MessageType::Info, ROMSTR("\nWelcome to m8rscript\n"));
             break;
         case State::NeedPrompt:
             _state = State::ShowingPrompt;
@@ -173,7 +183,7 @@ void Shell::sendComplete()
                 char binaryBuffer[StackAllocLimit];
                 int32_t result = _file->read(binaryBuffer, StackAllocLimit);
                 if (result < 0) {
-                    showError(ROMSTR("file read failed (%d)"), result);
+                    showMessage(MessageType::Error, ROMSTR("file read failed (%d)"), result);
                     delete _file;
                     _file = nullptr;
                     break;
@@ -184,7 +194,7 @@ void Shell::sendComplete()
                 }
                 int length = Base64::encode(result, reinterpret_cast<uint8_t*>(binaryBuffer), BufferSize, _buffer);
                 if (length < 0) {
-                    showError(ROMSTR("binary encode failed"));
+                    showMessage(MessageType::Error, ROMSTR("binary encode failed"));
                     delete _file;
                     _file = nullptr;
                     break;
@@ -195,7 +205,7 @@ void Shell::sendComplete()
             } else {
                 int32_t result = _file->read(_buffer, BufferSize);
                 if (result < 0) {
-                    showError(ROMSTR("file read failed (%d)"), result);
+                    showMessage(MessageType::Error, ROMSTR("file read failed (%d)"), result);
                     break;
                 }
                 if (result < BufferSize) {
@@ -224,18 +234,18 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     } else if (array[0] == "t") {
         _binary = false;
         _state = State::NeedPrompt;
-        sendString(ROMSTR("text: Setting text transfer mode\n"));
+        showMessage(MessageType::Info, ROMSTR("text: Setting text transfer mode\n"));
     } else if (array[0] == "b") {
         _binary = true;
         _state = State::NeedPrompt;
-        sendString(ROMSTR("binary: Setting binary transfer mode\n"));
+        showMessage(MessageType::Info, ROMSTR("binary: Setting binary transfer mode\n"));
     } else if (array[0] == "get") {
         if (array.size() < 2) {
-            showError(ROMSTR("filename required"));
+            showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "r");
             if (!_file) {
-                showError(ROMSTR("could not open file for 'get'"));
+                showMessage(MessageType::Error, ROMSTR("could not open file for 'get'"));
             } else {
                 _state = State::GetFile;
                 sendComplete();
@@ -243,57 +253,58 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
     } else if (array[0] == "put") {
         if (array.size() < 2) {
-            showError(ROMSTR("filename required"));
+            showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
             _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
             if (!_file) {
-                showError(ROMSTR("could not open file for 'put'"));
+                showMessage(MessageType::Error, ROMSTR("could not open file for 'put'"));
             } else {
+                SystemInterface::shared()->printf(ROMSTR("Put '%s'"), array[1].c_str());
                 _state = State::PutFile;
             }
         }
     } else if (array[0] == "rm") {
         if (array.size() < 2) {
-            showError(ROMSTR("filename required"));
+            showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
             if (!m8r::FS::sharedFS()->remove(array[1].c_str())) {
-                showError(ROMSTR("could not remove file"));
+                showMessage(MessageType::Error, ROMSTR("could not remove file"));
             } else {
                 _state = State::NeedPrompt;
-                sendString(ROMSTR("removed file\n"));
+                showMessage(MessageType::Info, ROMSTR("removed file\n"));
             }
         }
     } else if (array[0] == "mv") {
         if (array.size() < 3) {
-            showError(ROMSTR("source and destination filenames required"));
+            showMessage(MessageType::Error, ROMSTR("source and destination filenames required"));
         } else {
             if (!m8r::FS::sharedFS()->rename(array[1].c_str(), array[2].c_str())) {
-                showError(ROMSTR("could not rename file"));
+                showMessage(MessageType::Error, ROMSTR("could not rename file"));
             } else {
                 _state = State::NeedPrompt;
-                sendString(ROMSTR("renamed file\n"));
+                showMessage(MessageType::Info, ROMSTR("renamed file\n"));
             }
         }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
-            showError(ROMSTR("device name required"));
+            showMessage(MessageType::Error, ROMSTR("device name required"));
         } else {
             Application::NameValidationType type = Application::validateBonjourName(array[1].c_str());
 
             if (type == Application::NameValidationType::BadLength) {
-                showError(ROMSTR("device name must be between 1 and 31 characters"));
+                showMessage(MessageType::Error, ROMSTR("device name must be between 1 and 31 characters"));
             } else if (type == Application::NameValidationType::InvalidChar) {
-                showError(ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
+                showMessage(MessageType::Error, ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
                 setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
-                sendString(ROMSTR("set dev name\n"));
+                showMessage(MessageType::Info, ROMSTR("set dev name\n"));
             }
         }
     } else if (array[0] == "format") {
         m8r::FS::sharedFS()->format();
         _state = State::NeedPrompt;
-        sendString(ROMSTR("formatted FS\n"));
+        showMessage(MessageType::Info, ROMSTR("formatted FS\n"));
     } else if (array[0] == "erase") {
         m8r::FS* fs = m8r::FS::sharedFS();
         m8r::DirectoryEntry* dir = fs->directory();
@@ -304,38 +315,40 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             dir->next();
         }
         _state = State::NeedPrompt;
-        sendString(ROMSTR("erased all files\n"));
+        showMessage(MessageType::Info, ROMSTR("erased all files\n"));
     } else if (array[0] == "run") {
         load((array.size() < 2) ? nullptr : array[1].c_str(), _debug);
         run([this]{
             SystemInterface::shared()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
         _state = State::NeedPrompt;
-        sendString(ROMSTR("Program started...\n"));
+        showMessage(MessageType::Info, ROMSTR("Program started...\n"));
     } else if (array[0] == "stop") {
         stop();
         _state = State::NeedPrompt;
-        sendString(ROMSTR("Program stopped\n"));
+        showMessage(MessageType::Info, ROMSTR("Program stopped\n"));
     } else if (array[0] == "debug") {
         _debug = true;
         _state = State::NeedPrompt;
-        sendString(ROMSTR("Debug true\n"));
+        showMessage(MessageType::Info, ROMSTR("Debug true\n"));
     } else if (array[0] == "nodebug") {
         _debug = false;
         _state = State::NeedPrompt;
-        sendString(ROMSTR("Debug false\n"));
+        showMessage(MessageType::Info, ROMSTR("Debug false\n"));
     } else if (array[0] == "quit") {
         return false;
     } else {
         _state = State::NeedPrompt;
-        showError(ROMSTR("unrecognized command"));
+        showMessage(MessageType::Error, ROMSTR("unrecognized command"));
     }
     return true;
 }
 
-void Shell::showError(const char* msg, ...)
+void Shell::showMessage(MessageType type, const char* msg, ...)
 {
-    _state = State::NeedPrompt;
+    if (type == MessageType::Error) {
+        _state = State::NeedPrompt;
+    }
     
     va_list args;
     va_start(args, msg);
@@ -345,16 +358,14 @@ void Shell::showError(const char* msg, ...)
     vsnprintf(buf, 63, _buffer, args);
     
     char* p = _buffer;
-    p = ROMCopyString(p, ROMSTR("Error:"));
+    if (type == MessageType::Error) {
+        p = ROMCopyString(p, ROMSTR("Error:"));
+    }
     p = ROMCopyString(p, buf);
-    p = ROMCopyString(p, "\n");
+    if (type == MessageType::Error) {
+        p = ROMCopyString(p, "\n");
+    }
     delete[ ] buf;
     
-    shellSend(_buffer);
-}
-
-void Shell::sendString(const char* s)
-{
-    ROMCopyString(_buffer, s);
     shellSend(_buffer);
 }

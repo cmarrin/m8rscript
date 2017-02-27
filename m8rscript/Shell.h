@@ -73,8 +73,9 @@ public:
 
 private:
     bool executeCommand(const std::vector<m8r::String>& array);
-    void showError(const char*, ...);
-    void sendString(const char* s);
+    
+    enum class MessageType { Info, Error };
+    void showMessage(MessageType, const char*, ...);
 
     m8r::DirectoryEntry* _directoryEntry = nullptr;
     State _state = State::Init;
