@@ -35,7 +35,7 @@ will show up in your gdb session, which is useful if you use gdb to do stuff. It
 you use a normal terminal, you can't read the printfs anymore.
 */
 #ifndef GDBSTUB_REDIRECT_CONSOLE_OUTPUT
-#define GDBSTUB_REDIRECT_CONSOLE_OUTPUT 0
+#define GDBSTUB_REDIRECT_CONSOLE_OUTPUT 1
 #endif
 
 /*
@@ -43,7 +43,7 @@ Enable this if you want the GDB stub to wait for you to attach GDB before runnin
 breaking in the init routine; use the gdb 'c' command (continue) to start the program.
 */
 #ifndef GDBSTUB_BREAK_ON_INIT
-#define GDBSTUB_BREAK_ON_INIT 0
+#define GDBSTUB_BREAK_ON_INIT 1
 #endif
 
 /*
