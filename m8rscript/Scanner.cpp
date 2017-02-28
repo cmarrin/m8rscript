@@ -87,11 +87,11 @@ Token Scanner::scanKeyword(const char* s)
 {
     size_t len = strlen(s);
     const char* result = ROMstrstr(keywordString, s);
-    if (!result || result[len] >= 0x20) {
+    if (!result || readRomByte(reinterpret_cast<const uint8_t*>(result + len)) >= 0x20) {
         return Token::Unknown;
     }
     
-    return static_cast<Token>(result[-1]);
+    return static_cast<Token>(readRomByte(reinterpret_cast<const uint8_t*>(result - 1)));
 }
 
 Token Scanner::scanString(char terminal)
