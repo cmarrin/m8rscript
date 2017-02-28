@@ -443,6 +443,7 @@ void wifiEventHandler(System_Event_t *evt)
             }
             break;
         case EVENT_STAMODE_GOT_IP:
+            m8r::SystemInterface::shared()->printf(ROMSTR("Got IP, setting up MDS and starting up\n"));
             gotStationIP();
             break;
         }
@@ -470,9 +471,17 @@ void startup(void*)
         m8r::SystemInterface::shared()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fs->totalSize(), fs->totalUsed());
     }
 
+    m8r::SystemInterface::shared()->printf(ROMSTR("Starting WiFi:\n"));
+    if (wifi_station_get_connect_status() == STATION_GOT_IP) {
+        m8r::SystemInterface::shared()->printf(ROMSTR("    already connected, done\n"));
+        gotStationIP();
+        return;
+    }
+
     gNumWifiTries = 0;
     wifi_set_opmode(STATION_MODE);
     wifi_station_set_auto_connect(1);
+    wifi_set_event_handler_cb(wifiEventHandler);
     wifi_station_connect();
     
     struct station_config config;
@@ -497,8 +506,6 @@ void initializeSystem(void (*initializedCB)())
 #ifndef NDEBUG
     gdbstub_init();
 #endif
-    
-    wifi_set_event_handler_cb(wifiEventHandler);
 
     os_timer_disarm(&micros_overflow_timer);
     os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, nullptr);
