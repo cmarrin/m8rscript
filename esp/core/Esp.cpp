@@ -457,13 +457,17 @@ void startup(void*)
 {
     m8r::FS* fs = m8r::FS::sharedFS();
     if (!fs->mount()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("Trying to format..."));
+        m8r::SystemInterface::shared()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
         if (fs->format()) {
             m8r::SystemInterface::shared()->printf(ROMSTR("succeeded.\n"));
             getUserData();
         } else {
             m8r::SystemInterface::shared()->printf(ROMSTR("FAILED.\n"));
         }
+    }
+
+    if (fs->mount()) {
+        m8r::SystemInterface::shared()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fs->totalSize(), fs->totalUsed());
     }
 
     gNumWifiTries = 0;
