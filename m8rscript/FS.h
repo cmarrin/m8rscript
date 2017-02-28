@@ -112,6 +112,9 @@ public:
     virtual bool remove(const char* name) = 0;
     virtual bool rename(const char* src, const char* dst) = 0;
     
+    virtual uint32_t totalSize() const = 0;
+    virtual uint32_t totalUsed() const = 0;
+    
 private:
     static FS* _sharedFS;
 };

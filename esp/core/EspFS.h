@@ -90,6 +90,9 @@ public:
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;
 
+    virtual uint32_t totalSize() const override;
+    virtual uint32_t totalUsed() const override;
+
     static spiffs* sharedSpiffs()
     {
         return &(reinterpret_cast<EspFS*>(FS::sharedFS())->_spiffsFileSystem);

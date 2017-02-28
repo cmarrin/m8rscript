@@ -130,6 +130,17 @@ bool MacFS::rename(const char* src, const char* dst)
     return false;
 }
 
+uint32_t MacFS::totalSize() const
+{
+    return MaxSize;
+}
+
+uint32_t MacFS::totalUsed() const
+{
+    // FIXME: Implement
+    return MaxSize;
+}
+
 MacDirectoryEntry::MacDirectoryEntry()
 {
 	_index = -1;

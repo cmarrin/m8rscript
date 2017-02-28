@@ -148,6 +148,20 @@ bool EspFS::rename(const char* src, const char* dst)
     return SPIFFS_rename(&_spiffsFileSystem, src, dst) == SPIFFS_OK;
 }
 
+uint32_t EspFS::totalSize() const
+{
+    uint32_t total, used;
+    SPIFFS_info(&_spiffsFileSystem, total, used);
+    return total;
+}
+
+uint32_t EspFS::totalUsed() const
+{
+    uint32_t total, used;
+    SPIFFS_info(&_spiffsFileSystem, total, used);
+    return used;
+}
+
 int32_t EspFS::internalMount()
 {
     return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
