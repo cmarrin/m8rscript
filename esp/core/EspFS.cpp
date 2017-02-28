@@ -151,14 +151,14 @@ bool EspFS::rename(const char* src, const char* dst)
 uint32_t EspFS::totalSize() const
 {
     uint32_t total, used;
-    SPIFFS_info(&_spiffsFileSystem, total, used);
+    SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
     return total;
 }
 
 uint32_t EspFS::totalUsed() const
 {
     uint32_t total, used;
-    SPIFFS_info(&_spiffsFileSystem, total, used);
+    SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
     return used;
 }
 
