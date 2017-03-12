@@ -61,100 +61,13 @@ public:
      
     static TCP* create(TCPDelegate*, uint16_t port);
     static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
-    virtual ~TCP()
-    {
-        while (_eventsInFlight) {
-            MyEventTask* task = _eventsInFlight;
-            _eventsInFlight = _eventsInFlight->_next;
-            task->remove();
-            delete task;
-        }
-        while (_eventPool) {
-            MyEventTask* task = _eventPool;
-            _eventPool = _eventPool->_next;
-            delete task;
-        }
-    }
+    virtual ~TCP() { }
     
     virtual void send(int16_t connectionId, char c) = 0;
     virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
     virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
-    struct MyEventTask : public Task {
-        MyEventTask(TCP* tcp, TCPDelegate* delegate) : _tcp(tcp), _delegate(delegate) { }
-        
-        void fire(bool immediate, TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length)
-        {
-            _event = event;
-            _connectionId = connectionId;
-            _data = new char[length];
-            memcpy(_data, data, length);
-            _length = length;
-            if (immediate) {
-                execute();
-            } else {
-                runOnce();
-            }
-        }
-        
-        void release()
-        {
-            delete [ ] _data;
-        }
-        
-        virtual bool execute() override
-        {
-            _delegate->TCPevent(_tcp, _event, _connectionId, _data, _length);
-            delete [ ] _data;
-            _tcp->releaseEventTask(this);
-            return true;
-        }
-        
-        TCP* _tcp;
-        TCPDelegate* _delegate;
-        
-        TCPDelegate::Event _event;
-        int16_t _connectionId;
-        char* _data;
-        uint16_t _length;
-        
-        MyEventTask* _next = nullptr;
-    };
-    
-    void fireEventTask(bool immediate, TCPDelegate::Event event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0)
-    {
-        if (!_eventPool) {
-            _eventPool = new MyEventTask(this, _delegate);
-        }
-        MyEventTask* task = _eventPool;
-        _eventPool = task->_next;
-        
-        task->_next = _eventsInFlight;
-        _eventsInFlight = task;
-        task->fire(immediate, event, connectionId, data, length);
-    }
-    
-    void releaseEventTask(MyEventTask* task)
-    {
-        MyEventTask* prev = nullptr;
-        for (MyEventTask* t = _eventsInFlight; t; t = t->_next) {
-            if (t == task) {
-                if (!prev) {
-                    _eventsInFlight = task->_next;
-                } else {
-                    prev->_next = task->_next;
-                }
-                break;
-            }
-        }
-        task->_next = _eventPool;
-        _eventPool = task;
-    }
-
-    MyEventTask* _eventPool = nullptr;
-    MyEventTask* _eventsInFlight = nullptr;
-    
     TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
 
     TCPDelegate* _delegate;

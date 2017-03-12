@@ -107,7 +107,7 @@ void EspUDP::receiveCB(void* arg, char* data, uint16_t length)
     struct espconn* conn = (struct espconn *) arg;
     EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
 
-    self->_delegate->UDPreceivedData(self, data, length);
+    self->_delegate->UDPevent(self, UDPDelegate::Event::ReceivedData, data, length);
 }
 
 void EspUDP::sentCB(void* arg)
@@ -115,5 +115,5 @@ void EspUDP::sentCB(void* arg)
     struct espconn* conn = (struct espconn *) arg;
     EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
 
-    self->_delegate->UDPsentData(self);
+    self->_delegate->UDPevent(self, UDPDelegate::Event::SentData);
 }

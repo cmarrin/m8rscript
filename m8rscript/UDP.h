@@ -46,9 +46,9 @@ class IPAddr;
 
 class UDPDelegate {
 public:
-    virtual void UDPreceivedData(UDP*, const char* data, uint16_t length) { }
-    virtual void UDPsentData(UDP*) { }
-    virtual void UDPdisconnected(UDP*) { }
+    enum class Event { Disconnected, ReceivedData, SentData };
+    
+    virtual void UDPevent(UDP*, Event, const char* data = nullptr, uint16_t length = 0) = 0;
 };
 
 class UDP {

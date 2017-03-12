@@ -123,7 +123,7 @@ MacUDP::MacUDP(UDPDelegate* delegate, uint16_t port)
             if (readResult == 0) {
                 // Disconnect
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    _delegate->UDPdisconnected(this);
+                    _delegate->UDPevent(this, UDPDelegate::Event::Disconnected);
                 });
                 close(_socketFD);
                 _socketFD = -1;
@@ -132,7 +132,7 @@ MacUDP::MacUDP(UDPDelegate* delegate, uint16_t port)
                 printf("ERROR: UDP read returned %zd, error=%d\n", readResult, errno);
             } else {
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    _delegate->UDPreceivedData(this, _receiveBuffer, readResult);
+                    _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, _receiveBuffer, readResult);
                 });
             }
         }
@@ -163,6 +163,6 @@ void MacUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        _delegate->UDPsentData(this);
+        _delegate->UDPevent(this, UDPDelegate::Event::SentData);
     });
 }
