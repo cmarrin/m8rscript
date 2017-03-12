@@ -23,9 +23,9 @@
 #include "EspUDP.h"
 #include "EspGPIOInterface.h"
 #include "FS.h"
-#include "MDNSResponder.h"
 #include "SystemInterface.h"
 #include "TCP.h"
+#include <cstdlib>
 
 #ifndef NDEBUG
 #include <gdbstub.h>
@@ -380,19 +380,22 @@ void smartConfig()
     smartconfig_start(smartconfigDone);
 }
 
-m8r::MDNSResponder* _responder = nullptr;
+struct mdns_info mdnsinfo;
 
 void initmdns()
 {
-    if (_responder) {
-        delete _responder;
-    }
     const char* name = _gUserData.name;
     if (name[0] == '\0') {
         name = "m8rscript";
     }
-    _responder = new m8r::MDNSResponder(name);
-    _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
+
+    struct ip_info ipconfig;
+    wifi_get_ip_info(STATION_IF, &ipconfig);
+    mdnsinfo.host_name = const_cast<char*>(name); 
+    mdnsinfo.ipAddr = ipconfig.ip.addr;
+    mdnsinfo.server_name = const_cast<char*>("m8rscript_shell");
+    mdnsinfo.server_port = 22; 
+    espconn_mdns_init(&mdnsinfo);
 }
 
 void initSoftAP()
