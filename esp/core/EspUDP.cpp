@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "EspUDP.h"
 
 #include "Esp.h"
+#include "IPAddr.h"
 #include <stdlib.h>
 
 using namespace m8r;

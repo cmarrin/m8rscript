@@ -35,37 +35,60 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cassert>
-#include <cstdint>
-#include <cstddef>
+#include "Object.h"
+#include "UDP.h"
 
 namespace m8r {
 
-class UDP;
-class IPAddr;
-
-class UDPDelegate {
+class UDPSocketProto : public ObjectFactory {
 public:
-    virtual void UDPreceivedData(UDP*, const char* data, uint16_t length) { }
-    virtual void UDPsentData(UDP*) { }
-    virtual void UDPdisconnected(UDP*) { }
-};
+    UDPSocketProto(Program*);
 
-class UDP {
-public:
-    static UDP* create(UDPDelegate*, uint16_t port = 0);
-    virtual ~UDP() { }
-        
-    static void joinMulticastGroup(IPAddr);
-    static void leaveMulticastGroup(IPAddr);
+private:
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
-    virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) = 0;
-
-protected:
-    UDP(UDPDelegate* delegate, uint16_t port = 0) : _delegate(delegate), _port(port) { }
-
-    UDPDelegate* _delegate;
-    uint16_t _port;
+    NativeFunction _constructor;
+    NativeFunction _send;
+    NativeFunction _disconnect;
 };
 
+class MyUDPDelegate : public NativeObject, public UDPDelegate {
+public:
+    MyUDPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent);
+    virtual ~MyUDPDelegate()
+    {
+        if (_udp) {
+            delete _udp;
+        }
+    }
+
+    void send(int16_t connectionId, const char* data, uint16_t size)
+    {
+        if (!_udp) {
+            return;
+        }
+        _udp->send(connectionId, data, size);
+    }
+
+    void disconnect(int16_t connectionId)
+    {
+        if (!_udp) {
+            return;
+        }
+        _udp->disconnect(connectionId);
+    }
+
+    // UDPDelegate overrides
+    virtual void UDPevent(UDP* udp, Event, int16_t connectionId, const char* data, uint16_t length) override;
+
+private:
+    UDP* _udp = nullptr;
+    Value _func;
+    Value _parent;
+};
+    
+
+    
 }

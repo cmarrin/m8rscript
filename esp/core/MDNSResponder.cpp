@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "MDNSResponder.h"
 
+#include "IPAddr.h"
 #include <cstring>
 #include <cstdlib>
 

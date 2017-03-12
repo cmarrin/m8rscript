@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "MacUDP.h"
 
 #include "Containers.h"
+#include "IPAddr.h"
 #include "Value.h"
 #include <cstring>
 #include <arpa/inet.h>
