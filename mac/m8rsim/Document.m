@@ -43,6 +43,7 @@
     NSString* _source;
     NSFont* _font;
     NSString* _selectedFilename;
+    NSData* _selectedContents;
     
     Device* _device;
     SimulationView* _simulationView;
@@ -52,7 +53,6 @@
     
     MGSFragaria* _fragaria;
     NSImageView* _imageView;
-
 }
 
 @end
@@ -162,10 +162,10 @@
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {
-//    SEL action = [item action];
-//    if (action == @selector(renameFile:)) {
-//        return [_fileBrowser selectedFileCount] == 1;
-//    }
+    SEL action = [item action];
+    if (action == @selector(saveFileAs:)) {
+        return _selectedContents && [_selectedFilename length] > 0;
+    }
 
     return YES;
 }
@@ -261,6 +261,18 @@
     [_fileBrowser removeFiles];
 }
 
+- (IBAction)saveFileAs:(id)sender
+{
+    assert(_selectedContents && [_selectedFilename length] > 0);
+    NSSavePanel* panel = [NSSavePanel savePanel];
+    [panel setNameFieldStringValue:_selectedFilename];
+    [panel beginWithCompletionHandler:^(NSInteger result){
+        if (result == NSFileHandlingPanelOKButton) {
+            [_selectedContents writeToURL:[panel URL] atomically:YES];
+        }
+    }];
+}
+
 - (void)controlTextDidChange:(NSNotification *)aNotification
 {
 }
@@ -289,6 +301,7 @@
 {
     _source = @"";
     _selectedFilename = @"";
+    _selectedContents = nil;
     editView.hidden = YES;
     imageView.hidden = YES;
     [_fragaria setString:_source];
@@ -299,6 +312,7 @@
 {
     [self clearContents];
     _selectedFilename = name;
+    _selectedContents = contents;
     
     NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
     if (source) {
