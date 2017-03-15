@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName;
 - (void)reloadFiles;
 - (void)setDevice:(NSString*)name;
+- (NSURL*)saveToTempFile:(NSInteger)index;
 
 @end
 

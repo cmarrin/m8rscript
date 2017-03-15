@@ -322,6 +322,17 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     });
 }
 
+- (NSURL*)saveToTempFile:(NSInteger)index
+{
+    NSString* name = _fileList[index][@"name"];
+    NSNetService* service = _currentDevice[@"service"];
+    NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
+    NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
+    NSURL* url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/%@", name]];
+    NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return [data writeToURL:url atomically:YES] ? url : nil;
+}
+
 - (BOOL) isFile:(NSString*)name inFileList:(NSArray*)fileList
 {
     for (NSDictionary* entry in fileList) {

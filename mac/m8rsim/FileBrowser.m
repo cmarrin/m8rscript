@@ -352,15 +352,16 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
          writeRows: (NSArray *) rows
          toPasteboard: (NSPasteboard *) pboard
 {
-//   id object = [records objectAtIndex: [[rows lastObject] intValue]];
-//   NSData *data = [NSArchiver archivedDataWithRootObject: object];
-//
-//   [pboard declareTypes: [NSArray arrayWithObject: @"NSGeneralPboardType"]
-//                                            owner: nil];
-//   [pboard setData: data forType: @"NSGeneralPboardType"];
     [pboard declareTypes: [NSArray arrayWithObject: NSFilenamesPboardType] owner: nil];
-    NSURL *url = [NSURL URLWithString:@"foobar"];
-    [url writeToPasteboard:pboard];
+    NSMutableArray* filenameArray = [NSMutableArray array];
+    for (NSNumber* index in rows) {
+        NSURL *url = [_document saveToTempFile:[index integerValue]];
+        if (url) {
+            [filenameArray addObject:url];
+        }
+    }
+    
+    [pboard writeObjects:filenameArray];
     
     return YES;
 }
@@ -370,26 +371,7 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
                     proposedRow: (int) row
                     proposedDropOperation: (NSTableViewDropOperation) operation
 {
-//   if (row > [records count])
-//   return NSDragOperationNone;
-//
-//   if (nil == [info draggingSource]) // From other application
-//     {
-//       return NSDragOperationNone;
-//     }
-//   else if (tableView == [info draggingSource]) // From self
-//     {
-//       return NSDragOperationNone;
-//     }
-//   else // From other documents 
-//     {
-//       [view setDropRow: row dropOperation: NSTableViewDropAbove];
-//       return NSDragOperationCopy;
-//     }
-    NSPasteboard *pboard = [info draggingPasteboard];
-    NSDictionary* proplist = [pboard propertyListForType:NSFilenamesPboardType];
-    NSLog(@"***** pastboard items: %@\n", proplist);
-    return NSDragOperationNone;
+    return ([info draggingSource] != fileListView) ? NSDragOperationCopy : NSDragOperationNone;
 }
 
 - (BOOL) tableView: (NSTableView *) view
@@ -397,34 +379,18 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
          row: (int) row
          dropOperation: (NSTableViewDropOperation) operation
 {
-//   NSPasteboard *pboard = [info draggingPasteboard];
-//   NSData *data = [pboard dataForType: @"NSGeneralPboardType"];
-//
-//   if (row > [records count])
-//     return NO;
-//
-//   if (nil == [info draggingSource]) // From other application
-//     {
-//       return NO;
-//     }
-//   else if (tableView == [info draggingSource]) // From self
-//     {
-//       return NO;
-//     }
-//   else // From other documents
-//     {
-//       id object = [NSUnarchiver unarchiveObjectWithData: data];
-//       [records insertObject: object atIndex: row];
-//       [tableView reloadData];
-//
-//       return YES;
-//     }
-
     NSPasteboard *pboard = [info draggingPasteboard];
-    NSArray* array = pboard.pasteboardItems;
-    NSLog(@"***** pastboard items: %@\n", array);
-
-    return NO;
+    NSDictionary* fileList = [pboard propertyListForType:NSFilenamesPboardType];
+    for (NSString* filename in fileList) {
+        NSURL* url = [NSURL fileURLWithPath:filename];
+        NSFileWrapper* file  = [[NSFileWrapper alloc] initRegularFileWithContents:[NSData dataWithContentsOfURL:url]];
+        file.preferredFilename = [url lastPathComponent];
+        [_document addFile:file];
+    }
+                
+    [fileListView deselectAll:self];
+    [_document reloadFiles];
+    return YES;
 }
 
 @end

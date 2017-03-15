@@ -365,6 +365,11 @@
     [_device selectFile:index];
 }
 
+- (NSURL*)saveToTempFile:(NSInteger)index
+{
+    return [_device saveToTempFile:index];
+}
+
 - (void)addFile:(NSFileWrapper*)file
 {
     [self clearContents];

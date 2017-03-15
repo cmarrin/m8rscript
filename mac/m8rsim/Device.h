@@ -51,6 +51,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName;
 - (void)setDevice:(NSString*)device;
 - (void)clearContents;
+- (NSURL*)saveToTempFile:(NSInteger)index;
 
 - (BOOL)canRun;
 - (BOOL)canBuild;
