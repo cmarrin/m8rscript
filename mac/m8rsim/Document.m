@@ -365,9 +365,9 @@
     [_device selectFile:index];
 }
 
-- (NSURL*)saveToTempFile:(NSInteger)index
+- (BOOL)saveFile:(NSString*)name withURLBase:(NSURL*)urlBase
 {
-    return [_device saveToTempFile:index];
+    return [_device saveFile:name withURLBase:urlBase];
 }
 
 - (void)addFile:(NSFileWrapper*)file

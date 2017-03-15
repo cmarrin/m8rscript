@@ -352,17 +352,23 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
          writeRows: (NSArray *) rows
          toPasteboard: (NSPasteboard *) pboard
 {
-    [pboard declareTypes: [NSArray arrayWithObject: NSFilenamesPboardType] owner: nil];
-    NSMutableArray* filenameArray = [NSMutableArray array];
+    [pboard declareTypes:[NSArray arrayWithObjects:NSFilesPromisePboardType, nil] owner:self];
+
+    // the pasteboard must know the type of files being promised
+    NSMutableArray *filenameExtensions = [NSMutableArray array];
+
     for (NSNumber* index in rows) {
-        NSURL *url = [_document saveToTempFile:[index integerValue]];
-        if (url) {
-            [filenameArray addObject:url];
+        NSString *filename = [_currentFileList objectAtIndex:[index integerValue]][@"name"];
+        NSString *filenameExtension = [filename pathExtension];
+
+        if (![filenameExtension isEqualToString:@""])
+        {
+            [filenameExtensions addObject:filenameExtension];
         }
-    }
-    
-    [pboard writeObjects:filenameArray];
-    
+    } 
+
+    [pboard setPropertyList:filenameExtensions forType:NSFilesPromisePboardType];
+
     return YES;
 }
 
@@ -371,7 +377,7 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
                     proposedRow: (int) row
                     proposedDropOperation: (NSTableViewDropOperation) operation
 {
-    return ([info draggingSource] != fileListView) ? NSDragOperationCopy : NSDragOperationNone;
+    return ([info draggingSource] != fileListView) ? NSDragOperationMove : NSDragOperationNone;
 }
 
 - (BOOL) tableView: (NSTableView *) view
@@ -391,6 +397,21 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
     [fileListView deselectAll:self];
     [_document reloadFiles];
     return YES;
+}
+
+- (NSArray*)tableView:(NSTableView*)aTableView namesOfPromisedFilesDroppedAtDestination:(NSURL*)dropDestination forDraggedRowsWithIndexes:(NSIndexSet*)indexSet 
+{
+    NSMutableArray *draggedFilenames = [NSMutableArray array];
+    NSArray* fileList = [_currentFileList objectsAtIndexes:indexSet];
+    
+    for (NSDictionary* entry in fileList) {
+        //NSURL *url = [_document saveToTempFile:entry[@"name"]];
+        if ([_document saveFile:entry[@"name"] withURLBase:dropDestination]) {
+            [draggedFilenames addObject:entry[@"name"]];
+        }
+    }
+
+    return draggedFilenames;
 }
 
 @end
