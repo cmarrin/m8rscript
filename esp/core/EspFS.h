@@ -76,6 +76,9 @@ private:
 };
 
 class EspFS : public FS {
+    friend EspDirectoryEntry;
+    friend EspFile;
+    
 public:
     EspFS();
     virtual ~EspFS();
@@ -93,16 +96,16 @@ public:
     virtual uint32_t totalSize() const override;
     virtual uint32_t totalUsed() const override;
 
-    static spiffs* sharedSpiffs()
-    {
-        return &(reinterpret_cast<EspFS*>(FS::sharedFS())->_spiffsFileSystem);
-    }
-    
 private:
     static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);
     static int32_t spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src);
     static int32_t spiffsErase(uint32_t addr, uint32_t size);
 
+    static spiffs* sharedSpiffs()
+    {
+        return &(reinterpret_cast<EspFS*>(FS::sharedFS())->_spiffsFileSystem);
+    }
+    
     int32_t internalMount();
 
     static FS* _sharedFS;
