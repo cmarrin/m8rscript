@@ -51,7 +51,7 @@
         [fileSourceButton removeItemAtIndex:1];
     }
 
-    [fileListView registerForDraggedTypes: [NSArray arrayWithObjects: NSURLPboardType, nil]];
+    [fileListView registerForDraggedTypes: [NSArray arrayWithObjects: NSFilenamesPboardType, @"public.jpeg", NSURLPboardType, NSStringPboardType, nil]];
     [fileListView setDraggingSourceOperationMask:NSDragOperationCopy forLocal:NO];
 }
 
@@ -358,7 +358,7 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
 //   [pboard declareTypes: [NSArray arrayWithObject: @"NSGeneralPboardType"]
 //                                            owner: nil];
 //   [pboard setData: data forType: @"NSGeneralPboardType"];
-    [pboard declareTypes: [NSArray arrayWithObject: NSURLPboardType] owner: nil];
+    [pboard declareTypes: [NSArray arrayWithObject: NSFilenamesPboardType] owner: nil];
     NSURL *url = [NSURL URLWithString:@"foobar"];
     [url writeToPasteboard:pboard];
     
@@ -386,6 +386,9 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
 //       [view setDropRow: row dropOperation: NSTableViewDropAbove];
 //       return NSDragOperationCopy;
 //     }
+    NSPasteboard *pboard = [info draggingPasteboard];
+    NSDictionary* proplist = [pboard propertyListForType:NSFilenamesPboardType];
+    NSLog(@"***** pastboard items: %@\n", proplist);
     return NSDragOperationNone;
 }
 
