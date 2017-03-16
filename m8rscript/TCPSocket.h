@@ -56,7 +56,7 @@ private:
 
 class MyTCPDelegate : public NativeObject, public TCPDelegate {
 public:
-    MyTCPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent);
+    MyTCPDelegate(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
     virtual ~MyTCPDelegate()
     {
         if (_tcp) {
@@ -87,6 +87,7 @@ private:
     TCP* _tcp = nullptr;
     Value _func;
     Value _parent;
+    ExecutionUnit* _eu;
 };
     
 

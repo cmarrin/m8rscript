@@ -79,7 +79,7 @@ CallReturnValue TCPSocketProto::constructor(ExecutionUnit* eu, Value thisValue, 
     }
 
     // FIXME: Support IP address (client mode)
-    MyTCPDelegate* delegate = new MyTCPDelegate(IPAddr(), port, func, thisValue.asObjectIdValue());
+    MyTCPDelegate* delegate = new MyTCPDelegate(eu, IPAddr(), port, func, thisValue.asObjectIdValue());
     
     Object* obj = Global::obj(thisValue);
     if (!obj) {
@@ -90,9 +90,10 @@ CallReturnValue TCPSocketProto::constructor(ExecutionUnit* eu, Value thisValue, 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-MyTCPDelegate::MyTCPDelegate(IPAddr ip, uint16_t port, const Value& func, const Value& parent)
+MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const Value& func, const Value& parent)
     : _func(func)
     , _parent(parent)
+    , _eu(eu)
 {
     // FIXME: Implement client
     assert(!ip);
@@ -154,7 +155,7 @@ void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const 
         args[2] = Value(dataString);
         args[3] = Value(static_cast<int32_t>(length));
     }
-    EventManager::shared()->fireEvent(_func, _parent, args, data ? 4 : 2);
+    _eu->fireEvent(_func, _parent, args, data ? 4 : 2);
 }
 
 

@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
-#include "EventManager.h"
 #include "Function.h"
 #include "Program.h"
 
@@ -76,7 +75,7 @@ protected:
     }
 };
 
-class ExecutionUnit : public EventListener {
+class ExecutionUnit {
 public:
     friend class Function;
     
@@ -84,12 +83,10 @@ public:
         : _stack(200)
     {
         Global::addObject(&_stack, false);
-        EventManager::shared()->addListener(this);
     }
     ~ExecutionUnit()
     {
         Global::removeObject(_stack.objectId());
-        EventManager::shared()->removeListener(this);
     }
     
     void gcMark()
@@ -172,8 +169,7 @@ public:
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
-    // EventListener
-    virtual void eventFired(const Value& func, const Value& thisValue, const Value* args, int32_t nargs) override
+    void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
     {
         _eventQueue.push_back(func);
         _eventQueue.push_back(thisValue);
