@@ -48,8 +48,6 @@
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
-		49A7D2721E306E8000F86DC4 /* EventManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A7D2701E306E8000F86DC4 /* EventManager.cpp */; };
-		49A7D2731E306E8000F86DC4 /* EventManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A7D2711E306E8000F86DC4 /* EventManager.h */; };
 		49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AB794B1DC143B700DE6332 /* TaskManager.cpp */; };
 		49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AB794C1DC143B700DE6332 /* TaskManager.h */; };
 		49AE34F41D82321300C4E680 /* MacFS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F21D82321300C4E680 /* MacFS.mm */; };
@@ -190,8 +188,6 @@
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../m8rscript/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../m8rscript/Error.h; sourceTree = "<group>"; };
-		49A7D2701E306E8000F86DC4 /* EventManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventManager.cpp; path = ../m8rscript/EventManager.cpp; sourceTree = "<group>"; };
-		49A7D2711E306E8000F86DC4 /* EventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EventManager.h; path = ../m8rscript/EventManager.h; sourceTree = "<group>"; };
 		49AB794B1DC143B700DE6332 /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskManager.cpp; path = ../m8rscript/TaskManager.cpp; sourceTree = "<group>"; };
 		49AB794C1DC143B700DE6332 /* TaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskManager.h; path = ../m8rscript/TaskManager.h; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
@@ -455,8 +451,6 @@
 				4942EA8C1D0D950100E02088 /* Defines.h */,
 				49A3286A1D35BDC50006D0FE /* Error.cpp */,
 				49A3286B1D35BDC50006D0FE /* Error.h */,
-				49A7D2701E306E8000F86DC4 /* EventManager.cpp */,
-				49A7D2711E306E8000F86DC4 /* EventManager.h */,
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */,
 				49E648141D00C088005F5059 /* Float.h */,
@@ -510,7 +504,6 @@
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
-				49A7D2731E306E8000F86DC4 /* EventManager.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				492396C81E711D12007AC0BF /* UDPSocket.h in Headers */,
@@ -686,7 +679,6 @@
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
-				49A7D2721E306E8000F86DC4 /* EventManager.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,

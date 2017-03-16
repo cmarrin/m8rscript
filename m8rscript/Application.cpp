@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 
-#include "EventManager.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 
