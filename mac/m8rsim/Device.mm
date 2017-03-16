@@ -606,6 +606,17 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     [self addFile:name withContents:data toDevice:_currentDevice[@"service"]];
 }
 
+- (BOOL)saveChangedFiles
+{
+    // FIXME: Implement
+    return _currentDevice != nil;
+}
+
+- (BOOL)isDeviceFile
+{
+    return _currentDevice != nil;
+}
+
 - (void)clearContents
 {
     _simulator->clear();

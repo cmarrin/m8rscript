@@ -408,6 +408,17 @@
     return YES;
 }
 
+- (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
+{
+    if ([_device saveChangedFiles]) {
+        [self updateChangeCount:NSChangeCleared];
+        return YES;
+    }
+    
+    BOOL result = [super writeToURL:url ofType:typeName error:outError];
+    return result;
+}
+
 - (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError **)outError
 {
     if (!_package) {

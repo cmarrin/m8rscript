@@ -69,6 +69,9 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)simulate;
 - (void)saveBinary:(NSString*)filename;
 
+- (BOOL)saveChangedFiles;
+- (BOOL)isDeviceFile;
+
 
 @end
 
