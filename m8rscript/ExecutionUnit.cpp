@@ -158,17 +158,39 @@ void ExecutionUnit::startExecution(Program* program)
     _executingEvent = false;
 }
 
+void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
+{
+    TaskManager::lock();
+    
+    _eventQueue.push_back(func);
+    _eventQueue.push_back(thisValue);
+    _eventQueue.push_back(Value(nargs));
+    for (int i = 0; i < nargs; i++) {
+        _eventQueue.push_back(args[i]);
+    }
+
+    TaskManager::unlock();
+}
+
 void ExecutionUnit::runNextEvent()
 {
     // Each event is at least 3 entries long. First is the function, followed by the this pointer
-    // followed by the number of args. That number of args then follows
+    // followed by the number of args. That number of args then follows    
+    Value func;
+    Value thisValue;
+    int32_t nargs = 0;
+    bool haveEvent = false;
+    
+    TaskManager::lock();
+
     if (!_eventQueue.empty()) {
         assert(_eventQueue.size() >= 3);
         
+        haveEvent = true;
         _executingEvent = true;
-        Value func = _eventQueue[0];
-        Value thisValue = _eventQueue[1];
-        int32_t nargs = _eventQueue[2].asIntValue();
+        func = _eventQueue[0];
+        thisValue = _eventQueue[1];
+        nargs = _eventQueue[2].asIntValue();
         assert(_eventQueue.size() >= 3 + nargs);
         
         for (int32_t i = 0; i < nargs; ++i) {
@@ -176,8 +198,12 @@ void ExecutionUnit::runNextEvent()
         }
         
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
+    }
+
+    TaskManager::unlock();
         
-        startFunction(_eventQueue.front().asObjectIdValue(), thisValue.asObjectIdValue(), nargs, false);
+    if (haveEvent) {
+        startFunction(func.asObjectIdValue(), thisValue.asObjectIdValue(), nargs, false);
     }
 }
 

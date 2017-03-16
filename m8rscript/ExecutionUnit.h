@@ -91,17 +91,17 @@ public:
     
     void gcMark()
     {
-        if (_program) {
-            Global::gcMark(this, _program->objectId());
-        }
+        assert(_program);
+        Global::gcMark(this, _program->objectId());
         Global::gcMark(this, _object);
         _stack.gcMark(this);
-        if (_program) {
-            _program->gcMark(this);
-        }
+        _program->gcMark(this);
+
+        TaskManager::lock();
         for (auto it : _eventQueue) {
             it.gcMark(this);
         }
+        TaskManager::unlock();
     }
     
     SystemInterface* system() const { return _program->system(); }
@@ -169,17 +169,7 @@ public:
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
-    void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
-    {
-        _eventQueue.push_back(func);
-        _eventQueue.push_back(thisValue);
-        if (nargs) {
-            _eventQueue.push_back(Value(nargs));
-            for (int i = 0; i < nargs; i++) {
-                _eventQueue.push_back(args[i]);
-            }
-        }
-    }
+    void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
 private:
     void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor);
