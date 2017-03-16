@@ -45,17 +45,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-FS* FS::_sharedFS = nullptr;
-NSFileWrapper* MacFS::_files = NULL;
-
-FS* FS::sharedFS()
-{
-    if (!_sharedFS) {
-        _sharedFS = new MacFS();
-    }
-    return _sharedFS;
-}
-
 MacFS::MacFS()
 {
 }
@@ -66,7 +55,7 @@ MacFS::~MacFS()
 
 DirectoryEntry* MacFS::directory()
 {
-    return new MacDirectoryEntry();
+    return new MacDirectoryEntry(_files);
 }
 
 bool MacFS::mount()
@@ -100,7 +89,7 @@ bool MacFS::format()
 
 File* MacFS::open(const char* name, const char* mode)
 {
-    return new MacFile(name, mode);
+    return new MacFile(this, name, mode);
 }
 
 bool MacFS::remove(const char* name)
@@ -141,7 +130,7 @@ uint32_t MacFS::totalUsed() const
     return MaxSize;
 }
 
-MacDirectoryEntry::MacDirectoryEntry()
+MacDirectoryEntry::MacDirectoryEntry(NSFileWrapper* files) : _files(files)
 {
 	_index = -1;
     next();
@@ -154,7 +143,7 @@ MacDirectoryEntry::~MacDirectoryEntry()
 bool MacDirectoryEntry::next()
 {
     ++_index;
-    NSArray* keys = MacFS::_files.fileWrappers.allKeys;
+    NSArray* keys = _files.fileWrappers.allKeys;
     if (keys.count <= _index) {
         _valid = false;
         return false;
@@ -162,12 +151,12 @@ bool MacDirectoryEntry::next()
 
     strncpy(_name, [keys[_index] UTF8String], FilenameLength - 1);
     _name[FilenameLength - 1] = '\0';
-    _size = static_cast<uint32_t>(MacFS::_files.fileWrappers[keys[_index]].regularFileContents.length);
+    _size = static_cast<uint32_t>(_files.fileWrappers[keys[_index]].regularFileContents.length);
     _valid = true;
     return true;
 }
 
-MacFile::MacFile(const char* name, const char* mode)
+MacFile::MacFile(MacFS* fs, const char* name, const char* mode) : _files(fs->_files)
 {
     if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
         _file = nullptr;
@@ -175,7 +164,7 @@ MacFile::MacFile(const char* name, const char* mode)
         return;
     }
     
-    if (!MacFS::sharedFS()->mounted()) {
+    if (!fs->mounted()) {
         _file = nullptr;
         _error = ENODEV;
         return;
@@ -204,9 +193,9 @@ MacFile::MacFile(const char* name, const char* mode)
     
     NSString* filename = [NSString stringWithUTF8String:name];
     
-    _file = MacFS::_files.fileWrappers[filename];
+    _file = _files.fileWrappers[filename];
     if (_file && trunc) {
-        MacFS::sharedFS()->remove(name);
+        fs->remove(name);
         _file = NULL;
     }
     
@@ -216,8 +205,8 @@ MacFile::MacFile(const char* name, const char* mode)
         if (!creat) {
             _error = _file ? 0 : ENOENT;
         } else {
-            [MacFS::_files addRegularFileWithContents:[[NSData alloc] init] preferredFilename:filename];
-            _file = MacFS::_files.fileWrappers[filename];
+            [_files addRegularFileWithContents:[[NSData alloc] init] preferredFilename:filename];
+            _file = _files.fileWrappers[filename];
         }
     } else if (append) {
         _offset = _file.regularFileContents.length;
@@ -268,9 +257,9 @@ int32_t MacFile::write(const char* buf, uint32_t size)
     _offset += size;
     
     NSString* filename = _file.preferredFilename;
-    [MacFS::_files removeFileWrapper:_file];
-    [MacFS::_files addRegularFileWithContents:data preferredFilename:filename];
-    _file = MacFS::_files.fileWrappers[filename];
+    [_files removeFileWrapper:_file];
+    [_files addRegularFileWithContents:data preferredFilename:filename];
+    _file = _files.fileWrappers[filename];
     return size;
 }
 

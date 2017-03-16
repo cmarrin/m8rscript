@@ -103,16 +103,14 @@ private:
 
     static spiffs* sharedSpiffs()
     {
-        return &(reinterpret_cast<EspFS*>(FS::sharedFS())->_spiffsFileSystem);
+        return &_spiffsFileSystem;
     }
     
     int32_t internalMount();
 
-    static FS* _sharedFS;
-    
     spiffs_config _config;
 
-    spiffs _spiffsFileSystem;
+    static spiffs _spiffsFileSystem;
     uint8_t* _spiffsWorkBuf;
     uint8_t _spiffsFileDescriptors[sizeof(spiffs_fd) * 4];
 #if SPIFFS_CACHE

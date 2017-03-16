@@ -100,8 +100,6 @@ public:
     FS() { }
     virtual ~FS() { }
     
-    static FS* sharedFS();
-    
     virtual DirectoryEntry* directory() = 0;
     virtual bool mount() = 0;
     virtual bool mounted() const = 0;

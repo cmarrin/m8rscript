@@ -414,4 +414,12 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
     return draggedFilenames;
 }
 
+// This method is called when the drag starts and can be used to create a custom drag image
+-(void)tableView:(NSTableView *)tableView
+ draggingSession: (NSDraggingSession *)session
+willBeginAtPoint:(NSPoint)screenPoint
+   forRowIndexes:(NSIndexSet *)rowIndexes {
+   NSLog(@"*****");
+}
+
 @end

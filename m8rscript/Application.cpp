@@ -45,8 +45,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Application::Application()
-    : _runTask()
+Application::Application(FS* fs)
+    :_fs(fs)
+    , _runTask()
     , _heartbeatTask()
 {
 }
@@ -58,7 +59,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     _syntaxErrors.clear();
     
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
-        FileStream m8rbStream(filename);
+        FileStream m8rbStream(_fs, filename);
         if (!m8rbStream.loaded()) {
             error.setError(Error::Code::FileNotFound);
             return false;
@@ -78,7 +79,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
         return false;
 #else
         // See if we can parse it
-        FileStream m8rStream(filename);
+        FileStream m8rStream(_fs, filename);
         SystemInterface::shared()->printf(ROMSTR("Parsing...\n"));
         Parser parser;
         parser.parse(&m8rStream, debug);
@@ -94,7 +95,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     
     // See if there is a 'main' file (which contains the name of the program to run)
     String name = "main";
-    FileStream mainStream(name.c_str());
+    FileStream mainStream(_fs, name.c_str());
     if (mainStream.loaded()) {
         name.clear();
         while (!mainStream.eof()) {
@@ -111,7 +112,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     name += ".m8rb";
     SystemInterface::shared()->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
 
-    FileStream m8rbMainStream(name.c_str());
+    FileStream m8rbMainStream(_fs, name.c_str());
     
     if (m8rbMainStream.loaded()) {
         _program = new m8r::Program();
@@ -125,7 +126,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
 #else
     name = name.slice(0, -1);
     SystemInterface::shared()->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
-    FileStream m8rMainStream(name.c_str());
+    FileStream m8rMainStream(_fs, name.c_str());
     
     if (!m8rMainStream.loaded()) {
         error.setError(Error::Code::FileNotFound);

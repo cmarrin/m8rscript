@@ -22,7 +22,7 @@
 
 #include "EspUDP.h"
 #include "EspGPIOInterface.h"
-#include "FS.h"
+#include "EspFS.h"
 #include "SystemInterface.h"
 #include "TCP.h"
 #include <cstdlib>
@@ -62,6 +62,8 @@ static uint32_t micros_at_last_overflow_tick = 0;
 static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
 static bool _calledInitializeCB = false;
+
+static m8r::EspFS fileSystem;
 
 m8r::IPAddr m8r::IPAddr::myIPAddr()
 {
@@ -271,14 +273,14 @@ void writeUserData()
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
     _gUserData.magic[3] = 's';
-    m8r::File* file = m8r::FS::sharedFS()->open(UserDataFilename, "w");
+    m8r::File* file = fileSystem.open(UserDataFilename, "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
 }
 
 void getUserData()
 {
-    m8r::File* file = m8r::FS::sharedFS()->open(UserDataFilename, "r");
+    m8r::File* file = fileSystem.open(UserDataFilename, "r");
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
@@ -459,10 +461,9 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 
 void startup(void*)
 {
-    m8r::FS* fs = m8r::FS::sharedFS();
-    if (!fs->mount()) {
+    if (!fileSystem.mount()) {
         m8r::SystemInterface::shared()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
-        if (fs->format()) {
+        if (fileSystem.format()) {
             m8r::SystemInterface::shared()->printf(ROMSTR("succeeded.\n"));
             getUserData();
         } else {
@@ -470,8 +471,8 @@ void startup(void*)
         }
     }
 
-    if (fs->mount()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fs->totalSize(), fs->totalUsed());
+    if (fileSystem.mount()) {
+        m8r::SystemInterface::shared()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fileSystem.totalSize(), fileSystem.totalUsed());
     }
 
     m8r::SystemInterface::shared()->printf(ROMSTR("Starting WiFi:\n"));

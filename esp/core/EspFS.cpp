@@ -40,16 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-FS* FS::_sharedFS = nullptr;
-
-FS* FS::sharedFS()
-{
-    if (!_sharedFS) {
-        _sharedFS = new EspFS();
-    }
-    return _sharedFS;
-}
-
 EspFS::EspFS()
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));

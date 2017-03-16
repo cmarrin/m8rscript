@@ -47,10 +47,13 @@ static const char* MainFileName = "main";
 class Program;
 class Error;
 class ExecutionUnit;
+class FS;
 
 class Application {
 public:
-    Application();
+    Application(FS*);
+    
+    FS* fileSystem() { return _fs; }
     
     bool load(Error&, bool debug, const char* name = nullptr);
     const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
@@ -129,6 +132,8 @@ private:
         // when the downbeat started 
         bool _upbeat = false; // When true, heartbeat is occuring
     };
+
+    FS* _fs;
 
     Program* _program = nullptr;
     MyRunTask _runTask;

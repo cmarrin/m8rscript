@@ -228,7 +228,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         return true;
     }
     if (array[0] == "ls") {
-        _directoryEntry = m8r::FS::sharedFS()->directory();
+        _directoryEntry = _application->fileSystem()->directory();
         _state = State::ListFiles;
         sendComplete();
     } else if (array[0] == "t") {
@@ -243,7 +243,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            _file = m8r::FS::sharedFS()->open(array[1].c_str(), "r");
+            _file = _application->fileSystem()->open(array[1].c_str(), "r");
             if (!_file) {
                 showMessage(MessageType::Error, ROMSTR("could not open file for 'get'"));
             } else {
@@ -255,7 +255,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            _file = m8r::FS::sharedFS()->open(array[1].c_str(), "w");
+            _file = _application->fileSystem()->open(array[1].c_str(), "w");
             if (!_file) {
                 showMessage(MessageType::Error, ROMSTR("could not open file for 'put'"));
             } else {
@@ -267,7 +267,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            if (!m8r::FS::sharedFS()->remove(array[1].c_str())) {
+            if (!_application->fileSystem()->remove(array[1].c_str())) {
                 showMessage(MessageType::Error, ROMSTR("could not remove file"));
             } else {
                 _state = State::NeedPrompt;
@@ -278,7 +278,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 3) {
             showMessage(MessageType::Error, ROMSTR("source and destination filenames required"));
         } else {
-            if (!m8r::FS::sharedFS()->rename(array[1].c_str(), array[2].c_str())) {
+            if (!_application->fileSystem()->rename(array[1].c_str(), array[2].c_str())) {
                 showMessage(MessageType::Error, ROMSTR("could not rename file"));
             } else {
                 _state = State::NeedPrompt;
@@ -302,15 +302,14 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             }
         }
     } else if (array[0] == "format") {
-        m8r::FS::sharedFS()->format();
+        _application->fileSystem()->format();
         _state = State::NeedPrompt;
         showMessage(MessageType::Info, ROMSTR("formatted FS\n"));
     } else if (array[0] == "erase") {
-        m8r::FS* fs = m8r::FS::sharedFS();
-        m8r::DirectoryEntry* dir = fs->directory();
+        m8r::DirectoryEntry* dir = _application->fileSystem()->directory();
         while (dir->valid()) {
             if (strcmp(dir->name(), ".userdata") != 0) {
-                fs->remove(dir->name());
+                _application->fileSystem()->remove(dir->name());
             }
             dir->next();
         }

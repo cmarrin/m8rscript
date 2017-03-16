@@ -31,6 +31,7 @@ class DeviceSystemInterface;
     FileList _fileList;
     NSFileWrapper* _files;
 
+    m8r::MacFS* _fs;
     Simulator* _simulator;
     FastSocket* _logSocket;
     
@@ -115,12 +116,14 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
 {
     self = [super init];
     if (self) {
+        _fs = new m8r::MacFS();
+        
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
         [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
 
         _sharedSystemInterface = new DeviceSystemInterface(self);
-        _simulator = new Simulator();
+        _simulator = new Simulator(_fs);
         
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -142,6 +145,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
     }
     delete _simulator;
     delete _sharedSystemInterface;
+    delete _fs;
 }
 
 - (void)outputMessage:(NSString*)msg
@@ -294,7 +298,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
 - (void)setFiles:(NSFileWrapper*)files
 {
     _files = files;
-    m8r::MacFS::setFiles(_files);
+    _fs->setFiles(_files);
 }
 
 - (NSData*)contentsOfFile:(NSString*)name forDevice:(NSNetService*)service

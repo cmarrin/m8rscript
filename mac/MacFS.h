@@ -44,6 +44,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class MacFS;
+
 class MacDirectoryEntry : public DirectoryEntry {
     friend class MacFS;
     
@@ -53,9 +55,10 @@ public:
     virtual bool next() override;
     
 private:
-    MacDirectoryEntry();
+    MacDirectoryEntry(NSFileWrapper*);
     
     int32_t _index;
+    NSFileWrapper* _files;
 };
 
 class MacFile : public File {
@@ -72,12 +75,14 @@ public:
     virtual bool eof() const override;
     
 private:
-    MacFile(const char* name, const char* mode);
+    MacFile(MacFS*, const char* name, const char* mode);
 
     NSFileWrapper* _file = NULL;
     bool _readable = true;
     bool _writable = true;
     size_t _offset = 0;
+    
+    NSFileWrapper* _files;
 };
 
 class MacFS : public FS {
@@ -88,7 +93,7 @@ public:
     MacFS();
     virtual ~MacFS();
     
-    static void setFiles(NSFileWrapper* files) { _files = files; }
+    void setFiles(NSFileWrapper* files) { _files = files; }
     
     virtual DirectoryEntry* directory() override;
     virtual bool mount() override;
@@ -106,7 +111,7 @@ public:
 private:
     static constexpr uint32_t MaxSize = 4000000;
     
-    static NSFileWrapper* _files;
+    NSFileWrapper* _files;
 };
 
 }
