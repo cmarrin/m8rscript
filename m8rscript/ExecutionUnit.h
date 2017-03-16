@@ -94,10 +94,14 @@ public:
     
     void gcMark()
     {
-        Global::gcMark(this, _program->objectId());
+        if (_program) {
+            Global::gcMark(this, _program->objectId());
+        }
         Global::gcMark(this, _object);
         _stack.gcMark(this);
-        _program->gcMark(this);
+        if (_program) {
+            _program->gcMark(this);
+        }
         for (auto it : _eventQueue) {
             it.gcMark(this);
         }
