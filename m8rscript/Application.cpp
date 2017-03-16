@@ -45,11 +45,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Application::Application(FS* fs)
-    :_fs(fs)
-    , _runTask()
-    , _heartbeatTask()
+Application::Application(FS* fs, SystemInterface* system)
+    : _fs(fs)
+    , _system(system)
+    , _runTask(system)
+    , _heartbeatTask(system)
 {
+    // Enable GPIO for heartbeat
+    _system->gpio().enableHeartbeat();
+    
 }
 
 bool Application::load(Error& error, bool debug, const char* filename)
@@ -66,7 +70,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
         }
         
         // Is it a m8rb file?
-        _program = new m8r::Program();
+        _program = new m8r::Program(_system);
         if (_program->deserializeObject(&m8rbStream, error, nullptr, AtomTable(), std::vector<char>())) {
             return true;
         }
@@ -80,10 +84,10 @@ bool Application::load(Error& error, bool debug, const char* filename)
 #else
         // See if we can parse it
         FileStream m8rStream(_fs, filename);
-        SystemInterface::shared()->printf(ROMSTR("Parsing...\n"));
-        Parser parser;
+        _system->printf(ROMSTR("Parsing...\n"));
+        Parser parser(_system);
         parser.parse(&m8rStream, debug);
-        SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             _syntaxErrors.swap(parser.syntaxErrors());
             return false;
@@ -106,26 +110,26 @@ bool Application::load(Error& error, bool debug, const char* filename)
             name += static_cast<char>(c);
         }
     } else {
-        SystemInterface::shared()->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
+        _system->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
     }
     
     name += ".m8rb";
-    SystemInterface::shared()->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
+    _system->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
 
     FileStream m8rbMainStream(_fs, name.c_str());
     
     if (m8rbMainStream.loaded()) {
-        _program = new m8r::Program();
+        _program = new m8r::Program(_system);
         Global::addObject(_program, true);
         return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
      }
 
 #ifdef NO_PARSER_SUPPORT
-    SystemInterface::shared()->printf(ROMSTR("File not found, nothing to load\n"));
+    _system->printf(ROMSTR("File not found, nothing to load\n"));
     return false;
 #else
     name = name.slice(0, -1);
-    SystemInterface::shared()->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
+    _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
     FileStream m8rMainStream(_fs, name.c_str());
     
     if (!m8rMainStream.loaded()) {
@@ -133,9 +137,9 @@ bool Application::load(Error& error, bool debug, const char* filename)
         return false;
     }
 
-    Parser parser;
+    Parser parser(_system);
     parser.parse(&m8rMainStream, debug);
-    SystemInterface::shared()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+    _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     if (parser.nerrors()) {
         _syntaxErrors.swap(parser.syntaxErrors());
         return false;
@@ -149,7 +153,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
 void Application::run(std::function<void()> function)
 {
     stop();
-    SystemInterface::shared()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
+    _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
     _runTask.run(_program, function);
 }
 
@@ -161,7 +165,7 @@ void Application::pause()
 void Application::stop()
 {
     if (_runTask.stop()) {
-        SystemInterface::shared()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
+        _system->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
     }
 }
 

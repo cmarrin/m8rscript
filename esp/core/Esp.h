@@ -126,6 +126,16 @@ size_t ROMstrlen(const char* s);
 int ROMstrcmp(const char* s1, const char* s2);
 const char* ROMstrstr(const char* s1, const char* s2);
 
+#ifdef __cplusplus
+namespace m8r {
+    class FS;
+    class SystemInterface;
+}
+
+m8r::SystemInterface* system();
+m8r::FS* fs();
+#endif
+
 #define panic() __panic_func(__FILE__, __LINE__, __func__, "panic")
 
 // these low level routines provide a replacement for SREG interrupt save that AVR uses

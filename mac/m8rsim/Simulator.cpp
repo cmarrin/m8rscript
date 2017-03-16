@@ -82,7 +82,7 @@ bool Simulator::exportBinary(std::vector<uint8_t>& vector)
     m8r::VectorStream stream;
     m8r::Error error;
     if (!_shell.program()->serializeObject(&stream, error, _shell.program())) {
-        error.showError();
+        error.showError(_shell.program()->system());
         return false;
     }
     stream.swap(vector);
@@ -97,7 +97,7 @@ const m8r::ErrorList* Simulator::build(const char* name, bool debug)
 #ifdef PrintCode
         printCode();
 #endif
-        m8r::SystemInterface::shared()->printf(ROMSTR("Ready to run\n"));
+        _shell.program()->system()->printf(ROMSTR("Ready to run\n"));
     }
     return errors;
 }
@@ -107,9 +107,9 @@ void Simulator::printCode()
     m8r::CodePrinter codePrinter;
     m8r::String codeString = codePrinter.generateCodeString(_shell.program());
     
-    m8r::SystemInterface::shared()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-    m8r::SystemInterface::shared()->printf("%s", codeString.c_str());
-    m8r::SystemInterface::shared()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+    _shell.program()->system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+    _shell.program()->system()->printf("%s", codeString.c_str());
+    _shell.program()->system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
 }
 
 void Simulator::run()
@@ -120,13 +120,13 @@ void Simulator::run()
     }
     
     _running = true;
-    m8r::SystemInterface::shared()->printf(ROMSTR("*** Program started...\n\n"));
+    _shell.program()->system()->printf(ROMSTR("*** Program started...\n\n"));
 
     auto start = std::chrono::system_clock::now();
     _shell.run([start, this]{
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> diff = end - start;
-        m8r::SystemInterface::shared()->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
+        _shell.program()->system()->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
         _running = false;
     });
 }
@@ -143,7 +143,7 @@ void Simulator::stop()
     }
     _shell.stop();
     _running = false;
-    m8r::SystemInterface::shared()->printf(ROMSTR("*** Stopped\n"));
+    _shell.program()->system()->printf(ROMSTR("*** Stopped\n"));
 }
 
 void Simulator::simulate()

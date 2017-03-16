@@ -65,6 +65,8 @@ static bool _calledInitializeCB = false;
 
 static m8r::EspFS fileSystem;
 
+m8r::FS* fs() { return &fileSystem; }
+
 m8r::IPAddr m8r::IPAddr::myIPAddr()
 {
     struct ip_info info;
@@ -119,7 +121,7 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
 
 static EspSystemInterface _gSystemInterface;
 
-m8r::SystemInterface* m8r::SystemInterface::shared() { return &_gSystemInterface; }
+m8r::SystemInterface* system() { return &_gSystemInterface; }
 
 class MyLogTCPDelegate : public m8r::TCPDelegate {
 public:
@@ -256,7 +258,7 @@ struct UserSaveData {
 
 void setDeviceName(const char* name)
 {
-    m8r::SystemInterface::shared()->printf(ROMSTR("Setting device name to '%s'\n"), name);
+    system()->printf(ROMSTR("Setting device name to '%s'\n"), name);
     uint16_t size = strlen(name);
     if (size > MaxBonjourNameSize) {
         size = MaxBonjourNameSize;
@@ -298,7 +300,7 @@ void FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Output description if given.
     if (desc != NULL)
-    	m8r::SystemInterface::shared()->printf(ROMSTR("%s:\n"), desc);
+    	system()->printf(ROMSTR("%s:\n"), desc);
 
     // Process every byte in the data.
     for (i = 0; i < len; i++) {
@@ -307,14 +309,14 @@ void FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
         if ((i % 16) == 0) {
             // Just don't print ASCII for the zeroth line.
             if (i != 0)
-            	m8r::SystemInterface::shared()->printf(ROMSTR("  %s\n"), buff);
+            	system()->printf(ROMSTR("  %s\n"), buff);
 
             // Output the offset.
-            m8r::SystemInterface::shared()->printf(ROMSTR("  %04x "), i);
+            system()->printf(ROMSTR("  %04x "), i);
         }
 
         // Now the hex code for the specific character.
-        m8r::SystemInterface::shared()->printf(ROMSTR(" %02x"), pc[i]);
+        system()->printf(ROMSTR(" %02x"), pc[i]);
 
         // And store a printable ASCII character for later.
         if ((pc[i] < 0x20) || (pc[i] > 0x7e))
@@ -326,12 +328,12 @@ void FLASH_ATTR hexdump (const char *desc, uint8_t* addr, size_t len)
 
     // Pad out last line if not exactly 16 characters.
     while ((i % 16) != 0) {
-    	m8r::SystemInterface::shared()->printf(ROMSTR("   "));
+    	system()->printf(ROMSTR("   "));
         i++;
     }
 
     // And print the final ASCII bit.
-    m8r::SystemInterface::shared()->printf(ROMSTR("  %s\n"), buff);
+    system()->printf(ROMSTR("  %s\n"), buff);
 }
 #endif
 
@@ -339,23 +341,23 @@ void FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
 {
     switch(status) {
         case SC_STATUS_WAIT:
-            m8r::SystemInterface::shared()->printf(ROMSTR("SC_STATUS_WAIT\n"));
+            system()->printf(ROMSTR("SC_STATUS_WAIT\n"));
             break;
         case SC_STATUS_FIND_CHANNEL:
-            m8r::SystemInterface::shared()->printf(ROMSTR("SC_STATUS_FIND_CHANNEL\n"));
+            system()->printf(ROMSTR("SC_STATUS_FIND_CHANNEL\n"));
             break;
         case SC_STATUS_GETTING_SSID_PSWD: {
-            m8r::SystemInterface::shared()->printf(ROMSTR("SC_STATUS_GETTING_SSID_PSWD\n"));
+            system()->printf(ROMSTR("SC_STATUS_GETTING_SSID_PSWD\n"));
             sc_type* type = (sc_type*) pdata;
             if (*type == SC_TYPE_ESPTOUCH) {
-                m8r::SystemInterface::shared()->printf(ROMSTR("SC_TYPE:SC_TYPE_ESPTOUCH\n"));
+                system()->printf(ROMSTR("SC_TYPE:SC_TYPE_ESPTOUCH\n"));
             } else {
-                m8r::SystemInterface::shared()->printf(ROMSTR("SC_TYPE:SC_TYPE_AIRKISS\n"));
+                system()->printf(ROMSTR("SC_TYPE:SC_TYPE_AIRKISS\n"));
             }
             break;
         }
         case SC_STATUS_LINK: {
-            m8r::SystemInterface::shared()->printf(ROMSTR("SC_STATUS_LINK\n"));
+            system()->printf(ROMSTR("SC_STATUS_LINK\n"));
             struct station_config* sta_conf = (struct station_config*) pdata;
             wifi_station_set_config(sta_conf);
             wifi_station_disconnect();
@@ -363,11 +365,11 @@ void FLASH_ATTR smartconfigDone(sc_status status, void *pdata)
             break;
         }
         case SC_STATUS_LINK_OVER:
-            m8r::SystemInterface::shared()->printf(ROMSTR("SC_STATUS_LINK_OVER\n"));
+            system()->printf(ROMSTR("SC_STATUS_LINK_OVER\n"));
             if (pdata != NULL) {
                 uint8 phone_ip[4] = {0};
                 memcpy(phone_ip, (uint8*)pdata, 4);
-                m8r::SystemInterface::shared()->printf(ROMSTR("Phone ip: %d.%d.%d.%d\n"), phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
+                system()->printf(ROMSTR("Phone ip: %d.%d.%d.%d\n"), phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
             }
             smartconfig_stop();
             break;
@@ -436,19 +438,19 @@ void wifiEventHandler(System_Event_t *evt)
 {
     switch(evt->event) {
         case EVENT_STAMODE_CONNECTED:
-            m8r::SystemInterface::shared()->printf(ROMSTR("Connected to ssid %s, channel %d\n"), evt->event_info.connected.ssid, evt->event_info.connected.channel);
+            system()->printf(ROMSTR("Connected to ssid %s, channel %d\n"), evt->event_info.connected.ssid, evt->event_info.connected.channel);
             break;
         case EVENT_STAMODE_DISCONNECTED: {
             gNumWifiTries++;
-            m8r::SystemInterface::shared()->printf(ROMSTR("Wifi failed to connect %d time%s\n"), gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
+            system()->printf(ROMSTR("Wifi failed to connect %d time%s\n"), gNumWifiTries, (gNumWifiTries == 1) ? "" : "s");
             if (gNumWifiTries >= NumWifiTries) {
                 gNumWifiTries = 0;
-                m8r::SystemInterface::shared()->printf(ROMSTR("Wifi connection failed, starting smartconfig\n"));
+                system()->printf(ROMSTR("Wifi connection failed, starting smartconfig\n"));
                 smartConfig();
             }
             break;
         case EVENT_STAMODE_GOT_IP:
-            m8r::SystemInterface::shared()->printf(ROMSTR("Got IP, setting up MDS and starting up\n"));
+            system()->printf(ROMSTR("Got IP, setting up MDS and starting up\n"));
             gotStationIP();
             break;
         }
@@ -462,22 +464,22 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 void startup(void*)
 {
     if (!fileSystem.mount()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
+        system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
         if (fileSystem.format()) {
-            m8r::SystemInterface::shared()->printf(ROMSTR("succeeded.\n"));
+            system()->printf(ROMSTR("succeeded.\n"));
             getUserData();
         } else {
-            m8r::SystemInterface::shared()->printf(ROMSTR("FAILED.\n"));
+            system()->printf(ROMSTR("FAILED.\n"));
         }
     }
 
     if (fileSystem.mount()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fileSystem.totalSize(), fileSystem.totalUsed());
+        system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fileSystem.totalSize(), fileSystem.totalUsed());
     }
 
-    m8r::SystemInterface::shared()->printf(ROMSTR("Starting WiFi:\n"));
+    system()->printf(ROMSTR("Starting WiFi:\n"));
     if (wifi_station_get_connect_status() == STATION_GOT_IP) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("    already connected, done\n"));
+        system()->printf(ROMSTR("    already connected, done\n"));
         gotStationIP();
         return;
     }
@@ -491,7 +493,7 @@ void startup(void*)
     struct station_config config;
     wifi_station_get_config(&config);
     if (config.ssid[0] == '\0') {
-        m8r::SystemInterface::shared()->printf(ROMSTR("no SSID, running smartconfig\n"));
+        system()->printf(ROMSTR("no SSID, running smartconfig\n"));
         smartConfig();
     }
 }

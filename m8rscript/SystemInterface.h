@@ -88,9 +88,7 @@ class SystemInterface  {
 public:
 	SystemInterface() { }
     virtual ~SystemInterface() { }
-        
-    static SystemInterface* shared();
-    
+
     void printf(const char* fmt, ...) const
     {
         va_list args;

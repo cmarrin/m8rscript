@@ -43,9 +43,11 @@ namespace m8r {
 
 class Program : public Function {
 public:
-    Program();
+    Program(SystemInterface*);
     ~Program();
     
+    SystemInterface* system() const { return _system; }
+
     virtual const char* typeName() const override { return "Program"; }
 
     const Object* global() const { return _global.nativeObject(); }
@@ -78,6 +80,7 @@ private:
     std::vector<char> _stringLiteralTable;
 
     Global _global;
+    SystemInterface* _system;
 };
 
 }

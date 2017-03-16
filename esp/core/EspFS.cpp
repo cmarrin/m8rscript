@@ -40,6 +40,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+spiffs EspFS::_spiffsFileSystem;
+
+
 EspFS::EspFS()
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));
@@ -68,28 +71,28 @@ DirectoryEntry* EspFS::directory()
 
 bool EspFS::mount()
 {
-    m8r::SystemInterface::shared()->printf(ROMSTR("Mounting SPIFFS...\n"));
+    system()->printf(ROMSTR("Mounting SPIFFS...\n"));
     int32_t result = internalMount();
     if (result != SPIFFS_OK) {
         if (result == SPIFFS_ERR_NOT_A_FS) {
-            m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: Not a valid SPIFFS filesystem. Please format.\n"));
+            system()->printf(ROMSTR("ERROR: Not a valid SPIFFS filesystem. Please format.\n"));
         } else {
-            m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), result);
+            system()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), result);
         }
         return false;
     }
     if (!mounted()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: SPIFFS filesystem failed to mount\n"));
+        system()->printf(ROMSTR("ERROR: SPIFFS filesystem failed to mount\n"));
         return false;
     }
 
-    m8r::SystemInterface::shared()->printf(ROMSTR("Checking file system...\n"));
+    system()->printf(ROMSTR("Checking file system...\n"));
     result = SPIFFS_check(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
+        system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
         return false;
     } else {
-        m8r::SystemInterface::shared()->printf(ROMSTR("SPIFFS mounted successfully\n"));
+        system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
     }
     return true;
 }
@@ -115,7 +118,7 @@ bool EspFS::format()
     
     int32_t result = SPIFFS_format(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: SPIFFS format failed, error=%d\n"), result);
+        system()->printf(ROMSTR("ERROR: SPIFFS format failed, error=%d\n"), result);
         return false;
     }
     mount();
@@ -219,7 +222,7 @@ static const FileModeEntry _fileModeMap[] = {
 EspFile::EspFile(const char* name, const char* mode)
 {
     if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: invalid filename '%s' for open\n"), name);
+        system()->printf(ROMSTR("ERROR: invalid filename '%s' for open\n"), name);
         _file = SPIFFS_ERR_NAME_TOO_LONG;
         return;
     }
@@ -232,7 +235,7 @@ EspFile::EspFile(const char* name, const char* mode)
         }
     }
     if (!flags) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
+        system()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
         _file = SPIFFS_ERR_FILE_CLOSED;
         return;
     }

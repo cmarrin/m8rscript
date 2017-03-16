@@ -57,7 +57,7 @@ extern "C" {
 
 class MyTCP;
 
-m8r::Application _application;
+m8r::Application _application(fs(), system());
 MyTCP* _tcp;
 
 class MyShell : public m8r::Shell {
@@ -114,17 +114,17 @@ private:
 
 void FLASH_ATTR runScript()
 {
-    m8r::SystemInterface::shared()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    m8r::SystemInterface::shared()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
+    system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
+    system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     
     m8r::Error error;
     if (!_application.load(error, false)) {
-        error.showError();
+        error.showError(system());
     } else if (!_application.program()) {
-        m8r::SystemInterface::shared()->printf(ROMSTR("Error:failed to compile application"));
+        system()->printf(ROMSTR("Error:failed to compile application"));
     } else {
         _application.run([]{
-            m8r::SystemInterface::shared()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+            system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
         });
     }
 }

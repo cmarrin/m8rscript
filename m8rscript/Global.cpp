@@ -150,7 +150,7 @@ void Global::gcMark(ExecutionUnit* eu, const Value& value)
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    uint64_t t = SystemInterface::shared()->currentMicroseconds();
+    uint64_t t = eu->system()->currentMicroseconds();
     eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
@@ -164,7 +164,7 @@ CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t npara
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
-        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+        eu->system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -185,7 +185,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
-            SystemInterface::shared()->printf(s);
+            eu->system()->printf(s);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         if (next < 0) {
@@ -196,7 +196,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         assert(caps[0].len == 1);
         if (s != caps[0].ptr) {
             String str(s, static_cast<int32_t>(caps[0].ptr - s));
-            SystemInterface::shared()->printf(str.c_str());
+            eu->system()->printf(str.c_str());
         }
         
         // FIXME: handle the leading number(s) in the format
@@ -205,31 +205,31 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         char formatChar = *(caps[4].ptr);
         switch (formatChar) {
             case 'c':
-                SystemInterface::shared()->printf("%c", value.toIntValue(eu));
+                eu->system()->printf("%c", value.toIntValue(eu));
                 break;
             case 's':
-                SystemInterface::shared()->printf("%s", value.toStringValue(eu).c_str());
+                eu->system()->printf("%s", value.toStringValue(eu).c_str());
                 break;
             case 'd':
             case 'i':
-                SystemInterface::shared()->printf("%d", value.toIntValue(eu));
+                eu->system()->printf("%d", value.toIntValue(eu));
                 break;
             case 'x':
             case 'X':
-                SystemInterface::shared()->printf((formatChar == 'x') ? "%x" : "%X", static_cast<uint32_t>(value.toIntValue(eu)));
+                eu->system()->printf((formatChar == 'x') ? "%x" : "%X", static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'u':
-                SystemInterface::shared()->printf("%u", static_cast<uint32_t>(value.toIntValue(eu)));
+                eu->system()->printf("%u", static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'f':
             case 'e':
             case 'E':
             case 'g':
             case 'G':
-                SystemInterface::shared()->printf("%s", value.toStringValue(eu).c_str());
+                eu->system()->printf("%s", value.toStringValue(eu).c_str());
                 break;
             case 'p':
-                SystemInterface::shared()->printf("%p", *(reinterpret_cast<void**>(&value)));
+                eu->system()->printf("%p", *(reinterpret_cast<void**>(&value)));
                 break;
             default: return CallReturnValue(CallReturnValue::Type::Error);
         }
@@ -241,9 +241,9 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
-        SystemInterface::shared()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+        eu->system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
-    SystemInterface::shared()->printf("\n");
+    eu->system()->printf("\n");
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

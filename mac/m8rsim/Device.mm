@@ -107,8 +107,7 @@ private:
     DeviceGPIOInterface _gpio;
 };
 
-m8r::SystemInterface* _sharedSystemInterface = nullptr;
-m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInterface; }
+m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 @implementation Device
 
@@ -122,8 +121,8 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
         _fileList = [[NSMutableArray alloc] init];
         [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
 
-        _sharedSystemInterface = new DeviceSystemInterface(self);
-        _simulator = new Simulator(_fs);
+        _deviceSystemInterface = new DeviceSystemInterface(self);
+        _simulator = new Simulator(_fs, _deviceSystemInterface);
         
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -144,7 +143,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
         dispatch_sync(_serialQueue, ^{ });
     }
     delete _simulator;
-    delete _sharedSystemInterface;
+    delete _deviceSystemInterface;
     delete _fs;
 }
 
@@ -203,7 +202,7 @@ m8r::SystemInterface* m8r::SystemInterface::shared() { return _sharedSystemInter
         NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
         socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
         if (![socket connect]) {
-            _sharedSystemInterface->printf("**** Failed to open socket for command '%@'\n", command);
+            _deviceSystemInterface->printf("**** Failed to open socket for command '%@'\n", command);
             return socket;
         }
         [socket setTimeout:5];

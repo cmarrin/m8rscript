@@ -51,9 +51,10 @@ class FS;
 
 class Application {
 public:
-    Application(FS*);
+    Application(FS*, SystemInterface*);
     
     FS* fileSystem() { return _fs; }
+    SystemInterface* system() const { return _system; }
     
     bool load(Error&, bool debug, const char* name = nullptr);
     const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
@@ -78,7 +79,7 @@ public:
 private:
     class MyRunTask : public Task {
     public:
-        MyRunTask() : _eu() { }
+        MyRunTask(SystemInterface* system) : _eu(system) { }
         
         void run(Program* program, std::function<void()> function)
         {
@@ -110,9 +111,10 @@ private:
 
     class MyHeartbeatTask : public m8r::Task {
     public:
-        MyHeartbeatTask()
+        MyHeartbeatTask(SystemInterface* system)
+            : _system(system)
         {
-            SystemInterface::shared()->gpio().enableHeartbeat();
+            _system->gpio().enableHeartbeat();
             execute();
         }
         
@@ -122,19 +124,22 @@ private:
         
         virtual bool execute() override
         {
-            SystemInterface::shared()->gpio().heartbeat(!_upbeat);
+            _system->gpio().heartbeat(!_upbeat);
             _upbeat = !_upbeat;
             runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
             return true;
         }
         
+        SystemInterface* _system;
+
         // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
         // when the downbeat started 
         bool _upbeat = false; // When true, heartbeat is occuring
     };
 
     FS* _fs;
-
+    SystemInterface* _system;
+    
     Program* _program = nullptr;
     MyRunTask _runTask;
     MyHeartbeatTask _heartbeatTask;

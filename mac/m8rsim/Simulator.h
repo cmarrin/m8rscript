@@ -42,8 +42,8 @@ POSSIBILITY OF SUCH DAMAGE.
 class Simulator
 {
 public:
-    Simulator(m8r::FS* fs)
-        : _shell(fs, this)
+    Simulator(m8r::FS* fs, m8r::SystemInterface* system)
+        : _shell(fs, system, this)
     { }
     
     ~Simulator();
@@ -79,8 +79,10 @@ public:
 
 private:
     class MyShell : public m8r::Shell {
+        friend class Simulator;
+        
     public:
-        MyShell(m8r::FS* fs, Simulator* simulator) : _application(fs), Shell(&_application), _simulator(simulator) { }
+        MyShell(m8r::FS* fs, m8r::SystemInterface* system, Simulator* simulator) : _application(fs, system), Shell(&_application), _simulator(simulator) { }
         virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
 
     private:

@@ -65,7 +65,7 @@ const ErrorList* Shell::load(const char* filename, bool debug)
 {
     Error error;
     if (!_application->load(error, debug, filename)) {
-        error.showError();
+        error.showError(_application->system());
         return _application->syntaxErrors();
     }
     if (!_application->program()) {
@@ -98,11 +98,11 @@ bool Shell::received(const char* data, uint16_t size)
                     _file = nullptr;
                     _state = State::NeedPrompt;
                     sendComplete();
-                    SystemInterface::shared()->printf(ROMSTR("done\n"));
+                    _application->system()->printf(ROMSTR("done\n"));
                     return true;
                 }
                 
-                SystemInterface::shared()->printf(ROMSTR("."));
+                _application->system()->printf(ROMSTR("."));
 
                 const char* next = reinterpret_cast<const char*>(memchr(p, '\n', remainingSize));
                 size_t lineSize = next ? (next - p + 1) : remainingSize;
@@ -259,7 +259,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             if (!_file) {
                 showMessage(MessageType::Error, ROMSTR("could not open file for 'put'"));
             } else {
-                SystemInterface::shared()->printf(ROMSTR("Put '%s'"), array[1].c_str());
+                _application->system()->printf(ROMSTR("Put '%s'"), array[1].c_str());
                 _state = State::PutFile;
             }
         }
@@ -318,7 +318,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     } else if (array[0] == "run") {
         load((array.size() < 2) ? nullptr : array[1].c_str(), _debug);
         run([this]{
-            SystemInterface::shared()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
+            _application->system()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
         _state = State::NeedPrompt;
         showMessage(MessageType::Info, ROMSTR("Program started...\n"));
