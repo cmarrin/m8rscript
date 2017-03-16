@@ -43,6 +43,10 @@ class Task;
 
 class TaskManager {
     friend class Task;
+
+public:
+    static void lock() { shared()->_lock(); }
+    static void unlock() { shared()->_unlock(); }
     
 protected:
     static constexpr uint8_t MaxTasks = 8;
@@ -62,8 +66,11 @@ protected:
     int32_t nextTimeToFire() const;
     
     static int32_t msNow();
-
+    
 private:
+    virtual void _lock() = 0;
+    virtual void _unlock() = 0;
+    
     void prepareForNextEvent();
     
     // Post an event now. When event occurs, call fireEvent

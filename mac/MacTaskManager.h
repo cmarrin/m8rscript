@@ -47,11 +47,15 @@ public:
     virtual ~MacTaskManager();
     
 private:    
+    virtual void _lock() override { _lockMutex.lock(); }
+    virtual void _unlock() override { _lockMutex.unlock(); }
+
     virtual void postEvent() override;
     
     std::thread* _eventThread = nullptr;
     std::condition_variable _eventCondition;
     std::mutex _eventMutex;
+    std::mutex _lockMutex;
     bool _terminating = false;
 };
 

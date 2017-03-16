@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "TaskManager.h"
 
+#include "Esp.h"
+
 extern "C" {
 #include <osapi.h>
 #include "user_interface.h"
@@ -50,6 +52,9 @@ public:
     virtual ~EspTaskManager();
     
 private:    
+    virtual void _lock() override { noInterrupts(); }
+    virtual void _unlock() override { interrupts(); }
+
     virtual void postEvent() override;
     
     static constexpr uint32_t ExecutionTaskPrio = 0;
