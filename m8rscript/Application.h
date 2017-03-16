@@ -79,7 +79,7 @@ public:
 private:
     class MyRunTask : public Task {
     public:
-        MyRunTask(SystemInterface* system) : _eu(system) { }
+        MyRunTask() : _eu() { }
         
         void run(Program* program, std::function<void()> function)
         {

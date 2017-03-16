@@ -48,12 +48,9 @@ using namespace m8r;
 Application::Application(FS* fs, SystemInterface* system)
     : _fs(fs)
     , _system(system)
-    , _runTask(system)
+    , _runTask()
     , _heartbeatTask(system)
 {
-    // Enable GPIO for heartbeat
-    _system->gpio().enableHeartbeat();
-    
 }
 
 bool Application::load(Error& error, bool debug, const char* filename)

@@ -80,9 +80,8 @@ class ExecutionUnit : public EventListener {
 public:
     friend class Function;
     
-    ExecutionUnit(SystemInterface* system)
+    ExecutionUnit()
         : _stack(200)
-        , _system(system)
     {
         Global::addObject(&_stack, false);
         EventManager::shared()->addListener(this);
@@ -104,7 +103,7 @@ public:
         }
     }
     
-    SystemInterface* system() const { return _system; }
+    SystemInterface* system() const { return _program->system(); }
 
     void startExecution(Program*);
     
@@ -259,8 +258,6 @@ private:
     std::vector<Value> _eventQueue;
     bool _executingEvent = false;
     uint32_t _lineno = 0;
-    
-    SystemInterface* _system;
 };
     
 }
