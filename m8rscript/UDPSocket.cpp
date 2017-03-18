@@ -33,7 +33,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "TCPSocket.h"
+#include "UDP.h"
 
 #include "Defines.h"
 #include "ExecutionUnit.h"
@@ -41,8 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-//TCPSocketProto::TCPSocketProto(Program* program)
-//    : ObjectFactory(program, ROMSTR("TCPSocketProto"))
+//TCPProto::TCPProto(Program* program)
+//    : ObjectFactory(program, ROMSTR("TCPProto"))
 //    , _constructor(constructor)
 //    , _send(send)
 //    , _disconnect(disconnect)
@@ -58,7 +58,7 @@ using namespace m8r;
 //    addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
 //}
 //
-//CallReturnValue TCPSocketProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+//CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 //{
 //    // If 2 params: port number, event function, 3 params is ip, port, func
 //    if (nparams < 2) {
@@ -100,7 +100,7 @@ using namespace m8r;
 //    _tcp = TCP::create(this, port);
 //}
 //
-//CallReturnValue TCPSocketProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+//CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 //{
 //    if (nparams < 1) {
 //        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -124,7 +124,7 @@ using namespace m8r;
 //    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 //}
 //
-//CallReturnValue TCPSocketProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+//CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 //{
 //    if (nparams < 1) {
 //        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

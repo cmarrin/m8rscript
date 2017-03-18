@@ -362,7 +362,7 @@ static const uint16_t GCCount = 1000;
                 assert(_code[_pc].op() == Op::END);
                 
                 // FIXME: For now we always wait for events. But we need to add logic to only do that if we have
-                // something listening. For instance if we have an active TCPSocket or an interval timer
+                // something listening. For instance if we have an active TCP socket or an interval timer
                 runNextEvent();
                 return CallReturnValue(CallReturnValue::Type::WaitForEvent);
             }

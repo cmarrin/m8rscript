@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Object.h"
 #include "TaskManager.h"
 #include "IPAddr.h"
 #include "UDP.h"
@@ -44,6 +45,8 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class TCP;
+
+// Native
 
 class TCPDelegate {
 public:
@@ -73,6 +76,58 @@ protected:
     TCPDelegate* _delegate;
     IPAddr _ip;
     uint16_t _port;
+};
+
+// Object
+
+class TCPProto : public ObjectFactory {
+public:
+    TCPProto(Program*);
+
+private:
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _constructor;
+    NativeFunction _send;
+    NativeFunction _disconnect;
+};
+
+class MyTCPDelegate : public NativeObject, public TCPDelegate {
+public:
+    MyTCPDelegate(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
+    virtual ~MyTCPDelegate()
+    {
+        if (_tcp) {
+            delete _tcp;
+        }
+    }
+
+    void send(int16_t connectionId, const char* data, uint16_t size)
+    {
+        if (!_tcp) {
+            return;
+        }
+        _tcp->send(connectionId, data, size);
+    }
+
+    void disconnect(int16_t connectionId)
+    {
+        if (!_tcp) {
+            return;
+        }
+        _tcp->disconnect(connectionId);
+    }
+
+    // TCPDelegate overrides
+    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
+
+private:
+    TCP* _tcp = nullptr;
+    Value _func;
+    Value _parent;
+    ExecutionUnit* _eu;
 };
 
 }

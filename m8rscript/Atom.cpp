@@ -64,7 +64,7 @@ static const char _ReceivedData[] ROMSTR_ATTR = "ReceivedData";
 static const char _Reconnected[] ROMSTR_ATTR = "Reconnected";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
-static const char _TCPSocket[] ROMSTR_ATTR = "TCPSocket";
+static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _call[] ROMSTR_ATTR = "call";
@@ -113,7 +113,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Reconnected),
     AtomEntry(RisingEdge),
     AtomEntry(SentData),
-    AtomEntry(TCPSocket),
+    AtomEntry(TCP),
     AtomEntry(Trigger),
     
     AtomEntry(arguments),

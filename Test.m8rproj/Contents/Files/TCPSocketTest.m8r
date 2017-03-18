@@ -1,5 +1,5 @@
 //
-// TCPSocket Test 
+// TCP socket Test 
 //
 
 class TCPConnection
@@ -26,10 +26,10 @@ class TCPServer
 	constructor(port, func) {
 		var MaxConnections = 8;
 
-		_sock = new TCPSocket(port, function(event, connectionId, dataValue) {
+		_sock = new TCP(port, function(event, connectionId, dataValue) {
 			switch(event) {
-				case TCPSocket.Connected: {
-					printf("TCPSocket connected. ConnectionId=%d\n", connectionId);
+				case TCP.Connected: {
+					printf("TCP connected. ConnectionId=%d\n", connectionId);
 					var connection = new TCPConnection(this, connectionId);
 					connection._server = this;
 					connection._connectionId = connectionId;
@@ -37,17 +37,17 @@ class TCPServer
 					_func.call(_server, connection);
 				}
 				
-				case TCPSocket.Disconnected: {
-					printf("TCPSocket disconnected. ConnectionId=%d\n", connectionId);
+				case TCP.Disconnected: {
+					printf("TCP disconnected. ConnectionId=%d\n", connectionId);
 					_connections[connectionId] = null;
 				}
 				
-				case TCPSocket.ReceivedData: {
-					printf("TCPSocket received data: %s\n", dataValue);
+				case TCP.ReceivedData: {
+					printf("TCP received data: %s\n", dataValue);
 				}
 				
 				default: {
-					printf("TCPSocket fired. event=%d\n", event);
+					printf("TCP fired. event=%d\n", event);
 				}
 			}
 		});
@@ -63,15 +63,15 @@ class TCPServer
 function connectionEvent(event, dataValue)
 {
 	switch(event) {
-		case TCPSocket.Disconnected: {
+		case TCP.Disconnected: {
 			printf("Connection disconnected\n");
 		}
 
-		case TCPSocket.ReceivedData: {
+		case TCP.ReceivedData: {
 			printf("Connection received data: %s\n", dataValue);
 		}
 
-		case TCPSocket.SentData: {
+		case TCP.SentData: {
 			printf("Connection sent datad\n", event);
 		}
 	}

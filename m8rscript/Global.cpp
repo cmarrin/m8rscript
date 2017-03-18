@@ -52,7 +52,7 @@ Global::Global(Program* program)
     , _base64(program)
     , _gpio(program)
     , _iterator(program)
-    , _tcpSocket(program)
+    , _tcp(program)
     , _currentTime(currentTime)
     , _delay(delay)
     , _print(print)
@@ -78,15 +78,15 @@ Global::Global(Program* program)
     addProperty(program, ATOM(Base64), Value(_base64.objectId()));
     Global::addObject(_gpio.nativeObject(), false);
     addProperty(program, ATOM(GPIO), Value(_gpio.objectId()));
-    Global::addObject(_tcpSocket.nativeObject(), false);
-    addProperty(program, ATOM(TCPSocket), Value(_tcpSocket.objectId()));
+    Global::addObject(_tcp.nativeObject(), false);
+    addProperty(program, ATOM(TCP), Value(_tcp.objectId()));
 }
 
 Global::~Global()
 {
     Global::removeObject(_base64.nativeObject()->objectId());
     Global::removeObject(_gpio.nativeObject()->objectId());
-    Global::removeObject(_tcpSocket.nativeObject()->objectId());
+    Global::removeObject(_tcp.nativeObject()->objectId());
 }
 
 ObjectId Global::addObject(Object* obj, bool collectable)

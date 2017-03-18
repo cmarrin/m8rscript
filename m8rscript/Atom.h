@@ -76,7 +76,7 @@ public:
         Reconnected, 
         RisingEdge,
         SentData, 
-        TCPSocket,
+        TCP,
         Trigger,
         arguments,
         call,

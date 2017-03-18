@@ -73,7 +73,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
         return;
     }
     
-    String queueName = "TCPSocketQueue-";
+    String queueName = "TCPQueue-";
     queueName += Value::toString(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
 
