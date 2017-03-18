@@ -74,6 +74,37 @@ m8r::IPAddr m8r::IPAddr::myIPAddr()
     return m8r::IPAddr(info.ip.addr);
 }
 
+struct LookupHostNameWrapper {
+    LookupHostNameWrapper(const char* name, std::function<void (const char* name, m8r::IPAddr)> func)
+        : _func(func)
+    {
+        _espconn.reverse = this;
+        espconn_gethostbyname(&_espconn, name, &_ipaddr, callback);
+    }
+    
+    static void callback(const char *name, ip_addr_t *ipaddr, void *arg)
+    {
+        espconn* ec = reinterpret_cast<espconn*>(arg);
+        LookupHostNameWrapper* wrapper = reinterpret_cast<LookupHostNameWrapper*>(ec->reverse);
+
+        m8r::IPAddr ip(ipaddr ? ipaddr->addr : 0);
+        wrapper->_func(name, ip);
+        delete wrapper;
+    }
+
+    std::function<void (const char* name, m8r::IPAddr)> _func;
+    ip_addr_t _ipaddr;
+    espconn _espconn;
+};
+
+void m8r::IPAddr::lookupHostName(const char* name, std::function<void (const char* name, m8r::IPAddr)> func)
+{
+    // Create a LookupHostNameWrapper to hold all the pieces that need to be passed to espconn_gethostbyname. 
+    // LookupHostNameWrapper holds the espconn and ip_addr_t and then the espconn sets its reserved field to
+    // point at the LookupHostNameWrapper
+    new LookupHostNameWrapper(name, func);
+}
+
 void initmdns();
 
 extern "C" {

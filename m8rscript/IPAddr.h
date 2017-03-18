@@ -38,12 +38,21 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
+#include <functional>
 
 namespace m8r {
+
+class IPAddr;
+
+class IPAddrDelegate {
+public:
+    virtual void lookupHostNameResult(const char* name, IPAddr) const = 0;
+};
 
 class IPAddr {
 public:
     IPAddr() : _addr(0) { }
+    IPAddr(uint32_t addr) : _addr(addr) { }
     IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
     {
         _addr = static_cast<uint32_t>(a) |
@@ -57,10 +66,9 @@ public:
     uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
     
     static IPAddr myIPAddr();
+    static void lookupHostName(const char* name, std::function<void (const char* name, IPAddr)>);
     
-private:
-    IPAddr(uint32_t addr) : _addr(addr) { }
-    
+private:    
     uint32_t _addr;
 };
 

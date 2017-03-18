@@ -114,6 +114,12 @@ private:
 
 void FLASH_ATTR runScript()
 {
+    const char* dnsname = "time.nist.gov";
+    m8r::IPAddr::lookupHostName(dnsname, [](const char* name, m8r::IPAddr ipaddr) {
+        uint32_t ip = ipaddr;
+        system()->printf(ROMSTR("\n************** DNS Lookup:'%s = %d.%d.%d.%d\n"), name, ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+    });
+
     system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
     system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
     

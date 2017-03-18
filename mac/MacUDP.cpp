@@ -53,6 +53,13 @@ IPAddr IPAddr::myIPAddr()
     return IPAddr();
 }
 
+void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)
+{
+    struct hostent* entry = gethostbyname(name);
+    IPAddr ip(entry->h_addr_list[0][0], entry->h_addr_list[0][1], entry->h_addr_list[0][2], entry->h_addr_list[0][3]);
+    func(name, ip);
+}
+
 UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
 {
     return new MacUDP(delegate, port);
