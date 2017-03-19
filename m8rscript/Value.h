@@ -184,7 +184,9 @@ public:
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
-    static Float floatFromString(const char*);
+    static bool toFloat(Float&, const char*, bool allowWhitespace = true);
+    static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
+    static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
     void gcMark(ExecutionUnit* eu) 
     {

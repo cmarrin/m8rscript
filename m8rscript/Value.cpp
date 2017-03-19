@@ -36,8 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Value.h"
 
 #include "ExecutionUnit.h"
+#include "MStream.h"
 #include "Object.h"
 #include "Program.h"
+#include "Scanner.h"
 
 using namespace m8r;
 
@@ -165,10 +167,35 @@ m8r::String Value::toString(int32_t value)
     return m8r::String(buf);
 }
 
-Float Value::floatFromString(const char* s)
+bool Value::toFloat(Float& f, const char* s, bool allowWhitespace)
 {
-    // FIXME: implement
-    return Float();
+    StringStream stream(s);
+    Scanner scanner(&stream);
+    bool neg = false;
+    Scanner::TokenType type;
+  	Token token = scanner.getToken(type, allowWhitespace);
+    if (token == Token::Minus) {
+        neg = true;
+        token = scanner.getToken(type, allowWhitespace);
+    }
+    if (token == Token::Float || token == Token::Integer) {
+        f = (token == Token::Float) ? Float(type.number) : Float(type.integer, 0);
+        if (neg) {
+            f = -f;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Value::toInt(int32_t&, const char*, bool allowWhitespace)
+{
+    return false;
+}
+
+bool Value::toUInt(uint32_t&, const char*, bool allowWhitespace)
+{
+    return false;
 }
 
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
@@ -195,17 +222,25 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Null: break;
         case Type::Object: {
             Object* obj = Global::obj(*this);
-            return obj ? floatFromString(obj->toString(eu).c_str()) : Float();
+            Float f;
+            if (obj) {
+                toFloat(f, obj->toString(eu).c_str());
+            }
+            return f;
         }
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(intFromValue(), 0);
         case Type::String: {
             const String& s = Global::str(stringIdFromValue());
-            return floatFromString(s.c_str());
+            Float f;
+            toFloat(f, s.c_str());
+            return f;
         }
         case Type::StringLiteral: {
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-            return floatFromString(s.c_str());
+            Float f;
+            toFloat(f, s.c_str());
+            return f;
         }
         case Type::Id: break;
         default: assert(0); break;
