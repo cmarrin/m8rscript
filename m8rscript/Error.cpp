@@ -79,7 +79,7 @@ void Error::vprintError(const SystemInterface* system, Code code, int32_t lineno
     }
     system->printf(ROMSTR(": "));
     system->vprintf(format, args);
-    if (lineno >= 0) {
+    if (lineno > 0) {
         system->printf(ROMSTR(" on line %d"), lineno);
     }
     system->printf(ROMSTR("\n"));
