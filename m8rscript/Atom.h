@@ -68,6 +68,7 @@ public:
         InputPullup,
         Iterator,
         Low,
+        MaxConnections,
         None,
         Output,
         OutputOpenDrain,

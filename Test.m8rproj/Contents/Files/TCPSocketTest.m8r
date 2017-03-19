@@ -2,85 +2,27 @@
 // TCP socket Test 
 //
 
-class TCPConnection
-{
-	var _sock;
-	var _connectionId;
-	
-	constructor(sock, connectionId)
-	{
-		_sock = sock;
-		_connectionId = connectionId;
-	}
-	
-	function send(s)
-	{
-		_sock.send(_connectionId, s);
-	}
-}
-
-class TCPServer
-{
-	var _sock;
-	
-	constructor(port, func) {
-		var MaxConnections = 8;
-
-		_sock = new TCP(port, function(event, connectionId, dataValue) {
-			switch(event) {
-				case TCP.Connected: {
-					printf("TCP connected. ConnectionId=%d\n", connectionId);
-					var connection = new TCPConnection(this, connectionId);
-					connection._server = this;
-					connection._connectionId = connectionId;
-					_connections[connectionId] = connection;
-					_func.call(_server, connection);
-				}
-				
-				case TCP.Disconnected: {
-					printf("TCP disconnected. ConnectionId=%d\n", connectionId);
-					_connections[connectionId] = null;
-				}
-				
-				case TCP.ReceivedData: {
-					printf("TCP received data: %s\n", dataValue);
-				}
-				
-				default: {
-					printf("TCP fired. event=%d\n", event);
-				}
-			}
-		});
-		
-		_sock._connections = [ ];
-		_sock._connections.length = MaxConnections;
-		_sock._func = func;
-		_sock._server = this;
-
-	}
-}
-
-function connectionEvent(event, dataValue)
-{
+var server = new TCP(8080, function(event, connectionId, dataValue) {
 	switch(event) {
+		case TCP.Connected: {
+			printf("TCP connected. ConnectionId=%d\n", connectionId);
+    		send(connectionId, "Hello there!\nPlease enter some text:");
+   		}
+		
 		case TCP.Disconnected: {
-			printf("Connection disconnected\n");
+			printf("TCP disconnected. ConnectionId=%d\n", connectionId);
 		}
-
+		
 		case TCP.ReceivedData: {
-			printf("Connection received data: %s\n", dataValue);
+			printf("TCP received data on connection %d: %s\n", connectionId, dataValue);
 		}
-
+		
 		case TCP.SentData: {
-			printf("Connection sent datad\n", event);
+			printf("TCP sent data to connection %d\n", connectionId);
+		}			
+		
+		default: {
+			printf("TCP fired. event=%d\n", event);
 		}
 	}
-}
-
-var server = new TCPServer(8080, function(conn) {
-	printf("New connection\n");
-	_connection = conn;
-	_connection.eventFunc = connectionEvent;
-	_connection.send("Hello there!\nPlease enter some text:");
 });
-server._connection = null;

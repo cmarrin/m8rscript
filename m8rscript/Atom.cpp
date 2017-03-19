@@ -56,6 +56,7 @@ static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
 static const char _Iterator[] ROMSTR_ATTR = "Iterator";
 static const char _Low[] ROMSTR_ATTR = "Low";
+static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
 static const char _None[] ROMSTR_ATTR = "None";
 static const char _Output[] ROMSTR_ATTR = "Output";
 static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
@@ -105,6 +106,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(InputPullup),
     AtomEntry(Iterator),
     AtomEntry(Low),
+    AtomEntry(MaxConnections),
     AtomEntry(None),
     AtomEntry(Output),
     AtomEntry(OutputOpenDrain),

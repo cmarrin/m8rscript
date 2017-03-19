@@ -56,6 +56,7 @@ TCPProto::TCPProto(Program* program)
     addProperty(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
     addProperty(program, ATOM(ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
     addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
+    addProperty(program, ATOM(MaxConnections), Value(static_cast<int32_t>(TCP::MaxConnections)));
 }
 
 CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
