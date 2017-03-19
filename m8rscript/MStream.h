@@ -125,8 +125,9 @@ private:
 
 class StringStream : public m8r::Stream {
 public:
-	StringStream(const String& s) : _string(s), _index(0) { }
-	StringStream(const char* s) : _string(s), _index(0) { }
+    StringStream() { }
+	StringStream(const String& s) : _string(s) { }
+	StringStream(const char* s) : _string(s) { }
     
     virtual ~StringStream() { }
 	
@@ -153,7 +154,7 @@ public:
 	
 private:
     String _string;
-    mutable uint32_t _index;
+    mutable uint32_t _index = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////
