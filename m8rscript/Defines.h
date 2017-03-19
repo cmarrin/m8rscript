@@ -345,6 +345,7 @@ enum class Token : uint8_t {
     
     Unknown = 0xc0,
     Comment = 0xc1,
+    Whitespace = 0xc2,
 
     Float = 0xd0,
     Identifier = 0xd1,

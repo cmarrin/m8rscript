@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "MStream.h"
 #include "Float.h"
-#include "Atom.h"
 #include "Defines.h"
 
 namespace m8r {
@@ -47,8 +46,6 @@ namespace m8r {
 #define MAX_ID_LENGTH 32
 
 namespace m8r {
-
-class Parser;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -66,18 +63,16 @@ public:
         m8r::Op             op;
         m8r::Label          label;
         m8r::Function*      function;
-        m8r::StringLiteral::Raw string;
         m8r::Float::Raw		number;
         uint32_t            integer;
-        m8r::Atom::Raw      atom;
         uint32_t            argcount;
+        const char*         str;
     } TokenType;
 
-  	Scanner(Parser* parser, m8r::Stream* istream = nullptr)
+  	Scanner(m8r::Stream* istream = nullptr)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
-     , _parser(parser)
   	{
     }
   	
@@ -87,7 +82,7 @@ public:
     
     void setStream(m8r::Stream* istream) { _istream = istream; }
   
-  	Token getToken(TokenType& token);
+  	Token getToken(TokenType& token, bool ignoreWhitespace = true);
     
     uint32_t lineno() const { return _lineno; }
   	
@@ -113,7 +108,6 @@ private:
   	m8r::String _tokenString;
   	m8r::Stream* _istream;
     mutable uint32_t _lineno;
-    Parser* _parser;
 };
 
 }

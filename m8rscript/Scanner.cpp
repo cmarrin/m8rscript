@@ -35,8 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Scanner.h"
 
-#include "Parser.h"
-
 using namespace m8r;
 
 static const char* specialSingleChar = "(),.:;?[]{}~";
@@ -95,8 +93,9 @@ Token Scanner::scanKeyword(const char* s)
 }
 
 Token Scanner::scanString(char terminal)
-{
+{    
 	uint8_t c;
+	_tokenString.clear();
 	
 	while ((c = get()) != C_EOF) {
 		if (c == terminal) {
@@ -140,19 +139,19 @@ Token Scanner::scanString(char terminal)
                         }
                     }
                     if (num > 0xffffff) {
-                        _parser->addToString(static_cast<uint8_t>(num >> 24) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num >> 16) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                        _tokenString += static_cast<uint8_t>(num >> 24);
+                        _tokenString += static_cast<uint8_t>(num >> 16);
+                        _tokenString += static_cast<uint8_t>(num >> 8);
+                        _tokenString += static_cast<uint8_t>(num);
                     } else if (num > 0xffff) {
-                        _parser->addToString(static_cast<uint8_t>(num >> 16) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                        _tokenString += static_cast<uint8_t>(num >> 16);
+                        _tokenString += static_cast<uint8_t>(num >> 8);
+                        _tokenString += static_cast<uint8_t>(num);
                     } else if (num > 0xff) {
-                        _parser->addToString(static_cast<uint8_t>(num >> 8) & 0xff);
-                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                        _tokenString += static_cast<uint8_t>(num >> 8);
+                        _tokenString += static_cast<uint8_t>(num);
                     } else {
-                        _parser->addToString(static_cast<uint8_t>(num) & 0xff);
+                        _tokenString += static_cast<uint8_t>(num);
                     }
                     break;
                 }
@@ -170,12 +169,12 @@ Token Scanner::scanString(char terminal)
                         }
                         num = (num << 3) | (c - '0');
                     }
-                    _parser->addToString(static_cast<uint8_t>(num) & 0x3f);
+                    _tokenString += static_cast<uint8_t>(num & 0x3f);
                     break;
                 }
             }
         }
-		_parser->addToString(c);
+		_tokenString += c;
 	}
 	return Token::String;
 }
@@ -502,14 +501,18 @@ uint8_t Scanner::get() const
     return c;
 }
 
-Token Scanner::getToken(TokenType& tokenValue)
+Token Scanner::getToken(TokenType& tokenValue, bool ignoreWhitespace)
 {
 	uint8_t c;
 	Token token = Token::EndOfFile;
 	
 	while (token == Token::EndOfFile && (c = get()) != C_EOF) {
         if (isspace(c)) {
-            continue;
+            if (ignoreWhitespace) {
+                continue;
+            }
+            token = Token::Whitespace;
+            break;
         }
 		switch(c) {
 			case '/':
@@ -523,9 +526,8 @@ Token Scanner::getToken(TokenType& tokenValue)
 				
 			case '\"':
 			case '\'':
-                tokenValue.string = _parser->startString();
 				token = scanString(c);
-                _parser->endString();
+                tokenValue.str = _tokenString.c_str();
 				break;
 
 			default:
@@ -538,8 +540,7 @@ Token Scanner::getToken(TokenType& tokenValue)
 				}
 				if ((token = scanIdentifier()) != Token::EndOfFile) {
                     if (token == Token::Identifier) {
-                        tokenValue.atom = _parser->atomizeString(_tokenString.c_str());
-                        _tokenString.clear();
+                        tokenValue.str = _tokenString.c_str();
                     }
 					break;
 				}

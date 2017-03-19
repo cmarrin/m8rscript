@@ -45,7 +45,6 @@ uint32_t Parser::_nextLabelId = 1;
 
 Parser::Parser(SystemInterface* system)
     : _parseStack(this)
-    , _scanner(this)
     , _program(new Program(system))
 {
     Global::addObject(_program, true);

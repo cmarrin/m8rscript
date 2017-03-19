@@ -142,7 +142,7 @@ bool ParseEngine::classContentsStatement()
     }
     if (getToken() == Token::Function) {
         retireToken();
-        Atom name = getTokenValue().atom;
+        Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
         ObjectId f = functionExpression();
         _parser->emitId(name, Parser::IdType::NotLocal);
@@ -173,7 +173,7 @@ bool ParseEngine::functionStatement()
         return false;
     }
     retireToken();
-    Atom name = getTokenValue().atom;
+    Atom name = _parser->atomizeString(getTokenValue().str);
     expect(Token::Identifier);
     ObjectId f = functionExpression();
     _parser->addNamedObject(f, name);
@@ -187,7 +187,7 @@ bool ParseEngine::classStatement()
     }
     retireToken();
     _parser->emitId(ATOM(__this), Parser::IdType::MightBeLocal);
-    Atom name = getTokenValue().atom;
+    Atom name = _parser->atomizeString(getTokenValue().str);
     _parser->addNamedObject(ObjectId(), name);
     _parser->emitId(name, Parser::IdType::NotLocal);
     expect(Token::Identifier);
@@ -499,7 +499,7 @@ bool ParseEngine::iterationStatement()
             // Hang onto the identifier. If this is a for..in we need to know it
             Atom name;
             if (getToken() == Token::Identifier) {
-                name = getTokenValue().atom;
+                name = _parser->atomizeString(getTokenValue().str);
             }
             
             uint32_t count = variableDeclarationList(VariableDeclType::Statement);
@@ -585,7 +585,7 @@ bool ParseEngine::variableDeclaration(VariableDeclType type)
     if (getToken() != Token::Identifier) {
         return false;
     }
-    Atom name = getTokenValue().atom;
+    Atom name = _parser->atomizeString(getTokenValue().str);
     if (type == VariableDeclType::Statement) {
         _parser->addVar(name);
     } else {
@@ -705,7 +705,7 @@ bool ParseEngine::leftHandSideExpression()
             objectReg = _parser->emitDeref(Parser::DerefType::Elt);
         } else if (getToken() == Token::Period) {
             retireToken();
-            Atom name = getTokenValue().atom;
+            Atom name = _parser->atomizeString(getTokenValue().str);
             expect(Token::Identifier);
             _parser->emitId(name, Parser::IdType::NotLocal);
             objectReg = _parser->emitDeref(Parser::DerefType::Prop);
@@ -765,11 +765,11 @@ uint32_t ParseEngine::argumentList()
 bool ParseEngine::primaryExpression()
 {
     switch(getToken()) {
-        case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::MightBeLocal); retireToken(); break;
+        case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::This: _parser->emitId(ATOM(__this), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); break;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); break;
-        case Token::String: _parser->pushK(getTokenValue().string); retireToken(); break;
+        case Token::String: _parser->pushK(getTokenValue().str); retireToken(); break;
         case Token::True: _parser->pushK(true); retireToken(); break;
         case Token::False: _parser->pushK(false); retireToken(); break;
         case Token::Null: _parser->pushK(); retireToken(); break;
@@ -822,8 +822,8 @@ bool ParseEngine::propertyAssignment()
 bool ParseEngine::propertyName()
 {
     switch(getToken()) {
-        case Token::Identifier: _parser->emitId(getTokenValue().atom, Parser::IdType::NotLocal); retireToken(); return true;
-        case Token::String: _parser->pushK(getTokenValue().string); retireToken(); return true;
+        case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
+        case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
         case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); return true;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); return true;
         default: return false;
@@ -858,7 +858,7 @@ void ParseEngine::formalParameterList()
         return;
     }
     while (1) {
-        _parser->functionAddParam(getTokenValue().atom);
+        _parser->functionAddParam(_parser->atomizeString(getTokenValue().str));
         retireToken();
         if (getToken() != Token::Comma) {
             return;
