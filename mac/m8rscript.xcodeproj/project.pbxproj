@@ -55,6 +55,7 @@
 		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
+		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
@@ -196,6 +197,7 @@
 		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
+		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../m8rscript/IPAddr.cpp; sourceTree = "<group>"; };
 		49D5FD331E2D9D89001AF5C8 /* TCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCP.cpp; path = ../m8rscript/TCP.cpp; sourceTree = "<group>"; };
 		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
 		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
@@ -458,6 +460,7 @@
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
 				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				492BA3D81E15944000242DA8 /* GPIOInterface.h */,
+				49CB74301E7F3028007A4805 /* IPAddr.cpp */,
 				492396C91E711E47007AC0BF /* IPAddr.h */,
 				49F4633B1E1873D6004EF625 /* Iterator.cpp */,
 				49F4633C1E1873D6004EF625 /* Iterator.h */,
@@ -652,6 +655,7 @@
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
+				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,

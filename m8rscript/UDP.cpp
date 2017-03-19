@@ -91,19 +91,6 @@ MyUDPDelegate::MyUDPDelegate(ExecutionUnit* eu, uint16_t port, const Value& func
     _udp = UDP::create(this, port);
 }
 
-static bool toIPAddr(const String& ipString, IPAddr& ip)
-{
-    std::vector<String> array = ipString.split(".");
-    if (array.size() != 4) {
-        return false;
-    }
-    
-    //for (auto s : array) {
-        return false;
-    //}
-    return true;
-}
-
 CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // ip, port, data
@@ -123,11 +110,11 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     String ipString = eu->stack().top(1 - nparams).toStringValue(eu);
     IPAddr ip;
-    if (!toIPAddr(ipString, ip)) {
-        // String must be a host name
-        // FIXME: handle hostname
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
+//    if (!toIPAddr(ipString, ip)) {
+//        // String must be a host name
+//        // FIXME: handle hostname
+//        return CallReturnValue(CallReturnValue::Type::Error);
+//    }
     
     int32_t port = eu->stack().top(2 - nparams).toIntValue(eu);
     for (int32_t i = 3 - nparams; i <= 0; ++i) {

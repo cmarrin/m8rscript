@@ -35,14 +35,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <cassert>
-#include <cstdint>
-#include <cstddef>
+#include "Object.h"
+
 #include <functional>
 
 namespace m8r {
 
 class IPAddr;
+
+// Native
 
 class IPAddrDelegate {
 public:
@@ -51,25 +52,54 @@ public:
 
 class IPAddr {
 public:
-    IPAddr() : _addr(0) { }
-    IPAddr(uint32_t addr) : _addr(addr) { }
-    IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+    IPAddr() { memset(_addr, 0, sizeof(_addr)); }
+    
+    IPAddr(uint32_t addr)
     {
-        _addr = static_cast<uint32_t>(a) |
-                static_cast<uint32_t>(b) << 8 |
-                static_cast<uint32_t>(c) << 16 |
-                static_cast<uint32_t>(d) << 24;
+        _addr[0] = static_cast<uint8_t>(addr);
+        _addr[1] = static_cast<uint8_t>(addr >> 8);
+        _addr[2] = static_cast<uint8_t>(addr >> 16);
+        _addr[3] = static_cast<uint8_t>(addr >> 24);
     }
     
-    operator uint32_t() const { return _addr; }
-    operator bool() const { return _addr != 0; }
-    uint8_t operator[](size_t i) { assert(i < 4); return static_cast<uint8_t>(_addr >> (i * 8)); }
+    IPAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+    {
+        _addr[0] = a;
+        _addr[1] = b;
+        _addr[2] = c;
+        _addr[3] = d;
+    }
+    
+    operator uint32_t() const
+    {
+        return  static_cast<uint32_t>(_addr[0]) | 
+                (static_cast<uint32_t>(_addr[1]) << 8) |
+                (static_cast<uint32_t>(_addr[2]) << 16) |
+                (static_cast<uint32_t>(_addr[3]) << 24);
+    }
+    
+    operator bool() const { return _addr[0] != 0 && _addr[1] != 0 && _addr[2] != 0 && _addr[3] != 0; }
+    uint8_t& operator[](size_t i){ assert(i < 4); return _addr[i]; }
     
     static IPAddr myIPAddr();
     static void lookupHostName(const char* name, std::function<void (const char* name, IPAddr)>);
     
 private:    
-    uint32_t _addr;
+    uint8_t _addr[4];
+};
+
+// Object
+
+class IPAddrProto : public ObjectFactory {
+public:
+    IPAddrProto(Program*);
+
+private:
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _constructor;
+    NativeFunction _lookupHostname;
 };
 
 }

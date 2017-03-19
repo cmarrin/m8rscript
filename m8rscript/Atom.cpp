@@ -67,10 +67,14 @@ static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
+static const char _a[] ROMSTR_ATTR = "a";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
+static const char _b[] ROMSTR_ATTR = "b";
+static const char _c[] ROMSTR_ATTR = "c";
 static const char _call[] ROMSTR_ATTR = "call";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
+static const char _d[] ROMSTR_ATTR = "d";
 static const char _decode[] ROMSTR_ATTR = "decode";
 static const char _delay[] ROMSTR_ATTR = "delay";
 static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
@@ -79,6 +83,7 @@ static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _end[] ROMSTR_ATTR = "end";
 static const char _length[] ROMSTR_ATTR = "length";
+static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _print[] ROMSTR_ATTR = "print";
@@ -121,10 +126,14 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(TCP),
     AtomEntry(Trigger),
     
+    AtomEntry(a),
     AtomEntry(arguments),
+    AtomEntry(b),
+    AtomEntry(c),
     AtomEntry(call),
     AtomEntry(constructor),
     AtomEntry(currentTime),
+    AtomEntry(d),
     AtomEntry(decode),
     AtomEntry(delay),
     AtomEntry(digitalRead),
@@ -133,6 +142,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(encode),
     AtomEntry(end),
     AtomEntry(length),
+    AtomEntry(lookupHostname),
     AtomEntry(next),
     AtomEntry(onInterrupt),
     AtomEntry(print),
