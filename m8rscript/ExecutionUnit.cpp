@@ -680,7 +680,7 @@ static const uint16_t GCCount = 1000;
         }
         
         if (callReturnValue.isError()) {
-            printError(ROMSTR("function cannot be %sed"), (inst.op() == Op::NEW) ? "construct" : "call");
+            printError(ROMSTR("%sing function"), (inst.op() == Op::NEW) ? "construct" : "call");
         }
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
