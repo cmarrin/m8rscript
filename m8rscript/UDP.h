@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "IPAddr.h"
+#include "Object.h"
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
@@ -43,6 +45,8 @@ namespace m8r {
 
 class UDP;
 class IPAddr;
+
+// Native
 
 class UDPDelegate {
 public:
@@ -60,12 +64,59 @@ public:
     static void leaveMulticastGroup(IPAddr);
     
     virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) = 0;
+    virtual void disconnect() = 0;
 
 protected:
-    UDP(UDPDelegate* delegate, uint16_t port = 0) : _delegate(delegate), _port(port) { }
+    UDP(UDPDelegate* delegate, uint16_t port) : _delegate(delegate), _port(port) { }
 
     UDPDelegate* _delegate;
     uint16_t _port;
+};
+
+// Object
+
+class UDPProto : public ObjectFactory {
+public:
+    UDPProto(Program*, uint16_t port);
+
+private:
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _constructor;
+    NativeFunction _send;
+    NativeFunction _disconnect;
+};
+
+class MyUDPDelegate : public NativeObject, public UDPDelegate {
+public:
+    MyUDPDelegate(ExecutionUnit*, uint16_t port, const Value& func, const Value& parent);
+    virtual ~MyUDPDelegate()
+    {
+        if (_udp) {
+            delete _udp;
+        }
+    }
+
+    void send(IPAddr ip, uint16_t port, const char* data, uint16_t size)
+    {
+        if (!_udp) {
+            return;
+        }
+        _udp->send(ip, port, data, size);
+    }
+    
+    void disconnect();
+
+    // UDPDelegate overrides
+    virtual void UDPevent(UDP* udp, Event, const char* data, uint16_t length) override;
+
+private:
+    UDP* _udp = nullptr;
+    Value _func;
+    Value _parent;
+    ExecutionUnit* _eu;
 };
 
 }

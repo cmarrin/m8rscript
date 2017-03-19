@@ -173,3 +173,10 @@ void MacUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
         _delegate->UDPevent(this, UDPDelegate::Event::SentData);
     });
 }
+
+void MacUDP::disconnect()
+{
+    close(_socketFD);
+    _socketFD = -1;
+}
+

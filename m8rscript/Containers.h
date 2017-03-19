@@ -255,7 +255,7 @@ public:
     }
     
     // If skipEmpty is true, substrings of zero length are not added to the array
-    std::vector<String> split(const String& separator, bool skipEmpty = false)
+    std::vector<String> split(const String& separator, bool skipEmpty = false) const
     {
         std::vector<String> array;
         char* p = _data;

@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		492396C71E711D12007AC0BF /* UDPSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDPSocket.cpp */; };
-		492396C81E711D12007AC0BF /* UDPSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 492396C61E711D12007AC0BF /* UDPSocket.h */; };
+		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3D61E15849C00242DA8 /* GPIO.cpp */; };
 		492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3D81E15944000242DA8 /* GPIOInterface.h */; };
@@ -126,8 +125,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		492396C51E711D12007AC0BF /* UDPSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UDPSocket.cpp; path = ../m8rscript/UDPSocket.cpp; sourceTree = "<group>"; };
-		492396C61E711D12007AC0BF /* UDPSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UDPSocket.h; path = ../m8rscript/UDPSocket.h; sourceTree = "<group>"; };
+		492396C51E711D12007AC0BF /* UDP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UDP.cpp; path = ../m8rscript/UDP.cpp; sourceTree = "<group>"; };
 		492396C91E711E47007AC0BF /* IPAddr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPAddr.h; path = ../m8rscript/IPAddr.h; sourceTree = "<group>"; };
 		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../m8rscript/GPIO.h; sourceTree = "<group>"; };
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
@@ -484,8 +482,7 @@
 				49E190781DB99E270030DC89 /* TCP.h */,
 				49D5FD331E2D9D89001AF5C8 /* TCP.cpp */,
 				49E190791DB99E270030DC89 /* UDP.h */,
-				492396C51E711D12007AC0BF /* UDPSocket.cpp */,
-				492396C61E711D12007AC0BF /* UDPSocket.h */,
+				492396C51E711D12007AC0BF /* UDP.cpp */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
 			);
@@ -503,7 +500,6 @@
 				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
-				492396C81E711D12007AC0BF /* UDPSocket.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
@@ -661,7 +657,7 @@
 				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
-				492396C71E711D12007AC0BF /* UDPSocket.cpp in Sources */,
+				492396C71E711D12007AC0BF /* UDP.cpp in Sources */,
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
 				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,

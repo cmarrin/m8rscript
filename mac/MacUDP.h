@@ -52,6 +52,7 @@ public:
     static void leaveMulticastGroup(IPAddr);
     
     virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) override;
+    virtual void disconnect() override;
     
 private:    
     int _socketFD = -1;

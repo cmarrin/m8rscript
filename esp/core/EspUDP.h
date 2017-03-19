@@ -56,6 +56,7 @@ public:
     static void leaveMulticastGroup(IPAddr);
     
     virtual void send(IPAddr, uint16_t port, const char* data, uint16_t length = 0) override;
+    virtual void disconnect() override;
     
 private:    
     static void receiveCB(void* arg, char* data, uint16_t length);

@@ -102,6 +102,11 @@ void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     }
 }
 
+void EspUDP::disconnect()
+{
+	espconn_disconnect(&_conn);
+}
+
 void EspUDP::receiveCB(void* arg, char* data, uint16_t length)
 {
     struct espconn* conn = (struct espconn *) arg;
