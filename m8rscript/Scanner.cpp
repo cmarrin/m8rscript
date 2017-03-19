@@ -424,7 +424,7 @@ bool Scanner::scanFloat(int32_t& mantissa, int32_t& exp)
         haveFloat = true;
         exp = -scanDigits(mantissa, false);
         if ((c = get()) == C_EOF) {
-            return false;
+            return true;
         }
     }
     if (c == 'e' || c == 'E') {

@@ -102,12 +102,18 @@ private:
     static CallReturnValue print(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue printf(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue println(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue toFloat(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue toUInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
     NativeFunction _currentTime;
     NativeFunction _delay;
     NativeFunction _print;
     NativeFunction _printf;
     NativeFunction _println;
+    NativeFunction _toFloat;
+    NativeFunction _toInt;
+    NativeFunction _toUInt;
 
     template<typename IdType, typename ValueType> class IdStore {
     public:

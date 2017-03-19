@@ -2,6 +2,21 @@
 // Test of various functionality of m8rscript
 //
 
+var f1;
+f1 = toFloat("123");
+println("'123' converts to ", f1);
+f1 = toFloat("-123");
+println("'-123' converts to ", f1);
+f1 = toFloat(" 123");
+println("' 123' converts to ", f1);
+f1 = toFloat(" 123", false);
+println("' 123' converts to ", f1);
+f1 = toFloat("123.45");
+println("'123.45' converts to ", f1);
+f1 = toFloat("123e5");
+println("'123e5' converts to ", f1);
+f1 = toFloat("123.45e5");
+println("'123.45e5' converts to ", f1);
 printf("Here is a number: %1.25d and a string: '%2.1s'\n", 5, "hello");
 
 function add()

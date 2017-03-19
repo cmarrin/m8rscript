@@ -58,6 +58,9 @@ Global::Global(Program* program)
     , _print(print)
     , _printf(printf)
     , _println(println)
+    , _toFloat(toFloat)
+    , _toInt(toInt)
+    , _toUInt(toUInt)
 {
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
     if (_stringStore.empty()) {
@@ -70,6 +73,9 @@ Global::Global(Program* program)
     addProperty(program, ATOM(print), &_print);
     addProperty(program, ATOM(printf), &_printf);
     addProperty(program, ATOM(println), &_println);
+    addProperty(program, ATOM(toFloat), &_toFloat);
+    addProperty(program, ATOM(toInt), &_toInt);
+    addProperty(program, ATOM(toUInt), &_toUInt);
 
     addProperty(program, ATOM(arguments), &_arguments);
     addProperty(program, ATOM(Iterator), &_iterator);
@@ -246,4 +252,70 @@ CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t npa
     eu->system()->printf("\n");
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue Global::toFloat(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // string, allowWhitespace
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    bool allowWhitespace = true;
+    if (nparams > 1) {
+        allowWhitespace = eu->stack().top(2 - nparams).toIntValue(eu) != 0;
+    }
+    
+    String s = eu->stack().top(1 - nparams).toStringValue(eu);
+    Float f;
+    if (Value::toFloat(f, s.c_str(), allowWhitespace)) {
+        eu->stack().push(Value(f));
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    }
+    
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // string, allowWhitespace
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    bool allowWhitespace = true;
+    if (nparams > 1) {
+        allowWhitespace = eu->stack().top(2 - nparams).toIntValue(eu) != 0;
+    }
+    
+    String s = eu->stack().top(1 - nparams).toStringValue(eu);
+    int32_t i;
+    if (Value::toInt(i, s.c_str(), allowWhitespace)) {
+        eu->stack().push(Value(i));
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    }
+    
+    return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // string, allowWhitespace
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    bool allowWhitespace = true;
+    if (nparams > 1) {
+        allowWhitespace = eu->stack().top(2 - nparams).toIntValue(eu) != 0;
+    }
+    
+    String s = eu->stack().top(1 - nparams).toStringValue(eu);
+    uint32_t u;
+    if (Value::toUInt(u, s.c_str(), allowWhitespace)) {
+        eu->stack().push(Value(static_cast<int32_t>(u)));
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    }
+    
+    return CallReturnValue(CallReturnValue::Type::Error);
 }

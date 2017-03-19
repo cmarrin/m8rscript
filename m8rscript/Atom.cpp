@@ -86,6 +86,9 @@ static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
+static const char _toFloat[] ROMSTR_ATTR = "toFloat";
+static const char _toInt[] ROMSTR_ATTR = "toInt";
+static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___this[] ROMSTR_ATTR = "this";
@@ -137,6 +140,9 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(println),
     AtomEntry(send),
     AtomEntry(setPinMode),
+    AtomEntry(toFloat),
+    AtomEntry(toInt),
+    AtomEntry(toUInt),
     AtomEntry(value),
     AtomEntry(__nativeObject),
     AtomEntry(__this),
