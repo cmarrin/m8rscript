@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-UDPProto::UDPProto(Program* program, uint16_t port)
+UDPProto::UDPProto(Program* program)
     : ObjectFactory(program, ROMSTR("UDPProto"))
     , _constructor(constructor)
     , _send(send)
@@ -137,11 +137,10 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+void MyUDPDelegate::UDPevent(UDP* udp, Event event, const char* data, uint16_t length)
 {
     Value args[4];
     args[0] = Value(static_cast<int32_t>(event));
-    args[1] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
         StringId dataString = Global::createString(data, length);

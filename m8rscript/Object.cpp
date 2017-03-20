@@ -459,3 +459,24 @@ void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
 {
     _obj.setProperty(prop, value, Object::SetPropertyType::AlwaysAdd);
 }
+
+ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
+{
+    Value objectValue = eu->program()->global()->property(eu, objectName);
+    if (!objectValue) {
+        return ObjectId();
+    }
+    
+    Object* object = Global::obj(objectValue);
+    if (!object) {
+        return ObjectId();
+    }
+
+    CallReturnValue r = object->construct(eu, nparams);
+    Value retValue;
+    if (r.isReturnCount() && r.returnCount() > 0) {
+        retValue = eu->stack().top(1 - r.returnCount());
+        eu->stack().pop(r.returnCount());
+    }    
+    return retValue.asObjectIdValue();
+}

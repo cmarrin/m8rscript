@@ -54,6 +54,7 @@ static const char _GPIO[] ROMSTR_ATTR = "GPIO";
 static const char _Input[] ROMSTR_ATTR = "Input";
 static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
+static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
 static const char _Iterator[] ROMSTR_ATTR = "Iterator";
 static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
@@ -67,6 +68,7 @@ static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
+static const char _UDP[] ROMSTR_ATTR = "UDP";
 static const char _a[] ROMSTR_ATTR = "a";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _b[] ROMSTR_ATTR = "b";
@@ -112,6 +114,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Input),
     AtomEntry(InputPulldown),
     AtomEntry(InputPullup),
+    AtomEntry(IPAddr),
     AtomEntry(Iterator),
     AtomEntry(Low),
     AtomEntry(MaxConnections),
@@ -125,6 +128,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(SentData),
     AtomEntry(TCP),
     AtomEntry(Trigger),
+    AtomEntry(UDP),
     
     AtomEntry(a),
     AtomEntry(arguments),

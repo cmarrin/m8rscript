@@ -77,7 +77,7 @@ protected:
 
 class UDPProto : public ObjectFactory {
 public:
-    UDPProto(Program*, uint16_t port);
+    UDPProto(Program*);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -107,7 +107,13 @@ public:
         _udp->send(ip, port, data, size);
     }
     
-    void disconnect();
+    void disconnect()
+    {
+        if (!_udp) {
+            return;
+        }
+        _udp->disconnect();
+    }
 
     // UDPDelegate overrides
     virtual void UDPevent(UDP* udp, Event, const char* data, uint16_t length) override;

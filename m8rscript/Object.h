@@ -224,6 +224,8 @@ public:
     Object* nativeObject() { return &_obj; }
     const Object* nativeObject() const { return &_obj; }
     ObjectId objectId() const { return _obj.objectId(); }
+    
+    static ObjectId create(Atom objectName, ExecutionUnit*, uint32_t nparams);
 
 protected:
     PropertyObject _obj;

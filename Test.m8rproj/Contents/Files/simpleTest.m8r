@@ -2,6 +2,11 @@
 // Test of various functionality of m8rscript
 //
 
+
+IPAddr.lookupHostname("time.nist.gov", function(name, ip) {
+	printf("***** hostname:'%s', ip:%s\n", name, ip);
+});
+
 var f1;
 f1 = toFloat("123");
 println("'123' converts to ", f1);

@@ -53,6 +53,8 @@ Global::Global(Program* program)
     , _gpio(program)
     , _iterator(program)
     , _tcp(program)
+    , _udp(program)
+    , _ipAddr(program)
     , _currentTime(currentTime)
     , _delay(delay)
     , _print(print)
@@ -86,6 +88,10 @@ Global::Global(Program* program)
     addProperty(program, ATOM(GPIO), Value(_gpio.objectId()));
     Global::addObject(_tcp.nativeObject(), false);
     addProperty(program, ATOM(TCP), Value(_tcp.objectId()));
+    Global::addObject(_udp.nativeObject(), false);
+    addProperty(program, ATOM(UDP), Value(_udp.objectId()));
+    Global::addObject(_ipAddr.nativeObject(), false);
+    addProperty(program, ATOM(IPAddr), Value(_ipAddr.objectId()));
 }
 
 Global::~Global()
@@ -93,6 +99,8 @@ Global::~Global()
     Global::removeObject(_base64.nativeObject()->objectId());
     Global::removeObject(_gpio.nativeObject()->objectId());
     Global::removeObject(_tcp.nativeObject()->objectId());
+    Global::removeObject(_udp.nativeObject()->objectId());
+    Global::removeObject(_ipAddr.nativeObject()->objectId());
 }
 
 ObjectId Global::addObject(Object* obj, bool collectable)

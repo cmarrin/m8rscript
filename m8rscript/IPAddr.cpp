@@ -102,18 +102,31 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
 
 CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (nparams < 1) {
+    if (nparams < 2) {
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
+
+    Value hostnameValue = eu->stack().top(1 - nparams);
+    String hostname = hostnameValue.toStringValue(eu);
+    Value func = eu->stack().top(2 - nparams);
     
-    Object* obj = Global::obj(thisValue);
-    if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-    
-    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
-    
-    int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
-    delegate->disconnect(connectionId);
+    IPAddr::lookupHostName(hostname.c_str(), [eu, thisValue, hostnameValue, hostname, &func](const char* name, m8r::IPAddr ipaddr) {
+        assert(hostname == String(name));
+        
+        eu->stack().push(Value(static_cast<int32_t>(ipaddr[0])));
+        eu->stack().push(Value(static_cast<int32_t>(ipaddr[1])));
+        eu->stack().push(Value(static_cast<int32_t>(ipaddr[2])));
+        eu->stack().push(Value(static_cast<int32_t>(ipaddr[3])));
+        ObjectId id = ObjectFactory::create(ATOM(IPAddr), eu, 4);
+        eu->stack().pop(4);
+        
+        eu->stack().push(hostnameValue);
+        eu->stack().push(Value(Value(id)));
+        CallReturnValue r = func.call(eu, thisValue, 2, false);
+        if (r.isReturnCount() && r.returnCount() > 0) {
+            eu->stack().pop(r.returnCount());
+        }
+        eu->stack().pop(2);
+    });
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

@@ -96,6 +96,8 @@ private:
     GPIO _gpio;
     Iterator _iterator;
     TCPProto _tcp;
+    UDPProto _udp;
+    IPAddrProto _ipAddr;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
