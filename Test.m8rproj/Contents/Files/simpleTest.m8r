@@ -4,7 +4,7 @@
 
 
 IPAddr.lookupHostname("time.nist.gov", function(name, ip) {
-	printf("***** hostname:'%s', ip:%s\n", name, ip);
+	printf("***** hostname:'%s', ip:%s (%d, %d, %d, %d)\n", name, ip, ip[0], ip[1], ip[2], ip[3]);
 });
 
 var f1;

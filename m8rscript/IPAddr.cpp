@@ -41,13 +41,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-IPAddrProto::IPAddrProto(Program* program)
-    : ObjectFactory(program, ROMSTR("IPAddrProto"))
-    , _constructor(constructor)
-    , _lookupHostname(lookupHostname)
+String IPAddrProto::toString(ExecutionUnit* eu) const
 {
-    addProperty(program, ATOM(constructor), &_constructor);
-    addProperty(program, ATOM(lookupHostname), &_lookupHostname);
+    return Value::toString(_ipAddr[0]) + "." +
+           Value::toString(_ipAddr[1]) + "." + 
+           Value::toString(_ipAddr[2]) + "." + 
+           Value::toString(_ipAddr[3]);
 }
 
 static bool toIPAddr(const String& ipString, IPAddr& ip)
@@ -63,9 +62,9 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)
 {
-    // ip address string or 4 numbers
+    // Stack: string ip octets or 4 integers
     IPAddr ipAddr;
     if (nparams == 1) {
         String ipString = eu->stack().top().toStringValue(eu);
@@ -87,46 +86,47 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
     } else {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
-    
-    Object* obj = Global::obj(thisValue);
-    if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-    obj->setProperty(eu, ATOM(a), Value(static_cast<int32_t>(ipAddr[0])), Object::SetPropertyType::AlwaysAdd);
-    obj->setProperty(eu, ATOM(b), Value(static_cast<int32_t>(ipAddr[1])), Object::SetPropertyType::AlwaysAdd);
-    obj->setProperty(eu, ATOM(c), Value(static_cast<int32_t>(ipAddr[2])), Object::SetPropertyType::AlwaysAdd);
-    obj->setProperty(eu, ATOM(d), Value(static_cast<int32_t>(ipAddr[3])), Object::SetPropertyType::AlwaysAdd);
 
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    IPAddrProto* obj = new IPAddrProto();
+    Global::addObject(obj, true);
+    obj->setProto(objectId());
+    
+    obj->_ipAddr = ipAddr;
+
+    eu->stack().push(Value(obj->objectId()));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (nparams < 2) {
+    if (prop == ATOM(lookupHostname)) {
+        if (nparams < 2) {
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+
+        Value hostnameValue = eu->stack().top(1 - nparams);
+        String hostname = hostnameValue.toStringValue(eu);
+        Value func = eu->stack().top(2 - nparams);
+        
+        IPAddr::lookupHostName(hostname.c_str(), [this, eu, func](const char* name, m8r::IPAddr ipaddr) {
+            ObjectId newIPAddr;
+            Object* parent = Global::obj(objectId());
+            if (parent) {
+                IPAddrProto* obj = new IPAddrProto();
+                Global::addObject(obj, true);
+                obj->setProto(parent->objectId());
+                obj->_ipAddr = ipaddr;
+                newIPAddr = obj->objectId();
+            }
+
+            Value args[2];
+            args[0] = Value(Global::createString(String(name)));
+            args[1] = Value(newIPAddr);
+            
+            // FIXME: We need a this pointer
+             eu->fireEvent(func, Value(), args, 2);
+        });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
-
-    Value hostnameValue = eu->stack().top(1 - nparams);
-    String hostname = hostnameValue.toStringValue(eu);
-    Value func = eu->stack().top(2 - nparams);
-    
-    IPAddr::lookupHostName(hostname.c_str(), [eu, thisValue, hostnameValue, hostname, &func](const char* name, m8r::IPAddr ipaddr) {
-        assert(hostname == String(name));
-        
-        eu->stack().push(Value(static_cast<int32_t>(ipaddr[0])));
-        eu->stack().push(Value(static_cast<int32_t>(ipaddr[1])));
-        eu->stack().push(Value(static_cast<int32_t>(ipaddr[2])));
-        eu->stack().push(Value(static_cast<int32_t>(ipaddr[3])));
-        ObjectId id = ObjectFactory::create(ATOM(IPAddr), eu, 4);
-        eu->stack().pop(4);
-        
-        eu->stack().push(hostnameValue);
-        eu->stack().push(Value(Value(id)));
-        CallReturnValue r = func.call(eu, thisValue, 2, false);
-        if (r.isReturnCount() && r.returnCount() > 0) {
-            eu->stack().pop(r.returnCount());
-        }
-        eu->stack().pop(2);
-    });
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    return CallReturnValue(CallReturnValue::Type::Error);
 }

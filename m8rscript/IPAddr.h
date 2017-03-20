@@ -45,11 +45,6 @@ class IPAddr;
 
 // Native
 
-class IPAddrDelegate {
-public:
-    virtual void lookupHostNameResult(const char* name, IPAddr) const = 0;
-};
-
 class IPAddr {
 public:
     IPAddr() { memset(_addr, 0, sizeof(_addr)); }
@@ -79,7 +74,8 @@ public:
     }
     
     operator bool() const { return _addr[0] != 0 && _addr[1] != 0 && _addr[2] != 0 && _addr[3] != 0; }
-    uint8_t& operator[](size_t i){ assert(i < 4); return _addr[i]; }
+    uint8_t& operator[](size_t i) { assert(i < 4); return _addr[i]; }
+    const uint8_t& operator[](size_t i) const { assert(i < 4); return _addr[i]; }
     
     static IPAddr myIPAddr();
     static void lookupHostName(const char* name, std::function<void (const char* name, IPAddr)>);
@@ -90,16 +86,37 @@ private:
 
 // Object
 
-class IPAddrProto : public ObjectFactory {
+class IPAddrProto : public Object {
 public:
-    IPAddrProto(Program*);
+    IPAddrProto() { }
+    IPAddrProto(Program*) { }
+
+    virtual const char* typeName() const override { return "IPAddr"; }
+
+    virtual String toString(ExecutionUnit* eu) const override;
+
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
+
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
+    
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
+    {
+        int32_t index = elt.toIntValue(eu);
+        return (index >= 0 && index < 4) ? Value(static_cast<int32_t>(_ipAddr[index])) : Value();
+    }
+    
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override
+    {
+        int32_t index = elt.toIntValue(eu);
+        if (append || index < 0 || index >= 4) {
+            return false;
+        }
+        _ipAddr[index] = value;
+        return true;
+    }
 
 private:
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _constructor;
-    NativeFunction _lookupHostname;
+    IPAddr _ipAddr;
 };
 
 }
