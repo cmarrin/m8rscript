@@ -40,6 +40,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Function.cpp \
 		../m8rscript/Global.cpp \
 		../m8rscript/GPIO.cpp \
+		../m8rscript/IPAddr.cpp \
 		../m8rscript/Iterator.cpp \
 		../m8rscript/Object.cpp \
 		../m8rscript/Program.cpp \
@@ -47,6 +48,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/slre.cpp \
 		../m8rscript/TaskManager.cpp \
 		../m8rscript/TCP.cpp \
+		../m8rscript/UDP.cpp \
 		../m8rscript/Value.cpp \
         app/main.cpp
 
