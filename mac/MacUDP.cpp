@@ -50,7 +50,12 @@ using namespace m8r;
 
 IPAddr IPAddr::myIPAddr()
 {
-    return IPAddr();
+    char name[40];
+    gethostname(name, 39);
+    struct hostent* entry = gethostbyname(name);
+    IPAddr ip(entry->h_addr_list[0][0], entry->h_addr_list[0][1], entry->h_addr_list[0][2], entry->h_addr_list[0][3]);
+    
+    return ip;
 }
 
 void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)

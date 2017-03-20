@@ -89,7 +89,7 @@ private:
 class IPAddrProto : public Object {
 public:
     IPAddrProto() { }
-    IPAddrProto(Program*) { }
+    IPAddrProto(Program*) : _ipAddr(IPAddr::myIPAddr()) { }
 
     virtual const char* typeName() const override { return "IPAddr"; }
 
