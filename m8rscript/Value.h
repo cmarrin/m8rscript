@@ -93,6 +93,15 @@ private:
         
 class Value {
 public:
+#ifdef __APPLE__
+        typedef __uint128_t RawValueType;
+#else
+        typedef uint64_t RawValueType;
+#endif
+
+    static Value fromRaw(RawValueType r) { Value v; v._value._raw = r; return v; }
+    static RawValueType toRaw(Value v) { return v._value._raw; }
+
     typedef m8r::Map<Atom, Value> Map;
     
     enum class Type : uint8_t {
@@ -207,7 +216,7 @@ private:
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw[0] & ~TypeMask)); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
     inline int32_t intFromValue() const { return static_cast<int32_t>(_value._i); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._d)); }
@@ -219,27 +228,25 @@ private:
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._i); }
     
     struct RawValue {
-        RawValue() { _raw[0] = 0; _raw[1] = 0; setType(Type::None); }
-        RawValue(Type type) { _raw[0] = 0; _raw[1] = 0; setType(type); }
-        RawValue(Float f) { _raw[0] = f.raw(); _raw[1] = 0; setType(Type::Float); }
-        RawValue(int32_t i) { _raw[0] = 0; _raw[1] = 0; _i = i; setType(Type::Integer); }
-        RawValue(Atom atom) { _raw[0] = 0; _raw[1] = 0; _i = atom.raw(); setType(Type::Id); }
-        RawValue(StringId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::String); }
-        RawValue(StringLiteral id) { _raw[0] = 0; _raw[1] = 0; _i = id.raw(); setType(Type::StringLiteral); }
-        RawValue(ObjectId id) { _raw[0] = 0; _raw[1] = 0; _d = id.raw(); setType(Type::Object); }
+        RawValue() { _raw = 0; setType(Type::None); }
+        RawValue(Type type) { _raw = 0; setType(type); }
+        RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
+        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
+        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
+        RawValue(StringId id) { _raw = 0; _d = id.raw(); setType(Type::String); }
+        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }
+        RawValue(ObjectId id) { _raw = 0; _d = id.raw(); setType(Type::Object); }
         RawValue(NativeObject* obj)
         {
             static_assert(sizeof(_i) == sizeof(void*), "sizeof _i and void* must be the same");
-            _raw[0] = 0;
-            _raw[1] = 0;
+            _raw = 0;
             _i = reinterpret_cast<RawIntType>(obj);
             setType(Type::NativeObject);
         }
         
         RawValue(uint32_t prevPC, ObjectId prevObj)
         {
-            _raw[0] = 0;
-            _raw[1] = 0;
+            _raw = 0;
             _i = prevPC;
             _d = prevObj.raw();
             setType(Type::PreviousContextA);
@@ -247,8 +254,7 @@ private:
         
         RawValue(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor)
         {
-            _raw[0] = 0;
-            _raw[1] = 0;
+            _raw = 0;
             _i = prevFrame;
             _d = prevThis.raw();
             _paramCount = prevParamCount;
@@ -256,7 +262,7 @@ private:
             setType(Type::PreviousContextB);
         }
         
-        bool operator==(const RawValue& other) { return _raw[0] == other._raw[0] && _raw[1] == other._raw[1]; }
+        bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
 
         Type type() const { return static_cast<Type>(_type); }
@@ -268,7 +274,7 @@ private:
         void setType(Type type) { _type = static_cast<uint32_t>(type); }
 #endif
         union {
-            RawIntType _raw[2];
+            RawValueType _raw;
             struct {
                 RawIntType _i;
 #ifdef __APPLE__
