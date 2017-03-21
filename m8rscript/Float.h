@@ -81,7 +81,7 @@ public:
     typedef DecomposeType decompose_type;
     
     static constexpr int32_t BinaryExponent = BinExp;
-    static constexpr value_type BinaryMask = (1 << BinaryExponent) - 1;
+    static constexpr value_type BinaryMask = (1L << BinaryExponent) - 1;
     static constexpr int32_t DecimalExponent = DecExp;
     static constexpr value_type DecimalMultiplier = exp(1, DecExp);
     static constexpr uint8_t MaxDigits = (sizeof(RawType) <= 32) ? 8 : 12;

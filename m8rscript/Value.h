@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace m8r {
 
 class Object;
-class NativeObject;
+//class NativeObject;
 class Value;
 class ExecutionUnit;
 class Program;
@@ -125,8 +125,8 @@ public:
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
-    Value(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
-    Value(NativeObject* obj) : _value(obj) { }
+    Value(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
+    //Value(NativeObject* obj) : _value(obj) { }
     
     operator bool() const { return type() != Type::None; }
     bool operator==(const Value& other) { return _value == other._value; }
@@ -162,7 +162,7 @@ public:
     bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
-    NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
+    //NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -214,23 +214,19 @@ public:
     bool needsGC() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB || type() == Type::String; }
     
 private:
-    static constexpr uint8_t TypeBitCount = 5;
-    static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
-    
     Float _toFloatValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
-    inline int32_t intFromValue() const { return static_cast<int32_t>(_value._i); }
-    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
-    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._d)); }
-    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value._d)); }
-    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._i)); }
-    inline uint16_t indexFromValue() const { return _value._d; }
-    inline uint16_t paramCountFromValue() const { return _value._paramCount; }
-    inline bool ctorFromValue() const { return _value._ctor; }
-    inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._i); }
+    inline int32_t intFromValue() const { return static_cast<int32_t>(_value.raw32.get()); }
+    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.raw32.get())); }
+    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.raw16.get())); }
+    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.raw32.get())); }
+    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.raw32.get())); }
+    inline uint8_t paramCountFromValue() const { return _value.raw8.get(); }
+    inline bool ctorFromValue() const { return _value.rawBool.get(); }
+    //inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.rawPtr.get()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -243,73 +239,79 @@ private:
     // use the lowest 5 bits and make all the enum values even. For floats, we take the raw value, clear the LSB and cast it to
     // Float. For the others we cast the lower 5 bits to Type and use that. 
     struct RawValue {
-        RawValue() { setType(Type::None); }
-        RawValue(Type type) { setType(type); }
-        RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { _int[0] = i; setType(Type::Integer); }
-        RawValue(Atom atom) { _int[0] = atom.raw(); setType(Type::Id); }
-        RawValue(StringId id) { _int[0] = id.raw(); setType(Type::String); }
-        RawValue(StringLiteral id) { _int[0] = id.raw(); setType(Type::StringLiteral); }
-        RawValue(ObjectId id) { _int[0] = id.raw(); setType(Type::Object); }
-        RawValue(NativeObject* obj)
-        {
-            _int[0] = reinterpret_cast<RawIntType>(obj);
-            setType(Type::NativeObject);
-        }
+        RawValue() { rawType.set(Type::None); }
+        RawValue(Type type) { rawType.set(type); }
+        RawValue(Float f) { _raw = f.raw(); rawType.set(Type::Float); }
+        RawValue(int32_t i) { raw32.set(i); rawType.set(Type::Integer); }
+        RawValue(Atom atom) { raw32.set(atom.raw()); rawType.set(Type::Id); }
+        RawValue(StringId id) { raw32.set(id.raw()); rawType.set(Type::String); }
+        RawValue(StringLiteral id) { raw32.set(id.raw()); rawType.set(Type::StringLiteral); }
+        RawValue(ObjectId id) { raw16.set(id.raw()); rawType.set(Type::Object); }
+        //RawValue(NativeObject* obj) { rawPtr.set(id.raw()); rawType.set(Type::Object); }
         
         RawValue(uint32_t prevPC, ObjectId prevObj)
         {
-            _int[0] = prevPC;
-            _int[1] = static_cast<uint32_t>(prevObj.raw()) << 16;
-            setType(Type::PreviousContextA);
+            raw32.set(prevPC);
+            raw16.set(prevObj.raw());
+            rawType.set(Type::PreviousContextA);
         }
         
-        RawValue(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor)
+        RawValue(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor)
         {
-            _int[0] = prevFrame;
-            _int[1] = static_cast<uint32_t>(prevThis.raw()) << 16;
-            _paramCount = prevParamCount;
-            _ctor = ctor;
-            setType(Type::PreviousContextB);
+            raw32.set(prevFrame);
+            raw16.set(prevThis.raw());
+            raw8.set(prevParamCount);
+            rawBool.set(ctor);
+            rawType.set(Type::PreviousContextB);
         }
+        
+        Type type() const { return rawType.get(); }
         
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
 
-        Type type() const { return ((_raw & 1) == 1) ? Type::Float : static_cast<Type>(_raw & TypeMask); }
-        void setType(Type type)
-        {
-            if (type == Type::Float) {
-                _raw |= 1;
-            } else {
-                _raw = (_raw & ~TypeMask) | static_cast<RawValueType>(type);
+        // 64 bit value can hold one 32 bit value, one 16 bit value, one 8 bit value,a 1 bit flag, and a 5 bit type.
+        // On Mac, the 32 bit value is replaced with a 64 bit value so it can hold a pointer. This is typedefed to
+        // a RawIntType.
+        template <typename type, uint8_t BitCount, uint8_t Shift>
+        struct RawComponent {
+            static constexpr RawValueType Mask = ((static_cast<RawValueType>(1) << BitCount) - 1) << Shift;
+            
+            type get(RawValueType raw) const { return static_cast<type>((raw & Mask) >> Shift); }
+            
+            void set(RawValueType& raw, type v)
+            {
+                raw = (_raw & ~Mask | ((static_cast<RawValueType>(v) << Shift) & Mask);
             }
-        }
-        
-        union {
-            RawValueType _raw = 0;
-            RawIntType _int[2];
-            uint8_t _byte[sizeof(RawValueType)];
-            
-            
-            
-            
-            struct {
-                RawIntType _i;
-                uint16_t _paramCount : 10;
-                uint16_t _ctor : 1;
-                uint16_t _ : 1;
-                uint16_t _d : 16;
-            };
         };
+
+        RawComponent<Type, 5, 0> rawType;
+        //RawComponent<NativeObject*, sizeof(NativeObject*) * 8, 32> rawPtr;
+        RawComponent<uint32_t, 32, 32> raw32;
+        RawComponent<uint16_t, 16, 16> raw16;
+        RawComponent<uint8_t, 8, 8> raw8;
+        RawComponent<bool, 1, 7> rawBool;
+
+        RawValueType _raw = 0;
     };
-    
+        
     RawValue _value;
     
     // In order to fit everything, we have some requirements
     static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");
-    static_assert(sizeof(_value) * 8 >= sizeof(ObjectId) * 8 + sizeof(uint16_t) * 8 + TypeBitCount, "Value must be large enough to hold an ObjectId, a 16 bit index and a 4 bit type");
-    static_assert(sizeof(_value) * 8 >= sizeof(StringLiteral) * 8 + TypeBitCount, "Value must be large enough to hold a StringLiteral and a 4 bit type");
 };
+
+template<>
+inline Type RawComponent<Type, 5, 0>::get() const { return ((_raw & 1) == 1) ? Type::Float : static_cast<Type>(_raw & TypeMask); }
+
+template<>
+inline void RawComponent<Type, 5, 0>::set(Type type)
+{
+    if (type == Type::Float) {
+        _raw |= 1;
+    } else {
+        _raw = (_raw & ~TypeMask) | static_cast<RawValueType>(type);
+    }
+}
 
 }
