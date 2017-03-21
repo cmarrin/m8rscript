@@ -94,10 +94,15 @@ private:
 class Value {
 public:
 #ifdef __APPLE__
-        typedef __uint128_t RawValueType;
+    typedef __uint128_t RawValueType;
+    typedef uint64_t RawIntType;
+    static_assert(sizeof(RawValueType) == 16, "RawValue must be 128 bits");
 #else
-        typedef uint64_t RawValueType;
+    typedef uint64_t RawValueType;
+    typedef uint32_t RawIntType;
+    static_assert(sizeof(RawValueType) == 8, "RawValue must be 64 bits");
 #endif
+    static_assert(sizeof(RawIntType) == sizeof(void*), "RawIntValue must be the same size as a pointer");
 
     static Value fromRaw(RawValueType r) { Value v; v._value._raw = r; return v; }
     static RawValueType toRaw(Value v) { return v._value._raw; }
@@ -209,14 +214,14 @@ public:
     bool needsGC() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB || type() == Type::String; }
     
 private:
-    static constexpr uint8_t TypeBitCount = 4;
+    static constexpr uint8_t TypeBitCount = 5;
     static constexpr uint8_t TypeMask = (1 << TypeBitCount) - 1;
     
     Float _toFloatValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~TypeMask)); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
     inline int32_t intFromValue() const { return static_cast<int32_t>(_value._i); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._i)); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value._d)); }
@@ -227,36 +232,42 @@ private:
     inline bool ctorFromValue() const { return _value._ctor; }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._i); }
     
+    // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
+    // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
+    // there would be no room for the type. So we make the structure 128 bits for Mac. Fortunately Mac supports the __uint128_t
+    // type to make it easy to store this as a raw value.
+    //
+    // The problematic type on Esp is Float. We need to keep it and a type field in 64 bits. Float is a fixed point value so we
+    // can do fast integer math on Esp. We don't need to use all 64 bits for Float, but fixed point limits its range, so we want
+    // as many bits as possible. So we use a single bit in the LSB. If this is on, we know this is a Float. For other types we
+    // use the lowest 5 bits and make all the enum values even. For floats, we take the raw value, clear the LSB and cast it to
+    // Float. For the others we cast the lower 5 bits to Type and use that. 
     struct RawValue {
-        RawValue() { _raw = 0; setType(Type::None); }
-        RawValue(Type type) { _raw = 0; setType(type); }
+        RawValue() { setType(Type::None); }
+        RawValue(Type type) { setType(type); }
         RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { _raw = 0; _i = i; setType(Type::Integer); }
-        RawValue(Atom atom) { _raw = 0; _i = atom.raw(); setType(Type::Id); }
-        RawValue(StringId id) { _raw = 0; _d = id.raw(); setType(Type::String); }
-        RawValue(StringLiteral id) { _raw = 0; _i = id.raw(); setType(Type::StringLiteral); }
-        RawValue(ObjectId id) { _raw = 0; _d = id.raw(); setType(Type::Object); }
+        RawValue(int32_t i) { _int[0] = i; setType(Type::Integer); }
+        RawValue(Atom atom) { _int[0] = atom.raw(); setType(Type::Id); }
+        RawValue(StringId id) { _int[0] = id.raw(); setType(Type::String); }
+        RawValue(StringLiteral id) { _int[0] = id.raw(); setType(Type::StringLiteral); }
+        RawValue(ObjectId id) { _int[0] = id.raw(); setType(Type::Object); }
         RawValue(NativeObject* obj)
         {
-            static_assert(sizeof(_i) == sizeof(void*), "sizeof _i and void* must be the same");
-            _raw = 0;
-            _i = reinterpret_cast<RawIntType>(obj);
+            _int[0] = reinterpret_cast<RawIntType>(obj);
             setType(Type::NativeObject);
         }
         
         RawValue(uint32_t prevPC, ObjectId prevObj)
         {
-            _raw = 0;
-            _i = prevPC;
-            _d = prevObj.raw();
+            _int[0] = prevPC;
+            _int[1] = static_cast<uint32_t>(prevObj.raw()) << 16;
             setType(Type::PreviousContextA);
         }
         
         RawValue(uint32_t prevFrame, ObjectId prevThis, uint16_t prevParamCount, bool ctor)
         {
-            _raw = 0;
-            _i = prevFrame;
-            _d = prevThis.raw();
+            _int[0] = prevFrame;
+            _int[1] = static_cast<uint32_t>(prevThis.raw()) << 16;
             _paramCount = prevParamCount;
             _ctor = ctor;
             setType(Type::PreviousContextB);
@@ -265,23 +276,26 @@ private:
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
 
-        Type type() const { return static_cast<Type>(_type); }
-#ifdef __APPLE__
-        typedef uint64_t RawIntType;
-        void setType(Type type) { _type = type; }
-#else
-        typedef uint32_t RawIntType;
-        void setType(Type type) { _type = static_cast<uint32_t>(type); }
-#endif
+        Type type() const { return ((_raw & 1) == 1) ? Type::Float : static_cast<Type>(_raw & TypeMask); }
+        void setType(Type type)
+        {
+            if (type == Type::Float) {
+                _raw |= 1;
+            } else {
+                _raw = (_raw & ~TypeMask) | static_cast<RawValueType>(type);
+            }
+        }
+        
         union {
-            RawValueType _raw;
+            RawValueType _raw = 0;
+            RawIntType _int[2];
+            uint8_t _byte[sizeof(RawValueType)];
+            
+            
+            
+            
             struct {
                 RawIntType _i;
-#ifdef __APPLE__
-                Type _type : TypeBitCount;
-#else
-                uint32_t _type : TypeBitCount;
-#endif
                 uint16_t _paramCount : 10;
                 uint16_t _ctor : 1;
                 uint16_t _ : 1;
@@ -291,12 +305,6 @@ private:
     };
     
     RawValue _value;
-    
-#ifdef __APPLE__
-    static_assert(sizeof(RawValue) == 16, "RawValue must be 128 bits");
-#else
-    static_assert(sizeof(RawValue) == 8, "RawValue must be 64 bits");
-#endif
     
     // In order to fit everything, we have some requirements
     static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");

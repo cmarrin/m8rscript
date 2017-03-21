@@ -403,10 +403,10 @@ inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator
 // Range is +/- 2e6 with 2 decimal digits of precision
 typedef _Float<int32_t, int32_t, 10, 2> Float32;
 
-// Range is +/- 2e9 with 8 decimal digits of precision. When used
-// As value lower 4 bits is used to store a type enum, so these
-// bits are always 0. Thus the 8 digit precision.
-typedef _Float<int64_t, int64_t, 26, 6> Float64;
+// Range is +/- 2e9 with a precision of 2e-10. When used as a Value
+// the LSB is the type, so we lose a bit. That leaves us with 2e-10
+// precision. That safely gives us 9 decimal digits of precision.
+typedef _Float<int64_t, int64_t, 32, 9> Float64;
 typedef _Float<float, int32_t> FloatFloat;
 typedef _Float<double, int64_t> FloatDouble;
 
