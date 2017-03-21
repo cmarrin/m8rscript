@@ -91,7 +91,7 @@ public:
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
     _Float(RawType value) { _value._raw = value; }
-    _Float(bool value) { _value._raw = value ? (1 << BinaryExponent) : 0; }
+    _Float(bool value) { _value._raw = value ? (static_cast<RawType>(1) << BinaryExponent) : 0; }
     
     _Float(RawType i, int32_t e)
     {
@@ -403,10 +403,10 @@ inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator
 // Range is +/- 2e6 with 2 decimal digits of precision
 typedef _Float<int32_t, int32_t, 10, 2> Float32;
 
-// Range is +/- 2e9 with a precision of 2e-10. When used as a Value
-// the LSB is the type, so we lose a bit. That leaves us with 2e-10
-// precision. That safely gives us 9 decimal digits of precision.
-typedef _Float<int64_t, int64_t, 32, 9> Float64;
+// Range is +/- 8e9 with a precision of 1e-9. When used as a Value
+// the LSB is the type, so we lose a bit. That leaves us with 5e-8
+// precision. That safely gives us 8 decimal digits of precision.
+typedef _Float<int64_t, int64_t, 30, 8> Float64;
 typedef _Float<float, int32_t> FloatFloat;
 typedef _Float<double, int64_t> FloatDouble;
 
