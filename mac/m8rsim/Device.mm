@@ -559,11 +559,16 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     return errorArray;
 }
 
-- (void)runFile:(NSString*) name
+- (void)runFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = NO;
     dispatch_async(_serialQueue, ^() {        
         NSNetService* service = _currentDevice[@"service"];
+        if (debug) {
+            NSString* command = [NSString stringWithFormat:@"debug\r\n"];
+            [self sendCommand:command fromService:service withTerminator:'>'];
+        }
+        
         NSString* command = [NSString stringWithFormat:@"run %@\r\n", name];
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{

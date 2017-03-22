@@ -187,7 +187,8 @@
 - (IBAction)run:(id)sender
 {
     [self clearOutput:CTConsole];
-    [_device runFile:_selectedFilename];
+    BOOL debug = enableDebugButton.state == NSOnState;
+    [_device runFile:_selectedFilename withDebug:debug];
 }
 
 - (IBAction)pause:(id)sender
