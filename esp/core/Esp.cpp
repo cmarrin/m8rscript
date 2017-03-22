@@ -20,7 +20,6 @@
 
 #include "Esp.h"
 
-#include "EspUDP.h"
 #include "EspGPIOInterface.h"
 #include "EspFS.h"
 #include "SystemInterface.h"
@@ -34,6 +33,7 @@
 extern "C" {
 #include <cxxabi.h>
 #include "user_interface.h"
+#include <espconn.h>
 #include <smartconfig.h>
 #include "umm_malloc.h"
 

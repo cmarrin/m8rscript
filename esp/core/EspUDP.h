@@ -38,11 +38,18 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "UDP.h"
 
 extern "C" {
-#include <ip_addr.h>
-#include <espconn.h>
-#include <osapi.h>
-#include <ets_sys.h>
-#include "user_interface.h"
+#include <lwip/init.h>
+#include <lwip/udp.h>
+
+
+
+
+
+//#include <ip_addr.h>
+//#include <espconn.h>
+//#include <osapi.h>
+//#include <ets_sys.h>
+//#include "user_interface.h"
 }
 
 namespace m8r {
@@ -59,11 +66,11 @@ public:
     virtual void disconnect() override;
     
 private:    
-    static void receiveCB(void* arg, char* data, uint16_t length);
-    static void sentCB(void*);
+    static void _recv(void *arg, struct udp_pcb *pcb, struct pbuf *buf,  ip_addr_t *addr, u16_t port) { reinterpret_cast<EspUDP*>(arg)->recv(pcb, buf, addr, port); }
 
-    espconn _conn;
-    esp_udp _udp;
+    void recv(udp_pcb*, pbuf*, ip_addr_t *addr, u16_t port);
+
+    udp_pcb* _pcb;
 };
 
 }

@@ -48,39 +48,47 @@ UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
 
 void UDP::joinMulticastGroup(IPAddr addr)
 {
-    struct ip_addr mDNSmulticast;
-    struct ip_addr any;
-    mDNSmulticast.addr = static_cast<uint32_t>(addr);
-    any.addr = IPADDR_ANY;
-	espconn_igmp_join(&any, &mDNSmulticast);
+//    struct ip_addr mDNSmulticast;
+//    struct ip_addr any;
+//    mDNSmulticast.addr = static_cast<uint32_t>(addr);
+//    any.addr = IPADDR_ANY;
+//	espconn_igmp_join(&any, &mDNSmulticast);
 }
 
 void UDP::leaveMulticastGroup(IPAddr addr)
 {
-    struct ip_addr mDNSmulticast;
-    struct ip_addr any;
-    mDNSmulticast.addr = addr;
-    any.addr = IPADDR_ANY;
-	espconn_igmp_leave(&any, &mDNSmulticast);
+//    struct ip_addr mDNSmulticast;
+//    struct ip_addr any;
+//    mDNSmulticast.addr = addr;
+//    any.addr = IPADDR_ANY;
+//	espconn_igmp_leave(&any, &mDNSmulticast);
 }
 
 EspUDP::EspUDP(UDPDelegate* delegate, uint16_t port)
     : UDP(delegate, port)
 {
-	_conn.type = ESPCONN_UDP;
-	_conn.state = ESPCONN_NONE;
-	_conn.proto.udp = &_udp;
-	_udp.local_port = port;
-	_conn.reverse = this;
-
-	espconn_regist_recvcb(&_conn, receiveCB);
-	espconn_create(&_conn);
+    _pcb = udp_new();
+    if (port) {
+        err_t result = udp_bind(_pcb, IP_ADDR_ANY, port);
+    }
+    udp_recv(_pcb, _recv, this);
 }
 
 EspUDP::~EspUDP()
 {
-	espconn_disconnect(&_conn);
-	espconn_delete(&_conn);
+    udp_remove(_pcb);
+}
+
+void EspUDP::recv(udp_pcb* pcb, pbuf* buf, ip_addr_t *addr, u16_t port)
+{
+    if (!buf) {
+        // Disconnected
+        return;
+    }
+    
+    assert(buf->len == buf->tot_len);
+    _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, reinterpret_cast<const char*>(buf->payload), buf->len);
+    pbuf_free(buf);
 }
 
 void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
@@ -88,37 +96,20 @@ void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     if (!length) {
         length = strlen(data);
     }
-
-	_conn.proto.udp->remote_ip[0] = addr[0];
-	_conn.proto.udp->remote_ip[1] = addr[1];
-	_conn.proto.udp->remote_ip[2] = addr[2];
-	_conn.proto.udp->remote_ip[3] = addr[3];
-	_conn.proto.udp->remote_port = port;
-	_conn.proto.udp->local_port = port;
     
-    int8_t result = espconn_send(&_conn, reinterpret_cast<uint8_t*>(const_cast<char*>(data)), length);
+    pbuf* buf = pbuf_alloc(PBUF_TRANSPORT, length, PBUF_RAM);
+    memcpy(buf->payload, data, length);
+    ip_addr_t ip;
+    IP4_ADDR(&ip, addr[0], addr[1], addr[2], addr[3]);
+    err_t result = udp_sendto(_pcb, buf, &ip, port);
+    pbuf_free(buf);
     if (result != 0) {
-        os_printf("UDP ERROR: failed to send %d bytes to port %d\n", length, _conn.proto.udp->local_port);
+        os_printf("UDP ERROR: failed to send %d bytes to port %d\n", length, port);
     }
 }
 
 void EspUDP::disconnect()
 {
-	espconn_disconnect(&_conn);
-}
-
-void EspUDP::receiveCB(void* arg, char* data, uint16_t length)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
-
-    self->_delegate->UDPevent(self, UDPDelegate::Event::ReceivedData, data, length);
-}
-
-void EspUDP::sentCB(void* arg)
-{
-    struct espconn* conn = (struct espconn *) arg;
-    EspUDP* self = reinterpret_cast<EspUDP*>(conn->reverse);
-
-    self->_delegate->UDPevent(self, UDPDelegate::Event::SentData);
+    udp_remove(_pcb);
+    _pcb = nullptr;
 }
