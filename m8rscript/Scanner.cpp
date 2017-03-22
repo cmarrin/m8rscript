@@ -354,10 +354,10 @@ int32_t Scanner::scanDigits(int32_t& number, bool hex)
 		if (isdigit(c)) {
             number = number * radix;
             number += static_cast<int32_t>(c - '0');
-        } else if (isLCHex(c)) {
+        } else if (hex && isLCHex(c)) {
             number = number * radix;
             number += static_cast<int32_t>(c - 'a' + 10);
-        } else if (isUCHex(c)) {
+        } else if (hex && isUCHex(c)) {
             number = number * radix;
             number += static_cast<int32_t>(c - 'A' + 10);
         } else {
@@ -440,7 +440,7 @@ bool Scanner::scanFloat(int32_t& mantissa, int32_t& exp)
         } else {
             putback(c);
         }
-        int32_t realExp;
+        int32_t realExp = 0;
         scanDigits(realExp, false);
         exp += neg * realExp;
     } else {
