@@ -52,19 +52,9 @@ class Object {
 public:
     virtual ~Object() { }
     
-    static void* operator new (size_t size)
-    {
-        void *p = malloc(size);
-        assert(p);
-        return p;
-    }
-    static void operator delete (void *p) { free(p); }
-    
-    virtual const char* typeName() const = 0;
-    
-    virtual bool isFunction() const { return false; }
+    bool isFunction() const { return toString(nullptr, true) == "Function"; }
 
-    virtual String toString(ExecutionUnit* eu) const { return String(typeName()) + " { }"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
     virtual void gcMark(ExecutionUnit* eu) { if (_proto) { _gcMark(eu); } }
     
@@ -132,8 +122,7 @@ class PropertyObject : public Object {
 public:    
     virtual ~PropertyObject();
 
-    virtual const char* typeName() const override { return ""; }
-    virtual String toString(ExecutionUnit* eu) const override;
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
@@ -172,8 +161,7 @@ class MaterObject : public PropertyObject {
 public:    
     virtual ~MaterObject() { }
 
-    virtual const char* typeName() const override { return "Object"; }
-    virtual String toString(ExecutionUnit*) const override;
+    virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
 
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, SetPropertyType type) override
     {
@@ -187,7 +175,7 @@ public:
     
     NativeFunction(Func func) : _func(func) { }
     
-    virtual const char* typeName() const override { return "NativeFunction"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("NativeFunction") : Object::toString(eu, false); }
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override { return _func(eu, thisValue, nparams); }
 

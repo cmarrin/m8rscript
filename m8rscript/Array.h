@@ -43,7 +43,7 @@ class Array : public Object {
 public:
     Array(Program*);
 
-    virtual const char* typeName() const override { return "Array"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Array") : Object::toString(eu, false); }
 
     virtual void gcMark(ExecutionUnit* eu) override
     {

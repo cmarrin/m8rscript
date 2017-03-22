@@ -264,9 +264,9 @@ PropertyObject::~PropertyObject()
     removeNoncollectableObjects();
 }
 
-String PropertyObject::toString(ExecutionUnit* eu) const
+String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    return eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
+    return typeOnly ? String() : eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
 }
 
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -417,8 +417,12 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
     return true;
 }
 
-String MaterObject::toString(ExecutionUnit* eu) const
+String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
+    if (typeOnly) {
+        return String("Object");
+    }
+    
     // FIXME: Pretty print
     String s = "{ ";
     bool first = true;

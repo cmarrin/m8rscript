@@ -48,7 +48,7 @@ public:
     
     SystemInterface* system() const { return _system; }
 
-    virtual const char* typeName() const override { return "Program"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
     const Object* global() const { return _global.nativeObject(); }
     Object* global() { return _global.nativeObject(); }

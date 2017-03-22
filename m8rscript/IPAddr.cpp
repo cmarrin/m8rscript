@@ -41,12 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-String IPAddrProto::toString(ExecutionUnit* eu) const
+String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    return Value::toString(_ipAddr[0]) + "." +
-           Value::toString(_ipAddr[1]) + "." + 
-           Value::toString(_ipAddr[2]) + "." + 
-           Value::toString(_ipAddr[3]);
+    return typeOnly ? String("IPAddr") :
+        Value::toString(_ipAddr[0]) + "." +
+        Value::toString(_ipAddr[1]) + "." +
+        Value::toString(_ipAddr[2]) + "." +
+        Value::toString(_ipAddr[3]);
 }
 
 static bool toIPAddr(const String& ipString, IPAddr& ip)

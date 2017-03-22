@@ -52,7 +52,7 @@ class ExecutionStack : public Stack<Value>, public Object
 public:
     ExecutionStack(uint32_t size) : Stack<Value>(size) { }
 
-    virtual const char* typeName() const override { return "Local"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Local") : Object::toString(eu, false); }
 
     virtual void gcMark(ExecutionUnit* eu) override
     {

@@ -44,9 +44,7 @@ public:
     Iterator() { }
     Iterator(Program*);
 
-    virtual const char* typeName() const override { return "Iterator"; }
-
-    virtual String toString(ExecutionUnit* eu) const override { return value(eu).toStringValue(eu); }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Iterator") : value(eu).toStringValue(eu); }
 
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, SetPropertyType) override;

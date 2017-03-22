@@ -47,10 +47,8 @@ public:
 
     virtual ~Function() { }
 
-    virtual const char* typeName() const override { return "Function"; }
-    
-    virtual bool isFunction() const override { return true; }
-    
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : MaterObject::toString(eu, false); }
+        
     virtual void gcMark(ExecutionUnit* eu) override
     {
         MaterObject::gcMark(eu);

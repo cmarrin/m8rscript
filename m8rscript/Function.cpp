@@ -112,8 +112,8 @@ bool Function::serialize(Stream* stream, Error& error, Program* program) const
         return false;
     }
 
-    const char* name = typeName();
-    if (!serializeBuffer(stream, error, ObjectDataType::ObjectName, reinterpret_cast<const uint8_t*>(name), strlen(name))) {
+    String name = toString(nullptr, true);
+    if (!serializeBuffer(stream, error, ObjectDataType::ObjectName, reinterpret_cast<const uint8_t*>(name.c_str()), strlen(name.c_str()))) {
         return false;
     }
     
@@ -142,7 +142,7 @@ bool Function::deserialize(Stream* stream, Error& error, Program* program, const
     }
     name[size] = '\0';
 
-    if (strcmp(reinterpret_cast<const char*>(name), typeName()) != 0) {
+    if (strcmp(reinterpret_cast<const char*>(name), toString(nullptr, true).c_str()) != 0) {
         free(name);
         return false;
     }

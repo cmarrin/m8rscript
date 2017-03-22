@@ -43,7 +43,7 @@ class Arguments : public Object {
 public:
     Arguments(Program*);
 
-    virtual const char* typeName() const override { return "arguments"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("arguments") : Object::toString(eu, false); }
 
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;

@@ -91,9 +91,7 @@ public:
     IPAddrProto() { }
     IPAddrProto(Program*) : _ipAddr(IPAddr::myIPAddr()) { }
 
-    virtual const char* typeName() const override { return "IPAddr"; }
-
-    virtual String toString(ExecutionUnit* eu) const override;
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
