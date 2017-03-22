@@ -387,7 +387,8 @@ Token Scanner::scanNumber(TokenType& tokenValue)
 
     if (c == '0') {
         if ((c = get()) == C_EOF) {
-            return Token::EndOfFile;
+            tokenValue.integer = static_cast<uint32_t>(number);
+            return Token::Integer;
         }
         if (c == 'x' || c == 'X') {
             if ((c = get()) == C_EOF) {
