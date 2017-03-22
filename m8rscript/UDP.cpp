@@ -57,17 +57,13 @@ UDPProto::UDPProto(Program* program)
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // port number, event function
-    if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-    
     int32_t port = -1;
     Value ip;
     Value func;
     
     if (nparams == 1) {
         port = eu->stack().top().toIntValue(eu);
-    } else {
+    } else if (nparams >= 2) {
         port = eu->stack().top(1 - nparams).toIntValue(eu);
         func = eu->stack().top(2 - nparams);
     }
@@ -109,12 +105,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     String ipString = eu->stack().top(1 - nparams).toStringValue(eu);
-    IPAddr ip;
-//    if (!toIPAddr(ipString, ip)) {
-//        // String must be a host name
-//        // FIXME: handle hostname
-//        return CallReturnValue(CallReturnValue::Type::Error);
-//    }
+    IPAddr ip(ipString);
     
     int32_t port = eu->stack().top(2 - nparams).toIntValue(eu);
     for (int32_t i = 3 - nparams; i <= 0; ++i) {
@@ -139,14 +130,16 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
 
 void MyUDPDelegate::UDPevent(UDP* udp, Event event, const char* data, uint16_t length)
 {
-    Value args[4];
+    if (!_func) {
+        return;
+    }
+    
+    Value args[2];
     args[0] = Value(static_cast<int32_t>(event));
     
     if (data) {
-        StringId dataString = Global::createString(data, length);
-        
-        args[2] = Value(dataString);
-        args[3] = Value(static_cast<int32_t>(length));
+        StringId dataString = Global::createString(data, length);        
+        args[1] = Value(dataString);
     }
-    _eu->fireEvent(_func, _parent, args, data ? 4 : 2);
+    _eu->fireEvent(_func, _parent, args, data ? 2 : 1);
 }

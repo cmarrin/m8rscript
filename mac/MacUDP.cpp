@@ -96,57 +96,49 @@ MacUDP::MacUDP(UDPDelegate* delegate, uint16_t port)
         printf("Error opening TCP socket\n");
         return;
     }
+    
+    if (!port) {
+        return;
+    }
 
     String queueName = "UDPSocketQueue-";
     queueName += Value::toString(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
     
-    if (port) {
-        struct sockaddr_in sa;
-        memset(&sa, 0, sizeof sa);
-        sa.sin_family = AF_INET;
-        sa.sin_port = htons(port);
-        sa.sin_addr.s_addr = htonl(INADDR_ANY);
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof sa);
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(port);
+    sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
-        if (bind(_socketFD,(struct sockaddr *)&sa, sizeof sa) == -1) {
-            printf("Error: UDP bind failed\n");
-            close(_socketFD);
-            _socketFD = -1;
-            return;
-        }
+    if (bind(_socketFD,(struct sockaddr *)&sa, sizeof sa) == -1) {
+        printf("Error: UDP bind failed\n");
+        close(_socketFD);
+        _socketFD = -1;
+        return;
     }
 
     dispatch_async(_queue, ^() {
-        fd_set readfds;
-        int maxsd;
-        
         while (1) {
-            FD_ZERO(&readfds);
-            FD_SET(_socketFD, &readfds);
-            maxsd = _socketFD;
-            
-            int selectResult = select(maxsd + 1, &readfds, NULL, NULL, NULL);
-            if (selectResult < 0 && errno != EINTR) {
-                printf("ERROR: UDP select returned %d, error=%d\n", selectResult, errno);
-                continue;
+            struct sockaddr_in saOther;
+            socklen_t saOtherSize;
+            ssize_t result = recvfrom(_socketFD, _receiveBuffer, BufferSize - 1, 0, (struct sockaddr *)&saOther, &saOtherSize);
+            if (result <= 0) {
+                if (result == 0 || errno == EINTR) {
+                    // Disconnect
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        _delegate->UDPevent(this, UDPDelegate::Event::Disconnected);
+                    });
+                    close(_socketFD);
+                    _socketFD = -1;
+                    return;
+                }
+                printf("ERROR: UDP recvfrom returned %zd, error=%d\n", result, errno);
+                return;
             }
-            
-            ssize_t readResult = read(_socketFD, _receiveBuffer, BufferSize - 1);
-            if (readResult == 0) {
-                // Disconnect
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    _delegate->UDPevent(this, UDPDelegate::Event::Disconnected);
-                });
-                close(_socketFD);
-                _socketFD = -1;
-                break;
-            } else if (readResult < 0) {
-                printf("ERROR: UDP read returned %zd, error=%d\n", readResult, errno);
-            } else {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, _receiveBuffer, readResult);
-                });
-            }
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, _receiveBuffer, result);
+            });
         }
     });
 }
@@ -155,6 +147,7 @@ MacUDP::~MacUDP()
 {
     close(_socketFD);
     _socketFD = -1;
+    dispatch_release(_queue);
 }
 
 void MacUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
