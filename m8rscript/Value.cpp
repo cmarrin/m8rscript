@@ -188,13 +188,37 @@ bool Value::toFloat(Float& f, const char* s, bool allowWhitespace)
     return false;
 }
 
-bool Value::toInt(int32_t&, const char*, bool allowWhitespace)
+bool Value::toInt(int32_t& i, const char* s, bool allowWhitespace)
 {
+    StringStream stream(s);
+    Scanner scanner(&stream);
+    bool neg = false;
+    Scanner::TokenType type;
+  	Token token = scanner.getToken(type, allowWhitespace);
+    if (token == Token::Minus) {
+        neg = true;
+        token = scanner.getToken(type, allowWhitespace);
+    }
+    if (token == Token::Integer && type.integer <= std::numeric_limits<int32_t>::max()) {
+        i = type.integer;
+        if (neg) {
+            i = -i;
+        }
+        return true;
+    }
     return false;
 }
 
-bool Value::toUInt(uint32_t&, const char*, bool allowWhitespace)
+bool Value::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
 {
+    StringStream stream(s);
+    Scanner scanner(&stream);
+    Scanner::TokenType type;
+  	Token token = scanner.getToken(type, allowWhitespace);
+    if (token == Token::Integer) {
+        u = type.integer;
+        return true;
+    }
     return false;
 }
 
