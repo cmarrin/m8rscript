@@ -52,7 +52,7 @@ class Object {
 public:
     virtual ~Object() { }
     
-    bool isFunction() const { return toString(nullptr, true) == "Function"; }
+    virtual bool isFunction() const { return false; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
