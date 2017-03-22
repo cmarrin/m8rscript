@@ -41,6 +41,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+static bool toIPAddr(const String& ipString, IPAddr& ip)
+{
+    std::vector<String> array = ipString.split(".");
+    if (array.size() != 4) {
+        return false;
+    }
+    
+    for (uint32_t i = 0; i < 4; ++i) {
+        uint32_t v;
+        if (!Value::toUInt(v, array[i].c_str(), false) || v > 255) {
+            return false;
+        }
+        ip[i] = static_cast<uint8_t>(v);
+    }
+    return true;
+}
+
+IPAddr::IPAddr(const String& ipString)
+{
+    toIPAddr(ipString, *this);
+}
+
 String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     return typeOnly ? String("IPAddr") :
@@ -50,28 +72,12 @@ String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
         Value::toString(_ipAddr[3]);
 }
 
-static bool toIPAddr(const String& ipString, IPAddr& ip)
-{
-    std::vector<String> array = ipString.split(".");
-    if (array.size() != 4) {
-        return false;
-    }
-    
-    //for (auto s : array) {
-        return false;
-    //}
-    return true;
-}
-
 CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)
 {
     // Stack: string ip octets or 4 integers
     IPAddr ipAddr;
     if (nparams == 1) {
-        String ipString = eu->stack().top().toStringValue(eu);
-        if (!toIPAddr(ipString, ipAddr)) {
-            return CallReturnValue(CallReturnValue::Type::Error);
-        }
+        ipAddr = IPAddr(eu->stack().top().toStringValue(eu));
     } else if (nparams == 4) {
         int32_t a = eu->stack().top(-3).toIntValue(eu);
         int32_t b = eu->stack().top(-2).toIntValue(eu);

@@ -65,6 +65,8 @@ public:
         _addr[3] = d;
     }
     
+    IPAddr(const String& ipString);
+    
     operator uint32_t() const
     {
         return  static_cast<uint32_t>(_addr[0]) | 
