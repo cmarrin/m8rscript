@@ -67,11 +67,16 @@ void UDP::leaveMulticastGroup(IPAddr addr)
 EspUDP::EspUDP(UDPDelegate* delegate, uint16_t port)
     : UDP(delegate, port)
 {
+debugf("*** UDP ctor:enter, port=%d\n", port);
     _pcb = udp_new();
     if (port) {
-        err_t result = udp_bind(_pcb, IP_ADDR_ANY, port);
+        udp_recv(_pcb, _recv, this);
+        ip_addr addr;
+        addr.addr = 0;
+        err_t result = udp_bind(_pcb, &addr, port);
+debugf("*** UDP ctor:bind, result=%d\n", result);
     }
-    udp_recv(_pcb, _recv, this);
+debugf("*** UDP ctor:leave\n");
 }
 
 EspUDP::~EspUDP()
@@ -81,14 +86,18 @@ EspUDP::~EspUDP()
 
 void EspUDP::recv(udp_pcb* pcb, pbuf* buf, ip_addr_t *addr, u16_t port)
 {
+debugf("*** UDP recv:enter, buf=%p, addr=%x, port=%d\n", buf, addr->addr, port);
     if (!buf) {
         // Disconnected
         return;
     }
     
     assert(buf->len == buf->tot_len);
+    String s(reinterpret_cast<const char*>(buf->payload), buf->len);
+debugf("*** UDP recv:before event, payload=%s\n", s.c_str());
     _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, reinterpret_cast<const char*>(buf->payload), buf->len);
     pbuf_free(buf);
+debugf("*** UDP recv:leave\n");
 }
 
 void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
@@ -96,16 +105,20 @@ void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     if (!length) {
         length = strlen(data);
     }
+debugf("*** UDP send:enter, port=%d, addr=%d, length=%d\n", port, addr[0], length);
     
     pbuf* buf = pbuf_alloc(PBUF_TRANSPORT, length, PBUF_RAM);
     memcpy(buf->payload, data, length);
     ip_addr_t ip;
     IP4_ADDR(&ip, addr[0], addr[1], addr[2], addr[3]);
+debugf("*** UDP send:before sendto\n");
     err_t result = udp_sendto(_pcb, buf, &ip, port);
+debugf("*** UDP send:after sendto, result=%d\n", result);
     pbuf_free(buf);
     if (result != 0) {
         os_printf("UDP ERROR: failed to send %d bytes to port %d\n", length, port);
     }
+debugf("*** UDP send:leave\n");
 }
 
 void EspUDP::disconnect()

@@ -57,7 +57,7 @@ UDPProto::UDPProto(Program* program)
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // port number, event function
-    int32_t port = -1;
+    int32_t port = 0;
     Value ip;
     Value func;
     
