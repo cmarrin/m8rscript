@@ -1,8 +1,73 @@
 //
 // Clock.m8r
 //
-// Simple client to get the current time from an NTP server and give it back
+// Simple Clock object to get the current time from an NTP server and give it back
+//
 // By default 'time.nist.gov' is used, but any time server
 // (hostname or ip) can be passed in. A callback function 
-// is also passed to the constructor and is called with the
-// current time in seconds 
+// is also passed to the constructor, which is called with an Object
+// containing: year, month, date, hours, minutes, seconds, dst
+//
+// Time is in UTC. The DAYTIME protocol is actually used on port 13
+
+class Clock
+{
+	var _host = "time.nist.gov";
+	var _port = 13;
+	var _func;
+	var year, month, day, hour, minute, second, dst;
+	
+	constructor(host, port) {
+		if (host && host != "") {
+			_host = host;
+		}
+		if (port && port > 0 && port < 32768) {
+			_port = port;
+		}
+	}
+	
+	function fetchTime(func) {
+		_func = func;
+		IPAddr.lookupHostname(_host, function(name, ip) {
+			printf("Looked up %s, got %s\n", name, ip);
+			if (ip) {
+				var server = new TCP(ip, _port, function(event, connectionId, dataValue) {
+					switch(event) {
+						case TCP.Connected: {
+							printf("Connected\n");
+    						send(connectionId, "\n");
+   						}
+						case TCP.ReceivedData: {
+							printf("Received DAYTIME string: '%s'\n", dataValue);
+							var array = dataValue.split(" ", true);
+							
+							var dateArray = array[1].split("-");
+							year = toInt(dateArray[0]);
+							month = toInt(dateArray[1]);
+							day = toInt(dateArray[2]);
+							
+							var timeArray = array[2].split(":");
+							hour = toInt(timeArray[0]);
+							minute = toInt(timeArray[1]);
+							second = toInt(timeArray[2]);
+							
+							dst = toInt(array[3]) >= 50;
+							_func();
+						}
+					}
+				});
+			}
+		});
+	}
+}
+
+var current = new Clock();
+current.fetchTime(function() {
+	printf("fetchTime completed: %d:%d:%d on %d/%d/%d. It is%s daylight savings time\n",
+		current.hour, current,minute, current.second,
+		current.month, current.day, current.year,
+		current.dst ? "" : " not");
+});
+		
+		
+		
