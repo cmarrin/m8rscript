@@ -144,6 +144,8 @@ private:
     void pushK();
     void pushK(ObjectId function);
     
+    void pushTmp();
+    
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
     void emitId(const Atom& value, IdType);
     void emitId(const char*, IdType);

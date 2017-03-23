@@ -258,6 +258,12 @@ void Parser::pushK(ObjectId function)
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
+void Parser::pushTmp()
+{
+    if (_nerrors) return;
+    _parseStack.push(ParseStack::Type::Register);
+}
+
 void Parser::emitId(const char* s, IdType type)
 {
     if (_nerrors) return;

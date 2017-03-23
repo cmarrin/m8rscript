@@ -664,6 +664,24 @@ bool ParseEngine::expression(uint8_t minPrec)
         return false;
     }
     
+    if (getToken() == Token::Question) {
+        // Test the value on TOS. If true leave the next value on the stack, otherwise leave the one after that
+        retireToken();
+
+        Label ifLabel = _parser->label();
+        Label elseLabel = _parser->label();
+        _parser->addMatchedJump(m8r::Op::JF, elseLabel);
+        _parser->pushTmp();
+        expression();
+        _parser->emitMove();
+        expect(Token::Colon);
+        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
+        _parser->matchJump(elseLabel);
+        expression();
+        _parser->emitMove();
+        _parser->matchJump(ifLabel);
+    }
+    
     while(1) {
         auto it = _opInfo.find(getToken());
         if (it == _opInfo.end() || it->value.prec < minPrec) {
