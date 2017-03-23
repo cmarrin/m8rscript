@@ -83,11 +83,11 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     sa.sin_port = htons(port);
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
     if (ip) {
-        sa.sin_addr.s_addr = ip;
+        inet_aton(ip.toString().c_str(), &(sa.sin_addr));
     }
 
     if (_server) {
-        if (bind(_socketFD,(struct sockaddr *)&sa, sizeof sa) == -1) {
+        if (bind(_socketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
             printf("Error: TCP bind failed, error code=%d\n", errno);
             close(_socketFD);
             _socketFD = -1;
@@ -102,6 +102,10 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
         }
 
         memset(_clientSockets, 0, MaxConnections * sizeof(int));
+    } else {
+        if (connect(_socketFD, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+            printf("Error: TCP connect failed, errno=%d\n", errno);
+        }
     }
 
     dispatch_async(_queue, ^() {
