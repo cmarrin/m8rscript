@@ -78,7 +78,7 @@ public:
     static constexpr int32_t IteratorCount = -1;
     static constexpr int32_t IteratorNext = -2;
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
-    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&) { return false; }
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, SetPropertyType) { return false; }
 
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
@@ -86,7 +86,7 @@ public:
     virtual bool serialize(Stream*, Error&, Program*) const { return true; }
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) { return true; }
 
-    void setObjectId(ObjectId id) { _objectId = id; }
+    void setObjectId(ObjectId id) { assert(!_objectId); _objectId = id; }
     ObjectId objectId() const { return _objectId; }
     
     void setCollectable(bool b) { _collectable = b; }

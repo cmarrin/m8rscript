@@ -44,6 +44,7 @@ struct SharedAtomTableEntry { uint32_t id; const char* name; };
 
 #define AtomEntry(a) { static_cast<uint32_t>(AtomTable::SharedAtom::a), _##a }
 
+static const char _Array[] ROMSTR_ATTR = "Array";
 static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
 static const char _Connected[] ROMSTR_ATTR = "Connected";
@@ -104,6 +105,7 @@ static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 
 
 static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
+    AtomEntry(Array),
     AtomEntry(Base64),
     AtomEntry(BothEdges),
     AtomEntry(Connected),

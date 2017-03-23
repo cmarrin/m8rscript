@@ -35,7 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Arguments.h"
+#include "Array.h"
 #include "Base64.h"
 #include "GPIO.h"
 #include "Iterator.h"
@@ -91,7 +91,7 @@ public:
     static void gcMark(ExecutionUnit*, const ObjectId& objectId);
     
 private:        
-    Arguments _arguments;
+    Array _array;
     Base64 _base64;
     GPIO _gpio;
     Iterator _iterator;
@@ -107,6 +107,7 @@ private:
     static CallReturnValue toFloat(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toUInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
     NativeFunction _currentTime;
     NativeFunction _delay;
@@ -116,6 +117,7 @@ private:
     NativeFunction _toFloat;
     NativeFunction _toInt;
     NativeFunction _toUInt;
+    NativeFunction _arguments;
 
     template<typename IdType, typename ValueType> class IdStore {
     public:

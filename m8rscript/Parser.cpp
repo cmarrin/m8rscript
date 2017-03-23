@@ -574,8 +574,7 @@ void Parser::functionStart()
     if (_nerrors) return;
     
     _functions.emplace_back(new Function());
-    ObjectId functionId = Global::addObject(currentFunction(), true);
-    currentFunction()->setObjectId(functionId);
+    Global::addObject(currentFunction(), true);
 }
 
 void Parser::functionParamsEnd()

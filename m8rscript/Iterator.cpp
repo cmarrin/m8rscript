@@ -90,7 +90,7 @@ bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& val
     
     Object* obj = Global::obj(_object);
     int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value) : false;
+    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value, SetPropertyType::NeverAdd) : false;
 }
 
 const Value Iterator::value(ExecutionUnit* eu) const

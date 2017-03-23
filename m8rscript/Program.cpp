@@ -164,7 +164,6 @@ bool Program::deserialize(Stream* stream, Error& error, Program* program, const 
 //        
 //        // FIXME: We need to convert to the id space of the destination Program
 //        Function* function = new Function();
-//        function->setObjectId(id);
 //        
 //        if (!function->deserialize(stream, error, this, atomTable, stringTable)) {
 //            delete function;

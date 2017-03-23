@@ -437,7 +437,6 @@ static const uint16_t GCCount = 1000;
             objectValue = new MaterObject();
         }
         objectId = Global::addObject(objectValue, true);
-        objectValue->setObjectId(objectId);
         setInFrame(inst.ra(), Value(objectId));
         DISPATCH;
     L_LOADPROP:

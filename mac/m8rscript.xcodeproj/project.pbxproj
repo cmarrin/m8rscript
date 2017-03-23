@@ -13,8 +13,6 @@
 		492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3D81E15944000242DA8 /* GPIOInterface.h */; };
 		492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3DA1E15987C00242DA8 /* Base64.cpp */; };
 		492BA3DD1E15987C00242DA8 /* Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3DB1E15987C00242DA8 /* Base64.h */; };
-		492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */; };
-		492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3EB1E15C5CD00242DA8 /* Arguments.h */; };
 		492BA3F11E19729A00242DA8 /* slre.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3EF1E19727C00242DA8 /* slre.h */; };
 		492BA3F21E1972A000242DA8 /* slre.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3EE1E19727C00242DA8 /* slre.cpp */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
@@ -134,8 +132,6 @@
 		492BA3D81E15944000242DA8 /* GPIOInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIOInterface.h; path = ../m8rscript/GPIOInterface.h; sourceTree = "<group>"; };
 		492BA3DA1E15987C00242DA8 /* Base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Base64.cpp; path = ../m8rscript/Base64.cpp; sourceTree = "<group>"; };
 		492BA3DB1E15987C00242DA8 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = ../m8rscript/Base64.h; sourceTree = "<group>"; };
-		492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Arguments.cpp; path = ../m8rscript/Arguments.cpp; sourceTree = "<group>"; };
-		492BA3EB1E15C5CD00242DA8 /* Arguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Arguments.h; path = ../m8rscript/Arguments.h; sourceTree = "<group>"; };
 		492BA3EE1E19727C00242DA8 /* slre.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = slre.cpp; path = ../m8rscript/slre.cpp; sourceTree = "<group>"; };
 		492BA3EF1E19727C00242DA8 /* slre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slre.h; path = ../m8rscript/slre.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
@@ -435,8 +431,6 @@
 			children = (
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
-				492BA3EA1E15C5CD00242DA8 /* Arguments.cpp */,
-				492BA3EB1E15C5CD00242DA8 /* Arguments.h */,
 				49D95E7F1D107AEE00B8A651 /* Array.cpp */,
 				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
@@ -505,7 +499,6 @@
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
-				492BA3ED1E15C5CD00242DA8 /* Arguments.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
@@ -656,7 +649,6 @@
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
-				492BA3EC1E15C5CD00242DA8 /* Arguments.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,

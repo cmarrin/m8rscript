@@ -35,12 +35,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Array.h"
 
-#include "Program.h"
+#include "ExecutionUnit.h"
 
 using namespace m8r;
 
-Array::Array(Program* program)
+CallReturnValue Array::construct(ExecutionUnit* eu, uint32_t nparams)
 {
+    Array* array = new Array();
+    Global::addObject(array, true);
+    eu->stack().push(Value(array->objectId()));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
 const Value Array::property(ExecutionUnit*, const Atom& name) const

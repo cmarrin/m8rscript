@@ -409,8 +409,7 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
         String idString = atomTable.stringFromAtom(Atom(id));
         //Atom atom = program->atomizeString(idString.c_str());
         
-        ObjectId functionId = Global::addObject(function, true);
-        function->setObjectId(functionId);
+        Global::addObject(function, true);
         //_properties.push_back({ atom.raw(), functionId });
     }
     

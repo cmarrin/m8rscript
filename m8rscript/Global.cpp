@@ -48,7 +48,7 @@ Global::IdStore<ObjectId, Object> Global::_objectStore;
 
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
-    , _arguments(program)
+    , _array(program)
     , _base64(program)
     , _gpio(program)
     , _iterator(program)
@@ -63,6 +63,7 @@ Global::Global(Program* program)
     , _toFloat(toFloat)
     , _toInt(toInt)
     , _toUInt(toUInt)
+    , _arguments(arguments)
 {
     // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
     if (_stringStore.empty()) {
@@ -78,8 +79,9 @@ Global::Global(Program* program)
     addProperty(program, ATOM(toFloat), &_toFloat);
     addProperty(program, ATOM(toInt), &_toInt);
     addProperty(program, ATOM(toUInt), &_toUInt);
-
     addProperty(program, ATOM(arguments), &_arguments);
+
+    addProperty(program, ATOM(Array), &_array);
     addProperty(program, ATOM(Iterator), &_iterator);
     addProperty(program, ATOM(IPAddr), &_ipAddr);
     
@@ -324,4 +326,19 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     return CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    ObjectId arrayId = ObjectFactory::create(ATOM(Array), eu, 0);
+    Object* array = obj(arrayId);
+    if (!array) {
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
+    for (uint32_t i = 0; i < eu->argumentCount(); ++i) {
+        array->setIteratedValue(eu, i, eu->argument(i), Array::SetPropertyType::AlwaysAdd);
+    }
+    eu->stack().push(Value(arrayId));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

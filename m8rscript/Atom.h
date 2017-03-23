@@ -56,6 +56,7 @@ class AtomTable {
     
 public:
     enum class SharedAtom {
+        Array,
         Base64,
         BothEdges,
         Connected,

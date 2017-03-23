@@ -41,7 +41,8 @@ namespace m8r {
 
 class Array : public Object {
 public:
-    Array(Program*);
+    Array() { }
+    Array(Program*) { }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Array") : Object::toString(eu, false); }
 
@@ -61,6 +62,8 @@ public:
         }
     }
     
+    virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
+
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
     {
         int32_t index = elt.toIntValue(eu);
@@ -94,10 +97,14 @@ public:
         return _array[index];
     }
     
-    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value& value) override
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value& value, SetPropertyType type) override
     {
-        if (index < 0 || index >= _array.size()) {
+        if (index < 0 || (index >= _array.size() && type == SetPropertyType::NeverAdd)) {
             return false;
+        }
+        
+        if (index >= _array.size()) {
+            _array.resize(index + 1);
         }
         _array[index] = value;
         return true;
