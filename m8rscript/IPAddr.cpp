@@ -108,7 +108,7 @@ CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams)
 {
     if (prop == ATOM(lookupHostname)) {
         if (nparams < 2) {
@@ -119,7 +119,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         String hostname = hostnameValue.toStringValue(eu);
         Value func = eu->stack().top(2 - nparams);
         
-        IPAddr::lookupHostName(hostname.c_str(), [this, eu, func](const char* name, m8r::IPAddr ipaddr) {
+        IPAddr::lookupHostName(hostname.c_str(), [this, eu, thisValue, func](const char* name, m8r::IPAddr ipaddr) {
             ObjectId newIPAddr;
             Object* parent = Global::obj(objectId());
             if (parent) {
@@ -134,8 +134,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             args[0] = Value(Global::createString(String(name)));
             args[1] = Value(newIPAddr);
             
-            // FIXME: We need a this pointer
-             eu->fireEvent(func, Value(), args, 2);
+             eu->fireEvent(func, thisValue, args, 2);
         });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }

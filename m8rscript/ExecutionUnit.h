@@ -169,7 +169,7 @@ public:
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
-    void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
+    void fireEvent(const Value& func, Value thisValue, const Value* args, int32_t nargs);
 
 private:
     void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor);

@@ -269,7 +269,7 @@ String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return typeOnly ? String() : eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
 }
 
-CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams)
 {
     Object* obj = Global::obj(property(eu, prop));
     if (!obj) {
