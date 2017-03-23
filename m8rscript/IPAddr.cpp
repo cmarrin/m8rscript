@@ -63,13 +63,17 @@ IPAddr::IPAddr(const String& ipString)
     toIPAddr(ipString, *this);
 }
 
+String IPAddr::toString() const
+{
+    return Value::toString(_addr[0]) + "." +
+           Value::toString(_addr[1]) + "." +
+           Value::toString(_addr[2]) + "." +
+           Value::toString(_addr[3]);
+}
+
 String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    return typeOnly ? String("IPAddr") :
-        Value::toString(_ipAddr[0]) + "." +
-        Value::toString(_ipAddr[1]) + "." +
-        Value::toString(_ipAddr[2]) + "." +
-        Value::toString(_ipAddr[3]);
+    return typeOnly ? String("IPAddr") : _ipAddr.toString();
 }
 
 CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)

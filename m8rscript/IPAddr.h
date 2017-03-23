@@ -75,7 +75,9 @@ public:
                 (static_cast<uint32_t>(_addr[3]) << 24);
     }
     
-    operator bool() const { return _addr[0] != 0 && _addr[1] != 0 && _addr[2] != 0 && _addr[3] != 0; }
+    String toString() const;
+    
+    operator bool() const { return _addr[0] != 0 || _addr[1] != 0 || _addr[2] != 0 || _addr[3] != 0; }
     uint8_t& operator[](size_t i) { assert(i < 4); return _addr[i]; }
     const uint8_t& operator[](size_t i) const { assert(i < 4); return _addr[i]; }
     
