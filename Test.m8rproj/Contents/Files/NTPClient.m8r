@@ -1,0 +1,8 @@
+//
+// Clock.m8r
+//
+// Simple client to get the current time from an NTP server and give it back
+// By default 'time.nist.gov' is used, but any time server
+// (hostname or ip) can be passed in. A callback function 
+// is also passed to the constructor and is called with the
+// current time in seconds 
