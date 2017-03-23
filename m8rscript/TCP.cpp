@@ -67,20 +67,28 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     }
     
     int32_t port = -1;
-    Value ip;
+    Value ipValue;
     Value func;
     
     if (nparams == 2) {
         port = eu->stack().top(-1).toIntValue(eu);
         func = eu->stack().top();
     } else {
-        ip = eu->stack().top(1 - nparams);
+        ipValue = eu->stack().top(1 - nparams);
         port = eu->stack().top(2 - nparams).toIntValue(eu);
         func = eu->stack().top(3 - nparams);
     }
+    
+    IPAddr ipAddr;
+    Object* ipAddrObject = Global::obj(ipValue);
+    if (ipAddrObject) {
+        ipAddr[0] = ipAddrObject->element(eu, Value(0)).toIntValue(eu);
+        ipAddr[1] = ipAddrObject->element(eu, Value(1)).toIntValue(eu);
+        ipAddr[2] = ipAddrObject->element(eu, Value(2)).toIntValue(eu);
+        ipAddr[3] = ipAddrObject->element(eu, Value(3)).toIntValue(eu);
+    }
 
-    // FIXME: Support IP address (client mode)
-    MyTCPDelegate* delegate = new MyTCPDelegate(eu, IPAddr(), port, func, thisValue.asObjectIdValue());
+    MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue.asObjectIdValue());
     
     Object* obj = Global::obj(thisValue);
     if (!obj) {
@@ -96,14 +104,12 @@ MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const 
     , _parent(parent)
     , _eu(eu)
 {
-    // FIXME: Implement client
-    assert(!ip);
-
-    _tcp = TCP::create(this, port);
+    _tcp = ip ? TCP::create(this, port, ip) :  TCP::create(this, port);
 }
 
 CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
+    //
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
