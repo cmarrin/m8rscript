@@ -115,7 +115,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
         while (1) {
             FD_ZERO(&readfds);
             FD_SET(_socketFD, &readfds);
-            maxsd = _socketFD;
+            maxsd = _socketFD + 1;
             
             if (_server) {
                 for (int socket : _clientSockets) {
