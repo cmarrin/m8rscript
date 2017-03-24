@@ -258,6 +258,12 @@ void Parser::pushK(ObjectId function)
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
+void Parser::pushThis()
+{
+    if (_nerrors) return;
+    _parseStack.push(ParseStack::Type::This);
+}
+
 void Parser::pushTmp()
 {
     if (_nerrors) return;
@@ -302,6 +308,9 @@ void Parser::emitMove()
     ParseStack::Type dstType = _parseStack.topType();
     
     switch(dstType) {
+        case ParseStack::Type::This:
+            printError(ROMSTR("Assignment to 'this' not allowed\n"));
+            break;
         case ParseStack::Type::Unknown:
         case ParseStack::Type::Constant:
             assert(0);
@@ -674,18 +683,29 @@ uint32_t Parser::ParseStack::bake()
 {
     Entry entry = _stack.top();
     
-    if (entry._type == Type::PropRef || entry._type == Type::EltRef) {
-        pop();
-        uint32_t r = push(Type::Register);
-        _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
-        return r;
-    } else if (entry._type == Type::RefK) {
-        pop();
-        uint32_t r = push(Type::Register);
-        _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
-        return r;
+    switch(entry._type) {
+        case Type::PropRef:
+        case Type::EltRef: {
+            pop();
+            uint32_t r = push(Type::Register);
+            _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+            return r;
+        }
+        case Type::RefK: {
+            pop();
+            uint32_t r = push(Type::Register);
+            _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
+            return r;
+        }
+        case Type::This: {
+            pop();
+            uint32_t r = push(Type::Register);
+            _parser->emitCodeRRR(Op::LOADTHIS, r);
+            return r;
+        }
+        default:
+            return entry._reg;
     }
-    return entry._reg;
 }
 
 void Parser::ParseStack::replaceTop(Type type, uint32_t reg, uint32_t derefReg)

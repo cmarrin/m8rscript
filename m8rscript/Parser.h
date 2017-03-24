@@ -143,6 +143,7 @@ private:
     void pushK(bool value);
     void pushK();
     void pushK(ObjectId function);
+    void pushThis();    
     
     void pushTmp();
     
@@ -202,7 +203,7 @@ private:
 
     class ParseStack {
     public:
-        enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef };
+        enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef, This };
         
         ParseStack(Parser* parser) : _parser(parser) { }
         

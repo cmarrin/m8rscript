@@ -126,6 +126,7 @@ struct Label {
     LOADTRUE    R[d], X, X
     LOADFALSE   R[d], X, X
     LOADNULL    R[d], X, X
+    LOADTHIS    R[2], X, X
     
     PUSH        RK[s], X
     POP         R[d]
@@ -174,6 +175,10 @@ enum class Op : uint8_t {
     ADD, SUB, MUL, DIV, MOD,
     
     LINENO,
+    
+    LOADTHIS,
+    
+    // 0x25 - 0x2f unused (11)
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
     CALL, NEW, CALLPROP, JMP, JT, JF,

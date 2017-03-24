@@ -151,7 +151,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -283,7 +283,12 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         outputString += "END\n";
         _nestingLevel--;
         return outputString;  
-    L_LOADLITA: L_LOADLITO: L_LOADTRUE: L_LOADFALSE: L_LOADNULL:
+    L_LOADLITA:
+    L_LOADLITO:
+    L_LOADTRUE:
+    L_LOADFALSE:
+    L_LOADNULL:
+    L_LOADTHIS:
         generateRXX(outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_PUSH:
@@ -347,7 +352,7 @@ static CodeMap opcodes[] = {
     
     OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) OP(LOADLITO)
     OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
-    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL)
+    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(LOADTHIS)
     OP(PUSH) OP(POP)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)

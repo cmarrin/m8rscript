@@ -262,7 +262,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -499,6 +499,9 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_LOADNULL:
         setInFrame(inst.ra(), Value());
+        DISPATCH;
+    L_LOADTHIS:
+        setInFrame(inst.ra(), Value(_this));
         DISPATCH;
     L_PUSH:
         _stack.push(regOrConst(inst.rn()));
