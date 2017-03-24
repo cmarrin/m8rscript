@@ -134,8 +134,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             args[0] = Value(Global::createString(String(name)));
             args[1] = Value(newIPAddr);
             
-            // FIXME: We need a this pointer
-             eu->fireEvent(func, Value(), args, 2);
+            eu->fireEvent(func, Value(objectId()), args, 2);
         });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
