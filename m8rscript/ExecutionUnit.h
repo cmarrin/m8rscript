@@ -61,7 +61,19 @@ public:
         }
     }
     
+    const Value* framePtr() const { return Stack::framePtr(); }
     Value* framePtr() { return Stack::framePtr(); }
+    
+    Value& upValue(uint32_t index, uint16_t frame)
+    {
+        Value* f = framePtr();
+        for ( ; frame > 0; --frame) {
+            assert(f[-1].type() == Value::Type::PreviousContextB);
+            uint32_t prevFrame = f[-1].asPreviousFrameValue();
+            f = &(top(prevFrame - static_cast<uint32_t>(size()) + 1));
+        }
+        return f[index];
+    }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override

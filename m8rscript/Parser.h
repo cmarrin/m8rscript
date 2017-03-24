@@ -202,7 +202,7 @@ private:
 
     class ParseStack {
     public:
-        enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef };
+        enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef, UpValue };
         
         ParseStack(Parser* parser) : _parser(parser) { }
         

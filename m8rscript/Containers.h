@@ -455,6 +455,7 @@ public:
     void setTop(const type& value) { super::back() = value; }
     bool empty() const { return super::empty(); }
 
+    const type* framePtr() const { return &super::at(_frame); }
     type* framePtr() { return &super::at(_frame); }
 
 private:

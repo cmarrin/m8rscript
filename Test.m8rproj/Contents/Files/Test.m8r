@@ -1,1 +1,9 @@
-printf("Here is a number: %1.25d and a string: '%2.1s'\n", 5, "hello"); 
+function a(b) {
+	var c = 5;
+	return function(e) {
+		return b + c + e;
+	};
+}
+
+var f = a(3);
+printf("result=%d\n", f(7));

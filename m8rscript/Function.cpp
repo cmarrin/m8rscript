@@ -91,6 +91,18 @@ ConstantId Function::addConstant(const Value& v)
     return r;
 }
 
+uint32_t Function::addUpValue(uint32_t index, uint16_t frame)
+{
+    assert(_upValues.size() < std::numeric_limits<uint16_t>::max());
+    Value upValue(index, frame);
+    auto it = std::find(_upValues.begin(), _upValues.end(), upValue);
+    if (it != _upValues.end()) {
+        return static_cast<uint32_t>(it - _upValues.begin());
+    }
+    _upValues.push_back(upValue);
+    return static_cast<uint32_t>(_upValues.size()) - 1;
+}
+
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Object* obj = Global::obj(thisValue);

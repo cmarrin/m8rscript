@@ -193,12 +193,15 @@ class Closure {
 public:
     Closure(const Value& func) : _func(func) { }
     
-    void addArg(const Value& value) { _args.push_back(value); }
-    void clearArgs() { _args.clear(); }
+    void addUpValue(uint32_t index, uint16_t frame) { _upvalues.emplace_back(Value(index, frame)); }
+    
+    Value upValue(ExecutionUnit*, uint32_t index);
+    void setUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    void captureUpValue(ExecutionUnit*, uint32_t index);
     
 private:
     Value _func;
-    std::vector<Value> _args;
+    std::vector<Value> _upvalues;
 };
 
 class ObjectFactory {
