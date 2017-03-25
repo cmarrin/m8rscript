@@ -113,7 +113,7 @@ public:
         None = 0,
         Float = 1,
         Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
-        PreviousContextA = 16, PreviousContextB = 18,
+        PreviousContextA = 16, PreviousContextB = 18, UpValue = 20
     };
 
     Value() { }
@@ -125,9 +125,16 @@ public:
     Value(Atom value) : _value(value) { }
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
-    Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
-    Value(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
     Value(NativeObject* obj) : _value(obj) { }
+    
+    // PreviousContextA
+    Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
+    
+    // PreviousContextB
+    Value(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
+    
+    // UpValue
+    Value(uint32_t index, uint16_t frame) : _value(index, frame) { }
     
     operator bool() const { return type() != Type::None; }
     bool operator==(const Value& other) { return _value == other._value; }
@@ -191,6 +198,9 @@ public:
         return _toIdValue(eu);
     }
     
+    Value toValue(ExecutionUnit* eu) const { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
+    Value& toValue(ExecutionUnit* eu) { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
+    
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
@@ -216,6 +226,8 @@ public:
     
 private:
     Float _toFloatValue(ExecutionUnit*) const;
+    Value _toValue(ExecutionUnit*) const;
+    Value& _toValue(ExecutionUnit*);
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
 
@@ -265,6 +277,8 @@ private:
             setBool(ctor);
             setType(Type::PreviousContextB);
         }
+        
+        RawValue(uint32_t index, uint16_t frame) { set32(index); set16(frame); setType(Type::UpValue); }
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
@@ -307,7 +321,17 @@ private:
         NativeObject* getPtr() const { return reinterpret_cast<NativeObject*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
         void setPtr(NativeObject* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
 
-        RawValueType _raw = 0;
+        union {
+            RawValueType _raw = 0;
+            struct {
+                Type _type : 5;
+                uint32_t _ : 2;
+                bool _bool : 1;
+                uint8_t _uint8 : 8;
+                uint16_t _uint16 : 16;
+                uint32_t _uint32 : 32;
+            };
+        };
     };
         
     RawValue _value;

@@ -73,7 +73,7 @@ public:
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Type::Error); }
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
+    virtual CallReturnValue callProperty(ExecutionUnit*, Value thisValue, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
     static constexpr int32_t IteratorCount = -1;
     static constexpr int32_t IteratorNext = -2;
@@ -132,7 +132,7 @@ public:
         }
     }
     
-    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
+    virtual CallReturnValue callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams) override;
 
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
 
@@ -193,12 +193,15 @@ class Closure {
 public:
     Closure(const Value& func) : _func(func) { }
     
-    void addArg(const Value& value) { _args.push_back(value); }
-    void clearArgs() { _args.clear(); }
+    void addUpValue(uint32_t index, uint16_t frame) { _upvalues.emplace_back(Value(index, frame)); }
+    
+    Value upValue(ExecutionUnit*, uint32_t index);
+    void setUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    void captureUpValue(ExecutionUnit*, uint32_t index);
     
 private:
     Value _func;
-    std::vector<Value> _args;
+    std::vector<Value> _upvalues;
 };
 
 class ObjectFactory {

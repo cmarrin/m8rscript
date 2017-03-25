@@ -108,7 +108,7 @@ CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams)
 {
     if (prop == ATOM(lookupHostname)) {
         if (nparams < 2) {
@@ -119,7 +119,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         String hostname = hostnameValue.toStringValue(eu);
         Value func = eu->stack().top(2 - nparams);
         
-        IPAddr::lookupHostName(hostname.c_str(), [this, eu, func](const char* name, m8r::IPAddr ipaddr) {
+        IPAddr::lookupHostName(hostname.c_str(), [this, eu, thisValue, func](const char* name, m8r::IPAddr ipaddr) {
             ObjectId newIPAddr;
             Object* parent = Global::obj(objectId());
             if (parent) {

@@ -269,7 +269,7 @@ String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return typeOnly ? String() : eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
 }
 
-CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams)
 {
     Object* obj = Global::obj(property(eu, prop));
     if (!obj) {
@@ -443,6 +443,24 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     }
     s += " }";
     return s;
+}
+
+Value Closure::upValue(ExecutionUnit* eu, uint32_t index)
+{
+    assert(index < _upvalues.size());
+    return _upvalues[index].toValue(eu);
+}
+
+void Closure::setUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+{
+    assert(index < _upvalues.size());
+    _upvalues[index].toValue(eu) = value;
+}
+
+void Closure::captureUpValue(ExecutionUnit* eu, uint32_t index)
+{
+    assert(index < _upvalues.size());
+    _upvalues[index] = _upvalues[index].toValue(eu);
 }
 
 ObjectFactory::ObjectFactory(Program* program, const char* name)

@@ -77,6 +77,8 @@ public:
     size_t constantCount() const { return _constants.size(); }
     
     Value* constantsPtr() { return &(_constants.at(0)); }
+    
+    uint32_t addUpValue(uint32_t index, uint16_t frame);
 
     void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
     uint32_t formalParamCount() const { return _formalParamCount; }
@@ -100,6 +102,7 @@ private:
     uint32_t _formalParamCount = 0;
     std::vector<Value> _constants;
     uint8_t _tempRegisterCount = 0;
+    std::vector<Value> _upValues;
 };
     
 }

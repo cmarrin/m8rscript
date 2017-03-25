@@ -282,16 +282,32 @@ void Parser::emitId(const Atom& atom, IdType type)
     if (_nerrors) return;
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
-        int32_t index = currentFunction()->localIndex(atom);
-        if (index < 0 && type == IdType::MustBeLocal) {
-            String s = "nonexistent variable '";
-            s += _program->stringFromAtom(atom);
-            s += "'";
-            printError(s.c_str());
-        }
-        if (index >= 0) {
-            _parseStack.push(ParseStack::Type::Local, static_cast<uint32_t>(index));
-            return;
+        // Find the id in the function chain
+        bool local = true;
+        uint16_t frame = 0;
+        for (int32_t i = static_cast<int32_t>(_functions.size()) - 1; i >= 0; --i) {
+            Function* function = _functions[i]._function;
+            int32_t index = function->localIndex(atom);
+            
+            if (index >= 0) {
+                if (local) {
+                    _parseStack.push(ParseStack::Type::Local, static_cast<uint32_t>(index));
+                    return;
+                }
+                
+                _parseStack.push(ParseStack::Type::UpValue, static_cast<uint32_t>(currentFunction()->addUpValue(index, frame)));
+                return;
+            }
+            local = false;
+            frame++;
+            
+            if (type == IdType::MustBeLocal) {
+                String s = "nonexistent variable '";
+                s += _program->stringFromAtom(atom);
+                s += "'";
+                printError(s.c_str());
+                return;
+            }
         }
     }
     
@@ -327,6 +343,9 @@ void Parser::emitMove()
             emitCodeRRR(Op::STOREFK, 0, _parseStack.topReg(), srcReg);
             _parseStack.pop();
             _parseStack.push(ParseStack::Type::Register, srcReg);
+        case ParseStack::Type::UpValue:
+            emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            break;
             break;
         }
     }
@@ -363,6 +382,9 @@ void Parser::emitDup()
         
         case ParseStack::Type::Local:
             _parseStack.push(ParseStack::Type::Local, _parseStack.topReg());
+            break;
+        case ParseStack::Type::UpValue:
+            _parseStack.push(ParseStack::Type::UpValue, _parseStack.topReg());
             break;
         default:
             assert(0);

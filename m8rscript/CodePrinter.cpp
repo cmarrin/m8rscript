@@ -395,6 +395,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::PreviousContextA: s += "***PreviousContextA***"; break;
         case Value::Type::PreviousContextB: s += "***PreviousContextB***"; break;
+        case Value::Type::UpValue: s += "***UpValue***"; break;
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();
             Object* obj = Global::obj(objectId);
