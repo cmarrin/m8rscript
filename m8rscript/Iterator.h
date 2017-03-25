@@ -51,7 +51,7 @@ public:
 
     virtual CallReturnValue construct(ExecutionUnit*, uint32_t nparams) override;
 
-    virtual CallReturnValue callProperty(ExecutionUnit*, Value thisValue, Atom prop, uint32_t nparams) override;
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
 
     virtual void gcMark(ExecutionUnit* eu) override { _object.gcMark(eu); }
     

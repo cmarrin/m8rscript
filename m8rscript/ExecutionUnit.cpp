@@ -158,7 +158,7 @@ void ExecutionUnit::startExecution(Program* program)
     _executingEvent = false;
 }
 
-void ExecutionUnit::fireEvent(const Value& func, Value thisValue, const Value* args, int32_t nargs)
+void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
     TaskManager::lock();
     
@@ -673,7 +673,7 @@ static const uint16_t GCCount = 1000;
                     callReturnValue = objectValue->construct(this, uintValue);
                     break;
                 case Op::CALLPROP:
-                    callReturnValue = objectValue->callProperty(this, Value(_this), regOrConst(inst.rthis()).asIdValue(), uintValue);
+                    callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
                     break;
             }
         } else {

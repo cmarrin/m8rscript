@@ -55,7 +55,7 @@ CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Value thisValue, Atom prop, uint32_t nparams)
+CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     if (prop == ATOM(next)) {
         Object* obj = Global::obj(_object);
