@@ -111,6 +111,9 @@
 	
 	// embed editor in editView
 	[_fragaria embedInView:editView];
+
+    // FIXME: Add some support for Fragaria prefs. Here's an example of setting the showInvisibleCharacters flag
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:MGSFragariaPrefsShowInvisibleCharacters];
 	
     //
 	// assign user defaults.
