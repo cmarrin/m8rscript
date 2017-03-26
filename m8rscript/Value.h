@@ -293,12 +293,14 @@ private:
         NativeObject* getPtr() const { return reinterpret_cast<NativeObject*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
         void setPtr(NativeObject* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
 
+        // This union is only used for debugging. Only the _raw value is used at runtime, so it should work for both
+        // big endian and little endian architectures. But the struct is little endian so the information is only
+        // valid on those architectures.
         union {
             RawValueType _raw = 0;
             struct {
                 Type _type : 5;
-                uint32_t _ : 3;
-                uint8_t _uint8 : 8;
+                uint32_t _ : 11;
                 uint16_t _uint16 : 16;
                 uint32_t _uint32 : 32;
             };

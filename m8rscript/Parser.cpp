@@ -655,7 +655,6 @@ void Parser::reconcileRegisters(Function* function)
     for (int i = 0; i < code.size(); ++i) {
         Instruction inst = code[i];
         Op op = static_cast<Op>(inst.op());
-        uint32_t rn = regFromTempReg(inst.rn(), numLocals);
         
         if (op == Op::LINENO) {
             continue;
@@ -663,9 +662,17 @@ void Parser::reconcileRegisters(Function* function)
         if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
             code[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
+            uint32_t rn = regFromTempReg(inst.rn(), numLocals);
             code[i] = Instruction(op, rn, inst.sn());
         } else if (op == Op::PUSH) {
+            uint32_t rn = regFromTempReg(inst.rn(), numLocals);
             code[i] = Instruction(op, rn, inst.sn());
+        } else if (op == Op::LOADUP) {
+            uint32_t ra = regFromTempReg(inst.ra(), numLocals);
+            code[i] = Instruction(op, ra, inst.rb(), 0);
+        } else if (op == Op::STOREUP) {
+            uint32_t rb = regFromTempReg(inst.rb(), numLocals);
+            code[i] = Instruction(op, inst.ra(), rb, 0);
         } else {
             uint32_t ra = regFromTempReg(inst.ra(), numLocals);
             code[i] = Instruction(op, ra, regFromTempReg(inst.rb(), numLocals), regFromTempReg(inst.rc(), numLocals));

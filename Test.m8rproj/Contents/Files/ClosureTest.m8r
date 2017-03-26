@@ -1,0 +1,73 @@
+//
+// Up value tests.
+//
+
+// Simple test of nested functions being able to access parent values, no capture needed
+function f0(a0) {
+	var b0 = 2;
+	var f1 = function(a1) {
+		var b1 = 4;
+		var f2 = function(a2) {
+			var b2 = 6;
+			return a0 + b0 + a1 + b1 + a2 + b2;
+		};
+		return f2(5);
+	};
+	return f1(3);
+}
+
+var g = f0(1);
+printf("Nested function call test (no capture): result (s/b 21)=%d\n", g);
+
+/*
+
+// Simple test of nested function with closure
+function a(b) {
+	var c = 5;
+	return function(e) {
+		return b + c + e;
+	};
+}
+
+var f = a(3);
+printf("result=%d\n", f(7));
+
+
+// Observer pattern test
+class Clock
+{
+	var port = 8080;
+	function fetchTime(host) {
+		IPAddr.lookupHostname(host, function(name, ip) {
+			printf("Looked up %s, got %s, port=%d\n", name, ip, port);
+		});
+	}
+}
+
+var current = new Clock();
+current.fetchTime("time.nist.gov");
+
+
+// Test from JavaScript
+function celebrityID () {
+    var celebrityID = 999;
+    // We are returning an object with some inner functions​
+    // All the inner functions have access to the outer function's variables​
+    return {
+        getID: function ()  {
+            // This inner function will return the UPDATED celebrityID variable​
+            // It will return the current value of celebrityID, even after the changeTheID function changes it​
+          return celebrityID;
+        },
+        setID: function (theNewID)  {
+            // This inner function will change the outer function's variable anytime​
+            celebrityID = theNewID;
+        }
+    };
+}
+
+var mjID = celebrityID (); // At this juncture, the celebrityID outer function has returned.​
+println("celebrityID (s/b 999) = " + mjID.getID()); // 999​
+mjID.setID(567); // Changes the outer function's variable​
+println("celebrityID (s/b 567) = " + mjID.getID()); // 567: It returns the updated celebrityId variable
+*/

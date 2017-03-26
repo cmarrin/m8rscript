@@ -64,17 +64,6 @@ public:
     const Value* framePtr() const { return Stack::framePtr(); }
     Value* framePtr() { return Stack::framePtr(); }
     
-    Value& upValue(uint32_t index, uint16_t frame)
-    {
-        Value* f = framePtr();
-        for ( ; frame > 0; --frame) {
-//            assert(f[-1].type() == Value::Type::PreviousContextB);
-//            uint32_t prevFrame = f[-1].asPreviousFrameValue();
-//            f = &(top(prevFrame - static_cast<uint32_t>(size()) + 1));
-        }
-        return f[index];
-    }
-
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override
     {
@@ -182,6 +171,18 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
+
+    Value& upValue(uint32_t index, uint16_t frame)
+    {
+        // The frame is an index into the _callRecords array. But it runs backwards. Frame 0 would be
+        // the current frame, which isn't represented in the call record stack, so frame 1 is actually
+        // the last entry in _callRecords, frame 2 is the second to last, etc. We should never store
+        // an upValue for the current frame, so index should never be 0.
+        assert(_callRecords.size() > frame && frame > 0);
+        int32_t i = _callRecords[_callRecords.size() - frame]._frame + index - static_cast<int32_t>(_stack.size()) + 1;
+        return _stack.top(i);
+    }
+
 
 private:
     void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor);

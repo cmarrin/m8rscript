@@ -122,14 +122,14 @@ Value Function::loadUpValue(ExecutionUnit* eu, uint32_t index) const
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];
-    return eu->stack().upValue(up.asUpIndex(), up.asUpFrame());
+    return eu->upValue(up.asUpIndex(), up.asUpFrame());
 }
 
 void Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];
-    eu->stack().upValue(up.asUpIndex(), up.asUpFrame()) = value;
+    eu->upValue(up.asUpIndex(), up.asUpFrame()) = value;
 }
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const

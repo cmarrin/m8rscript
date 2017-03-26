@@ -298,13 +298,13 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 Value Value::_toValue(ExecutionUnit* eu) const
 {
     assert(type() == Type::UpValue);
-    return eu->stack().upValue(_value.get32(), _value.get16());
+    return eu->upValue(_value.get32(), _value.get16());
 }
 
 Value& Value::_toValue(ExecutionUnit* eu)
 {
     assert(type() == Type::UpValue);
-    return eu->stack().upValue(_value.get32(), _value.get16());
+    return eu->upValue(_value.get32(), _value.get16());
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
