@@ -456,7 +456,7 @@ public:
     bool empty() const { return super::empty(); }
 
     const type* framePtr() const { return &super::at(_frame); }
-    type* framePtr() { return &super::at(_frame); }
+    type* framePtr() { return size() ? &super::at(_frame) : nullptr; }
 
 private:
     uint32_t _frame = 0;
