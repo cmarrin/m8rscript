@@ -113,7 +113,7 @@ public:
         None = 0,
         Float = 1,
         Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
-        PreviousContextA = 16, PreviousContextB = 18, UpValue = 20
+        UpValue = 16
     };
 
     Value() { }
@@ -126,12 +126,6 @@ public:
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(NativeObject* obj) : _value(obj) { }
-    
-    // PreviousContextA
-    Value(uint32_t prevPC, ObjectId prevObj) : _value(prevPC, prevObj) { }
-    
-    // PreviousContextB
-    Value(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor) : _value(prevFrame, prevThis, prevParamCount, ctor) { }
     
     // UpValue
     Value(uint32_t index, uint16_t frame) : _value(index, frame) { }
@@ -160,14 +154,10 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB) ? objectIdFromValue() : ObjectId(); }
+    ObjectId asObjectIdValue() const { return (type() == Type::Object) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
-    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousContextA) ? uint32FromValue() : 0; }
-    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousContextB) ? uint32FromValue() : 0; }
-    uint32_t asPreviousParamCountValue() const { return (type() == Type::PreviousContextB) ? paramCountFromValue() : 0; }
-    bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
@@ -207,7 +197,7 @@ public:
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
-    bool isObjectId() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB; }
+    bool isObjectId() const { return type() == Type::Object; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -224,7 +214,7 @@ public:
     
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor);
     
-    bool needsGC() const { return type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB || type() == Type::String; }
+    bool needsGC() const { return type() == Type::Object || type() == Type::String; }
     
 private:
     Float _toFloatValue(ExecutionUnit*) const;
@@ -241,8 +231,6 @@ private:
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.get16())); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
-    inline uint8_t paramCountFromValue() const { return _value.get8(); }
-    inline bool ctorFromValue() const { return _value.getBool(); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
@@ -265,22 +253,6 @@ private:
         RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
         RawValue(ObjectId id) { set16(id.raw()); setType(Type::Object); }
         RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
-        
-        RawValue(uint32_t prevPC, ObjectId prevObj)
-        {
-            set32(prevPC);
-            set16(prevObj.raw());
-            setType(Type::PreviousContextA);
-        }
-        
-        RawValue(uint32_t prevFrame, ObjectId prevThis, uint8_t prevParamCount, bool ctor)
-        {
-            set32(prevFrame);
-            set16(prevThis.raw());
-            set8(prevParamCount);
-            setBool(ctor);
-            setType(Type::PreviousContextB);
-        }
         
         RawValue(uint32_t index, uint16_t frame) { set32(index); set16(frame); setType(Type::UpValue); }
 
@@ -318,10 +290,6 @@ private:
         void set32(uint32_t v) { RawComponent<uint32_t, 32, 32>::set(_raw, v); }
         uint16_t get16() const { return RawComponent<uint16_t, 16, 16>::get(_raw); }
         void set16(uint16_t v) { RawComponent<uint16_t, 16, 16>::set(_raw, v); }
-        uint8_t get8() const { return RawComponent<uint8_t, 8, 8>::get(_raw); }
-        void set8(uint8_t v) { RawComponent<uint8_t, 8, 8>::set(_raw, v); }
-        bool getBool() const { return RawComponent<bool, 1, 7>::get(_raw); }
-        void setBool(bool v) { RawComponent<bool, 1, 7>::set(_raw, v); }
         NativeObject* getPtr() const { return reinterpret_cast<NativeObject*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
         void setPtr(NativeObject* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
 
@@ -329,8 +297,7 @@ private:
             RawValueType _raw = 0;
             struct {
                 Type _type : 5;
-                uint32_t _ : 2;
-                bool _bool : 1;
+                uint32_t _ : 3;
                 uint8_t _uint8 : 8;
                 uint16_t _uint16 : 16;
                 uint32_t _uint32 : 32;

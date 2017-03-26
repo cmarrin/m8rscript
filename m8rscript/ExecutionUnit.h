@@ -68,9 +68,9 @@ public:
     {
         Value* f = framePtr();
         for ( ; frame > 0; --frame) {
-            assert(f[-1].type() == Value::Type::PreviousContextB);
-            uint32_t prevFrame = f[-1].asPreviousFrameValue();
-            f = &(top(prevFrame - static_cast<uint32_t>(size()) + 1));
+//            assert(f[-1].type() == Value::Type::PreviousContextB);
+//            uint32_t prevFrame = f[-1].asPreviousFrameValue();
+//            f = &(top(prevFrame - static_cast<uint32_t>(size()) + 1));
         }
         return f[index];
     }
@@ -238,6 +238,28 @@ private:
         return _framePtr[r];
     }
 
+    struct CallRecord {
+        CallRecord() { }
+        CallRecord(uint32_t pc, uint32_t frame, ObjectId funcId, ObjectId thisId, uint32_t paramCount, bool ctor)
+            : _pc(pc)
+            , _paramCount(paramCount)
+            , _ctor(ctor)
+            , _frame(frame)
+            , _func(funcId.raw())
+            , _this(thisId.raw())
+        { }
+        
+        uint32_t _pc : 23;
+        uint32_t _paramCount : 8;
+        bool _ctor : 1;
+        uint32_t _frame;
+        ObjectId::Raw _func;
+        ObjectId::Raw _this;
+    };
+    
+    std::vector<CallRecord> _callRecords;
+    ExecutionStack _stack;
+    
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _object;
@@ -253,7 +275,6 @@ private:
     const Instruction* _code;
     size_t _codeSize;
     
-    ExecutionStack _stack;
     mutable uint32_t _nerrors = 0;
     mutable bool _terminate = false;
 

@@ -230,10 +230,9 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize());
     
-    _stack.push(Value(_pc, _object));
-    _pc = 0;
+    _callRecords.push_back({ _pc, prevFrame, _object, prevThis, prevActualParamCount, ctor });
     
-    _stack.push(Value(prevFrame, prevThis, prevActualParamCount, ctor));
+    _pc = 0;    
     _object = function;
     assert(_object);
 
@@ -372,36 +371,32 @@ static const uint16_t GCCount = 1000;
             callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, inst.nparams());
         }
         
-        // The stack now contains:
-        //
-        //        tos-> [retCount Values]
-        //              <previous Object>
-        //              <previous PC>
-        //              <previous Frame>
-        //              [locals]
-        //      frame-> [params]
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
         localsToPop = _functionPtr->localSize() + _localOffset;
         
-        assert(_stack.top().type() == Value::Type::PreviousContextB);
-        _stack.pop(leftValue);
-        assert(_stack.top().type() == Value::Type::PreviousContextA);
-        _stack.pop(rightValue);
+        {
+            // Get the call record entries from the call stack and pop it.
+            assert(!_callRecords.empty());
+            const CallRecord& callRecord = _callRecords.back();
+
+            ctor = callRecord._ctor;
+            prevThis = _this;
+            
+            _actualParamCount = callRecord._paramCount;
+            _this = callRecord._this;
+            assert(_this);
+            _thisPtr = Global::obj(_this);
+            _stack.restoreFrame(callRecord._frame, localsToPop);
+            _framePtr =_stack.framePtr();
+            
+            _pc = callRecord._pc;
+            _object = callRecord._func;
+            
+            _callRecords.resize(_callRecords.size() - 1);
+        }
         
-        ctor = leftValue.asCtorValue();
-        prevThis = _this;
-        
-        _actualParamCount = leftValue.asPreviousParamCountValue();
-        _this = leftValue.asObjectIdValue();
-        assert(_this);
-        _thisPtr = Global::obj(_this);
-        _stack.restoreFrame(leftValue.asPreviousFrameValue(), localsToPop);
-        _framePtr =_stack.framePtr();
-        
-        _pc = rightValue.asPreviousPCValue();
-        _object = rightValue.asObjectIdValue();
         assert(_object);
         objectValue = Global::obj(_object);
         assert(objectValue->isFunction());
