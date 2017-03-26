@@ -58,6 +58,10 @@ void Parser::parse(m8r::Stream* istream, bool debug)
     _functions.emplace_back(_program);
     while(1) {
         if (!p.statement()) {
+            Scanner::TokenType type;
+            if (_scanner.getToken(type) != Token::EndOfFile) {
+                expectedError(Token::EndOfFile);
+            }
             break;
         }
     }
@@ -344,7 +348,7 @@ void Parser::emitMove()
             _parseStack.pop();
             _parseStack.push(ParseStack::Type::Register, srcReg);
         case ParseStack::Type::UpValue:
-            emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            emitCodeRRR(Op::STOREUP, _parseStack.topReg(), srcReg);
             break;
             break;
         }
@@ -723,6 +727,12 @@ uint32_t Parser::ParseStack::bake()
             pop();
             uint32_t r = push(Type::Register);
             _parser->emitCodeRRR(Op::LOADTHIS, r);
+            return r;
+        }
+        case Type::UpValue: {
+            pop();
+            uint32_t r = push(Type::Register);
+            _parser->emitCodeRRR(Op::LOADUP, r, entry._reg);
             return r;
         }
         default:

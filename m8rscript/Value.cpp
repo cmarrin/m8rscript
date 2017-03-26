@@ -253,7 +253,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
             return f;
         }
         case Type::Float: return asFloatValue();
-        case Type::Integer: return Float(intFromValue(), 0);
+        case Type::Integer: return Float(int32FromValue(), 0);
         case Type::String: {
             const String& s = Global::str(stringIdFromValue());
             Float f;

@@ -56,6 +56,8 @@ private:
     void generateXXX(m8r::String&, uint32_t addr, Op op) const;
     void generateRXX(m8r::String&, uint32_t addr, Op op, uint32_t d) const;
     void generateRRX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
+    void generateRUX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
+    void generateURX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
     void generateRRR(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const;
     void generateXN(m8r::String&, uint32_t addr, Op op, int32_t n) const;
     void generateRN(m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;

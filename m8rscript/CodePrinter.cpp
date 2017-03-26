@@ -85,8 +85,11 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
     return generateCodeString(program, program, "main", 0);
 }
 
-inline String regString(uint32_t reg)
+inline String regString(uint32_t reg, bool up = false)
 {
+    if (up) {
+        return String("U[") + Value::toString(reg) + "]";
+    }
     if (reg <= MaxRegister) {
         return String("R[") + Value::toString(reg) + "]";
     }
@@ -109,6 +112,18 @@ void CodePrinter::generateRRX(m8r::String& str, uint32_t addr, Op op, uint32_t d
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s) + "\n";
+}
+
+void CodePrinter::generateRUX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+{
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s, true) + "\n";
+}
+
+void CodePrinter::generateURX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+{
+    preamble(str, addr);
+    str += String(stringFromOp(op)) + " " + regString(d, true) + ", " + regString(s) + "\n";
 }
 
 void CodePrinter::generateRRR(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
@@ -151,7 +166,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -161,7 +176,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
     };
     
-//static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
+static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
 
     #undef DISPATCH
     #define DISPATCH { \
@@ -239,7 +254,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
         }
     }
     
-    // Display the constants
+    // Display the constants and up values
     if (obj->isFunction()) {
         const Function* function = static_cast<const Function*>(obj);
         
@@ -251,6 +266,22 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
 
             for (uint8_t i = 1; i < function->constantCount(); ++i) {
                 Value constant = function->constant(ConstantId(i));
+                indentCode(outputString);
+                outputString += "[" + Value::toString(i) + "] = ";
+                showValue(program, outputString, constant);
+                outputString += "\n";
+            }
+            _nestingLevel--;
+            outputString += "\n";
+        }
+        
+        if (function->upValueCount()) {
+            indentCode(outputString);
+            outputString += "UPVALUES:\n";
+            _nestingLevel++;
+
+            for (uint8_t i = 0; i < function->upValueCount(); ++i) {
+                Value constant = function->upValue(i);
                 indentCode(outputString);
                 outputString += "[" + Value::toString(i) + "] = ";
                 showValue(program, outputString, constant);
@@ -303,6 +334,12 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Functi
     L_APPENDELT:
         generateRRX(outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
+    L_LOADUP:
+        generateRUX(outputString, i - 1, op, inst.ra(), inst.rb());
+        DISPATCH;
+    L_STOREUP:
+        generateURX(outputString, i - 1, op, inst.ra(), inst.rb());
+        DISPATCH;
     L_STOREFK:
         generateRRX(outputString, i - 1, op, inst.rb(), inst.rc());
         DISPATCH;
@@ -352,7 +389,7 @@ static CodeMap opcodes[] = {
     
     OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) OP(LOADLITO)
     OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
-    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(LOADTHIS)
+    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(LOADTHIS) OP(LOADUP) OP(STOREUP)
     OP(PUSH) OP(POP)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
@@ -395,7 +432,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::PreviousContextA: s += "***PreviousContextA***"; break;
         case Value::Type::PreviousContextB: s += "***PreviousContextB***"; break;
-        case Value::Type::UpValue: s += "***UpValue***"; break;
+        case Value::Type::UpValue: s += "UP(" + Value::toString(value.asUpIndex()) + ", " + Value::toString(value.asUpFrame()) + ")"; break;
         case Value::Type::Object: {
             ObjectId objectId = value.asObjectIdValue();
             Object* obj = Global::obj(objectId);

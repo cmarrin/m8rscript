@@ -445,24 +445,6 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return s;
 }
 
-Value Closure::upValue(ExecutionUnit* eu, uint32_t index)
-{
-    assert(index < _upvalues.size());
-    return _upvalues[index].toValue(eu);
-}
-
-void Closure::setUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
-{
-    assert(index < _upvalues.size());
-    _upvalues[index].toValue(eu) = value;
-}
-
-void Closure::captureUpValue(ExecutionUnit* eu, uint32_t index)
-{
-    assert(index < _upvalues.size());
-    _upvalues[index] = _upvalues[index].toValue(eu);
-}
-
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {

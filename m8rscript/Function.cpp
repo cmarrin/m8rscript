@@ -118,6 +118,20 @@ CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
     return obj->call(eu, self, nparams, false);
 }
 
+Value Function::loadUpValue(ExecutionUnit* eu, uint32_t index) const
+{
+    assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
+    const Value& up = _upValues[index];
+    return eu->stack().upValue(up.asUpIndex(), up.asUpFrame());
+}
+
+void Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+{
+    assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
+    const Value& up = _upValues[index];
+    eu->stack().upValue(up.asUpIndex(), up.asUpFrame()) = value;
+}
+
 bool Function::serialize(Stream* stream, Error& error, Program* program) const
 {
     if (!serializeWrite(stream, error, ObjectDataType::ObjectStart)) {
@@ -265,3 +279,22 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     }
     return true;
 }
+
+Value Closure::upValue(ExecutionUnit* eu, uint32_t index)
+{
+    assert(index < _upvalues.size());
+    return _upvalues[index].toValue(eu);
+}
+
+void Closure::setUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+{
+    assert(index < _upvalues.size());
+    _upvalues[index].toValue(eu) = value;
+}
+
+void Closure::captureUpValue(ExecutionUnit* eu, uint32_t index)
+{
+    assert(index < _upvalues.size());
+    _upvalues[index] = _upvalues[index].toValue(eu);
+}
+

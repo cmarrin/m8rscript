@@ -117,6 +117,8 @@ struct Label {
     MOVE        R[d], RK[s], X
     LOADREFK    R[d], RK[s], X
     STOREFK     X, RK[d], RK[s]
+    LOADUP      R[d], U[s]
+    STOREUP     U[d], RK[s]
     APPENDELT   R[d], RK[s], X
  
     APPENDPROP  R[d], RK[p], RK[s]
@@ -172,13 +174,14 @@ enum class Op : uint8_t {
     LOR = 0x10, LAND, OR, AND, XOR,
     EQ,  NE, LT, LE, GT, GE,
     SHL, SHR, SAR,
-    ADD, SUB, MUL, DIV, MOD,
+    ADD, SUB,
+    MUL = 0x20, DIV, MOD,
     
     LINENO,
     
-    LOADTHIS,
+    LOADTHIS, LOADUP, STOREUP,
     
-    // 0x25 - 0x2f unused (11)
+    // 0x27 - 0x2f unused (9)
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
     CALL, NEW, CALLPROP, JMP, JT, JF,

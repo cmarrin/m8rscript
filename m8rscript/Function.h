@@ -59,7 +59,6 @@ public:
         }
     }
 
-
     const Code* code() const { return &_code; }
     Code* code() { return &_code; }
 
@@ -79,6 +78,12 @@ public:
     Value* constantsPtr() { return &(_constants.at(0)); }
     
     uint32_t addUpValue(uint32_t index, uint16_t frame);
+    
+    Value loadUpValue(ExecutionUnit*, uint32_t index) const;
+    void storeUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    
+    Value upValue(uint32_t i) const { return _upValues[i]; }
+    size_t upValueCount() const { return _upValues.size(); }
 
     void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
     uint32_t formalParamCount() const { return _formalParamCount; }
@@ -105,4 +110,19 @@ private:
     std::vector<Value> _upValues;
 };
     
+class Closure {
+public:
+    Closure(const Value& func) : _func(func) { }
+    
+    void addUpValue(uint32_t index, uint16_t frame) { _upvalues.emplace_back(Value(index, frame)); }
+    
+    Value upValue(ExecutionUnit*, uint32_t index);
+    void setUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    void captureUpValue(ExecutionUnit*, uint32_t index);
+    
+private:
+    Value _func;
+    std::vector<Value> _upvalues;
+};
+
 }

@@ -163,14 +163,16 @@ public:
     ObjectId asObjectIdValue() const { return (type() == Type::Object || type() == Type::PreviousContextA || type() == Type::PreviousContextB) ? objectIdFromValue() : ObjectId(); }
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
-    int32_t asIntValue() const { return (type() == Type::Integer) ? intFromValue() : 0; }
-    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousContextA) ? intFromValue() : 0; }
-    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousContextB) ? intFromValue() : 0; }
+    int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
+    uint32_t asPreviousPCValue() const { return (type() == Type::PreviousContextA) ? uint32FromValue() : 0; }
+    uint32_t asPreviousFrameValue() const { return (type() == Type::PreviousContextB) ? uint32FromValue() : 0; }
     uint32_t asPreviousParamCountValue() const { return (type() == Type::PreviousContextB) ? paramCountFromValue() : 0; }
     bool asCtorValue() const { return (type() == Type::PreviousContextB) ? ctorFromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
+    uint32_t asUpIndex() const { return (type() == Type::UpValue) ? uint32FromValue() : 0; }
+    uint16_t asUpFrame() const { return (type() == Type::UpValue) ? uint16FromValue() : 0; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -185,7 +187,7 @@ public:
     int32_t toIntValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Integer) {
-            return intFromValue();
+            return int32FromValue();
         }
         return static_cast<int32_t>(toFloatValue(eu));
     }
@@ -232,7 +234,9 @@ private:
     void _gcMark(ExecutionUnit*);
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
-    inline int32_t intFromValue() const { return static_cast<int32_t>(_value.get32()); }
+    inline int32_t int32FromValue() const { return static_cast<int32_t>(_value.get32()); }
+    inline uint32_t uint32FromValue() const { return _value.get32(); }
+    inline uint16_t uint16FromValue() const { return _value.get16(); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.get32())); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.get16())); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }

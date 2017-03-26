@@ -262,7 +262,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(UNKNOWN)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -428,6 +428,13 @@ static const uint16_t GCCount = 1000;
         DISPATCH;
     L_STOREFK:
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
+        DISPATCH;
+    L_LOADUP:
+        rightValue = _functionPtr->loadUpValue(this, inst.rb());
+        setInFrame(inst.ra(), rightValue);
+        DISPATCH;
+    L_STOREUP:
+        _functionPtr->storeUpValue(this, inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:
