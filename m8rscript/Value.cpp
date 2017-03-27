@@ -234,16 +234,17 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Integer: return toString(asIntValue());
         case Type::String: return Global::str(stringIdFromValue());
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-        case Type::Id: return m8r::String(eu->program()->stringFromAtom(atomFromValue()));
-        default: assert(0); return m8r::String();
+        case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
+        case Type::Null: return String("null");
+        case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
+        case Type::Function: return String("Function()"); // FIXME: Show some sort of function identifier, name or something
+        case Type::UpValue: return String("upvalue"); // FIXME: Show something?
     }
 }
 
 Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::None:
-        case Type::Null: break;
         case Type::Object: {
             Object* obj = Global::obj(*this);
             Float f;
@@ -266,16 +267,19 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
             toFloat(f, s.c_str());
             return f;
         }
-        case Type::Id: break;
-        default: assert(0); break;
+        case Type::Id:
+        case Type::NativeObject:
+        case Type::Function:
+        case Type::UpValue:
+        case Type::None:
+        case Type::Null:
+            return Float();
     }
-    return Float();
 }
 
 Atom Value::_toIdValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::None: break;
         case Type::Object: {
             Object* obj = Global::obj(*this);
             return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
@@ -290,9 +294,14 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
             return eu->program()->atomizeString(s.c_str());
         }
-        default: assert(0); break;
+        case Type::Id:
+        case Type::NativeObject:
+        case Type::Function:
+        case Type::UpValue:
+        case Type::None:
+        case Type::Null:
+            return Atom();
     }
-    return Atom();
 }
 
 Value Value::_toValue(ExecutionUnit* eu) const

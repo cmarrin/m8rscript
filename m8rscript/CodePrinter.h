@@ -42,6 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
+class Object;
 class Parser;
 class Function;
 class Program;

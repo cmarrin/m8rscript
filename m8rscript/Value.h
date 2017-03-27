@@ -42,12 +42,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Object;
+class Function;
 class NativeObject;
-class Value;
 class ExecutionUnit;
 class Program;
-class Stream;
 
 class CallReturnValue {
 public:
@@ -113,7 +111,7 @@ public:
         None = 0,
         Float = 1,
         Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
-        UpValue = 16
+        UpValue = 16, Function = 18,
     };
 
     Value() { }
@@ -126,6 +124,7 @@ public:
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(NativeObject* obj) : _value(obj) { }
+    Value(Function* obj) : _value(obj) { }
     
     // UpValue
     Value(uint32_t index, uint16_t frame) : _value(index, frame) { }
@@ -161,6 +160,7 @@ public:
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
+    Function* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
     uint32_t asUpIndex() const { return (type() == Type::UpValue) ? uint32FromValue() : 0; }
     uint16_t asUpFrame() const { return (type() == Type::UpValue) ? uint16FromValue() : 0; }
     
@@ -232,6 +232,7 @@ private:
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
+    inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value.getPtr()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -253,6 +254,7 @@ private:
         RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
         RawValue(ObjectId id) { set16(id.raw()); setType(Type::Object); }
         RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
+        RawValue(Function* obj) { setPtr(obj); setType(Type::Function); }
         
         RawValue(uint32_t index, uint16_t frame) { set32(index); set16(frame); setType(Type::UpValue); }
 
@@ -290,8 +292,8 @@ private:
         void set32(uint32_t v) { RawComponent<uint32_t, 32, 32>::set(_raw, v); }
         uint16_t get16() const { return RawComponent<uint16_t, 16, 16>::get(_raw); }
         void set16(uint16_t v) { RawComponent<uint16_t, 16, 16>::set(_raw, v); }
-        NativeObject* getPtr() const { return reinterpret_cast<NativeObject*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
-        void setPtr(NativeObject* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
+        void* getPtr() const { return reinterpret_cast<void*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
+        void setPtr(void* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
 
         // This union is only used for debugging. Only the _raw value is used at runtime, so it should work for both
         // big endian and little endian architectures. But the struct is little endian so the information is only
@@ -303,6 +305,14 @@ private:
                 uint32_t _ : 11;
                 uint16_t _uint16 : 16;
                 uint32_t _uint32 : 32;
+            };
+            struct {
+                uint32_t __;
+                NativeObject* _native;
+            };
+            struct {
+                uint32_t ___;
+                Function* _function;
             };
         };
     };
