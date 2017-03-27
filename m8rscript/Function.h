@@ -110,10 +110,29 @@ private:
     std::vector<Value> _upValues;
 };
     
-class Closure {
+class Closure : public Object {
 public:
-    Closure(const Value& func) : _func(func) { }
+    Closure(Function* func) : _func(func) { }
+    virtual ~Closure() { }
     
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
+
+    virtual void gcMark(ExecutionUnit* eu) override
+    {
+        gcMark(eu);
+        for (auto it : _upvalues) {
+            it.gcMark(eu);
+        }
+    }
+
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override
+    {
+        return _func ? _func->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
+    }
+
+    virtual bool serialize(Stream*, Error&, Program*) const override { return false; }
+    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override { return false; }
+
     void addUpValue(uint32_t index, uint16_t frame) { _upvalues.emplace_back(Value(index, frame)); }
     
     Value upValue(ExecutionUnit*, uint32_t index);
@@ -121,7 +140,7 @@ public:
     void captureUpValue(ExecutionUnit*, uint32_t index);
     
 private:
-    Value _func;
+    Function* _func = nullptr;
     std::vector<Value> _upvalues;
 };
 
