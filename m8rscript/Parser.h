@@ -144,6 +144,8 @@ private:
     void pushK();
     void pushK(ObjectId function);
     void pushThis();    
+
+    void addNamedFunction(Function*, const Atom&);
     
     void pushTmp();
     
@@ -180,7 +182,6 @@ private:
         addCode(Instruction(Op::LINENO, 0, lineno));
     }
     
-    void addNamedObject(ObjectId functionId, const Atom& name);
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     

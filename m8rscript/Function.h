@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Function : public MaterObject {
+class Function : public Object {
 public:
     Function();
 
@@ -49,11 +49,13 @@ public:
 
     virtual bool isFunction() const override { return true; }
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : MaterObject::toString(eu, false); }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : Object::toString(eu, false); }
         
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
+
     virtual void gcMark(ExecutionUnit* eu) override
     {
-        MaterObject::gcMark(eu);
+        Object::gcMark(eu);
         for (auto it : _constants) {
             it.gcMark(eu);
         }
@@ -77,6 +79,9 @@ public:
     
     Value* constantsPtr() { return &(_constants.at(0)); }
     
+    void setName(const Atom s) { _name = s; }
+    Atom name() const { return _name; }
+    
     uint32_t addUpValue(uint32_t index, uint16_t frame);
     
     Value loadUpValue(ExecutionUnit*, uint32_t index) const;
@@ -99,15 +104,13 @@ protected:
     bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
 private:
-    static CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    NativeFunction _call;
-
     Code _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
     std::vector<Value> _constants;
     uint8_t _tempRegisterCount = 0;
     std::vector<Value> _upValues;
+    Atom _name;
 };
     
 class Closure : public Object {

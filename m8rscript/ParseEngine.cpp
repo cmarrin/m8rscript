@@ -176,7 +176,7 @@ bool ParseEngine::functionStatement()
     Atom name = _parser->atomizeString(getTokenValue().str);
     expect(Token::Identifier);
     ObjectId f = functionExpression();
-    _parser->addNamedObject(f, name);
+    _parser->addNamedFunction(reinterpret_cast<Function*>(Global::obj(f)), name);
     return true;
 }
 
@@ -186,13 +186,11 @@ bool ParseEngine::classStatement()
         return false;
     }
     retireToken();
-    _parser->pushThis();
     Atom name = _parser->atomizeString(getTokenValue().str);
-    _parser->addNamedObject(ObjectId(), name);
-    _parser->emitId(name, Parser::IdType::NotLocal);
+    _parser->addVar(name);
+    _parser->emitId(name, Parser::IdType::MustBeLocal);
+
     expect(Token::Identifier);
-    
-    _parser->emitDeref(Parser::DerefType::Prop);
     
     if (!expect(Token::Expr, classExpression())) {
         return false;

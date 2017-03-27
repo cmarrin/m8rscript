@@ -40,13 +40,26 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Function::Function()
-    :_call(call)
 {
     // Place a dummy constant at index 0 as an error return value
     _constants.push_back(Value());
+}
+
+CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+{
+    if (prop == ATOM(call)) {
+        if (nparams < 1) {
+            return CallReturnValue(CallReturnValue::Type::Error);
+        }
+        
+        // Remove the first element and use it as the this pointer
+        Value self = eu->stack().top(1 - nparams);
+        eu->stack().remove(1 - nparams);
+        nparams--;
     
-    Global::addObject(&_call, false);
-    PropertyObject::setProperty(ATOM(call), Value(_call.objectId()), Object::SetPropertyType::AlwaysAdd);
+        return call(eu, self, nparams, false);
+    }
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
@@ -101,21 +114,6 @@ uint32_t Function::addUpValue(uint32_t index, uint16_t frame)
     }
     _upValues.push_back(upValue);
     return static_cast<uint32_t>(_upValues.size()) - 1;
-}
-
-CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    Object* obj = Global::obj(thisValue);
-    if (nparams < 1 || !obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-        
-    // Remove the first element and use it as the this pointer
-    Value self = eu->stack().top(1 - nparams);
-    eu->stack().remove(1 - nparams);
-    nparams--;
-    
-    return obj->call(eu, self, nparams, false);
 }
 
 Value Function::loadUpValue(ExecutionUnit* eu, uint32_t index) const
@@ -186,7 +184,7 @@ bool Function::deserialize(Stream* stream, Error& error, Program* program, const
 
 bool Function::serializeContents(Stream* stream, Error& error, Program* program) const
 {
-    if (!MaterObject::serialize(stream, error, program)) {
+    if (!Object::serialize(stream, error, program)) {
         return false;
     }
     if (!serializeBuffer(stream, error, ObjectDataType::Locals, 
@@ -202,7 +200,7 @@ bool Function::serializeContents(Stream* stream, Error& error, Program* program)
 
 bool Function::deserializeContents(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
 {
-    if (!MaterObject::deserialize(stream, error, program, atomTable, stringTable)) {
+    if (!Object::deserialize(stream, error, program, atomTable, stringTable)) {
         return false;
     }
 

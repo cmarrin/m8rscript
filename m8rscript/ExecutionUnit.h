@@ -208,9 +208,14 @@ private:
     {
         Object* obj = Global::obj(v);
         if (!obj) {
+            Function* func = v.asFunction();
+            if (func) {
+                return func;
+            }
             objectError(s);
             return nullptr;
         }
+            
         return obj;
     }
     

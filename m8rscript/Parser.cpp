@@ -262,6 +262,14 @@ void Parser::pushK(ObjectId function)
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
+void Parser::addNamedFunction(Function* func, const Atom& name)
+{
+    if (_nerrors) return;
+    
+    currentFunction()->addConstant(Value(func));
+    func->setName(name);
+}
+
 void Parser::pushThis()
 {
     if (_nerrors) return;
@@ -286,6 +294,17 @@ void Parser::emitId(const Atom& atom, IdType type)
     if (_nerrors) return;
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
+        // See if it's a local function
+        for (uint32_t i = 0; i < currentFunction()->constantCount(); ++i) {
+            Function* func = currentFunction()->constant(ConstantId(i)).asFunction();
+            if (func) {
+                if (func->name() == atom) {
+                    _parseStack.push(ParseStack::Type::Constant, i);
+                    return;
+                }
+            }
+        }
+        
         // Find the id in the function chain
         bool local = true;
         uint16_t frame = 0;
@@ -347,9 +366,9 @@ void Parser::emitMove()
             emitCodeRRR(Op::STOREFK, 0, _parseStack.topReg(), srcReg);
             _parseStack.pop();
             _parseStack.push(ParseStack::Type::Register, srcReg);
+            break;
         case ParseStack::Type::UpValue:
             emitCodeRRR(Op::STOREUP, _parseStack.topReg(), srcReg);
-            break;
             break;
         }
     }
@@ -588,14 +607,6 @@ int32_t Parser::emitDeferred()
     _deferredCode.resize(_deferredCodeBlocks.back());
     _deferredCodeBlocks.pop_back();
     return start;
-}
-
-void Parser::addNamedObject(ObjectId object, const Atom& name)
-{
-    if (_nerrors) return;
-    
-    assert(name);
-    currentFunction()->setProperty(nullptr, name, Value(object), Object::SetPropertyType::AlwaysAdd);
 }
 
 void Parser::functionAddParam(const Atom& atom)
