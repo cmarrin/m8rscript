@@ -75,29 +75,29 @@ bool Program::serialize(Stream* stream, Error& error, Program* program) const
 //        return false;
 //    }
     
-    for (uint16_t i = 0; ; i++) {
-        if (!Global::isValid(ObjectId(i))) {
-            break;
-        }
-        Object* object = Global::obj(ObjectId(i));
-        
-        // Only store functions
-        if (!object->isFunction()) {
-            continue;
-        }
-        if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {
-            return false;
-        }
-        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
-            return false;
-        }
-        if (!serializeWrite(stream, error, i)) {
-            return false;
-        }
-        if (!object->serialize(stream, error, program)) {
-            return false;
-        }
-    }
+//    for (uint16_t i = 0; ; i++) {
+//        if (!Global::isValid(ObjectId(i))) {
+//            break;
+//        }
+//        Object* object = Global::obj(ObjectId(i));
+//        
+//        // Only store functions
+//        if (!object->isFunction()) {
+//            continue;
+//        }
+//        if (!serializeWrite(stream, error, ObjectDataType::ObjectId)) {
+//            return false;
+//        }
+//        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+//            return false;
+//        }
+//        if (!serializeWrite(stream, error, i)) {
+//            return false;
+//        }
+//        if (!object->serialize(stream, error, program)) {
+//            return false;
+//        }
+//    }
     
     return Function::serialize(stream, error, program);
 }

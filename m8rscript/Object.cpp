@@ -352,25 +352,25 @@ bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) c
     if (!serializeWrite(stream, error, static_cast<uint16_t>(_properties.size()))) {
         return false;
     }
-    for (auto entry : _properties) {
-        Object* obj = Global::obj(entry.value);
-        // Only store functions
-        if (!obj || !obj->isFunction()) {
-            continue;
-        }
-        if (!serializeWrite(stream, error, ObjectDataType::PropertyId)) {
-            return false;
-        }
-        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
-            return false;
-        }
-        if (!serializeWrite(stream, error, entry.key.raw())) {
-            return false;
-        }
-        if (!obj->serialize(stream, error, program)) {
-            return false;
-        }
-    }
+//    for (auto entry : _properties) {
+//        Object* obj = Global::obj(entry.value);
+//        // Only store functions
+//        if (!obj || !obj->isFunction()) {
+//            continue;
+//        }
+//        if (!serializeWrite(stream, error, ObjectDataType::PropertyId)) {
+//            return false;
+//        }
+//        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
+//            return false;
+//        }
+//        if (!serializeWrite(stream, error, entry.key.raw())) {
+//            return false;
+//        }
+//        if (!obj->serialize(stream, error, program)) {
+//            return false;
+//        }
+//    }
     
     return true;
 }

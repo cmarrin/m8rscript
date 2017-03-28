@@ -150,7 +150,7 @@ void CodePrinter::generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t 
     str += String(stringFromOp(op)) + " " + regString(rcall) + ", " + regString(rthis) + ", " + Value::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program, const Function* obj, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Program* program, const Function* func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -185,11 +185,11 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    if (!obj || !obj->isFunction()) {
+    if (!func) {
         return String();
     }
     
-    const Function* function = static_cast<const Function*>(obj);
+    const Function* function = static_cast<const Function*>(func);
     
     m8r::String outputString;
 
@@ -211,24 +211,6 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     outputString += ")\n";
     
     _nestingLevel++;
-    
-    // Output all the function properties
-    int32_t count = obj->iteratedValue(nullptr, Object::IteratorCount).toIntValue(nullptr);
-    for (uint32_t i = 0; i < count; ++i) {
-        Atom name = obj->iteratedValue(nullptr, i).asIdValue();
-        if (!name) {
-            break;
-        }
-        const Value& value = obj->property(nullptr, name);
-        if (value.isNone()) {
-            continue;
-        }
-        Object* object = Global::obj(value);
-        if (object && object->isFunction()) {
-            outputString += generateCodeString(program, static_cast<Function*>(object), program->stringFromAtom(name).c_str(), _nestingLevel);
-            outputString += "\n";
-        }
-    }
     
     const Instruction* code = &(function->code()->at(0));
 
@@ -255,41 +237,37 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     }
     
     // Display the constants and up values
-    if (obj->isFunction()) {
-        const Function* function = static_cast<const Function*>(obj);
-        
-        // We don't show the first Constant, it is a dummy error value
-        if (function->constantCount() > 1) {
-            indentCode(outputString);
-            outputString += "CONSTANTS:\n";
-            _nestingLevel++;
+    // We don't show the first Constant, it is a dummy error value
+    if (function->constantCount() > 1) {
+        indentCode(outputString);
+        outputString += "CONSTANTS:\n";
+        _nestingLevel++;
 
-            for (uint8_t i = 1; i < function->constantCount(); ++i) {
-                Value constant = function->constant(ConstantId(i));
-                indentCode(outputString);
-                outputString += "[" + Value::toString(i) + "] = ";
-                showValue(program, outputString, constant);
-                outputString += "\n";
-            }
-            _nestingLevel--;
+        for (uint8_t i = 1; i < function->constantCount(); ++i) {
+            Value constant = function->constant(ConstantId(i));
+            indentCode(outputString);
+            outputString += "[" + Value::toString(i) + "] = ";
+            showValue(program, outputString, constant);
             outputString += "\n";
         }
-        
-        if (function->upValueCount()) {
-            indentCode(outputString);
-            outputString += "UPVALUES:\n";
-            _nestingLevel++;
+        _nestingLevel--;
+        outputString += "\n";
+    }
+    
+    if (function->upValueCount()) {
+        indentCode(outputString);
+        outputString += "UPVALUES:\n";
+        _nestingLevel++;
 
-            for (uint8_t i = 0; i < function->upValueCount(); ++i) {
-                Value constant = function->upValue(i);
-                indentCode(outputString);
-                outputString += "[" + Value::toString(i) + "] = ";
-                showValue(program, outputString, constant);
-                outputString += "\n";
-            }
-            _nestingLevel--;
+        for (uint8_t i = 0; i < function->upValueCount(); ++i) {
+            Value constant = function->upValue(i);
+            indentCode(outputString);
+            outputString += "[" + Value::toString(i) + "] = ";
+            showValue(program, outputString, constant);
             outputString += "\n";
         }
+        _nestingLevel--;
+        outputString += "\n";
     }
 
     indentCode(outputString);
@@ -441,17 +419,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::UpValue: s += "UP(" + Value::toString(value.asUpIndex()) + ", " + Value::toString(value.asUpFrame()) + ")"; break;
         case Value::Type::Object: {
-            ObjectId objectId = value.asObjectIdValue();
-            Object* obj = Global::obj(objectId);
-            if (obj && obj->isFunction()) {
-                _nestingLevel++;
-                s += "\n";
-                s += generateCodeString(program, static_cast<Function*>(obj), Value::toString(objectId.raw()).c_str(), _nestingLevel);
-                _nestingLevel--;
-                break;
-            } else {
-                s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
-            }
+            s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
             break;
         }
     }

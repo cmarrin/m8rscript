@@ -47,8 +47,6 @@ public:
 
     virtual ~Function() { }
 
-    virtual bool isFunction() const override { return true; }
-
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : Object::toString(eu, false); }
         
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;

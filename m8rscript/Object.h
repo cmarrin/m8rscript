@@ -51,8 +51,6 @@ class Object {
     
 public:
     virtual ~Object() { }
-    
-    virtual bool isFunction() const { return false; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     

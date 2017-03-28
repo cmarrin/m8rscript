@@ -67,13 +67,6 @@ public:
     }
     static Object* obj(const ObjectId& id) { return _objectStore.ptr(id); }
     
-    static Function* func(const Value& value) { return value.isObjectId() ? func(value.asObjectIdValue()) : nullptr; }
-    static Function* func(const ObjectId& id)
-    {
-        Object* object = obj(id);
-        return object ? (object->isFunction() ? reinterpret_cast<Function*>(object) : nullptr) : nullptr;
-    }
-
     static String& str(const Value& value)
     {
         return str(value.asStringIdValue());
