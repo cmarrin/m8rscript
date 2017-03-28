@@ -310,21 +310,15 @@ Value Value::_toValue(ExecutionUnit* eu) const
     return eu->upValue(_value.get32(), _value.get16());
 }
 
-Value& Value::_toValue(ExecutionUnit* eu)
-{
-    assert(type() == Type::UpValue);
-    return eu->upValue(_value.get32(), _value.get16());
-}
-
 Object* Value::_toObject(ExecutionUnit* eu) const
 {
     return Global::obj(asObjectIdValue());
 }
 
-CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
 {
     Object* obj = toObject(eu);
-    return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, thisValue, nparams, ctor, inScope) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::_gcMark(ExecutionUnit* eu)

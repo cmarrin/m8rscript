@@ -57,14 +57,14 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
         eu->stack().remove(1 - nparams);
         nparams--;
     
-        return call(eu, self, nparams, false);
+        return call(eu, self, nparams, false, false);
     }
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
 {
-    eu->startFunction(this, thisValue.asObjectIdValue(), nparams);
+    eu->startFunction(this, thisValue.asObjectIdValue(), nparams, inScope);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
@@ -130,7 +130,7 @@ void Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& valu
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];
-    eu->upValue(up.asUpIndex(), up.asUpFrame()) = value;
+    eu->setUpValue(up.asUpIndex(), up.asUpFrame(), value);
 }
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const

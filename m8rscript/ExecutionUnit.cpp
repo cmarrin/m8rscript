@@ -201,11 +201,11 @@ void ExecutionUnit::runNextEvent()
     TaskManager::unlock();
         
     if (haveEvent) {
-        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs);
+        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs, false);
     }
 }
 
-void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams)
+void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);
@@ -226,7 +226,8 @@ void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint3
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount, _inScope });
+    _inScope = inScope;
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
@@ -384,6 +385,7 @@ static const uint16_t GCCount = 1000;
             
             _pc = callRecord._pc;
             _function = callRecord._func;
+            _inScope = callRecord._inScope;
             
             _callRecords.resize(_callRecords.size() - 1);
         }
@@ -646,15 +648,17 @@ static const uint16_t GCCount = 1000;
         if (objectValue) {
             switch(inst.op()) {
                 default: break;
-                case Op::CALL:
+                case Op::CALL: {
+                    bool inScope = isConstant(inst.rcall());
                     leftValue = regOrConst(inst.rthis());
                     if (!leftValue) {
                         leftValue = Value(_thisId);
                     }
-                    callReturnValue = objectValue->call(this, leftValue, uintValue, false);
+                    callReturnValue = objectValue->call(this, leftValue, uintValue, false, inScope);
                     break;
+                }
                 case Op::NEW:
-                    callReturnValue = objectValue->call(this, Value(), uintValue, true);
+                    callReturnValue = objectValue->call(this, Value(), uintValue, true, false);
                     break;
                 case Op::CALLPROP:
                     callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);

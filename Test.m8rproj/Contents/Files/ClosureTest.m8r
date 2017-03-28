@@ -19,7 +19,6 @@ function f0(a0) {
 var g = f0(1);
 printf("Nested function call test (no capture): result (s/b 21)=%d\n", g);
 
-/*
 
 // Simple test of nested function with closure
 function a(b) {
@@ -31,6 +30,8 @@ function a(b) {
 
 var f = a(3);
 printf("result=%d\n", f(7));
+
+/*
 
 
 // Observer pattern test

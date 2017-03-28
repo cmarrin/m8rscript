@@ -272,7 +272,7 @@ String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);
-    return obj ? obj->call(eu, objectId(), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, objectId(), nparams, false, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -308,7 +308,7 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyTy
     return true;
 }
 
-CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
@@ -321,7 +321,7 @@ CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        CallReturnValue retval = it->value.call(eu, id, nparams, true);
+        CallReturnValue retval = it->value.call(eu, id, nparams, true, inScope);
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
             return retval;
         }
@@ -476,7 +476,7 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         return ObjectId();
     }
 
-    CallReturnValue r = object->call(eu, Value(), nparams, true);
+    CallReturnValue r = object->call(eu, Value(), nparams, true, false);
     Value retValue;
     if (r.isReturnCount() && r.returnCount() > 0) {
         retValue = eu->stack().top(1 - r.returnCount());

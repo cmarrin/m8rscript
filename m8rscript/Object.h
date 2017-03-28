@@ -68,7 +68,7 @@ public:
         return setProperty(eu, elt.toIdValue(eu), value, append ? SetPropertyType::AlwaysAdd : SetPropertyType::NeverAdd);
     }
 
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Type::Error); }
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor, bool inScope) { return CallReturnValue(CallReturnValue::Type::Error); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Type::Error); }
     
     static constexpr int32_t IteratorCount = -1;
@@ -134,7 +134,7 @@ public:
 
     bool setProperty(const Atom& prop, const Value& v, SetPropertyType);
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override;
 
     virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
     {
@@ -173,7 +173,7 @@ public:
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("NativeFunction") : Object::toString(eu, false); }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override { return _func(eu, thisValue, nparams); }
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override { return _func(eu, thisValue, nparams); }
 
 private:
     Func _func = nullptr;

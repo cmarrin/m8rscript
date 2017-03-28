@@ -76,7 +76,7 @@ String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
     return typeOnly ? String("IPAddr") : _ipAddr.toString();
 }
 
-CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?

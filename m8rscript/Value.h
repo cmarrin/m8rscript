@@ -192,7 +192,6 @@ public:
     }
     
     Value toValue(ExecutionUnit* eu) const { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
-    Value& toValue(ExecutionUnit* eu) { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
     
     Object* toObject(ExecutionUnit* eu) const { return (type() == Type::Function) ? reinterpret_cast<Object*>(asFunction()) : _toObject(eu); }
     
@@ -215,14 +214,13 @@ public:
         }
     }
     
-    CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor);
+    CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope);
     
     bool needsGC() const { return type() == Type::Object || type() == Type::String; }
     
 private:
     Float _toFloatValue(ExecutionUnit*) const;
     Value _toValue(ExecutionUnit*) const;
-    Value& _toValue(ExecutionUnit*);
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
     Object* _toObject(ExecutionUnit*) const;

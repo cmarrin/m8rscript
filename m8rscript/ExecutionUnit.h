@@ -171,20 +171,40 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    Value& upValue(uint32_t index, uint16_t frame)
+    Value upValue(uint32_t index, uint16_t frame) const
     {
+        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
+        return v ? *v : Value();
+    }
+    
+    void setUpValue(uint32_t index, uint16_t frame, const Value& value)
+    {
+        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
+        if (v) {
+            *v = value;
+        }
+    }
+
+private:
+    Value* _upValue(uint32_t index, uint16_t frame)
+    {
+        // FIXME: Should we handle the case of trying to access an upValue when out of scope? We could
+        // store the atom of the original variable name and try to access it as a REFK. For now, just
+        // error.
+        if (!_inScope) {
+            return nullptr;
+        }
+        
         // The frame is an index into the _callRecords array. But it runs backwards. Frame 0 would be
         // the current frame, which isn't represented in the call record stack, so frame 1 is actually
         // the last entry in _callRecords, frame 2 is the second to last, etc. We should never store
         // an upValue for the current frame, so index should never be 0.
         assert(_callRecords.size() > frame && frame > 0);
         int32_t i = _callRecords[_callRecords.size() - frame]._frame + index - static_cast<int32_t>(_stack.size()) + 1;
-        return _stack.top(i);
+        return &_stack.top(i);
     }
 
-
-private:
-    void startFunction(Function* function, ObjectId thisObject, uint32_t nparams);
+    void startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool inScope);
     void runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -237,10 +257,12 @@ private:
         }
         return _framePtr[r];
     }
+    
+    bool isConstant(uint32_t r) { return r > MaxRegister; }
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Function* func, ObjectId thisId, uint32_t paramCount)
+        CallRecord(uint32_t pc, uint32_t frame, Function* func, ObjectId thisId, uint32_t paramCount, bool inScope)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -248,8 +270,9 @@ private:
             , _thisId(thisId.raw())
         { }
         
-        uint32_t _pc : 24;
+        uint32_t _pc : 23;
         uint32_t _paramCount : 8;
+        bool _inScope : 1;
         uint32_t _frame;
         Function* _func;
         ObjectId::Raw _thisId;
@@ -268,6 +291,8 @@ private:
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
+    
+    bool _inScope = false;
     
     const Instruction* _code;
     size_t _codeSize;

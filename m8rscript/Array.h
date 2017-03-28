@@ -62,7 +62,7 @@ public:
         }
     }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override;
 
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
     {
