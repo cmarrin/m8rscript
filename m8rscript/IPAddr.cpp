@@ -76,8 +76,13 @@ String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
     return typeOnly ? String("IPAddr") : _ipAddr.toString();
 }
 
-CallReturnValue IPAddrProto::construct(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
+    if (!ctor) {
+        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
     // Stack: string ip octets or 4 integers
     IPAddr ipAddr;
     if (nparams == 1) {

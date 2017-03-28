@@ -45,8 +45,12 @@ Iterator::Iterator(Program* program)
 {
 }
 
-CallReturnValue Iterator::construct(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
+    if (!ctor) {
+        return MaterObject::call(eu, thisValue, nparams, ctor);
+    }
+    
     Iterator* it = new Iterator();
     Global::addObject(it, true);
     it->_object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();

@@ -312,8 +312,13 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyTy
     return true;
 }
 
-CallReturnValue PropertyObject::construct(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
+    if (!ctor) {
+        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
     MaterObject* obj = new MaterObject();
     Value id(Global::addObject(obj, true));
     obj->setProto(objectId());
@@ -475,7 +480,7 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         return ObjectId();
     }
 
-    CallReturnValue r = object->construct(eu, nparams);
+    CallReturnValue r = object->call(eu, Value(), nparams, true);
     Value retValue;
     if (r.isReturnCount() && r.returnCount() > 0) {
         retValue = eu->stack().top(1 - r.returnCount());

@@ -661,7 +661,7 @@ static const uint16_t GCCount = 1000;
                     callReturnValue = objectValue->call(this, leftValue, uintValue, false);
                     break;
                 case Op::NEW:
-                    callReturnValue = objectValue->construct(this, uintValue);
+                    callReturnValue = objectValue->call(this, Value(), uintValue, true);
                     break;
                 case Op::CALLPROP:
                     callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);

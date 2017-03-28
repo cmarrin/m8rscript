@@ -39,8 +39,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-CallReturnValue Array::construct(ExecutionUnit* eu, uint32_t nparams)
+CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
+    if (!ctor) {
+        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
+        return CallReturnValue(CallReturnValue::Type::Error);
+    }
+    
     Array* array = new Array();
     Global::addObject(array, true);
     eu->stack().push(Value(array->objectId()));
