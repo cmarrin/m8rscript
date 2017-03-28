@@ -210,6 +210,7 @@ void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint3
     assert(_program);
     assert(function);
     
+    Function* prevFunction = _functionPtr;
     _functionPtr =  function;
     assert(_functionPtr->code()->size());
 
@@ -225,7 +226,7 @@ void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint3
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _functionPtr->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, _functionPtr, prevThis, prevActualParamCount, ctor });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis, prevActualParamCount, ctor });
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
