@@ -55,7 +55,7 @@ void Parser::parse(m8r::Stream* istream, bool debug)
     _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
-    _functions.emplace_back(_program);
+    _functions.emplace_back(_program, false);
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;
@@ -619,11 +619,11 @@ void Parser::functionAddParam(const Atom& atom)
     }
 }
 
-void Parser::functionStart()
+void Parser::functionStart(bool ctor)
 {
     if (_nerrors) return;
     
-    _functions.emplace_back(new Function());
+    _functions.emplace_back(new Function(), ctor);
 }
 
 void Parser::functionParamsEnd()
@@ -638,6 +638,13 @@ Function* Parser::functionEnd()
     if (_nerrors) return nullptr;
     
     assert(_functions.size());
+    
+    // If this is a ctor, we need to return this, just in case
+    if (_functions.back()._ctor) {
+        pushThis();
+        emitCallRet(m8r::Op::RET, -1, 1);
+    }
+    
     emitEnd();
     Function* function = currentFunction();
     uint8_t tempRegisterCount = 256 - _functions.back()._minReg;

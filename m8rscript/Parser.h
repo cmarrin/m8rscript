@@ -132,8 +132,9 @@ private:
     int32_t emitDeferred();
 
     void functionAddParam(const Atom& atom);
-    void functionStart();
+    void functionStart(bool ctor);
     void functionParamsEnd();
+    bool functionIsCtor() const { return _functions.back()._ctor; }
     Function* functionEnd();
         
     void pushK(StringLiteral::Raw value);
@@ -248,10 +249,11 @@ private:
     ParseStack _parseStack;
 
     struct FunctionEntry {
-        FunctionEntry(Function* function) : _function(function) { }
+        FunctionEntry(Function* function, bool ctor) : _function(function), _ctor(ctor) { }
         Function* _function = nullptr;
         uint32_t _nextReg = 255;
         uint32_t _minReg = 256;
+        bool _ctor = false;
     };
         
     std::vector<FunctionEntry> _functions;

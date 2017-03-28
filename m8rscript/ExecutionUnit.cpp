@@ -201,11 +201,11 @@ void ExecutionUnit::runNextEvent()
     TaskManager::unlock();
         
     if (haveEvent) {
-        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs, false);
+        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs);
     }
 }
 
-void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool ctor)
+void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams)
 {
     assert(_program);
     assert(function);
@@ -226,7 +226,7 @@ void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint3
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount, ctor });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount });
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
@@ -306,7 +306,6 @@ static const uint16_t GCCount = 1000;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
-    bool ctor;
     ObjectId prevThisId;
 
     Instruction inst;
@@ -374,7 +373,6 @@ static const uint16_t GCCount = 1000;
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
 
-            ctor = callRecord._ctor;
             prevThisId = _thisId;
             
             _actualParamCount = callRecord._paramCount;
@@ -397,12 +395,7 @@ static const uint16_t GCCount = 1000;
         _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
 
         updateCodePointer();
-    
-        if (!returnedValue && ctor) {
-            _stack.push(Value(prevThisId));
-        } else {
-            _stack.push(returnedValue);
-        }
+        _stack.push(returnedValue);
         DISPATCH;
     L_MOVE:
         setInFrame(inst.ra(), regOrConst(inst.rb()));

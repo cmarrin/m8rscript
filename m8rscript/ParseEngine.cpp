@@ -144,7 +144,7 @@ bool ParseEngine::classContentsStatement()
         retireToken();
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
-        Function* f = functionExpression();
+        Function* f = functionExpression(false);
         _parser->emitId(name, Parser::IdType::NotLocal);
         _parser->pushK(f);
         _parser->emitAppendProp();
@@ -152,7 +152,7 @@ bool ParseEngine::classContentsStatement()
     }
     if (getToken() == Token::Constructor) {
         retireToken();
-        Function* f = functionExpression();
+        Function* f = functionExpression(true);
         _parser->emitId(ATOM(constructor), Parser::IdType::NotLocal);
         _parser->pushK(f);
         _parser->emitAppendProp();
@@ -175,7 +175,7 @@ bool ParseEngine::functionStatement()
     retireToken();
     Atom name = _parser->atomizeString(getTokenValue().str);
     expect(Token::Identifier);
-    Function* f = functionExpression();
+    Function* f = functionExpression(false);
     _parser->addNamedFunction(f, name);
     return true;
 }
@@ -558,6 +558,13 @@ bool ParseEngine::jumpStatement()
         if (expression()) {
             count = 1;
         }
+        
+        // If this is a ctor, we need to return this if we're not returning anything else
+        if (!count && _parser->functionIsCtor()) {
+            _parser->pushThis();
+            count = 1;
+        }
+        
         _parser->emitCallRet(m8r::Op::RET, -1, count);
         expect(Token::Semicolon);
         return true;
@@ -748,7 +755,7 @@ bool ParseEngine::memberExpression()
     
     if (getToken() == Token::Function) {
         retireToken();
-        Function* f = functionExpression();
+        Function* f = functionExpression(false);
         _parser->pushK(f);
         return true;
     }
@@ -846,10 +853,10 @@ bool ParseEngine::propertyName()
     }
 }
 
-Function* ParseEngine::functionExpression()
+Function* ParseEngine::functionExpression(bool ctor)
 {
     expect(Token::LParen);
-    _parser->functionStart();
+    _parser->functionStart(ctor);
     formalParameterList();
     _parser->functionParamsEnd();
     expect(Token::RParen);
