@@ -204,12 +204,8 @@ private:
     
     Object* toObject(const Value& v, const char* s)
     {
-        Object* obj = Global::obj(v);
+        Object* obj = v.toObject(this);
         if (!obj) {
-            Function* func = v.asFunction();
-            if (func) {
-                return func;
-            }
             objectError(s);
             return nullptr;
         }

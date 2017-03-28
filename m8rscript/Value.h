@@ -44,6 +44,7 @@ namespace m8r {
 
 class Function;
 class NativeObject;
+class Object;
 class ExecutionUnit;
 class Program;
 
@@ -193,6 +194,8 @@ public:
     Value toValue(ExecutionUnit* eu) const { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
     Value& toValue(ExecutionUnit* eu) { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
     
+    Object* toObject(ExecutionUnit* eu) const { return (type() == Type::Function) ? reinterpret_cast<Object*>(asFunction()) : _toObject(eu); }
+    
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
@@ -222,6 +225,7 @@ private:
     Value& _toValue(ExecutionUnit*);
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
+    Object* _toObject(ExecutionUnit*) const;
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
     inline int32_t int32FromValue() const { return static_cast<int32_t>(_value.get32()); }

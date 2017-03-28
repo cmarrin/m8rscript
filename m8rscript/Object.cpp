@@ -271,12 +271,8 @@ String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
 
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    Object* obj = Global::obj(property(eu, prop));
-    if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
-    
-    return obj->call(eu, objectId(), nparams, false);
+    Object* obj = property(eu, prop).toObject(eu);
+    return obj ? obj->call(eu, objectId(), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const

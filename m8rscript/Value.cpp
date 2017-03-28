@@ -316,9 +316,14 @@ Value& Value::_toValue(ExecutionUnit* eu)
     return eu->upValue(_value.get32(), _value.get16());
 }
 
+Object* Value::_toObject(ExecutionUnit* eu) const
+{
+    return Global::obj(asObjectIdValue());
+}
+
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    Object* obj = Global::obj(*this);
+    Object* obj = toObject(eu);
     return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
