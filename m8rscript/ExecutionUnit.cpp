@@ -78,10 +78,10 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     }
     
     // If property exists in this, store it there
-    if (_thisPtr) {
-        Value oldValue = _thisPtr->property(this, atom);
+    if (_this) {
+        Value oldValue = _this->property(this, atom);
         if (oldValue) {
-            if (!_thisPtr->setProperty(this, atom, value, Object::SetPropertyType::AddIfNeeded)) {
+            if (!_this->setProperty(this, atom, value, Object::SetPropertyType::AddIfNeeded)) {
                 printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
             }
             return;
@@ -101,13 +101,13 @@ Value ExecutionUnit::derefId(Atom atom)
     }
     
     if (atom == ATOM(__this)) {
-        return Value(_this);
+        return Value(_thisId);
     }
 
     // Look in this then program then global
     Value value;
-    if (_thisPtr) {
-        value = _thisPtr->property(this, atom);
+    if (_this) {
+        value = _this->property(this, atom);
         if (value) {
             return value;
         }
@@ -131,9 +131,9 @@ void ExecutionUnit::startExecution(Program* program)
 {
     if (!program) {
         _terminate = true;
-        _functionPtr = nullptr;
-        _thisPtr = nullptr;
-        _constantsPtr = nullptr;
+        _function = nullptr;
+        _this = nullptr;
+        _constants = nullptr;
         _stack.clear();
         return;
     }
@@ -141,14 +141,14 @@ void ExecutionUnit::startExecution(Program* program)
     _nerrors = 0;
     _pc = 0;
     _program = program;
-    _functionPtr =  _program;
-    _constantsPtr = _functionPtr->constantsPtr();
+    _function =  _program;
+    _constants = _function->constantsPtr();
     
-    _this = program->objectId();
-    _thisPtr = program;
+    _thisId = program->objectId();
+    _this = program;
     
     _stack.clear();
-    _stack.setLocalFrame(0, 0, _functionPtr->localSize());
+    _stack.setLocalFrame(0, 0, _function->localSize());
     _framePtr =_stack.framePtr();
     _formalParamCount = 0;
     _actualParamCount = 0;
@@ -210,23 +210,23 @@ void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint3
     assert(_program);
     assert(function);
     
-    Function* prevFunction = _functionPtr;
-    _functionPtr =  function;
-    assert(_functionPtr->code()->size());
+    Function* prevFunction = _function;
+    _function =  function;
+    assert(_function->code()->size());
 
-    _constantsPtr = _functionPtr->constantsPtr();
-    _formalParamCount = _functionPtr->formalParamCount();
+    _constants = _function->constantsPtr();
+    _formalParamCount = _function->formalParamCount();
     uint32_t prevActualParamCount = _actualParamCount;
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
-    ObjectId prevThis = _this;
-    _this = thisObject;
-    _thisPtr = Global::obj(_this);
+    ObjectId prevThisId = _thisId;
+    _thisId = thisObject;
+    _this = Global::obj(_thisId);
     
-    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _functionPtr->localSize());
+    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis, prevActualParamCount, ctor });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount, ctor });
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
@@ -307,7 +307,7 @@ static const uint16_t GCCount = 1000;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
     bool ctor;
-    ObjectId prevThis;
+    ObjectId prevThisId;
 
     Instruction inst;
     
@@ -330,7 +330,7 @@ static const uint16_t GCCount = 1000;
         }
             
         if (inst.op() == Op::END) {
-            if (_program == _functionPtr) {
+            if (_program == _function) {
                 // We've hit the end of the program
                 // If we were executing an event there will be a return value on the stack
                 if (_executingEvent) {
@@ -367,7 +367,7 @@ static const uint16_t GCCount = 1000;
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _functionPtr->localSize() + _localOffset;
+        localsToPop = _function->localSize() + _localOffset;
         
         {
             // Get the call record entries from the call stack and pop it.
@@ -375,31 +375,31 @@ static const uint16_t GCCount = 1000;
             const CallRecord& callRecord = _callRecords.back();
 
             ctor = callRecord._ctor;
-            prevThis = _this;
+            prevThisId = _thisId;
             
             _actualParamCount = callRecord._paramCount;
-            _this = callRecord._this;
-            assert(_this);
-            _thisPtr = Global::obj(_this);
+            _thisId = callRecord._thisId;
+            assert(_thisId);
+            _this = Global::obj(_thisId);
             _stack.restoreFrame(callRecord._frame, localsToPop);
             _framePtr =_stack.framePtr();
             
             _pc = callRecord._pc;
-            _functionPtr = callRecord._func;
+            _function = callRecord._func;
             
             _callRecords.resize(_callRecords.size() - 1);
         }
         
-        assert(_functionPtr->code()->size());
-        _constantsPtr = _functionPtr->constantsPtr();
+        assert(_function->code()->size());
+        _constants = _function->constantsPtr();
 
-        _formalParamCount = _functionPtr->formalParamCount();
+        _formalParamCount = _function->formalParamCount();
         _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
 
         updateCodePointer();
     
         if (!returnedValue && ctor) {
-            _stack.push(Value(prevThis));
+            _stack.push(Value(prevThisId));
         } else {
             _stack.push(returnedValue);
         }
@@ -414,11 +414,11 @@ static const uint16_t GCCount = 1000;
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADUP:
-        rightValue = _functionPtr->loadUpValue(this, inst.rb());
+        rightValue = _function->loadUpValue(this, inst.rb());
         setInFrame(inst.ra(), rightValue);
         DISPATCH;
     L_STOREUP:
-        _functionPtr->storeUpValue(this, inst.ra(), regOrConst(inst.rb()));
+        _function->storeUpValue(this, inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:
@@ -492,7 +492,7 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value());
         DISPATCH;
     L_LOADTHIS:
-        setInFrame(inst.ra(), Value(_this));
+        setInFrame(inst.ra(), Value(_thisId));
         DISPATCH;
     L_PUSH:
         _stack.push(regOrConst(inst.rn()));
@@ -656,7 +656,7 @@ static const uint16_t GCCount = 1000;
                 case Op::CALL:
                     leftValue = regOrConst(inst.rthis());
                     if (!leftValue) {
-                        leftValue = Value(_this);
+                        leftValue = Value(_thisId);
                     }
                     callReturnValue = objectValue->call(this, leftValue, uintValue, false);
                     break;

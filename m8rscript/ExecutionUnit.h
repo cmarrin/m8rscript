@@ -197,9 +197,9 @@ private:
 
     void updateCodePointer()
     {
-        assert(_functionPtr->code());
-        _codeSize = _functionPtr->code()->size();
-        _code = &(_functionPtr->code()->at(0));
+        assert(_function->code());
+        _codeSize = _function->code()->size();
+        _code = &(_function->code()->at(0));
     }
     
     Object* toObject(const Value& v, const char* s)
@@ -234,7 +234,7 @@ private:
     Value& regOrConst(uint32_t r)
     {
         if (r > MaxRegister) {
-            return _constantsPtr[r - MaxRegister - 1];
+            return _constants[r - MaxRegister - 1];
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
@@ -250,7 +250,7 @@ private:
             , _ctor(ctor)
             , _frame(frame)
             , _func(func)
-            , _this(thisId.raw())
+            , _thisId(thisId.raw())
         { }
         
         uint32_t _pc : 23;
@@ -258,7 +258,7 @@ private:
         bool _ctor : 1;
         uint32_t _frame;
         Function* _func;
-        ObjectId::Raw _this;
+        ObjectId::Raw _thisId;
     };
     
     std::vector<CallRecord> _callRecords;
@@ -266,10 +266,10 @@ private:
     
     uint32_t _pc = 0;
     Program* _program = nullptr;
-    ObjectId _this;
-    Function* _functionPtr;
-    Object* _thisPtr;
-    Value* _constantsPtr;
+    ObjectId _thisId;
+    Function* _function;
+    Object* _this;
+    Value* _constants;
     Value* _framePtr;
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;
