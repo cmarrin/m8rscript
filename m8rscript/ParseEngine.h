@@ -113,7 +113,7 @@ private:
     bool memberExpression();
     bool primaryExpression();
     
-    ObjectId functionExpression();
+    Function* functionExpression();
     bool classExpression();
     uint32_t argumentList();
     void forLoopCondAndIt();

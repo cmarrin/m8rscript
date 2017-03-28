@@ -2,12 +2,14 @@
 // Test of various functionality of m8rscript
 //
 
+/*
 printf("3.14 * 6 * 6 = %f\n", 3.14 * 6 * 6);
-
+*/
 var f = function(a) { return a + n; };
 
 var o = { n : 3 };
 println("Test Function.call (s/b 8): " + f.call(o, 5));
+/*
 
 for (var i = 0; i < 4; ++i) {
 	printf("Ternary operator test: the value %d is %s\n", i, ((i & 1) == 0) ? "even" : "odd");
@@ -83,3 +85,4 @@ println("a=" + a);
 for (var i = 0; i < 1000; ++i) {
 	var x = "String " + i;
 }
+*/

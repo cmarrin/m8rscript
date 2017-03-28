@@ -141,8 +141,6 @@ void ExecutionUnit::startExecution(Program* program)
     _nerrors = 0;
     _pc = 0;
     _program = program;
-    _object = _program->objectId();
-    assert(_object);
     _functionPtr =  _program;
     _constantsPtr = _functionPtr->constantsPtr();
     
@@ -203,19 +201,16 @@ void ExecutionUnit::runNextEvent()
     TaskManager::unlock();
         
     if (haveEvent) {
-        startFunction(func.asObjectIdValue(), thisValue.asObjectIdValue(), nargs, false);
+        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs, false);
     }
 }
 
-void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor)
+void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool ctor)
 {
     assert(_program);
     assert(function);
     
-    Object* p = Global::obj(function);
-    assert(p->isFunction());
-    Function* functionPtr = static_cast<Function*>(p);
-    _functionPtr =  static_cast<Function*>(functionPtr);
+    _functionPtr =  function;
     assert(_functionPtr->code()->size());
 
     _constantsPtr = _functionPtr->constantsPtr();
@@ -228,14 +223,11 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _this = thisObject;
     _thisPtr = Global::obj(_this);
     
-    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, functionPtr->localSize());
+    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _functionPtr->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, _object, prevThis, prevActualParamCount, ctor });
+    _callRecords.push_back({ _pc, prevFrame, _functionPtr, prevThis, prevActualParamCount, ctor });
     
     _pc = 0;    
-    _object = function;
-    assert(_object);
-
     _framePtr =_stack.framePtr();
 }
 
@@ -392,15 +384,11 @@ static const uint16_t GCCount = 1000;
             _framePtr =_stack.framePtr();
             
             _pc = callRecord._pc;
-            _object = callRecord._func;
+            _functionPtr = callRecord._func;
             
             _callRecords.resize(_callRecords.size() - 1);
         }
         
-        assert(_object);
-        objectValue = Global::obj(_object);
-        assert(objectValue->isFunction());
-        _functionPtr = static_cast<Function*>(objectValue);
         assert(_functionPtr->code()->size());
         _constantsPtr = _functionPtr->constantsPtr();
 

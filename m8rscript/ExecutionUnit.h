@@ -94,7 +94,6 @@ public:
     {
         assert(_program);
         Global::gcMark(this, _program->objectId());
-        Global::gcMark(this, _object);
         _stack.gcMark(this);
         _program->gcMark(this);
 
@@ -185,7 +184,7 @@ public:
 
 
 private:
-    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool ctor);
+    void startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool ctor);
     void runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -198,7 +197,6 @@ private:
 
     void updateCodePointer()
     {
-        assert(_object);
         assert(_functionPtr->code());
         _codeSize = _functionPtr->code()->size();
         _code = &(_functionPtr->code()->at(0));
@@ -246,12 +244,12 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, ObjectId funcId, ObjectId thisId, uint32_t paramCount, bool ctor)
+        CallRecord(uint32_t pc, uint32_t frame, Function* func, ObjectId thisId, uint32_t paramCount, bool ctor)
             : _pc(pc)
             , _paramCount(paramCount)
             , _ctor(ctor)
             , _frame(frame)
-            , _func(funcId.raw())
+            , _func(func)
             , _this(thisId.raw())
         { }
         
@@ -259,7 +257,7 @@ private:
         uint32_t _paramCount : 8;
         bool _ctor : 1;
         uint32_t _frame;
-        ObjectId::Raw _func;
+        Function* _func;
         ObjectId::Raw _this;
     };
     
@@ -268,7 +266,6 @@ private:
     
     uint32_t _pc = 0;
     Program* _program = nullptr;
-    ObjectId _object;
     ObjectId _this;
     Function* _functionPtr;
     Object* _thisPtr;

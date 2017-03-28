@@ -144,7 +144,7 @@ bool ParseEngine::classContentsStatement()
         retireToken();
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
-        ObjectId f = functionExpression();
+        Function* f = functionExpression();
         _parser->emitId(name, Parser::IdType::NotLocal);
         _parser->pushK(f);
         _parser->emitAppendProp();
@@ -152,7 +152,7 @@ bool ParseEngine::classContentsStatement()
     }
     if (getToken() == Token::Constructor) {
         retireToken();
-        ObjectId f = functionExpression();
+        Function* f = functionExpression();
         _parser->emitId(ATOM(constructor), Parser::IdType::NotLocal);
         _parser->pushK(f);
         _parser->emitAppendProp();
@@ -175,8 +175,8 @@ bool ParseEngine::functionStatement()
     retireToken();
     Atom name = _parser->atomizeString(getTokenValue().str);
     expect(Token::Identifier);
-    ObjectId f = functionExpression();
-    _parser->addNamedFunction(reinterpret_cast<Function*>(Global::obj(f)), name);
+    Function* f = functionExpression();
+    _parser->addNamedFunction(f, name);
     return true;
 }
 
@@ -748,7 +748,7 @@ bool ParseEngine::memberExpression()
     
     if (getToken() == Token::Function) {
         retireToken();
-        ObjectId f = functionExpression();
+        Function* f = functionExpression();
         _parser->pushK(f);
         return true;
     }
@@ -846,7 +846,7 @@ bool ParseEngine::propertyName()
     }
 }
 
-ObjectId ParseEngine::functionExpression()
+Function* ParseEngine::functionExpression()
 {
     expect(Token::LParen);
     _parser->functionStart();

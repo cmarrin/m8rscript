@@ -134,7 +134,7 @@ private:
     void functionAddParam(const Atom& atom);
     void functionStart();
     void functionParamsEnd();
-    ObjectId functionEnd();
+    Function* functionEnd();
         
     void pushK(StringLiteral::Raw value);
     void pushK(const char* value);
@@ -142,7 +142,7 @@ private:
     void pushK(Float value);
     void pushK(bool value);
     void pushK();
-    void pushK(ObjectId function);
+    void pushK(Function* function);
     void pushThis();    
 
     void addNamedFunction(Function*, const Atom&);

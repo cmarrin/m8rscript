@@ -251,14 +251,12 @@ void Parser::pushK()
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
-void Parser::pushK(ObjectId function)
+void Parser::pushK(Function* function)
 {
     if (_nerrors) return;
     
-    Object* obj = Global::obj(function);
-    assert(obj);
-    (void) obj;
-    ConstantId id = currentFunction()->addConstant(function);
+    assert(function);
+    ConstantId id = currentFunction()->addConstant(Value(function));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -626,7 +624,6 @@ void Parser::functionStart()
     if (_nerrors) return;
     
     _functions.emplace_back(new Function());
-    Global::addObject(currentFunction(), true);
 }
 
 void Parser::functionParamsEnd()
@@ -636,9 +633,9 @@ void Parser::functionParamsEnd()
     currentFunction()->markParamEnd();
 }
 
-ObjectId Parser::functionEnd()
+Function* Parser::functionEnd()
 {
-    if (_nerrors) return ObjectId();
+    if (_nerrors) return nullptr;
     
     assert(_functions.size());
     emitEnd();
@@ -649,7 +646,7 @@ ObjectId Parser::functionEnd()
     reconcileRegisters(function);
     function->setTempRegisterCount(tempRegisterCount);
     
-    return function->objectId();
+    return function;
 }
 
 static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
