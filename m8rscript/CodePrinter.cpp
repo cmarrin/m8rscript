@@ -427,8 +427,8 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
             _nestingLevel++;
             s += "\n";
             Function* func = value.asFunction();
-            const char* name = func->name() ? program->stringFromAtom(func->name()).c_str() : "unnamed";
-            s += generateCodeString(program, func, name, _nestingLevel);
+            String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
+            s += generateCodeString(program, func, name.c_str(), _nestingLevel);
             _nestingLevel--;
             break;
         }
