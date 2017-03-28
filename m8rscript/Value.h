@@ -301,7 +301,11 @@ private:
         union {
             RawValueType _raw = 0;
             struct {
+#ifdef __APPLE__
                 Type _type : 5;
+#else
+                uint32_t _type : 5;
+#endif
                 uint32_t _ : 11;
                 uint16_t _uint16 : 16;
                 uint32_t _uint32 : 32;
