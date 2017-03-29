@@ -72,6 +72,7 @@ void Error::vprintError(const SystemInterface* system, Code code, int32_t lineno
         case Code::RuntimeError: codeString = ROMSTR("Runtime"); break;
     }
     
+    system->printf("***** ");
     system->printf(codeString);
     system->printf(ROMSTR(" Error"));
     if (!format) {
