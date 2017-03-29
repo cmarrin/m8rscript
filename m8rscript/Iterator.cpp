@@ -45,10 +45,10 @@ Iterator::Iterator(Program* program)
 {
 }
 
-CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
+CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
-        return MaterObject::call(eu, thisValue, nparams, ctor, inScope);
+        return MaterObject::call(eu, thisValue, nparams, ctor);
     }
     
     Iterator* it = new Iterator();

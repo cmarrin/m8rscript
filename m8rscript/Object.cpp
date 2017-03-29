@@ -272,7 +272,7 @@ String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
 CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);
-    return obj ? obj->call(eu, objectId(), nparams, false, false) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, objectId(), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -308,7 +308,7 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyTy
     return true;
 }
 
-CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
+CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
@@ -321,7 +321,7 @@ CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        CallReturnValue retval = it->value.call(eu, id, nparams, true, inScope);
+        CallReturnValue retval = it->value.call(eu, id, nparams, true);
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
             return retval;
         }
@@ -389,30 +389,30 @@ bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program,
     if (!deserializeRead(stream, error, count)) {
         return false;
     }
-    while (count-- > 0) {
-        if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyId) {
-            return false;
-        }
-        uint16_t id;
-        if (!deserializeRead(stream, error, id) || id != 2) {
-            return false;
-        }
-        if (!deserializeRead(stream, error, id)) {
-            return false;
-        }
-        Function* function = new Function();
-        if (!function->deserialize(stream, error, program, atomTable, stringTable)) {
-            delete function;
-            return false;
-        }
-
-        // Convert id into space of the current Program
-        String idString = atomTable.stringFromAtom(Atom(id));
-        //Atom atom = program->atomizeString(idString.c_str());
-        
-        Global::addObject(function, true);
-        //_properties.push_back({ atom.raw(), functionId });
-    }
+//    while (count-- > 0) {
+//        if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyId) {
+//            return false;
+//        }
+//        uint16_t id;
+//        if (!deserializeRead(stream, error, id) || id != 2) {
+//            return false;
+//        }
+//        if (!deserializeRead(stream, error, id)) {
+//            return false;
+//        }
+//        Function* function = new Function();
+//        if (!function->deserialize(stream, error, program, atomTable, stringTable)) {
+//            delete function;
+//            return false;
+//        }
+//
+//        // Convert id into space of the current Program
+//        String idString = atomTable.stringFromAtom(Atom(id));
+//        //Atom atom = program->atomizeString(idString.c_str());
+//        
+//        Global::addObject(function, true);
+//        //_properties.push_back({ atom.raw(), functionId });
+//    }
     
     return true;
 }
@@ -476,7 +476,7 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         return ObjectId();
     }
 
-    CallReturnValue r = object->call(eu, Value(), nparams, true, false);
+    CallReturnValue r = object->call(eu, Value(), nparams, true);
     Value retValue;
     if (r.isReturnCount() && r.returnCount() > 0) {
         retValue = eu->stack().top(1 - r.returnCount());

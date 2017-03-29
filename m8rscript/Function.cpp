@@ -58,12 +58,12 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
         eu->stack().remove(1 - nparams);
         nparams--;
     
-        return call(eu, self, nparams, false, false);
+        return call(eu, self, nparams, false);
     }
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope)
+CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     eu->startFunction(this, thisValue.asObjectIdValue(), nparams, _parent == eu->currentFunction());
     return CallReturnValue(CallReturnValue::Type::FunctionStart);

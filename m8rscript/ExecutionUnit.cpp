@@ -654,16 +654,15 @@ static const uint16_t GCCount = 1000;
             switch(inst.op()) {
                 default: break;
                 case Op::CALL: {
-                    bool inScope = isConstant(inst.rcall());
                     leftValue = regOrConst(inst.rthis());
                     if (!leftValue) {
                         leftValue = Value(_thisId);
                     }
-                    callReturnValue = objectValue->call(this, leftValue, uintValue, false, inScope);
+                    callReturnValue = objectValue->call(this, leftValue, uintValue, false);
                     break;
                 }
                 case Op::NEW:
-                    callReturnValue = objectValue->call(this, Value(), uintValue, true, false);
+                    callReturnValue = objectValue->call(this, Value(), uintValue, true);
                     break;
                 case Op::CALLPROP:
                     callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);

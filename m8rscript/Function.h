@@ -67,7 +67,7 @@ public:
     Atom localName(int32_t index) const { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
     uint32_t localSize() const { return static_cast<uint32_t>(_locals.size()) + _tempRegisterCount; }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
     
     ConstantId addConstant(const Value&);
 
@@ -127,9 +127,9 @@ public:
         }
     }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override
     {
-        return _func ? _func->call(eu, thisValue, nparams, ctor, inScope) : CallReturnValue(CallReturnValue::Type::Error);
+        return _func ? _func->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
     }
 
     virtual bool serialize(Stream*, Error&, Program*) const override { return false; }

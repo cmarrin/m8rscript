@@ -97,7 +97,7 @@ public:
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor, bool inScope) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
     
