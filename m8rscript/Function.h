@@ -41,7 +41,26 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Function : public Object {
+class Closure;
+class Function;
+
+class Callable {
+public:
+    enum class Type { None, Function, Closure };
+    
+    virtual Type type() const { return Type::None; }
+    virtual const Code* code() const = 0;
+    virtual uint32_t localSize() const = 0;
+    virtual Value* constantsPtr() = 0;
+    virtual uint32_t formalParamCount() const = 0;
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const = 0;
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) = 0;
+    virtual Atom name() const = 0;
+    
+    bool isFunction() const { return type() == Type::Function; }
+};
+
+class Function : public Object, public Callable {
 public:
     Function(Function* parent);
 
@@ -59,13 +78,13 @@ public:
         }
     }
 
-    const Code* code() const { return &_code; }
+    virtual const Code* code() const override { return &_code; }
     Code* code() { return &_code; }
 
     int32_t addLocal(const Atom& name);
     int32_t localIndex(const Atom& name) const;
     Atom localName(int32_t index) const { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
-    uint32_t localSize() const { return static_cast<uint32_t>(_locals.size()) + _tempRegisterCount; }
+    virtual uint32_t localSize() const override { return static_cast<uint32_t>(_locals.size()) + _tempRegisterCount; }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
     
@@ -75,21 +94,28 @@ public:
 
     size_t constantCount() const { return _constants.size(); }
     
-    Value* constantsPtr() { return &(_constants.at(0)); }
+    virtual Value* constantsPtr() override { return &(_constants.at(0)); }
     
     void setName(const Atom s) { _name = s; }
-    Atom name() const { return _name; }
+    virtual Atom name() const override { return _name; }
     
-    uint32_t addUpValue(uint32_t index, uint16_t frame);
+    uint32_t addUpValue(uint32_t index, uint16_t frame, Atom name);
     
-    bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const;
-    bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const override;
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) override;
+    bool captureUpValue(ExecutionUnit*, uint32_t index, Value&) const;
     
-    Value upValue(uint32_t i) const { return _upValues[i]; }
-    size_t upValueCount() const { return _upValues.size(); }
+    void upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const
+    {
+        index = _upValues[i]._index;
+        frame = _upValues[i]._frame;
+        name = _upValues[i]._name;
+    }
+    
+    uint32_t upValueCount() const { return static_cast<uint32_t>(_upValues.size()); }
 
     void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
-    uint32_t formalParamCount() const { return _formalParamCount; }
+    virtual uint32_t formalParamCount() const override{ return _formalParamCount; }
     
     void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
@@ -97,51 +123,79 @@ public:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
+    virtual Type type() const override { return Type::Function; }
+
 protected:
     bool serializeContents(Stream*, Error&, Program*) const;
     bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
 private:
+    struct UpValueEntry {
+        UpValueEntry(uint32_t index, uint16_t frame, Atom name)
+            : _index(index)
+            , _frame(frame)
+            , _name(name)
+        { }
+        
+        bool operator==(const UpValueEntry& other) const
+        {
+            return _index == other._index && _frame == other._frame && _name == other._name;
+        }
+        
+        uint32_t _index;
+        uint16_t _frame;
+        Atom _name;
+    };
+    
+    std::vector<UpValueEntry> _upValues;
+    
     Code _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
     std::vector<Value> _constants;
     uint8_t _tempRegisterCount = 0;
-    std::vector<Value> _upValues;
     Atom _name;
     Function* _parent = nullptr;
 };
     
-class Closure : public Object {
+class Closure : public Object, public Callable {
 public:
-    Closure(Function* func) : _func(func) { }
+    Closure(ExecutionUnit* eu, Function* func);
     virtual ~Closure() { }
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
-        gcMark(eu);
+        _func->gcMark(eu);
         for (auto it : _upvalues) {
             it.gcMark(eu);
         }
     }
 
+    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
+
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override
     {
-        return _func ? _func->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
+        return _func->call(eu, thisValue, nparams, ctor);
+    }
+    
+    virtual bool serialize(Stream* stream, Error& error, Program* program) const override { return _func->serialize(stream, error, program); }
+    virtual bool deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& array) override
+    {
+        return _func->deserialize(stream, error, program, atomTable, array);
     }
 
-    virtual bool serialize(Stream*, Error&, Program*) const override { return false; }
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override { return false; }
+    virtual const Code* code() const override { return _func->code(); }
+    virtual uint32_t localSize() const override { return _func->localSize(); }
+    virtual Value* constantsPtr() override { return _func->constantsPtr(); }
+    virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value& value) const override { assert(index < _upvalues.size()); value = _upvalues[index]; return true; }
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value& value) override { assert(index < _upvalues.size()); _upvalues[index] = value; return true; }
+    virtual Atom name() const override { return _func->name(); }
+    virtual Type type() const override { return Type::Closure; }
 
-    void addUpValue(uint32_t index, uint16_t frame) { _upvalues.emplace_back(Value(index, frame)); }
-    
-    Value upValue(ExecutionUnit*, uint32_t index);
-    void setUpValue(ExecutionUnit*, uint32_t index, const Value&);
-    void captureUpValue(ExecutionUnit*, uint32_t index);
-    
-private:
+private:    
     Function* _func = nullptr;
     std::vector<Value> _upvalues;
 };

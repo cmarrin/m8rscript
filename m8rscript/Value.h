@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Function;
+class Callable;
 class NativeObject;
 class Object;
 class ExecutionUnit;
@@ -112,7 +112,7 @@ public:
         None = 0,
         Float = 1,
         Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
-        UpValue = 16, Function = 18,
+        Function = 16,
     };
 
     Value() { }
@@ -125,10 +125,7 @@ public:
     Value(StringId stringId) : _value(stringId) { }
     Value(StringLiteral stringId) : _value(stringId) { }
     Value(NativeObject* obj) : _value(obj) { }
-    Value(Function* obj) : _value(obj) { }
-    
-    // UpValue
-    Value(uint32_t index, uint16_t frame) : _value(index, frame) { }
+    Value(Callable* obj) : _value(obj) { }
     
     operator bool() const { return type() != Type::None; }
     bool operator==(const Value& other) { return _value == other._value; }
@@ -161,9 +158,7 @@ public:
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
-    Function* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
-    uint32_t asUpIndex() const { return (type() == Type::UpValue) ? uint32FromValue() : 0; }
-    uint16_t asUpFrame() const { return (type() == Type::UpValue) ? uint16FromValue() : 0; }
+    Callable* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -191,9 +186,7 @@ public:
         return _toIdValue(eu);
     }
     
-    Value toValue(ExecutionUnit* eu) const { return (type() == Type::UpValue) ? _toValue(eu) : *this; }
-    
-    Object* toObject(ExecutionUnit* eu) const { return (type() == Type::Function) ? reinterpret_cast<Object*>(asFunction()) : _toObject(eu); }
+    Object* toObject(ExecutionUnit* eu) const;
     
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
@@ -223,7 +216,6 @@ private:
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
     void _gcMark(ExecutionUnit*);
-    Object* _toObject(ExecutionUnit*) const;
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
     inline int32_t int32FromValue() const { return static_cast<int32_t>(_value.get32()); }
@@ -234,7 +226,7 @@ private:
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
-    inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value.getPtr()); }
+    inline Callable* functionFromValue() const { return reinterpret_cast<Callable*>(_value.getPtr()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -256,9 +248,7 @@ private:
         RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
         RawValue(ObjectId id) { set16(id.raw()); setType(Type::Object); }
         RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
-        RawValue(Function* obj) { setPtr(obj); setType(Type::Function); }
-        
-        RawValue(uint32_t index, uint16_t frame) { set32(index); set16(frame); setType(Type::UpValue); }
+        RawValue(Callable* obj) { setPtr(obj); setType(Type::Function); }
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
@@ -318,7 +308,7 @@ private:
             };
             struct {
                 uint32_t ___;
-                Function* _function;
+                Callable* _function;
             };
         };
     };

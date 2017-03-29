@@ -105,34 +105,39 @@ ConstantId Function::addConstant(const Value& v)
     return r;
 }
 
-uint32_t Function::addUpValue(uint32_t index, uint16_t frame)
+uint32_t Function::addUpValue(uint32_t index, uint16_t frame, Atom name)
 {
     assert(_upValues.size() < std::numeric_limits<uint16_t>::max());
-    Value upValue(index, frame);
+    UpValueEntry entry(index, frame, name);
     
     for (uint32_t i = 0; i < _upValues.size(); ++i) {
-        if (_upValues[i] == upValue) {
+        if (_upValues[i] == entry) {
             return i;
         }
             
     }
-    _upValues.push_back(upValue);
+    _upValues.push_back(entry);
     return static_cast<uint32_t>(_upValues.size()) - 1;
 }
 
 bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
-    assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
-    const Value& up = _upValues[index];
-    return eu->upValue(up.asUpIndex(), up.asUpFrame(), value);
+    assert(index < _upValues.size());
+    return eu->upValue(_upValues[index]._index, _upValues[index]._frame, value);
 }
 
 bool Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
-    assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
-    const Value& up = _upValues[index];
-    return eu->setUpValue(up.asUpIndex(), up.asUpFrame(), value);
+    assert(index < _upValues.size());
+    return eu->setUpValue(_upValues[index]._index, _upValues[index]._frame, value);
 }
+
+bool Function::captureUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
+{
+    assert(index < _upValues.size() && _upValues[index]._frame > 0);
+    return eu->upValue(_upValues[index]._index, _upValues[index]._frame - 1, value);
+}
+
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const
 {
@@ -282,21 +287,16 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     return true;
 }
 
-Value Closure::upValue(ExecutionUnit* eu, uint32_t index)
+Closure::Closure(ExecutionUnit* eu, Function* func)
+    : _func(func)
 {
-    assert(index < _upvalues.size());
-    return _upvalues[index].toValue(eu);
-}
+    assert(_func);
+    Global::addObject(this, true);
 
-void Closure::setUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
-{
-    assert(index < _upvalues.size());
-    _upvalues[index].toValue(eu) = value;
+    for (uint32_t i = 0; i < func->upValueCount(); ++i) {
+        Value value;
+        if (_func->captureUpValue(eu, i, value)) {
+            _upvalues.push_back(value);
+        }
+    }
 }
-
-void Closure::captureUpValue(ExecutionUnit* eu, uint32_t index)
-{
-    assert(index < _upvalues.size());
-    _upvalues[index] = _upvalues[index].toValue(eu);
-}
-

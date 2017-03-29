@@ -150,7 +150,7 @@ void CodePrinter::generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t 
     str += String(stringFromOp(op)) + " " + regString(rcall) + ", " + regString(rthis) + ", " + Value::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program, const Function* func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Program* program, const Callable* func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -189,6 +189,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         return String();
     }
     
+    assert(func->isFunction());
     const Function* function = static_cast<const Function*>(func);
     
     m8r::String outputString;
@@ -260,11 +261,13 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         _nestingLevel++;
 
         for (uint8_t i = 0; i < function->upValueCount(); ++i) {
-            Value constant = function->upValue(i);
             indentCode(outputString);
             outputString += "[" + Value::toString(i) + "] = ";
-            showValue(program, outputString, constant);
-            outputString += "\n";
+            uint32_t index;
+            uint16_t frame;
+            Atom name;
+            function->upValue(i, index, frame, name);
+            outputString += "UP(" + Value::toString(index) + ", " + Value::toString(frame) + "'" + program->stringFromAtom(name).c_str() + "')\n";
         }
         _nestingLevel--;
         outputString += "\n";
@@ -404,7 +407,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::Function: {
             _nestingLevel++;
             s += "\n";
-            Function* func = value.asFunction();
+            Callable* func = value.asFunction();
             String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
             s += generateCodeString(program, func, name.c_str(), _nestingLevel);
             _nestingLevel--;
@@ -417,7 +420,6 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
-        case Value::Type::UpValue: s += "UP(" + Value::toString(value.asUpIndex()) + ", " + Value::toString(value.asUpFrame()) + ")"; break;
         case Value::Type::Object: {
             s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
             break;

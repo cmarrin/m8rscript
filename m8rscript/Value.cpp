@@ -238,7 +238,6 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Null: return String("null");
         case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
         case Type::Function: return String("Function()"); // FIXME: Show some sort of function identifier, name or something
-        case Type::UpValue: return String("upvalue"); // FIXME: Show something?
     }
 }
 
@@ -270,7 +269,6 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Id:
         case Type::NativeObject:
         case Type::Function:
-        case Type::UpValue:
         case Type::None:
         case Type::Null:
             return Float();
@@ -297,24 +295,23 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::Id:
         case Type::NativeObject:
         case Type::Function:
-        case Type::UpValue:
         case Type::None:
         case Type::Null:
             return Atom();
     }
 }
 
-Value Value::_toValue(ExecutionUnit* eu) const
+Object* Value::toObject(ExecutionUnit* eu) const
 {
-    assert(type() == Type::UpValue);
-    Value v;
-    eu->upValue(_value.get32(), _value.get16(), v);
-    return v;
-}
-
-Object* Value::_toObject(ExecutionUnit* eu) const
-{
-    return Global::obj(asObjectIdValue());
+    if (type() != Type::Function) {
+        return Global::obj(asObjectIdValue());
+    }
+    Callable* callable = asFunction();
+    switch(callable->type()) {
+        case Callable::Type::None: return nullptr;
+        case Callable::Type::Function: return static_cast<Function*>(callable);
+        case Callable::Type::Closure: return static_cast<Closure*>(callable);
+    };
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)

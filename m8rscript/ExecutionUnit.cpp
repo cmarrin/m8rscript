@@ -205,12 +205,12 @@ void ExecutionUnit::runNextEvent()
     }
 }
 
-void ExecutionUnit::startFunction(Function* function, ObjectId thisObject, uint32_t nparams, bool inScope)
+void ExecutionUnit::startFunction(Callable* function, ObjectId thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);
     
-    Function* prevFunction = _function;
+    Callable* prevFunction = _function;
     _function =  function;
     assert(_function->code()->size());
 
@@ -370,6 +370,14 @@ static const uint16_t GCCount = 1000;
         localsToPop = _function->localSize() + _localOffset;
         
         {
+            // If the returned value is a function and it was called inScope, wrap it in a Closure
+            Callable* returnedFunction = returnedValue.asFunction();
+            if (returnedFunction && _inScope) {
+                // This had better not be a Closure!
+                assert(returnedFunction->isFunction());
+                returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction)))->objectId());
+            }
+        
             // Get the call record entries from the call stack and pop it.
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
