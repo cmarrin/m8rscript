@@ -82,8 +82,8 @@ public:
     
     uint32_t addUpValue(uint32_t index, uint16_t frame);
     
-    Value loadUpValue(ExecutionUnit*, uint32_t index) const;
-    void storeUpValue(ExecutionUnit*, uint32_t index, const Value&);
+    bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const;
+    bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&);
     
     Value upValue(uint32_t i) const { return _upValues[i]; }
     size_t upValueCount() const { return _upValues.size(); }

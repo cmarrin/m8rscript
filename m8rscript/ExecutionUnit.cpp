@@ -409,11 +409,16 @@ static const uint16_t GCCount = 1000;
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADUP:
-        rightValue = _function->loadUpValue(this, inst.rb());
-        setInFrame(inst.ra(), rightValue);
+        if (!_function->loadUpValue(this, inst.rb(), rightValue)) {
+            printError(ROMSTR("unable to load upValue"));
+        } else {
+            setInFrame(inst.ra(), rightValue);
+        }
         DISPATCH;
     L_STOREUP:
-        _function->storeUpValue(this, inst.ra(), regOrConst(inst.rb()));
+        if (!_function->storeUpValue(this, inst.ra(), regOrConst(inst.rb()))) {
+            printError(ROMSTR("unable to store upValue"));
+        }
         DISPATCH;
     L_LOADLITA:
     L_LOADLITO:

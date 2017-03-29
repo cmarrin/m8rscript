@@ -307,7 +307,9 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 Value Value::_toValue(ExecutionUnit* eu) const
 {
     assert(type() == Type::UpValue);
-    return eu->upValue(_value.get32(), _value.get16());
+    Value v;
+    eu->upValue(_value.get32(), _value.get16(), v);
+    return v;
 }
 
 Object* Value::_toObject(ExecutionUnit* eu) const

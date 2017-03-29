@@ -119,7 +119,6 @@ uint32_t Function::addUpValue(uint32_t index, uint16_t frame)
     return static_cast<uint32_t>(_upValues.size()) - 1;
 }
 
-Value Function::loadUpValue(ExecutionUnit* eu, uint32_t index) const
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];

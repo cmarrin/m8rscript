@@ -171,18 +171,24 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    Value upValue(uint32_t index, uint16_t frame) const
+    bool upValue(uint32_t index, uint16_t frame, Value& value) const
     {
         Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
-        return v ? *v : Value();
+        if (!v) {
+            return false;
+        }
+        value = *v;
+        return true;
     }
     
-    void setUpValue(uint32_t index, uint16_t frame, const Value& value)
+    bool setUpValue(uint32_t index, uint16_t frame, const Value& value)
     {
         Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
-        if (v) {
-            *v = value;
+        if (!v) {
+            return false;
         }
+        *v = value;
+        return true;
     }
 
 private:
