@@ -43,7 +43,7 @@ namespace m8r {
 
 class Function : public Object {
 public:
-    Function();
+    Function(Function* parent);
 
     virtual ~Function() { }
 
@@ -109,6 +109,7 @@ private:
     uint8_t _tempRegisterCount = 0;
     std::vector<Value> _upValues;
     Atom _name;
+    Function* _parent = nullptr;
 };
     
 class Closure : public Object {

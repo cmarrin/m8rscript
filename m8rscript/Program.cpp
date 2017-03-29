@@ -40,7 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Program::Program(SystemInterface* system)
-    : _global(this)
+    : Function(nullptr)
+    , _global(this)
     , _system(system)
 {
 }

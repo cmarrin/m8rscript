@@ -39,7 +39,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Function::Function()
+Function::Function(Function* parent)
+    : _parent(parent)
 {
     // Place a dummy constant at index 0 as an error return value
     _constants.push_back(Value());

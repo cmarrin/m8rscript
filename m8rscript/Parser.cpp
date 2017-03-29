@@ -623,7 +623,7 @@ void Parser::functionStart(bool ctor)
 {
     if (_nerrors) return;
     
-    _functions.emplace_back(new Function(), ctor);
+    _functions.emplace_back(new Function(currentFunction()), ctor);
 }
 
 void Parser::functionParamsEnd()
