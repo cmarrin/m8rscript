@@ -190,6 +190,8 @@ public:
         *v = value;
         return true;
     }
+    
+    Function* currentFunction() const { return _function; }
 
 private:
     Value* _upValue(uint32_t index, uint16_t frame)
