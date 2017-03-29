@@ -119,17 +119,18 @@ uint32_t Function::addUpValue(uint32_t index, uint16_t frame)
     return static_cast<uint32_t>(_upValues.size()) - 1;
 }
 
+bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];
-    return eu->upValue(up.asUpIndex(), up.asUpFrame());
+    return eu->upValue(up.asUpIndex(), up.asUpFrame(), value);
 }
 
-void Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+bool Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
     assert(index < _upValues.size() && _upValues[index].type() == Value::Type::UpValue);
     const Value& up = _upValues[index];
-    eu->setUpValue(up.asUpIndex(), up.asUpFrame(), value);
+    return eu->setUpValue(up.asUpIndex(), up.asUpFrame(), value);
 }
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const
