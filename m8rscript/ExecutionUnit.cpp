@@ -375,7 +375,9 @@ static const uint16_t GCCount = 1000;
             if (returnedFunction && _inScope) {
                 // This had better not be a Closure!
                 assert(returnedFunction->isFunction());
-                returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction)))->objectId());
+                if (returnedFunction->hasUpValues()) {
+                    returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction)))->objectId());
+                }
             }
         
             // Get the call record entries from the call stack and pop it.
@@ -665,7 +667,9 @@ static const uint16_t GCCount = 1000;
                 if (function) {
                     // This had better not be a Closure!
                     assert(function->isFunction());
-                    stack().top(i) = Value((new Closure(this, static_cast<Function*>(function)))->objectId());
+                    if (function->hasUpValues()) {
+                        stack().top(i) = Value((new Closure(this, static_cast<Function*>(function)))->objectId());
+                    }
                 }
             }
             

@@ -56,6 +56,7 @@ public:
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const = 0;
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) = 0;
     virtual Atom name() const = 0;
+    virtual bool hasUpValues() const { return false; }
     
     bool isFunction() const { return type() == Type::Function; }
 };
@@ -124,6 +125,8 @@ public:
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
     virtual Type type() const override { return Type::Function; }
+
+    virtual bool hasUpValues() const override { return !_upValues.empty(); }
 
 protected:
     bool serializeContents(Stream*, Error&, Program*) const;
