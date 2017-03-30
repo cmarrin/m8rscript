@@ -78,6 +78,7 @@ protected:
 
 class ExecutionUnit {
 public:
+    friend class Closure;
     friend class Function;
     
     ExecutionUnit()

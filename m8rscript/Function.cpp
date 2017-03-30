@@ -300,3 +300,10 @@ Closure::Closure(ExecutionUnit* eu, Function* func)
         }
     }
 }
+
+CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+{
+    eu->startFunction(this, thisValue.asObjectIdValue(), nparams, false);
+    return CallReturnValue(CallReturnValue::Type::FunctionStart);
+}
+
