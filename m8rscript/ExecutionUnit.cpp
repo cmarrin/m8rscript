@@ -201,7 +201,7 @@ void ExecutionUnit::runNextEvent()
     TaskManager::unlock();
         
     if (haveEvent) {
-        startFunction(func.asFunction(), thisValue.asObjectIdValue(), nargs, false);
+        func.call(this, thisValue, nargs, false);
     }
 }
 
