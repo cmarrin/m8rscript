@@ -123,19 +123,19 @@ uint32_t Function::addUpValue(uint32_t index, uint16_t frame, Atom name)
 bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
     assert(index < _upValues.size());
-    return eu->upValue(_upValues[index]._index, _upValues[index]._frame, value);
+    return eu->upValue(_upValues[index]._index, _upValues[index]._frame, value, true);
 }
 
 bool Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
     assert(index < _upValues.size());
-    return eu->setUpValue(_upValues[index]._index, _upValues[index]._frame, value);
+    return eu->setUpValue(_upValues[index]._index, _upValues[index]._frame, value, true);
 }
 
 bool Function::captureUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
     assert(index < _upValues.size() && _upValues[index]._frame > 0);
-    return eu->upValue(_upValues[index]._index, _upValues[index]._frame - 1, value);
+    return eu->upValue(_upValues[index]._index, _upValues[index]._frame - 1, value, false);
 }
 
 

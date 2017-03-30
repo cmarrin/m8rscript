@@ -187,8 +187,24 @@ public:
     virtual uint32_t localSize() const override { return _func->localSize(); }
     virtual Value* constantsPtr() override { return _func->constantsPtr(); }
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value& value) const override { assert(index < _upvalues.size()); value = _upvalues[index]; return true; }
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value& value) override { assert(index < _upvalues.size()); _upvalues[index] = value; return true; }
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value& value) const override
+    {
+        if (index >= _upvalues.size()) {
+            return false;
+        }
+        value = _upvalues[index];
+        return true;
+    }
+    
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value& value) override
+    {
+        if (index >= _upvalues.size()) {
+            return false;
+        }
+        _upvalues[index] = value;
+        return true;
+    }
+    
     virtual Atom name() const override { return _func->name(); }
     virtual Type type() const override { return Type::Closure; }
 

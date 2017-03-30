@@ -659,6 +659,16 @@ static const uint16_t GCCount = 1000;
         objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
         uintValue = inst.nparams();
         if (objectValue) {
+            // If any passed parameter is a function, wrap it in a Closure
+            for (int32_t i = 1 - uintValue; i <= 0; ++i) {
+                Callable* function = stack().top(i).asFunction();
+                if (function) {
+                    // This had better not be a Closure!
+                    assert(function->isFunction());
+                    stack().top(i) = Value((new Closure(this, static_cast<Function*>(function)))->objectId());
+                }
+            }
+            
             switch(inst.op()) {
                 default: break;
                 case Op::CALL: {

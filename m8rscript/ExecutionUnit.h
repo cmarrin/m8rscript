@@ -172,9 +172,9 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    bool upValue(uint32_t index, uint16_t frame, Value& value) const
+    bool upValue(uint32_t index, uint16_t frame, Value& value, bool mustBeInScope) const
     {
-        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
+        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame, mustBeInScope);
         if (!v) {
             return false;
         }
@@ -182,9 +182,9 @@ public:
         return true;
     }
     
-    bool setUpValue(uint32_t index, uint16_t frame, const Value& value)
+    bool setUpValue(uint32_t index, uint16_t frame, const Value& value, bool mustBeInScope)
     {
-        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame);
+        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame, mustBeInScope);
         if (!v) {
             return false;
         }
@@ -195,12 +195,12 @@ public:
     Callable* currentFunction() const { return _function; }
 
 private:
-    Value* _upValue(uint32_t index, uint16_t frame)
+    Value* _upValue(uint32_t index, uint16_t frame, bool mustBeInScope)
     {
         // FIXME: Should we handle the case of trying to access an upValue when out of scope? We could
         // store the atom of the original variable name and try to access it as a REFK. For now, just
         // error.
-        if (!_inScope) {
+        if (mustBeInScope && !_inScope) {
             return nullptr;
         }
         
@@ -208,11 +208,11 @@ private:
         // the current frame, which isn't represented in the call record stack, so frame 1 is actually
         // the last entry in _callRecords, frame 2 is the second to last, etc. If the frame is 0 it means
         // We're capturing, so we use the current frame
-        assert(_callRecords.size() > frame);
         if (frame == 0) {
             return _framePtr + index;
         }
         
+        assert(_callRecords.size() > frame);
         int32_t i = _callRecords[_callRecords.size() - frame]._frame + index - static_cast<int32_t>(_stack.size()) + 1;
         return &_stack.top(i);
     }

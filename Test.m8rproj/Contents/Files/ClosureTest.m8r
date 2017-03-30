@@ -2,7 +2,7 @@
 // Up value tests.
 //
 
-// Simple test of nested functions being able to access parent values, no capture needed
+// Test 1: Simple test of nested functions being able to access parent values, no capture needed
 function f0(a0) {
 	var b0 = 2;
 	var f1 = function(a1) {
@@ -17,30 +17,49 @@ function f0(a0) {
 }
 
 var g = f0(1);
-printf("Nested function call test (no capture): result (s/b 21)=%d\n", g);
+printf("1) Nested function call test (no capture): result (s/b 21)=%d\n", g);
 
 
-// Simple test of nested function with closure
-function a(b) {
+// Test 2: Simple test of nested function with closure
+function test2(b) {
 	var c = 5;
 	return function(e) {
 		return b + c + e;
 	};
 }
 
-var f = a(3);
-printf("result=%d\n", f(7));
+var f = test2(3);
+printf("2) Simple test nested function with closure (s/b 15): %d\n", f(7));
 
-/*
+// Test 3: Test of when Closure is captured
+function Test3() {
+    var a = 5;
+    var b = function() { return a; };
+    a = 10;
+    return b;
+}
 
+var f = Test3();
+printf("3) Test of when Closure is captured (s/b 10): %f\n", f());
 
-// Observer pattern test
+// Test 4: Simple test of capturing passed function
+function Test4(func)
+{
+	printf("4) Test of capturing passed function (s/b 20): %f\n", func());
+}
+
+var a = 10;
+var b = function() { return a; };
+a = 20;
+Test4(b);
+
+// Test 5: Observer pattern test
 class Clock
 {
 	var port = 8080;
 	function fetchTime(host) {
 		IPAddr.lookupHostname(host, function(name, ip) {
-			printf("Looked up %s, got %s, port=%d\n", name, ip, port);
+			printf("5) Looked up %s, got %s, port=%d\n", name, ip, port);
 		});
 	}
 }
@@ -48,8 +67,7 @@ class Clock
 var current = new Clock();
 current.fetchTime("time.nist.gov");
 
-
-// Test from JavaScript
+// Test 6: Test from JavaScript
 function celebrityID () {
     var celebrityID = 999;
     // We are returning an object with some inner functions​
@@ -71,4 +89,3 @@ var mjID = celebrityID (); // At this juncture, the celebrityID outer function h
 println("celebrityID (s/b 999) = " + mjID.getID()); // 999​
 mjID.setID(567); // Changes the outer function's variable​
 println("celebrityID (s/b 567) = " + mjID.getID()); // 567: It returns the updated celebrityId variable
-*/
