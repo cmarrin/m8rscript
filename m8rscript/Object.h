@@ -113,12 +113,11 @@ private:
     bool _collectable = false;
 };
 
-// This is an object with a property map, which is read only from m8rscript
-class PropertyObject : public Object {
+class MaterObject : public Object {
 public:    
-    virtual ~PropertyObject();
+    virtual ~MaterObject();
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
+    virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
@@ -129,11 +128,8 @@ public:
     }
     
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
-
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
-
-    bool setProperty(const Atom& prop, const Value& v, SetPropertyType);
-    
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, SetPropertyType type) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
     virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
@@ -143,26 +139,12 @@ public:
         }
         return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
     }
-
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override;
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
     
+private:
     void removeNoncollectableObjects();
 
     Value::Map _properties;
-};
 
-class MaterObject : public PropertyObject {
-public:    
-    virtual ~MaterObject() { }
-
-    virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
-
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, SetPropertyType type) override
-    {
-        return PropertyObject::setProperty(prop, v, type);
-    }
 };
 
 class NativeFunction : public Object {
@@ -200,7 +182,7 @@ public:
     static ObjectId create(Atom objectName, ExecutionUnit*, uint32_t nparams);
 
 protected:
-    PropertyObject _obj;
+    MaterObject _obj;
 };
     
 }

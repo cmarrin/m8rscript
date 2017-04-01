@@ -47,34 +47,7 @@ class Parser;
 class Function;
 class Program;
 
-class ExecutionStack : public Stack<Value>, public Object
-{
-public:
-    ExecutionStack(uint32_t size) : Stack<Value>(size) { }
-
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Local") : Object::toString(eu, false); }
-
-    virtual void gcMark(ExecutionUnit* eu) override
-    {
-        for (auto entry : *this) {
-            entry.gcMark(eu);
-        }
-    }
-    
-    const Value* framePtr() const { return Stack::framePtr(); }
-    Value* framePtr() { return Stack::framePtr(); }
-    
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override
-    {
-        return true;
-    }
-
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
-    {
-        return true;
-    }
-};
+typedef Stack<Value> ExecutionStack;
 
 class ExecutionUnit {
 public:
@@ -84,18 +57,20 @@ public:
     ExecutionUnit()
         : _stack(200)
     {
-        Global::addObject(&_stack, false);
     }
     ~ExecutionUnit()
     {
-        Global::removeObject(_stack.objectId());
     }
     
     void gcMark()
     {
         assert(_program);
         Global::gcMark(this, _program->objectId());
-        _stack.gcMark(this);
+        
+        for (auto entry : _stack) {
+            entry.gcMark(this);
+        }
+        
         _program->gcMark(this);
 
         TaskManager::lock();

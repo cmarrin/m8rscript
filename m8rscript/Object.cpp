@@ -252,7 +252,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
-PropertyObject::~PropertyObject()
+MaterObject::~MaterObject()
 {
     auto it = _properties.find(ATOM(__nativeObject));
     if (it != _properties.end()) {
@@ -264,18 +264,44 @@ PropertyObject::~PropertyObject()
     removeNoncollectableObjects();
 }
 
-String PropertyObject::toString(ExecutionUnit* eu, bool typeOnly) const
+String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    return typeOnly ? String() : eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue()) + " { }";
+    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue());
+    
+    if (typeOnly) {
+        return typeName.empty() ? String("Object") : typeName;
+    }
+    
+    // FIXME: Pretty print
+    String s = "{ ";
+    bool first = true;
+    for (auto prop : _properties) {
+        if (!first) {
+            s += ", ";
+        } else {
+            first = false;
+        }
+        s += eu->program()->stringFromAtom(prop.key);
+        s += " : ";
+        
+        // Avoid loops
+        if (prop.value.isObjectId()) {
+            s += Object::toString(eu);
+        } else {
+            s += prop.value.toStringValue(eu);
+        }
+    }
+    s += " }";
+    return s;
 }
 
-CallReturnValue PropertyObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);
     return obj ? obj->call(eu, objectId(), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
-const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
+const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
@@ -285,7 +311,7 @@ const Value PropertyObject::property(ExecutionUnit* eu, const Atom& prop) const
     return it->value;
 }
 
-bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyType type)
+bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, SetPropertyType type)
 {
     Value oldValue = property(nullptr, prop);
     
@@ -308,7 +334,7 @@ bool PropertyObject::setProperty(const Atom& prop, const Value& v, SetPropertyTy
     return true;
 }
 
-CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
@@ -330,7 +356,7 @@ CallReturnValue PropertyObject::call(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-void PropertyObject::removeNoncollectableObjects()
+void MaterObject::removeNoncollectableObjects()
 {
     for (auto it : _properties) {
         Object* obj = Global::obj(it.value);
@@ -340,116 +366,10 @@ void PropertyObject::removeNoncollectableObjects()
     }
 }
 
-bool PropertyObject::serialize(Stream* stream, Error& error, Program* program) const
-{
-    // Write the Function properties
-    if (!serializeWrite(stream, error, ObjectDataType::PropertyCount)) {
-        return false;
-    }
-    if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
-        return false;
-    }
-    if (!serializeWrite(stream, error, static_cast<uint16_t>(_properties.size()))) {
-        return false;
-    }
-//    for (auto entry : _properties) {
-//        Object* obj = Global::obj(entry.value);
-//        // Only store functions
-//        if (!obj || !obj->isFunction()) {
-//            continue;
-//        }
-//        if (!serializeWrite(stream, error, ObjectDataType::PropertyId)) {
-//            return false;
-//        }
-//        if (!serializeWrite(stream, error, static_cast<uint16_t>(2))) {
-//            return false;
-//        }
-//        if (!serializeWrite(stream, error, entry.key.raw())) {
-//            return false;
-//        }
-//        if (!obj->serialize(stream, error, program)) {
-//            return false;
-//        }
-//    }
-    
-    return true;
-}
-
-bool PropertyObject::deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& stringTable)
-{
-    // Read the Function Properties
-    ObjectDataType type;
-    if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyCount) {
-        return false;
-    }
-    uint16_t count;
-    if (!deserializeRead(stream, error, count) || count != 2) {
-        return false;
-    }
-    if (!deserializeRead(stream, error, count)) {
-        return false;
-    }
-//    while (count-- > 0) {
-//        if (!deserializeRead(stream, error, type) || type != ObjectDataType::PropertyId) {
-//            return false;
-//        }
-//        uint16_t id;
-//        if (!deserializeRead(stream, error, id) || id != 2) {
-//            return false;
-//        }
-//        if (!deserializeRead(stream, error, id)) {
-//            return false;
-//        }
-//        Function* function = new Function();
-//        if (!function->deserialize(stream, error, program, atomTable, stringTable)) {
-//            delete function;
-//            return false;
-//        }
-//
-//        // Convert id into space of the current Program
-//        String idString = atomTable.stringFromAtom(Atom(id));
-//        //Atom atom = program->atomizeString(idString.c_str());
-//        
-//        Global::addObject(function, true);
-//        //_properties.push_back({ atom.raw(), functionId });
-//    }
-    
-    return true;
-}
-
-String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
-{
-    if (typeOnly) {
-        return String("Object");
-    }
-    
-    // FIXME: Pretty print
-    String s = "{ ";
-    bool first = true;
-    for (auto prop : _properties) {
-        if (!first) {
-            s += ", ";
-        } else {
-            first = false;
-        }
-        s += eu->program()->stringFromAtom(prop.key);
-        s += " : ";
-        
-        // Avoid loops
-        if (prop.value.isObjectId()) {
-            s += PropertyObject::toString(eu);
-        } else {
-            s += prop.value.toStringValue(eu);
-        }
-    }
-    s += " }";
-    return s;
-}
-
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {
-        _obj.setProperty(ATOM(__typeName), program->atomizeString(name), Object::SetPropertyType::AlwaysAdd);
+        _obj.setProperty(nullptr, ATOM(__typeName), program->atomizeString(name), Object::SetPropertyType::AlwaysAdd);
     }
 }
 
@@ -461,7 +381,7 @@ void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 
 void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
 {
-    _obj.setProperty(prop, value, Object::SetPropertyType::AlwaysAdd);
+    _obj.setProperty(nullptr, prop, value, Object::SetPropertyType::AlwaysAdd);
 }
 
 ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
