@@ -303,15 +303,32 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 
 Object* Value::toObject(ExecutionUnit* eu) const
 {
-    if (type() != Type::Function) {
-        return Global::obj(asObjectIdValue());
+    switch(type()) {
+        case Type::Object:
+            return Global::obj(asObjectIdValue());
+        case Type::Function: {
+            Callable* callable = asFunction();
+            switch(callable->type()) {
+                case Callable::Type::None: return nullptr;
+                case Callable::Type::Function: return static_cast<Function*>(callable);
+                case Callable::Type::Closure: return static_cast<Closure*>(callable);
+            };
+        }
+        case Type::Integer:
+        case Type::Float: 
+            // FIXME: Implement a Number object
+            break;
+        case Type::StringLiteral:
+        case Type::String:
+            // FIXME: Implement a String object
+            break;
+        case Type::Id:
+        case Type::NativeObject:
+        case Type::None:
+        case Type::Null:
+            break;
     }
-    Callable* callable = asFunction();
-    switch(callable->type()) {
-        case Callable::Type::None: return nullptr;
-        case Callable::Type::Function: return static_cast<Function*>(callable);
-        case Callable::Type::Closure: return static_cast<Closure*>(callable);
-    };
+    return nullptr;
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
