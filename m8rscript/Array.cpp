@@ -57,9 +57,9 @@ const Value Array::property(ExecutionUnit*, const Atom& name) const
     return (name == ATOM(length)) ? Value(static_cast<int32_t>(_array.size())) : Value();
 }
 
-bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, SetPropertyType type)
+bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, Value::SetPropertyType type)
 {
-    if (type == SetPropertyType::AlwaysAdd) {
+    if (type == Value::SetPropertyType::AlwaysAdd) {
         return false;
     }
     if (name == ATOM(length)) {

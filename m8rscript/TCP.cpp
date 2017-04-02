@@ -95,7 +95,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
-    obj->setProperty(eu, ATOM(__nativeObject), Value(delegate), Object::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, ATOM(__nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

@@ -58,14 +58,13 @@ public:
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
     
-    enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, SetPropertyType) { return false; }
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetPropertyType) { return false; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
     
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
     {
-        return setProperty(eu, elt.toIdValue(eu), value, append ? SetPropertyType::AlwaysAdd : SetPropertyType::NeverAdd);
+        return setProperty(eu, elt.toIdValue(eu), value, append ? Value::SetPropertyType::AlwaysAdd : Value::SetPropertyType::NeverAdd);
     }
 
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Type::Error); }
@@ -74,7 +73,7 @@ public:
     static constexpr int32_t IteratorCount = -1;
     static constexpr int32_t IteratorNext = -2;
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
-    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, SetPropertyType) { return false; }
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, Value::SetPropertyType) { return false; }
 
     bool serializeObject(Stream*, Error&, Program*) const;
     bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
@@ -129,7 +128,7 @@ public:
     
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, SetPropertyType type) override;
+    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, Value::SetPropertyType type) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
     virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override

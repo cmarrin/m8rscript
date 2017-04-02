@@ -86,15 +86,15 @@ const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
     return Value();
 }
 
-bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, SetPropertyType type)
+bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
 {
-    if (type == SetPropertyType::AlwaysAdd) {
+    if (type == Value::SetPropertyType::AlwaysAdd) {
         return false;
     }
     
     Object* obj = Global::obj(_object);
     int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value, SetPropertyType::NeverAdd) : false;
+    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
 }
 
 const Value Iterator::value(ExecutionUnit* eu) const

@@ -81,7 +81,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     if (_this) {
         Value oldValue = _this->property(this, atom);
         if (oldValue) {
-            if (!_this->setProperty(this, atom, value, Object::SetPropertyType::AddIfNeeded)) {
+            if (!_this->setProperty(this, atom, value, Value::SetPropertyType::AddIfNeeded)) {
                 printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
             }
             return;

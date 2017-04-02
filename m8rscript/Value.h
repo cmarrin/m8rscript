@@ -207,6 +207,7 @@ public:
         }
     }
     
+    enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor);
     
     bool needsGC() const { return type() == Type::Object || type() == Type::String; }

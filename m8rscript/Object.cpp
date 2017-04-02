@@ -311,14 +311,14 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     return it->value;
 }
 
-bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, SetPropertyType type)
+bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
     Value oldValue = property(nullptr, prop);
     
-    if (oldValue && type == SetPropertyType::AlwaysAdd) {
+    if (oldValue && type == Value::SetPropertyType::AlwaysAdd) {
         return false;
     }
-    if (!oldValue && type == SetPropertyType::NeverAdd) {
+    if (!oldValue && type == Value::SetPropertyType::NeverAdd) {
         return false;
     }
     
@@ -369,7 +369,7 @@ void MaterObject::removeNoncollectableObjects()
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {
-        _obj.setProperty(nullptr, ATOM(__typeName), program->atomizeString(name), Object::SetPropertyType::AlwaysAdd);
+        _obj.setProperty(nullptr, ATOM(__typeName), program->atomizeString(name), Value::SetPropertyType::AlwaysAdd);
     }
 }
 
@@ -381,7 +381,7 @@ void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 
 void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
 {
-    _obj.setProperty(nullptr, prop, value, Object::SetPropertyType::AlwaysAdd);
+    _obj.setProperty(nullptr, prop, value, Value::SetPropertyType::AlwaysAdd);
 }
 
 ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
