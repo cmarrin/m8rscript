@@ -431,55 +431,39 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value(objectId));
         DISPATCH;
     L_LOADPROP:
-        objectValue = toObject(regOrConst(inst.rb()), "LOADPROP");
-        if (!objectValue) {
-            DISPATCH;
+        leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
+        if (!leftValue) {
+            objectError("LOADPROP");
+        } else {
+            setInFrame(inst.ra(), leftValue);
         }
-        setInFrame(inst.ra(), objectValue->property(this, regOrConst(inst.rc()).toIdValue(this)));
         DISPATCH;
     L_LOADELT:
-        objectValue = toObject(regOrConst(inst.rb()), "LOADELT");
-        if (!objectValue) {
-            DISPATCH;
+        leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
+        if (!leftValue) {
+            objectError("LOADELT");
+        } else {
+            setInFrame(inst.ra(), leftValue);
         }
-        setInFrame(inst.ra(), objectValue->element(this, regOrConst(inst.rc())));
         DISPATCH;
     L_STOPROP:
-        objectValue = toObject(regOrConst(inst.ra()), "STOPROP");
-        if (!objectValue) {
-            DISPATCH;
-        }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::AddIfNeeded)) {
+        if (!regOrConst(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AddIfNeeded)) {
             printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
-            checkTooManyErrors();
         }
-            
         DISPATCH;
     L_STOELT:
-        objectValue = toObject(regOrConst(inst.ra()), "STOELT");
-        if (!objectValue) {
-            DISPATCH;
-        }
-        if (!objectValue->setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
+        if (!regOrConst(inst.ra()).setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
             printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
-            checkTooManyErrors();
+        }
+        DISPATCH;
+    L_APPENDPROP:
+        if (!regOrConst(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AlwaysAdd)) {
+            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
         }
         DISPATCH;
     L_APPENDELT:
-        objectValue = toObject(regOrConst(inst.ra()), "APPENDELT");
-        if (!objectValue) {
-            DISPATCH;
-        }
-        objectValue->setElement(this, Value(), regOrConst(inst.rb()), true);
-        DISPATCH;
-    L_APPENDPROP:
-        objectValue = toObject(regOrConst(inst.ra()), "APPENDPROP");
-        if (!objectValue) {
-            DISPATCH;
-        }
-        if (!objectValue->setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Object::SetPropertyType::AlwaysAdd)) {
-            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
-            DISPATCH;
+        if (!regOrConst(inst.ra()).setElement(this, Value(), regOrConst(inst.rb()), true)) {
+            objectError("APPENDELT");
         }
         DISPATCH;
     L_LOADTRUE:
@@ -661,29 +645,24 @@ static const uint16_t GCCount = 1000;
     L_NEW:
     L_CALL:
     L_CALLPROP:
-        objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
+        leftValue = regOrConst(inst.rcall());
         uintValue = inst.nparams();
-        if (objectValue) {
-            switch(inst.op()) {
-                default: break;
-                case Op::CALL: {
-                    leftValue = regOrConst(inst.rthis());
-                    if (!leftValue) {
-                        leftValue = Value(_thisId);
-                    }
-                    callReturnValue = objectValue->call(this, leftValue, uintValue, false);
-                    break;
+        switch(inst.op()) {
+            default: break;
+            case Op::CALL: {
+                rightValue = regOrConst(inst.rthis());
+                if (!rightValue) {
+                    rightValue = Value(_thisId);
                 }
-                case Op::NEW:
-                    callReturnValue = objectValue->call(this, Value(), uintValue, true);
-                    break;
-                case Op::CALLPROP:
-                    callReturnValue = objectValue->callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
-                    break;
+                callReturnValue = leftValue.call(this, rightValue, uintValue, false);
+                break;
             }
-        } else {
-            // Simulate a return count of 0. No need to flag this as an error. We already showed an error above
-            callReturnValue = CallReturnValue();
+            case Op::NEW:
+                callReturnValue = leftValue.call(this, Value(), uintValue, true);
+                break;
+            case Op::CALLPROP:
+                callReturnValue = leftValue.callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
+                break;
         }
         
         if (callReturnValue.isError()) {
