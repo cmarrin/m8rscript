@@ -54,6 +54,7 @@ TCPProto::TCPProto(Program* program)
     addProperty(program, ATOM(Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
     addProperty(program, ATOM(Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
     addProperty(program, ATOM(Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
+    addProperty(program, ATOM(Error), Value(static_cast<int32_t>(TCPDelegate::Event::Error)));
     addProperty(program, ATOM(ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
     addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
     addProperty(program, ATOM(MaxConnections), Value(static_cast<int32_t>(TCP::MaxConnections)));

@@ -50,7 +50,7 @@ class IPAddr;
 
 class UDPDelegate {
 public:
-    enum class Event { Disconnected, ReceivedData, SentData };
+    enum class Event { Disconnected, ReceivedData, SentData, Error };
     
     virtual void UDPevent(UDP*, Event, const char* data = nullptr, uint16_t length = 0) = 0;
 };

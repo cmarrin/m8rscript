@@ -61,6 +61,7 @@ public:
         BothEdges,
         Connected,
         Disconnected, 
+        Error, 
         FallingEdge,
         GPIO,
         High,

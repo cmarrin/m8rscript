@@ -14,8 +14,8 @@ class Clock
 {
 	var _host = "time.nist.gov";
 	var _port = 13;
-	var _func;
 	var year, month, day, hour, minute, second, dst;
+	var _server;
 	
 	constructor(host, port) {
 		if (host && host != "") {
@@ -27,17 +27,22 @@ class Clock
 	}
 	
 	function fetchTime(func) {
-		_func = func;
-		IPAddr.lookupHostname(_host, function(name, ip) {
+		IPAddr.lookupHostname(_host, capture function(name, ip) {
 			printf("Looked up %s, got %s\n", name, ip);
 			if (ip) {
-				var server = new TCP(ip, _port, function(event, connectionId, dataValue) {
+				printf("Creating TCP server to port %d\n", _port);
+				_server = new TCP(ip, _port, function(event, connectionId, dataValue) {
+					printf("TCP server got event %d\n", event);
 					switch(event) {
+						case TCP.Error: {
+							printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+						}
 						case TCP.Connected: {
 							printf("Connected\n");
     						send(connectionId, "\n");
    						}
 						case TCP.ReceivedData: {
+							dataValue = dataValue.trim();
 							printf("Received DAYTIME string: '%s'\n", dataValue);
 							var array = dataValue.split(" ", true);
 							
@@ -52,7 +57,7 @@ class Clock
 							second = toInt(timeArray[2]);
 							
 							dst = toInt(array[3]) >= 50;
-							_func();
+							func();
 						}
 					}
 				});

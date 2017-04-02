@@ -49,6 +49,7 @@ static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
 static const char _Connected[] ROMSTR_ATTR = "Connected";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
+static const char _Error[] ROMSTR_ATTR = "Error";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
 static const char _High[] ROMSTR_ATTR = "High";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
@@ -110,6 +111,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(BothEdges),
     AtomEntry(Connected),
     AtomEntry(Disconnected),
+    AtomEntry(Error),
     AtomEntry(FallingEdge),
     AtomEntry(GPIO),
     AtomEntry(High),
