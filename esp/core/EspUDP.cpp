@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Esp.h"
 #include "IPAddr.h"
 #include <stdlib.h>
+#include <lwip/igmp.h>
 
 using namespace m8r;
 
@@ -48,20 +49,24 @@ UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
 
 void UDP::joinMulticastGroup(IPAddr addr)
 {
-//    struct ip_addr mDNSmulticast;
-//    struct ip_addr any;
-//    mDNSmulticast.addr = static_cast<uint32_t>(addr);
-//    any.addr = IPADDR_ANY;
-//	espconn_igmp_join(&any, &mDNSmulticast);
+    ip_addr_t ifaddr;
+    ifaddr.addr = static_cast<uint32_t>(addr);
+    ip_addr_t multicastAddr;
+    IPAddr multicastIP(224,0,0,251);
+    multicastAddr.addr = static_cast<uint32_t>(multicastIP);
+
+    igmp_joingroup(&ifaddr, &multicastAddr);
 }
 
 void UDP::leaveMulticastGroup(IPAddr addr)
 {
-//    struct ip_addr mDNSmulticast;
-//    struct ip_addr any;
-//    mDNSmulticast.addr = addr;
-//    any.addr = IPADDR_ANY;
-//	espconn_igmp_leave(&any, &mDNSmulticast);
+    ip_addr_t ifaddr;
+    ifaddr.addr = static_cast<uint32_t>(addr);
+    ip_addr_t multicastAddr;
+    IPAddr multicastIP(224,0,0,251);
+    multicastAddr.addr = static_cast<uint32_t>(multicastIP);
+
+    igmp_leavegroup(&ifaddr, &multicastAddr);
 }
 
 EspUDP::EspUDP(UDPDelegate* delegate, uint16_t port)
