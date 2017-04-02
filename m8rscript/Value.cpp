@@ -331,10 +331,45 @@ Object* Value::toObject(ExecutionUnit* eu) const
     return nullptr;
 }
 
+const Value Value::property(ExecutionUnit* eu, const Atom& atom) const
+{
+    // FIXME: Handle Integer, Float, String and StringLiteral
+    Object* obj = toObject(eu);
+    return obj ? obj->property(eu, atom) : Value();
+}
+
+bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
+{
+    // FIXME: Handle Integer, Float, String and StringLiteral
+    Object* obj = toObject(eu);
+    return obj ? obj->setProperty(eu, prop, value, type) : false;
+}
+
+const Value Value::element(ExecutionUnit* eu, const Value& elt) const
+{
+    // FIXME: Handle Integer, Float, String and StringLiteral
+    Object* obj = toObject(eu);
+    return obj ? obj->element(eu, elt) : Value();
+}
+
+bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+{
+    // FIXME: Handle Integer, Float, String and StringLiteral
+    Object* obj = toObject(eu);
+    return obj ? obj->setElement(eu, elt, value, append) : false;
+}
+
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
+    // FIXME: Handle Integer, Float, String and StringLiteral
     Object* obj = toObject(eu);
     return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
+}
+
+CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+{
+    Object* obj = toObject(eu);
+    return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::_gcMark(ExecutionUnit* eu)

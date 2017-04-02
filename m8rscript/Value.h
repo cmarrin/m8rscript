@@ -208,8 +208,15 @@ public:
     }
     
     enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
+
+    const Value property(ExecutionUnit*, const Atom&) const;
+    bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetPropertyType);
+    const Value element(ExecutionUnit* eu, const Value& elt) const;
+    bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append);
+
     CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor);
-    
+    CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams);
+        
     bool needsGC() const { return type() == Type::Object || type() == Type::String; }
     
 private:
