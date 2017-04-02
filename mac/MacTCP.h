@@ -57,6 +57,7 @@ public:
 private:
     int _socketFD = -1;
     dispatch_queue_t _queue;
+    dispatch_semaphore_t _dispatchSemaphore;
     char _receiveBuffer[BufferSize];
     int _clientSockets[MaxConnections];
     std::mutex _mutex; // protection for _clientSockets

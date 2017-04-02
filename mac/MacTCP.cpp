@@ -63,13 +63,13 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     
     _socketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (_socketFD == -1) {
-        printf("Error opening TCP socket\n");
+        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "opening TCP socket", -1);
         return;
     }
 
     int enable = 1;
     if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
-        printf("Error opening TCP socket, setsockopt failed\n");
+        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "opening TCP socket, setsockopt failed", -1);
         return;
     }
     
@@ -88,14 +88,14 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 
     if (_server) {
         if (bind(_socketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
-            printf("Error: TCP bind failed, error code=%d\n", errno);
+            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP bind failed");
             close(_socketFD);
             _socketFD = -1;
             return;
         }
       
         if (listen(_socketFD, MaxConnections) == -1) {
-            printf("Error: TCP listen failed\n");
+            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP listen failed");
             close(_socketFD);
             _socketFD = -1;
             return;
@@ -104,10 +104,11 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
         memset(_clientSockets, 0, MaxConnections * sizeof(int));
     } else {
         if (connect(_socketFD, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-            printf("Error: TCP connect failed, errno=%d\n", errno);
+            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP connect failed");
         }
     }
 
+    _dispatchSemaphore = dispatch_semaphore_create(0);
     dispatch_async(_queue, ^() {
         fd_set readfds;
         int maxsd;
@@ -130,8 +131,8 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
             
             int result = select(maxsd + 1, &readfds, NULL, NULL, NULL);
             if (result < 0 && errno != EINTR) {
-                printf("ERROR: select returned %d, error=%d\n", result, errno);
-                return;
+                _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "select failed");
+                break;
             }
             
             if (_server) {
@@ -141,7 +142,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     
                     int clientSocket = accept(_socketFD, (struct sockaddr *)&sa, (socklen_t*)&addrlen);
                     if (clientSocket < 0) {
-                        printf("ERROR:accept failed\n");
+                        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "accept failed");
                         continue;
                     }
                     printf("New connection , socket fd=%d, ip=%s, port=%d\n", clientSocket, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
@@ -157,8 +158,8 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     
                     if (connectionId < 0) {
                         close(clientSocket);
-                        printf("Too many connections on port %d\n", ntohs(sa.sin_port));
-                        return;
+                        _delegate->TCPevent(this, TCPDelegate::Event::Error, -1, "Too many connections on port\n");
+                        break;
                     }
                     
                     _delegate->TCPevent(this, TCPDelegate::Event::Connected, connectionId);
@@ -180,7 +181,7 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                             std::lock_guard<std::mutex> lock(_mutex);
                             socket = 0;
                         } else if (result < 0) {
-                            printf("ERROR: read returned %zd, error=%d\n", result, errno);
+                            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "read error");
                         } else {
                             _delegate->TCPevent(this, TCPDelegate::Event::ReceivedData, connectionId, _receiveBuffer, result);
                         }
@@ -197,12 +198,13 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
                     _socketFD = -1;
                     break;
                 } else if (result < 0) {
-                    printf("ERROR: read returned %zd, error=%d\n", result, errno);
+                    _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "read failed");
                 } else {
                     _delegate->TCPevent(this, TCPDelegate::Event::ReceivedData, 0, _receiveBuffer, result);
                 }
             }
         }
+        dispatch_semaphore_signal(_dispatchSemaphore);
     });
 }
 
@@ -214,6 +216,7 @@ MacTCP::~MacTCP()
             close(socket);
         }
     }
+    dispatch_semaphore_wait(_dispatchSemaphore, DISPATCH_TIME_FOREVER);
     dispatch_release(_queue);
 }
 
@@ -225,14 +228,14 @@ void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
             if (socket) {
                 ssize_t result = ::send(socket, data, length, 0);
                 if (result == -1) {
-                    printf("ERROR: send (server) returned %zd, error=%d\n", result, errno);
+                    _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (server) failed");
                 }
             }
         }
     } else {
         ssize_t result = ::send(_socketFD, data, length, 0);
         if (result == -1) {
-            printf("ERROR: send (client) returned %zd, error=%d\n", result, errno);
+            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (client) faile");
         }
     }
     
