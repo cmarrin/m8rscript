@@ -152,6 +152,7 @@ IdType Global::IdStore<IdType, ValueType>::add(ValueType* value)
             if (!_values[i]) {
                 _values[i] = value;
                 _freeValueIdCount--;
+                _valueMarked[i] = true;
                 return IdType(i);
             }
         }
