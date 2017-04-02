@@ -255,7 +255,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CAPTURE)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -370,16 +370,6 @@ static const uint16_t GCCount = 1000;
         localsToPop = _function->localSize() + _localOffset;
         
         {
-            // If the returned value is a function and it was called inScope, wrap it in a Closure
-            Callable* returnedFunction = returnedValue.asFunction();
-            if (returnedFunction && _inScope) {
-                // This had better not be a Closure!
-                assert(returnedFunction->isFunction());
-                if (returnedFunction->hasUpValues()) {
-                    returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction)))->objectId());
-                }
-            }
-        
             // Get the call record entries from the call stack and pop it.
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
@@ -637,8 +627,12 @@ static const uint16_t GCCount = 1000;
             setInFrame(inst.ra(), -leftValue.toFloatValue(this));
         }
         DISPATCH;
-    L_UNOT: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0); DISPATCH;
-    L_UNEG: setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1); DISPATCH;
+    L_UNEG:
+        setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1);
+        DISPATCH;
+    L_UNOT:
+        setInFrame(inst.ra(), ~(regOrConst(inst.rb()).toIntValue(this)));
+        DISPATCH;
     L_PREINC:
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
         setInFrame(inst.ra(), regOrConst(inst.rb()));
@@ -655,24 +649,21 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), regOrConst(inst.rb()));
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
+    L_CAPTURE: {
+        Callable* function = regOrConst(inst.rb()).asFunction();
+        if (!function) {
+            setInFrame(inst.ra(), Value(Value::Type::Null));
+        } else {
+            setInFrame(inst.ra(), Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId()));
+        }
+        DISPATCH;
+    }
     L_NEW:
     L_CALL:
     L_CALLPROP:
         objectValue = toObject(regOrConst(inst.rcall()), (inst.op() == Op::CALLPROP) ? "CALLPROP" : ((inst.op() == Op::CALL) ? "CALL" : "NEW"));
         uintValue = inst.nparams();
         if (objectValue) {
-            // If any passed parameter is a function, wrap it in a Closure
-            for (int32_t i = 1 - uintValue; i <= 0; ++i) {
-                Callable* function = stack().top(i).asFunction();
-                if (function) {
-                    // This had better not be a Closure!
-                    assert(function->isFunction());
-                    if (function->hasUpValues()) {
-                        stack().top(i) = Value((new Closure(this, static_cast<Function*>(function)))->objectId());
-                    }
-                }
-            }
-            
             switch(inst.op()) {
                 default: break;
                 case Op::CALL: {

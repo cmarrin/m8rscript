@@ -163,7 +163,7 @@ private:
     
 class Closure : public Object, public Callable {
 public:
-    Closure(ExecutionUnit* eu, Function* func);
+    Closure(ExecutionUnit* eu, Function* func, const Value& thisValue);
     virtual ~Closure() { }
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
@@ -214,6 +214,7 @@ public:
 private:    
     Function* _func = nullptr;
     std::vector<Value> _upvalues;
+    Value _thisValue;
 };
 
 }

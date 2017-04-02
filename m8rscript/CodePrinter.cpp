@@ -166,7 +166,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program, const Callab
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(UNKNOWN)
+        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CAPTURE)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -310,7 +310,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         generateRXX(outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_MOVE: L_LOADREFK:
-    L_UMINUS: L_UNOT: L_UNEG:
+    L_UMINUS: L_UNOT: L_UNEG: L_CAPTURE:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
         generateRRX(outputString, i - 1, op, inst.ra(), inst.rb());
@@ -380,7 +380,7 @@ static CodeMap opcodes[] = {
     
     OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
     
-    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF) OP(LINENO)
+    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF) OP(LINENO) OP(CAPTURE)
 };
 
 const char* CodePrinter::stringFromOp(Op op)
