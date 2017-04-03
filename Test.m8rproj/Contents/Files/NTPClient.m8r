@@ -31,7 +31,7 @@ class Clock
 			printf("Looked up %s, got %s\n", name, ip);
 			if (ip) {
 				printf("Creating TCP server to port %d\n", _port);
-				_server = new TCP(ip, _port, function(event, connectionId, dataValue) {
+				_server = new TCP(ip, _port, capture function(event, connectionId, dataValue) {
 					printf("TCP server got event %d\n", event);
 					switch(event) {
 						case TCP.Error: {
