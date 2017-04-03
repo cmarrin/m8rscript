@@ -104,6 +104,12 @@ public:
         }
     }
 
+    virtual void gcMark(ExecutionUnit* eu) override
+    {
+        _func.gcMark(eu);
+        _parent.gcMark(eu);
+    }
+
     void send(int16_t connectionId, const char* data, uint16_t size)
     {
         if (!_tcp) {

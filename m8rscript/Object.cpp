@@ -295,6 +295,21 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return s;
 }
 
+void MaterObject::gcMark(ExecutionUnit* eu)
+{
+    Object::gcMark(eu);
+    for (auto entry : _properties) {
+        entry.value.gcMark(eu);
+    }
+    auto it = _properties.find(ATOM(__nativeObject));
+    if (it != _properties.end()) {
+        NativeObject* obj = it->value.asNativeObject();
+        if (obj) {
+            obj->gcMark(eu);
+        }
+    }
+}
+
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);

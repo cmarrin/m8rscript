@@ -118,13 +118,7 @@ public:
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
 
-    virtual void gcMark(ExecutionUnit* eu) override
-    {
-        Object::gcMark(eu);
-        for (auto entry : _properties) {
-            entry.value.gcMark(eu);
-        }
-    }
+    virtual void gcMark(ExecutionUnit* eu) override;
     
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
@@ -164,6 +158,8 @@ class NativeObject {
 public:
     NativeObject() { }
     virtual ~NativeObject() { }
+
+    virtual void gcMark(ExecutionUnit* eu) { }
 };
 
 class ObjectFactory {
