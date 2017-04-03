@@ -368,8 +368,54 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
 
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    Object* obj = toObject(eu);
-    return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
+    switch(type()) {
+        case Type::Object: {
+            Object* obj = Global::obj(asObjectIdValue());
+            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
+        }
+        case Type::Function: {
+            Object* obj = nullptr;
+            Callable* callable = asFunction();
+            switch(callable->type()) {
+                case Callable::Type::Function: obj = static_cast<Function*>(callable); break;
+                case Callable::Type::Closure: obj = static_cast<Closure*>(callable); break;
+                default: break;
+            };
+            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
+        }
+        case Type::Integer:
+        case Type::Float: 
+            // FIXME: Implement a Number object
+            break;
+        case Type::StringLiteral:
+        case Type::String: {
+            String s = toStringValue(eu);
+            if (prop == ATOM(trim)) {
+                s = s.trim();
+                eu->stack().push(Value(Global::createString(s)));
+                return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+            }
+            if (prop == ATOM(split)) {
+                String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
+                bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
+                std::vector<String> array = s.split(separator, skipEmpty);
+                Array* arrayObject = new Array();
+                arrayObject->resize(array.size());
+                for (size_t i = 0; i < array.size(); ++i) {
+                    (*arrayObject)[i] = Value(Global::createString(array[i]));
+                }
+                eu->stack().push(Value(arrayObject->objectId()));
+                return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+            }
+            break;
+        }
+        case Type::Id:
+        case Type::NativeObject:
+        case Type::None:
+        case Type::Null:
+            break;
+    }
+    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::_gcMark(ExecutionUnit* eu)

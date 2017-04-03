@@ -41,8 +41,8 @@ namespace m8r {
 
 class Array : public Object {
 public:
-    Array() { }
-    Array(Program*) { }
+    Array();
+    Array(Program*);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Array") : Object::toString(eu, false); }
 
@@ -109,6 +109,13 @@ public:
         _array[index] = value;
         return true;
     }
+
+    const Value& operator[](size_t i) const { assert(i >= 0 && i < _array.size()); return _array[i]; };
+    Value& operator[](size_t i) { assert(i >= 0 && i < _array.size()); return _array[i]; };
+	size_t size() const { return _array.size(); }
+    bool empty() const { return _array.empty(); }
+    void clear() { _array.clear(); }
+    void resize(size_t size) { _array.resize(size); }
 
 protected:
     virtual bool serialize(Stream*, Error&, Program*) const override

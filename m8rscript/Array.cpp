@@ -39,6 +39,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+Array::Array()
+{
+    Global::addObject(this, true);
+}
+
+Array::Array(Program*)
+{
+}
+
 CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
