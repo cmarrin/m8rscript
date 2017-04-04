@@ -175,7 +175,7 @@ private:
         // FIXME: Should we handle the case of trying to access an upValue when out of scope? We could
         // store the atom of the original variable name and try to access it as a REFK. For now, just
         // error.
-        if (!_inScope) {
+        if (mustBeInScope && !_inScope) {
             return nullptr;
         }
         
