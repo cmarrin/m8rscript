@@ -27,40 +27,42 @@ class Clock
 	}
 	
 	function fetchTime(func) {
+		var eventFunc = capture function(event, connectionId, dataValue) {
+			printf("TCP server got event %d\n", event);
+			switch(event) {
+				case TCP.Error: {
+					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+				}
+				case TCP.Connected: {
+					printf("Connected\n");
+    				send(connectionId, "\n");
+   				}
+				case TCP.ReceivedData: {
+					dataValue = dataValue.trim();
+					printf("Received DAYTIME string: '%s'\n", dataValue);
+					var array = dataValue.split(" ", true);
+					
+					var dateArray = array[1].split("-");
+					year = toInt(dateArray[0]);
+					month = toInt(dateArray[1]);
+					day = toInt(dateArray[2]);
+					
+					var timeArray = array[2].split(":");
+					hour = toInt(timeArray[0]);
+					minute = toInt(timeArray[1]);
+					second = toInt(timeArray[2]);
+					
+					dst = toInt(array[3]) >= 50;
+					func();
+				}
+			}
+		};
+		
 		IPAddr.lookupHostname(_host, capture function(name, ip) {
 			printf("Looked up %s, got %s\n", name, ip);
 			if (ip) {
 				printf("Creating TCP server to port %d\n", _port);
-				_server = new TCP(ip, _port, capture function(event, connectionId, dataValue) {
-					printf("TCP server got event %d\n", event);
-					switch(event) {
-						case TCP.Error: {
-							printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
-						}
-						case TCP.Connected: {
-							printf("Connected\n");
-    						send(connectionId, "\n");
-   						}
-						case TCP.ReceivedData: {
-							dataValue = dataValue.trim();
-							printf("Received DAYTIME string: '%s'\n", dataValue);
-							var array = dataValue.split(" ", true);
-							
-							var dateArray = array[1].split("-");
-							year = toInt(dateArray[0]);
-							month = toInt(dateArray[1]);
-							day = toInt(dateArray[2]);
-							
-							var timeArray = array[2].split(":");
-							hour = toInt(timeArray[0]);
-							minute = toInt(timeArray[1]);
-							second = toInt(timeArray[2]);
-							
-							dst = toInt(array[3]) >= 50;
-							func();
-						}
-					}
-				});
+				_server = new TCP(ip, _port, eventFunc);
 			}
 		});
 	}
