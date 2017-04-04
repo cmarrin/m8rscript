@@ -58,7 +58,7 @@ class Clock
 			}
 		};
 		
-		IPAddr.lookupHostname(_host, capture function(name, ip) {
+		IPAddr.lookupHostname(_host, function(name, ip) {
 			printf("Looked up %s, got %s\n", name, ip);
 			if (ip) {
 				printf("Creating TCP server to port %d\n", _port);

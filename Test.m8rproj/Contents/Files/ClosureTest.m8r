@@ -23,7 +23,7 @@ printf("1) Nested function call test (no capture): result (s/b 21)=%d\n", g);
 // Test 2: Simple test of nested function with closure
 function test2(b) {
 	var c = 5;
-	return capture function(e) {
+	return function(e) {
 		return b + c + e;
 	};
 }
@@ -36,11 +36,22 @@ function Test3() {
     var a = 5;
     var b = function() { return a; };
     a = 10;
-    return capture b;
+    return b;
 }
 
 var f = Test3();
 printf("3) Test of when Closure is captured (s/b 10): %f\n", f());
+
+// Test 3a: Test of when Closure is captured earlier
+function Test3a() {
+    var a = 5;
+    var b = capture function() { return a; };
+    a = 10;
+    return b;
+}
+
+var f = Test3a();
+printf("3a) Test of when Closure is captured (earlier) (s/b 5): %f\n", f());
 
 // Test 4: Simple test of capturing passed function
 function Test4(func)
@@ -51,7 +62,7 @@ function Test4(func)
 var a = 10;
 var b = function() { return a; };
 a = 20;
-Test4(capture b);
+Test4(b);
 
 // Test 5: Test from JavaScript
 function celebrityID () {
@@ -94,7 +105,7 @@ class Clock
 {
 	var port = 8080;
 	function fetchTime(host) {
-		IPAddr.lookupHostname(host, capture function(name, ip) {
+		IPAddr.lookupHostname(host, function(name, ip) {
 			printf("6) Looked up %s, got %s, port=%d\n", name, ip, port);
 		});
 	}

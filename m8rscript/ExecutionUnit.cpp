@@ -370,6 +370,14 @@ static const uint16_t GCCount = 1000;
         localsToPop = _function->localSize() + _localOffset;
         
         {
+            // If the returned value is a function and it was called inScope, wrap it in a Closure
+            Callable* returnedFunction = returnedValue.asFunction();
+            if (returnedFunction && _inScope && returnedFunction->isFunction()) {
+                if (returnedFunction->hasUpValues()) {
+                    returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction), Value(_thisId)))->objectId());
+                }
+            }
+        
             // Get the call record entries from the call stack and pop it.
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
@@ -647,6 +655,15 @@ static const uint16_t GCCount = 1000;
     L_CALLPROP:
         leftValue = regOrConst(inst.rcall());
         uintValue = inst.nparams();
+
+        // If any passed parameter is a function, wrap it in a Closure
+        for (int32_t i = 1 - uintValue; i <= 0; ++i) {
+            Callable* function = stack().top(i).asFunction();
+            if (function && function->isFunction()) {
+                    stack().top(i) = Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId());
+            }
+        }
+            
         switch(inst.op()) {
             default: break;
             case Op::CALL: {
