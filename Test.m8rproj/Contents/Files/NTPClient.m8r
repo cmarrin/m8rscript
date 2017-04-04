@@ -70,8 +70,14 @@ class Clock
 
 var current = new Clock();
 current.fetchTime(function() {
-	printf("fetchTime completed: %d:%d:%d on %d/%d/%d. It is%s daylight savings time\n",
-		current.hour, current,minute, current.second,
+	var isPM = false;
+	var hr = current.hour;
+	if (hr > 12) {
+		isPM = true;
+		hr -= 12;
+	}
+	printf("fetchTime completed: %d:%02d:%02d%s UCT on %d/%d/%d. It is%s daylight savings time\n",
+		hr, current.minute, current.second, isPM ? "pm" : "am",
 		current.month, current.day, current.year,
 		current.dst ? "" : " not");
 });
