@@ -193,9 +193,9 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int size = static_cast<int>(format.size());
     const char* start = format.c_str();
     const char* s = start;
-    struct slre_cap caps[5];
-    memset(caps, 0, sizeof(caps));
     while (true) {
+        struct slre_cap caps[5];
+        memset(caps, 0, sizeof(caps));
         int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
@@ -215,8 +215,20 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         
         // FIXME: handle the leading number(s) in the format
         assert(caps[4].len == 1);
+        
+        uint32_t width = 0;
+        bool zeroFill = false;
+        if (caps[1].len) {
+            Value::toUInt(width, caps[1].ptr);
+            if (caps[1].ptr[0] == '0') {
+                zeroFill = true;
+            }
+        }
+        
         Value value = eu->stack().top(nextParam++);
         char formatChar = *(caps[4].ptr);
+        String format = String("%") + (zeroFill ? "0" : "") + (width ? Value::toString(width).c_str() : "");
+        
         switch (formatChar) {
             case 'c':
                 eu->system()->printf("%c", value.toIntValue(eu));
@@ -226,14 +238,17 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
                 break;
             case 'd':
             case 'i':
-                eu->system()->printf("%d", value.toIntValue(eu));
+                format += "d";
+                eu->system()->printf(format.c_str(), value.toIntValue(eu));
                 break;
             case 'x':
             case 'X':
-                eu->system()->printf((formatChar == 'x') ? "%x" : "%X", static_cast<uint32_t>(value.toIntValue(eu)));
+                format += (formatChar == 'x') ? "x" : "X";
+                eu->system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'u':
-                eu->system()->printf("%u", static_cast<uint32_t>(value.toIntValue(eu)));
+                format += "u";
+                eu->system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'f':
             case 'e':
