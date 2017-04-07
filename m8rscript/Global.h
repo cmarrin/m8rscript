@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Base64.h"
 #include "GPIO.h"
 #include "Iterator.h"
+#include "JSON.h"
 #include "Object.h"
 #include "TCP.h"
 
@@ -88,6 +89,7 @@ private:
     Base64 _base64;
     GPIO _gpio;
     Iterator _iterator;
+    JSON _json;
     TCPProto _tcp;
     UDPProto _udp;
     IPAddrProto _ipAddr;

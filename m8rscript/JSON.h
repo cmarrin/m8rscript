@@ -10,16 +10,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, 
-	  this list of conditions and the following disclaimer.
-	  
+    this list of conditions and the following disclaimer.
+    
     - Redistributions in binary form must reproduce the above copyright 
-	  notice, this list of conditions and the following disclaimer in the 
-	  documentation and/or other materials provided with the distribution.
-	  
+    notice, this list of conditions and the following disclaimer in the 
+    documentation and/or other materials provided with the distribution.
+    
     - Neither the name of the <ORGANIZATION> nor the names of its 
-	  contributors may be used to endorse or promote products derived from 
-	  this software without specific prior written permission.
-	  
+    contributors may be used to endorse or promote products derived from 
+    this software without specific prior written permission.
+    
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
@@ -33,46 +33,30 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Array.h"
+#pragma once
 
-#include "ExecutionUnit.h"
+#include "Object.h"
 
-using namespace m8r;
+namespace m8r {
 
-Array::Array()
-{
-}
+class Scanner;
 
-Array::Array(Program*)
-{
-}
-
-CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
-{
-    if (!ctor) {
-        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
-        return CallReturnValue(CallReturnValue::Type::Error);
-    }
+class JSON : public ObjectFactory {
+public:
+    JSON(Program*);
     
-    Array* array = new Array();
-    Global::addObject(array, true);
-    eu->stack().push(Value(array->objectId()));
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
+    static Value parse(ExecutionUnit* eu, const String& json);
+    static String stringify(ExecutionUnit* eu, const Value);
 
-const Value Array::property(ExecutionUnit*, const Atom& name) const
-{
-    return (name == ATOM(length)) ? Value(static_cast<int32_t>(_array.size())) : Value();
-}
+private:
+    static Value value(ExecutionUnit* eu, Scanner& scanner);
+    static bool propertyAssignment(ExecutionUnit* eu, Scanner&, Value& key, Value& value);
 
-bool Array::setProperty(ExecutionUnit* eu, const Atom& name, const Value& value, Value::SetPropertyType type)
-{
-    if (type == Value::SetPropertyType::AlwaysAdd) {
-        return false;
-    }
-    if (name == ATOM(length)) {
-        _array.resize(value.toIntValue(eu));
-        return true;
-    }
-    return false;
+    static CallReturnValue parse(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue stringify(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _parse;
+    NativeFunction _stringify;
+};
+    
 }

@@ -113,7 +113,8 @@ private:
 };
 
 class MaterObject : public Object {
-public:    
+public:
+    MaterObject();
     virtual ~MaterObject();
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;

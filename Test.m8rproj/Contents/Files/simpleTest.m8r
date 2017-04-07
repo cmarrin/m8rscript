@@ -2,6 +2,20 @@
 // Test of various functionality of m8rscript
 //
 
+var strings = [
+	"123",
+	"'Hello World'",
+	"true",
+	"false",
+	"null",
+	"{ 'abc' : 5, 'def' : 'Hello' }",
+	"[ 3, 4, 5, 'goodbye' ]"
+];
+
+for (var s : strings) {
+	printf("JSON.parse(\"%s\") ==> '%s'\n", s, JSON.parse(s));
+}
+
 printf("3.14 * 6 * 6 = %f\n", 3.14 * 6 * 6);
 var f = function(a) { return a + n; };
 

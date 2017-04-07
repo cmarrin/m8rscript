@@ -190,7 +190,9 @@ private:
     
     Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
     
-  	Token getToken(Scanner::TokenType& token) { return _scanner.getToken(token); }
+    Token getToken() { return _scanner.getToken(); }
+    const Scanner::TokenType& getTokenValue() { return _scanner.getTokenValue(); }
+    void retireToken() { _scanner.retireToken(); }
     
     void addCode(Instruction);
     

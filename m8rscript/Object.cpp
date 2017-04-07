@@ -252,6 +252,10 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
     return true;
 }
 
+MaterObject::MaterObject()
+{
+}
+
 MaterObject::~MaterObject()
 {
     auto it = _properties.find(ATOM(__nativeObject));

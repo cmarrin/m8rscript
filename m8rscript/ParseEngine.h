@@ -76,23 +76,9 @@ private:
     bool expect(Token token);
     bool expect(Token token, bool expected);
     
-    Token getToken()
-    {
-        if (_currentToken == Token::None) {
-            _currentToken = _parser->getToken(_currentTokenValue);
-        }
-        return _currentToken;
-    }
-    
-    const Scanner::TokenType& getTokenValue()
-    {
-        if (_currentToken == Token::None) {
-            _currentToken = _parser->getToken(_currentTokenValue);
-        }
-        return _currentTokenValue;
-    }
-    
-    void retireToken() { _currentToken = Token::None; }
+    Token getToken() { return _parser->getToken(); }
+    const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }
+    void retireToken() { _parser->retireToken(); }
 
     bool functionStatement();
     bool classStatement();

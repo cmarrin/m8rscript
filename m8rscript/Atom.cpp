@@ -58,6 +58,7 @@ static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
 static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
 static const char _Iterator[] ROMSTR_ATTR = "Iterator";
+static const char _JSON[] ROMSTR_ATTR = "JSON";
 static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
 static const char _None[] ROMSTR_ATTR = "None";
@@ -90,12 +91,14 @@ static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
+static const char _parse[] ROMSTR_ATTR = "parse";
 static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _split[] ROMSTR_ATTR = "split";
+static const char _stringify[] ROMSTR_ATTR = "stringify";
 static const char _toFloat[] ROMSTR_ATTR = "toFloat";
 static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
@@ -122,6 +125,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(InputPullup),
     AtomEntry(IPAddr),
     AtomEntry(Iterator),
+    AtomEntry(JSON),
     AtomEntry(Low),
     AtomEntry(MaxConnections),
     AtomEntry(None),
@@ -155,12 +159,14 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(lookupHostname),
     AtomEntry(next),
     AtomEntry(onInterrupt),
+    AtomEntry(parse),
     AtomEntry(print),
     AtomEntry(printf),
     AtomEntry(println),
     AtomEntry(send),
     AtomEntry(setPinMode),
     AtomEntry(split),
+    AtomEntry(stringify),
     AtomEntry(toFloat),
     AtomEntry(toInt),
     AtomEntry(toUInt),

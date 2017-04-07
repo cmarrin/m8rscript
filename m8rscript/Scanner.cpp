@@ -115,6 +115,7 @@ Token Scanner::scanString(char terminal)
                 case '\'': c = 0x27; break;
                 case '"': c = 0x22; break;
                 case '?': c = 0x3f; break;
+                case 'u':
                 case 'x': {
                     if ((c = get()) == C_EOF) {
                         return Token::String;

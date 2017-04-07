@@ -82,10 +82,28 @@ public:
     
     void setStream(m8r::Stream* istream) { _istream = istream; }
   
-  	Token getToken(TokenType& token, bool ignoreWhitespace = true);
-    
     uint32_t lineno() const { return _lineno; }
   	
+  	Token getToken(TokenType& token, bool ignoreWhitespace = true);
+
+    Token getToken()
+    {
+        if (_currentToken == Token::None) {
+            _currentToken = getToken(_currentTokenValue);
+        }
+        return _currentToken;
+    }
+    
+    const Scanner::TokenType& getTokenValue()
+    {
+        if (_currentToken == Token::None) {
+            _currentToken = getToken(_currentTokenValue);
+        }
+        return _currentTokenValue;
+    }
+    
+    void retireToken() { _currentToken = Token::None; }
+
 private:
     uint8_t get() const;
     
@@ -108,6 +126,9 @@ private:
   	m8r::String _tokenString;
   	m8r::Stream* _istream;
     mutable uint32_t _lineno;
+
+    Token _currentToken = Token::None;
+    Scanner::TokenType _currentTokenValue;
 };
 
 }
