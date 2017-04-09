@@ -33,10 +33,6 @@ class Clock
 				case TCP.Error: {
 					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
 				}
-				case TCP.Connected: {
-					printf("Connected\n");
-    				send(connectionId, "\n");
-   				}
 				case TCP.ReceivedData: {
 					dataValue = dataValue.trim();
 					printf("Received DAYTIME string: '%s'\n", dataValue);
@@ -76,7 +72,7 @@ current.fetchTime(function() {
 		isPM = true;
 		hr -= 12;
 	}
-	printf("fetchTime completed: %d:%02d:%02d%s UCT on %d/%d/%d. It is%s daylight savings time\n",
+	printf("\nIt is currently %d:%02d:%02d%s UCT on %d/%d/%d. It is%s daylight savings time\n\n",
 		hr, current.minute, current.second, isPM ? "pm" : "am",
 		current.month, current.day, current.year,
 		current.dst ? "" : " not");
