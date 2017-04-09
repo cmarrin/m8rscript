@@ -620,7 +620,7 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_UNEG:
-        setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 0 : 1);
+        setInFrame(inst.ra(), (regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0);
         DISPATCH;
     L_UNOT:
         setInFrame(inst.ra(), ~(regOrConst(inst.rb()).toIntValue(this)));
