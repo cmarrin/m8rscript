@@ -144,11 +144,15 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
         return;
     }
     
-    Instruction inst = currentFunction()->code()->at(matchAddr);
+    Instruction inst = _deferred ? _deferredCode.at(matchAddr) : currentFunction()->code()->at(matchAddr);
     Op op = static_cast<Op>(inst.op());
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     uint32_t reg = inst.ra();
-    currentFunction()->code()->at(matchAddr) = Instruction(op, reg, jumpAddr);
+    if (_deferred) {
+        _deferredCode.at(matchAddr) = Instruction(op, reg, jumpAddr);
+    } else {
+        currentFunction()->code()->at(matchAddr) = Instruction(op, reg, jumpAddr);
+    }
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
@@ -156,7 +160,7 @@ void Parser::jumpToLabel(Op op, Label& label)
     if (_nerrors) return;
     
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
-    int32_t jumpAddr = label.label - static_cast<int32_t>(currentFunction()->code()->size());
+    int32_t jumpAddr = label.label - static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size());
     
     uint32_t r = 0;
     if (op != Op::JMP) {

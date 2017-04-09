@@ -94,7 +94,7 @@ private:
     void addMatchedJump(Op op, Label&);
     void matchJump(const Label& matchLabel)
     {
-        int32_t jumpAddr = static_cast<int32_t>(currentFunction()->code()->size()) - matchLabel.matchedAddr;
+        int32_t jumpAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size()) - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
 
