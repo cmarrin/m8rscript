@@ -2,11 +2,11 @@
 // TCP socket Test 
 //
 
-var server = new TCP(8080, function(event, connectionId, dataValue) {
+var server = new TCP(8080, function(socket, event, connectionId, dataValue) {
 	switch(event) {
 		case TCP.Connected: {
 			printf("TCP connected. ConnectionId=%d\n", connectionId);
-    		send(connectionId, "Hello there!\nPlease enter some text:");
+    		socket.send(connectionId, "Hello there!\nPlease enter some text:");
    		}
 		
 		case TCP.Disconnected: {

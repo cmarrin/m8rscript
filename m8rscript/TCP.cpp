@@ -153,17 +153,18 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
 
 void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
 {
-    Value args[4];
-    args[0] = Value(static_cast<int32_t>(event));
-    args[1] = Value(static_cast<int32_t>(connectionId));
+    Value args[5];
+    args[0] = _parent;
+    args[1] = Value(static_cast<int32_t>(event));
+    args[2] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
         StringId dataString = Global::createString(data, length);
         
-        args[2] = Value(dataString);
-        args[3] = Value(static_cast<int32_t>(length));
+        args[3] = Value(dataString);
+        args[4] = Value(static_cast<int32_t>(length));
     }
-    _eu->fireEvent(_func, _parent, args, data ? 4 : 2);
+    _eu->fireEvent(_func, _parent, args, data ? 5 : 3);
 }
 
 
