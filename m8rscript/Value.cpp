@@ -331,11 +331,33 @@ Object* Value::toObject(ExecutionUnit* eu) const
     return nullptr;
 }
 
-const Value Value::property(ExecutionUnit* eu, const Atom& atom) const
+const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
-    return obj ? obj->property(eu, atom) : Value();
+    switch(type()) {
+        case Type::Object: {
+            Object* obj = toObject(eu);
+            return obj ? obj->property(eu, prop) : Value();
+        }
+        case Type::Integer:
+        case Type::Float: 
+            // FIXME: Implement a Number object
+            break;
+        case Type::StringLiteral:
+        case Type::String: {
+            String s = toStringValue(eu);
+            if (prop == ATOM(length)) {
+                return Value(static_cast<int32_t>(s.size()));
+            }
+            break;
+        }
+        case Type::Function:
+        case Type::Id:
+        case Type::NativeObject:
+        case Type::None:
+        case Type::Null:
+            break;
+    }
+    return Value();
 }
 
 bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
