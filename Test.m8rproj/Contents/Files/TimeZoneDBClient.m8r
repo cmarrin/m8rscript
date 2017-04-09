@@ -1,0 +1,108 @@
+//
+// Clock.m8r
+//
+// Simple Clock object to get the current time from an NTP server and give it back
+//
+// By default 'time.nist.gov' is used, but any time server
+// (hostname or ip) can be passed in. A callback function 
+// is also passed to the constructor, which is called with an Object
+// containing: year, month, date, hours, minutes, seconds, dst
+//
+// Time is in UTC. The DAYTIME protocol is actually used on port 13
+
+class Clock
+{
+	var _host = "api.timezonedb.com";
+	var _port = 80;
+	var year, month, day, hour, minute, second, dst, zone;
+	var _client;
+	
+	constructor(host, port) {
+		if (host && host != "") {
+			_host = host;
+		}
+		if (port && port > 0 && port < 32768) {
+			_port = port;
+		}
+	}
+	
+	function fetchTime(func) {
+		var eventFunc = capture function(event, connectionId, dataValue) {
+			printf("TCP server got event %d\n", event);
+			switch(event) {
+				case TCP.Error: {
+					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+				}
+				case TCP.Connected: {
+   				}
+				case TCP.ReceivedData: {
+					var found = false;
+					var array = dataValue.split("\r\n");
+					var jsonString;
+					for (var it : array) {
+						if (found) {
+							jsonString = it;
+							break;
+						}
+						if (it.value.length == 0) {
+							found = true;
+						}
+					}
+					if (!found) {
+						printf("***** Error: Did not find JSON string\n");
+					} else {
+						var json = JSON.parse(jsonString);
+						printf("Result: %s\n", json);
+					}
+					
+					var json = JSON.parse(jsonString);
+					var timeDateString = json.formatted;
+					var timeDateArray = timeDateString.split(" ", true);
+										
+					var dateArray = timeDateArray[0].split("-");
+					year = toInt(dateArray[0]);
+					month = toInt(dateArray[1]);
+					day = toInt(dateArray[2]);
+					
+					var timeArray = timeDateArray[1].split(":");
+					hour = toInt(timeArray[0]);
+					minute = toInt(timeArray[1]);
+					second = toInt(timeArray[2]);
+					
+					dst = toInt(json.dst) != 0;
+					zone = json.abbreviation;
+					func();
+				}
+			}
+		};
+		
+		IPAddr.lookupHostname(_host, function(name, ip) {
+			printf("Looked up %s, got %s\n", name, ip);
+			if (ip) {
+				printf("Connecting to %s:%d\n", ip, _port);
+				_client = new TCP(ip, _port, eventFunc);
+    			_client.send(0, "GET /v2/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America%2FLos_Angeles HTTP/1.0\r\n");
+    			_client.send(0, "Host: api.timezonedb.com\r\n");
+    			_client.send(0, "Connection: close\r\n");
+    			_client.send(0, "\r\n");
+			}
+		});
+	}
+}
+
+var current = new Clock();
+current.fetchTime(function() {
+	var isPM = false;
+	var hr = current.hour;
+	if (hr > 12) {
+		isPM = true;
+		hr -= 12;
+	}
+	printf("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
+		hr, current.minute, current.second, isPM ? "pm" : "am", current.zone,
+		current.month, current.day, current.year,
+		current.dst ? "" : " not");
+});
+		
+		
+		
