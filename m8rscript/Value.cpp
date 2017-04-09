@@ -400,6 +400,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 std::vector<String> array = s.split(separator, skipEmpty);
                 Array* arrayObject = new Array();
+                Global::addObject(arrayObject, true);
                 arrayObject->resize(array.size());
                 for (size_t i = 0; i < array.size(); ++i) {
                     (*arrayObject)[i] = Value(Global::createString(array[i]));
