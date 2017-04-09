@@ -168,6 +168,8 @@ public:
     }
     
     Callable* currentFunction() const { return _function; }
+    
+    uint32_t lineno() const { return _lineno; }
 
 private:
     Value* _upValue(uint32_t index, uint16_t frame, bool mustBeInScope)
