@@ -170,7 +170,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     TaskManager::unlock();
 }
 
-void ExecutionUnit::runNextEvent()
+CallReturnValue ExecutionUnit::runNextEvent()
 {
     // Each event is at least 3 entries long. First is the function, followed by the this pointer
     // followed by the number of args. That number of args then follows    
@@ -199,10 +199,21 @@ void ExecutionUnit::runNextEvent()
     }
 
     TaskManager::unlock();
-        
+    
     if (haveEvent) {
-        func.call(this, thisValue, nargs, false);
+        CallReturnValue callReturnValue = func.call(this, thisValue, nargs, false);
+                
+        // Callbacks don't return a value. Ignore it, but pop the stack
+        if (callReturnValue.isReturnCount()) {
+            if (callReturnValue.returnCount() > 0) {
+                _stack.pop(callReturnValue.returnCount());
+            }
+            _stack.pop(nargs);
+        }
+        return callReturnValue;
     }
+    
+    return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
 void ExecutionUnit::startFunction(Callable* function, ObjectId thisObject, uint32_t nparams, bool inScope)
@@ -332,11 +343,6 @@ static const uint16_t GCCount = 1000;
         if (inst.op() == Op::END) {
             if (_program == _function) {
                 // We've hit the end of the program
-                // If we were executing an event there will be a return value on the stack
-                if (_executingEvent) {
-                    _stack.pop();
-                    _executingEvent = false;
-                }
                 
                 if (!_stack.validateFrame(0, _program->localSize())) {
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
@@ -355,7 +361,19 @@ static const uint16_t GCCount = 1000;
                 
                 // FIXME: For now we always wait for events. But we need to add logic to only do that if we have
                 // something listening. For instance if we have an active TCP socket or an interval timer
-                runNextEvent();
+                callReturnValue = runNextEvent();
+
+                if (callReturnValue.isError()) {
+                    printError(ROMSTR("callback failed"));
+                    return CallReturnValue(CallReturnValue::Type::WaitForEvent);
+                }
+
+                // If the callReturnValue is FunctionStart it means we've called a Function and it just
+                // setup the EU to execute it. In that case just continue
+                if (callReturnValue.isFunctionStart()) {
+                    updateCodePointer();
+                    DISPATCH;
+                }
                 return CallReturnValue(CallReturnValue::Type::WaitForEvent);
             }
             callReturnValue = CallReturnValue();
@@ -405,7 +423,13 @@ static const uint16_t GCCount = 1000;
         _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
 
         updateCodePointer();
-        _stack.push(returnedValue);
+
+        // If we were executing an event don't push the return value
+        if (_executingEvent) {
+            _executingEvent = false;
+        } else {
+            _stack.push(returnedValue);
+        }
         DISPATCH;
     L_MOVE:
         setInFrame(inst.ra(), regOrConst(inst.rb()));

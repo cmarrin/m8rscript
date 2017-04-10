@@ -195,7 +195,7 @@ private:
     }
 
     void startFunction(Callable* function, ObjectId thisObject, uint32_t nparams, bool inScope);
-    void runNextEvent();
+    CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
     bool checkTooManyErrors() const;
