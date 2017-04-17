@@ -68,7 +68,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         func = eu->stack().top(2 - nparams);
     }
 
-    MyUDPDelegate* delegate = new MyUDPDelegate(eu, port, func, thisValue.asObjectIdValue());
+    MyUDPDelegate* delegate = new MyUDPDelegate(eu, port, func, thisValue);
     
     Object* obj = Global::obj(thisValue);
     if (!obj) {

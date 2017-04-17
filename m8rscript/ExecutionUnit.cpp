@@ -639,9 +639,9 @@ static const uint16_t GCCount = 1000;
     L_UMINUS:
         leftValue = regOrConst(inst.rb());
         if (leftValue.isInteger()) {
-            setInFrame(inst.ra(), -leftValue.asIntValue());
+            setInFrame(inst.ra(), Value(-leftValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), -leftValue.toFloatValue(this));
+            setInFrame(inst.ra(), Value(-leftValue.toFloatValue(this)));
         }
         DISPATCH;
     L_UNEG:

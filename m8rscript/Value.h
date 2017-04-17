@@ -115,15 +115,14 @@ public:
 
     Value() { }
     
-    Value(ObjectId objectId) : _value(objectId) { }
-    Value(Type type) : _value(type) { }
-    Value(Float value) : _value(value) { }
-    Value(int32_t value) : _value(value) { }
-    Value(Atom value) : _value(value) { }
-    Value(StringId stringId) : _value(stringId) { }
-    Value(StringLiteral stringId) : _value(stringId) { }
-    Value(NativeObject* obj) : _value(obj) { }
-    Value(Callable* obj) : _value(obj) { }
+    explicit Value(ObjectId objectId) : _value(objectId) { }
+    explicit Value(Type type) : _value(type) { }
+    explicit Value(Float value) : _value(value) { }
+    explicit Value(int32_t value) : _value(value) { }
+    explicit Value(Atom value) : _value(value) { }
+    explicit Value(StringId stringId) : _value(stringId) { }
+    explicit Value(StringLiteral stringId) : _value(stringId) { }
+    explicit Value(NativeObject* obj) : _value(obj) { }
     
     operator bool() const { return type() != Type::None; }
     bool operator==(const Value& other) { return _value == other._value; }

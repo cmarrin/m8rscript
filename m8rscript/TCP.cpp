@@ -89,7 +89,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         ipAddr[3] = ipAddrObject->element(eu, Value(3)).toIntValue(eu);
     }
 
-    MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue.asObjectIdValue());
+    MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue);
     
     Object* obj = Global::obj(thisValue);
     if (!obj) {

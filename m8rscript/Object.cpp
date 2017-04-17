@@ -317,7 +317,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);
-    return obj ? obj->call(eu, objectId(), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, Value(objectId()), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -388,7 +388,7 @@ void MaterObject::removeNoncollectableObjects()
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {
-        _obj.setProperty(nullptr, ATOM(__typeName), program->atomizeString(name), Value::SetPropertyType::AlwaysAdd);
+        _obj.setProperty(nullptr, ATOM(__typeName), Value(program->atomizeString(name)), Value::SetPropertyType::AlwaysAdd);
     }
 }
 

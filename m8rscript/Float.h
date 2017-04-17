@@ -91,7 +91,7 @@ public:
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
     _Float(RawType value) { _value._raw = value; }
-    _Float(bool value) { _value._raw = value ? (static_cast<RawType>(1) << BinaryExponent) : 0; }
+    explicit _Float(bool value) { _value._raw = value ? (static_cast<RawType>(1) << BinaryExponent) : 0; }
     
     _Float(RawType i, int32_t e)
     {

@@ -210,7 +210,7 @@ void Parser::pushK(StringLiteral::Raw s)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(StringLiteral(s));
+    ConstantId id = currentFunction()->addConstant(Value(StringLiteral(s)));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -218,7 +218,7 @@ void Parser::pushK(const char* s)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(_program->addStringLiteral(s));
+    ConstantId id = currentFunction()->addConstant(Value(_program->addStringLiteral(s)));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -226,7 +226,7 @@ void Parser::pushK(uint32_t value)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(value);
+    ConstantId id = currentFunction()->addConstant(Value(value));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -234,7 +234,7 @@ void Parser::pushK(Float value)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(value);
+    ConstantId id = currentFunction()->addConstant(Value(value));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -243,7 +243,7 @@ void Parser::pushK(bool value)
     if (_nerrors) return;
     
     // FIXME: Support booleans as a first class type
-    ConstantId id = currentFunction()->addConstant(value ? 1 : 0);
+    ConstantId id = currentFunction()->addConstant(Value(value ? 1 : 0));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -259,8 +259,8 @@ void Parser::pushK(Function* function)
 {
     if (_nerrors) return;
     
-    assert(function);
-    ConstantId id = currentFunction()->addConstant(Value(function));
+    assert(function && function->objectId());
+    ConstantId id = currentFunction()->addConstant(Value(function->objectId()));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -268,7 +268,7 @@ void Parser::addNamedFunction(Function* func, const Atom& name)
 {
     if (_nerrors) return;
     
-    currentFunction()->addConstant(Value(func));
+    currentFunction()->addConstant(Value(func->objectId()));
     func->setName(name);
 }
 
@@ -336,7 +336,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
-    ConstantId id = currentFunction()->addConstant(atom);
+    ConstantId id = currentFunction()->addConstant(Value(atom));
     _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw());
 }
 

@@ -57,9 +57,9 @@ GPIO::GPIO(Program* program)
     addProperty(program, ATOM(onInterrupt), &_onInterrupt);
     
     Global::addObject(_pinMode.nativeObject(), false);
-    addProperty(program, ATOM(PinMode), _pinMode.objectId());
+    addProperty(program, ATOM(PinMode), Value(_pinMode.objectId()));
     Global::addObject(_trigger.nativeObject(), false);
-    addProperty(program, ATOM(Trigger), _trigger. objectId());
+    addProperty(program, ATOM(Trigger), Value(_trigger.objectId()));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

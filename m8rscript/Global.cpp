@@ -169,7 +169,7 @@ void Global::gcMark(ExecutionUnit* eu, const Value& value)
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint64_t t = eu->system()->currentMicroseconds();
-    eu->stack().push(Float(static_cast<Float::value_type>(t), -6));
+    eu->stack().push(Value(Float(static_cast<Float::value_type>(t), -6)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
