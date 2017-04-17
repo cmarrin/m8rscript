@@ -47,7 +47,6 @@ Parser::Parser(SystemInterface* system)
     : _parseStack(this)
     , _program(new Program(system))
 {
-    Global::addObject(_program, true);
 }
 
 void Parser::parse(m8r::Stream* istream, bool debug)
