@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "Float.h"
+#include "Program.h"
 
 using namespace m8r;
 
@@ -150,7 +151,7 @@ void CodePrinter::generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t 
     str += String(stringFromOp(op)) + " " + regString(rcall) + ", " + regString(rthis) + ", " + Value::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program, const Callable* func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Program* program, const Object* func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -404,15 +405,6 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
 {
     switch(value.type()) {
         case Value::Type::NativeObject: s += "NativeObject"; break;
-        case Value::Type::Function: {
-            _nestingLevel++;
-            s += "\n";
-            Callable* func = value.asFunction();
-            String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
-            s += generateCodeString(program, func, name.c_str(), _nestingLevel);
-            _nestingLevel--;
-            break;
-        }
         case Value::Type::None: s += "NONE"; break;
         case Value::Type::Null: s += "Null"; break;
         case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
@@ -421,6 +413,15 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::Object: {
+            Object* obj = Global::obj(value);
+            if (obj && obj->isFunction()) {
+                _nestingLevel++;
+                s += "\n";
+                String name = obj->name() ? program->stringFromAtom(obj->name()) : String("unnamed");
+                s += generateCodeString(program, obj, name.c_str(), _nestingLevel);
+                _nestingLevel--;
+                break;
+            }
             s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
             break;
         }

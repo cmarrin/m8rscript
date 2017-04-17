@@ -237,7 +237,6 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
         case Type::Null: return String("null");
         case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
-        case Type::Function: return String("Function()"); // FIXME: Show some sort of function identifier, name or something
     }
 }
 
@@ -268,7 +267,6 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         }
         case Type::Id:
         case Type::NativeObject:
-        case Type::Function:
         case Type::None:
         case Type::Null:
             return Float();
@@ -294,7 +292,6 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         }
         case Type::Id:
         case Type::NativeObject:
-        case Type::Function:
         case Type::None:
         case Type::Null:
             return Atom();
@@ -306,14 +303,6 @@ Object* Value::toObject(ExecutionUnit* eu) const
     switch(type()) {
         case Type::Object:
             return Global::obj(asObjectIdValue());
-        case Type::Function: {
-            Callable* callable = asFunction();
-            switch(callable->type()) {
-                case Callable::Type::None: return nullptr;
-                case Callable::Type::Function: return static_cast<Function*>(callable);
-                case Callable::Type::Closure: return static_cast<Closure*>(callable);
-            };
-        }
         case Type::Integer:
         case Type::Float: 
             // FIXME: Implement a Number object
@@ -350,7 +339,6 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
             }
             break;
         }
-        case Type::Function:
         case Type::Id:
         case Type::NativeObject:
         case Type::None:
@@ -393,16 +381,6 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
     switch(type()) {
         case Type::Object: {
             Object* obj = Global::obj(asObjectIdValue());
-            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
-        }
-        case Type::Function: {
-            Object* obj = nullptr;
-            Callable* callable = asFunction();
-            switch(callable->type()) {
-                case Callable::Type::Function: obj = static_cast<Function*>(callable); break;
-                case Callable::Type::Closure: obj = static_cast<Closure*>(callable); break;
-                default: break;
-            };
             return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
         }
         case Type::Integer:

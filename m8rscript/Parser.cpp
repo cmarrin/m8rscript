@@ -298,7 +298,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
         for (uint32_t i = 0; i < currentFunction()->constantCount(); ++i) {
-            Callable* func = currentFunction()->constant(ConstantId(i)).asFunction();
+            Object* func = Global::obj(currentFunction()->constant(ConstantId(i)));
             if (func) {
                 if (func->name() == atom) {
                     _parseStack.push(ParseStack::Type::Constant, i);

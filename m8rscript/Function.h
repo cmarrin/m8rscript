@@ -41,31 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Closure;
-class Function;
-
-class Callable {
-public:
-    enum class Type { None, Function, Closure };
-    
-    virtual Type type() const { return Type::None; }
-    virtual const Code* code() const = 0;
-    virtual uint32_t localSize() const = 0;
-    virtual Value* constantsPtr() = 0;
-    virtual uint32_t formalParamCount() const = 0;
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const = 0;
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) = 0;
-    virtual Atom name() const = 0;
-    virtual bool hasUpValues() const { return false; }
-    
-    bool isFunction() const { return type() == Type::Function; }
-};
-
-class Function : public Object, public Callable {
+class Function : public Object {
 public:
     Function(Function* parent);
 
     virtual ~Function() { }
+
+    virtual bool isFunction() const override { return true; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : Object::toString(eu, false); }
         
@@ -95,7 +77,7 @@ public:
 
     size_t constantCount() const { return _constants.size(); }
     
-    virtual Value* constantsPtr() override { return &(_constants.at(0)); }
+    virtual const std::vector<Value>*  constants() const override { return &_constants; }
     
     void setName(const Atom s) { _name = s; }
     virtual Atom name() const override { return _name; }
@@ -124,7 +106,7 @@ public:
     virtual bool serialize(Stream*, Error&, Program*) const override;
     virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
 
-    virtual Type type() const override { return Type::Function; }
+    //virtual Type type() const override { return Type::Function; }
 
     virtual bool hasUpValues() const override { return !_upValues.empty(); }
 
@@ -161,60 +143,4 @@ private:
     Function* _parent = nullptr;
 };
     
-class Closure : public Object, public Callable {
-public:
-    Closure(ExecutionUnit* eu, Function* func, const Value& thisValue);
-    virtual ~Closure() { }
-    
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
-
-    virtual void gcMark(ExecutionUnit* eu) override
-    {
-        _func->gcMark(eu);
-        for (auto it : _upvalues) {
-            it.gcMark(eu);
-        }
-    }
-
-    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
-
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;
-    
-    virtual bool serialize(Stream* stream, Error& error, Program* program) const override { return _func->serialize(stream, error, program); }
-    virtual bool deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& array) override
-    {
-        return _func->deserialize(stream, error, program, atomTable, array);
-    }
-
-    virtual const Code* code() const override { return _func->code(); }
-    virtual uint32_t localSize() const override { return _func->localSize(); }
-    virtual Value* constantsPtr() override { return _func->constantsPtr(); }
-    virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value& value) const override
-    {
-        if (index >= _upvalues.size()) {
-            return false;
-        }
-        value = _upvalues[index];
-        return true;
-    }
-    
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value& value) override
-    {
-        if (index >= _upvalues.size()) {
-            return false;
-        }
-        _upvalues[index] = value;
-        return true;
-    }
-    
-    virtual Atom name() const override { return _func->name(); }
-    virtual Type type() const override { return Type::Closure; }
-
-private:    
-    Function* _func = nullptr;
-    std::vector<Value> _upvalues;
-    Value _thisValue;
-};
-
 }

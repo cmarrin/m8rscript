@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 
+#include "Closure.h"
 #include "Float.h"
 #include "Array.h"
 #include "SystemInterface.h"
@@ -142,7 +143,7 @@ void ExecutionUnit::startExecution(Program* program)
     _pc = 0;
     _program = program;
     _function =  _program;
-    _constants = _function->constantsPtr();
+    _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     
     _thisId = program->objectId();
     _this = program;
@@ -216,16 +217,16 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-void ExecutionUnit::startFunction(Callable* function, ObjectId thisObject, uint32_t nparams, bool inScope)
+void ExecutionUnit::startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);
     
-    Callable* prevFunction = _function;
+    Object* prevFunction = _function;
     _function =  function;
-    assert(_function->code()->size());
+    assert(_function->code() && _function->code()->size());
 
-    _constants = _function->constantsPtr();
+    _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     _formalParamCount = _function->formalParamCount();
     uint32_t prevActualParamCount = _actualParamCount;
     _actualParamCount = nparams;
@@ -389,8 +390,8 @@ static const uint16_t GCCount = 1000;
         
         {
             // If the returned value is a function and it was called inScope, wrap it in a Closure
-            Callable* returnedFunction = returnedValue.asFunction();
-            if (returnedFunction && _inScope && returnedFunction->isFunction()) {
+            Object* returnedFunction = Global::obj(returnedValue);
+            if (returnedFunction && _inScope && returnedFunction->code()) {
                 if (returnedFunction->hasUpValues()) {
                     returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction), Value(_thisId)))->objectId());
                 }
@@ -417,7 +418,7 @@ static const uint16_t GCCount = 1000;
         }
         
         assert(_function->code()->size());
-        _constants = _function->constantsPtr();
+        _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
 
         _formalParamCount = _function->formalParamCount();
         _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
@@ -682,8 +683,8 @@ static const uint16_t GCCount = 1000;
 
         // If any passed parameter is a function, wrap it in a Closure
         for (int32_t i = 1 - uintValue; i <= 0; ++i) {
-            Callable* function = stack().top(i).asFunction();
-            if (function && function->isFunction()) {
+            Object* function = Global::obj(stack().top(i));
+            if (function && function->code()) {
                     stack().top(i) = Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId());
             }
         }

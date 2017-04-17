@@ -70,7 +70,7 @@ private:
     bool deref(Program*, Value&, const Value&);
     Atom propertyNameFromValue(Program*, const Value&);
 
-    m8r::String generateCodeString(const Program*, const Callable*, const char* functionName, uint32_t nestingLevel) const;
+    m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
 
     struct Annotation {
         uint32_t addr;

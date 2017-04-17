@@ -286,25 +286,3 @@ bool Function::deserializeContents(Stream* stream, Error& error, Program* progra
     }
     return true;
 }
-
-Closure::Closure(ExecutionUnit* eu, Function* func, const Value& thisValue)
-    : _func(func)
-    , _thisValue(thisValue)
-{
-    assert(_func);
-    Global::addObject(this, true);
-
-    for (uint32_t i = 0; i < func->upValueCount(); ++i) {
-        Value value;
-        if (_func->captureUpValue(eu, i, value)) {
-            _upvalues.push_back(value);
-        }
-    }
-}
-
-CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
-{
-    eu->startFunction(this, _thisValue.asObjectIdValue(), nparams, false);
-    return CallReturnValue(CallReturnValue::Type::FunctionStart);
-}
-

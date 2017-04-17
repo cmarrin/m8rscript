@@ -87,6 +87,17 @@ public:
     void setCollectable(bool b) { _collectable = b; }
     bool collectable() const { return _collectable; }
     
+    // methods for Callable (m8rscript) objects
+    virtual const Code* code() const { return nullptr; }
+    virtual uint32_t localSize() const { return 0; }
+    virtual const std::vector<Value>*  constants() const { return nullptr; }
+    virtual uint32_t formalParamCount() const { return 0; }
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
+    virtual Atom name() const { return Atom(); }
+    virtual bool hasUpValues() const { return false; }
+    virtual bool isFunction() const { return false; }
+    
 protected:
     void setProto(ObjectId id) { _proto = id; }
     ObjectId proto() const { return _proto; }

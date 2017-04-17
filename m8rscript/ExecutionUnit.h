@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
-#include "Function.h"
 #include "Program.h"
 
 namespace m8r {
@@ -167,7 +166,7 @@ public:
         return true;
     }
     
-    Callable* currentFunction() const { return _function; }
+    Object* currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
 
@@ -194,7 +193,7 @@ private:
         return &_stack.top(i);
     }
 
-    void startFunction(Callable* function, ObjectId thisObject, uint32_t nparams, bool inScope);
+    void startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -252,7 +251,7 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Callable* func, ObjectId thisId, uint32_t paramCount, bool inScope)
+        CallRecord(uint32_t pc, uint32_t frame, Object* func, ObjectId thisId, uint32_t paramCount, bool inScope)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -264,7 +263,7 @@ private:
         uint32_t _paramCount : 8;
         bool _inScope : 1;
         uint32_t _frame;
-        Callable* _func;
+        Object* _func;
         ObjectId::Raw _thisId;
     };
     
@@ -274,9 +273,9 @@ private:
     uint32_t _pc = 0;
     Program* _program = nullptr;
     ObjectId _thisId;
-    Callable* _function;
+    Object* _function;
     Object* _this;
-    Value* _constants;
+    const Value* _constants;
     Value* _framePtr;
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;

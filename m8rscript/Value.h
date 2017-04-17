@@ -42,7 +42,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Callable;
 class NativeObject;
 class Object;
 class ExecutionUnit;
@@ -112,7 +111,6 @@ public:
         None = 0,
         Float = 1,
         Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
-        Function = 16,
     };
 
     Value() { }
@@ -158,7 +156,6 @@ public:
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
-    Callable* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
@@ -234,7 +231,6 @@ private:
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
-    inline Callable* functionFromValue() const { return reinterpret_cast<Callable*>(_value.getPtr()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -256,7 +252,6 @@ private:
         RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
         RawValue(ObjectId id) { set16(id.raw()); setType(Type::Object); }
         RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
-        RawValue(Callable* obj) { setPtr(obj); setType(Type::Function); }
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
@@ -313,10 +308,6 @@ private:
             struct {
                 uint32_t __;
                 NativeObject* _native;
-            };
-            struct {
-                uint32_t ___;
-                Callable* _function;
             };
         };
     };

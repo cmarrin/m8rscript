@@ -42,6 +42,7 @@
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
+		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
@@ -179,6 +180,8 @@
 		4984E8301D1370A500D0ABA6 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../m8rscript/Global.cpp; sourceTree = "<group>"; };
 		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../m8rscript/Global.h; sourceTree = "<group>"; };
 		4984E8331D1492ED00D0ABA6 /* MStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MStream.h; path = ../m8rscript/MStream.h; sourceTree = "<group>"; };
+		49899B981EA56A6E003B334B /* Closure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Closure.cpp; path = ../m8rscript/Closure.cpp; sourceTree = "<group>"; };
+		49899B991EA56A6E003B334B /* Closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../m8rscript/Closure.h; sourceTree = "<group>"; };
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../m8rscript/ParseEngine.cpp; sourceTree = "<group>"; };
 		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../m8rscript/ParseEngine.h; sourceTree = "<group>"; };
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
@@ -441,6 +444,8 @@
 				49E6482B1D01F279005F5059 /* Atom.h */,
 				492BA3DA1E15987C00242DA8 /* Base64.cpp */,
 				492BA3DB1E15987C00242DA8 /* Base64.h */,
+				49899B981EA56A6E003B334B /* Closure.cpp */,
+				49899B991EA56A6E003B334B /* Closure.h */,
 				4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */,
 				4966A41C1D22F8C4008951F4 /* CodePrinter.h */,
 				49E648221D00CB57005F5059 /* Containers.h */,
@@ -653,6 +658,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
+				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
