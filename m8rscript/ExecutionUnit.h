@@ -235,11 +235,15 @@ private:
         }
     }
      
-    const Value& regOrConst(uint32_t r) const { return const_cast<ExecutionUnit*>(this)->regOrConst(r); }
-    Value& regOrConst(uint32_t r)
+    Value& regOrConst(uint32_t r, bool allowConst)
     {
         if (r > MaxRegister) {
-            return _constants[r - MaxRegister - 1];
+            if (!allowConst) {
+                // Can't return a constant as a mutable value
+                assert(0);
+                return _framePtr[r];
+            }
+            return const_cast<Value*>(_constants)[r - MaxRegister - 1];
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
