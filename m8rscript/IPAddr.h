@@ -92,8 +92,7 @@ private:
 
 class IPAddrProto : public Object {
 public:
-    IPAddrProto() { }
-    IPAddrProto(Program*) : _ipAddr(IPAddr::myIPAddr()) { }
+    IPAddrProto();
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 
@@ -116,6 +115,8 @@ public:
         _ipAddr[index] = value;
         return true;
     }
+    
+    void setIPAddr(IPAddr addr) { _ipAddr = addr; }
 
 private:
     IPAddr _ipAddr;

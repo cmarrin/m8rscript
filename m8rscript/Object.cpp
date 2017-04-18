@@ -254,6 +254,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
 
 MaterObject::MaterObject()
 {
+    Global::addObject(this, true);
 }
 
 MaterObject::~MaterObject()
@@ -361,7 +362,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     }
     
     MaterObject* obj = new MaterObject();
-    Value id(Global::addObject(obj, true));
+    Value objectValue(obj);
     obj->setProto(objectId());
 
     auto it = _properties.find(ATOM(constructor));
@@ -385,8 +386,15 @@ void MaterObject::removeNoncollectableObjects()
     }
 }
 
+NativeFunction::NativeFunction(Func func)
+    : _func(func)
+{
+    Global::addObject(this, true);
+}
+
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
+    _obj._collectable = false;
     if (name) {
         _obj.setProperty(nullptr, ATOM(__typeName), Value(program->atomizeString(name)), Value::SetPropertyType::AlwaysAdd);
     }
@@ -394,8 +402,9 @@ ObjectFactory::ObjectFactory(Program* program, const char* name)
 
 void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 {
-    Global::addObject(obj, false);
-    addProperty(program, prop, Value(obj->objectId()));
+    assert(obj && obj->objectId());
+    obj->_collectable = false;
+    addProperty(program, prop, Value(obj));
 }
 
 void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)

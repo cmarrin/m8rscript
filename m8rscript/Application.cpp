@@ -116,7 +116,6 @@ bool Application::load(Error& error, bool debug, const char* filename)
     
     if (m8rbMainStream.loaded()) {
         _program = new m8r::Program(_system);
-        Global::addObject(_program, true);
         return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
      }
 

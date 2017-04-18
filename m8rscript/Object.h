@@ -47,7 +47,7 @@ class Program;
 class Stream;
 
 class Object {
-    friend class PropertyObject;
+    friend class ObjectFactory;
     
 public:
     virtual ~Object() { }
@@ -156,7 +156,7 @@ class NativeFunction : public Object {
 public:
     typedef CallReturnValue (*Func)(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
-    NativeFunction(Func func) : _func(func) { }
+    NativeFunction(Func func);
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("NativeFunction") : Object::toString(eu, false); }
 

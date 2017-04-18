@@ -149,6 +149,7 @@ public:
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
     ObjectId asObjectIdValue() const { return (type() == Type::Object) ? objectIdFromValue() : ObjectId(); }
+    Object* asObject() const;
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }

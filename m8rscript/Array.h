@@ -42,7 +42,6 @@ namespace m8r {
 class Array : public Object {
 public:
     Array();
-    Array(Program*);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Array") : Object::toString(eu, false); }
 

@@ -137,6 +137,12 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
     return true;
 }
 
+Value::Value(Object* obj)
+{
+    assert(obj && obj->objectId());
+    _value = RawValue(obj->objectId(), obj->isFunction());
+}
+
 m8r::String Value::toString(Float value)
 {
     char buf[Float::MaxDigits + 8];
@@ -298,11 +304,16 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
+Object* Value::asObject() const
+{
+    return Global::obj(asObjectIdValue());
+}
+
 Object* Value::toObject(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::Object:
-            return Global::obj(asObjectIdValue());
+            return asObject();
         case Type::Integer:
         case Type::Float: 
             // FIXME: Implement a Number object
@@ -400,7 +411,6 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 std::vector<String> array = s.split(separator, skipEmpty);
                 Array* arrayObject = new Array();
-                Global::addObject(arrayObject, true);
                 arrayObject->resize(array.size());
                 for (size_t i = 0; i < array.size(); ++i) {
                     (*arrayObject)[i] = Value(Global::createString(array[i]));

@@ -41,10 +41,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Iterator::Iterator(Program* program)
-{
-}
-
 CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
@@ -52,7 +48,6 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     Iterator* it = new Iterator();
-    Global::addObject(it, true);
     it->_object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
     it->_index = 0;
     eu->stack().push(Value(it->objectId()));

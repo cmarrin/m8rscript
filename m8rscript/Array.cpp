@@ -41,10 +41,7 @@ using namespace m8r;
 
 Array::Array()
 {
-}
-
-Array::Array(Program*)
-{
+    Global::addObject(this, true);
 }
 
 CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
@@ -55,8 +52,7 @@ CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
     }
     
     Array* array = new Array();
-    Global::addObject(array, true);
-    eu->stack().push(Value(array->objectId()));
+    eu->stack().push(Value(array));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 

@@ -49,14 +49,11 @@ std::vector<ObjectId> Global::_staticObjects;
 
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
-    , _array(program)
     , _base64(program)
     , _gpio(program)
-    , _iterator(program)
     , _json(program)
     , _tcp(program)
     , _udp(program)
-    , _ipAddr(program)
     , _currentTime(currentTime)
     , _delay(delay)
     , _print(print)
@@ -73,6 +70,9 @@ Global::Global(Program* program)
         assert(dummy.raw() == 0);
     }
     
+    // The proto for IPAddr contains the local IP address
+    _ipAddr.setIPAddr(IPAddr::myIPAddr());
+    
     addProperty(program, ATOM(currentTime), &_currentTime);
     addProperty(program, ATOM(delay), &_delay);
     addProperty(program, ATOM(print), &_print);
@@ -87,16 +87,11 @@ Global::Global(Program* program)
     addProperty(program, ATOM(Iterator), &_iterator);
     addProperty(program, ATOM(IPAddr), &_ipAddr);
     
-    Global::addObject(_base64.nativeObject(), false);
-    addProperty(program, ATOM(Base64), Value(_base64.objectId()));
-    Global::addObject(_gpio.nativeObject(), false);
-    addProperty(program, ATOM(GPIO), Value(_gpio.objectId()));
-    Global::addObject(_json.nativeObject(), false);
-    addProperty(program, ATOM(JSON), Value(_json.objectId()));
-    Global::addObject(_tcp.nativeObject(), false);
-    addProperty(program, ATOM(TCP), Value(_tcp.objectId()));
-    Global::addObject(_udp.nativeObject(), false);
-    addProperty(program, ATOM(UDP), Value(_udp.objectId()));
+    addProperty(program, ATOM(Base64), Value(_base64.nativeObject()));
+    addProperty(program, ATOM(GPIO), Value(_gpio.nativeObject()));
+    addProperty(program, ATOM(JSON), Value(_json.nativeObject()));
+    addProperty(program, ATOM(TCP), Value(_tcp.nativeObject()));
+    addProperty(program, ATOM(UDP), Value(_udp.nativeObject()));
 }
 
 Global::~Global()

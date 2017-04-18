@@ -42,7 +42,6 @@ namespace m8r {
 class Iterator : public MaterObject {
 public:
     Iterator() { }
-    Iterator(Program*);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Iterator") : value(eu).toStringValue(eu); }
 

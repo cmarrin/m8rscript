@@ -456,11 +456,10 @@ static const uint16_t GCCount = 1000;
     L_LOADLITA:
     L_LOADLITO:
         if (inst.op() == Op::LOADLITA) {
-            objectValue = new Array(_program);
+            objectValue = new Array();
         } else {
             objectValue = new MaterObject();
         }
-        objectId = Global::addObject(objectValue, true);
         setInFrame(inst.ra(), Value(objectId));
         DISPATCH;
     L_LOADPROP:

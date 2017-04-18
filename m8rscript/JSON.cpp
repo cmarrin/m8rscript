@@ -72,7 +72,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         case Token::Null: v = Value(Value::Type::Null); scanner.retireToken(); break;;
         case Token::LBracket: {
             scanner.retireToken();
-            v = Value(Global::addObject(new Array(), true));
+            v = Value(new Array());
             Value elementValue = value(eu, scanner);
             if (elementValue) {
                 v.setElement(eu, Value(), elementValue, true);
@@ -95,7 +95,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         }
         case Token::LBrace: {
             scanner.retireToken();
-            v = Value(Global::addObject(new MaterObject(), true));
+            v = Value(new MaterObject());
 
             Value propertyKey;
             Value propertyValue;

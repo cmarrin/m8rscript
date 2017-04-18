@@ -49,6 +49,7 @@ UDPProto::UDPProto(Program* program)
 {
     addProperty(program, ATOM(constructor), &_constructor);
     addProperty(program, ATOM(send), &_send);
+    addProperty(program, ATOM(disconnect), &_disconnect);
     
     addProperty(program, ATOM(ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
     addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
