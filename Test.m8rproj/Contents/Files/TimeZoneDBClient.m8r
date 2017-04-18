@@ -34,6 +34,10 @@ class Clock
 					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
 				}
 				case TCP.Connected: {
+    				socket.send(0, "GET /v2/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America%2FLos_Angeles HTTP/1.0\r\n");
+    				socket.send(0, "Host: api.timezonedb.com\r\n");
+    				socket.send(0, "Connection: close\r\n");
+    				socket.send(0, "\r\n");
    				}
 				case TCP.ReceivedData: {
 					var found = false;
@@ -81,10 +85,6 @@ class Clock
 			if (ip) {
 				printf("Connecting to %s:%d\n", ip, _port);
 				_client = new TCP(ip, _port, eventFunc);
-    			_client.send(0, "GET /v2/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America%2FLos_Angeles HTTP/1.0\r\n");
-    			_client.send(0, "Host: api.timezonedb.com\r\n");
-    			_client.send(0, "Connection: close\r\n");
-    			_client.send(0, "\r\n");
 			}
 		});
 	}
