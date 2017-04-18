@@ -150,6 +150,7 @@ void Global::gcMark(ExecutionUnit* eu, const ObjectId& objectId)
 {
     if (objectId && !_objectStore.isGCMarked(objectId)) {
         _objectStore.gcMark(objectId);
+        assert(obj(objectId));
         obj(objectId)->gcMark(eu);
     }
 }
