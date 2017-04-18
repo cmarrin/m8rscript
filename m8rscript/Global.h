@@ -57,6 +57,17 @@ public:
     
     static StringId createString(const char* s, int32_t length = -1);
     static StringId createString(const String& s);
+    
+    static void addStaticObject(ObjectId objectId) { _staticObjects.push_back(objectId); }
+    static void removeStaticObject(ObjectId objectId)
+    {
+        for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
+            if (*it == objectId) {
+                _staticObjects.erase(it);
+                return;
+            }
+        }
+    }
 
     static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
     static bool isValid(const StringId& id) { return _stringStore.isValid(id); }
@@ -144,6 +155,7 @@ private:
 
     static IdStore<StringId, String> _stringStore;
     static IdStore<ObjectId, Object> _objectStore;
+    static std::vector<ObjectId> _staticObjects;
 };
     
 template<typename IdType, typename ValueType>

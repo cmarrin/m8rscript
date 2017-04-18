@@ -45,6 +45,7 @@ using namespace m8r;
 
 Global::IdStore<StringId, String> Global::_stringStore;
 Global::IdStore<ObjectId, Object> Global::_objectStore;
+std::vector<ObjectId> Global::_staticObjects;
 
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
@@ -141,6 +142,10 @@ void Global::gc(ExecutionUnit* eu)
     _stringStore.gcMark(StringId(0));
     
     eu->gcMark();
+    
+    for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
+        _objectStore.gcMark(*it);
+    }
     
     _stringStore.gcSweep();
     _objectStore.gcSweep();
