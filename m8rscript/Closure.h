@@ -44,7 +44,7 @@ namespace m8r {
 
 class Closure : public Object {
 public:
-    Closure(ExecutionUnit* eu, Function* func, const Value& thisValue);
+    Closure(ExecutionUnit* eu, const Value& function, const Value& thisValue);
     virtual ~Closure() { }
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
@@ -56,6 +56,8 @@ public:
             it.gcMark(eu);
         }
     }
+    
+    void close(ExecutionUnit*);
 
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
 
@@ -71,30 +73,32 @@ public:
     virtual uint32_t localSize() const override { return _func->localSize(); }
     virtual const std::vector<Value>*  constants() const override { return _func->constants(); }
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value& value) const override
+    virtual bool loadUpValue(ExecutionUnit*eu, uint32_t index, Value& value) const override
     {
-        if (index >= _upvalues.size()) {
-            return false;
+        if (_closed) {
+            assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
+            value = _upvalues[index];
+            return true;
         }
-        value = _upvalues[index];
-        return true;
+        return _func->loadUpValue(eu, index, value);
     }
     
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value& value) override
+    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override
     {
-        if (index >= _upvalues.size()) {
-            return false;
+        if (_closed) {
+            assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
+            _upvalues[index] = value;
+            return true;
         }
-        _upvalues[index] = value;
-        return true;
+        return _func->storeUpValue(eu, index, value);
     }
     
     virtual Atom name() const override { return _func->name(); }
-    //virtual Type type() const override { return Type::Closure; }
 
 private:    
     Function* _func = nullptr;
     std::vector<Value> _upvalues;
+    bool _closed = false;
     Value _thisValue;
 };
 

@@ -39,19 +39,23 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Closure::Closure(ExecutionUnit* eu, Function* func, const Value& thisValue)
-    : _func(func)
-    , _thisValue(thisValue)
+Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValue)
+    : _thisValue(thisValue)
 {
+    assert(function.isFunction());
+    _func = reinterpret_cast<Function*>(function.asObject());
     assert(_func);
     Global::addObject(this, true);
+}
 
-    for (uint32_t i = 0; i < func->upValueCount(); ++i) {
+void Closure::close(ExecutionUnit* eu)
+{
+    for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
         Value value;
-        if (_func->captureUpValue(eu, i, value)) {
-            _upvalues.push_back(value);
-        }
+        _func->captureUpValue(eu, i, value);
+        _upvalues.push_back(value);
     }
+    _closed = true;
 }
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)

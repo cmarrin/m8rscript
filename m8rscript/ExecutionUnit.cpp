@@ -389,14 +389,6 @@ static const uint16_t GCCount = 1000;
         localsToPop = _function->localSize() + _localOffset;
         
         {
-            // If the returned value is a function and it was called inScope, wrap it in a Closure
-            Object* returnedFunction = Global::obj(returnedValue);
-            if (returnedFunction && _inScope && returnedFunction->code()) {
-                if (returnedFunction->hasUpValues()) {
-                    returnedValue = Value((new Closure(this, static_cast<Function*>(returnedFunction), Value(_thisId)))->objectId());
-                }
-            }
-        
             // Get the call record entries from the call stack and pop it.
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
@@ -666,12 +658,12 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.rb(), Value(regOrConst(inst.rb(), true).toIntValue(this) - 1));
         DISPATCH;
     L_CAPTURE: {
-        Object* function = Global::obj(regOrConst(inst.rb(), true));
-        if (!function) {
-            setInFrame(inst.ra(), Value(Value::Type::Null));
-        } else {
-            setInFrame(inst.ra(), Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId()));
-        }
+//        Object* function = Global::obj(regOrConst(inst.rb(), true));
+//        if (!function) {
+//            setInFrame(inst.ra(), Value(Value::Type::Null));
+//        } else {
+//            setInFrame(inst.ra(), Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId()));
+//        }
         DISPATCH;
     }
     L_NEW:
@@ -680,14 +672,6 @@ static const uint16_t GCCount = 1000;
         leftValue = regOrConst(inst.rcall(), true);
         uintValue = inst.nparams();
 
-        // If any passed parameter is a function, wrap it in a Closure
-        for (int32_t i = 1 - uintValue; i <= 0; ++i) {
-            Object* function = Global::obj(stack().top(i));
-            if (function && function->code()) {
-                    stack().top(i) = Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId());
-            }
-        }
-            
         switch(inst.op()) {
             default: break;
             case Op::CALL: {
