@@ -439,7 +439,7 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), derefId(regOrConst(inst.rb(), true).asIdValue()));
         DISPATCH;
     L_STOREFK:
-        stoIdRef(regOrConst(inst.rb(), false).asIdValue(), regOrConst(inst.rc(), true));
+        stoIdRef(regOrConst(inst.rb(), true).asIdValue(), regOrConst(inst.rc(), true));
         DISPATCH;
     L_LOADUP:
         if (!_function->loadUpValue(this, inst.rb(), rightValue)) {
