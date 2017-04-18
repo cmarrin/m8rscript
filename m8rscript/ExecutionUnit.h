@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 
 #include "Atom.h"
+#include "Closure.h"
 #include "Program.h"
 
 namespace m8r {
@@ -173,13 +174,6 @@ public:
 private:
     Value* _upValue(uint32_t index, uint16_t frame, bool mustBeInScope)
     {
-        // FIXME: Should we handle the case of trying to access an upValue when out of scope? We could
-        // store the atom of the original variable name and try to access it as a REFK. For now, just
-        // error.
-        if (mustBeInScope && !_inScope) {
-            return nullptr;
-        }
-        
         // The frame is an index into the _callRecords array. But it runs backwards. Frame 0 would be
         // the current frame, which isn't represented in the call record stack, so frame 1 is actually
         // the last entry in _callRecords, frame 2 is the second to last, etc. If the frame is 0 it means
@@ -188,7 +182,7 @@ private:
             return _framePtr + index;
         }
         
-        assert(_callRecords.size() > frame);
+        assert(_callRecords.size() >= frame);
         int32_t i = _callRecords[_callRecords.size() - frame]._frame + index - static_cast<int32_t>(_stack.size()) + 1;
         return &_stack.top(i);
     }
@@ -235,7 +229,7 @@ private:
         }
     }
      
-    Value& regOrConst(uint32_t r, bool allowConst)
+    Value regOrConst(uint32_t r, bool allowConst)
     {
         if (r > MaxRegister) {
             if (!allowConst) {
@@ -243,7 +237,11 @@ private:
                 assert(0);
                 return _framePtr[r];
             }
-            return const_cast<Value*>(_constants)[r - MaxRegister - 1];
+            Value constValue = const_cast<Value*>(_constants)[r - MaxRegister - 1];
+            if (constValue.isFunction()) {
+                return Value(new Closure(this, constValue, Value(_this)));
+            }
+            return constValue;
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
