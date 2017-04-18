@@ -268,7 +268,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
             uint16_t frame;
             Atom name;
             function->upValue(i, index, frame, name);
-            outputString += "UP(" + Value::toString(index) + ", " + Value::toString(frame) + "'" + program->stringFromAtom(name).c_str() + "')\n";
+            outputString += String("UP('") + program->stringFromAtom(name).c_str() + "':index=" + Value::toString(index) + ", frame=" + Value::toString(frame) + ")\n";
         }
         _nestingLevel--;
         outputString += "\n";
