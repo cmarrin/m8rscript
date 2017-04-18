@@ -127,6 +127,9 @@ public:
     Atom atomizeString(const char* s) const { return atomizeString(s, false); }
     m8r::String stringFromAtom(const Atom atom) const
     {
+        if (!atom) {
+            return String();
+        }
         uint16_t index = atom.raw();
         bool shared = index < _sharedTable.size();
         if (!shared) {
