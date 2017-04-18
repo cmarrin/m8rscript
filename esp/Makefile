@@ -252,7 +252,6 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 
 upload: all
 	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
-	python -m serial.tools.miniterm $(UPLOAD_PORT) $(TERM_SPEED)
     
 erase:
 	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
