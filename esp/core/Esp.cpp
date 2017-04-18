@@ -128,11 +128,8 @@ private:
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const
 {
     size_t fmtlen = ROMstrlen(fmt);
-    char* fmtbuf = new char[fmtlen + 1];
-    ROMCopyString(fmtbuf, fmt);
     char* buf = new char[fmtlen + 100];
-    vsnprintf(buf, fmtlen + 100, fmtbuf, args);
-    delete [ ] fmtbuf;
+    ROMvsnprintf(buf, fmtlen + 99, fmt, args);
     
     if (_logTCP) {
         for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
@@ -262,6 +259,25 @@ const char* ROMstrstr(const char* s1, const char* s2)
             }
         }
     }
+}
+
+int ROMsnprintf (char* s, size_t n, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    int result = ROMvsnprintf(s, n, format, args);
+    va_end(args);
+    return result;
+}
+
+int ROMvsnprintf (char* s, size_t n, const char* format, va_list args)
+{
+    size_t fmtlen = ROMstrlen(format);
+    char* fmtbuf = new char[fmtlen + 1];
+    ROMCopyString(fmtbuf, format);
+    int result = ets_vsnprintf(s, n, fmtbuf, args);
+    delete [ ] fmtbuf;
+    return result;
 }
 
 void micros_overflow_tick(void* arg) {

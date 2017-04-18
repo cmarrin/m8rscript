@@ -126,6 +126,9 @@ size_t ROMstrlen(const char* s);
 int ROMstrcmp(const char* s1, const char* s2);
 const char* ROMstrstr(const char* s1, const char* s2);
 
+int ROMsnprintf (char * s, size_t n, const char * format, ...);
+int ROMvsnprintf (char * s, size_t n, const char * format, va_list arg);
+
 #ifdef __cplusplus
 namespace m8r {
     class FS;
@@ -156,7 +159,3 @@ m8r::FS* fs();
 
 #define interrupts() xt_rsil(0)
 #define noInterrupts() xt_rsil(15)
-
-#define sprintf os_sprintf
-#define vsprintf ets_vsprintf
-#define vsnprintf ets_vsnprintf

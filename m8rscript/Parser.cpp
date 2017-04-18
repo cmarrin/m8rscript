@@ -78,7 +78,7 @@ void Parser::printError(const char* format, ...)
     
     char s[80];
     va_start(args, format);
-    vsnprintf(s, 79, format, args);
+    ROMvsnprintf(s, 79, format, args);
     _syntaxErrors.emplace_back(s, _scanner.lineno(), 1, 1);
     va_end(args);
 }

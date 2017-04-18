@@ -158,9 +158,9 @@ void Shell::sendComplete()
         case State::ListFiles:
             if (_directoryEntry && _directoryEntry->valid()) {
                 if (_binary) {
-                    sprintf(_buffer, "file:%s:%d\n", _directoryEntry->name(), _directoryEntry->size());
+                    ROMsnprintf(_buffer, BufferSize - 1, ROMSTR("file:%s:%d\n"), _directoryEntry->name(), _directoryEntry->size());
                 } else {
-                    sprintf(_buffer, "    %-32s %d\n", _directoryEntry->name(), _directoryEntry->size());
+                    ROMsnprintf(_buffer, BufferSize - 1, ROMSTR("    %-32s %d\n"), _directoryEntry->name(), _directoryEntry->size());
                 }
                 shellSend(_buffer);
                 _directoryEntry->next();
@@ -349,22 +349,26 @@ void Shell::showMessage(MessageType type, const char* msg, ...)
         _state = State::NeedPrompt;
     }
     
-    va_list args;
-    va_start(args, msg);
-    
-    char* buf = new char[64];
-    ROMCopyString(_buffer, msg);
-    vsnprintf(buf, 63, _buffer, args);
-    
+    size_t size = BufferSize - 10;
     char* p = _buffer;
     if (type == MessageType::Error) {
         p = ROMCopyString(p, ROMSTR("Error:"));
     }
-    p = ROMCopyString(p, buf);
-    if (type == MessageType::Error) {
-        p = ROMCopyString(p, "\n");
+    
+    va_list args;
+    va_start(args, msg);
+    
+    int result = ROMvsnprintf(p, size, msg, args);
+    if (result < 0 || result >= size) {
+        return;
     }
-    delete[ ] buf;
+    
+    size -= static_cast<size_t>(result);
+    p += result;
+    
+    if (type == MessageType::Error) {
+        ROMCopyString(p, "\n");
+    }
     
     shellSend(_buffer);
 }

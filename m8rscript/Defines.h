@@ -48,6 +48,8 @@ POSSIBILITY OF SUCH DAMAGE.
     #define ROMstrlen strlen
     #define ROMstrcmp strcmp
     #define ROMstrstr strstr
+    #define ROMsnprintf snprintf
+    #define ROMvsnprintf vsnprintf
     #include <cstring>
     static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
     #define ROMSTR(s) s
