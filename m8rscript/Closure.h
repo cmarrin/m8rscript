@@ -47,7 +47,7 @@ public:
     Closure(ExecutionUnit* eu, const Value& function, const Value& thisValue);
     virtual ~Closure() { }
     
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : toString(eu, false); }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : Object::toString(eu, false); }
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
