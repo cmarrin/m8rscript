@@ -359,6 +359,6 @@ CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t n
     for (uint32_t i = 0; i < eu->argumentCount(); ++i) {
         array->setIteratedValue(eu, i, eu->argument(i), Value::SetPropertyType::AlwaysAdd);
     }
-    eu->stack().push(Value(arrayId));
+    eu->stack().push(Value(array));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

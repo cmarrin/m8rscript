@@ -259,7 +259,7 @@ void Parser::pushK(Function* function)
     if (_nerrors) return;
     
     assert(function && function->objectId());
-    ConstantId id = currentFunction()->addConstant(Value(function->objectId()));
+    ConstantId id = currentFunction()->addConstant(Value(function));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 
@@ -267,7 +267,7 @@ void Parser::addNamedFunction(Function* func, const Atom& name)
 {
     if (_nerrors) return;
     
-    currentFunction()->addConstant(Value(func->objectId()));
+    currentFunction()->addConstant(Value(func));
     func->setName(name);
 }
 

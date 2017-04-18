@@ -115,7 +115,7 @@ public:
 
     Value() { }
     
-    explicit Value(ObjectId objectId) : _value(objectId) { }
+    explicit Value(Object* obj);
     explicit Value(Type type) : _value(type) { }
     explicit Value(Float value) : _value(value) { }
     explicit Value(int32_t value) : _value(value) { }
@@ -190,6 +190,7 @@ public:
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
     bool isObjectId() const { return type() == Type::Object; }
+    bool isFunction() const { return type() == Type::Object && boolFromValue(); }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -228,6 +229,7 @@ private:
     inline uint16_t uint16FromValue() const { return _value.get16(); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.get32())); }
     inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.get16())); }
+    inline bool boolFromValue() const { return _value.getBool(); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
@@ -243,15 +245,15 @@ private:
     // use the lowest 5 bits and make all the enum values even. For floats, we take the raw value, clear the LSB and cast it to
     // Float. For the others we cast the lower 5 bits to Type and use that. 
     struct RawValue {
-        RawValue() { setType(Type::None); }
-        RawValue(Type type) { setType(type); }
-        RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        RawValue(int32_t i) { set32(i); setType(Type::Integer); }
-        RawValue(Atom atom) { set32(atom.raw()); setType(Type::Id); }
-        RawValue(StringId id) { set32(id.raw()); setType(Type::String); }
-        RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
-        RawValue(ObjectId id) { set16(id.raw()); setType(Type::Object); }
-        RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
+        explicit RawValue() { setType(Type::None); }
+        explicit RawValue(Type type) { setType(type); }
+        explicit RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
+        explicit RawValue(int32_t i) { set32(i); setType(Type::Integer); }
+        explicit RawValue(Atom atom) { set32(atom.raw()); setType(Type::Id); }
+        explicit RawValue(StringId id) { set32(id.raw()); setType(Type::String); }
+        explicit RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
+        explicit RawValue(ObjectId id, bool isFunction) { set16(id.raw()); setBool(isFunction); setType(Type::Object); }
+        explicit RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
@@ -289,6 +291,8 @@ private:
         void set16(uint16_t v) { RawComponent<uint16_t, 16, 16>::set(_raw, v); }
         void* getPtr() const { return reinterpret_cast<void*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
         void setPtr(void* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
+        bool getBool() const { return RawComponent<bool, 1, 15>::get(_raw); }
+        void setBool(bool b) { RawComponent<bool, 1, 15>::set(_raw, b); }
 
         // This union is only used for debugging. Only the _raw value is used at runtime, so it should work for both
         // big endian and little endian architectures. But the struct is little endian so the information is only
@@ -301,7 +305,8 @@ private:
 #else
                 uint32_t _type : 5;
 #endif
-                uint32_t _ : 11;
+                uint32_t _ : 10;
+                bool _bool : 1;
                 uint16_t _uint16 : 16;
                 uint32_t _uint32 : 32;
             };

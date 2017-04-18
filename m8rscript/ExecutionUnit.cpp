@@ -102,7 +102,7 @@ Value ExecutionUnit::derefId(Atom atom)
     }
     
     if (atom == ATOM(__this)) {
-        return Value(_thisId);
+        return Value(_this);
     }
 
     // Look in this then program then global
@@ -460,7 +460,7 @@ static const uint16_t GCCount = 1000;
         } else {
             objectValue = new MaterObject();
         }
-        setInFrame(inst.ra(), Value(objectId));
+        setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_LOADPROP:
         leftValue = regOrConst(inst.rb(), true).property(this, regOrConst(inst.rc(), true).toIdValue(this));
@@ -508,7 +508,7 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value());
         DISPATCH;
     L_LOADTHIS:
-        setInFrame(inst.ra(), Value(_thisId));
+        setInFrame(inst.ra(), Value(_this));
         DISPATCH;
     L_PUSH:
         _stack.push(regOrConst(inst.rn(), true));
@@ -693,7 +693,7 @@ static const uint16_t GCCount = 1000;
             case Op::CALL: {
                 rightValue = regOrConst(inst.rthis(), true);
                 if (!rightValue) {
-                    rightValue = Value(_thisId);
+                    rightValue = Value(_this);
                 }
                 callReturnValue = leftValue.call(this, rightValue, uintValue, false);
                 break;

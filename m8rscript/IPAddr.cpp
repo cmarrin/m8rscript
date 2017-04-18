@@ -58,6 +58,11 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
+IPAddrProto::IPAddrProto()
+{
+    Global::addObject(this, true);
+}
+
 IPAddr::IPAddr(const String& ipString)
 {
     toIPAddr(ipString, *this);
@@ -104,12 +109,11 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     }
 
     IPAddrProto* obj = new IPAddrProto();
-    Global::addObject(obj, true);
     obj->setProto(objectId());
     
     obj->_ipAddr = ipAddr;
 
-    eu->stack().push(Value(obj->objectId()));
+    eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
@@ -129,21 +133,20 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         }
         
         IPAddr::lookupHostName(hostname.c_str(), [this, eu, func, funcId](const char* name, m8r::IPAddr ipaddr) {
-            ObjectId newIPAddr;
+            Object* newIPAddr = nullptr;
             Object* parent = Global::obj(objectId());
             if (parent) {
                 IPAddrProto* obj = new IPAddrProto();
-                Global::addObject(obj, true);
                 obj->setProto(parent->objectId());
                 obj->_ipAddr = ipaddr;
-                newIPAddr = obj->objectId();
+                newIPAddr = obj;
             }
 
             Value args[2];
             args[0] = Value(Global::createString(String(name)));
             args[1] = Value(newIPAddr);
             
-            eu->fireEvent(func, Value(objectId()), args, 2);
+            eu->fireEvent(func, Value(this), args, 2);
             if (funcId) {
                 Global::removeStaticObject(funcId);
             }

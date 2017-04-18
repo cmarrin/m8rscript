@@ -50,7 +50,7 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
     Iterator* it = new Iterator();
     it->_object = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
     it->_index = 0;
-    eu->stack().push(Value(it->objectId()));
+    eu->stack().push(Value(it));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 

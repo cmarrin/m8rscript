@@ -415,7 +415,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 for (size_t i = 0; i < array.size(); ++i) {
                     (*arrayObject)[i] = Value(Global::createString(array[i]));
                 }
-                eu->stack().push(Value(arrayObject->objectId()));
+                eu->stack().push(Value(arrayObject));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             break;

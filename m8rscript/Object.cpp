@@ -318,7 +318,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Object* obj = property(eu, prop).toObject(eu);
-    return obj ? obj->call(eu, Value(objectId()), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, Value(this), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -367,12 +367,12 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
-        CallReturnValue retval = it->value.call(eu, id, nparams, true);
+        CallReturnValue retval = it->value.call(eu, objectValue, nparams, true);
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
             return retval;
         }
     }
-    eu->stack().push(id);
+    eu->stack().push(objectValue);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
