@@ -151,7 +151,7 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, uint16_t length)
+void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const char* data, int16_t length)
 {
     Value args[5];
     args[0] = _parent;

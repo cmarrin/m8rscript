@@ -52,7 +52,7 @@ class TCPDelegate {
 public:
     enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };
     
-    virtual void TCPevent(TCP*, Event, int16_t connectionId, const char* data = nullptr, uint16_t length = 0) = 0;
+    virtual void TCPevent(TCP*, Event, int16_t connectionId, const char* data = nullptr, int16_t length = -1) = 0;
 };
 
 class TCP {
@@ -127,7 +127,7 @@ public:
     }
 
     // TCPDelegate overrides
-    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, uint16_t length) override;
+    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, int16_t length) override;
 
 private:
     TCP* _tcp = nullptr;

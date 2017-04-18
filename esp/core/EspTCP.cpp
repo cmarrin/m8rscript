@@ -52,17 +52,37 @@ TCP* TCP::create(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     : TCP(delegate, port, ip)
 {
-    assert(!ip); // client not yet supported
-
     _listenpcb = tcp_new();
-    err_t err = tcp_bind(_listenpcb, IP_ADDR_ANY, port);
-    _listenpcb = tcp_listen(_listenpcb);
     tcp_arg(_listenpcb, this);
-    tcp_accept(_listenpcb, _accept);
+    
+    if (!ip) {
+        err_t err = tcp_bind(_listenpcb, IP_ADDR_ANY, port);
+        _listenpcb = tcp_listen(_listenpcb);
+        tcp_accept(_listenpcb, _accept);
+    } else {
+        ip_addr_t addr;
+        addr.addr = static_cast<uint32_t>(ip);
+        tcp_connect(_listenpcb, &addr, port, _clientConnected);
+    }
 }
 
 EspTCP::~EspTCP()
 {
+    for (auto& it : _clients) {
+        if (it.inUse()) {
+            it.disconnect();
+            _delegate->TCPevent(this, TCPDelegate::Event::SentData, &it - &(_clients[0]));
+        }
+    }
+    tcp_close(_listenpcb);
+}
+
+err_t EspTCP::clientConnected(tcp_pcb* pcb, err_t err)
+{
+    assert(!_clients[0].inUse());
+    _clients[0] = Client(pcb, this);
+    _delegate->TCPevent(this, TCPDelegate::Event::Connected, 0);
+    return 0;
 }
 
 err_t EspTCP::accept(tcp_pcb* pcb, int8_t err)
@@ -100,6 +120,7 @@ err_t EspTCP::recv(tcp_pcb* pcb, pbuf* buf, int8_t err)
     if (!buf) {
         // Disconnected
         _clients[connectionId].disconnect();
+        _delegate->TCPevent(this, TCPDelegate::Event::SentData, connectionId);
         return 0;
     }
     
@@ -168,6 +189,6 @@ void EspTCP::Client::sent(uint16_t len)
 
 void EspTCP::Client::disconnect()
 {
-    tcp_abort(_pcb);
+    tcp_close(_pcb);
     _pcb = nullptr;
 }

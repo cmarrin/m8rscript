@@ -78,7 +78,7 @@ public:
     MyTCP(uint16_t port) : _tcp(m8r::TCP::create(this, port)) { }
     
     // TCPDelegate
-    virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length) override
+    virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:

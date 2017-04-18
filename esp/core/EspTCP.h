@@ -63,11 +63,16 @@ public:
             return;
         }
         _clients[connectionId].disconnect();
+        _delegate->TCPevent(this, TCPDelegate::Event::SentData, connectionId);
     }
     
     EspTCP(TCPDelegate*, uint16_t, IPAddr);
 
 private:
+    static err_t _clientConnected(void* arg, tcp_pcb *pcb, err_t err) { return reinterpret_cast<EspTCP*>(arg)->clientConnected(pcb, err); }
+    err_t clientConnected(tcp_pcb* pcb, err_t err);
+
+
     class Client {
     public:
         Client() : _pcb(nullptr) { }

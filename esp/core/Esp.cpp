@@ -157,7 +157,7 @@ m8r::SystemInterface* system() { return &_gSystemInterface; }
 
 class MyLogTCPDelegate : public m8r::TCPDelegate {
 public:
-    virtual void TCPevent(m8r::TCP* tcp, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, uint16_t length) override
+    virtual void TCPevent(m8r::TCP* tcp, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
         if (event == m8r::TCPDelegate::Event::Connected) {
             tcp->send(connectionId, "Start m8rscript Log\n\n");
