@@ -105,6 +105,8 @@ MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     } else {
         if (connect(_socketFD, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
             _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP connect failed");
+        } else {
+            _delegate->TCPevent(this, TCPDelegate::Event::Connected, 0);
         }
     }
 
@@ -250,4 +252,5 @@ void MacTCP::disconnect(int16_t connectionId)
     
     close(_clientSockets[connectionId]);
     _clientSockets[connectionId] = 0;
+    _delegate->TCPevent(this, TCPDelegate::Event::Disconnected, connectionId);
 }
