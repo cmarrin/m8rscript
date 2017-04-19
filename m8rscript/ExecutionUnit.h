@@ -147,26 +147,6 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    bool upValue(uint32_t index, uint16_t frame, Value& value, bool mustBeInScope) const
-    {
-        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame, mustBeInScope);
-        if (!v) {
-            return false;
-        }
-        value = *v;
-        return true;
-    }
-    
-    bool setUpValue(uint32_t index, uint16_t frame, const Value& value, bool mustBeInScope)
-    {
-        Value* v = const_cast<ExecutionUnit*>(this)->_upValue(index, frame, mustBeInScope);
-        if (!v) {
-            return false;
-        }
-        *v = value;
-        return true;
-    }
-    
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const
     {
         assert(frame > 0);
@@ -185,20 +165,6 @@ public:
     uint32_t lineno() const { return _lineno; }
 
 private:
-    Value* _upValue(uint32_t index, uint16_t frame, bool mustBeInScope)
-    {
-        // The frame is an index into the _callRecords array. But it runs backwards. Frame 0 would be
-        // the current frame, which isn't represented in the call record stack, so frame 1 is actually
-        // the last entry in _callRecords, frame 2 is the second to last, etc. If the frame is 0 it means
-        // We're capturing, so we use the current frame
-        if (frame == 0) {
-            return _framePtr + index;
-        }
-        
-        assert(_callRecords.size() >= frame);
-        int32_t i = _callRecords[_callRecords.size() - frame]._frame + index - static_cast<int32_t>(_stack.size()) + 1;
-        return &_stack.top(i);
-    }
 
     void startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
