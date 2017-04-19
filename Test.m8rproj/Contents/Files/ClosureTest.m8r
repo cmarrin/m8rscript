@@ -76,8 +76,8 @@ println("5) Test from JavaScript: celebrityID (s/b 999) = " + mjID.getID());
 mjID.setID(567);
 println("5) Test from JavaScript: celebrityID (s/b 567) = " + mjID.getID());
 
-// Test 5a: m8rscript way of doing test 6
 
+// Test 5a: m8rscript way of doing test 5
 class CelebrityID {
 	var _id = 999;
 	function getID() { return _id; }
