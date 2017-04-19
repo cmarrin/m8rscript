@@ -426,7 +426,7 @@ static const uint16_t GCCount = 1000;
             _function = callRecord._func;
             _inScope = callRecord._inScope;
             
-            _callRecords.resize(_callRecords.size() - 1);
+            _callRecords.pop_back();
         }
         
         assert(_function->code()->size());
