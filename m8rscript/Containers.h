@@ -457,6 +457,9 @@ public:
 
     const type* framePtr() const { return &super::at(_frame); }
     type* framePtr() { return size() ? &super::at(_frame) : nullptr; }
+    
+    const type& at(size_t i) const { return super::at(i); }
+    type& at(size_t i) { return super::at(i); }
 
 private:
     uint32_t _frame = 0;
