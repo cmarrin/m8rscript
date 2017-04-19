@@ -96,11 +96,6 @@ Global::Global(Program* program)
 
 Global::~Global()
 {
-    Global::removeObject(_base64.nativeObject()->objectId());
-    Global::removeObject(_gpio.nativeObject()->objectId());
-    Global::removeObject(_json.nativeObject()->objectId());
-    Global::removeObject(_tcp.nativeObject()->objectId());
-    Global::removeObject(_udp.nativeObject()->objectId());
 }
 
 ObjectId Global::addObject(Object* obj, bool collectable)

@@ -177,7 +177,7 @@ public:
 class ObjectFactory {
 public:
     ObjectFactory(Program*, const char* name = nullptr);
-    ~ObjectFactory() { }
+    ~ObjectFactory();
     
     void addProperty(Program*, Atom prop, Object*);
     void addProperty(Program*, Atom prop, const Value&);

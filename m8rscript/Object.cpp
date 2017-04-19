@@ -400,6 +400,11 @@ ObjectFactory::ObjectFactory(Program* program, const char* name)
     }
 }
 
+ObjectFactory::~ObjectFactory()
+{
+    Global::removeObject(_obj.objectId());
+}
+
 void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 {
     assert(obj && obj->objectId());
