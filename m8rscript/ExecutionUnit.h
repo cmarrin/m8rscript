@@ -169,10 +169,12 @@ public:
     
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const
     {
+        assert(frame > 0);
+        frame--;
+        assert(frame <= _callRecords.size());
         if (frame == 0) {
-            return index;
+            return _stack.frame() + index;
         }
-        assert(_callRecords.size() >= frame);
         uint32_t stackIndex = _callRecords[_callRecords.size() - frame]._frame + index;
         assert(stackIndex < _stack.size());
         return stackIndex;
