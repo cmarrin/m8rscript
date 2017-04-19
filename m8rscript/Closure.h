@@ -52,7 +52,7 @@ public:
     virtual void gcMark(ExecutionUnit* eu) override
     {
         _func->gcMark(eu);
-        for (auto it : _upvalues) {
+        for (auto it : _upValues) {
             it.value.gcMark(eu);
         }
     }
@@ -86,7 +86,7 @@ private:
         Value value;
     };
     
-    std::vector<UpValue> _upvalues;
+    std::vector<UpValue> _upValues;
 
     Function* _func = nullptr;
     Value _thisValue;

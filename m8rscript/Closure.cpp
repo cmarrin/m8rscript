@@ -48,28 +48,28 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     Global::addObject(this, true);
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
-        _upvalues.emplace_back(_func->upValueStackIndex(eu, i));
+        _upValues.emplace_back(_func->upValueStackIndex(eu, i));
     }
 }
 
 bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
-    assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
-    if (_upvalues[index].closed) {
-        value = _upvalues[index].value;
+    assert(index < _upValues.size() && _upValues.size() == _func->upValueCount());
+    if (_upValues[index].closed) {
+        value = _upValues[index].value;
     } else {
-        value = eu->stack().at(_upvalues[index].stackIndex);
+        value = eu->stack().at(_upValues[index].stackIndex);
     }
     return true;
 }
 
 bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
-    assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
-    if (_upvalues[index].closed) {
-        _upvalues[index].value = value;
+    assert(index < _upValues.size() && _upValues.size() == _func->upValueCount());
+    if (_upValues[index].closed) {
+        _upValues[index].value = value;
     } else {
-        eu->stack().at(_upvalues[index].stackIndex) = value;
+        eu->stack().at(_upValues[index].stackIndex) = value;
     }
     return true;
 }
