@@ -87,6 +87,7 @@ public:
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const override;
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) override;
     bool captureUpValue(ExecutionUnit*, uint32_t index, Value&) const;
+    uint32_t upValueStackIndex(ExecutionUnit* eu, uint32_t index) const; 
     
     void upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const
     {

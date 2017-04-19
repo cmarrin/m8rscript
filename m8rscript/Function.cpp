@@ -140,6 +140,10 @@ bool Function::captureUpValue(ExecutionUnit* eu, uint32_t index, Value& value) c
     return eu->upValue(_upValues[index]._index, _upValues[index]._frame - 1, value, false);
 }
 
+uint32_t Function::upValueStackIndex(ExecutionUnit* eu, uint32_t index) const
+{
+    return eu->upValueStackIndex(_upValues[index]._index, _upValues[index]._frame);
+}
 
 bool Function::serialize(Stream* stream, Error& error, Program* program) const
 {

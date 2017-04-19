@@ -167,6 +167,17 @@ public:
         return true;
     }
     
+    uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const
+    {
+        if (frame == 0) {
+            return index;
+        }
+        assert(_callRecords.size() >= frame);
+        uint32_t stackIndex = _callRecords[_callRecords.size() - frame]._frame + index;
+        assert(stackIndex < _stack.size());
+        return stackIndex;
+    }
+    
     Object* currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
@@ -279,6 +290,7 @@ private:
     
     std::vector<CallRecord> _callRecords;
     ExecutionStack _stack;
+    std::vector<Closure*> _openClosures;
     
     uint32_t _pc = 0;
     Program* _program = nullptr;

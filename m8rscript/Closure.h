@@ -53,7 +53,7 @@ public:
     {
         _func->gcMark(eu);
         for (auto it : _upvalues) {
-            it.gcMark(eu);
+            it.value.gcMark(eu);
         }
     }
     
@@ -73,32 +73,22 @@ public:
     virtual uint32_t localSize() const override { return _func->localSize(); }
     virtual const std::vector<Value>*  constants() const override { return _func->constants(); }
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
-    virtual bool loadUpValue(ExecutionUnit*eu, uint32_t index, Value& value) const override
-    {
-        if (_closed) {
-            assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
-            value = _upvalues[index];
-            return true;
-        }
-        return _func->loadUpValue(eu, index, value);
-    }
-    
-    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override
-    {
-        if (_closed) {
-            assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
-            _upvalues[index] = value;
-            return true;
-        }
-        return _func->storeUpValue(eu, index, value);
-    }
+    virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
+    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
     
     virtual Atom name() const override { return _func->name(); }
 
-private:    
+private:
+    struct UpValue {
+        UpValue(uint32_t index) : stackIndex(index) { }
+        bool closed = false;
+        uint32_t stackIndex = 0;
+        Value value;
+    };
+    
+    std::vector<UpValue> _upvalues;
+
     Function* _func = nullptr;
-    std::vector<Value> _upvalues;
-    bool _closed = false;
     Value _thisValue;
 };
 

@@ -46,16 +46,32 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     _func = reinterpret_cast<Function*>(function.asObject());
     assert(_func);
     Global::addObject(this, true);
+
+    for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
+        _upvalues.emplace_back(_func->upValueStackIndex(eu, i));
+    }
 }
 
-void Closure::close(ExecutionUnit* eu)
+bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
-    for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
-        Value value;
-        _func->captureUpValue(eu, i, value);
-        _upvalues.push_back(value);
+    assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
+    if (_upvalues[index].closed) {
+        value = _upvalues[index].value;
+    } else {
+        value = eu->stack().at(_upvalues[index].stackIndex);
     }
-    _closed = true;
+    return true;
+}
+
+bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+{
+    assert(index < _upvalues.size() && _upvalues.size() == _func->upValueCount());
+    if (_upvalues[index].closed) {
+        _upvalues[index].value = value;
+    } else {
+        eu->stack().at(_upvalues[index].stackIndex) = value;
+    }
+    return true;
 }
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
