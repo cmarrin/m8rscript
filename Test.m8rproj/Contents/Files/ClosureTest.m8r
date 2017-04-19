@@ -20,14 +20,14 @@ function f0(a0) {
 var g = f0(1);
 printf("1) Nested function call test (no capture): result (s/b 31)=%d\n", g);
 // Test 2: Simple test of nested function with closure
-function test2(b) {
+function Test2(b) {
 	var c = 5;
 	return function(e) {
 		return b + c + e;
 	};
 }
 
-var f = test2(3);
+var f = Test2(3);
 printf("2) Simple test nested function with closure (s/b 15): %d\n", f(7));
 
 // Test 3: Test of when Closure is captured
