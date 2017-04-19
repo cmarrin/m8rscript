@@ -54,7 +54,7 @@ public:
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
-    virtual void gcMark(ExecutionUnit* eu) { if (_proto) { _gcMark(eu); } }
+    virtual void gcMark(ExecutionUnit* eu) { _gcMark(eu); }
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
     

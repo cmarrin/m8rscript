@@ -51,7 +51,9 @@ public:
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
+        Object::gcMark(eu);
         _func->gcMark(eu);
+        _thisValue.gcMark(eu);
         for (auto it : _upValues) {
             it.value.gcMark(eu);
         }

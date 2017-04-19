@@ -78,6 +78,10 @@ public:
             it.gcMark(this);
         }
         TaskManager::unlock();
+        
+        for (auto it : _openClosures) {
+            it->gcMark(this);
+        }
     }
     
     SystemInterface* system() const { return _program->system(); }
