@@ -3,6 +3,7 @@
 //
 
 // Test 1: Simple test of nested functions being able to access parent values, no capture needed
+var a = 10;
 function f0(a0) {
 	var b0 = 2;
 	var f1 = function(a1) {
@@ -17,9 +18,7 @@ function f0(a0) {
 }
 
 var g = f0(1);
-printf("1) Nested function call test (no capture): result (s/b 21)=%d\n", g);
-
-
+printf("1) Nested function call test (no capture): result (s/b 31)=%d\n", g);
 // Test 2: Simple test of nested function with closure
 function test2(b) {
 	var c = 5;
