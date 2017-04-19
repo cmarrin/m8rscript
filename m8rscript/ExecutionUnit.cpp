@@ -128,6 +128,14 @@ Value ExecutionUnit::derefId(Atom atom)
     return Value();
 }
 
+Value ExecutionUnit::makeClosure(const Value&constValue)
+{
+    assert(constValue.isFunction());
+    Closure* closure = new Closure(this, constValue, Value(_this));
+    _openClosures.push_back(closure);
+    return Value(closure);
+}
+
 void ExecutionUnit::startExecution(Program* program)
 {
     if (!program) {
@@ -425,13 +433,13 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_MOVE:
-        setInFrame(inst.ra(), regOrConst(inst.rb(), true));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_LOADREFK:
-        setInFrame(inst.ra(), derefId(regOrConst(inst.rb(), true).asIdValue()));
+        setInFrame(inst.ra(), derefId(regOrConst(inst.rb()).asIdValue()));
         DISPATCH;
     L_STOREFK:
-        stoIdRef(regOrConst(inst.rb(), true).asIdValue(), regOrConst(inst.rc(), true));
+        stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADUP:
         if (!_function->loadUpValue(this, inst.rb(), rightValue)) {
@@ -441,7 +449,7 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_STOREUP:
-        if (!_function->storeUpValue(this, inst.ra(), regOrConst(inst.rb(), true))) {
+        if (!_function->storeUpValue(this, inst.ra(), regOrConst(inst.rb()))) {
             printError(ROMSTR("unable to store upValue"));
         }
         DISPATCH;
@@ -455,7 +463,7 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_LOADPROP:
-        leftValue = regOrConst(inst.rb(), true).property(this, regOrConst(inst.rc(), true).toIdValue(this));
+        leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
         if (!leftValue) {
             objectError("LOADPROP");
         } else {
@@ -463,7 +471,7 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_LOADELT:
-        leftValue = regOrConst(inst.rb(), true).element(this, regOrConst(inst.rc(), true));
+        leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
         if (!leftValue) {
             objectError("LOADELT");
         } else {
@@ -471,22 +479,22 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_STOPROP:
-        if (!regOrConst(inst.ra(), false).setProperty(this, regOrConst(inst.rb(), true).toIdValue(this), regOrConst(inst.rc(), true), Value::SetPropertyType::AddIfNeeded)) {
-            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb(), true).toStringValue(this).c_str());
+        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AddIfNeeded)) {
+            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
         }
         DISPATCH;
     L_STOELT:
-        if (!regOrConst(inst.ra(), false).setElement(this, regOrConst(inst.rb(), true), regOrConst(inst.rc(), true), false)) {
-            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb(), true).toStringValue(this).c_str());
+        if (!reg(inst.ra()).setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
+            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
         }
         DISPATCH;
     L_APPENDPROP:
-        if (!regOrConst(inst.ra(), false).setProperty(this, regOrConst(inst.rb(), true).toIdValue(this), regOrConst(inst.rc(), true), Value::SetPropertyType::AlwaysAdd)) {
-            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb(), true).toStringValue(this).c_str());
+        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AlwaysAdd)) {
+            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
         }
         DISPATCH;
     L_APPENDELT:
-        if (!regOrConst(inst.ra(), false).setElement(this, Value(), regOrConst(inst.rb(), true), true)) {
+        if (!reg(inst.ra()).setElement(this, Value(), regOrConst(inst.rb()), true)) {
             objectError("APPENDELT");
         }
         DISPATCH;
@@ -503,15 +511,15 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value(_this));
         DISPATCH;
     L_PUSH:
-        _stack.push(regOrConst(inst.rn(), true));
+        _stack.push(regOrConst(inst.rn()));
         DISPATCH;
     L_POP:
         setInFrame(inst.ra(), _stack.top());
         _stack.pop();
         DISPATCH;
     L_BINIOP:
-        leftIntValue = regOrConst(inst.rb(), true).toIntValue(this);
-        rightIntValue = regOrConst(inst.rc(), true).toIntValue(this);
+        leftIntValue = regOrConst(inst.rb()).toIntValue(this);
+        rightIntValue = regOrConst(inst.rc()).toIntValue(this);
         switch(inst.op()) {
             case Op::LOR: leftIntValue = leftIntValue || rightIntValue; break;
             case Op::LAND: leftIntValue = leftIntValue && rightIntValue; break;
@@ -526,8 +534,8 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), Value(leftIntValue));
         DISPATCH;
     L_EQ: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() == rightValue.asIntValue()));
         } else {
@@ -535,8 +543,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_NE: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() != rightValue.asIntValue()));
         } else {
@@ -544,8 +552,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_LT: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() < rightValue.asIntValue()));
         } else {
@@ -553,8 +561,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_LE: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() <= rightValue.asIntValue()));
         } else {
@@ -562,8 +570,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_GT: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() > rightValue.asIntValue()));
         } else {
@@ -571,8 +579,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_GE: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() >= rightValue.asIntValue()));
         } else {
@@ -580,8 +588,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_SUB: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() - rightValue.asIntValue()));
         } else {
@@ -589,8 +597,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_MUL: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() * rightValue.asIntValue()));
         } else {
@@ -598,8 +606,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_DIV: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() / rightValue.asIntValue()));
         } else {
@@ -607,8 +615,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_MOD: 
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() % rightValue.asIntValue()));
         } else {
@@ -616,8 +624,8 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_ADD:
-        leftValue = regOrConst(inst.rb(), true);
-        rightValue = regOrConst(inst.rc(), true);
+        leftValue = regOrConst(inst.rb());
+        rightValue = regOrConst(inst.rc());
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(inst.ra(), Value(leftValue.asIntValue() + rightValue.asIntValue()));
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
@@ -628,7 +636,7 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_UMINUS:
-        leftValue = regOrConst(inst.rb(), true);
+        leftValue = regOrConst(inst.rb());
         if (leftValue.isInteger()) {
             setInFrame(inst.ra(), Value(-leftValue.asIntValue()));
         } else {
@@ -636,26 +644,26 @@ static const uint16_t GCCount = 1000;
         }
         DISPATCH;
     L_UNEG:
-        setInFrame(inst.ra(), Value((regOrConst(inst.rb(), true).toIntValue(this) == 0) ? 1 : 0));
+        setInFrame(inst.ra(), Value((regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0));
         DISPATCH;
     L_UNOT:
-        setInFrame(inst.ra(), Value(~(regOrConst(inst.rb(), true).toIntValue(this))));
+        setInFrame(inst.ra(), Value(~(regOrConst(inst.rb()).toIntValue(this))));
         DISPATCH;
     L_PREINC:
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb(), true).toIntValue(this) + 1));
-        setInFrame(inst.ra(), regOrConst(inst.rb(), true));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_PREDEC:
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb(), true).toIntValue(this) - 1));
-        setInFrame(inst.ra(), regOrConst(inst.rb(), true));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
         DISPATCH;
     L_POSTINC:
-        setInFrame(inst.ra(), regOrConst(inst.rb(), true));
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb(), true).toIntValue(this) + 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
         DISPATCH;
     L_POSTDEC:
-        setInFrame(inst.ra(), regOrConst(inst.rb(), true));
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb(), true).toIntValue(this) - 1));
+        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
     L_CAPTURE: {
 //        Object* function = Global::obj(regOrConst(inst.rb(), true));
@@ -669,13 +677,13 @@ static const uint16_t GCCount = 1000;
     L_NEW:
     L_CALL:
     L_CALLPROP:
-        leftValue = regOrConst(inst.rcall(), true);
+        leftValue = regOrConst(inst.rcall());
         uintValue = inst.nparams();
 
         switch(inst.op()) {
             default: break;
             case Op::CALL: {
-                rightValue = regOrConst(inst.rthis(), true);
+                rightValue = regOrConst(inst.rthis());
                 if (!rightValue) {
                     rightValue = Value(_this);
                 }
@@ -686,7 +694,7 @@ static const uint16_t GCCount = 1000;
                 callReturnValue = leftValue.call(this, Value(), uintValue, true);
                 break;
             case Op::CALLPROP:
-                callReturnValue = leftValue.callProperty(this, regOrConst(inst.rthis(), true).asIdValue(), uintValue);
+                callReturnValue = leftValue.callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
                 break;
         }
         
@@ -721,7 +729,7 @@ static const uint16_t GCCount = 1000;
     L_JF:
         intValue = inst.sn();
         if (inst.op() != Op::JMP) {
-            boolValue = regOrConst(inst.rn(), true).toBoolValue(this);
+            boolValue = regOrConst(inst.rn()).toBoolValue(this);
             if (inst.op() == Op::JT) {
                 boolValue = !boolValue;
             }

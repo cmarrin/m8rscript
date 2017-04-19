@@ -228,18 +228,26 @@ private:
             _framePtr[r] = v;
         }
     }
-     
-    Value regOrConst(uint32_t r, bool allowConst)
+    
+    Value makeClosure(const Value&);
+    
+    Value reg(uint32_t r)
     {
         if (r > MaxRegister) {
-            if (!allowConst) {
-                // Can't return a constant as a mutable value
-                assert(0);
-                return _framePtr[r];
-            }
+            return Value();
+        }
+        if (r >= _formalParamCount) {
+            return _framePtr[r + _localOffset];
+        }
+        return _framePtr[r];
+    }
+     
+    Value regOrConst(uint32_t r)
+    {
+        if (r > MaxRegister) {
             Value constValue = const_cast<Value*>(_constants)[r - MaxRegister - 1];
             if (constValue.isFunction()) {
-                return Value(new Closure(this, constValue, Value(_this)));
+                return makeClosure(constValue);
             }
             return constValue;
         }
