@@ -19,6 +19,7 @@ function f0(a0) {
 
 var g = f0(1);
 printf("1) Nested function call test (no capture): result (s/b 31)=%d\n", g);
+
 // Test 2: Simple test of nested function with closure
 function Test2(b) {
 	var c = 5;
@@ -41,17 +42,6 @@ function Test3() {
 var f = Test3();
 printf("3) Test of when Closure is captured (s/b 10): %f\n", f());
 
-// Test 3a: Test of when Closure is captured earlier
-function Test3a() {
-    var a = 5;
-    var b = capture function() { return a; };
-    a = 10;
-    return b;
-}
-
-var f = Test3a();
-printf("3a) Test of when Closure is captured (earlier) (s/b 5): %f\n", f());
-
 // Test 4: Simple test of capturing passed function
 function Test4(func)
 {
@@ -69,12 +59,12 @@ function celebrityID () {
     // We are returning an object with some inner functions​
     // All the inner functions have access to the outer function's variables​
     return {
-        getID: capture function ()  {
+        getID: function ()  {
             // This inner function will return the UPDATED celebrityID variable​
             // It will return the current value of celebrityID, even after the changeTheID function changes it​
           return celebrityID;
         },
-        setID: capture function (theNewID)  {
+        setID: function (theNewID)  {
             // This inner function will change the outer function's variable anytime​
             celebrityID = theNewID;
         }
