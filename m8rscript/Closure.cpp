@@ -86,7 +86,7 @@ void Closure::closeUpValues(ExecutionUnit* eu, uint32_t frame)
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(this, _thisValue.asObjectIdValue(), nparams, false);
+    eu->startFunction(this, thisValue.asObjectIdValue(), nparams, false);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
