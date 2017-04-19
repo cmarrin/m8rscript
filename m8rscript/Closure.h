@@ -57,7 +57,7 @@ public:
         }
     }
     
-    void close(ExecutionUnit*);
+    void closeUpValues(ExecutionUnit*, uint32_t frame);
 
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
 
@@ -75,6 +75,7 @@ public:
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
+    virtual bool hasUpValues() const override { return !_upValues.empty(); }
     
     virtual Atom name() const override { return _func->name(); }
 

@@ -131,9 +131,18 @@ Value ExecutionUnit::derefId(Atom atom)
 Value ExecutionUnit::makeClosure(const Value&constValue)
 {
     assert(constValue.isFunction());
-    Closure* closure = new Closure(this, constValue, Value(_this));
-    _openClosures.push_back(closure);
+    Closure* closure = new Closure(this, constValue, _this ? Value(_this) : Value());
+    if (closure->hasUpValues()) {
+        _openClosures.push_back(closure);
+    }
     return Value(closure);
+}
+
+void ExecutionUnit::closeUpValues(uint32_t frame)
+{
+    for (auto it : _openClosures) {
+        it->closeUpValues(this, frame);
+    }
 }
 
 void ExecutionUnit::startExecution(Program* program)
@@ -400,6 +409,9 @@ static const uint16_t GCCount = 1000;
             // Get the call record entries from the call stack and pop it.
             assert(!_callRecords.empty());
             const CallRecord& callRecord = _callRecords.back();
+            
+            // Close any upValues that need it
+            closeUpValues(callRecord._frame);
 
             prevThisId = _thisId;
             

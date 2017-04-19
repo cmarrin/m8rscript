@@ -209,6 +209,7 @@ private:
     }
     
     Value makeClosure(const Value&);
+    void closeUpValues(uint32_t frame);
     
     Value reg(uint32_t r)
     {
