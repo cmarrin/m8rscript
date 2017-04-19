@@ -466,4 +466,68 @@ private:
     uint32_t _frame = 0;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//  Class: Pool
+//
+//  Object pool which stores values in multiple fixed size segments
+//
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename type, uint32_t numPerSegment>
+class Pool {
+public:
+    type* alloc()
+    {
+        if (!_freeList) {
+            allocSegment();
+        }
+        Entry* entry = _freeList;
+        _freeList = _freeList->next();
+        return entry->value();
+    }
+            
+    void free(type* value)
+    {
+        Entry* entry = reinterpret_cast<Entry*>(value);
+        entry->setNext(_freeList);
+        _freeList = entry;
+    }
+
+private:
+    void allocSegment()
+    {
+        assert(!_freeList);
+        _segments.resize(_segments.size() + 1);
+        Entry prev = nullptr;
+        for (auto it : _segments.back()) {
+            if (!_freeList) {
+                _freeList = it;
+            } else {
+                assert(prev);
+                prev->setNext(it);
+            }
+            it->setNext(nullptr);
+            prev = it;
+        }
+    }
+    
+    class Entry {
+    public:
+        const type* value() const { return reinterpret_cast<type*>(_value); }
+        type* value() { return reinterpret_cast<type*>(_value); }
+        Entry* next() const { return reinterpret_cast<Entry*>(_value); }
+        void setNext(Entry* next) { reinterpret_cast<Entry*>(_value) = next; }
+        
+    private:
+        static constexpr uint32_t size = std::max(sizeof(type), sizeof(void*));
+        uint8_t _value[size];
+    };
+    
+    typedef Entry Segment[numPerSegment];
+    
+    std::vector<Segment> _segments;
+    Entry* _freeList = nullptr;
+};
+
 }

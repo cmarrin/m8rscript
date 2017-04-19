@@ -54,9 +54,6 @@ public:
         Object::gcMark(eu);
         _func->gcMark(eu);
         _thisValue.gcMark(eu);
-        for (auto it : _upValues) {
-            it.value.gcMark(eu);
-        }
     }
     
     void closeUpValues(ExecutionUnit*, uint32_t frame);
@@ -77,7 +74,7 @@ public:
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
-    virtual bool hasUpValues() const override { return !_upValues.empty(); }
+    virtual bool hasUpValues() const override { return _func->hasUpValues(); }
     
     virtual Atom name() const override { return _func->name(); }
 
@@ -88,8 +85,11 @@ private:
         uint32_t stackIndex = 0;
         Value value;
     };
+
+    static Pool<UpValue, 16> _upValues;
     
-    std::vector<UpValue> _upValues;
+    static UpValue* allocUpValue() { return _upValues.alloc(); }
+    static void (UpValue* value) { _upValues.free(); }
 
     Function* _func = nullptr;
     Value _thisValue;
