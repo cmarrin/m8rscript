@@ -137,10 +137,26 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
     return true;
 }
 
+Value::Value(ObjectId objectId)
+{
+    assert(objectId && objectId->objectId() == objectId);
+    _value = RawValue(objectId, objectId->isFunction());
+}
+
 Value::Value(Object* obj)
 {
     assert(obj && obj->objectId());
     _value = RawValue(obj->objectId(), obj->isFunction());
+}
+
+ObjectId Value::objectIdFromValue() const
+{
+    return ObjectId(_value.get16());
+}
+
+ObjectId Value::asObjectId() const
+{
+    return (type() == Type::Object) ? objectIdFromValue() : ObjectId();
 }
 
 m8r::String Value::toString(Float value)
@@ -304,38 +320,11 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
-Object* Value::asObject() const
-{
-    return Global::obj(asObjectIdValue());
-}
-
-Object* Value::toObject(ExecutionUnit* eu) const
-{
-    switch(type()) {
-        case Type::Object:
-            return asObject();
-        case Type::Integer:
-        case Type::Float: 
-            // FIXME: Implement a Number object
-            break;
-        case Type::StringLiteral:
-        case Type::String:
-            // FIXME: Implement a String object
-            break;
-        case Type::Id:
-        case Type::NativeObject:
-        case Type::None:
-        case Type::Null:
-            break;
-    }
-    return nullptr;
-}
-
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
     switch(type()) {
         case Type::Object: {
-            Object* obj = toObject(eu);
+            Object* obj = asObjectId();
             return obj ? obj->property(eu, prop) : Value();
         }
         case Type::Integer:
@@ -362,28 +351,28 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->setProperty(eu, prop, value, type) : false;
 }
 
 const Value Value::element(ExecutionUnit* eu, const Value& elt) const
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->element(eu, elt) : Value();
 }
 
 bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->setElement(eu, elt, value, append) : false;
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
 }
 

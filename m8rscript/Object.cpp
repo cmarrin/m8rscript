@@ -361,7 +361,7 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
         s += " : ";
         
         // Avoid loops
-        if (prop.value.isObjectId()) {
+        if (prop.value.isObject()) {
             s += Object::toString(eu);
         } else {
             s += prop.value.toStringValue(eu);
@@ -388,8 +388,8 @@ void MaterObject::gcMark(ExecutionUnit* eu)
 
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    Object* obj = property(eu, prop).toObject(eu);
-    return obj ? obj->call(eu, Value(this), nparams, false) : CallReturnValue(CallReturnValue::Type::Error);
+    Value callee = property(eu, prop);
+    return callee.call(eu, Value(objectId()), nparams, false);
 }
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -505,5 +505,5 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         retValue = eu->stack().top(1 - r.returnCount());
         eu->stack().pop(r.returnCount());
     }    
-    return retValue.asObjectIdValue();
+    return retValue.asObjectId();
 }

@@ -126,29 +126,25 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 
         Value hostnameValue = eu->stack().top(1 - nparams);
         String hostname = hostnameValue.toStringValue(eu);
-        Value func = eu->stack().top(2 - nparams);
-        ObjectId funcId = func.asObjectIdValue();
-        if (funcId) {
-            Global::addStaticObject(funcId);
+        Value funcValue = eu->stack().top(2 - nparams);
+        if (funcValue.asObjectId()) {
+            addStaticObject(funcValue.asObjectId());
         }
         
-        IPAddr::lookupHostName(hostname.c_str(), [this, eu, func, funcId](const char* name, m8r::IPAddr ipaddr) {
+        IPAddr::lookupHostName(hostname.c_str(), [this, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
             Object* newIPAddr = nullptr;
-            Object* parent = Global::obj(objectId());
-            if (parent) {
-                IPAddrProto* obj = new IPAddrProto();
-                obj->setProto(parent->objectId());
-                obj->_ipAddr = ipaddr;
-                newIPAddr = obj;
-            }
+            IPAddrProto* obj = new IPAddrProto();
+            obj->setProto(objectId());
+            obj->_ipAddr = ipaddr;
+            newIPAddr = obj;
 
             Value args[2];
-            args[0] = Value(Global::createString(String(name)));
+            args[0] = Value(createString(String(name)));
             args[1] = Value(newIPAddr);
             
-            eu->fireEvent(func, Value(this), args, 2);
-            if (funcId) {
-                Global::removeStaticObject(funcId);
+            eu->fireEvent(funcValue, Value(objectId()), args, 2);
+            if (funcValue.asObjectId()) {
+                removeStaticObject(funcValue.asObjectId());
             }
         });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

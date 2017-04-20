@@ -44,6 +44,7 @@ namespace m8r {
 
 class NativeObject;
 class Object;
+class ObjectId;
 class ExecutionUnit;
 class Program;
 
@@ -115,7 +116,8 @@ public:
 
     Value() { }
     
-    explicit Value(Object* obj);
+    explicit Value(ObjectId);
+    explicit Value(Object*);
     explicit Value(Type type) : _value(type) { }
     explicit Value(Float value) : _value(value) { }
     explicit Value(int32_t value) : _value(value) { }
@@ -148,8 +150,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectIdValue() const { return (type() == Type::Object) ? objectIdFromValue() : ObjectId(); }
-    Object* asObject() const;
+    ObjectId asObjectId() const;
     StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
@@ -182,14 +183,12 @@ public:
         }
         return _toIdValue(eu);
     }
-    
-    Object* toObject(ExecutionUnit* eu) const;
-    
+        
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
-    bool isObjectId() const { return type() == Type::Object; }
+    bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Object && boolFromValue(); }
     
     static m8r::String toString(Float value);
@@ -198,12 +197,7 @@ public:
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
-    void gcMark(ExecutionUnit* eu) 
-    {
-        if (asObjectIdValue() || asStringIdValue()) {
-            _gcMark(eu);
-        }
-    }
+    void gcMark(ExecutionUnit* eu);
     
     enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
 
@@ -221,18 +215,17 @@ private:
     Float _toFloatValue(ExecutionUnit*) const;
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
-    void _gcMark(ExecutionUnit*);
 
     inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
     inline int32_t int32FromValue() const { return static_cast<int32_t>(_value.get32()); }
     inline uint32_t uint32FromValue() const { return _value.get32(); }
     inline uint16_t uint16FromValue() const { return _value.get16(); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.get32())); }
-    inline ObjectId objectIdFromValue() const { return ObjectId(static_cast<ObjectId::value_type>(_value.get16())); }
     inline bool boolFromValue() const { return _value.getBool(); }
     inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
+    ObjectId objectIdFromValue() const;
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -252,8 +245,8 @@ private:
         explicit RawValue(Atom atom) { set32(atom.raw()); setType(Type::Id); }
         explicit RawValue(StringId id) { set32(id.raw()); setType(Type::String); }
         explicit RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
-        explicit RawValue(ObjectId id, bool isFunction) { set16(id.raw()); setBool(isFunction); setType(Type::Object); }
         explicit RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
+        explicit RawValue(ObjectId objectId, bool isFunction);
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }

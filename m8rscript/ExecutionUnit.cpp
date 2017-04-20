@@ -162,7 +162,6 @@ void ExecutionUnit::startExecution(Program* program)
     _function =  _program;
     _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     
-    _thisId = program->objectId();
     _this = program;
     
     _stack.clear();
@@ -234,7 +233,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-void ExecutionUnit::startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope)
+void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);
@@ -249,13 +248,12 @@ void ExecutionUnit::startFunction(Object* function, ObjectId thisObject, uint32_
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
-    ObjectId prevThisId = _thisId;
-    _thisId = thisObject;
-    _this = Global::obj(_thisId);
+    Object* prevThis = _this;
+    _this = thisObject;
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount, _inScope });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis->objectId(), prevActualParamCount, _inScope });
     _inScope = inScope;
     
     _pc = 0;    
@@ -332,11 +330,10 @@ static const uint16_t GCCount = 1000;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
-    ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
-    ObjectId prevThisId;
+    Object* prevThis;
 
     Instruction inst;
     
@@ -413,12 +410,11 @@ static const uint16_t GCCount = 1000;
             // Close any upValues that need it
             closeUpValues(callRecord._frame);
 
-            prevThisId = _thisId;
+            prevThis = _this;
             
             _actualParamCount = callRecord._paramCount;
-            _thisId = callRecord._thisId;
-            assert(_thisId);
-            _this = Global::obj(_thisId);
+            _this = callRecord._thisId;
+            assert(_this);
             _stack.restoreFrame(callRecord._frame, localsToPop);
             _framePtr =_stack.framePtr();
             

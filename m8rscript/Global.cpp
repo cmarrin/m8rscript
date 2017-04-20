@@ -271,8 +271,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    ObjectId arrayId = ObjectFactory::create(ATOM(Array), eu, 0);
-    Object* array = obj(arrayId);
+    Object* array = ObjectFactory::create(ATOM(Array), eu, 0);
     if (!array) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }

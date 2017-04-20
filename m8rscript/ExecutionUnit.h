@@ -170,7 +170,7 @@ public:
 
 private:
 
-    void startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope);
+    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -186,17 +186,6 @@ private:
         assert(_function->code());
         _codeSize = _function->code()->size();
         _code = &(_function->code()->at(0));
-    }
-    
-    Object* toObject(const Value& v, const char* s)
-    {
-        Object* obj = v.toObject(this);
-        if (!obj) {
-            objectError(s);
-            return nullptr;
-        }
-            
-        return obj;
     }
     
     Value derefId(Atom);
@@ -250,7 +239,7 @@ private:
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
-            , _thisId(thisId.raw())
+            , _thisId(thisId)
         { }
         
         uint32_t _pc : 23;
@@ -258,7 +247,7 @@ private:
         bool _inScope : 1;
         uint32_t _frame;
         Object* _func;
-        ObjectId::Raw _thisId;
+        ObjectId _thisId;
     };
     
     std::vector<CallRecord> _callRecords;
@@ -267,7 +256,6 @@ private:
     
     uint32_t _pc = 0;
     Program* _program = nullptr;
-    ObjectId _thisId;
     Object* _function;
     Object* _this;
     const Value* _constants;

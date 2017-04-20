@@ -422,7 +422,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
                 _nestingLevel--;
                 break;
             }
-            s += "OBJ(" + Value::toString(value.asObjectIdValue().raw()) + ")";
+            s += "OBJ(" + Value::toString(value.asObjectId().raw()) + ")";
             break;
         }
     }
