@@ -413,7 +413,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::Object: {
-            Object* obj = Global::obj(value);
+            Object* obj = value.asObjectId();
             if (obj && obj->isFunction()) {
                 _nestingLevel++;
                 s += "\n";

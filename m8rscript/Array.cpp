@@ -41,7 +41,7 @@ using namespace m8r;
 
 Array::Array()
 {
-    Global::addObject(this, true);
+    addObject(this, true);
 }
 
 CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)

@@ -60,7 +60,7 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
 
 IPAddrProto::IPAddrProto()
 {
-    Global::addObject(this, true);
+    addObject(this, true);
 }
 
 IPAddr::IPAddr(const String& ipString)

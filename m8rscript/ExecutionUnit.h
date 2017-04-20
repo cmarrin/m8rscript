@@ -65,7 +65,7 @@ public:
     void gcMark()
     {
         assert(_program);
-        Global::gcMark(this, _program->objectId());
+        Object::gcMark(this, _program);
         
         for (auto entry : _stack) {
             entry.gcMark(this);

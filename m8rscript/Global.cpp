@@ -43,10 +43,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Global::IdStore<StringId, String> Global::_stringStore;
-Global::IdStore<ObjectId, Object> Global::_objectStore;
-std::vector<ObjectId> Global::_staticObjects;
-
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
     , _base64(program)
@@ -64,12 +60,6 @@ Global::Global(Program* program)
     , _toUInt(toUInt)
     , _arguments(arguments)
 {
-    // Add a dummy String to the start of _strings so we have something to return when a bad id is requested
-    if (_stringStore.empty()) {
-        StringId dummy = Global::createString("*** ERROR:INVALID STRING ***");
-        assert(dummy.raw() == 0);
-    }
-    
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
@@ -96,70 +86,6 @@ Global::Global(Program* program)
 
 Global::~Global()
 {
-}
-
-ObjectId Global::addObject(Object* obj, bool collectable)
-{
-    assert(!obj->objectId());
-    obj->setCollectable(collectable);
-    ObjectId id = _objectStore.add(obj);
-    obj->setObjectId(id);
-    return id;
-}
-
-void Global::removeObject(ObjectId objectId)
-{
-    assert(_objectStore.ptr(objectId)->objectId() == objectId);
-    _objectStore.remove(objectId, false);
-}
-
-StringId Global::createString(const char* s, int32_t length)
-{
-    return _stringStore.add(new String(s, length));
-}
-
-StringId Global::createString(const String& s)
-{
-    return _stringStore.add(new String(s));
-}
-
-void Global::gc(ExecutionUnit* eu)
-{
-    _stringStore.gcClear();
-    _objectStore.gcClear();
-    
-    // Mark string 0 (the dummy string)
-    _stringStore.gcMark(StringId(0));
-    
-    eu->gcMark();
-    
-    for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
-        _objectStore.gcMark(*it);
-    }
-    
-    _stringStore.gcSweep();
-    _objectStore.gcSweep();
-}
-
-void Global::gcMark(ExecutionUnit* eu, const ObjectId& objectId)
-{
-    if (objectId && !_objectStore.isGCMarked(objectId)) {
-        _objectStore.gcMark(objectId);
-        assert(obj(objectId));
-        obj(objectId)->gcMark(eu);
-    }
-}
-
-void Global::gcMark(ExecutionUnit* eu, const Value& value)
-{
-    StringId stringId = value.asStringIdValue();
-    if (stringId) {
-        _stringStore.gcMark(stringId);
-        return;
-    }
-    
-    ObjectId objectId = value.asObjectIdValue();
-    gcMark(eu, objectId);
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

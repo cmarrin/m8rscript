@@ -43,11 +43,27 @@ namespace m8r {
 
 class Error;
 class ExecutionUnit;
+class Object;
 class Program;
 class Stream;
 
+class ObjectId : public Id<uint16_t>
+{
+    using Id::Id;
+    
+public:
+    typedef Object* ObjectType;
+    Object& operator*();
+    const Object& operator*() const;
+    Object* operator->();
+    const Object* operator->() const;
+    operator ObjectType();
+    operator const ObjectType() const;
+};
+
 class Object {
     friend class ObjectFactory;
+    friend class ObjectId;
     
 public:
     virtual ~Object() { }
@@ -98,6 +114,41 @@ public:
     virtual bool hasUpValues() const { return false; }
     virtual bool isFunction() const { return false; }
     
+    static ObjectId addObject(Object*, bool collectable);
+    static void removeObject(ObjectId);
+    
+    static StringId createString(const char* s, int32_t length = -1);
+    static StringId createString(const String& s);
+    
+    static void addStaticObject(ObjectId id) { _staticObjects.push_back(id); }
+    static void removeStaticObject(ObjectId id)
+    {
+        for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
+            if (*it == id) {
+                _staticObjects.erase(it);
+                return;
+            }
+        }
+    }
+
+    static String& str(const Value& value)
+    {
+        return str(value.asStringIdValue());
+    }
+    
+    static String& str(const StringId& id)
+    {
+        // _strings[0] contains an error entry for when invalid ids are passed
+        String* s = _stringStore.ptr(id);
+        return s ? *s : *_stringStore.ptr(StringId(0));
+    }
+    
+    static bool isValid(const StringId& id) { return _stringStore.isValid(id); }
+
+    static void gc(ExecutionUnit*);
+    static void gcMark(ExecutionUnit*, const Value& value);
+    static void gcMark(ExecutionUnit*, Object*);
+    
 protected:
     void setProto(ObjectId id) { _proto = id; }
     ObjectId proto() const { return _proto; }
@@ -116,12 +167,99 @@ protected:
     bool deserializeRead(Stream*, Error&, uint16_t&) const;
 
 private:
+    static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
+    static Object* obj(const ObjectId& id) { return _objectStore.ptr(id); }
+
     void _gcMark(ExecutionUnit*);
 
     ObjectId _proto;
     ObjectId _objectId;
     bool _collectable = false;
+
+    template<typename IdType, typename ValueType> class IdStore {
+    public:
+        IdType add(ValueType*);
+        void remove(IdType, bool del);
+        bool isValid(const IdType& id) const { return id.raw() < _values.size(); }
+        bool empty() const { return _values.empty(); }
+        ValueType* ptr(const IdType& id) const { return isValid(id) ? _values[id.raw()] : nullptr; }
+        
+        void gcClear() { _valueMarked.clear(); _valueMarked.resize(_values.size()); }
+        void gcMark(IdType id) { _valueMarked[id.raw()] = true; }
+        
+        bool isGCMarked(IdType id) { return _valueMarked[id.raw()]; }
+
+        void gcSweep()
+        {
+            for (uint16_t i = 0; i < _values.size(); ++i) {
+                if (_values[i] && !_valueMarked[i]) {
+                    remove(IdType(i), true);
+                }
+            }
+        }
+        
+    private:
+        std::vector<ValueType*> _values;
+        std::vector<bool> _valueMarked;
+        uint32_t _freeValueIdCount = 0;
+    };
+
+    static IdStore<StringId, String> _stringStore;
+    static IdStore<ObjectId, Object> _objectStore;
+    static std::vector<ObjectId> _staticObjects;
 };
+
+template<typename IdType, typename ValueType>
+IdType Object::IdStore<IdType, ValueType>::add(ValueType* value)
+{
+    if (_freeValueIdCount) {
+        for (uint32_t i = 0; i < _values.size(); ++i) {
+            if (!_values[i]) {
+                _values[i] = value;
+                _freeValueIdCount--;
+                _valueMarked[i] = true;
+                return IdType(i);
+            }
+        }
+        assert(false);
+        return IdType();
+    }
+    
+    IdType id(_values.size());
+    _values.push_back(value);
+    _valueMarked.resize(_values.size());
+    _valueMarked[id.raw()] = true;
+    return id;
+}
+
+template<typename IdType, typename ValueType>
+void Object::IdStore<IdType, ValueType>::remove(IdType id, bool del)
+{
+    assert(id && id.raw() < _values.size() && _values[id.raw()]);
+
+    if (del) {
+        delete _values[id.raw()];
+    }
+    _values[id.raw()] = nullptr;
+    _freeValueIdCount++;
+}
+
+template<>
+inline void Object::IdStore<ObjectId, Object>::gcSweep()
+{
+    for (uint16_t i = 0; i < _values.size(); ++i) {
+        if (_values[i] && !_valueMarked[i] && _values[i]->collectable()) {
+            remove(ObjectId(i), true);
+        }
+    }
+}
+
+inline Object& ObjectId::operator*() { return *Object::_objectStore.ptr(*this); }
+inline const Object& ObjectId::operator*() const { return *Object::_objectStore.ptr(*this); }
+inline Object* ObjectId::operator->() { return Object::_objectStore.ptr(*this); }
+inline const Object* ObjectId::operator->() const { return Object::_objectStore.ptr(*this); }
+inline ObjectId::operator ObjectType() { return Object::_objectStore.ptr(*this); }
+inline ObjectId::operator const ObjectType() const { return Object::_objectStore.ptr(*this); }
 
 class MaterObject : public Object {
 public:

@@ -57,8 +57,7 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     if (prop == ATOM(next)) {
-        Object* obj = Global::obj(_object);
-        int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
             ++_index;
         }
@@ -70,8 +69,7 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
     if (prop == ATOM(end)) {
-        Object* obj = Global::obj(_object);
-        int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
@@ -87,14 +85,12 @@ bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& val
         return false;
     }
     
-    Object* obj = Global::obj(_object);
-    int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (obj && _index < count) ? obj->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
+    int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (_objectId && _index < count) ? _objectId->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
 }
 
 const Value Iterator::value(ExecutionUnit* eu) const
 {
-    Object* obj = Global::obj(_object);
-    int32_t count = obj ? obj->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (obj && _index < count) ? obj->iteratedValue(eu, _index) : Value();
+    int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (_objectId && _index < count) ? _objectId->iteratedValue(eu, _index) : Value();
 }

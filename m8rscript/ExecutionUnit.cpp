@@ -306,7 +306,7 @@ static const uint16_t GCCount = 1000;
         } \
         if (--gcCounter == 0) { \
             gcCounter = GCCount; \
-            Global::gc(this); \
+            Object::gc(this); \
             if (--yieldCounter == 0) { \
                 return CallReturnValue(CallReturnValue::Type::Continue); \
             } \
@@ -354,7 +354,7 @@ static const uint16_t GCCount = 1000;
     L_END:
         if (_terminate) {
             _stack.clear();
-            Global::gc(this);
+            Object::gc(this);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
             
@@ -366,11 +366,11 @@ static const uint16_t GCCount = 1000;
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
                     _terminate = true;
                     _stack.clear();
-                    Global::gc(this);
+                    Object::gc(this);
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
-                Global::gc(this);
+                Object::gc(this);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
                 // we'll hit the program end again
@@ -643,7 +643,7 @@ static const uint16_t GCCount = 1000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            StringId stringId = Global::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            StringId stringId = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(stringId));
         }
         DISPATCH;

@@ -42,10 +42,81 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+Object::IdStore<StringId, String> Object::_stringStore;
+Object::IdStore<ObjectId, Object> Object::_objectStore;
+std::vector<ObjectId> Object::_staticObjects;
+
 void Object::_gcMark(ExecutionUnit* eu)
 {
-    Global::gcMark(eu, objectId());
-    Global::gcMark(eu, _proto);
+    gcMark(eu, this);
+    gcMark(eu, _proto);
+}
+
+void Object::gc(ExecutionUnit* eu)
+{
+    _stringStore.gcClear();
+    _objectStore.gcClear();
+    
+    // Mark string 0 (the dummy string)
+    _stringStore.gcMark(StringId(0));
+    
+    eu->gcMark();
+    
+    for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
+        _objectStore.gcMark(*it);
+    }
+    
+    _stringStore.gcSweep();
+    _objectStore.gcSweep();
+}
+
+void Object::gcMark(ExecutionUnit* eu, Object* object)
+{
+    ObjectId id = object ? object->objectId() : ObjectId();
+    if (id && !_objectStore.isGCMarked(id)) {
+        _objectStore.gcMark(id);
+        assert(obj(id));
+        obj(id)->gcMark(eu);
+    }
+}
+
+void Object::gcMark(ExecutionUnit* eu, const Value& value)
+{
+    StringId stringId = value.asStringIdValue();
+    if (stringId) {
+        _stringStore.gcMark(stringId);
+        return;
+    }
+    
+    gcMark(eu, value.asObjectId());
+}
+
+ObjectId Object::addObject(Object* obj, bool collectable)
+{
+    assert(!obj->objectId());
+    obj->setCollectable(collectable);
+    ObjectId id = _objectStore.add(obj);
+    obj->setObjectId(id);
+    return id;
+}
+
+void Object::removeObject(ObjectId id)
+{
+    if (_objectStore.ptr(id) == nullptr) {
+        return;
+    }
+    assert(_objectStore.ptr(id)->objectId() == id);
+    _objectStore.remove(id, false);
+}
+
+StringId Object::createString(const char* s, int32_t length)
+{
+    return _stringStore.add(new String(s, length));
+}
+
+StringId Object::createString(const String& s)
+{
+    return _stringStore.add(new String(s));
 }
 
 bool Object::serializeBuffer(Stream* stream, Error& error, ObjectDataType type, const uint8_t* buffer, size_t size) const
@@ -254,7 +325,7 @@ bool Object::deserializeObject(Stream* stream, Error& error, Program* program, c
 
 MaterObject::MaterObject()
 {
-    Global::addObject(this, true);
+    Object::addObject(this, true);
 }
 
 MaterObject::~MaterObject()
@@ -325,8 +396,7 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
-        Object* obj = Global::obj(proto());
-        return obj ? obj->property(eu, prop) : Value();
+        return proto() ? proto()->property(eu, prop) : Value();
     }
     return it->value;
 }
@@ -379,9 +449,9 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 void MaterObject::removeNoncollectableObjects()
 {
     for (auto it : _properties) {
-        Object* obj = Global::obj(it.value);
+        Object* obj = it.value.asObjectId();
         if (obj && !obj->collectable()) {
-            Global::removeObject(it.value.asObjectIdValue());
+            Object::removeObject(it.value.asObjectId());
         }
     }
 }
@@ -389,7 +459,7 @@ void MaterObject::removeNoncollectableObjects()
 NativeFunction::NativeFunction(Func func)
     : _func(func)
 {
-    Global::addObject(this, true);
+    addObject(this, true);
 }
 
 ObjectFactory::ObjectFactory(Program* program, const char* name)
@@ -402,7 +472,7 @@ ObjectFactory::ObjectFactory(Program* program, const char* name)
 
 ObjectFactory::~ObjectFactory()
 {
-    Global::removeObject(_obj.objectId());
+    Object::removeObject(_obj.objectId());
 }
 
 void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
@@ -424,7 +494,7 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         return ObjectId();
     }
     
-    Object* object = Global::obj(objectValue);
+    Object* object = objectValue.asObjectId();
     if (!object) {
         return ObjectId();
     }
