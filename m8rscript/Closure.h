@@ -38,9 +38,32 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Function.h"
 #include "Object.h"
 #include "Containers.h"
-#include "Atom.h"
 
 namespace m8r {
+
+class UpValue {
+public:
+    UpValue(uint32_t index) : _value(static_cast<int32_t>(index)) { }
+    
+    UpValue* next() const { return _next; }
+    void setNext(UpValue* v) { _next = v; }
+    
+    bool closed() const { return _closed; }
+    void setClosed(bool v) { _closed = v; }
+    bool marked() const { return _marked; }
+    void setMarked(bool v) { _marked = v; }
+    
+    Value& value() { return _value; }
+    const Value& value() const { return _value; }
+    
+    uint32_t stackIndex() const { return static_cast<uint32_t>(_value.asIntValue()); }
+    
+private:
+    bool _closed = false;
+    bool _marked = true;
+    Value _value;
+    UpValue* _next = nullptr;
+};
 
 class Closure : public Object {
 public:
@@ -54,6 +77,10 @@ public:
         Object::gcMark(eu);
         _func->gcMark(eu);
         _thisValue.gcMark(eu);
+        for (auto it : _upValues) {
+            it->value().gcMark(eu);
+            it->setMarked(true);
+        }
     }
     
     void closeUpValues(ExecutionUnit*, uint32_t frame);
@@ -79,17 +106,7 @@ public:
     virtual Atom name() const override { return _func->name(); }
 
 private:
-    struct UpValue {
-        UpValue(uint32_t index) : stackIndex(index) { }
-        bool closed = false;
-        uint32_t stackIndex = 0;
-        Value value;
-    };
-
-    static Pool<UpValue, 16> _upValues;
-    
-    static UpValue* allocUpValue() { return _upValues.alloc(); }
-    static void (UpValue* value) { _upValues.free(); }
+    std::vector<UpValue*> _upValues;
 
     Function* _func = nullptr;
     Value _thisValue;

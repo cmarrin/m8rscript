@@ -234,7 +234,34 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-void ExecutionUnit::startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope)
+uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
+{
+    assert(frame > 0);
+    frame--;
+    assert(frame <= _callRecords.size());
+    if (frame == 0) {
+        return _stack.frame() + index;
+    }
+    uint32_t stackIndex = _callRecords[_callRecords.size() - frame]._frame + index;
+    assert(stackIndex < _stack.size());
+    return stackIndex;
+}
+
+UpValue* ExecutionUnit::newUpValue(uint32_t stackIndex)
+{
+    for (auto next = _openUpValues; next; next = next->next()) {
+        assert(!next->closed());
+        if (next->stackIndex() == stackIndex) {
+            return next;
+        }
+    }
+    UpValue* upValue = new UpValue(stackIndex);
+    upValue->setNext(_openUpValues);
+    _openUpValues = upValue;
+    return upValue;
+}
+
+void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);

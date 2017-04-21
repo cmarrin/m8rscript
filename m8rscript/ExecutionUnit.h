@@ -151,26 +151,15 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const
-    {
-        assert(frame > 0);
-        frame--;
-        assert(frame <= _callRecords.size());
-        if (frame == 0) {
-            return _stack.frame() + index;
-        }
-        uint32_t stackIndex = _callRecords[_callRecords.size() - frame]._frame + index;
-        assert(stackIndex < _stack.size());
-        return stackIndex;
-    }
+    uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
+    UpValue* newUpValue(uint32_t stackIndex);
     
     Object* currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
 
 private:
-
-    void startFunction(Object* function, ObjectId thisObject, uint32_t nparams, bool inScope);
+    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -287,6 +276,9 @@ private:
     std::vector<Value> _eventQueue;
     bool _executingEvent = false;
     uint32_t _lineno = 0;
+    
+    UpValue* _openUpValues = nullptr;
+    UpValue* _closedUpValues = nullptr;
 };
     
 }

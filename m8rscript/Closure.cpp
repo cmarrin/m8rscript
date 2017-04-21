@@ -48,17 +48,17 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     Global::addObject(this, true);
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
-        _upValues.emplace_back(_func->upValueStackIndex(eu, i));
+        _upValues.push_back(eu->newUpValue(_func->upValueStackIndex(eu, i)));
     }
 }
 
 bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 {
     assert(index < _upValues.size() && _upValues.size() == _func->upValueCount());
-    if (_upValues[index].closed) {
-        value = _upValues[index].value;
+    if (_upValues[index]->closed()) {
+        value = _upValues[index]->value();
     } else {
-        value = eu->stack().at(_upValues[index].stackIndex);
+        value = eu->stack().at(_upValues[index]->stackIndex());
     }
     return true;
 }
@@ -66,10 +66,10 @@ bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
 {
     assert(index < _upValues.size() && _upValues.size() == _func->upValueCount());
-    if (_upValues[index].closed) {
-        _upValues[index].value = value;
+    if (_upValues[index]->closed()) {
+        _upValues[index]->value() = value;
     } else {
-        eu->stack().at(_upValues[index].stackIndex) = value;
+        eu->stack().at(_upValues[index]->stackIndex()) = value;
     }
     return true;
 }
@@ -77,16 +77,16 @@ bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value
 void Closure::closeUpValues(ExecutionUnit* eu, uint32_t frame)
 {
     for (auto& it : _upValues) {
-        if (!it.closed && it.stackIndex >= frame) {
-            it.value = eu->stack().at(it.stackIndex);
-            it.closed = true;
+        if (!it->closed() && it->stackIndex() >= frame) {
+            it->value() = eu->stack().at(it->stackIndex());
+            it->setClosed(true);
         }
     }
 }
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(this, thisValue.asObjectIdValue(), nparams, false);
+    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams, false);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
