@@ -93,3 +93,13 @@ CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t npara
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
+bool UpValue::closeIfNeeded(ExecutionUnit* eu, uint32_t frame)
+{
+    assert(!closed());
+    if (stackIndex() >= frame) {
+        value() = eu->stack().at(stackIndex());
+        setClosed(true);
+        return true;
+    }
+    return false;
+}

@@ -56,6 +56,8 @@ public:
     Value& value() { return _value; }
     const Value& value() const { return _value; }
     
+    bool closeIfNeeded(ExecutionUnit*, uint32_t frame);
+    
     uint32_t stackIndex() const { return static_cast<uint32_t>(_value.asIntValue()); }
     
 private:
