@@ -106,6 +106,15 @@ MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const 
     , _eu(eu)
 {
     _tcp = ip ? TCP::create(this, port, ip) :  TCP::create(this, port);
+    _eu->startEventListening();
+}
+
+MyTCPDelegate::~MyTCPDelegate()
+{
+    if (_tcp) {
+        delete _tcp;
+    }
+    _eu->stopEventListening();
 }
 
 CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -135,10 +144,6 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-    }
-    
     Object* obj = thisValue.asObjectId();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
@@ -146,7 +151,7 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
     
     MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
     
-    int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
+    int16_t connectionId = nparams ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     delegate->disconnect(connectionId);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

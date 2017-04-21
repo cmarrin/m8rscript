@@ -263,7 +263,6 @@ private:
     uint32_t _lineno = 0;
     
     UpValue* _openUpValues = nullptr;
-    UpValue* _closedUpValues = nullptr;
 };
     
 }

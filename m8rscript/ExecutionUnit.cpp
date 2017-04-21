@@ -154,22 +154,30 @@ void ExecutionUnit::startExecution(Program* program)
         _stack.clear();
         return;
     }
-    _terminate = false;
-    _nerrors = 0;
+    _callRecords.clear();
+    _stack.clear();
+
     _pc = 0;
     _program = program;
     _function =  _program;
-    _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
-    
     _this = program;
-    
-    _stack.clear();
+    _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     _stack.setLocalFrame(0, 0, _function->localSize());
     _framePtr =_stack.framePtr();
+
+    _localOffset = 0;
     _formalParamCount = 0;
     _actualParamCount = 0;
-    _localOffset = 0;
+
+    _nerrors = 0;
+    _terminate = false;
+    
+    _eventQueue.clear();
     _executingEvent = false;
+    _numEventListeners = 0;
+    _lineno = 0;
+
+    _openUpValues = nullptr;
 }
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)

@@ -131,6 +131,8 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             addStaticObject(funcValue.asObjectId());
         }
         
+        eu->startEventListening();
+        
         IPAddr::lookupHostName(hostname.c_str(), [this, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
             Object* newIPAddr = nullptr;
             IPAddrProto* obj = new IPAddrProto();
@@ -146,6 +148,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             if (funcValue.asObjectId()) {
                 removeStaticObject(funcValue.asObjectId());
             }
+            eu->stopEventListening();
         });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }

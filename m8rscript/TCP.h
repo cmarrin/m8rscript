@@ -97,12 +97,7 @@ private:
 class MyTCPDelegate : public NativeObject, public TCPDelegate {
 public:
     MyTCPDelegate(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
-    virtual ~MyTCPDelegate()
-    {
-        if (_tcp) {
-            delete _tcp;
-        }
-    }
+    virtual ~MyTCPDelegate();
 
     virtual void gcMark(ExecutionUnit* eu) override
     {
