@@ -137,10 +137,26 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
     return true;
 }
 
+Value::Value(ObjectId objectId)
+{
+    assert(objectId && objectId->objectId() == objectId);
+    _value = RawValue(objectId, objectId->isFunction());
+}
+
 Value::Value(Object* obj)
 {
     assert(obj && obj->objectId());
     _value = RawValue(obj->objectId(), obj->isFunction());
+}
+
+ObjectId Value::objectIdFromValue() const
+{
+    return ObjectId(_value.get16());
+}
+
+ObjectId Value::asObjectId() const
+{
+    return (type() == Type::Object) ? objectIdFromValue() : ObjectId();
 }
 
 m8r::String Value::toString(Float value)
@@ -233,12 +249,12 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: return String("null");
         case Type::Object: {
-            Object* obj = Global::obj(*this);
+            Object* obj = asObjectId();
             return obj ? obj->toString(eu) : String("null");
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
-        case Type::String: return Global::str(stringIdFromValue());
+        case Type::String: return Object::str(stringIdFromValue());
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
         case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
         case Type::Null: return String("null");
@@ -250,7 +266,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::Object: {
-            Object* obj = Global::obj(*this);
+            Object* obj = asObjectId();
             Float f;
             if (obj) {
                 toFloat(f, obj->toString(eu).c_str());
@@ -260,7 +276,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(int32FromValue(), 0);
         case Type::String: {
-            const String& s = Global::str(stringIdFromValue());
+            const String& s = Object::str(stringIdFromValue());
             Float f;
             toFloat(f, s.c_str());
             return f;
@@ -283,13 +299,13 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::Object: {
-            Object* obj = Global::obj(*this);
+            Object* obj = asObjectId();
             return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
         }
         case Type::Integer:
         case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
         case Type::String: {
-            const String& s = Global::str(stringIdFromValue());
+            const String& s = Object::str(stringIdFromValue());
             return eu->program()->atomizeString(s.c_str());
         }
         case Type::StringLiteral: {
@@ -304,38 +320,11 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
-Object* Value::asObject() const
-{
-    return Global::obj(asObjectIdValue());
-}
-
-Object* Value::toObject(ExecutionUnit* eu) const
-{
-    switch(type()) {
-        case Type::Object:
-            return asObject();
-        case Type::Integer:
-        case Type::Float: 
-            // FIXME: Implement a Number object
-            break;
-        case Type::StringLiteral:
-        case Type::String:
-            // FIXME: Implement a String object
-            break;
-        case Type::Id:
-        case Type::NativeObject:
-        case Type::None:
-        case Type::Null:
-            break;
-    }
-    return nullptr;
-}
-
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
     switch(type()) {
         case Type::Object: {
-            Object* obj = toObject(eu);
+            Object* obj = asObjectId();
             return obj ? obj->property(eu, prop) : Value();
         }
         case Type::Integer:
@@ -362,28 +351,28 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->setProperty(eu, prop, value, type) : false;
 }
 
 const Value Value::element(ExecutionUnit* eu, const Value& elt) const
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->element(eu, elt) : Value();
 }
 
 bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->setElement(eu, elt, value, append) : false;
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = toObject(eu);
+    Object* obj = asObjectId();
     return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
 }
 
@@ -391,7 +380,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
 {
     switch(type()) {
         case Type::Object: {
-            Object* obj = Global::obj(asObjectIdValue());
+            Object* obj = asObjectId();
             return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
         }
         case Type::Integer:
@@ -403,7 +392,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
             String s = toStringValue(eu);
             if (prop == ATOM(trim)) {
                 s = s.trim();
-                eu->stack().push(Value(Global::createString(s)));
+                eu->stack().push(Value(Object::createString(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             if (prop == ATOM(split)) {
@@ -413,7 +402,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 Array* arrayObject = new Array();
                 arrayObject->resize(array.size());
                 for (size_t i = 0; i < array.size(); ++i) {
-                    (*arrayObject)[i] = Value(Global::createString(array[i]));
+                    (*arrayObject)[i] = Value(Object::createString(array[i]));
                 }
                 eu->stack().push(Value(arrayObject));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
@@ -429,7 +418,17 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
     return CallReturnValue(CallReturnValue::Type::Error);
 }
 
-void Value::_gcMark(ExecutionUnit* eu)
+void Value::gcMark(ExecutionUnit* eu)
 {
-    Global::gcMark(eu, *this);
+    if (asObjectId() || asStringIdValue()) {
+        Object::gcMark(eu, *this);
+    }
 }
+
+Value::RawValue::RawValue(ObjectId objectId, bool isFunction)
+{
+    set16(objectId.raw());
+    setBool(isFunction);
+    setType(Type::Object);
+}
+

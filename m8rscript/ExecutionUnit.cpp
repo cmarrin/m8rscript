@@ -128,20 +128,19 @@ Value ExecutionUnit::derefId(Atom atom)
     return Value();
 }
 
-Value ExecutionUnit::makeClosure(const Value&constValue)
-{
-    assert(constValue.isFunction());
-    Closure* closure = new Closure(this, constValue, _this ? Value(_this) : Value());
-    if (closure->hasUpValues()) {
-        _openClosures.push_back(closure);
-    }
-    return Value(closure);
-}
-
 void ExecutionUnit::closeUpValues(uint32_t frame)
 {
-    for (auto it : _openClosures) {
-        it->closeUpValues(this, frame);
+    UpValue* prev = nullptr;
+    for (UpValue* upValue = _openUpValues; upValue; upValue = upValue->next()) {
+        if (upValue->closeIfNeeded(this, frame)) {
+            if (prev) {
+                prev->setNext(upValue->next());
+            } else {
+                _openUpValues = upValue->next();
+            }
+        } else {
+            prev = upValue;
+        }
     }
 }
 
@@ -162,7 +161,6 @@ void ExecutionUnit::startExecution(Program* program)
     _function =  _program;
     _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     
-    _thisId = program->objectId();
     _this = program;
     
     _stack.clear();
@@ -219,7 +217,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     TaskManager::unlock();
     
     if (haveEvent) {
-        CallReturnValue callReturnValue = func.call(this, thisValue, nargs, false);
+        CallReturnValue callReturnValue = func.call(this, Value(), nargs, false);
                 
         // Callbacks don't return a value. Ignore it, but pop the stack
         if (callReturnValue.isReturnCount()) {
@@ -276,13 +274,12 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
-    ObjectId prevThisId = _thisId;
-    _thisId = thisObject;
-    _this = Global::obj(_thisId);
+    Object* prevThis = _this;
+    _this = thisObject;
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThisId, prevActualParamCount, _inScope });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis->objectId(), prevActualParamCount, _inScope });
     _inScope = inScope;
     
     _pc = 0;    
@@ -333,7 +330,7 @@ static const uint16_t GCCount = 1000;
         } \
         if (--gcCounter == 0) { \
             gcCounter = GCCount; \
-            Global::gc(this); \
+            Object::gc(this); \
             if (--yieldCounter == 0) { \
                 return CallReturnValue(CallReturnValue::Type::Continue); \
             } \
@@ -359,11 +356,10 @@ static const uint16_t GCCount = 1000;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
-    ObjectId objectId;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
-    ObjectId prevThisId;
+    Object* prevThis;
 
     Instruction inst;
     
@@ -381,7 +377,7 @@ static const uint16_t GCCount = 1000;
     L_END:
         if (_terminate) {
             _stack.clear();
-            Global::gc(this);
+            Object::gc(this);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
             
@@ -393,11 +389,11 @@ static const uint16_t GCCount = 1000;
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
                     _terminate = true;
                     _stack.clear();
-                    Global::gc(this);
+                    Object::gc(this);
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
-                Global::gc(this);
+                Object::gc(this);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
                 // we'll hit the program end again
@@ -440,12 +436,11 @@ static const uint16_t GCCount = 1000;
             // Close any upValues that need it
             closeUpValues(callRecord._frame);
 
-            prevThisId = _thisId;
+            prevThis = _this;
             
             _actualParamCount = callRecord._paramCount;
-            _thisId = callRecord._thisId;
-            assert(_thisId);
-            _this = Global::obj(_thisId);
+            _this = callRecord._thisId;
+            assert(_this);
             _stack.restoreFrame(callRecord._frame, localsToPop);
             _framePtr =_stack.framePtr();
             
@@ -670,7 +665,7 @@ static const uint16_t GCCount = 1000;
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            StringId stringId = Global::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            StringId stringId = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(stringId));
         }
         DISPATCH;

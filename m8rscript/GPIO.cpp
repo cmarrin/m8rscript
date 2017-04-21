@@ -56,8 +56,8 @@ GPIO::GPIO(Program* program)
     addProperty(program, ATOM(digitalRead), &_digitalRead);
     addProperty(program, ATOM(onInterrupt), &_onInterrupt);
     
-    addProperty(program, ATOM(PinMode), Value(_pinMode.nativeObject()));
-    addProperty(program, ATOM(Trigger), Value(_trigger.nativeObject()));
+    addProperty(program, ATOM(PinMode), Value(_pinMode.objectId()));
+    addProperty(program, ATOM(Trigger), Value(_trigger.objectId()));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

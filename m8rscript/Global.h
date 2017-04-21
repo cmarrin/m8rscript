@@ -52,50 +52,7 @@ public:
     Global(Program*);
     virtual ~Global();
 
-    static ObjectId addObject(Object* obj, bool collectable);
-    static void removeObject(ObjectId objectId);
-    
-    static StringId createString(const char* s, int32_t length = -1);
-    static StringId createString(const String& s);
-    
-    static void addStaticObject(ObjectId objectId) { _staticObjects.push_back(objectId); }
-    static void removeStaticObject(ObjectId objectId)
-    {
-        for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
-            if (*it == objectId) {
-                _staticObjects.erase(it);
-                return;
-            }
-        }
-    }
-
-    static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
-    static bool isValid(const StringId& id) { return _stringStore.isValid(id); }
-    
-    static Object* obj(const Value& value)
-    {
-        ObjectId id = value.asObjectIdValue();
-        return id ? obj(id) : nullptr;
-    }
-    static Object* obj(const ObjectId& id) { return _objectStore.ptr(id); }
-    
-    static String& str(const Value& value)
-    {
-        return str(value.asStringIdValue());
-    }
-    
-    static String& str(const StringId& id)
-    {
-        // _strings[0] contains an error entry for when invalid ids are passed
-        String* s = _stringStore.ptr(id);
-        return s ? *s : *_stringStore.ptr(StringId(0));
-    }
-    
-    static void gc(ExecutionUnit*);
-    static void gcMark(ExecutionUnit*, const Value& value);
-    static void gcMark(ExecutionUnit*, const ObjectId& objectId);
-    
-private:        
+private:
     Array _array;
     Base64 _base64;
     GPIO _gpio;
@@ -124,83 +81,6 @@ private:
     NativeFunction _toInt;
     NativeFunction _toUInt;
     NativeFunction _arguments;
-
-    template<typename IdType, typename ValueType> class IdStore {
-    public:
-        IdType add(ValueType*);
-        void remove(IdType, bool del);
-        bool isValid(const IdType& id) const { return id.raw() < _values.size(); }
-        bool empty() const { return _values.empty(); }
-        ValueType* ptr(const IdType& id) const { return isValid(id) ? _values[id.raw()] : nullptr; }
-        
-        void gcClear() { _valueMarked.clear(); _valueMarked.resize(_values.size()); }
-        void gcMark(IdType id) { _valueMarked[id.raw()] = true; }
-        
-        bool isGCMarked(IdType id) { return _valueMarked[id.raw()]; }
-
-        void gcSweep()
-        {
-            for (uint16_t i = 0; i < _values.size(); ++i) {
-                if (_values[i] && !_valueMarked[i]) {
-                    remove(IdType(i), true);
-                }
-            }
-        }
-        
-    private:
-        std::vector<ValueType*> _values;
-        std::vector<bool> _valueMarked;
-        uint32_t _freeValueIdCount = 0;
-    };
-
-    static IdStore<StringId, String> _stringStore;
-    static IdStore<ObjectId, Object> _objectStore;
-    static std::vector<ObjectId> _staticObjects;
 };
     
-template<typename IdType, typename ValueType>
-IdType Global::IdStore<IdType, ValueType>::add(ValueType* value)
-{
-    if (_freeValueIdCount) {
-        for (uint32_t i = 0; i < _values.size(); ++i) {
-            if (!_values[i]) {
-                _values[i] = value;
-                _freeValueIdCount--;
-                _valueMarked[i] = true;
-                return IdType(i);
-            }
-        }
-        assert(false);
-        return IdType();
-    }
-    
-    IdType id(_values.size());
-    _values.push_back(value);
-    _valueMarked.resize(_values.size());
-    _valueMarked[id.raw()] = true;
-    return id;
-}
-
-template<typename IdType, typename ValueType>
-void Global::IdStore<IdType, ValueType>::remove(IdType id, bool del)
-{
-    assert(id && id.raw() < _values.size() && _values[id.raw()]);
-
-    if (del) {
-        delete _values[id.raw()];
-    }
-    _values[id.raw()] = nullptr;
-    _freeValueIdCount++;
-}
-
-template<>
-inline void Global::IdStore<ObjectId, Object>::gcSweep()
-{
-    for (uint16_t i = 0; i < _values.size(); ++i) {
-        if (_values[i] && !_valueMarked[i] && _values[i]->collectable()) {
-            remove(ObjectId(i), true);
-        }
-    }
-}
-
 }

@@ -42,7 +42,7 @@ using namespace m8r;
 Function::Function(Function* parent)
     : _parent(parent)
 {
-    Global::addObject(this, true);
+    addObject(this, true);
 
     // Place a dummy constant at index 0 as an error return value
     _constants.push_back(Value());
@@ -67,7 +67,7 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams, _parent == eu->currentFunction());
+    eu->startFunction(objectId(), thisValue.asObjectId(), nparams, _parent == eu->currentFunction());
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

@@ -2,24 +2,25 @@
 // Loop Tests
 //
 
+print("Test 1: simple loop with switch. Should print 3, 2, 1\n");
+
 var arr = [ "abc", 5, 3.5, 4 ];
 for (var i = 0; i < arr.length; ++i) {
 	switch (arr[i]) {
 		case 4:
-		case 3.5: print("Got 3.5 or 4\n");
-		default: print("Got default\n");
-		case "abc": print("Got abc\n");
+		case 3.5: print("1\n");
+		default: print("2\n");
+		case "abc": print("3\n");
 	}
 	if (i == 1) {
 		continue;
 	}
-	print("Before break\n");
 	if (i == 2) {
 		break;
 	}
 }
 
-print("Test while, should print 1 - 9\n");
+print("\nTest 2: while with break and continue, should print 1, 3, 4, 5, 6\n");
 
 var i = 1;
 while (i < 10) {
@@ -27,16 +28,16 @@ while (i < 10) {
 		i++;
 		continue;
 	}
-	println("i=" + i);
+	println(i);
 	if (i > 5) {
 		break;
 	}
 	i++;
 }
 
-print("\nTest do..while, should print 20 - 11\n");
+print("\nTest 3: do..while, should print 20 - 11\n");
 var i = 20;
 do {
-	println("i=" + i);
+	println(i);
 	i--;
 } while(i > 10);

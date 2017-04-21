@@ -43,7 +43,7 @@ class Array : public Object {
 public:
     Array();
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Array") : Object::toString(eu, false); }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 
     virtual void gcMark(ExecutionUnit* eu) override
     {

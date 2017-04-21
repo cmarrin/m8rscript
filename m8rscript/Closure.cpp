@@ -43,9 +43,9 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     : _thisValue(thisValue)
 {
     assert(function.isFunction());
-    _func = reinterpret_cast<Function*>(function.asObject());
+    _func = reinterpret_cast<Function*>(static_cast<Object*>(function.asObjectId()));
     assert(_func);
-    Global::addObject(this, true);
+    addObject(this, true);
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
         _upValues.push_back(eu->newUpValue(_func->upValueStackIndex(eu, i)));
@@ -86,7 +86,10 @@ void Closure::closeUpValues(ExecutionUnit* eu, uint32_t frame)
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(objectId(), thisValue.asObjectIdValue(), nparams, false);
+    if (!thisValue) {
+        thisValue = _thisValue;
+    }
+    eu->startFunction(objectId(), thisValue.asObjectId(), nparams, false);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

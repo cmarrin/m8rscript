@@ -65,7 +65,7 @@ public:
     void gcMark()
     {
         assert(_program);
-        Global::gcMark(this, _program->objectId());
+        Object::gcMark(this, _program);
         
         for (auto entry : _stack) {
             entry.gcMark(this);
@@ -78,10 +78,6 @@ public:
             it.gcMark(this);
         }
         TaskManager::unlock();
-        
-        for (auto it : _openClosures) {
-            it->gcMark(this);
-        }
     }
     
     SystemInterface* system() const { return _program->system(); }
@@ -177,17 +173,6 @@ private:
         _code = &(_function->code()->at(0));
     }
     
-    Object* toObject(const Value& v, const char* s)
-    {
-        Object* obj = v.toObject(this);
-        if (!obj) {
-            objectError(s);
-            return nullptr;
-        }
-            
-        return obj;
-    }
-    
     Value derefId(Atom);
     void stoIdRef(Atom, const Value&);
     
@@ -201,7 +186,6 @@ private:
         }
     }
     
-    Value makeClosure(const Value&);
     void closeUpValues(uint32_t frame);
     
     Value reg(uint32_t r)
@@ -220,7 +204,8 @@ private:
         if (r > MaxRegister) {
             Value constValue = const_cast<Value*>(_constants)[r - MaxRegister - 1];
             if (constValue.isFunction()) {
-                return makeClosure(constValue);
+                Closure* closure = new Closure(this, constValue, _this ? Value(_this) : Value());
+                return Value(closure);
             }
             return constValue;
         }
@@ -239,7 +224,7 @@ private:
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
-            , _thisId(thisId.raw())
+            , _thisId(thisId)
         { }
         
         uint32_t _pc : 23;
@@ -247,16 +232,14 @@ private:
         bool _inScope : 1;
         uint32_t _frame;
         Object* _func;
-        ObjectId::Raw _thisId;
+        ObjectId _thisId;
     };
     
     std::vector<CallRecord> _callRecords;
     ExecutionStack _stack;
-    std::vector<Closure*> _openClosures;
     
     uint32_t _pc = 0;
     Program* _program = nullptr;
-    ObjectId _thisId;
     Object* _function;
     Object* _this;
     const Value* _constants;
