@@ -146,6 +146,9 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
+    
+    void startEventListening() { _numEventListeners++; }
+    void stopEventListening() { _numEventListeners--; }
 
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
     UpValue* newUpValue(uint32_t stackIndex);
@@ -258,6 +261,8 @@ private:
 
     std::vector<Value> _eventQueue;
     bool _executingEvent = false;
+    uint32_t _numEventListeners = 0;
+    
     uint32_t _lineno = 0;
     
     UpValue* _openUpValues = nullptr;

@@ -400,13 +400,11 @@ static const uint16_t GCCount = 1000;
                 _pc--;
                 assert(_code[_pc].op() == Op::END);
                 
-                // FIXME: For now we always wait for events. But we need to add logic to only do that if we have
-                // something listening. For instance if we have an active TCP socket or an interval timer
                 callReturnValue = runNextEvent();
 
                 if (callReturnValue.isError()) {
                     printError(ROMSTR("callback failed"));
-                    return CallReturnValue(CallReturnValue::Type::WaitForEvent);
+                    return CallReturnValue(CallReturnValue::Type::Finished);
                 }
 
                 // If the callReturnValue is FunctionStart it means we've called a Function and it just
@@ -415,7 +413,7 @@ static const uint16_t GCCount = 1000;
                     updateCodePointer();
                     DISPATCH;
                 }
-                return CallReturnValue(CallReturnValue::Type::WaitForEvent);
+                return CallReturnValue(_numEventListeners ? CallReturnValue::Type::WaitForEvent : CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
         }
