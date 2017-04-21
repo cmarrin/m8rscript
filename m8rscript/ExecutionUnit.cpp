@@ -279,8 +279,7 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis->objectId(), prevActualParamCount, _inScope });
-    _inScope = inScope;
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis->objectId(), prevActualParamCount });
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
@@ -444,7 +443,6 @@ static const uint16_t GCCount = 1000;
             
             _pc = callRecord._pc;
             _function = callRecord._func;
-            _inScope = callRecord._inScope;
             
             _callRecords.pop_back();
         }

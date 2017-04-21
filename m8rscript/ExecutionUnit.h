@@ -222,7 +222,7 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Object* func, ObjectId thisId, uint32_t paramCount, bool inScope)
+        CallRecord(uint32_t pc, uint32_t frame, Object* func, ObjectId thisId, uint32_t paramCount)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -232,7 +232,6 @@ private:
         
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
-        bool _inScope : 1;
         uint32_t _frame;
         Object* _func;
         ObjectId _thisId;
@@ -250,9 +249,7 @@ private:
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
-    
-    bool _inScope = false;
-    
+
     const Instruction* _code;
     size_t _codeSize;
     
