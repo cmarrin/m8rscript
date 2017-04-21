@@ -1,23 +1,26 @@
 // Tests of the Iterator object
 var obj = [ 1, 2, 3 ];
 
+printf("1) Double array object\n");
+printf("    Original array: %s\n", obj);
 for (var it : obj) {
-	it.value *= 2;
+	it	 *= 2;
 }
+printf("    Array doubled : %s\n", obj);
 
 var n = 0;
 for (var it : obj) {
 	n += it.value;
 }
 
-println("n: " + n);
+printf("\n2)  Iterate array using implicit iteration: total (s/b) 12) = %d\n", n);
 
 var n = 0;
 for (var it = new Iterator(obj); !it.end; it.next()) {
 	n += it.value;
 }
 
-println("n: " + n);
+printf("2a) Same test using Iterator object: total (s/b) 12) = %d\n", n);
 
 var n = 0;
 var it;
@@ -25,13 +28,4 @@ for (it = new Iterator(obj); !it.end; it.next()) {
 	n += it.value;
 }
 
-println("n: " + n);
-
-var n = 0;
-var it;
-for (it : obj) {
-	n += it.value;
-}
-
-println("n: " + n);
-//for (var s : 
+printf("2b) Same test with iterator value defined outside for loop: total (s/b) 12) = %d\n", n);
