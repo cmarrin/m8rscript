@@ -44,6 +44,26 @@ Array::Array()
     addObject(this, true);
 }
 
+String Array::toString(ExecutionUnit* eu, bool typeOnly) const
+{
+    if (typeOnly) {
+        return String("Array");
+    }
+    
+    String s = "[ ";
+    bool first = true;
+    for (auto& it : _array) {
+        if (first) {
+            first = false;
+        } else {
+            s += ", ";
+        }
+        s += it.toStringValue(eu);
+    }
+    s += " ]";
+    return s;
+}
+
 CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!ctor) {
