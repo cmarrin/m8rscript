@@ -10,6 +10,7 @@
 
 #import "NSTextView+JSDExtensions.h"
 
+#import "AppDelegate.h"
 #import "Device.h"
 #import "SimulationView.h"
 #import "FileBrowser.h"
@@ -39,7 +40,7 @@
     __weak IBOutlet NSToolbarItem *saveBinaryButton;
     
     __weak IBOutlet NSButton *enableDebugButton;
-    __weak IBOutlet NSMenuItem *commentSelectionMenuItem;
+    NSMenuItem *commentSelectionMenuItem;
     
     NSString* _source;
     NSFont* _font;
@@ -90,6 +91,8 @@
     [filesContainer addSubview:_fileBrowser.view];
     superFrame = filesContainer.frame;
     [_fileBrowser.view setFrameSize:superFrame.size];
+    
+    commentSelectionMenuItem = ((AppDelegate*)[NSApplication sharedApplication].delegate).commentSelectionMenuItem;
     
     if (_package) {
         [self setFiles];
@@ -170,6 +173,23 @@
     if (action == @selector(saveFileAs:)) {
         return _selectedContents && [_selectedFilename length] > 0;
     }
+    
+    if (action == @selector(shiftRightAction:) || action == @selector(shiftLeftAction:)) {
+        return _selectedContents && [_selectedFilename length] > 0;
+    }
+
+    if (action == @selector(commentOrUncommentAction:)) {
+        if (_selectedContents && [_selectedFilename length] > 0) {
+            //FIXME: See if we should comment or uncomment
+            NSRange selectedRange = [_fragaria textView].selectedRange;
+            (void) selectedRange;
+            
+            //commentSelectionMenuItem.title = @"Comment Selection";
+            commentSelectionMenuItem.title = @"Uncomment Selection";
+            return YES;
+        }
+        return NO;
+    }
 
     return YES;
 }
@@ -183,17 +203,17 @@
     // YES shifts right, NO shifts left
 }
 
-- (IBAction)shiftRight:(id)sender
+- (IBAction)shiftRightAction:(id)sender
 {
     [self shiftText:YES];
 }
 
-- (IBAction)shiftLeft:(id)sender
+- (IBAction)shiftLeftAction:(id)sender
 {
     [self shiftText:NO];
 }
 
-- (IBAction)commentSelection:(id)sender
+- (IBAction)commentOrUncommentAction:(id)sender
 {
 }
 
