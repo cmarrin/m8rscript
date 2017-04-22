@@ -39,6 +39,7 @@
     __weak IBOutlet NSToolbarItem *saveBinaryButton;
     
     __weak IBOutlet NSButton *enableDebugButton;
+    __weak IBOutlet NSMenuItem *commentSelectionMenuItem;
     
     NSString* _source;
     NSFont* _font;
@@ -175,6 +176,25 @@
 
 + (BOOL)autosavesInPlace {
     return YES;
+}
+
+- (void)shiftText:(BOOL) direction
+{
+    // YES shifts right, NO shifts left
+}
+
+- (IBAction)shiftRight:(id)sender
+{
+    [self shiftText:YES];
+}
+
+- (IBAction)shiftLeft:(id)sender
+{
+    [self shiftText:NO];
+}
+
+- (IBAction)commentSelection:(id)sender
+{
 }
 
 //

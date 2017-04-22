@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13051.2" systemVersion="16C62" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13090.2" systemVersion="16C62" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13051.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13090.2"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -207,6 +207,10 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="uyl-h8-XO2"/>
+                            <menuItem title="Shift Right" keyEquivalent="]" id="cfw-zW-1ft"/>
+                            <menuItem title="Shift Left" keyEquivalent="[" id="yob-J2-VVc"/>
+                            <menuItem title="Comment Selection" keyEquivalent="/" id="5ie-sE-ftj"/>
+                            <menuItem isSeparatorItem="YES" id="cup-Ea-6Fz"/>
                             <menuItem title="Find" id="4EN-yA-p0u">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Find" id="1b7-l0-nxx">
