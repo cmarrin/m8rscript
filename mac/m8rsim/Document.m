@@ -15,6 +15,7 @@
 #import "SimulationView.h"
 #import "FileBrowser.h"
 #import <MGSFragaria/MGSFragaria.h>
+#import <MGSFragaria/MGSTextMenuController.h>
 
 #import <stdarg.h>
 
@@ -118,6 +119,7 @@
 
     // FIXME: Add some support for Fragaria prefs. Here's an example of setting the showInvisibleCharacters flag
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:MGSFragariaPrefsShowInvisibleCharacters];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:MGSFragariaPrefsIndentWithSpaces];
 	
     //
 	// assign user defaults.
@@ -198,23 +200,19 @@
     return YES;
 }
 
-- (void)shiftText:(BOOL) direction
-{
-    // YES shifts right, NO shifts left
-}
-
 - (IBAction)shiftRightAction:(id)sender
 {
-    [self shiftText:YES];
+    [[MGSTextMenuController sharedInstance] shiftLeftAction:sender];
 }
 
 - (IBAction)shiftLeftAction:(id)sender
 {
-    [self shiftText:NO];
+    [[MGSTextMenuController sharedInstance] shiftLeftAction:sender];
 }
 
 - (IBAction)commentOrUncommentAction:(id)sender
 {
+    [[MGSTextMenuController sharedInstance] commentOrUncommentAction:sender];
 }
 
 //
