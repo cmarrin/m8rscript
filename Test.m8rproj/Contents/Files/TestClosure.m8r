@@ -18,7 +18,7 @@ function f0(a0) {
 }
 
 var g = f0(1);
-printf("1) Nested function call test (no capture): result (s/b 31)=%d\n", g);
+printf("1) Nested function call test (no capture): result (s/b 31): %d\n", g);
 
 // Test 2: Simple test of nested function with closure
 function Test2(b) {
@@ -72,9 +72,9 @@ function celebrityID () {
 }
 
 var mjID = celebrityID ();
-println("5) Test from JavaScript: celebrityID (s/b 999) = " + mjID.getID());
+println("5) Test from JavaScript: celebrityID (s/b 999): " + mjID.getID());
 mjID.setID(567);
-println("5) Test from JavaScript: celebrityID (s/b 567) = " + mjID.getID());
+println("5) Test from JavaScript: celebrityID (s/b 567): " + mjID.getID());
 
 
 // Test 5a: m8rscript way of doing test 5
@@ -85,9 +85,9 @@ class CelebrityID {
 }
 
 var mjID = new CelebrityID();
-println("5a) Same as (5), but with a class: celebrityID (s/b 999) = " + mjID.getID());
+println("5a) Same as (5), but with a class: celebrityID (s/b 999): " + mjID.getID());
 mjID.setID(567);
-println("5a) Same as (5), but with a class: celebrityID (s/b 567) = " + mjID.getID());
+println("5a) Same as (5), but with a class: celebrityID (s/b 567): " + mjID.getID());
 
 // Test 6: Observer pattern test
 class Clock
