@@ -254,7 +254,10 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         }
         case Type::Float: return toString(asFloatValue());
         case Type::Integer: return toString(asIntValue());
-        case Type::String: return Object::str(stringIdFromValue());
+        case Type::String: {
+            String* s = Object::str(stringIdFromValue());
+            return s ? *s : String("*BAD*");
+        }
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
         case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
         case Type::Null: return String("null");
@@ -276,9 +279,12 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Float: return asFloatValue();
         case Type::Integer: return Float(int32FromValue(), 0);
         case Type::String: {
-            const String& s = Object::str(stringIdFromValue());
+            const String* s = Object::str(stringIdFromValue());
+            if (!s) {
+                return Float();
+            }
             Float f;
-            toFloat(f, s.c_str());
+            toFloat(f, s->c_str());
             return f;
         }
         case Type::StringLiteral: {
@@ -305,8 +311,8 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::Integer:
         case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
         case Type::String: {
-            const String& s = Object::str(stringIdFromValue());
-            return eu->program()->atomizeString(s.c_str());
+            const String* s = Object::str(stringIdFromValue());
+            return s ? eu->program()->atomizeString(s->c_str()) : Atom();
         }
         case Type::StringLiteral: {
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());

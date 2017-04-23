@@ -131,16 +131,15 @@ public:
         }
     }
 
-    static String& str(const Value& value)
+    static String* str(const Value& value)
     {
         return str(value.asStringIdValue());
     }
     
-    static String& str(const StringId& id)
+    static String* str(const StringId& id)
     {
-        // _strings[0] contains an error entry for when invalid ids are passed
         String* s = _stringStore.ptr(id);
-        return s ? *s : *_stringStore.ptr(StringId(0));
+        return s ? s : nullptr;
     }
     
     static bool isValid(const StringId& id) { return _stringStore.isValid(id); }

@@ -57,9 +57,6 @@ void Object::gc(ExecutionUnit* eu)
     _stringStore.gcClear();
     _objectStore.gcClear();
     
-    // Mark string 0 (the dummy string)
-    _stringStore.gcMark(StringId(0));
-    
     eu->gcMark();
     
     for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
