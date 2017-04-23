@@ -213,6 +213,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
     long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
+    (void) count;
     return socket;
 }
 
@@ -225,6 +226,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
     long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
     assert(count == data.length);
+    (void) count;
     [self flushToPrompt:socket];
     [socket close];
 }
