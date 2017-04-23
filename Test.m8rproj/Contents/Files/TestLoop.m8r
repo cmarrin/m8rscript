@@ -2,7 +2,7 @@
 // Loop Tests
 //
 
-print("Test 1: simple loop with switch. Should print 3, 2, 1\n");
+print("1) Simple loop with switch. Should print 3, 2, 1\n");
 
 var arr = [ "abc", 5, 3.5, 4 ];
 for (var i = 0; i < arr.length; ++i) {
@@ -20,7 +20,7 @@ for (var i = 0; i < arr.length; ++i) {
 	}
 }
 
-print("\nTest 2: while with break and continue, should print 1, 3, 4, 5, 6\n");
+print("\n2) while with break and continue, should print 1, 3, 4, 5, 6\n");
 
 var i = 1;
 while (i < 10) {
@@ -35,7 +35,7 @@ while (i < 10) {
 	i++;
 }
 
-print("\nTest 3: do..while, should print 20 - 11\n");
+print("\n3) do..while, should print 20 - 11\n");
 var i = 20;
 do {
 	println(i);
