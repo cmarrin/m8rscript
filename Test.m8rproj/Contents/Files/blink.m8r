@@ -5,12 +5,6 @@
 GPIO.setPinMode(2, GPIO.PinMode.Output);
 print("Started Blink\n");
 
-var count = 0;
-while (count < 100) {
-    blink();
-    count++;
-}
-
 function blink()
 {
     GPIO.digitalWrite(2, true);
@@ -20,3 +14,10 @@ function blink()
     print("Blink on\n");
     delay(500); // wait a bit
 }
+
+var count = 0;
+while (count < 100) {
+    blink();
+    count++;
+}
+
