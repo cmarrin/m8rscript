@@ -4,7 +4,7 @@ var obj = [ 1, 2, 3 ];
 printf("1) Double array object\n");
 printf("    Original array: %s\n", obj);
 for (var it : obj) {
-	it	 *= 2;
+	it.value *= 2;
 }
 printf("    Array doubled : %s\n", obj);
 
