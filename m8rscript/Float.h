@@ -345,7 +345,7 @@ inline _Float<double, int64_t> _Float<double, int64_t>::floor() const
 }
 
 template<>
-inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator*(const _Float& other) const
+inline _Float<int64_t, int64_t, 30, 7> _Float<int64_t, int64_t, 30, 7>::operator*(const _Float& other) const
 {
     if (_value._raw > -std::numeric_limits<int32_t>::max() && _value._raw < std::numeric_limits<int32_t>::max() &&
         other._value._raw > -std::numeric_limits<int32_t>::max() && other._value._raw < std::numeric_limits<int32_t>::max()) {
@@ -380,7 +380,7 @@ inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator
 }
 
 template<>
-inline _Float<int64_t, int64_t, 26, 6> _Float<int64_t, int64_t, 26, 6>::operator/(const _Float& other) const
+inline _Float<int64_t, int64_t, 30, 7> _Float<int64_t, int64_t, 30, 7>::operator/(const _Float& other) const
 {
     if (_value._raw > -std::numeric_limits<int32_t>::max() && _value._raw < std::numeric_limits<int32_t>::max()) {
         if (other._value._raw == 0) {
@@ -406,7 +406,7 @@ typedef _Float<int32_t, int32_t, 10, 2> Float32;
 // Range is +/- 8e9 with a precision of 1e-9. When used as a Value
 // the LSB is the type, so we lose a bit. That leaves us with 5e-8
 // precision. That safely gives us 8 decimal digits of precision.
-typedef _Float<int64_t, int64_t, 30, 8> Float64;
+typedef _Float<int64_t, int64_t, 30, 7> Float64;
 typedef _Float<float, int32_t> FloatFloat;
 typedef _Float<double, int64_t> FloatDouble;
 
