@@ -1,0 +1,34 @@
+//
+// ClassTest.m8r
+//
+// Tests class functionality
+
+class MyClass
+{
+	var _myVar;
+	
+	constructor(a, b, c) {
+		_myVar = a + b + c;
+	}
+	
+	function doSomething(x) {
+		printf("1) Simple class test: _myVar (s/b 6) = %d, x (s/b 'Hello') = %s\n", _myVar, x);
+	}
+}
+
+var myClass = new MyClass(1, 2, 3);
+myClass.doSomething("Hello");
+
+
+class Circle
+{
+	var _radius;
+	var PI = 3.14159;
+	
+	constructor(radius) { _radius = radius; }
+	
+	function area() { return PI * _radius * _radius; }
+}
+
+var myCircle = new Circle(6);
+printf("2) Test of Circle class: myCircle(6) area (s/b 113.09724) = %f\n", myCircle.area());
