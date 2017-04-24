@@ -315,7 +315,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CAPTURE)
+        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CLOSURE)
         /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
@@ -703,13 +703,9 @@ static const uint16_t GCCount = 1000;
         setInFrame(inst.ra(), regOrConst(inst.rb()));
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
-    L_CAPTURE: {
-//        Object* function = Global::obj(regOrConst(inst.rb(), true));
-//        if (!function) {
-//            setInFrame(inst.ra(), Value(Value::Type::Null));
-//        } else {
-//            setInFrame(inst.ra(), Value((new Closure(this, static_cast<Function*>(function), Value(_thisId)))->objectId()));
-//        }
+    L_CLOSURE: {
+        Closure* closure = new Closure(this, regOrConst(inst.rb()), _this ? Value(_this) : Value());
+        setInFrame(inst.ra(), Value(closure));
         DISPATCH;
     }
     L_NEW:

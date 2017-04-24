@@ -637,7 +637,6 @@ bool ParseEngine::arithmeticPrimary()
         case Token::Minus: op = Op::UMINUS; break;
         case Token::Twiddle: op = Op::UNOT; break;
         case Token::Bang: op = Op::UNEG; break;
-        case Token::Capture: op = Op::CAPTURE; break;
         default: op = Op::UNKNOWN; break;
     }
     

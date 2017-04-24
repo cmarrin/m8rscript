@@ -191,26 +191,19 @@ private:
     
     void closeUpValues(uint32_t frame);
     
-    Value reg(uint32_t r)
+    Value& reg(uint32_t r)
     {
-        if (r > MaxRegister) {
-            return Value();
-        }
+        assert(r <= MaxRegister);
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
         }
         return _framePtr[r];
     }
      
-    Value regOrConst(uint32_t r)
+    Value& regOrConst(uint32_t r)
     {
         if (r > MaxRegister) {
-            Value constValue = const_cast<Value*>(_constants)[r - MaxRegister - 1];
-            if (constValue.isFunction()) {
-                Closure* closure = new Closure(this, constValue, _this ? Value(_this) : Value());
-                return Value(closure);
-            }
-            return constValue;
+            return const_cast<Value*>(_constants)[r - MaxRegister - 1];
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];

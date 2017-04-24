@@ -148,7 +148,7 @@ struct Label {
  
     <binop>RR   R[d], RK[s1], RK[s2]
  
-    <unop> ==>  UMINUS, UNOT, UNEG, CAPTURE         ; (7)
+    <unop> ==>  UMINUS, UNOT, UNEG,                 ; (7)
                 PREINC, PREDEC, POSTINC, POSTDEC
                 
     <unop>R     R[d], R[s], X
@@ -156,6 +156,7 @@ struct Label {
     CALL        RK[call], RK[this], NPARAMS
     NEW         RK[call], NPARAMS
     CALLPROP    RK[o], RK[p], NPARAMS
+    CLOSURE     R[d], RK[s]
  
     JMP         X, N
     JT          RK[s], N
@@ -181,7 +182,7 @@ enum class Op : uint8_t {
     
     LINENO,
     
-    LOADTHIS, LOADUP, STOREUP, CAPTURE,
+    LOADTHIS, LOADUP, STOREUP, CLOSURE,
     
     // 0x28 - 0x2f unused (8)
 
@@ -302,7 +303,6 @@ enum class Token : uint8_t {
     True = 0x13,
     Var = 0x14,
     While = 0x015,
-    Capture = 0x16,
     
     Bang = '!',
     Percent = '%',

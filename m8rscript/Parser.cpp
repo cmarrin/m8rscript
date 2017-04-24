@@ -760,6 +760,19 @@ uint32_t Parser::ParseStack::bake()
             _parser->emitCodeRRR(Op::LOADUP, r, entry._reg);
             return r;
         }
+        case Type::Constant: {
+            uint32_t r = entry._reg;
+            Value v = _parser->currentFunction()->constant(ConstantId(r - MaxRegister - 1));
+            Object* obj = v.asObjectId();
+            Function* func = (obj && obj->isFunction()) ? reinterpret_cast<Function*>(obj) : nullptr;
+            if (func && func->hasUpValues()) {
+                pop();
+                uint32_t dst = push(Type::Register);
+                _parser->emitCodeRRR(Op::CLOSURE, dst, r);
+                r = dst;
+            }
+            return r;
+        }
         default:
             return entry._reg;
     }
