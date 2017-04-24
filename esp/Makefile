@@ -51,13 +51,13 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/TCP.cpp \
 		../m8rscript/UDP.cpp \
 		../m8rscript/Value.cpp \
+        ../m8rscript/Scanner.cpp \
         app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)
     SRC += \
 		../m8rscript/ParseEngine.cpp \
-		../m8rscript/Parser.cpp \
-        ../m8rscript/Scanner.cpp
+		../m8rscript/Parser.cpp
 endif
 
 # Arduino based tools
