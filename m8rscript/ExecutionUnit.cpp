@@ -284,6 +284,7 @@ void ExecutionUnit::startFunction(ObjectId function, ObjectId thisObject, uint32
     
     Object* prevThis = _this;
     _this = thisObject;
+    assert(_this);
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
