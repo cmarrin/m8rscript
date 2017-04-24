@@ -327,18 +327,17 @@ CallReturnValue ExecutionUnit::continueExecution()
  
 static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-static const uint16_t YieldCount = 10;
-static const uint16_t GCCount = 1000;
-
     #undef DISPATCH
     #define DISPATCH { \
-        if (_terminate) { \
-            goto L_END; \
-        } \
-        if (--gcCounter == 0) { \
-            gcCounter = GCCount; \
-            Object::gc(this); \
-            if (--yieldCounter == 0) { \
+        ++checkCounter; \
+        if ((checkCounter & 0xf) == 0) { \
+            if (_terminate) { \
+                goto L_END; \
+            } \
+            if ((checkCounter & 0xfff) == 0) { \
+                Object::gc(this); \
+            } \
+            if (checkCounter == 0) { \
                 return CallReturnValue(CallReturnValue::Type::Continue); \
             } \
         } \
@@ -350,8 +349,7 @@ static const uint16_t GCCount = 1000;
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 
-    uint16_t gcCounter = GCCount;
-    uint16_t yieldCounter = YieldCount;
+    uint16_t checkCounter = 0;
     updateCodePointer();
     
     m8r::String strValue;
