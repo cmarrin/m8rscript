@@ -396,7 +396,7 @@ inline _Float<int64_t, int64_t, 30, 7> _Float<int64_t, int64_t, 30, 7>::operator
     _Float inv;
     inv._value._raw = (1LL << 62) / other._value._raw;
     _Float r = inv * *this;
-    r._value._raw = ((r._value._raw >> (62 - (26 + 26) - 1)) + 1) >> 1;
+    r._value._raw = ((r._value._raw >> (62 - (30 * 2) - 1)) + 1) >> 1;
     return r;
 }
 
