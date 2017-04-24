@@ -101,16 +101,7 @@ public:
     void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
 
-    virtual bool serialize(Stream*, Error&, Program*) const override;
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
-
-    //virtual Type type() const override { return Type::Function; }
-
     virtual bool hasUpValues() const override { return !_upValues.empty(); }
-
-protected:
-    bool serializeContents(Stream*, Error&, Program*) const;
-    bool deserializeContents(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
 
 private:
     struct UpValueEntry {

@@ -65,16 +65,6 @@ bool Application::load(Error& error, bool debug, const char* filename)
             return false;
         }
         
-        // Is it a m8rb file?
-        _program = new m8r::Program(_system);
-        if (_program->deserializeObject(&m8rbStream, error, nullptr, AtomTable(), std::vector<char>())) {
-            return true;
-        }
-        _program = nullptr;
-        if (error.code() != Error::Code::SerialHeader) {
-            return false;
-        }
-        
 #ifdef NO_PARSER_SUPPORT
         return false;
 #else
@@ -109,16 +99,6 @@ bool Application::load(Error& error, bool debug, const char* filename)
         _system->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
     }
     
-    name += ".m8rb";
-    _system->printf(ROMSTR("Opening '%s'...\n"), name.c_str());
-
-    FileStream m8rbMainStream(_fs, name.c_str());
-    
-    if (m8rbMainStream.loaded()) {
-        _program = new m8r::Program(_system);
-        return _program->deserializeObject(&m8rbMainStream, error, nullptr, AtomTable(), std::vector<char>());
-     }
-
 #ifdef NO_PARSER_SUPPORT
     _system->printf(ROMSTR("File not found, nothing to load\n"));
     return false;

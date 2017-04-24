@@ -91,12 +91,6 @@ public:
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;
     
-    virtual bool serialize(Stream* stream, Error& error, Program* program) const override { return _func->serialize(stream, error, program); }
-    virtual bool deserialize(Stream* stream, Error& error, Program* program, const AtomTable& atomTable, const std::vector<char>& array) override
-    {
-        return _func->deserialize(stream, error, program, atomTable, array);
-    }
-
     virtual const Code* code() const override { return _func->code(); }
     virtual uint32_t localSize() const override { return _func->localSize(); }
     virtual const std::vector<Value>*  constants() const override { return _func->constants(); }

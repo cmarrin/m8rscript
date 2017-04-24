@@ -116,19 +116,6 @@ public:
     void clear() { _array.clear(); }
     void resize(size_t size) { _array.resize(size); }
 
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override
-    {
-        // FIXME: Implement
-        return false;
-    }
-
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override
-    {
-        // FIXME: Implement
-        return false;
-    }
-
 private:
     std::vector<Value> _array;
     

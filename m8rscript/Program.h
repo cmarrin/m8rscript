@@ -70,10 +70,6 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
-protected:
-    virtual bool serialize(Stream*, Error&, Program*) const override;
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) override;
-
 private:    
     AtomTable _atomTable;
     

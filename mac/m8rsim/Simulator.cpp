@@ -48,47 +48,6 @@ Simulator::~Simulator()
 {
 }
 
-void Simulator::importBinary(const char* filename)
-{
-//    m8r::FileStream stream(filename, "r");
-//    _program = new m8r::Program(_system);
-//    m8r::Error error;
-//    if (!_program->deserializeObject(&stream, error)) {
-//        error.showError(_system);
-//        delete _program;
-//        _program = nullptr;
-//    }
-}
-
-void Simulator::exportBinary(const char* filename)
-{
-//    m8r::FileStream stream(filename, "w");
-//    if (_program) {
-//        m8r::Error error;
-//        if (!_program->serializeObject(&stream, error)) {
-//            error.showError(_system);
-//            delete _program;
-//            _program = nullptr;
-//        }
-//    }
-}
-
-bool Simulator::exportBinary(std::vector<uint8_t>& vector)
-{
-    if (!_shell.program()) {
-        return false;
-    }
-    
-    m8r::VectorStream stream;
-    m8r::Error error;
-    if (!_shell.program()->serializeObject(&stream, error, _shell.program())) {
-        error.showError(_shell.program()->system());
-        return false;
-    }
-    stream.swap(vector);
-    return true;
-}
-
 const m8r::ErrorList* Simulator::build(const char* name, bool debug)
 {
     _running = false;

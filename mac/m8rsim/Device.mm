@@ -599,19 +599,6 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     _simulator->simulate();
 }
 
-- (void)saveBinary:(NSString*)filename
-{
-    NSString* name = [filename stringByDeletingPathExtension];
-    name = [NSString stringWithFormat:@"%@.m8rb", name];
-    std::vector<uint8_t> vector;
-    if (!_simulator->exportBinary(vector)) {
-        return;
-    }
-    
-    NSData* data = [NSData dataWithBytes:&vector[0] length:vector.size()];
-    [self addFile:name withContents:data toDevice:_currentDevice[@"service"]];
-}
-
 - (BOOL)saveChangedFiles
 {
     // FIXME: Implement
@@ -626,16 +613,6 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 - (void)clearContents
 {
     _simulator->clear();
-}
-
-- (void)importBinary:(const char*)filename
-{
-    _simulator->importBinary(filename);
-}
-
-- (void)exportBinary:(const char*)filename
-{
-    _simulator->exportBinary(filename);
 }
 
 // NSNetServiceBrowser delegate

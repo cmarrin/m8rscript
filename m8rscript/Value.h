@@ -132,18 +132,6 @@ public:
 
     ~Value() { }
     
-    bool serialize(Stream*, Error&) const
-    {
-        // FIXME: Implement
-        return false;
-    }
-
-    bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&)
-    {
-        // FIXME: Implement
-        return false;
-    }
-
     Type type() const { return _value.type(); }
     
     //

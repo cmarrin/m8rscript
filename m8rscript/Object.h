@@ -91,12 +91,6 @@ public:
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
     virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, Value::SetPropertyType) { return false; }
 
-    bool serializeObject(Stream*, Error&, Program*) const;
-    bool deserializeObject(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&);
-
-    virtual bool serialize(Stream*, Error&, Program*) const { return true; }
-    virtual bool deserialize(Stream*, Error&, Program*, const AtomTable&, const std::vector<char>&) { return true; }
-
     void setObjectId(ObjectId id) { assert(!_objectId); _objectId = id; }
     ObjectId objectId() const { return _objectId; }
     
@@ -152,19 +146,6 @@ protected:
     void setProto(ObjectId id) { _proto = id; }
     ObjectId proto() const { return _proto; }
     
-    bool serializeBuffer(Stream*, Error&, ObjectDataType, const uint8_t* buffer, size_t size) const;
-    
-    bool serializeWrite(Stream*, Error&, ObjectDataType) const;
-    bool serializeWrite(Stream*, Error&, uint8_t) const;
-    bool serializeWrite(Stream*, Error&, uint16_t) const;
-
-    bool deserializeBufferSize(Stream*, Error&, ObjectDataType, uint16_t& size) const;
-    bool deserializeBuffer(Stream* stream, Error&, uint8_t* buffer, uint16_t size) const;
-
-    bool deserializeRead(Stream*, Error&, ObjectDataType&) const;
-    bool deserializeRead(Stream*, Error&, uint8_t&) const;
-    bool deserializeRead(Stream*, Error&, uint16_t&) const;
-
 private:
     static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
     static Object* obj(const ObjectId& id) { return _objectStore.ptr(id); }

@@ -48,9 +48,6 @@ public:
     
     ~Simulator();
     
-    void importBinary(const char* filename);
-    void exportBinary(const char* filename);
-    bool exportBinary(std::vector<uint8_t>&);
     const m8r::ErrorList* build(const char* name, bool debug);
     void printCode();
     void run();

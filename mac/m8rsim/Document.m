@@ -38,7 +38,6 @@
     __weak IBOutlet NSToolbarItem *addFileButton;
     __weak IBOutlet NSToolbarItem *removeFileButton;
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
-    __weak IBOutlet NSToolbarItem *saveBinaryButton;
     
     __weak IBOutlet NSButton *enableDebugButton;
     NSMenuItem *commentSelectionMenuItem;
@@ -163,9 +162,6 @@
     if (item == uploadButton) {
         return [_device canUpload];
     }
-    if (item == saveBinaryButton) {
-        return [_device canSaveBinary];
-    }
     return NO;
 }
 
@@ -247,11 +243,6 @@
     [_device simulate];
 }
 
-- (IBAction)saveBinary:(id)sender {
-    [_device saveBinary:_selectedFilename];
-    [self reloadFiles];
-}
-
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build
 {
     if (build) {
@@ -264,33 +255,6 @@
     [view setString:string];
     [view scrollRangeToVisible:NSMakeRange([[view string] length], 0)];
     [view setNeedsDisplay:YES];
-}
-
-- (IBAction)importBinary:(id)sender {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel setAllowedFileTypes:@[@"m8rp"]];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [[panel URLs] objectAtIndex:0];
-            [_device importBinary:[url fileSystemRepresentation]];
-        }
-    }];
-}
-
-- (IBAction)exportBinary:(id)sender
-{
-    NSString *filename = [[self.fileURL absoluteString] lastPathComponent];
-    NSString* newName = [[filename stringByDeletingPathExtension]
-                                   stringByAppendingPathExtension:@"m8rp"];
-    
-    NSSavePanel* panel = [NSSavePanel savePanel];
-    [panel setNameFieldStringValue:newName];
-    [panel beginWithCompletionHandler:^(NSInteger result){
-        if (result == NSFileHandlingPanelOKButton) {
-            NSURL*  url = [panel URL];
-            [_device exportBinary:[url fileSystemRepresentation]];
-        }
-    }];
 }
 
 - (IBAction)addFiles:(id)sender

@@ -58,16 +58,12 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (BOOL)canStop;
 - (BOOL)canUpload;
 - (BOOL)canSimulate;
-- (BOOL)canSaveBinary;
 
-- (void)importBinary:(const char*)filename;
-- (void)exportBinary:(const char*)filename;
 - (NSArray*)buildFile:(NSString*) name withDebug:(BOOL)debug;
 - (void)runFile:(NSString*) name withDebug:(BOOL)debug;
 - (void)pause;
 - (void)stop;
 - (void)simulate;
-- (void)saveBinary:(NSString*)filename;
 
 - (BOOL)saveChangedFiles;
 - (BOOL)isDeviceFile;
