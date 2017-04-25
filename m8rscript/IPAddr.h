@@ -112,7 +112,7 @@ public:
         if (append || index < 0 || index >= 4) {
             return false;
         }
-        _ipAddr[index] = value;
+        _ipAddr[index] = value.asIntValue();
         return true;
     }
     

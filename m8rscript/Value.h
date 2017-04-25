@@ -44,6 +44,7 @@ namespace m8r {
 
 class NativeObject;
 class Object;
+class Function;
 class ExecutionUnit;
 class Program;
 
@@ -91,52 +92,44 @@ private:
         
 class Value {
 public:
-#ifdef __APPLE__
-    typedef __uint128_t RawValueType;
-    typedef uint64_t RawIntType;
-    static_assert(sizeof(RawValueType) == 16, "RawValue must be 128 bits");
-#else
-    typedef uint64_t RawValueType;
-    typedef uint32_t RawIntType;
-    static_assert(sizeof(RawValueType) == 8, "RawValue must be 64 bits");
-#endif
-    static_assert(sizeof(RawIntType) == sizeof(void*), "RawIntValue must be the same size as a pointer");
-
-    static Value fromRaw(RawValueType r) { Value v; v._value._raw = r; return v; }
-    static RawValueType toRaw(Value v) { return v._value._raw; }
-
     typedef m8r::Map<Atom, Value> Map;
     
-    enum class Type : uint8_t {
+    enum class Type : uint32_t {
         None = 0,
         Float = 1,
-        Object = 2, Integer = 4, String = 6, StringLiteral = 8, Id = 10, Null = 12, NativeObject = 14,
+        Object = 2, Function = 4, Integer = 6, String = 8, StringLiteral = 10, Id = 12, Null = 14, NativeObject = 16,
     };
 
-    Value() { }
+    Value() { _value._float = 0; }
     
-    explicit Value(Object*);
-    explicit Value(Type type) : _value(type) { }
-    explicit Value(Float value) : _value(value) { }
-    explicit Value(int32_t value) : _value(value) { }
-    explicit Value(Atom value) : _value(value) { }
-    explicit Value(String* string) : _value(string) { }
-    explicit Value(StringLiteral stringLit) : _value(stringLit) { }
-    explicit Value(NativeObject* obj) : _value(obj) { }
+    explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
+    
+    explicit Value(Object* value) { assert(value); _value._ptr = value; _value._type = Type::Object; }
+    explicit Value(Function* value) { assert(value); _value._ptr = value; _value._type = Type::Function; }
+    explicit Value(String* value) { assert(value); _value._ptr = value; _value._type = Type::String; }
+    explicit Value(NativeObject* value) { assert(value); _value._ptr = value; _value._type = Type::NativeObject; }
+    
+    explicit Value(int32_t value) { _value._int = value; _value._type = Type::Integer; }
+    explicit Value(Atom value) { _value._int = value.raw(); _value._type = Type::Id; }
+    explicit Value(StringLiteral value) { _value._int = value.raw(); _value._type = Type::StringLiteral; }
+    
+    static Value NullValue() { Value value; value._value._type = Type::Null; return value; }
+    
+    bool operator==(const Value& other) { return _value._float == other._value._float; }
+    bool operator!=(const Value& other) { return _value._float != other._value._float; }
     
     operator bool() const { return type() != Type::None; }
-    bool operator==(const Value& other) { return _value == other._value; }
-    bool operator!=(const Value& other) { return _value != other._value; }
 
     ~Value() { }
     
-    Type type() const { return _value.type(); }
+    Type type() const { return ((_value._float & 0x01) == 0) ? _value._type : Type::Float; }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Object* asObject() const { return (type() == Type::Object) ? objectFromValue() : nullptr; }
+    Object* asObject() const { return (type() == Type::Object || type() == Type::Function) ? objectFromValue() : nullptr; }
+    Function* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
     String* asString() const { return (type() == Type::String) ? stringFromValue() : nullptr; }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
@@ -175,7 +168,7 @@ public:
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
-    bool isFunction() const { return type() == Type::Object && boolFromValue(); }
+    bool isFunction() const { return type() == Type::Function; }
     
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -202,108 +195,36 @@ private:
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._raw & ~1)); }
-    inline int32_t int32FromValue() const { return static_cast<int32_t>(_value.get32()); }
-    inline uint32_t uint32FromValue() const { return _value.get32(); }
-    inline uint16_t uint16FromValue() const { return _value.get16(); }
-    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.get32())); }
-    inline bool boolFromValue() const { return _value.getBool(); }
-    inline String* stringFromValue() const { return reinterpret_cast<String*>(_value.getPtr()); }
-    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
-    inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
-    inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value.getPtr()); }
-    
-    // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
-    // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
-    // there would be no room for the type. So we make the structure 128 bits for Mac. Fortunately Mac supports the __uint128_t
-    // type to make it easy to store this as a raw value.
-    //
-    // The problematic type on Esp is Float. We need to keep it and a type field in 64 bits. Float is a fixed point value so we
-    // can do fast integer math on Esp. We don't need to use all 64 bits for Float, but fixed point limits its range, so we want
-    // as many bits as possible. So we use a single bit in the LSB. If this is on, we know this is a Float. For other types we
-    // use the lowest 5 bits and make all the enum values even. For floats, we take the raw value, clear the LSB and cast it to
-    // Float. For the others we cast the lower 5 bits to Type and use that. 
-    struct RawValue {
-        explicit RawValue() { setType(Type::None); }
-        explicit RawValue(Type type) { setType(type); }
-        explicit RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
-        explicit RawValue(int32_t i) { set32(i); setType(Type::Integer); }
-        explicit RawValue(Atom atom) { set32(atom.raw()); setType(Type::Id); }
-        explicit RawValue(String* s) { setPtr(s); setType(Type::String); }
-        explicit RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
-        explicit RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
-        explicit RawValue(Object* obj, bool isFunction) { setPtr(obj); setBool(isFunction); setType(Type::Object); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._float & ~1)); }
+    inline int32_t int32FromValue() const { return _value._int; }
+    inline uint32_t uint32FromValue() const { return _value._int; }
+    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
+    inline String* stringFromValue() const { return reinterpret_cast<String*>(_value._ptr); }
+    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._int)); }
+    inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._ptr); }
+    inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value._ptr); }
+    inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
 
-        bool operator==(const RawValue& other) { return _raw == other._raw; }
-        bool operator!=(const RawValue& other) { return !(*this == other); }
-
-        // 64 bit value can hold one 32 bit value, one 16 bit value, one 8 bit value,a 1 bit flag, and a 5 bit type.
-        // On Mac, the 32 bit value is replaced with a 64 bit value so it can hold a pointer. This is typedefed to
-        // a RawIntType.
-        template <typename componentType, uint8_t BitCount, uint8_t Shift>
-        struct RawComponent {
-            static constexpr RawValueType Mask = ((static_cast<RawValueType>(1) << BitCount) - 1) << Shift;
-            
-            static componentType get(RawValueType raw) { return static_cast<componentType>((raw & Mask) >> Shift); }
-            
-            static void set(RawValueType& raw, componentType v)
-            {
-                raw = (raw & ~Mask) | ((static_cast<RawValueType>(v) << Shift) & Mask);
-            }
-        };
-        
-        static constexpr RawValueType TypeMask = (static_cast<RawValueType>(1) << 5) - 1;
-        Type type() const { return ((_raw & 1) == 1) ? Type::Float : static_cast<Type>(_raw & TypeMask); }
-
-        void setType(Type type)
-        {
-            if (type == Type::Float) {
-                _raw |= 1;
-            } else {
-                _raw = (_raw & ~TypeMask) | static_cast<RawValueType>(type);
-            }
-        }
-
-        uint32_t get32() const { return RawComponent<uint32_t, 32, 32>::get(_raw); }
-        void set32(uint32_t v) { RawComponent<uint32_t, 32, 32>::set(_raw, v); }
-        uint16_t get16() const { return RawComponent<uint16_t, 16, 16>::get(_raw); }
-        void set16(uint16_t v) { RawComponent<uint16_t, 16, 16>::set(_raw, v); }
-        void* getPtr() const { return reinterpret_cast<void*>(RawComponent<size_t, sizeof(size_t) * 8, 32>::get(_raw)); }
-        void setPtr(void* v) { RawComponent<size_t, sizeof(size_t) * 8, 32>::set(_raw, reinterpret_cast<size_t>(v)); }
-        bool getBool() const { return RawComponent<bool, 1, 15>::get(_raw); }
-        void setBool(bool b) { RawComponent<bool, 1, 15>::set(_raw, b); }
-
-        // This union is only used for debugging. Only the _raw value is used at runtime, so it should work for both
-        // big endian and little endian architectures. But the struct is little endian so the information is only
-        // valid on those architectures.
-        union {
-            RawValueType _raw = 0;
-            struct {
-#ifdef __APPLE__
-                Type _type : 5;
-#else
-                uint32_t _type : 5;
-#endif
-                uint32_t _ : 10;
-                bool _bool : 1;
-                uint16_t _uint16 : 16;
-                uint32_t _uint32 : 32;
-            };
-            struct {
-                uint32_t __;
-                NativeObject* _native;
-            };
-            struct {
-                uint32_t ___;
-                Object* _obj;
+    union {
+        uint64_t _float;
+        struct {
+            Type _type;
+            union {
+                union {
+                    void* _ptr;
+                    Object* _obj;
+                };
+                int32_t _int;
             };
         };
-    };
-        
-    RawValue _value;
+    } _value;
     
     // In order to fit everything, we have some requirements
-    static_assert(sizeof(_value) >= sizeof(Float), "Value must be large enough to hold a Float");
+#ifdef __APPLE__
+    static_assert(sizeof(_value) == 16, "Value on Mac must be 16 bytes");
+#else
+    static_assert(sizeof(_value) == 8, "Value on Esp must be 8 bytes");
+#endif
 };
 
 }

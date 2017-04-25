@@ -250,7 +250,7 @@ void Parser::pushK()
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(Value(Value::Type::Null));
+    ConstantId id = currentFunction()->addConstant(Value::NullValue());
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 

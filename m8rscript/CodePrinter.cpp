@@ -405,6 +405,7 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
 {
     switch(value.type()) {
         case Value::Type::NativeObject: s += "NativeObject"; break;
+        case Value::Type::Object: s += "Object"; break;
         case Value::Type::None: s += "NONE"; break;
         case Value::Type::Null: s += "Null"; break;
         case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
@@ -412,13 +413,13 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
-        case Value::Type::Object: {
-            Object* obj = value.asObject();
-            if (obj && obj->isFunction()) {
+        case Value::Type::Function: {
+            Function* func = value.asFunction();
+            if (func) {
                 _nestingLevel++;
                 s += "\n";
-                String name = obj->name() ? program->stringFromAtom(obj->name()) : String("unnamed");
-                s += generateCodeString(program, obj, name.c_str(), _nestingLevel);
+                String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
+                s += generateCodeString(program, func, name.c_str(), _nestingLevel);
                 _nestingLevel--;
                 break;
             }

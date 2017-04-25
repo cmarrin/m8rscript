@@ -137,12 +137,6 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
     return true;
 }
 
-Value::Value(Object* obj)
-{
-    assert(obj);
-    _value = RawValue(obj, obj->isFunction());
-}
-
 m8r::String Value::toString(Float value)
 {
     char buf[Float::MaxDigits + 8];
@@ -232,6 +226,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::None: return String("null");
+        case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
             return obj ? obj->toString(eu) : String("null");
@@ -252,6 +247,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
 Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
+        case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
             Float f;
@@ -288,6 +284,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
 Atom Value::_toIdValue(ExecutionUnit* eu) const
 {
     switch(type()) {
+        case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
             return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
@@ -313,6 +310,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
     switch(type()) {
+        case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
             return obj ? obj->property(eu, prop) : Value();
@@ -369,6 +367,7 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     switch(type()) {
+        case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
             return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
