@@ -200,10 +200,10 @@ private:
         return _framePtr[r];
     }
      
-    Value& regOrConst(uint32_t r)
+    const Value& regOrConst(uint32_t r)
     {
         if (r > MaxRegister) {
-            return const_cast<Value*>(_constants)[r - MaxRegister - 1];
+            return _constants[r - MaxRegister - 1];
         }
         if (r >= _formalParamCount) {
             return _framePtr[r + _localOffset];
