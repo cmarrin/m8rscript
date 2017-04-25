@@ -158,7 +158,7 @@ public:
     uint32_t lineno() const { return _lineno; }
 
 private:
-    void startFunction(ObjectId function, ObjectId thisObject, uint32_t nparams, bool inScope);
+    void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -215,19 +215,19 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Object* func, ObjectId thisId, uint32_t paramCount)
+        CallRecord(uint32_t pc, uint32_t frame, Object* func, Object* thisObj, uint32_t paramCount)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
-            , _thisId(thisId)
+            , _thisObj(thisObj)
         { }
         
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
         uint32_t _frame;
         Object* _func;
-        ObjectId _thisId;
+        Object* _thisObj;
     };
     
     std::vector<CallRecord> _callRecords;

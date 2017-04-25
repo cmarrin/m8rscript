@@ -49,7 +49,7 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     Iterator* it = new Iterator();
     Value objectValue = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
-    it->_objectId = objectValue.asObjectId();
+    it->_object = objectValue.asObject();
     it->_index = 0;
     eu->stack().push(Value(it));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
@@ -58,7 +58,7 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     if (prop == ATOM(next)) {
-        int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
             ++_index;
         }
@@ -70,7 +70,7 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
     if (prop == ATOM(end)) {
-        int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
@@ -86,12 +86,12 @@ bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& val
         return false;
     }
     
-    int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (_objectId && _index < count) ? _objectId->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
+    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (_object && _index < count) ? _object->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
 }
 
 const Value Iterator::value(ExecutionUnit* eu) const
 {
-    int32_t count = _objectId ? _objectId->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (_objectId && _index < count) ? _objectId->iteratedValue(eu, _index) : Value();
+    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+    return (_object && _index < count) ? _object->iteratedValue(eu, _index) : Value();
 }

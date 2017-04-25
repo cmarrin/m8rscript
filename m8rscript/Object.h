@@ -47,20 +47,6 @@ class Object;
 class Program;
 class Stream;
 
-class ObjectId : public Id<uint16_t>
-{
-    using Id::Id;
-    
-public:
-    typedef Object* ObjectType;
-    Object& operator*();
-    const Object& operator*() const;
-    Object* operator->();
-    const Object* operator->() const;
-    operator ObjectType();
-    operator const ObjectType() const;
-};
-
 class Object {
     friend class ObjectFactory;
     friend class ObjectId;
@@ -152,41 +138,13 @@ private:
 
     void _gcMark(ExecutionUnit*);
 
-    ObjectId _proto;
-    ObjectId _objectId;
+    Object* _proto;
     bool _collectable = false;
+    bool _marked = true;
 
-    template<typename IdType, typename ValueType> class IdStore {
-    public:
-        IdType add(ValueType*);
-        void remove(IdType, bool del);
-        bool isValid(const IdType& id) const { return id.raw() < _values.size(); }
-        bool empty() const { return _values.empty(); }
-        ValueType* ptr(const IdType& id) const { return isValid(id) ? _values[id.raw()] : nullptr; }
-        
-        void gcClear() { _valueMarked.clear(); _valueMarked.resize(_values.size()); }
-        void gcMark(IdType id) { _valueMarked[id.raw()] = true; }
-        
-        bool isGCMarked(IdType id) { return _valueMarked[id.raw()]; }
-
-        void gcSweep()
-        {
-            for (uint16_t i = 0; i < _values.size(); ++i) {
-                if (_values[i] && !_valueMarked[i]) {
-                    remove(IdType(i), true);
-                }
-            }
-        }
-        
-    private:
-        std::vector<ValueType*> _values;
-        std::vector<bool> _valueMarked;
-        uint32_t _freeValueIdCount = 0;
-    };
-
-    static IdStore<StringId, String> _stringStore;
-    static IdStore<ObjectId, Object> _objectStore;
-    static std::vector<ObjectId> _staticObjects;
+    static std::vector<String*> _stringStore;
+    static std::vector<Object*> _objectStore;
+    static std::vector<Object*> _staticObjects;
 };
 
 template<typename IdType, typename ValueType>

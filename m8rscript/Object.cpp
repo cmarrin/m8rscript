@@ -42,9 +42,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Object::IdStore<StringId, String> Object::_stringStore;
-Object::IdStore<ObjectId, Object> Object::_objectStore;
-std::vector<ObjectId> Object::_staticObjects;
+std::vector<String*> Object::_stringStore;
+std::vector<Object*> Object::_objectStore;
+std::vector<Object*> Object::_staticObjects;
 
 void Object::_gcMark(ExecutionUnit* eu)
 {
@@ -54,6 +54,8 @@ void Object::_gcMark(ExecutionUnit* eu)
 
 void Object::gc(ExecutionUnit* eu)
 {
+    for (auto it : _objectStore) {
+        it->setMarked(false);
     _stringStore.gcClear();
     _objectStore.gcClear();
     

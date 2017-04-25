@@ -109,7 +109,7 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     }
 
     IPAddrProto* obj = new IPAddrProto();
-    obj->setProto(objectId());
+    obj->setProto(this);
     
     obj->_ipAddr = ipAddr;
 
@@ -127,8 +127,8 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         Value hostnameValue = eu->stack().top(1 - nparams);
         String hostname = hostnameValue.toStringValue(eu);
         Value funcValue = eu->stack().top(2 - nparams);
-        if (funcValue.asObjectId()) {
-            addStaticObject(funcValue.asObjectId());
+        if (funcValue.asObject()) {
+            addStaticObject(funcValue.asObject());
         }
         
         eu->startEventListening();
@@ -136,7 +136,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         IPAddr::lookupHostName(hostname.c_str(), [this, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
             Object* newIPAddr = nullptr;
             IPAddrProto* obj = new IPAddrProto();
-            obj->setProto(objectId());
+            obj->setProto(this);
             obj->_ipAddr = ipaddr;
             newIPAddr = obj;
 
@@ -144,9 +144,9 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             args[0] = Value(createString(String(name)));
             args[1] = Value(newIPAddr);
             
-            eu->fireEvent(funcValue, Value(objectId()), args, 2);
-            if (funcValue.asObjectId()) {
-                removeStaticObject(funcValue.asObjectId());
+            eu->fireEvent(funcValue, Value(this), args, 2);
+            if (funcValue.asObject()) {
+                removeStaticObject(funcValue.asObject());
             }
             eu->stopEventListening();
         });

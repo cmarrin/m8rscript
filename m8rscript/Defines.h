@@ -404,7 +404,6 @@ enum class ObjectDataType : uint8_t {
     AtomTable = 0x20,       // { uint16_t size, uint8_t data[size] }
     StringTable = 0x21,     // { uint16_t size, uint8_t data[size] }
     ObjectCount = 0x22,     // { uint16_t size = 2, uint16_t count }
-    ObjectId = 0x22,        // { uint16_t size = 2, uint16_t id }
                             // Must be immediately followed by object
     
     // Function

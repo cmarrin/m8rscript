@@ -43,7 +43,7 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     : _thisValue(thisValue)
 {
     assert(function.isFunction());
-    _func = reinterpret_cast<Function*>(static_cast<Object*>(function.asObjectId()));
+    _func = reinterpret_cast<Function*>(function.asObject()));
     assert(_func);
     addObject(this, true);
 
@@ -89,7 +89,7 @@ CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t npara
     if (!thisValue) {
         thisValue = _thisValue;
     }
-    eu->startFunction(objectId(), thisValue.asObjectId(), nparams, false);
+    eu->startFunction(this, thisValue.asObject(), nparams, false);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

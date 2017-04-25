@@ -52,12 +52,12 @@ public:
 
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
 
-    virtual void gcMark(ExecutionUnit* eu) override { MaterObject::gcMark(eu); _objectId->gcMark(eu); }
+    virtual void gcMark(ExecutionUnit* eu) override { MaterObject::gcMark(eu); _object->gcMark(eu); }
     
 private:
     const Value value(ExecutionUnit*) const;
     
-    ObjectId _objectId;
+    Object* _object;
     mutable uint32_t _index = 0;
 };
     

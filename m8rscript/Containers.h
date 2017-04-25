@@ -267,6 +267,9 @@ public:
         }
         return array;
     }
+    
+    bool isMarked() const { return _marked; }
+    void setMarked(bool b) { _marked = b; }
 	
 private:
     void ensureCapacity(size_t size)
@@ -295,6 +298,7 @@ private:
     size_t _size;
     size_t _capacity;
     char *_data;
+    bool _marked = true;
 };
 
 //////////////////////////////////////////////////////////////////////////////
