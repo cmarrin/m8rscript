@@ -66,7 +66,7 @@ public:
         size_t index = _stringLiteralTable.size();
         _stringLiteralTable.resize(index + length + 1);
         memcpy(&(_stringLiteralTable[index]), s, length + 1);
-        return StringLiteral(StringLiteral(static_cast<uint32_t>(index)));
+        return StringLiteral(static_cast<uint32_t>(index));
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     

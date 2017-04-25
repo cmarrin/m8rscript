@@ -104,19 +104,19 @@ public:
     
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     
-    explicit Value(Object* value) { assert(value); _value._ptr = value; _value._type = Type::Object; }
-    explicit Value(Function* value) { assert(value); _value._ptr = value; _value._type = Type::Function; }
-    explicit Value(String* value) { assert(value); _value._ptr = value; _value._type = Type::String; }
-    explicit Value(NativeObject* value) { assert(value); _value._ptr = value; _value._type = Type::NativeObject; }
+    explicit Value(Object* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Object; }
+    explicit Value(Function* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Function; }
+    explicit Value(String* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::String; }
+    explicit Value(NativeObject* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::NativeObject; }
     
-    explicit Value(int32_t value) { _value._int = value; _value._type = Type::Integer; }
-    explicit Value(Atom value) { _value._int = value.raw(); _value._type = Type::Id; }
-    explicit Value(StringLiteral value) { _value._int = value.raw(); _value._type = Type::StringLiteral; }
+    explicit Value(int32_t value) { _value._raw = 0; _value._int = value; _value._type = Type::Integer; }
+    explicit Value(Atom value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::Id; }
+    explicit Value(StringLiteral value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::StringLiteral; }
     
-    static Value NullValue() { Value value; value._value._type = Type::Null; return value; }
+    static Value NullValue() { Value value; value._value._raw = 0; value._value._type = Type::Null; return value; }
     
-    bool operator==(const Value& other) { return _value._float == other._value._float; }
-    bool operator!=(const Value& other) { return _value._float != other._value._float; }
+    bool operator==(const Value& other) { return _value._raw == other._value._raw; }
+    bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
     
     operator bool() const { return type() != Type::None; }
 
@@ -138,7 +138,7 @@ public:
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
     
     m8r::String toStringValue(ExecutionUnit*) const;
-    bool toBoolValue(ExecutionUnit* eu) const { return toIntValue(eu) != 0; }
+    bool toBoolValue(ExecutionUnit* eu) const { return (type() == Type::Integer) ? (int32FromValue() != 0) : (toIntValue(eu) != 0); }
     Float toFloatValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Float) {
@@ -206,6 +206,11 @@ private:
     inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
 
     union {
+#ifdef __APPLE__
+        __uint128_t _raw;
+#else
+        uint64_t _raw;
+#endif
         uint64_t _float;
         struct {
             Type _type;
