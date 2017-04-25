@@ -43,9 +43,8 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     : _thisValue(thisValue)
 {
     assert(function.isFunction());
-    _func = reinterpret_cast<Function*>(function.asObject()));
+    _func = reinterpret_cast<Function*>(function.asObject());
     assert(_func);
-    addObject(this, true);
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
         _upValues.push_back(eu->newUpValue(_func->upValueStackIndex(eu, i)));

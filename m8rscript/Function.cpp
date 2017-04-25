@@ -42,8 +42,6 @@ using namespace m8r;
 Function::Function(Function* parent)
     : _parent(parent)
 {
-    addObject(this, true);
-
     // Place a dummy constant at index 0 as an error return value
     _constants.push_back(Value());
 }

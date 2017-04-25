@@ -47,10 +47,7 @@ class Object;
 class Program;
 class Stream;
 
-class Object {
-    friend class ObjectFactory;
-    friend class ObjectId;
-    
+class Object {    
 public:
     virtual ~Object() { }
 
@@ -77,11 +74,11 @@ public:
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
     virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, Value::SetPropertyType) { return false; }
 
-    void setObjectId(ObjectId id) { assert(!_objectId); _objectId = id; }
-    ObjectId objectId() const { return _objectId; }
-    
     void setCollectable(bool b) { _collectable = b; }
-    bool collectable() const { return _collectable; }
+    bool isCollectable() const { return _collectable; }
+    
+    void setMarked(bool b) { _marked = b; }
+    bool isMarked() const { return _marked; }
     
     // methods for Callable (m8rscript) objects
     virtual const Code* code() const { return nullptr; }
@@ -94,51 +91,33 @@ public:
     virtual bool hasUpValues() const { return false; }
     virtual bool isFunction() const { return false; }
     
-    static ObjectId addObject(Object*, bool collectable);
-    static void removeObject(ObjectId);
-    
-    static StringId createString(const char* s, int32_t length = -1);
-    static StringId createString(const String& s);
-    
-    static void addStaticObject(ObjectId id) { _staticObjects.push_back(id); }
-    static void removeStaticObject(ObjectId id)
+    static void addStaticObject(Object* obj) { _staticObjects.push_back(obj); }
+    static void removeStaticObject(Object* obj)
     {
         for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
-            if (*it == id) {
+            if (*it == obj) {
                 _staticObjects.erase(it);
                 return;
             }
         }
     }
 
-    static String* str(const Value& value)
-    {
-        return str(value.asStringIdValue());
-    }
-    
-    static String* str(const StringId& id)
-    {
-        String* s = _stringStore.ptr(id);
-        return s ? s : nullptr;
-    }
-    
-    static bool isValid(const StringId& id) { return _stringStore.isValid(id); }
-
     static void gc(ExecutionUnit*);
-    static void gcMark(ExecutionUnit*, const Value& value);
-    static void gcMark(ExecutionUnit*, Object*);
+    static void gcMark(const Value& value);
+    static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
+    
+    static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }
+    static String* createString(const char* s, int32_t length = -1)  { String* string = new String(s, length); _stringStore.push_back(string); return string; }
+    static String* createString(const String& s)  { String* string = new String(s); _stringStore.push_back(string); return string; }
     
 protected:
-    void setProto(ObjectId id) { _proto = id; }
-    ObjectId proto() const { return _proto; }
+    void setProto(Object* obj) { _proto = obj; }
+    Object* proto() const { return _proto; }
     
 private:
-    static bool isValid(const ObjectId& id) { return _objectStore.isValid(id); }
-    static Object* obj(const ObjectId& id) { return _objectStore.ptr(id); }
-
     void _gcMark(ExecutionUnit*);
 
-    Object* _proto;
+    Object* _proto = nullptr;
     bool _collectable = false;
     bool _marked = true;
 
@@ -147,61 +126,9 @@ private:
     static std::vector<Object*> _staticObjects;
 };
 
-template<typename IdType, typename ValueType>
-IdType Object::IdStore<IdType, ValueType>::add(ValueType* value)
-{
-    if (_freeValueIdCount) {
-        for (uint32_t i = 0; i < _values.size(); ++i) {
-            if (!_values[i]) {
-                _values[i] = value;
-                _freeValueIdCount--;
-                _valueMarked[i] = true;
-                return IdType(i);
-            }
-        }
-        assert(false);
-        return IdType();
-    }
-    
-    IdType id(_values.size());
-    _values.push_back(value);
-    _valueMarked.resize(_values.size());
-    _valueMarked[id.raw()] = true;
-    return id;
-}
-
-template<typename IdType, typename ValueType>
-void Object::IdStore<IdType, ValueType>::remove(IdType id, bool del)
-{
-    assert(id && id.raw() < _values.size() && _values[id.raw()]);
-
-    if (del) {
-        delete _values[id.raw()];
-    }
-    _values[id.raw()] = nullptr;
-    _freeValueIdCount++;
-}
-
-template<>
-inline void Object::IdStore<ObjectId, Object>::gcSweep()
-{
-    for (uint16_t i = 0; i < _values.size(); ++i) {
-        if (_values[i] && !_valueMarked[i] && _values[i]->collectable()) {
-            remove(ObjectId(i), true);
-        }
-    }
-}
-
-inline Object& ObjectId::operator*() { return *Object::_objectStore.ptr(*this); }
-inline const Object& ObjectId::operator*() const { return *Object::_objectStore.ptr(*this); }
-inline Object* ObjectId::operator->() { return Object::_objectStore.ptr(*this); }
-inline const Object* ObjectId::operator->() const { return Object::_objectStore.ptr(*this); }
-inline ObjectId::operator ObjectType() { return Object::_objectStore.ptr(*this); }
-inline ObjectId::operator const ObjectType() const { return Object::_objectStore.ptr(*this); }
-
 class MaterObject : public Object {
 public:
-    MaterObject();
+    MaterObject() { }
     virtual ~MaterObject();
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
@@ -260,9 +187,8 @@ public:
     
     Object* nativeObject() { return &_obj; }
     const Object* nativeObject() const { return &_obj; }
-    ObjectId objectId() const { return _obj.objectId(); }
     
-    static ObjectId create(Atom objectName, ExecutionUnit*, uint32_t nparams);
+    static Object* create(Atom objectName, ExecutionUnit*, uint32_t nparams);
 
 protected:
     MaterObject _obj;

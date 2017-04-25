@@ -44,7 +44,6 @@ namespace m8r {
 
 class NativeObject;
 class Object;
-class ObjectId;
 class ExecutionUnit;
 class Program;
 
@@ -116,14 +115,13 @@ public:
 
     Value() { }
     
-    explicit Value(ObjectId);
     explicit Value(Object*);
     explicit Value(Type type) : _value(type) { }
     explicit Value(Float value) : _value(value) { }
     explicit Value(int32_t value) : _value(value) { }
     explicit Value(Atom value) : _value(value) { }
-    explicit Value(StringId stringId) : _value(stringId) { }
-    explicit Value(StringLiteral stringId) : _value(stringId) { }
+    explicit Value(String* string) : _value(string) { }
+    explicit Value(StringLiteral stringLit) : _value(stringLit) { }
     explicit Value(NativeObject* obj) : _value(obj) { }
     
     operator bool() const { return type() != Type::None; }
@@ -138,8 +136,8 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    ObjectId asObjectId() const;
-    StringId asStringIdValue() const { return (type() == Type::String) ? stringIdFromValue() : StringId(); }
+    Object* asObject() const { return (type() == Type::Object) ? objectFromValue() : nullptr; }
+    String* asString() const { return (type() == Type::String) ? stringFromValue() : nullptr; }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
@@ -210,10 +208,10 @@ private:
     inline uint16_t uint16FromValue() const { return _value.get16(); }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value.get32())); }
     inline bool boolFromValue() const { return _value.getBool(); }
-    inline StringId stringIdFromValue() const { return StringId(static_cast<StringId::value_type>(_value.get32())); }
+    inline String* stringFromValue() const { return reinterpret_cast<String*>(_value.getPtr()); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value.get32())); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value.getPtr()); }
-    ObjectId objectIdFromValue() const;
+    inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value.getPtr()); }
     
     // The motivation for this RawValue structure is to keep a value in 64 bits on Esp. We need to store a pointer as well as a
     // type field. That works fine for Esp since pointers are 32 bits. But it doesn't work for Mac which has 64 bit pointers, so
@@ -231,10 +229,10 @@ private:
         explicit RawValue(Float f) { _raw = f.raw(); setType(Type::Float); }
         explicit RawValue(int32_t i) { set32(i); setType(Type::Integer); }
         explicit RawValue(Atom atom) { set32(atom.raw()); setType(Type::Id); }
-        explicit RawValue(StringId id) { set32(id.raw()); setType(Type::String); }
+        explicit RawValue(String* s) { setPtr(s); setType(Type::String); }
         explicit RawValue(StringLiteral id) { set32(id.raw()); setType(Type::StringLiteral); }
         explicit RawValue(NativeObject* obj) { setPtr(obj); setType(Type::NativeObject); }
-        explicit RawValue(ObjectId objectId, bool isFunction);
+        explicit RawValue(Object* obj, bool isFunction) { setPtr(obj); setBool(isFunction); setType(Type::Object); }
 
         bool operator==(const RawValue& other) { return _raw == other._raw; }
         bool operator!=(const RawValue& other) { return !(*this == other); }
@@ -294,6 +292,10 @@ private:
             struct {
                 uint32_t __;
                 NativeObject* _native;
+            };
+            struct {
+                uint32_t ___;
+                Object* _obj;
             };
         };
     };

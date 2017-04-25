@@ -48,79 +48,53 @@ std::vector<Object*> Object::_staticObjects;
 
 void Object::_gcMark(ExecutionUnit* eu)
 {
-    gcMark(eu, this);
-    gcMark(eu, _proto);
+    gcMark(this);
+    gcMark(_proto);
 }
 
 void Object::gc(ExecutionUnit* eu)
 {
     for (auto it : _objectStore) {
-        it->setMarked(false);
-    _stringStore.gcClear();
-    _objectStore.gcClear();
+        if (it) {
+            it->setMarked(false);
+        }
+    }
+    for (auto it : _stringStore) {
+        if (it) {
+            it->setMarked(false);
+        }
+    }
     
     eu->gcMark();
     
-    for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
-        _objectStore.gcMark(*it);
+    for (auto it : _staticObjects) {
+        it->gcMark(eu);
     }
     
-    _stringStore.gcSweep();
-    _objectStore.gcSweep();
-}
-
-void Object::gcMark(ExecutionUnit* eu, Object* object)
-{
-    ObjectId id = object ? object->objectId() : ObjectId();
-    if (id && !_objectStore.isGCMarked(id)) {
-        _objectStore.gcMark(id);
-        assert(obj(id));
-        obj(id)->gcMark(eu);
+    for (auto& it : _objectStore) {
+        if (it && !it->isMarked() && it->isCollectable()) {
+            delete it;
+            it = nullptr;
+        }
+    }
+    
+    for (auto& it : _stringStore) {
+        if (it && !it->isMarked()) {
+            delete it;
+            it = nullptr;
+        }
     }
 }
 
-void Object::gcMark(ExecutionUnit* eu, const Value& value)
+void Object::gcMark(const Value& value)
 {
-    StringId stringId = value.asStringIdValue();
-    if (stringId) {
-        _stringStore.gcMark(stringId);
+    String* string = value.asString();
+    if (string) {
+        string->setMarked(true);
         return;
     }
     
-    gcMark(eu, value.asObjectId());
-}
-
-ObjectId Object::addObject(Object* obj, bool collectable)
-{
-    assert(!obj->objectId());
-    obj->setCollectable(collectable);
-    ObjectId id = _objectStore.add(obj);
-    obj->setObjectId(id);
-    return id;
-}
-
-void Object::removeObject(ObjectId id)
-{
-    if (_objectStore.ptr(id) == nullptr) {
-        return;
-    }
-    assert(_objectStore.ptr(id)->objectId() == id);
-    _objectStore.remove(id, false);
-}
-
-StringId Object::createString(const char* s, int32_t length)
-{
-    return _stringStore.add(new String(s, length));
-}
-
-StringId Object::createString(const String& s)
-{
-    return _stringStore.add(new String(s));
-}
-
-MaterObject::MaterObject()
-{
-    Object::addObject(this, true);
+    gcMark(value.asObject());
 }
 
 MaterObject::~MaterObject()
@@ -184,7 +158,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Value callee = property(eu, prop);
-    return callee.call(eu, Value(objectId()), nparams, false);
+    return callee.call(eu, Value(this), nparams, false);
 }
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -228,7 +202,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     
     MaterObject* obj = new MaterObject();
     Value objectValue(obj);
-    obj->setProto(objectId());
+    obj->setProto(this);
 
     auto it = _properties.find(ATOM(constructor));
     if (it != _properties.end()) {
@@ -241,25 +215,29 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
+// FIXME: We need to mark non-collectable objects as "zombies" and then clear them out of
+// the object store without deleting them. Or should we maybe change "collectable" to
+// "deletable" and mark them as usual. But when it comes time to sweep, remove them from
+// the object store, but don't delete them. The idea of something that should never be
+// collected is really now handled by the concept of static objects.
 void MaterObject::removeNoncollectableObjects()
 {
-    for (auto it : _properties) {
-        Object* obj = it.value.asObjectId();
-        if (obj && !obj->collectable()) {
-            Object::removeObject(it.value.asObjectId());
-        }
-    }
+//    for (auto it : _properties) {
+//        Object* obj = it.value.asObject();
+//        if (obj && !obj->collectable()) {
+//            Object::removeObject(it.value.asObject());
+//        }
+//    }
 }
 
 NativeFunction::NativeFunction(Func func)
     : _func(func)
 {
-    addObject(this, true);
 }
 
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
-    _obj._collectable = false;
+    _obj.setCollectable(false);
     if (name) {
         _obj.setProperty(nullptr, ATOM(__typeName), Value(program->atomizeString(name)), Value::SetPropertyType::AlwaysAdd);
     }
@@ -267,13 +245,15 @@ ObjectFactory::ObjectFactory(Program* program, const char* name)
 
 ObjectFactory::~ObjectFactory()
 {
-    Object::removeObject(_obj.objectId());
+    // FIXME: Do we need this anymore? The _obj should be marked as usual and if it's collectable flag is set (maybe renamed to deletable)
+    // we won't delete it when it's swept.
+    //Object::removeObject(_obj);
 }
 
 void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 {
-    assert(obj && obj->objectId());
-    obj->_collectable = false;
+    assert(obj);
+    obj->setCollectable(false);
     addProperty(program, prop, Value(obj));
 }
 
@@ -282,16 +262,16 @@ void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
     _obj.setProperty(nullptr, prop, value, Value::SetPropertyType::AlwaysAdd);
 }
 
-ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
+Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
     Value objectValue = eu->program()->global()->property(eu, objectName);
     if (!objectValue) {
-        return ObjectId();
+        return nullptr;
     }
     
-    Object* object = objectValue.asObjectId();
+    Object* object = objectValue.asObject();
     if (!object) {
-        return ObjectId();
+        return nullptr;
     }
 
     CallReturnValue r = object->call(eu, Value(), nparams, true);
@@ -300,5 +280,5 @@ ObjectId ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npar
         retValue = eu->stack().top(1 - r.returnCount());
         eu->stack().pop(r.returnCount());
     }    
-    return retValue.asObjectId();
+    return retValue.asObject();
 }

@@ -422,7 +422,8 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
                 _nestingLevel--;
                 break;
             }
-            s += "OBJ(" + Value::toString(value.asObject().raw()) + ")";
+            // FIXME: Show the address of the obj or something
+            s += "OBJ";
             break;
         }
     }

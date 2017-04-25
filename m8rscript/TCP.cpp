@@ -81,7 +81,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     }
     
     IPAddr ipAddr;
-    Object* ipAddrObject = ipValue.asObjectId();
+    Object* ipAddrObject = ipValue.asObject();
     if (ipAddrObject) {
         ipAddr[0] = ipAddrObject->element(eu, Value(0)).toIntValue(eu);
         ipAddr[1] = ipAddrObject->element(eu, Value(1)).toIntValue(eu);
@@ -91,7 +91,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
 
     MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue);
     
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -124,7 +124,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -144,7 +144,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -164,7 +164,7 @@ void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const 
     args[2] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
-        StringId dataString = Object::createString(data, length);
+        String* dataString = Object::createString(data, length);
         
         args[3] = Value(dataString);
         args[4] = Value(static_cast<int32_t>(length));

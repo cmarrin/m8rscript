@@ -71,7 +71,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
 
     MyUDPDelegate* delegate = new MyUDPDelegate(eu, port, func, thisValue);
     
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -95,7 +95,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -118,7 +118,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = thisValue.asObjectId();
+    Object* obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -139,7 +139,7 @@ void MyUDPDelegate::UDPevent(UDP* udp, Event event, const char* data, uint16_t l
     args[0] = Value(static_cast<int32_t>(event));
     
     if (data) {
-        StringId dataString = Object::createString(data, length);
+        String* dataString = Object::createString(data, length);
         args[1] = Value(dataString);
     }
     _eu->fireEvent(_func, _parent, args, data ? 2 : 1);

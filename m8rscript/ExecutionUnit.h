@@ -65,7 +65,7 @@ public:
     void gcMark()
     {
         assert(_program);
-        Object::gcMark(this, _program);
+        Object::gcMark(_program);
         
         for (auto entry : _stack) {
             entry.gcMark(this);

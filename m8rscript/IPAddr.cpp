@@ -60,7 +60,6 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
 
 IPAddrProto::IPAddrProto()
 {
-    addObject(this, true);
 }
 
 IPAddr::IPAddr(const String& ipString)
@@ -141,7 +140,7 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             newIPAddr = obj;
 
             Value args[2];
-            args[0] = Value(createString(String(name)));
+            args[0] = Value(createString(name));
             args[1] = Value(newIPAddr);
             
             eu->fireEvent(funcValue, Value(this), args, 2);

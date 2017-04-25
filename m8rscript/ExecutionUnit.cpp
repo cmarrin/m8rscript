@@ -284,7 +284,9 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
     
     Object* prevThis = _this;
     _this = thisObject;
-    assert(_this);
+    if (!_this) {
+        _this = _program;
+    }
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
@@ -443,7 +445,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
             prevThis = _this;
             
             _actualParamCount = callRecord._paramCount;
-            _this = callRecord._thisId;
+            _this = callRecord._thisObj;
             assert(_this);
             _stack.restoreFrame(callRecord._frame, localsToPop);
             _framePtr =_stack.framePtr();
@@ -668,8 +670,8 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            StringId stringId = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
-            setInFrame(inst.ra(), Value(stringId));
+            String* string = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            setInFrame(inst.ra(), Value(string));
         }
         DISPATCH;
     L_UMINUS:

@@ -41,7 +41,7 @@ namespace m8r {
 
 class Array : public Object {
 public:
-    Array();
+    Array() { }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
 

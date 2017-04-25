@@ -142,14 +142,14 @@ CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t npar
         char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = Object::createString(outString, actualLength);
-        eu->stack().push(Value(stringId));
+        String* string = Object::createString(outString, actualLength);
+        eu->stack().push(Value(string));
     } else {
         char* outString = static_cast<char*>(malloc(outLength));
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = Object::createString(outString, actualLength);
-        eu->stack().push(Value(stringId));
+        String* string = Object::createString(outString, actualLength);
+        eu->stack().push(Value(string));
         free(outString);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
@@ -163,13 +163,13 @@ CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t npar
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = Object::createString(reinterpret_cast<char*>(outString), actualLength);
-        eu->stack().push(Value(stringId));
+        String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
+        eu->stack().push(Value(string));
     } else {
         unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        StringId stringId = Object::createString(reinterpret_cast<char*>(outString), actualLength);
-        eu->stack().push(Value(stringId));
+        String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
+        eu->stack().push(Value(string));
         free(outString);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);

@@ -39,11 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Array::Array()
-{
-    addObject(this, true);
-}
-
 String Array::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {

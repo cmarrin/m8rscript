@@ -258,7 +258,7 @@ void Parser::pushK(Function* function)
 {
     if (_nerrors) return;
     
-    assert(function && function->objectId());
+    assert(function);
     ConstantId id = currentFunction()->addConstant(Value(function));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
@@ -297,7 +297,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
         for (uint32_t i = 0; i < currentFunction()->constantCount(); ++i) {
-            Object* func = currentFunction()->constant(ConstantId(i)).asObjectId();
+            Object* func = currentFunction()->constant(ConstantId(i)).asObject();
             if (func) {
                 if (func->name() == atom) {
                     _parseStack.push(ParseStack::Type::Constant, i);
@@ -763,7 +763,7 @@ uint32_t Parser::ParseStack::bake()
         case Type::Constant: {
             uint32_t r = entry._reg;
             Value v = _parser->currentFunction()->constant(ConstantId(r - MaxRegister - 1));
-            Object* obj = v.asObjectId();
+            Object* obj = v.asObject();
             Function* func = (obj && obj->isFunction()) ? reinterpret_cast<Function*>(obj) : nullptr;
             if (func && func->hasUpValues()) {
                 pop();
