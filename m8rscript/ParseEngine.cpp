@@ -790,7 +790,7 @@ bool ParseEngine::primaryExpression()
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::This: _parser->pushThis(); retireToken(); break;
-        case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); break;
+        case Token::Float: _parser->pushK(Float(getTokenValue().number)); retireToken(); break;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); break;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); break;
         case Token::True: _parser->pushK(true); retireToken(); break;
@@ -847,7 +847,7 @@ bool ParseEngine::propertyName()
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
-        case Token::Float: _parser->pushK(getTokenValue().number); retireToken(); return true;
+        case Token::Float: _parser->pushK(Float(getTokenValue().number)); retireToken(); return true;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); return true;
         default: return false;
     }

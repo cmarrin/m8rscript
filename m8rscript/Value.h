@@ -141,10 +141,7 @@ public:
     bool toBoolValue(ExecutionUnit* eu) const { return (type() == Type::Integer) ? (int32FromValue() != 0) : (toIntValue(eu) != 0); }
     Float toFloatValue(ExecutionUnit* eu) const
     {
-        if (type() == Type::Float) {
-            return floatFromValue();
-        }
-        return _toFloatValue(eu);
+        return (type() == Type::Float) ? floatFromValue() : ((type() == Type::Integer) ? Float(int32FromValue()) : _toFloatValue(eu));
     }
 
     int32_t toIntValue(ExecutionUnit* eu) const

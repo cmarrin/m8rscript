@@ -87,16 +87,22 @@ public:
     static constexpr uint8_t MaxDigits = (sizeof(RawType) <= 32) ? 8 : 12;
     
     _Float() { _value._raw = 0; }
-    _Float(Raw value) { _value._raw = value._raw; }
+    explicit _Float(Raw value) { _value._raw = value._raw; }
     _Float(const _Float& value) { _value._raw = value._value._raw; }
     _Float(_Float& value) { _value._raw = value._value._raw; }
-    _Float(RawType value) { _value._raw = value; }
+    explicit _Float(RawType value) { _value._raw = value; }
     explicit _Float(bool value) { _value._raw = value ? (static_cast<RawType>(1) << BinaryExponent) : 0; }
+    
+    explicit _Float(int32_t i) { _value._raw = static_cast<RawType>(static_cast<int64_t>(i) << BinaryExponent); }
     
     _Float(RawType i, int32_t e)
     {
         if (i == 0) {
             _value._raw = 0;
+            return;
+        }
+        if (e == 0) {
+            _value._raw = static_cast<RawType>(static_cast<int64_t>(i) << BinaryExponent);
             return;
         }
         
