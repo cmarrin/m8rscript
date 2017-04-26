@@ -106,7 +106,6 @@ MaterObject::~MaterObject()
             delete obj;
         }
     }
-    removeNoncollectableObjects();
 }
 
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
@@ -215,21 +214,6 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-// FIXME: We need to mark non-collectable objects as "zombies" and then clear them out of
-// the object store without deleting them. Or should we maybe change "collectable" to
-// "deletable" and mark them as usual. But when it comes time to sweep, remove them from
-// the object store, but don't delete them. The idea of something that should never be
-// collected is really now handled by the concept of static objects.
-void MaterObject::removeNoncollectableObjects()
-{
-//    for (auto it : _properties) {
-//        Object* obj = it.value.asObject();
-//        if (obj && !obj->collectable()) {
-//            Object::removeObject(it.value.asObject());
-//        }
-//    }
-}
-
 NativeFunction::NativeFunction(Func func)
     : _func(func)
 {
@@ -237,7 +221,6 @@ NativeFunction::NativeFunction(Func func)
 
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
-    _obj.setCollectable(false);
     if (name) {
         _obj.setProperty(nullptr, ATOM(__typeName), Value(program->atomizeString(name)), Value::SetPropertyType::AlwaysAdd);
     }
@@ -253,7 +236,6 @@ ObjectFactory::~ObjectFactory()
 void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
 {
     assert(obj);
-    obj->setCollectable(false);
     addProperty(program, prop, Value(obj));
 }
 

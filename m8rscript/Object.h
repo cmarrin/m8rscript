@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Containers.h"
 #include "Defines.h"
 #include "Value.h"
+#include <algorithm>
 
 namespace m8r {
 
@@ -50,6 +51,22 @@ class Stream;
 class Object {    
 public:
     virtual ~Object() { }
+
+    void* operator new(size_t size)
+    {
+        void* p = malloc(size);
+        _objectStore.push_back(reinterpret_cast<Object*>(p));
+        return p;
+    }
+
+    void operator delete(void* p)
+    {
+        auto it = std::find(_objectStore.begin(), _objectStore.end(), p);
+        if (it == _objectStore.end()) {
+            return;
+        }
+        free(*it);
+    }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
@@ -74,9 +91,6 @@ public:
     virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
     virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, Value::SetPropertyType) { return false; }
 
-    void setCollectable(bool b) { _collectable = b; }
-    bool isCollectable() const { return _collectable; }
-    
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
     
@@ -118,7 +132,6 @@ private:
     void _gcMark(ExecutionUnit*);
 
     Object* _proto = nullptr;
-    bool _collectable = false;
     bool _marked = true;
 
     static std::vector<String*> _stringStore;
@@ -149,8 +162,6 @@ public:
     }
     
 private:
-    void removeNoncollectableObjects();
-
     Value::Map _properties;
 
 };
