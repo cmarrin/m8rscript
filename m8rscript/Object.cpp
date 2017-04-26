@@ -72,7 +72,7 @@ void Object::gc(ExecutionUnit* eu)
     }
     
     for (auto& it : _objectStore) {
-        if (it && !it->isMarked() && it->isCollectable()) {
+        if (it && !it->isMarked()) {
             delete it;
             it = nullptr;
         }
