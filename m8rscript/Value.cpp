@@ -139,7 +139,8 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
 
 m8r::String Value::toString(Float value)
 {
-    char buf[Float::MaxDigits + 8];
+    //          sign    digits  dp      'e'     dp      exp     '\0'
+    char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
     int16_t exp;
     Float::decompose_type mantissa;
     value.decompose(mantissa, exp);
