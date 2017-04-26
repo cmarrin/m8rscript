@@ -337,7 +337,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
             if (_terminate) { \
                 goto L_END; \
             } \
-            if ((checkCounter & 0xfff) == 0) { \
+            if ((checkCounter & 0xff) == 0) { \
                 Object::gc(this); \
             } \
             if (checkCounter == 0) { \
