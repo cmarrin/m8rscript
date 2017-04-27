@@ -1,6 +1,25 @@
 // Tests of the Iterator object
 var obj = [ 1, 2, 3 ];
 
+//class IteratorProto {
+//    var _obj;
+//    var _index;
+//    constructor(obj) { _obj = obj; _index = 0; }
+//    //var end = { get : function() { return _index >= _obj.length; } };
+//    function next() { if (!end) ++index; }
+//    var value = { get : function() { return end ? null : _obj[_index]; },
+//                set : function(v) { if (!end) _obj[_index] = v; } };
+//};
+
+//var obj.iterator = IteratorProto;
+
+//printf("1) Hand crafted iterator\n");
+//printf("    Original array: %s\n", obj);
+//for (var it : obj) {
+//	it.value *= 2;
+//}
+//printf("    Array doubled : %s\n", obj);
+
 printf("1) Double array object\n");
 printf("    Original array: %s\n", obj);
 for (var it : obj) {
