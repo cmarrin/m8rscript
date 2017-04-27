@@ -117,7 +117,7 @@ bool ParseEngine::statement()
         }
         if (getToken() == Token::Var) {
             retireToken();
-            expect(Token::MissingVarDecl, variableDeclarationList(VariableDeclType::Statement) > 0);
+            expect(Token::MissingVarDecl, variableDeclarationList() > 0);
             expect(Token::Semicolon);
             return true;
         } else if (getToken() == Token::Delete) {
@@ -516,7 +516,7 @@ bool ParseEngine::iterationStatement()
                 name = _parser->atomizeString(getTokenValue().str);
             }
             
-            uint32_t count = variableDeclarationList(VariableDeclType::Statement);
+            uint32_t count = variableDeclarationList();
             expect(Token::MissingVarDecl, count  > 0);
             if (getToken() == Token::Colon) {
                 // for-in case with var
@@ -588,10 +588,10 @@ bool ParseEngine::jumpStatement()
     return false;
 }
 
-uint32_t ParseEngine::variableDeclarationList(VariableDeclType type)
+uint32_t ParseEngine::variableDeclarationList()
 {
     uint32_t count = 0;
-    while (variableDeclaration(type)) {
+    while (variableDeclaration()) {
         ++count;
         if (getToken() != Token::Comma) {
             break;
@@ -601,39 +601,14 @@ uint32_t ParseEngine::variableDeclarationList(VariableDeclType type)
     return count;
 }
 
-bool ParseEngine::variableDeclaration(VariableDeclType type)
+bool ParseEngine::variableDeclaration()
 {
     if (getToken() != Token::Identifier) {
         return false;
     }
     Atom name = _parser->atomizeString(getTokenValue().str);
-    if (type == VariableDeclType::Statement) {
-        _parser->addVar(name);
-    } else {
-        _parser->emitId(name, Parser::IdType::NotLocal);
-    }
+    _parser->addVar(name);
     retireToken();
-    if (getToken() != Token::STO) {
-        if (type == VariableDeclType::Class) {
-            _parser->pushK();
-            _parser->emitAppendProp();
-        }
-        return true;
-    }
-    retireToken();
-    if (type == VariableDeclType::Statement) {
-        _parser->emitId(name, Parser::IdType::MustBeLocal);
-    }
-    if (!expect(Token::Expr, expression())) {
-        return false;
-    }
-        
-    if (type == VariableDeclType::Statement) {
-        _parser->emitMove();
-        _parser->discardResult();
-    } else {
-        _parser->emitAppendProp();
-    }
     return true;
 }
 

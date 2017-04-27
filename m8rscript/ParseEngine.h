@@ -88,9 +88,8 @@ private:
     bool iterationStatement();
     bool jumpStatement();
     
-    enum class VariableDeclType { Statement, Class };
-    uint32_t variableDeclarationList(VariableDeclType);
-    bool variableDeclaration(VariableDeclType);
+    uint32_t variableDeclarationList();
+    bool variableDeclaration();
     
     bool arithmeticPrimary();
     bool expression(uint8_t minPrec = 1);
