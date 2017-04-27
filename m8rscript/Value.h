@@ -118,7 +118,7 @@ public:
     bool operator==(const Value& other) { return _value._raw == other._value._raw; }
     bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
     
-    operator bool() const { return type() != Type::None; }
+    explicit operator bool() const { return type() != Type::None; }
 
     ~Value() { }
     

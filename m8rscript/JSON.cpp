@@ -142,7 +142,7 @@ bool JSON::propertyAssignment(ExecutionUnit* eu, Scanner& scanner, Value& key, V
     }
     scanner.retireToken();
     v = value(eu, scanner);
-    return v;
+    return static_cast<bool>(v);
 }
 
 Value JSON::parse(ExecutionUnit* eu, const String& json)
