@@ -145,22 +145,38 @@ bool ParseEngine::classContentsStatement()
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
         Function* f = functionExpression(false);
-        _parser->emitId(name, Parser::IdType::NotLocal);
-        _parser->pushK(f);
-        _parser->emitAppendProp();
+        _parser->currentClass()->setProperty(name, Value(f));
         return true;
     }
     if (getToken() == Token::Constructor) {
         retireToken();
         Function* f = functionExpression(true);
-        _parser->emitId(ATOM(constructor), Parser::IdType::NotLocal);
-        _parser->pushK(f);
-        _parser->emitAppendProp();
+        _parser->currentClass()->setProperty(ATOM(constructor), Value(f));
         return true;
     }
     if (getToken() == Token::Var) {
         retireToken();
-        expect(Token::MissingVarDecl, variableDeclarationList(VariableDeclType::Class) > 0);
+
+        if (getToken() != Token::Identifier) {
+            return false;
+        }
+        Atom name = _parser->atomizeString(getTokenValue().str);
+        retireToken();
+        Value v = Value::NullValue();
+        if (getToken() == Token::STO) {
+            retireToken();
+            
+            switch(getToken()) {
+                case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
+                case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
+                case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
+                case Token::True: v = Value(true); retireToken(); break;
+                case Token::False: v = Value(false); retireToken(); break;
+                case Token::Null: v = Value::NullValue(); retireToken(); break;
+                default: expect(Token::ConstantValueRequired);
+            }
+        }
+        _parser->currentClass()->setProperty(name, v);
         expect(Token::Semicolon);
         return true;
     }
@@ -868,10 +884,11 @@ Function* ParseEngine::functionExpression(bool ctor)
 
 bool ParseEngine::classExpression()
 {
-    _parser->emitLoadLit(false);
+    _parser->classStart();
     expect(Token::LBrace);
     while(classContentsStatement()) { }
     expect(Token::RBrace);
+    _parser->classEnd();
     return true;
 }
 

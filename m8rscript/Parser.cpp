@@ -103,6 +103,8 @@ void Parser::expectedError(Token token)
             case Token::Identifier: printError(ROMSTR("identifier")); break;
             case Token::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;
             case Token::OneVarDeclAllowed: printError(ROMSTR("only one var declaration allowed here")); break;
+            case Token::ConstantValueRequired: printError(ROMSTR("constant value required")); break;
+            case Token::EndOfFile: printError(ROMSTR("unable to continue parsing")); break;
             default: printError(ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
     }
@@ -260,6 +262,15 @@ void Parser::pushK(Function* function)
     
     assert(function);
     ConstantId id = currentFunction()->addConstant(Value(function));
+    _parseStack.push(ParseStack::Type::Constant, id.raw());
+}
+
+void Parser::pushK(MaterObject* obj)
+{
+    if (_nerrors) return;
+    
+    assert(obj);
+    ConstantId id = currentFunction()->addConstant(Value(obj));
     _parseStack.push(ParseStack::Type::Constant, id.raw());
 }
 

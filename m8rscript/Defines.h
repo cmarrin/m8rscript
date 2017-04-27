@@ -369,6 +369,7 @@ enum class Token : uint8_t {
     DuplicateDefault = 0xe3,
     MissingVarDecl = 0xe4,
     OneVarDeclAllowed = 0xe5,
+    ConstantValueRequired = 0xe6,
 
     None = 0xfd,
     Error = 0xfe,

@@ -136,6 +136,11 @@ private:
     void functionParamsEnd();
     bool functionIsCtor() const { return _functions.back()._ctor; }
     Function* functionEnd();
+    Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
+        
+    void classStart() { _classes.push_back(new MaterObject()); }
+    void classEnd() { pushK(_classes.back()); _classes.pop_back(); }
+    MaterObject* currentClass() const { assert(_classes.size()); return _classes.back(); }
         
     void pushK(StringLiteral::Raw value);
     void pushK(const char* value);
@@ -144,7 +149,8 @@ private:
     void pushK(bool value);
     void pushK();
     void pushK(Function* function);
-    void pushThis();    
+    void pushK(MaterObject* obj);
+    void pushThis();
 
     void addNamedFunction(Function*, const Atom&);
     
@@ -187,8 +193,6 @@ private:
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     
     void discardResult() { _parseStack.pop(); }
-    
-    Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
     
     Token getToken() { return _scanner.getToken(); }
     const Scanner::TokenType& getTokenValue() { return _scanner.getTokenValue(); }
@@ -259,6 +263,8 @@ private:
     };
         
     std::vector<FunctionEntry> _functions;
+    
+    std::vector<MaterObject*> _classes;
 
     Scanner _scanner;
     Program* _program;
