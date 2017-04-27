@@ -63,26 +63,8 @@ public:
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
-    {
-        int32_t index = elt.toIntValue(eu);
-        return (index >= 0 && index < _array.size()) ? _array[index] : Value();
-    }
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override
-    {
-        if (append) {
-            _array.push_back(value);
-            return true;
-        }
-        
-        int32_t index = elt.toIntValue(eu);
-        if (index < 0 || index >= _array.size()) {
-            return false;
-        }
-        _array[index] = value;
-        _needsGC = value.needsGC();
-        return true;
-    }
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
 
     // Array has built-in properties. Handle those here
     virtual const Value property(ExecutionUnit*, const Atom& prop) const override;

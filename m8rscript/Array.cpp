@@ -71,6 +71,37 @@ CallReturnValue Array::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
+const Value Array::element(ExecutionUnit* eu, const Value& elt) const
+{
+    if (elt.isString()) {
+        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+        return property(eu, prop);
+    }
+    int32_t index = elt.toIntValue(eu);
+    return (index >= 0 && index < _array.size()) ? _array[index] : Value();
+}
+
+bool Array::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+{
+    if (append) {
+        _array.push_back(value);
+        return true;
+    }
+    
+    if (elt.isString()) {
+        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+        return setProperty(eu, prop, value, Value::SetPropertyType::NeverAdd);
+    }
+    
+    int32_t index = elt.toIntValue(eu);
+    if (index < 0 || index >= _array.size()) {
+        return false;
+    }
+    _array[index] = value;
+    _needsGC = value.needsGC();
+    return true;
+}
+
 const Value Array::property(ExecutionUnit*, const Atom& name) const
 {
     return (name == ATOM(length)) ? Value(static_cast<int32_t>(_array.size())) : Value();
