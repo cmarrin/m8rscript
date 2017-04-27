@@ -224,15 +224,19 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
         return false;
     }
     
+    return setProperty(prop, v);
+}
+
+bool MaterObject::setProperty(const Atom& prop, const Value& v)
+{
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
         assert(ret.second);
         ret.first->value = v;
-        return true;
+    } else {
+        it->value = v;
     }
-    
-    it->value = v;
     return true;
 }
 

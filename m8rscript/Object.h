@@ -161,6 +161,8 @@ public:
         return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
     }
     
+    bool setProperty(const Atom& prop, const Value& v);
+
 private:
     Value::Map _properties;
 
