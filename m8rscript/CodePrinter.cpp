@@ -249,7 +249,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
             Value constant = function->constant(ConstantId(i));
             indentCode(outputString);
             outputString += "[" + Value::toString(i) + "] = ";
-            showValue(program, outputString, constant);
+            showConstant(program, outputString, constant);
             outputString += "\n";
         }
         _nestingLevel--;
@@ -401,11 +401,10 @@ void CodePrinter::indentCode(m8r::String& s) const
     }
 }
 
-void CodePrinter::showValue(const Program* program, m8r::String& s, const Value& value) const
+void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value) const
 {
     switch(value.type()) {
         case Value::Type::NativeObject: s += "NativeObject"; break;
-        case Value::Type::Object: s += "Object"; break;
         case Value::Type::None: s += "NONE"; break;
         case Value::Type::Null: s += "Null"; break;
         case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
@@ -425,6 +424,28 @@ void CodePrinter::showValue(const Program* program, m8r::String& s, const Value&
             }
             // FIXME: Show the address of the obj or something
             s += "OBJ";
+            break;
+        }
+        case Value::Type::Object: {
+            Object* obj = value.asObject();
+            if (obj) {
+                _nestingLevel++;
+                s += "OBJECT {\n";
+                int32_t count = obj->iteratedValue(nullptr, Object::IteratorCount).asIntValue();
+                for (int32_t i = 0; i < count; ++i) {
+                    Atom name = obj->iteratedValue(nullptr, i).asIdValue();
+                    if (name) {
+                        Value v = obj->property(nullptr, name);
+                        indentCode(s);
+                        s += program->stringFromAtom(name) + " : ";
+                        showConstant(program, s, v);
+                        s += "\n";
+                    }
+                }
+                _nestingLevel--;
+                indentCode(s);
+                s += "}";
+            }
             break;
         }
     }

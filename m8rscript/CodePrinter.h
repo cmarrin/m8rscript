@@ -64,7 +64,7 @@ private:
     void generateRN(m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;
     void generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const;
  
-    void showValue(const Program*, m8r::String&, const Value&) const;
+    void showConstant(const Program*, m8r::String&, const Value&) const;
     Value* valueFromId(Atom, const Object*) const;
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);
