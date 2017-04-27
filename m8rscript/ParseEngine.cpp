@@ -609,6 +609,18 @@ bool ParseEngine::variableDeclaration()
     Atom name = _parser->atomizeString(getTokenValue().str);
     _parser->addVar(name);
     retireToken();
+    if (getToken() != Token::STO) {
+        return true;
+    }
+    retireToken();
+    _parser->emitId(name, Parser::IdType::MustBeLocal);
+
+    if (!expect(Token::Expr, expression())) {
+        return false;
+    }
+
+    _parser->emitMove();
+    _parser->discardResult();
     return true;
 }
 
