@@ -88,8 +88,10 @@ static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
 static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _end[] ROMSTR_ATTR = "end";
+static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
+static const char _meta[] ROMSTR_ATTR = "meta";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _parse[] ROMSTR_ATTR = "parse";
@@ -157,8 +159,10 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(disconnect),
     AtomEntry(encode),
     AtomEntry(end),
+    AtomEntry(iterator),
     AtomEntry(length),
     AtomEntry(lookupHostname),
+    AtomEntry(meta),
     AtomEntry(next),
     AtomEntry(onInterrupt),
     AtomEntry(parse),

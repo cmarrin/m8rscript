@@ -291,6 +291,14 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     if (prop == ATOM(length)) {
         return Value(static_cast<int32_t>(_array.size()));
     }
+    
+    if (prop == ATOM(iterator)) {
+        return _iterator ? Value(_iterator) : Value::NullValue();
+    }
+
+    if (prop == ATOM(meta)) {
+        return _meta ? Value(_meta) : Value::NullValue();
+    }
 
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
@@ -309,16 +317,24 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
     if (!oldValue && type == Value::SetPropertyType::NeverAdd) {
         return false;
     }
-    
-    if (prop == ATOM(length)) {
-        _array.resize(v.toIntValue(eu));
-        return true;
-    }
     return setProperty(prop, v);
 }
 
 bool MaterObject::setProperty(const Atom& prop, const Value& v)
 {
+    if (prop == ATOM(length)) {
+        _array.resize(v.asIntValue());
+        return true;
+    }
+
+    if (prop == ATOM(meta)) {
+        _meta = v.asObject();
+    }
+    
+    if (prop == ATOM(iterator)) {
+        _iterator = v.asObject();
+    }
+    
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
