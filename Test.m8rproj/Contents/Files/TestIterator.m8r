@@ -5,14 +5,26 @@ var obj2 = [ 1, 2, 3 ];
 class IteratorProto {
     var _obj;
     var _index;
-    constructor(obj) { _obj = obj; _index = 0; }
-//    var end = { get : function() { return _index >= _obj.length; } };
-    function next() { if (!end) ++index; }
-//    var value = { get : function() { return end ? null : _obj[_index]; },
-//                set : function(v) { if (!end) _obj[_index] = v; } };
+    constructor(obj) {
+        _obj = obj; 
+        _index = 0;
+        
+        meta = {
+            get : function(k) {
+                if (k == "value") return done ? null : _obj[_index];
+                if (k == "done") return _index >= _obj.length;
+                return null;
+            },
+            set : function(k, v) {
+                if (k == "value" && !done) _obj[_index] = v;
+            }
+        };
+    }
+    
+    function next() { if (!done) ++_index; }
 };
 
-//var obj2.iterator = IteratorProto;
+obj2.iterator = IteratorProto;
 
 printf("0) Hand crafted iterator\n");
 printf("    Original array: %s\n", obj2);
