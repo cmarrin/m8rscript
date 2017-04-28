@@ -85,7 +85,9 @@ Token Scanner::scanKeyword(const char* s)
 {
     size_t len = strlen(s);
     const char* result = ROMstrstr(keywordString, s);
-    if (!result || readRomByte(reinterpret_cast<const uint8_t*>(result + len)) >= 0x20) {
+    if (!result ||
+            readRomByte(reinterpret_cast<const uint8_t*>(result + len)) >= 0x20 ||
+            readRomByte(reinterpret_cast<const uint8_t*>(result - 1)) >= 0x20) {
         return Token::Unknown;
     }
     
