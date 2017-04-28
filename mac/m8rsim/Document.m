@@ -198,7 +198,7 @@
 
 - (IBAction)shiftRightAction:(id)sender
 {
-    [[MGSTextMenuController sharedInstance] shiftLeftAction:sender];
+    [[MGSTextMenuController sharedInstance] shiftRightAction:sender];
 }
 
 - (IBAction)shiftLeftAction:(id)sender
