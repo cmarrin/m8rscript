@@ -72,7 +72,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         case Token::Null: v = Value::NullValue(); scanner.retireToken(); break;;
         case Token::LBracket: {
             scanner.retireToken();
-            v = Value(new Array());
+            v = Value(new MaterObject(true));
             Value elementValue = value(eu, scanner);
             if (elementValue) {
                 v.setElement(eu, Value(), elementValue, true);

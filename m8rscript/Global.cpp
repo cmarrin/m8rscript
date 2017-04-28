@@ -73,7 +73,8 @@ Global::Global(Program* program)
     addProperty(program, ATOM(toUInt), &_toUInt);
     addProperty(program, ATOM(arguments), &_arguments);
 
-    addProperty(program, ATOM(Array), &_array);
+    addProperty(program, ATOM(Array), &_object);
+    addProperty(program, ATOM(Object), &_object);
     addProperty(program, ATOM(Iterator), &_iterator);
     addProperty(program, ATOM(IPAddr), &_ipAddr);
     

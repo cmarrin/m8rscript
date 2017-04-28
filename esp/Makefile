@@ -31,7 +31,6 @@ endif
 MAIN_NAME = m8rscript
 
 SRC ?=  ../m8rscript/Application.cpp \
-        ../m8rscript/Array.cpp \
 		../m8rscript/Atom.cpp \
 		../m8rscript/Base64.cpp \
 		../m8rscript/Closure.cpp \

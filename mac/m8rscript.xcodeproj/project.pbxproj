@@ -23,7 +23,6 @@
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
 		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
 		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
-		494D25531D2E90A9003755DB /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D95E7F1D107AEE00B8A651 /* Array.cpp */; };
 		494D25541D2E90A9003755DB /* Atom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6482C1D01F3CA005F5059 /* Atom.cpp */; };
 		494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */; };
@@ -200,8 +199,6 @@
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
 		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../m8rscript/IPAddr.cpp; sourceTree = "<group>"; };
 		49D5FD331E2D9D89001AF5C8 /* TCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCP.cpp; path = ../m8rscript/TCP.cpp; sourceTree = "<group>"; };
-		49D95E7F1D107AEE00B8A651 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Array.cpp; path = ../m8rscript/Array.cpp; sourceTree = "<group>"; };
-		49D95E801D107AEE00B8A651 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Array.h; path = ../m8rscript/Array.h; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49D9B81F1D1C854700724911 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
 		49D9B8211D1C854700724911 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -438,8 +435,6 @@
 			children = (
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
-				49D95E7F1D107AEE00B8A651 /* Array.cpp */,
-				49D95E801D107AEE00B8A651 /* Array.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
 				49E6482B1D01F279005F5059 /* Atom.h */,
 				492BA3DA1E15987C00242DA8 /* Base64.cpp */,
@@ -657,7 +652,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				494D25531D2E90A9003755DB /* Array.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,

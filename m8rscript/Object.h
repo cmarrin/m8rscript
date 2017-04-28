@@ -141,31 +141,38 @@ private:
 
 class MaterObject : public Object {
 public:
-    MaterObject() { }
+    MaterObject(bool isArray = false) : _isArray(isArray) { }
     virtual ~MaterObject();
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
 
     virtual void gcMark(ExecutionUnit* eu) override;
     
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
+
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, Value::SetPropertyType type) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
-    virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override
-    {
-        if (index == Object::IteratorCount) {
-            return Value(static_cast<int32_t>(_properties.size()));
-        }
-        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
-    }
+    virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override;
+    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value& value, Value::SetPropertyType type) override;
     
     bool setProperty(const Atom& prop, const Value& v);
 
+    const Value& operator[](size_t i) const { assert(i >= 0 && i < _array.size()); return _array[i]; };
+    Value& operator[](size_t i) { assert(i >= 0 && i < _array.size()); return _array[i]; };
+	size_t size() const { return _array.size(); }
+    bool empty() const { return _array.empty(); }
+    void clear() { _array.clear(); }
+    void resize(size_t size) { _array.resize(size); }
+
 private:
     Value::Map _properties;
-
+    std::vector<Value> _array;
+    bool _isArray = false;
+    bool _arrayNeedsGC;
 };
 
 class NativeFunction : public Object {

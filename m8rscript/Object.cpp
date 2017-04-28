@@ -152,12 +152,52 @@ MaterObject::~MaterObject()
     }
 }
 
+Value MaterObject::iteratedValue(ExecutionUnit*, int32_t index) const
+{
+    if (index == Object::IteratorCount) {
+        return Value(_isArray ? static_cast<int32_t>(_array.size()) : static_cast<int32_t>(_properties.size()));
+    }
+    if (_isArray) {
+        return _array[index];
+    } else {
+        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
+    }
+}
+
+bool MaterObject::setIteratedValue(ExecutionUnit*, int32_t index, const Value& value, Value::SetPropertyType type)
+{
+    if (!_isArray || index < 0 || (index >= _array.size() && type == Value::SetPropertyType::NeverAdd)) {
+        return false;
+    }
+    
+    if (index >= _array.size()) {
+        _array.resize(index + 1);
+    }
+    _array[index] = value;
+    return true;
+}
+
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     String typeName = eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue());
     
     if (typeOnly) {
-        return typeName.empty() ? String("Object") : typeName;
+        return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
+    }
+    
+    if (_isArray) {
+        String s = "[ ";
+        bool first = true;
+        for (auto& it : _array) {
+            if (first) {
+                first = false;
+            } else {
+                s += ", ";
+            }
+            s += it.toStringValue(eu);
+        }
+        s += " ]";
+        return s;
     }
     
     // FIXME: Pretty print
@@ -196,6 +236,48 @@ void MaterObject::gcMark(ExecutionUnit* eu)
             obj->gcMark(eu);
         }
     }
+    
+    if (!_arrayNeedsGC) {
+        return;
+    }
+    _arrayNeedsGC = false;
+    for (auto entry : _array) {
+        entry.gcMark(eu);
+        if (entry.needsGC()) {
+            _arrayNeedsGC = true;
+        }
+    }
+}
+
+const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
+{
+    if (elt.isString()) {
+        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+        return property(eu, prop);
+    }
+    int32_t index = elt.toIntValue(eu);
+    return (index >= 0 && index < _array.size()) ? _array[index] : Value();
+}
+
+bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+{
+    if (append) {
+        _array.push_back(value);
+        return true;
+    }
+    
+    if (elt.isString()) {
+        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+        return setProperty(eu, prop, value, Value::SetPropertyType::NeverAdd);
+    }
+    
+    int32_t index = elt.toIntValue(eu);
+    if (index < 0 || index >= _array.size()) {
+        return false;
+    }
+    _array[index] = value;
+    _arrayNeedsGC |= value.needsGC();
+    return true;
 }
 
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -206,6 +288,10 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
+    if (prop == ATOM(length)) {
+        return Value(static_cast<int32_t>(_array.size()));
+    }
+
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         return proto() ? proto()->property(eu, prop) : Value();
@@ -224,6 +310,10 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
         return false;
     }
     
+    if (prop == ATOM(length)) {
+        _array.resize(v.toIntValue(eu));
+        return true;
+    }
     return setProperty(prop, v);
 }
 

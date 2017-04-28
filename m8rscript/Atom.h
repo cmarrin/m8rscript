@@ -74,6 +74,7 @@ public:
         Low,
         MaxConnections,
         None,
+        Object,
         Output,
         OutputOpenDrain,
         PinMode,

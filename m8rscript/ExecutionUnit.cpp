@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Closure.h"
 #include "Float.h"
-#include "Array.h"
 #include "SystemInterface.h"
 
 using namespace m8r;
@@ -495,7 +494,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     L_LOADLITA:
     L_LOADLITO:
         if (inst.op() == Op::LOADLITA) {
-            objectValue = new Array();
+            objectValue = new MaterObject(true);
         } else {
             objectValue = new MaterObject();
         }

@@ -389,7 +389,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 std::vector<String> array = s.split(separator, skipEmpty);
-                Array* arrayObject = new Array();
+                MaterObject* arrayObject = new MaterObject(true);
                 arrayObject->resize(array.size());
                 for (size_t i = 0; i < array.size(); ++i) {
                     (*arrayObject)[i] = Value(Object::createString(array[i]));

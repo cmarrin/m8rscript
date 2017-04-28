@@ -62,6 +62,7 @@ static const char _JSON[] ROMSTR_ATTR = "JSON";
 static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
 static const char _None[] ROMSTR_ATTR = "None";
+static const char _Object[] ROMSTR_ATTR = "Object";
 static const char _Output[] ROMSTR_ATTR = "Output";
 static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
 static const char _PinMode[] ROMSTR_ATTR = "PinMode";
@@ -129,6 +130,7 @@ static SharedAtomTableEntry RODATA_ATTR sharedAtoms[] = {
     AtomEntry(Low),
     AtomEntry(MaxConnections),
     AtomEntry(None),
+    AtomEntry(Object),
     AtomEntry(Output),
     AtomEntry(OutputOpenDrain),
     AtomEntry(PinMode),

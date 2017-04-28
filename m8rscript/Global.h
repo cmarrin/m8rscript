@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "Array.h"
 #include "Base64.h"
 #include "GPIO.h"
 #include "Iterator.h"
@@ -53,7 +52,7 @@ public:
     virtual ~Global();
 
 private:
-    Array _array;
+    MaterObject _object;
     Base64 _base64;
     GPIO _gpio;
     Iterator _iterator;
