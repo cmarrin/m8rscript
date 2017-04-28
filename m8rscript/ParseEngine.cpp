@@ -151,6 +151,9 @@ bool ParseEngine::classContentsStatement()
     if (getToken() == Token::Constructor) {
         retireToken();
         Function* f = functionExpression(true);
+        if (!f) {
+            return false;
+        }
         _parser->currentClass()->setProperty(ATOM(constructor), Value(f));
         return true;
     }
