@@ -24,7 +24,7 @@ class IteratorProto {
     function next() { if (!done) ++_index; }
 };
 
-obj2.iterator = IteratorProto;
+obj2.meta = { iterator: IteratorProto };
 
 printf("0) Hand crafted iterator\n");
 printf("    Original array: %s\n", obj2);
