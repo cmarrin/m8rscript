@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16C68" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11191" systemVersion="16C60a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11191"/>
         <capability name="box content view" minToolsVersion="7.0"/>
-        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="m8rsim" customModuleProvider="target">
             <connections>
-                <outlet property="SaveBinaryButton" destination="USW-dK-eBA" id="AT7-Zq-TYt"/>
                 <outlet property="addFileButton" destination="UOH-qv-SMd" id="B34-qi-dQl"/>
                 <outlet property="buildButton" destination="fRb-eR-XFZ" id="uv4-xd-UdH"/>
                 <outlet property="buildOutput" destination="I74-i4-HVL" id="sej-JK-OMk"/>
@@ -36,7 +34,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="133" y="235" width="1094" height="606"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <value key="minSize" type="size" width="1094" height="606"/>
             <view key="contentView" wantsLayer="YES" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="1094" height="606"/>
@@ -256,11 +254,7 @@
                             <action selector="simulate:" target="-2" id="8IB-Vx-VLZ"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="94C3ECA5-5042-4ED5-8A3B-B710D80F7DBC" label="Add Binary" paletteLabel="Add Binary" tag="-1" image="savebinary" id="USW-dK-eBA" userLabel="Add Binary Button">
-                        <connections>
-                            <action selector="saveBinary:" target="-2" id="BWl-HC-FMA"/>
-                        </connections>
-                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="94C3ECA5-5042-4ED5-8A3B-B710D80F7DBC" label="Add Binary" paletteLabel="Add Binary" tag="-1" image="savebinary" id="USW-dK-eBA" userLabel="Add Binary Button"/>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="fRb-eR-XFZ"/>
