@@ -224,7 +224,10 @@ public:
         if (end < 0) {
             end = sz + end;
         }
-        if (start >= end || end > sz) {
+        if (end > sz) {
+            end = sz;
+        }
+        if (start >= end) {
             return String();
         }
         return String(_data + start, end - start);
