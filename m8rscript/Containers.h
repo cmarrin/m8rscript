@@ -257,10 +257,13 @@ public:
     {
         std::vector<String> array;
         char* p = _data;
-        while (p && *p != '\0') {
+        while (1) {
             char* n = strstr(p, separator.c_str());
             if (!n || n - p != 0 || !skipEmpty) {
                 array.push_back(String(p, static_cast<int32_t>(n ? (n - p) : -1)));
+            }
+            if (!n) {
+                break;
             }
             p = n ? (n + separator.size()) : nullptr;
         }
