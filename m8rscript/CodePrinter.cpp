@@ -402,6 +402,12 @@ void CodePrinter::indentCode(m8r::String& s) const
 }
 
 void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value) const
+static String escapeString(const String& s)
+{
+    std::vector<String> array = s.split("\n");
+    return String::join(array, "\\n");
+}
+
 {
     switch(value.type()) {
         case Value::Type::NativeObject: s += "NativeObject"; break;
@@ -410,7 +416,12 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
         case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
         case Value::Type::Integer: s += "INT(" + Value::toString(value.asIntValue()) + ")"; break;
         case Value::Type::String: s += "***String***"; break;
-        case Value::Type::StringLiteral: s += "STR(\"" + String(program->stringFromStringLiteral(value.asStringLiteralValue())) + "\")"; break;
+        case Value::Type::StringLiteral: {
+            String lit = String(program->stringFromStringLiteral(value.asStringLiteralValue()));
+            lit = escapeString(lit);
+            s += "STR(\"" + lit + "\")";
+            break;
+        }
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::Function: {
             Function* func = value.asFunction();
