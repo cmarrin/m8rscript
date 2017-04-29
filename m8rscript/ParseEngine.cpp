@@ -385,18 +385,22 @@ void ParseEngine::forVarIteration(Atom iteratorName)
 {
     // On entry we just parsed the colon.
 
-    // Stack now has the result of the object expression. We also have the name of 
-    // the identifier that will receive the next iteration on each pass.
+    // Stack now has the result of the object expression (obj). We also have the name of 
+    // the identifier (it) that will receive the next iteration on each pass.
     // We need to generate the equivalent of the following:
     //
-    //      for (iteratorName = new Iterator(tos()); !iteratorName.end; iteratorName.next()) ...
-    
+    //      for (var it = new obj.meta.iterator(obj); !it.done; it.next()) ...
+    //
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     leftHandSideExpression();
     expect(Token::RParen);
 
+    _parser->emitDup();
     _parser->emitPush();
-    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId("Iterator", Parser::IdType::MightBeLocal);
+    _parser->emitId(ATOM(meta), Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitId(ATOM(iterator), Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::NEW, -1, 1);
     _parser->emitMove();
     _parser->discardResult();

@@ -40,7 +40,6 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/Global.cpp \
 		../m8rscript/GPIO.cpp \
 		../m8rscript/IPAddr.cpp \
-		../m8rscript/Iterator.cpp \
 		../m8rscript/JSON.cpp \
 		../m8rscript/Object.cpp \
 		../m8rscript/Program.cpp \

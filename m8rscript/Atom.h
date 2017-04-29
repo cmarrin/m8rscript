@@ -69,7 +69,6 @@ public:
         InputPulldown,
         InputPullup,
         IPAddr,
-        Iterator,
         JSON,
         Low,
         MaxConnections,

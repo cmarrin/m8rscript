@@ -75,7 +75,6 @@ Global::Global(Program* program)
 
     addProperty(program, ATOM(Array), &_object);
     addProperty(program, ATOM(Object), &_object);
-    addProperty(program, ATOM(Iterator), &_iterator);
     addProperty(program, ATOM(IPAddr), &_ipAddr);
     
     addProperty(program, ATOM(Base64), Value(_base64.nativeObject()));
