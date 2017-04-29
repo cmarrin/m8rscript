@@ -267,6 +267,21 @@ public:
         return array;
     }
     
+    static String join(const std::vector<String>& array, const String& separator)
+    {
+        String s;
+        bool first = true;
+        for (auto it : array) {
+            if (first) {
+                first = false;
+            } else {
+                s += separator;
+            }
+            s += it;
+        }
+        return s;
+    }
+    
     bool isMarked() const { return _marked; }
     void setMarked(bool b) { _marked = b; }
 	
