@@ -54,17 +54,18 @@ public:
     m8r::String generateCodeString(const Program* program) const;
     
 private:   
+    String regString(const Program*, const Function*, uint32_t reg, bool up = false) const;
     void generateXXX(m8r::String&, uint32_t addr, Op op) const;
-    void generateRXX(m8r::String&, uint32_t addr, Op op, uint32_t d) const;
-    void generateRRX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateRUX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateURX(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateRRR(m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const;
-    void generateXN(m8r::String&, uint32_t addr, Op op, int32_t n) const;
-    void generateRN(m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;
-    void generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const;
+    void generateRXX(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d) const;
+    void generateRRX(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
+    void generateRUX(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
+    void generateURX(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
+    void generateRRR(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const;
+    void generateXN(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, int32_t n) const;
+    void generateRN(const Program*, const Function*, m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;
+    void generateCall(const Program*, const Function*, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const;
  
-    void showConstant(const Program*, m8r::String&, const Value&) const;
+    void showConstant(const Program*, m8r::String&, const Value&, bool abbreviated = false) const;
     Value* valueFromId(Atom, const Object*) const;
     Value deref(Program*, Object*, const Value&);
     bool deref(Program*, Value&, const Value&);

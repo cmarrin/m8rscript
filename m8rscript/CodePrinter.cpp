@@ -86,7 +86,7 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
     return generateCodeString(program, program, "main", 0);
 }
 
-inline String regString(uint32_t reg, bool up = false)
+String CodePrinter::regString(const Program* program, const Function* function, uint32_t reg, bool up) const
 {
     if (up) {
         return String("U[") + Value::toString(reg) + "]";
@@ -94,7 +94,11 @@ inline String regString(uint32_t reg, bool up = false)
     if (reg <= MaxRegister) {
         return String("R[") + Value::toString(reg) + "]";
     }
-    return String("K[") + Value::toString(reg - MaxRegister - 1) + "]";
+    
+    String s = String("K[") + Value::toString(reg - MaxRegister - 1) + "](";
+    showConstant(program, s, function->constant(ConstantId(reg - MaxRegister - 1)), true);
+    s += ")";
+    return s;
 }
 
 void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
@@ -103,52 +107,52 @@ void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
     str += String(stringFromOp(op)) + "\n";
 }
 
-void CodePrinter::generateRXX(m8r::String& str, uint32_t addr, Op op, uint32_t d) const
+void CodePrinter::generateRXX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + "\n";
 }
 
-void CodePrinter::generateRRX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRRX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRUX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRUX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s, true) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s, true) + "\n";
 }
 
-void CodePrinter::generateURX(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateURX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d, true) + ", " + regString(s) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d, true) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRRR(m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
+void CodePrinter::generateRRR(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + regString(s1) + ", " + regString(s2) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
 }
 
-void CodePrinter::generateXN(m8r::String& str, uint32_t addr, Op op, int32_t n) const
+void CodePrinter::generateXN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, int32_t n) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + Value::toString(n) + "\n";
 }
 
-void CodePrinter::generateRN(m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
+void CodePrinter::generateRN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(d) + ", " + Value::toString(n) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + Value::toString(n) + "\n";
 }
 
-void CodePrinter::generateCall(m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
+void CodePrinter::generateCall(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(rcall) + ", " + regString(rthis) + ", " + Value::toString(nparams) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + Value::toString(nparams) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Program* program, const Object* func, const char* functionName, uint32_t nestingLevel) const
@@ -302,28 +306,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADFALSE:
     L_LOADNULL:
     L_LOADTHIS:
-        generateRXX(outputString, i - 1, op, inst.ra());
+        generateRXX(program, function, outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_PUSH:
-        generateRXX(outputString, i - 1, op, inst.rn());
+        generateRXX(program, function, outputString, i - 1, op, inst.rn());
         DISPATCH;
     L_POP:
-        generateRXX(outputString, i - 1, op, inst.ra());
+        generateRXX(program, function, outputString, i - 1, op, inst.ra());
         DISPATCH;
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG: L_CLOSURE:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(outputString, i - 1, op, inst.ra(), inst.rb());
+        generateRRX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
     L_LOADUP:
-        generateRUX(outputString, i - 1, op, inst.ra(), inst.rb());
+        generateRUX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
     L_STOREUP:
-        generateURX(outputString, i - 1, op, inst.ra(), inst.rb());
+        generateURX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
         DISPATCH;
     L_STOREFK:
-        generateRRX(outputString, i - 1, op, inst.rb(), inst.rc());
+        generateRRX(program, function, outputString, i - 1, op, inst.rb(), inst.rc());
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -331,25 +335,25 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_DEREF:
-        generateRRR(outputString, i - 1, op, inst.ra(), inst.rb(), inst.rc());
+        generateRRR(program, function, outputString, i - 1, op, inst.ra(), inst.rb(), inst.rc());
         DISPATCH;
     L_RET:
-        generateXN(outputString, i - 1, op, inst.nparams());
+        generateXN(program, function, outputString, i - 1, op, inst.nparams());
         DISPATCH;
     L_JMP:
-        generateXN(outputString, i - 1, op, inst.sn());
+        generateXN(program, function, outputString, i - 1, op, inst.sn());
         DISPATCH;
     L_JT: L_JF:
-        generateRN(outputString, i - 1, op, inst.rn(), inst.sn());
+        generateRN(program, function, outputString, i - 1, op, inst.rn(), inst.sn());
         DISPATCH;
     L_CALL:
-        generateCall(outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        generateCall(program, function, outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
         DISPATCH;
     L_NEW:
-        generateRN(outputString, i - 1, op, inst.rcall(), inst.nparams());
+        generateRN(program, function, outputString, i - 1, op, inst.rcall(), inst.nparams());
         DISPATCH;
     L_CALLPROP:
-        generateCall(outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        generateCall(program, function, outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
         DISPATCH;
     L_LINENO:
         _lineno = inst.un();
@@ -401,13 +405,13 @@ void CodePrinter::indentCode(m8r::String& s) const
     }
 }
 
-void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value) const
 static String escapeString(const String& s)
 {
     std::vector<String> array = s.split("\n");
     return String::join(array, "\\n");
 }
 
+void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value, bool abbreviated) const
 {
     switch(value.type()) {
         case Value::Type::NativeObject: s += "NativeObject"; break;
@@ -419,11 +423,18 @@ static String escapeString(const String& s)
         case Value::Type::StringLiteral: {
             String lit = String(program->stringFromStringLiteral(value.asStringLiteralValue()));
             lit = escapeString(lit);
+            if (abbreviated) {
+                lit = lit.slice(0, 10) + ((lit.size() > 10) ? "..." : "");
+            }
             s += "STR(\"" + lit + "\")";
             break;
         }
         case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::Function: {
+            if (abbreviated) {
+                s += "FUNCTION";
+                break;
+            }
             Function* func = value.asFunction();
             if (func) {
                 _nestingLevel++;
@@ -438,10 +449,14 @@ static String escapeString(const String& s)
             break;
         }
         case Value::Type::Object: {
+            if (abbreviated) {
+                s += "CLASS";
+                break;
+            }
             Object* obj = value.asObject();
             if (obj) {
                 _nestingLevel++;
-                s += "OBJECT {\n";
+                s += "CLASS {\n";
                 int32_t count = obj->iteratedValue(nullptr, Object::IteratorCount).asIntValue();
                 for (int32_t i = 0; i < count; ++i) {
                     Atom name = obj->iteratedValue(nullptr, i).asIdValue();
