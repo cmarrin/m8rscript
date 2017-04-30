@@ -53,7 +53,7 @@
 		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
-		49C406DB1EB64F51001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */; };
+		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
@@ -105,6 +105,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		49C406E01EB6598B001E4DEC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		49E647E61D00B68F005F5059 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -198,8 +207,12 @@
 		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
-		49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../m8rscript/generated/SharedAtoms.cpp; sourceTree = "<group>"; };
-		49C406D91EB64F2B001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../m8rscript/generated/SharedAtoms.h; sourceTree = "<group>"; };
+		49C406DC1EB6514B001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../m8rscript/SharedAtoms.txt; sourceTree = "<group>"; };
+		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
+		49C406E41EB6598B001E4DEC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generateSharedAtoms.c; path = ../m8rscript/generators/generateSharedAtoms.c; sourceTree = "<group>"; };
+		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../m8rscript/generators/SharedAtoms.txt; sourceTree = "<group>"; };
+		49C406EE1EB665A1001E4DEC /* generated */ = {isa = PBXFileReference; lastKnownFileType = folder; name = generated; path = ../m8rscript/generated; sourceTree = "<group>"; };
 		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../m8rscript/IPAddr.cpp; sourceTree = "<group>"; };
 		49D5FD331E2D9D89001AF5C8 /* TCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCP.cpp; path = ../m8rscript/TCP.cpp; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -260,6 +273,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		49C406DF1EB6598B001E4DEC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49D9B8151D1C854700724911 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -280,15 +300,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4905C7C51EB63EA9007B8EB2 /* generated */ = {
-			isa = PBXGroup;
-			children = (
-				49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */,
-				49C406D91EB64F2B001E4DEC /* SharedAtoms.h */,
-			);
-			name = generated;
-			sourceTree = "<group>";
-		};
 		4942EA891D0C86BB00E02088 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -348,6 +359,23 @@
 				497B449F1D469BB000BC1B57 /* Makefile */,
 			);
 			name = esp;
+			sourceTree = "<group>";
+		};
+		49C406E31EB6598B001E4DEC /* generateSharedAtoms */ = {
+			isa = PBXGroup;
+			children = (
+				49C406E41EB6598B001E4DEC /* main.cpp */,
+			);
+			path = generateSharedAtoms;
+			sourceTree = "<group>";
+		};
+		49C406E91EB65A15001E4DEC /* generators */ = {
+			isa = PBXGroup;
+			children = (
+				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
+				49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */,
+			);
+			name = generators;
 			sourceTree = "<group>";
 		};
 		49D9B8191D1C854700724911 /* m8rsim */ = {
@@ -428,6 +456,7 @@
 				4942EA891D0C86BB00E02088 /* Tests */,
 				49E648071D00BEEC005F5059 /* libm8rscript */,
 				49D9B8191D1C854700724911 /* m8rsim */,
+				49C406E31EB6598B001E4DEC /* generateSharedAtoms */,
 				49E647E91D00B68F005F5059 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -438,6 +467,7 @@
 				49E647E81D00B68F005F5059 /* m8rscript */,
 				49D9B8181D1C854700724911 /* m8rsim.app */,
 				494D254E1D2E9055003755DB /* liblibm8rscript.a */,
+				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -445,7 +475,8 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
-				4905C7C51EB63EA9007B8EB2 /* generated */,
+				49C406EE1EB665A1001E4DEC /* generated */,
+				49C406E91EB65A15001E4DEC /* generators */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
@@ -488,6 +519,7 @@
 				4942EA7F1D07009E00E02088 /* Program.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
+				49C406DC1EB6514B001E4DEC /* SharedAtoms.txt */,
 				49AE34F61D8330CA00C4E680 /* Shell.cpp */,
 				49AE34F71D8330CA00C4E680 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
@@ -546,6 +578,23 @@
 			productReference = 494D254E1D2E9055003755DB /* liblibm8rscript.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		49C406E11EB6598B001E4DEC /* generateSharedAtoms */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateSharedAtoms" */;
+			buildPhases = (
+				49C406DE1EB6598B001E4DEC /* Sources */,
+				49C406DF1EB6598B001E4DEC /* Frameworks */,
+				49C406E01EB6598B001E4DEC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = generateSharedAtoms;
+			productName = generateSharedAtoms;
+			productReference = 49C406E21EB6598B001E4DEC /* generateSharedAtoms */;
+			productType = "com.apple.product-type.tool";
+		};
 		49D9B8171D1C854700724911 /* m8rsim */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49D9B8271D1C854700724911 /* Build configuration list for PBXNativeTarget "m8rsim" */;
@@ -597,6 +646,10 @@
 						CreatedOnToolsVersion = 8.0;
 						ProvisioningStyle = Automatic;
 					};
+					49C406E11EB6598B001E4DEC = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
 					49D9B8171D1C854700724911 = {
 						CreatedOnToolsVersion = 8.0;
 						LastSwiftMigration = 0800;
@@ -624,6 +677,7 @@
 				49E647E71D00B68F005F5059 /* m8rscript */,
 				49D9B8171D1C854700724911 /* m8rsim */,
 				494D254D1D2E9055003755DB /* libm8rscript */,
+				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 			);
 		};
 /* End PBXProject section */
@@ -678,7 +732,6 @@
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
 				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
-				49C406DB1EB64F51001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
@@ -692,6 +745,14 @@
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49C406DE1EB6598B001E4DEC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,6 +836,28 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				LLVM_LTO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		49C406E71EB6598B001E4DEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		49C406E81EB6598B001E4DEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -942,6 +1025,15 @@
 			buildConfigurations = (
 				494D25501D2E9055003755DB /* Debug */,
 				494D25511D2E9055003755DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateSharedAtoms" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49C406E71EB6598B001E4DEC /* Debug */,
+				49C406E81EB6598B001E4DEC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,11 +1,8 @@
 // This file is generated. Do not edit
 
 #include "SharedAtoms.h"
-
 #include "Defines.h"
 #include <stdlib.h>
-
-#define AtomEntry(a) _##a
 
 static const char _Array[] ROMSTR_ATTR = "Array";
 static const char _Base64[] ROMSTR_ATTR = "Base64";
@@ -14,8 +11,8 @@ static const char _Connected[] ROMSTR_ATTR = "Connected";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
 static const char _Error[] ROMSTR_ATTR = "Error";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
-static const char _High[] ROMSTR_ATTR = "High";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
+static const char _High[] ROMSTR_ATTR = "High";
 static const char _Input[] ROMSTR_ATTR = "Input";
 static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
@@ -70,76 +67,77 @@ static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
-static const char ___this[] ROMSTR_ATTR = "this";
+static const char ___this[] ROMSTR_ATTR = "__this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
+static const char ___count__[] ROMSTR_ATTR = "__count__";
 
 const char* RODATA_ATTR sharedAtoms[] = {
-    AtomEntry(Array),
-    AtomEntry(Base64),
-    AtomEntry(BothEdges),
-    AtomEntry(Connected),
-    AtomEntry(Disconnected),
-    AtomEntry(Error),
-    AtomEntry(FallingEdge),
-    AtomEntry(GPIO),
-    AtomEntry(High),
-    AtomEntry(Input),
-    AtomEntry(InputPulldown),
-    AtomEntry(InputPullup),
-    AtomEntry(IPAddr),
-    AtomEntry(JSON),
-    AtomEntry(Low),
-    AtomEntry(MaxConnections),
-    AtomEntry(None),
-    AtomEntry(Object),
-    AtomEntry(Output),
-    AtomEntry(OutputOpenDrain),
-    AtomEntry(PinMode),
-    AtomEntry(ReceivedData),
-    AtomEntry(Reconnected),
-    AtomEntry(RisingEdge),
-    AtomEntry(SentData),
-    AtomEntry(TCP),
-    AtomEntry(Trigger),
-    AtomEntry(UDP),
-    
-    AtomEntry(a),
-    AtomEntry(arguments),
-    AtomEntry(b),
-    AtomEntry(c),
-    AtomEntry(call),
-    AtomEntry(constructor),
-    AtomEntry(currentTime),
-    AtomEntry(d),
-    AtomEntry(decode),
-    AtomEntry(delay),
-    AtomEntry(digitalRead),
-    AtomEntry(digitalWrite),
-    AtomEntry(disconnect),
-    AtomEntry(encode),
-    AtomEntry(end),
-    AtomEntry(iterator),
-    AtomEntry(length),
-    AtomEntry(lookupHostname),
-    AtomEntry(meta),
-    AtomEntry(next),
-    AtomEntry(onInterrupt),
-    AtomEntry(parse),
-    AtomEntry(print),
-    AtomEntry(printf),
-    AtomEntry(println),
-    AtomEntry(send),
-    AtomEntry(setPinMode),
-    AtomEntry(split),
-    AtomEntry(stringify),
-    AtomEntry(toFloat),
-    AtomEntry(toInt),
-    AtomEntry(toUInt),
-    AtomEntry(trim),
-    AtomEntry(value),
-    AtomEntry(__nativeObject),
-    AtomEntry(__this),
-    AtomEntry(__typeName),
+    _Array,
+    _Base64,
+    _BothEdges,
+    _Connected,
+    _Disconnected,
+    _Error,
+    _FallingEdge,
+    _GPIO,
+    _High,
+    _Input,
+    _InputPulldown,
+    _InputPullup,
+    _IPAddr,
+    _JSON,
+    _Low,
+    _MaxConnections,
+    _None,
+    _Object,
+    _Output,
+    _OutputOpenDrain,
+    _PinMode,
+    _ReceivedData,
+    _Reconnected,
+    _RisingEdge,
+    _SentData,
+    _TCP,
+    _Trigger,
+    _UDP,
+    _a,
+    _arguments,
+    _b,
+    _c,
+    _call,
+    _constructor,
+    _currentTime,
+    _d,
+    _decode,
+    _delay,
+    _digitalRead,
+    _digitalWrite,
+    _disconnect,
+    _encode,
+    _end,
+    _iterator,
+    _length,
+    _lookupHostname,
+    _meta,
+    _next,
+    _onInterrupt,
+    _parse,
+    _print,
+    _printf,
+    _println,
+    _send,
+    _setPinMode,
+    _split,
+    _stringify,
+    _toFloat,
+    _toInt,
+    _toUInt,
+    _trim,
+    _value,
+    ___nativeObject,
+    ___this,
+    ___typeName,
+    ___count__,
 };
 
 const char* sharedAtom(enum SharedAtom id)

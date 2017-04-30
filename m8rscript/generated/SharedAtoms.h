@@ -5,8 +5,8 @@ enum class SharedAtom {
     Base64,
     BothEdges,
     Connected,
-    Disconnected, 
-    Error, 
+    Disconnected,
+    Error,
     FallingEdge,
     GPIO,
     High,
@@ -22,10 +22,10 @@ enum class SharedAtom {
     Output,
     OutputOpenDrain,
     PinMode,
-    ReceivedData, 
-    Reconnected, 
+    ReceivedData,
+    Reconnected,
     RisingEdge,
-    SentData, 
+    SentData,
     TCP,
     Trigger,
     UDP,
@@ -66,7 +66,7 @@ enum class SharedAtom {
     __nativeObject,
     __this,
     __typeName,
-    __count__
+    __count__,
 };
 
 const char* sharedAtom(enum SharedAtom id);
