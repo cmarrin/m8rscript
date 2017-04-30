@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Atom.h"
 #include "Closure.h"
 #include "Program.h"
+#include "TaskManager.h"
 
 namespace m8r {
 
@@ -156,6 +157,8 @@ public:
     Object* currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
+
+    Atom internalAtom(SharedAtom a) const { return _program->internalAtom(a); }
 
 private:
     void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);

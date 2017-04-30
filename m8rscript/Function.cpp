@@ -48,7 +48,7 @@ Function::Function(Function* parent)
 
 CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == ATOM(call)) {
+    if (prop == ATOM(eu, call)) {
         if (nparams < 1) {
             return CallReturnValue(CallReturnValue::Type::Error);
         }

@@ -333,7 +333,7 @@ private:
 template<class T>
 struct CompareKeys
 {
-    int operator()(const T& lhs, const T& rhs) const { return lhs - rhs; }
+    int operator()(const T& lhs, const T& rhs) const { return static_cast<int>(lhs - rhs); }
 };
 
 template<typename Key, typename Value, typename Compare=CompareKeys<Key>>

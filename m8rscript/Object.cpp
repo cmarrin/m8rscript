@@ -143,11 +143,11 @@ void Object::gcMark(const Value& value)
 
 MaterObject::~MaterObject()
 {
-    auto it = _properties.find(ATOM(__nativeObject));
-    if (it != _properties.end()) {
-        NativeObject* obj = it->value.asNativeObject();
+    for (auto it : _properties) {
+        NativeObject* obj = it.value.asNativeObject();
         if (obj) {
             delete obj;
+            it.value = Value();
         }
     }
 }
@@ -179,7 +179,7 @@ bool MaterObject::setIteratedValue(ExecutionUnit*, int32_t index, const Value& v
 
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(__typeName)).asIdValue());
+    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, __typeName)).asIdValue());
     
     if (typeOnly) {
         return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
@@ -229,7 +229,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
     for (auto entry : _properties) {
         entry.value.gcMark(eu);
     }
-    auto it = _properties.find(ATOM(__nativeObject));
+    auto it = _properties.find(ATOM(eu, __nativeObject));
     if (it != _properties.end()) {
         NativeObject* obj = it->value.asNativeObject();
         if (obj) {
@@ -288,11 +288,11 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == ATOM(length)) {
+    if (prop == ATOM(eu, length)) {
         return Value(static_cast<int32_t>(_array.size()));
     }
     
-    if (prop == ATOM(meta)) {
+    if (prop == ATOM(eu, meta)) {
         return _meta ? Value(_meta) : Value::NullValue();
     }
 
@@ -313,20 +313,21 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
     if (!oldValue && type == Value::SetPropertyType::NeverAdd) {
         return false;
     }
+
+    if (prop == ATOM(eu, length)) {
+        _array.resize(v.asIntValue());
+        return true;
+    }
+
+    if (prop == ATOM(eu, meta)) {
+        _meta = v.asObject();
+    }
+    
     return setProperty(prop, v);
 }
 
 bool MaterObject::setProperty(const Atom& prop, const Value& v)
 {
-    if (prop == ATOM(length)) {
-        _array.resize(v.asIntValue());
-        return true;
-    }
-
-    if (prop == ATOM(meta)) {
-        _meta = v.asObject();
-    }
-    
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
@@ -349,7 +350,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     Value objectValue(obj);
     obj->setProto(this);
 
-    auto it = _properties.find(ATOM(constructor));
+    auto it = _properties.find(ATOM(eu, constructor));
     if (it != _properties.end()) {
         CallReturnValue retval = it->value.call(eu, objectValue, nparams, true);
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
@@ -368,7 +369,7 @@ NativeFunction::NativeFunction(Func func)
 ObjectFactory::ObjectFactory(Program* program, const char* name)
 {
     if (name) {
-        _obj.setProperty(nullptr, ATOM(__typeName), Value(program->atomizeString(name)), Value::SetPropertyType::AlwaysAdd);
+        _obj.setProperty(ATOM(program, __typeName), Value(Object::createString(name)));
     }
 }
 
@@ -379,20 +380,20 @@ ObjectFactory::~ObjectFactory()
     //Object::removeObject(_obj);
 }
 
-void ObjectFactory::addProperty(Program* program, Atom prop, Object* obj)
+void ObjectFactory::addProperty(Atom prop, Object* obj)
 {
     assert(obj);
-    addProperty(program, prop, Value(obj));
+    addProperty(prop, Value(obj));
 }
 
-void ObjectFactory::addProperty(Program* program, Atom prop, const Value& value)
+void ObjectFactory::addProperty(Atom prop, const Value& value)
 {
-    _obj.setProperty(nullptr, prop, value, Value::SetPropertyType::AlwaysAdd);
+    _obj.setProperty(prop, value);
 }
 
 Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
-    Value objectValue = eu->program()->global()->property(eu, objectName);
+    Value objectValue = eu->program()->property(eu, objectName);
     if (!objectValue) {
         return nullptr;
     }

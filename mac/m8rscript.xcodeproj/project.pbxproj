@@ -53,6 +53,7 @@
 		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
+		49C406DB1EB64F51001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
@@ -197,6 +198,8 @@
 		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../m8rscript/Shell.h; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
+		49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../m8rscript/generated/SharedAtoms.cpp; sourceTree = "<group>"; };
+		49C406D91EB64F2B001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../m8rscript/generated/SharedAtoms.h; sourceTree = "<group>"; };
 		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../m8rscript/IPAddr.cpp; sourceTree = "<group>"; };
 		49D5FD331E2D9D89001AF5C8 /* TCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCP.cpp; path = ../m8rscript/TCP.cpp; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -277,6 +280,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4905C7C51EB63EA9007B8EB2 /* generated */ = {
+			isa = PBXGroup;
+			children = (
+				49C406D81EB64F2B001E4DEC /* SharedAtoms.cpp */,
+				49C406D91EB64F2B001E4DEC /* SharedAtoms.h */,
+			);
+			name = generated;
+			sourceTree = "<group>";
+		};
 		4942EA891D0C86BB00E02088 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -433,6 +445,7 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				4905C7C51EB63EA9007B8EB2 /* generated */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
@@ -665,6 +678,7 @@
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
 				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
+				49C406DB1EB64F51001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,

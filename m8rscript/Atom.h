@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
+#include "SharedAtoms.h"
 
 namespace m8r {
 
@@ -51,121 +52,38 @@ class Stream;
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#define ATOM(p, a) p->internalAtom(SharedAtom::a)
+
 class AtomTable {
     friend class Program;
     
 public:
-    enum class SharedAtom {
-        Array,
-        Base64,
-        BothEdges,
-        Connected,
-        Disconnected, 
-        Error, 
-        FallingEdge,
-        GPIO,
-        High,
-        Input,
-        InputPulldown,
-        InputPullup,
-        IPAddr,
-        JSON,
-        Low,
-        MaxConnections,
-        None,
-        Object,
-        Output,
-        OutputOpenDrain,
-        PinMode,
-        ReceivedData, 
-        Reconnected, 
-        RisingEdge,
-        SentData, 
-        TCP,
-        Trigger,
-        UDP,
-        a,
-        arguments,
-        b,
-        c,
-        call,
-        constructor,
-        currentTime,
-        d,
-        decode,
-        delay,
-        digitalRead,
-        digitalWrite,
-        disconnect,
-        encode,
-        end,
-        iterator,
-        length,
-        lookupHostname,
-        meta,
-        next,
-        onInterrupt,
-        parse,
-        print,
-        printf,
-        println,
-        send,
-        setPinMode,
-        split,
-        stringify,
-        toFloat,
-        toInt,
-        toUInt,
-        trim,
-        value,
-        __nativeObject,
-        __this,
-        __typeName,
-        __count__
-    };
-
+    
     AtomTable();
 
-    Atom atomizeString(const char* s) const { return atomizeString(s, false); }
+    Atom atomizeString(const char*) const;
     m8r::String stringFromAtom(const Atom atom) const
     {
         if (!atom) {
             return String();
         }
         uint16_t index = atom.raw();
-        bool shared = index < _sharedTable.size();
-        if (!shared) {
-            index -= _sharedTable.size();
-        }
-        std::vector<int8_t>& table = shared ? _sharedTable : _table;
-        return m8r::String(reinterpret_cast<const char*>(&(table[index + 1])), -table[index]);
+        return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
     const std::vector<int8_t>& stringTable() const { return _table; }
     
-    static Atom sharedAtom(SharedAtom id)
-    {
-        auto it = _sharedAtomMap.find(static_cast<uint32_t>(id));
-        if (it == _sharedAtomMap.end()) {
-            return Atom();
-        }
-        return it->value;
-    }
+    Atom internalAtom(SharedAtom) const;
 
 private:
-    Atom atomizeString(const char*, bool shared) const;
-    int32_t findAtom(const char* s, bool shared) const;
+    int32_t findAtom(const char* s) const;
 
     std::vector<int8_t>& stringTable() { return _table; }
 
     static constexpr uint8_t MaxAtomSize = 127;
 
     mutable std::vector<int8_t> _table;
-    
-    static std::vector<int8_t> _sharedTable;
-    static Map<uint16_t, Atom> _sharedAtomMap;
+    mutable Map<int32_t, Atom> _sharedAtomMap;
 };
-
-#define ATOM(a) m8r::AtomTable::sharedAtom(m8r::AtomTable::SharedAtom::a)
 
 }

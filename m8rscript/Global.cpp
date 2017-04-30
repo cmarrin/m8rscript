@@ -35,7 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Global.h"
 
-#include "Program.h"
 #include "SystemInterface.h"
 #include "ExecutionUnit.h"
 #include "slre.h"
@@ -63,25 +62,25 @@ Global::Global(Program* program)
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
-    addProperty(program, ATOM(currentTime), &_currentTime);
-    addProperty(program, ATOM(delay), &_delay);
-    addProperty(program, ATOM(print), &_print);
-    addProperty(program, ATOM(printf), &_printf);
-    addProperty(program, ATOM(println), &_println);
-    addProperty(program, ATOM(toFloat), &_toFloat);
-    addProperty(program, ATOM(toInt), &_toInt);
-    addProperty(program, ATOM(toUInt), &_toUInt);
-    addProperty(program, ATOM(arguments), &_arguments);
+    addProperty(ATOM(program, currentTime), &_currentTime);
+    addProperty(ATOM(program, delay), &_delay);
+    addProperty(ATOM(program, print), &_print);
+    addProperty(ATOM(program, printf), &_printf);
+    addProperty(ATOM(program, println), &_println);
+    addProperty(ATOM(program, toFloat), &_toFloat);
+    addProperty(ATOM(program, toInt), &_toInt);
+    addProperty(ATOM(program, toUInt), &_toUInt);
+    addProperty(ATOM(program, arguments), &_arguments);
 
-    addProperty(program, ATOM(Array), &_object);
-    addProperty(program, ATOM(Object), &_object);
-    addProperty(program, ATOM(IPAddr), &_ipAddr);
+    addProperty(ATOM(program, Array), &_object);
+    addProperty(ATOM(program, Object), &_object);
+    addProperty(ATOM(program, IPAddr), &_ipAddr);
     
-    addProperty(program, ATOM(Base64), Value(_base64.nativeObject()));
-    addProperty(program, ATOM(GPIO), Value(_gpio.nativeObject()));
-    addProperty(program, ATOM(JSON), Value(_json.nativeObject()));
-    addProperty(program, ATOM(TCP), Value(_tcp.nativeObject()));
-    addProperty(program, ATOM(UDP), Value(_udp.nativeObject()));
+    addProperty(ATOM(program, Base64), Value(_base64.nativeObject()));
+    addProperty(ATOM(program, GPIO), Value(_gpio.nativeObject()));
+    addProperty(ATOM(program, JSON), Value(_json.nativeObject()));
+    addProperty(ATOM(program, TCP), Value(_tcp.nativeObject()));
+    addProperty(ATOM(program, UDP), Value(_udp.nativeObject()));
 }
 
 Global::~Global()
@@ -271,7 +270,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* array = ObjectFactory::create(ATOM(Array), eu, 0);
+    Object* array = ObjectFactory::create(ATOM(eu, Array), eu, 0);
     if (!array) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }

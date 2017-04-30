@@ -129,8 +129,8 @@ Base64::Base64(Program* program)
     , _encode(encode)
     , _decode(decode)
 {
-    addProperty(program, ATOM(encode), &_encode);
-    addProperty(program, ATOM(decode), &_decode);
+    addProperty(ATOM(program, encode), &_encode);
+    addProperty(ATOM(program, decode), &_decode);
 }
 
 CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

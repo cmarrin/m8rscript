@@ -57,7 +57,7 @@ CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == ATOM(next)) {
+    if (prop == ATOM(eu, next)) {
         int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         if (_index < count) {
             ++_index;
@@ -69,12 +69,12 @@ CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 
 const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == ATOM(end)) {
+    if (prop == ATOM(eu, end)) {
         int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
         
         return Value(_index >= count);
     }
-    if (prop == ATOM(value)) {        
+    if (prop == ATOM(eu, value)) {        
         return value(eu);
     }
     return Value();

@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Shell.h"
 
 #include "Application.h"
+#include "Base64.h"
 #include "Error.h"
 #include <cstdarg>
 

@@ -154,7 +154,7 @@ bool ParseEngine::classContentsStatement()
         if (!f) {
             return false;
         }
-        _parser->currentClass()->setProperty(ATOM(constructor), Value(f));
+        _parser->currentClass()->setProperty(ATOM(_parser->program(), constructor), Value(f));
         return true;
     }
     if (getToken() == Token::Var) {
@@ -397,9 +397,9 @@ void ParseEngine::forVarIteration(Atom iteratorName)
 
     _parser->emitDup();
     _parser->emitPush();
-    _parser->emitId(ATOM(meta), Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), meta), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitId(ATOM(iterator), Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), iterator), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::NEW, -1, 1);
     _parser->emitMove();

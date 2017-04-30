@@ -50,6 +50,7 @@ SRC ?=  ../m8rscript/Application.cpp \
 		../m8rscript/UDP.cpp \
 		../m8rscript/Value.cpp \
         ../m8rscript/Scanner.cpp \
+        ../m8rscript/generated/SharedAtoms.cpp \
         app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)
@@ -130,7 +131,7 @@ LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
 FIXED_POINT_FLOAT ?= 1
-INCLUDE_DIRS += $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR)
+INCLUDE_DIRS += $(OBJ_DIR) $(CORE_DIR) $(SPIFFS_DIR) generated
 ifeq ($(DEBUG), 1)
 INCLUDE_DIRS += $(GDB_DIR)
 endif

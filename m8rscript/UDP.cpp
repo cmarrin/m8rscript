@@ -47,12 +47,12 @@ UDPProto::UDPProto(Program* program)
     , _send(send)
     , _disconnect(disconnect)
 {
-    addProperty(program, ATOM(constructor), &_constructor);
-    addProperty(program, ATOM(send), &_send);
-    addProperty(program, ATOM(disconnect), &_disconnect);
+    addProperty(ATOM(program, constructor), &_constructor);
+    addProperty(ATOM(program, send), &_send);
+    addProperty(ATOM(program, disconnect), &_disconnect);
     
-    addProperty(program, ATOM(ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
-    addProperty(program, ATOM(SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
+    addProperty(ATOM(program, ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
+    addProperty(ATOM(program, SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
 }
 
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -75,7 +75,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     if (!obj) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
-    obj->setProperty(eu, ATOM(__nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, ATOM(eu, __nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -100,7 +100,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
+    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
     if (!delegate) {
         return CallReturnValue(CallReturnValue::Type::Error);
     }
@@ -123,7 +123,7 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Type::Error);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(__nativeObject)).asNativeObject());
+    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
     
     delegate->disconnect();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

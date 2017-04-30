@@ -118,7 +118,7 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 
 CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == ATOM(lookupHostname)) {
+    if (prop == ATOM(eu, lookupHostname)) {
         if (nparams < 2) {
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }

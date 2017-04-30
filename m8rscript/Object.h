@@ -203,8 +203,8 @@ public:
     ObjectFactory(Program*, const char* name = nullptr);
     ~ObjectFactory();
     
-    void addProperty(Program*, Atom prop, Object*);
-    void addProperty(Program*, Atom prop, const Value&);
+    void addProperty(Atom prop, Object*);
+    void addProperty(Atom prop, const Value&);
     
     Object* nativeObject() { return &_obj; }
     const Object* nativeObject() const { return &_obj; }

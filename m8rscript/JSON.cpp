@@ -47,8 +47,8 @@ JSON::JSON(Program* program)
     , _parse(parse)
     , _stringify(stringify)
 {
-    addProperty(program, ATOM(parse), &_parse);
-    addProperty(program, ATOM(stringify), &_stringify);
+    addProperty(ATOM(program, parse), &_parse);
+    addProperty(ATOM(program, stringify), &_stringify);
 }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)

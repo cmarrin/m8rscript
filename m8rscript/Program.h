@@ -55,6 +55,7 @@ public:
         
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
+    Atom internalAtom(SharedAtom a) const { return _atomTable.internalAtom(a); }
     
     StringLiteral startStringLiteral() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }
