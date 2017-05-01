@@ -503,7 +503,13 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_LOADPROP:
-        leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
+        leftValue = regOrConst(inst.rb());
+        objectValue = leftValue.asObject();
+//        if (objectValue && objectValue->hasGet()) {
+//            DISPATCH;
+//        }
+        
+        leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
         if (!leftValue) {
             objectError("LOADPROP");
         } else {
