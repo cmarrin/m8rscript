@@ -191,6 +191,8 @@ private:
     Object* _meta = nullptr;
     bool _isArray = false;
     bool _arrayNeedsGC;
+    
+    static MaterObject* _defaultMeta;
 };
 
 class NativeFunction : public Object {

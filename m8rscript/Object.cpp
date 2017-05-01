@@ -141,6 +141,8 @@ void Object::gcMark(const Value& value)
     gcMark(value.asObject());
 }
 
+MaterObject* MaterObject::_defaultMeta = nullptr;
+
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
@@ -293,7 +295,14 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     }
     
     if (prop == ATOM(eu, meta)) {
-        return _meta ? Value(_meta) : Value::NullValue();
+        if (_meta) {
+            return Value(_meta);
+        }
+        if (!_defaultMeta) {
+            _defaultMeta = new MaterObject();
+            addStaticObject(_defaultMeta);
+        }
+        return Value(_defaultMeta);
     }
 
     auto it = _properties.find(prop);
@@ -305,7 +314,15 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 
 bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
-    Value oldValue = property(nullptr, prop);
+    if (prop == ATOM(eu, meta)) {
+        _meta = v.asObject();
+        setHasIterator(_meta && _meta->property(eu, ATOM(eu, iterator)).asObject());
+        setHasGet(_meta && _meta->property(eu, ATOM(eu, get)).asObject());
+        setHasSet(_meta && _meta->property(eu, ATOM(eu, set)).asObject());
+        return true;
+    }
+    
+    Value oldValue = property(eu, prop);
     
     if (oldValue && type == Value::SetPropertyType::AlwaysAdd) {
         return false;
@@ -319,10 +336,6 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
         return true;
     }
 
-    if (prop == ATOM(eu, meta)) {
-        _meta = v.asObject();
-    }
-    
     return setProperty(prop, v);
 }
 
