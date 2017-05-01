@@ -41,57 +41,87 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+Iterator::Iterator(Program* program)
+    : ObjectFactory(program, ROMSTR("Iterator"))
+    , _constructor(constructor)
 {
-    if (!ctor) {
-        return MaterObject::call(eu, thisValue, nparams, ctor);
-    }
-    
-    Iterator* it = new Iterator();
-    Value objectValue = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
-    it->_object = objectValue.asObject();
-    it->_index = 0;
-    eu->stack().push(Value(it));
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    addProperty(ATOM(program, constructor), &_constructor);
 }
 
-CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (prop == ATOM(eu, next)) {
-        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-        if (_index < count) {
-            ++_index;
-        }
-        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-    }
-    return CallReturnValue(CallReturnValue::Type::Error);
+//    uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
+//    GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
+//    eu->system()->gpio().setPinMode(pin, mode);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
-{
-    if (prop == ATOM(eu, end)) {
-        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-        
-        return Value(_index >= count);
-    }
-    if (prop == ATOM(eu, value)) {        
-        return value(eu);
-    }
-    return Value();
-}
 
-bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
-{
-    if (type == Value::SetPropertyType::AlwaysAdd) {
-        return false;
-    }
-    
-    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (_object && _index < count) ? _object->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
-}
 
-const Value Iterator::value(ExecutionUnit* eu) const
-{
-    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
-    return (_object && _index < count) ? _object->iteratedValue(eu, _index) : Value();
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//CallReturnValue Iterator::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+//{
+//    if (!ctor) {
+//        return MaterObject::call(eu, thisValue, nparams, ctor);
+//    }
+//    
+//    Iterator* it = new Iterator();
+//    Value objectValue = (nparams >= 1) ? eu->stack().top(1 - nparams) : Value();
+//    it->_object = objectValue.asObject();
+//    it->_index = 0;
+//    eu->stack().push(Value(it));
+//    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+//}
+//
+//CallReturnValue Iterator::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+//{
+//    if (prop == ATOM(eu, next)) {
+//        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+//        if (_index < count) {
+//            ++_index;
+//        }
+//        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+//    }
+//    return CallReturnValue(CallReturnValue::Type::Error);
+//}
+//
+//const Value Iterator::property(ExecutionUnit* eu, const Atom& prop) const
+//{
+//    if (prop == ATOM(eu, end)) {
+//        int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+//        
+//        return Value(_index >= count);
+//    }
+//    if (prop == ATOM(eu, value)) {        
+//        return value(eu);
+//    }
+//    return Value();
+//}
+//
+//bool Iterator::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
+//{
+//    if (type == Value::SetPropertyType::AlwaysAdd) {
+//        return false;
+//    }
+//    
+//    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+//    return (_object && _index < count) ? _object->setIteratedValue(eu, _index, value, Value::SetPropertyType::NeverAdd) : false;
+//}
+//
+//const Value Iterator::value(ExecutionUnit* eu) const
+//{
+//    int32_t count = _object ? _object->iteratedValue(eu, Object::IteratorCount).toIntValue(eu) : 0;
+//    return (_object && _index < count) ? _object->iteratedValue(eu, _index) : Value();
+//}

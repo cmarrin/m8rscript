@@ -39,26 +39,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Iterator : public MaterObject {
+class Iterator : public ObjectFactory {
 public:
-    Iterator() { }
+    Iterator(Program*);
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Iterator") : value(eu).toStringValue(eu); }
-
-    virtual const Value property(ExecutionUnit*, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetPropertyType) override;
-
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
-
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
-
-    virtual void gcMark(ExecutionUnit* eu) override { MaterObject::gcMark(eu); _object->gcMark(eu); }
-    
 private:
-    const Value value(ExecutionUnit*) const;
-    
-    Object* _object;
-    mutable uint32_t _index = 0;
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+
+    NativeFunction _constructor;
 };
     
 }
