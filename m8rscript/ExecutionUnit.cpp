@@ -289,7 +289,7 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
     
-    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis, prevActualParamCount });
+    _callRecords.push_back({ _pc, prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno });
     
     _pc = 0;    
     _framePtr =_stack.framePtr();
@@ -451,6 +451,8 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
             
             _pc = callRecord._pc;
             _function = callRecord._func;
+            
+            _lineno = callRecord._lineno;
             
             _callRecords.pop_back();
         }

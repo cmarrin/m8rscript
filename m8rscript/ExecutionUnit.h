@@ -218,12 +218,13 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Object* func, Object* thisObj, uint32_t paramCount)
+        CallRecord(uint32_t pc, uint32_t frame, Object* func, Object* thisObj, uint32_t paramCount, uint32_t lineno)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
             , _thisObj(thisObj)
+            , _lineno(lineno)
         { }
         
         uint32_t _pc : 23;
@@ -231,6 +232,7 @@ private:
         uint32_t _frame;
         Object* _func;
         Object* _thisObj;
+        uint32_t _lineno;
     };
     
     std::vector<CallRecord> _callRecords;
