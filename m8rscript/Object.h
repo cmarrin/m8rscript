@@ -188,11 +188,11 @@ public:
 private:
     Value::Map _properties;
     std::vector<Value> _array;
-    Object* _meta = nullptr;
+    Object* _iterator = nullptr;
     bool _isArray = false;
     bool _arrayNeedsGC;
     
-    static MaterObject* _defaultMeta;
+    static MaterObject* _defaultIterator;
 };
 
 class NativeFunction : public Object {

@@ -397,8 +397,6 @@ void ParseEngine::forVarIteration(Atom iteratorName)
 
     _parser->emitDup();
     _parser->emitPush();
-    _parser->emitId(ATOM(_parser->program(), meta), Parser::IdType::NotLocal);
-    _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitId(ATOM(_parser->program(), iterator), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::NEW, -1, 1);
@@ -407,8 +405,9 @@ void ParseEngine::forVarIteration(Atom iteratorName)
     
     Label label = _parser->label();
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId("end", Parser::IdType::NotLocal);
+    _parser->emitId("done", Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::CALL, -1, 0);
 
     _parser->addMatchedJump(m8r::Op::JT, label);
 
