@@ -52,7 +52,7 @@ class Stream;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#define ATOM(p, a) p->internalAtom(SharedAtom::a)
+#define ATOM(p, a) (p ? p->internalAtom(SharedAtom::a) : Atom())
 
 class AtomTable {
     friend class Program;
