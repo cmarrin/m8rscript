@@ -50,6 +50,12 @@ class Stream;
 
 class Object {    
 public:
+    Object()
+        :  _marked(true)
+        , _hasIterator(false)
+        , _hasGet(false)
+        , _hasSet(false)
+    { }
     virtual ~Object() { }
 
     void* operator new(size_t size)
@@ -93,6 +99,10 @@ public:
 
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
+
+    bool hasIterator() const { return _hasIterator; }
+    bool hasGet() const { return _hasGet; }
+    bool hasSet() const { return _hasSet; }
     
     // methods for Callable (m8rscript) objects
     virtual const Code* code() const { return nullptr; }
@@ -128,11 +138,18 @@ protected:
     void setProto(Object* obj) { _proto = obj; }
     Object* proto() const { return _proto; }
     
+    void setHasIterator(bool b) { _hasIterator = b; }
+    void setHasGet(bool b) { _hasGet = b; }
+    void setHasSet(bool b) { _hasSet = b; }
+    
 private:
     void _gcMark(ExecutionUnit*);
 
     Object* _proto = nullptr;
-    bool _marked = true;
+    bool _marked : 1;
+    bool _hasIterator : 1;
+    bool _hasGet : 1;
+    bool _hasSet : 1;
 
     static std::vector<String*> _stringStore;
     static std::vector<Object*> _objectStore;
