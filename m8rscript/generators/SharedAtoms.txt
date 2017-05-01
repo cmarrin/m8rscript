@@ -41,6 +41,7 @@ digitalWrite
 disconnect
 encode
 end
+get
 iterator
 length
 lookupHostname
@@ -52,6 +53,7 @@ print
 printf
 println
 send
+set
 setPinMode
 split
 stringify

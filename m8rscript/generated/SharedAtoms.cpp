@@ -47,6 +47,7 @@ static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
 static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _end[] ROMSTR_ATTR = "end";
+static const char _get[] ROMSTR_ATTR = "get";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
@@ -58,6 +59,7 @@ static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _send[] ROMSTR_ATTR = "send";
+static const char _set[] ROMSTR_ATTR = "set";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _split[] ROMSTR_ATTR = "split";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
@@ -115,6 +117,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _disconnect,
     _encode,
     _end,
+    _get,
     _iterator,
     _length,
     _lookupHostname,
@@ -126,6 +129,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _printf,
     _println,
     _send,
+    _set,
     _setPinMode,
     _split,
     _stringify,
