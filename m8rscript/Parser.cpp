@@ -528,6 +528,17 @@ void Parser::emitUnOp(Op op)
 {
     if (_nerrors) return;
     
+    if (op == Op::PREDEC || op == Op::PREINC || op == Op::POSTDEC || op == Op::POSTINC) {
+        uint32_t dst = _parseStack.pushRegister();
+        _parseStack.swap();
+        emitDup();
+        uint32_t srcReg = _parseStack.bake();
+        emitCodeRRR(op, dst, srcReg);
+        emitMove();
+        _parseStack.pop();
+        return;
+    }
+    
     uint32_t srcReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t dst = _parseStack.pushRegister();
