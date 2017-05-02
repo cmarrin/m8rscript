@@ -230,6 +230,10 @@ private:
         uint32_t bake();
         bool needsBaking() const { return _stack.top()._type == Type::PropRef || _stack.top()._type == Type::EltRef || _stack.top()._type == Type::RefK; }
         void replaceTop(Type, uint32_t reg, uint32_t derefReg);
+        void dup() {
+            Entry entry = _stack.top();
+            _stack.push(entry);
+        }
         
     private:
         struct Entry {

@@ -408,22 +408,13 @@ void Parser::emitDup()
 {
     if (_nerrors) return;
     
-    ParseStack::Type type = _parseStack.topType();
-    uint32_t reg = _parseStack.topReg();
-    uint32_t derefReg = _parseStack.topDerefReg();
-    
-    switch(type) {
+    switch(_parseStack.topType()) {
         case ParseStack::Type::PropRef:
-        case ParseStack::Type::EltRef: {
-            uint32_t r = _parseStack.pushRegister();
-            emitCodeRRR((type == ParseStack::Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, reg, derefReg);
+        case ParseStack::Type::EltRef:
+        case ParseStack::Type::RefK:
+            _parseStack.dup();
+            _parseStack.bake();
             break;
-        }
-        case ParseStack::Type::RefK: {
-            uint32_t r = _parseStack.pushRegister();
-            emitCodeRRR(Op::LOADREFK, r, reg, derefReg);
-            break;
-        }
         case ParseStack::Type::Local:
             _parseStack.push(ParseStack::Type::Local, _parseStack.topReg());
             break;
