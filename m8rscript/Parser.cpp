@@ -346,6 +346,11 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
+    if (atom == ATOM(program(), value)) {
+        _parseStack.pushValueRefK();
+        return;
+    }
+    
     ConstantId id = currentFunction()->addConstant(Value(atom));
     _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw());
 }
@@ -754,7 +759,15 @@ uint32_t Parser::ParseStack::bake()
         case Type::RefK: {
             pop();
             uint32_t r = pushRegister();
-            _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
+            if (entry._isValue) {
+                pushRegister();
+                _parser->emitId(ATOM(_parser->program(), getValue), Parser::IdType::MightBeLocal);
+                _parser->emitMove();
+                _parser->emitCallRet(Op::CALL, -1, 0);
+                _parser->emitMove();
+            } else {
+                _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
+            }
             return r;
         }
         case Type::This: {

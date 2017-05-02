@@ -217,6 +217,7 @@ private:
         uint32_t push(Type, uint32_t reg);
         uint32_t pushRegister();
         void pushConstant(uint32_t reg) { push(Type::Constant, reg); }
+        void pushValueRefK() { _stack.push({ Type::RefK, 0, 0, true }); }
 
         void pop();
         void swap();
@@ -239,10 +240,11 @@ private:
         struct Entry {
             
             Entry() { }
-            Entry(Type type, uint32_t reg, uint32_t derefReg = 0)
+            Entry(Type type, uint32_t reg, uint32_t derefReg = 0, bool isValue = false)
                 : _type(type)
                 , _reg(reg)
                 , _derefReg(derefReg)
+                , _isValue(isValue)
             {
                 if (_type == Type::Constant || _type == Type::RefK) {
                     _reg += MaxRegister + 1;
@@ -252,6 +254,7 @@ private:
             Type _type;
             uint32_t _reg;
             uint32_t _derefReg;
+            bool _isValue;
         };
         
         Stack<Entry> _stack;
