@@ -102,8 +102,7 @@ private:
     bool classExpression();
     uint32_t argumentList();
     void forLoopCondAndIt();
-    void forVarIteration(Atom iteratorName);
-    void forIteration();
+    void forIteration(Atom iteratorName);
     bool propertyAssignment();
     bool propertyName();
     void formalParameterList();
