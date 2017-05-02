@@ -410,7 +410,14 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
 
 void Value::gcMark(ExecutionUnit* eu)
 {
-    if (asObject() || asString()) {
-        Object::gcMark(*this);
+    String* string = asString();
+    if (string) {
+        string->setMarked(true);
+        return;
+    }
+    
+    Object* obj = asObject();
+    if (obj) {
+        obj->gcMark(eu);
     }
 }

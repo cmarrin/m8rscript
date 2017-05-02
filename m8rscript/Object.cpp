@@ -130,17 +130,6 @@ void Object::gc(ExecutionUnit* eu)
     }
 }
 
-void Object::gcMark(const Value& value)
-{
-    String* string = value.asString();
-    if (string) {
-        string->setMarked(true);
-        return;
-    }
-    
-    gcMark(value.asObject());
-}
-
 MaterObject* MaterObject::_defaultIterator = nullptr;
 
 MaterObject::~MaterObject()

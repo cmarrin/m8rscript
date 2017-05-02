@@ -127,7 +127,6 @@ public:
     }
 
     static void gc(ExecutionUnit*);
-    static void gcMark(const Value& value);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }
