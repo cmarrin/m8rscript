@@ -217,7 +217,7 @@ private:
         uint32_t push(Type, uint32_t reg);
         uint32_t pushRegister();
         void pushConstant(uint32_t reg) { push(Type::Constant, reg); }
-        void pushValueRefK() { _stack.push({ Type::RefK, 0, 0, true }); }
+        void setIsValue(bool b) { _stack.top()._isValue = b; }
 
         void pop();
         void swap();
@@ -225,6 +225,7 @@ private:
         Type topType() const { return empty() ? Type::Unknown : _stack.top()._type; }
         uint32_t topReg() const { return empty() ? 0 : _stack.top()._reg; }
         uint32_t topDerefReg() const { return empty() ? 0 : _stack.top()._derefReg; }
+        bool topIsValue() const { return empty() ? false : _stack.top()._isValue; }
         bool empty() const { return _stack.empty(); }
         void clear() { _stack.clear(); }
         

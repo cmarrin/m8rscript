@@ -347,7 +347,8 @@ void Parser::emitId(const Atom& atom, IdType type)
     }
     
     if (atom == ATOM(program(), value)) {
-        _parseStack.pushValueRefK();
+        _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, 0);
+        _parseStack.setIsValue(true);
         return;
     }
     
@@ -400,12 +401,14 @@ uint32_t Parser::emitDeref(DerefType type)
 {
     if (_nerrors) return 0;
     
+    bool isValue = _parseStack.topIsValue();
     uint32_t derefReg = _parseStack.bake();
     _parseStack.swap();
     uint32_t objectReg = _parseStack.bake();
     _parseStack.swap();
     _parseStack.pop();
     _parseStack.replaceTop((type == DerefType::Prop) ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
+    _parseStack.setIsValue(isValue);
     return objectReg;
 }
 
@@ -753,7 +756,16 @@ uint32_t Parser::ParseStack::bake()
         case Type::EltRef: {
             pop();
             uint32_t r = pushRegister();
-            _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+            
+            if (entry._isValue) {
+                ConstantId id = _parser->currentFunction()->addConstant(Value(ATOM(_parser->program(), getValue)));
+                uint32_t tmp = pushRegister();
+                _parser->emitCodeRRR(Op::LOADPROP, tmp, entry._reg, id.raw() + MaxRegister + 1);
+                _parser->emitCallRet(Op::CALL, entry._reg, 0);
+                _parser->emitMove();
+            } else {
+                _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+            }
             return r;
         }
         case Type::RefK: {
