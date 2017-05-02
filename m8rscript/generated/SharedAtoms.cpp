@@ -45,13 +45,12 @@ static const char _delay[] ROMSTR_ATTR = "delay";
 static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
 static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
 static const char _disconnect[] ROMSTR_ATTR = "disconnect";
+static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
-static const char _end[] ROMSTR_ATTR = "end";
-static const char _get[] ROMSTR_ATTR = "get";
+static const char _getValue[] ROMSTR_ATTR = "getValue";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
-static const char _meta[] ROMSTR_ATTR = "meta";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _parse[] ROMSTR_ATTR = "parse";
@@ -59,7 +58,7 @@ static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
 static const char _send[] ROMSTR_ATTR = "send";
-static const char _set[] ROMSTR_ATTR = "set";
+static const char _setValue[] ROMSTR_ATTR = "setValue";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _split[] ROMSTR_ATTR = "split";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
@@ -115,13 +114,12 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _digitalRead,
     _digitalWrite,
     _disconnect,
+    _done,
     _encode,
-    _end,
-    _get,
+    _getValue,
     _iterator,
     _length,
     _lookupHostname,
-    _meta,
     _next,
     _onInterrupt,
     _parse,
@@ -129,7 +127,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _printf,
     _println,
     _send,
-    _set,
+    _setValue,
     _setPinMode,
     _split,
     _stringify,

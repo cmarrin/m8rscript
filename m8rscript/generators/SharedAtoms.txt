@@ -39,13 +39,12 @@ delay
 digitalRead
 digitalWrite
 disconnect
+done
 encode
-end
-get
+getValue
 iterator
 length
 lookupHostname
-meta
 next
 onInterrupt
 parse
@@ -53,7 +52,7 @@ print
 printf
 println
 send
-set
+setValue
 setPinMode
 split
 stringify

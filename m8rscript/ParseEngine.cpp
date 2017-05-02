@@ -389,7 +389,7 @@ void ParseEngine::forVarIteration(Atom iteratorName)
     // the identifier (it) that will receive the next iteration on each pass.
     // We need to generate the equivalent of the following:
     //
-    //      for (var it = new obj.meta.iterator(obj); !it.done; it.next()) ...
+    //      for (var it = new obj.iterator(obj); !it.done; it.next()) ...
     //
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     leftHandSideExpression();
@@ -405,7 +405,7 @@ void ParseEngine::forVarIteration(Atom iteratorName)
     
     Label label = _parser->label();
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId("done", Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, -1, 0);
 
@@ -419,7 +419,7 @@ void ParseEngine::forVarIteration(Atom iteratorName)
     }
 
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId("next", Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), next), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, -1, 0);
     _parser->discardResult();
@@ -442,13 +442,13 @@ void ParseEngine::forIteration()
     expect(Token::RParen);
 
     _parser->emitPush();
-    _parser->emitId("Iterator", Parser::IdType::MightBeLocal);
+    _parser->emitId(ATOM(_parser->program(), iterator), Parser::IdType::MightBeLocal);
     _parser->emitCallRet(Op::NEW, -1, 1);
     _parser->emitMove();
     
     Label label = _parser->label();
     _parser->emitDup();
-    _parser->emitId("end", Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
 
     _parser->addMatchedJump(m8r::Op::JT, label);
@@ -461,7 +461,7 @@ void ParseEngine::forIteration()
     }
 
     _parser->emitDup();
-    _parser->emitId("next", Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), next), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, -1, 0);
     _parser->discardResult();
