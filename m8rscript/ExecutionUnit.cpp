@@ -481,6 +481,36 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     L_STOREFK:
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
+    L_LOADPROP:
+        leftValue = regOrConst(inst.rb());
+        objectValue = leftValue.asObject();
+        leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
+        if (!objectValue) {
+            objectError("LOADPROP");
+        } else if (!leftValue) {
+            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
+        } else {
+            setInFrame(inst.ra(), leftValue);
+        }
+        DISPATCH;
+    L_STOPROP:
+        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::NeverAdd)) {
+            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        }
+        DISPATCH;
+    L_LOADELT:
+        leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
+        if (!leftValue) {
+            objectError("LOADELT");
+        } else {
+            setInFrame(inst.ra(), leftValue);
+        }
+        DISPATCH;
+    L_STOELT:
+        if (!reg(inst.ra()).setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
+            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        }
+        DISPATCH;
     L_LOADUP:
         if (!_function->loadUpValue(this, inst.rb(), rightValue)) {
             printError(ROMSTR("unable to load upValue"));
@@ -501,38 +531,6 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
             objectValue = new MaterObject();
         }
         setInFrame(inst.ra(), Value(objectValue));
-        DISPATCH;
-    L_LOADPROP:
-        leftValue = regOrConst(inst.rb());
-        objectValue = leftValue.asObject();
-//        if (objectValue && objectValue->hasGet()) {
-//            DISPATCH;
-//        }
-        
-        leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
-        if (!leftValue) {
-            objectError("LOADPROP");
-        } else {
-            setInFrame(inst.ra(), leftValue);
-        }
-        DISPATCH;
-    L_LOADELT:
-        leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
-        if (!leftValue) {
-            objectError("LOADELT");
-        } else {
-            setInFrame(inst.ra(), leftValue);
-        }
-        DISPATCH;
-    L_STOPROP:
-        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::NeverAdd)) {
-            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
-        }
-        DISPATCH;
-    L_STOELT:
-        if (!reg(inst.ra()).setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
-            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
-        }
         DISPATCH;
     L_APPENDPROP:
         if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AlwaysAdd)) {
