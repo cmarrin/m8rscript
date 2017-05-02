@@ -238,6 +238,10 @@ void MaterObject::gcMark(ExecutionUnit* eu)
             _arrayNeedsGC = true;
         }
     }
+    
+    if (_iterator) {
+        _iterator->gcMark(eu);
+    }
 }
 
 const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
