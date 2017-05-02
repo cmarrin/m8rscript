@@ -215,7 +215,10 @@ private:
         
         ParseStack(Parser* parser) : _parser(parser) { }
         
-        uint32_t push(Type, uint32_t reg = 0, uint32_t derefReg = 0);
+        uint32_t push(Type, uint32_t reg);
+        uint32_t pushRegister();
+        void pushConstant(uint32_t reg) { push(Type::Constant, reg); }
+
         void pop();
         void swap();
         
@@ -227,7 +230,7 @@ private:
         
         uint32_t bake();
         bool needsBaking() const { return _stack.top()._type == Type::PropRef || _stack.top()._type == Type::EltRef || _stack.top()._type == Type::RefK; }
-        void replaceTop(Type, uint32_t reg = 0, uint32_t derefReg = 0);
+        void replaceTop(Type, uint32_t reg, uint32_t derefReg);
         
     private:
         struct Entry {
