@@ -167,7 +167,6 @@ private:
     uint32_t emitDeref(DerefType);
     void emitAppendElt();
     void emitAppendProp();
-    void emitStoProp();
     void emitUnOp(Op op);
     void emitBinOp(Op op);
     void emitCaseTest();

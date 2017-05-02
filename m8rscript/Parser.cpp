@@ -471,25 +471,6 @@ void Parser::emitAppendProp()
     emitCodeRRR(Op::APPENDPROP, objectReg, propReg, srcReg);
 }
 
-void Parser::emitStoProp()
-{
-    if (_nerrors) return;
-    
-    // tos-2 object to store into
-    // tos-1 property of this object to store into
-    // tos value to store
-    // leave object on tos
-    uint32_t srcReg = _parseStack.bake();
-    _parseStack.swap();
-    uint32_t derefReg = _parseStack.bake();
-    _parseStack.pop();
-    _parseStack.pop();
-    assert(!_parseStack.needsBaking());
-    uint32_t objectReg = _parseStack.topReg();
-    
-    emitCodeRRR(Op::STOPROP, objectReg, derefReg, srcReg);
-}
-
 void Parser::emitBinOp(Op op)
 {
     if (_nerrors) return;
