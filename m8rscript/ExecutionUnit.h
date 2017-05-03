@@ -165,7 +165,7 @@ private:
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
-    bool printError(CallReturnValue::Error) const;
+    bool printError(CallReturnValue::Error, const char* name = "") const;
     bool checkTooManyErrors() const;
     void objectError(const char* s) const;
     

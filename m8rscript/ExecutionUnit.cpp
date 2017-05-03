@@ -59,7 +59,7 @@ bool ExecutionUnit::printError(const char* format, ...) const
     return checkTooManyErrors();
 }
 
-bool ExecutionUnit::printError(CallReturnValue::Error error) const
+bool ExecutionUnit::printError(CallReturnValue::Error error, const char* name) const
 {
     const char* errorString = ROMSTR("*UNKNOWN*");
     switch(error) {
@@ -70,7 +70,7 @@ bool ExecutionUnit::printError(CallReturnValue::Error error) const
         case CallReturnValue::Error::OutOfRange: errorString = ROMSTR("param out of range"); break;
         case CallReturnValue::Error::MissingThis: errorString = ROMSTR("Missing this value"); break;
         case CallReturnValue::Error::InternalError: errorString = ROMSTR("internal error"); break;
-        case CallReturnValue::Error::PropertyDoesNotExist: errorString = ROMSTR("property does not exist"); break;
+        case CallReturnValue::Error::PropertyDoesNotExist: errorString = ROMSTR("'%s' property does not exist"); break;
         case CallReturnValue::Error::BadFormatString: errorString = ROMSTR("bad format string"); break;
         case CallReturnValue::Error::UnknownFormatSpecifier: errorString = ROMSTR("unknown format specifier"); break;
         case CallReturnValue::Error::CannotConvertStringToNumber: errorString = ROMSTR("string cannot be converted"); break;
@@ -78,7 +78,7 @@ bool ExecutionUnit::printError(CallReturnValue::Error error) const
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
     }
     
-    return printError(errorString);
+    return printError(errorString, name);
 }
 
 void ExecutionUnit::objectError(const char* s) const
@@ -738,9 +738,10 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     }
     L_NEW:
     L_CALL:
-    L_CALLPROP:
+    L_CALLPROP: {
         leftValue = regOrConst(inst.rcall());
         uintValue = inst.nparams();
+        Atom name;
 
         switch(inst.op()) {
             default: break;
@@ -756,12 +757,13 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
                 callReturnValue = leftValue.call(this, Value(), uintValue, true);
                 break;
             case Op::CALLPROP:
-                callReturnValue = leftValue.callProperty(this, regOrConst(inst.rthis()).asIdValue(), uintValue);
+                name = regOrConst(inst.rthis()).asIdValue();
+                callReturnValue = leftValue.callProperty(this, name, uintValue);
                 break;
         }
         
         if (callReturnValue.isError()) {
-            printError(callReturnValue.error());
+            printError(callReturnValue.error(), _program->stringFromAtom(name).c_str());
         }
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just
@@ -786,6 +788,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
             return callReturnValue;
         }
         DISPATCH;
+    }
     L_JMP:
     L_JT:
     L_JF:

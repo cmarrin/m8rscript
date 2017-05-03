@@ -278,6 +278,9 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     Value callee = property(eu, prop);
+    if (!callee) {
+        return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+    }
     return callee.call(eu, Value(this), nparams, false);
 }
 
