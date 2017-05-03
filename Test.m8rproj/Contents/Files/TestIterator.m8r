@@ -8,7 +8,7 @@ class Iterator {
     constructor(obj) { _obj = obj; _index = 0; }
     function done() { return _index >= _obj.length; }
     function next() { if (!done()) ++_index; }
-    function value() { return done() ? null : _obj[_index]; }
+    function getValue() { return done() ? null : _obj[_index]; }
     function setValue(v) { if (!done()) _obj[_index] = v; }
 };
 
@@ -17,6 +17,7 @@ obj2.iterator = Iterator;
 printf("0) Hand crafted iterator\n");
 printf("    Original array: %s\n", obj2);
 for (var it : obj2) {
+var it;
 	it.value *= 2;
 }
 printf("    Array doubled : %s\n", obj2);

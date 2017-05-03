@@ -392,6 +392,7 @@ void Parser::emitMove()
                 uint32_t objReg = emitDeref(DerefType::Prop);
                 emitCallRet(Op::CALL, objReg, 1);
                 discardResult();
+                return;
             } else {
                 emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             }
@@ -411,6 +412,7 @@ void Parser::emitMove()
         }
     }
     
+    _parseStack.swap();
     _parseStack.pop();
 }
 
@@ -771,19 +773,25 @@ uint32_t Parser::ParseStack::bake()
     switch(entry._type) {
         case Type::PropRef:
         case Type::EltRef: {
-            pop();
-            uint32_t r = pushRegister();
-            
             if (entry._isValue) {
-                ConstantId id = _parser->currentFunction()->addConstant(Value(ATOM(_parser->program(), getValue)));
-                uint32_t tmp = pushRegister();
-                _parser->emitCodeRRR(Op::LOADPROP, tmp, entry._reg, id.raw() + MaxRegister + 1);
-                _parser->emitCallRet(Op::CALL, entry._reg, 0);
-                _parser->emitMove();
+                // Currently TOS is a PropRef and TOS-1 is the source. We need to convert the
+                // PropRef into a simple register, then swap it back to its original position,
+                // then push a "setValue" atom, the swap again. Then we will have:
+                // TOS=>src, ATOM(setValue), dst. Now we need to generate the equivalent of:
+                //
+                //      dst.setValue(src
+                //
+                propRefToReg();
+                _parser->emitId(ATOM(_parser->program(), getValue), Parser::IdType::NotLocal);
+                uint32_t objectReg = _parser->emitDeref(Parser::DerefType::Prop);
+                _parser->emitCallRet(Op::CALL, objectReg, 0);
+                return _stack.top()._reg;
             } else {
+                pop();
+                uint32_t r = pushRegister();
                 _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+                return r;
             }
-            return r;
         }
         case Type::RefK: {
             pop();
