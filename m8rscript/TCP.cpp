@@ -64,7 +64,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
 {
     // If 2 params: port number, event function, 3 params is ip, port, func
     if (nparams < 2) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
     int32_t port = -1;
@@ -93,7 +93,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     obj->setProperty(eu, ATOM(eu, __nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
@@ -126,12 +126,12 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
     MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
     if (!delegate) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
     
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
@@ -146,7 +146,7 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
 {
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
     MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());

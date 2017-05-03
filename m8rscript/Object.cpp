@@ -346,7 +346,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
     }
     
     MaterObject* obj = new MaterObject();

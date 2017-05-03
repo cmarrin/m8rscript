@@ -59,6 +59,28 @@ bool ExecutionUnit::printError(const char* format, ...) const
     return checkTooManyErrors();
 }
 
+bool ExecutionUnit::printError(CallReturnValue::Error error) const
+{
+    const char* errorString = ROMSTR("*UNKNOWN*");
+    switch(error) {
+        case CallReturnValue::Error::Ok: return true;
+        case CallReturnValue::Error::WrongNumberOfParams: errorString = ROMSTR("wrong number of params"); break;
+        case CallReturnValue::Error::ConstructorOnly: errorString = ROMSTR("only valid for new"); break;
+        case CallReturnValue::Error::Unimplemented: errorString = ROMSTR("unimplemented function"); break;
+        case CallReturnValue::Error::OutOfRange: errorString = ROMSTR("param out of range"); break;
+        case CallReturnValue::Error::MissingThis: errorString = ROMSTR("Missing this value"); break;
+        case CallReturnValue::Error::InternalError: errorString = ROMSTR("internal error"); break;
+        case CallReturnValue::Error::PropertyDoesNotExist: errorString = ROMSTR("property does not exist"); break;
+        case CallReturnValue::Error::BadFormatString: errorString = ROMSTR("bad format string"); break;
+        case CallReturnValue::Error::UnknownFormatSpecifier: errorString = ROMSTR("unknown format specifier"); break;
+        case CallReturnValue::Error::CannotConvertStringToNumber: errorString = ROMSTR("string cannot be converted"); break;
+        case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
+        case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
+    }
+    
+    return printError(errorString);
+}
+
 void ExecutionUnit::objectError(const char* s) const
 {
     printError(ROMSTR("Value must be Object for %s"), s);
@@ -410,7 +432,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
                 callReturnValue = runNextEvent();
 
                 if (callReturnValue.isError()) {
-                    printError(ROMSTR("callback failed"));
+                    printError(callReturnValue.error());
                     return CallReturnValue(CallReturnValue::Type::Finished);
                 }
 
@@ -739,7 +761,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
         }
         
         if (callReturnValue.isError()) {
-            printError(ROMSTR("%sing function"), (inst.op() == Op::NEW) ? "construct" : "call");
+            printError(callReturnValue.error());
         }
 
         // If the callReturnValue is FunctionStart it means we've called a Function and it just

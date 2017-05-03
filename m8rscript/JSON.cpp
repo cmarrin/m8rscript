@@ -165,7 +165,7 @@ String JSON::stringify(ExecutionUnit* eu, const Value v)
 CallReturnValue JSON::parse(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
@@ -177,7 +177,7 @@ CallReturnValue JSON::parse(ExecutionUnit* eu, Value thisValue, uint32_t nparams
 CallReturnValue JSON::stringify(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
     Value v = eu->stack().top(1 - nparams);

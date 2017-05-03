@@ -50,16 +50,44 @@ class Program;
 
 class CallReturnValue {
 public:
-    static constexpr uint32_t MaxReturnCount = 999;
-    static constexpr uint32_t FunctionStartValue = 1000;
-    static constexpr uint32_t ErrorValue = 1001;
-    static constexpr uint32_t FinishedValue = 1002;
-    static constexpr uint32_t TerminatedValue = 1003;
-    static constexpr uint32_t WaitForEventValue = 1004;
-    static constexpr uint32_t ContinueValue = 1004;
-    static constexpr uint32_t MaxMsDelay = 6000000;
+    // Values:
+    //
+    //      -6M -1      - delay in -ms
+    //      0-999       - return count
+    //      1000        - function start
+    //      1001        - program finished
+    //      1002        - program terminated
+    //      1003        - wait for event
+    //      1004        - continue execution (yield)
+    //      1005-1999   - unused
+    //      2000...     - error codes
+    static constexpr int32_t MaxReturnCount = 999;
+    static constexpr int32_t FunctionStartValue = 1000;
+    static constexpr int32_t FinishedValue = 1001;
+    static constexpr int32_t TerminatedValue = 1002;
+    static constexpr int32_t WaitForEventValue = 1003;
+    static constexpr int32_t ContinueValue = 1004;
+    static constexpr int32_t MaxMsDelay = 6000000;
+
+    static constexpr int32_t ErrorValue = 2000;
     
-    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Error, Finished, Terminated, WaitForEvent, Continue };
+    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Continue };
+    
+    enum class Error {
+        Ok,
+        WrongNumberOfParams,
+        ConstructorOnly,
+        Unimplemented,
+        OutOfRange,
+        MissingThis,
+        InternalError,
+        PropertyDoesNotExist,
+        BadFormatString,
+        UnknownFormatSpecifier,
+        CannotConvertStringToNumber,
+        CannotCreateArgumentsArray,
+        CannotCall,
+    };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
@@ -67,7 +95,6 @@ public:
             case Type::ReturnCount: assert(value <= MaxReturnCount); _value = value; break;
             case Type::MsDelay: assert(value > 0 && value <= MaxMsDelay); _value = -value; break;
             case Type::FunctionStart: _value = FunctionStartValue; break;
-            case Type::Error: _value = ErrorValue; break;
             case Type::Finished: _value = FinishedValue; break;
             case Type::Terminated: _value = TerminatedValue; break;
             case Type::WaitForEvent: _value = WaitForEventValue; break;
@@ -75,8 +102,10 @@ public:
         }
     }
     
+    CallReturnValue(Error error) { _value = ErrorValue + static_cast<int32_t>(error); }
+    
     bool isFunctionStart() const { return _value == FunctionStartValue; }
-    bool isError() const { return _value == ErrorValue; }
+    bool isError() const { return _value >= ErrorValue; }
     bool isFinished() const { return _value == FinishedValue; }
     bool isTerminated() const { return _value == TerminatedValue; }
     bool isWaitForEvent() const { return _value == WaitForEventValue; }
@@ -85,6 +114,7 @@ public:
     bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
     uint32_t msDelay() const { assert(isMsDelay()); return -_value; }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
+    Error error() const { assert(_value >= ErrorValue); return static_cast<Error>(_value - ErrorValue); }
 
 private:
     int32_t _value = 0;

@@ -73,7 +73,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     obj->setProperty(eu, ATOM(eu, __nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
@@ -97,12 +97,12 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
     MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
     if (!delegate) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
     
     String ipString = eu->stack().top(1 - nparams).toStringValue(eu);
@@ -120,7 +120,7 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
 {
     Object* obj = thisValue.asObject();
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
     MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());

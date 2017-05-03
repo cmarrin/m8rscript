@@ -50,7 +50,7 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 {
     if (prop == ATOM(eu, call)) {
         if (nparams < 1) {
-            return CallReturnValue(CallReturnValue::Type::Error);
+            return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
         }
         
         // Remove the first element and use it as the this pointer
@@ -60,7 +60,7 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
     
         return call(eu, self, nparams, false);
     }
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
 }
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)

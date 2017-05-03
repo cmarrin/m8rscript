@@ -362,7 +362,7 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Object* obj = asObject();
-    return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Type::Error);
+    return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Error::CannotCall);
 }
 
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -371,12 +371,12 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::Function:
         case Type::Object: {
             Object* obj = asObject();
-            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Type::Error);
+            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
         }
         case Type::Integer:
         case Type::Float: 
             // FIXME: Implement a Number object
-            break;
+            return CallReturnValue(CallReturnValue::Error::CannotCall);
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
@@ -397,15 +397,14 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 eu->stack().push(Value(arrayObject));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            break;
+            return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
         }
         case Type::Id:
         case Type::NativeObject:
         case Type::None:
         case Type::Null:
-            break;
+            return CallReturnValue(CallReturnValue::Error::CannotCall);
     }
-    return CallReturnValue(CallReturnValue::Type::Error);
 }
 
 void Value::gcMark(ExecutionUnit* eu)

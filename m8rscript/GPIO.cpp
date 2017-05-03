@@ -79,13 +79,13 @@ CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t 
 CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::Unimplemented);
 }
 
 CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::Unimplemented);
 }
 
 PinMode::PinMode(Program* program)

@@ -84,7 +84,7 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 {
     if (!ctor) {
         // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
     }
     
     // Stack: string ip octets or 4 integers
@@ -97,14 +97,14 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
         int32_t c = eu->stack().top(-1).toIntValue(eu);
         int32_t d = eu->stack().top().toIntValue(eu);
         if (a < 0 || a > 255 || b < 0 || b > 255 || c < 0 || c > 255 || d < 0 || d > 255) {
-            return CallReturnValue(CallReturnValue::Type::Error);
+            return CallReturnValue(CallReturnValue::Error::OutOfRange);
         }
         ipAddr[0] = a;
         ipAddr[1] = b;
         ipAddr[2] = c;
         ipAddr[3] = d;
     } else {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
 
     IPAddrProto* obj = new IPAddrProto();
@@ -151,5 +151,5 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         });
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
 }

@@ -128,7 +128,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         if (next < 0) {
-            return CallReturnValue(CallReturnValue::Type::Error);
+            return CallReturnValue(CallReturnValue::Error::BadFormatString);
         }
         
         // Output anything from s to the '%'
@@ -185,7 +185,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
             case 'p':
                 eu->system()->printf("%p", *(reinterpret_cast<void**>(&value)));
                 break;
-            default: return CallReturnValue(CallReturnValue::Type::Error);
+            default: return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
         }
         
         s += next;
@@ -221,7 +221,7 @@ CallReturnValue Global::toFloat(ExecutionUnit* eu, Value thisValue, uint32_t npa
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -243,7 +243,7 @@ CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t npara
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -265,14 +265,14 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Type::Error);
+    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Object* array = ObjectFactory::create(ATOM(eu, Array), eu, 0);
     if (!array) {
-        return CallReturnValue(CallReturnValue::Type::Error);
+        return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }
     
     for (uint32_t i = 0; i < eu->argumentCount(); ++i) {
