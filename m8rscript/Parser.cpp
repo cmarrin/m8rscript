@@ -376,7 +376,17 @@ void Parser::emitMove()
             break;
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
-            emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
+            if (_parseStack.topIsValue()) {
+                uint32_t objectReg = _parseStack.topReg();
+                _parseStack.swap();
+                ConstantId id = currentFunction()->addConstant(Value(ATOM(program(), setValue)));
+                uint32_t tmp = _parseStack.pushRegister();
+                emitCodeRRR(Op::LOADPROP, tmp, objectReg, id.raw() + MaxRegister + 1);
+                emitPush();
+                emitCallRet(Op::CALL, _parseStack.topReg(), 1);
+            } else {
+                emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
+            }
             break;
         case ParseStack::Type::Local:
         case ParseStack::Type::Register:
