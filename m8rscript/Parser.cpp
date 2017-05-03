@@ -377,13 +377,21 @@ void Parser::emitMove()
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef: {
             if (_parseStack.topIsValue()) {
-                uint32_t objectReg = _parseStack.topReg();
+                // Currently TOS is a PropRef and TOS-1 is the source. We need to convert the
+                // PropRef into a simple register, then swap it back to its original position,
+                // then push a "setValue" atom, the swap again. Then we will have:
+                // TOS=>src, ATOM(setValue), dst. Now we need to generate the equivalent of:
+                //
+                //      dst.setValue(src
+                //
+                _parseStack.propRefToReg();
                 _parseStack.swap();
-                ConstantId id = currentFunction()->addConstant(Value(ATOM(program(), setValue)));
-                uint32_t tmp = _parseStack.pushRegister();
-                emitCodeRRR(Op::LOADPROP, tmp, objectReg, id.raw() + MaxRegister + 1);
+                emitId(ATOM(program(), setValue), IdType::NotLocal);
+                _parseStack.swap();
                 emitPush();
-                emitCallRet(Op::CALL, _parseStack.topReg(), 1);
+                uint32_t objReg = emitDeref(DerefType::Prop);
+                emitCallRet(Op::CALL, objReg, 1);
+                discardResult();
             } else {
                 emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             }
@@ -403,7 +411,6 @@ void Parser::emitMove()
         }
     }
     
-    _parseStack.swap();
     _parseStack.pop();
 }
 
@@ -830,3 +837,12 @@ void Parser::ParseStack::replaceTop(Type type, uint32_t reg, uint32_t derefReg)
 {
     _stack.setTop({ type, reg, derefReg });
 }
+
+void Parser::ParseStack::propRefToReg()
+{
+    assert(_stack.top()._type == Type::PropRef);
+    uint32_t r = _stack.top()._reg;
+    Type type = (r < _parser->_functions.back()._minReg) ? Type::Local : ((r <= MaxRegister) ? Type::Register : Type::Constant);
+    replaceTop(type, r, 0);
+}
+

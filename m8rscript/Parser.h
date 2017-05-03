@@ -236,6 +236,7 @@ private:
             Entry entry = _stack.top();
             _stack.push(entry);
         }
+        void propRefToReg();
         
     private:
         struct Entry {
