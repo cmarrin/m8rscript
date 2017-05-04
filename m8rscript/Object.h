@@ -92,11 +92,6 @@ public:
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     
-    static constexpr int32_t IteratorCount = -1;
-    static constexpr int32_t IteratorNext = -2;
-    virtual Value iteratedValue(ExecutionUnit*, int32_t index) const { return Value(); }
-    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value&, Value::SetPropertyType) { return false; }
-
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
 
@@ -172,8 +167,8 @@ public:
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, Value::SetPropertyType type) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
-    virtual Value iteratedValue(ExecutionUnit* eu, int32_t index) const override;
-    virtual bool setIteratedValue(ExecutionUnit*, int32_t index, const Value& value, Value::SetPropertyType type) override;
+    uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
+    Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
     
     bool setProperty(const Atom& prop, const Value& v);
 

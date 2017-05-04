@@ -453,13 +453,16 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
                 s += "CLASS";
                 break;
             }
-            Object* obj = value.asObject();
+            
+            // Make the assumption that this is a MaterObject
+            MaterObject* obj = static_cast<MaterObject*>(value.asObject());
             if (obj) {
                 _nestingLevel++;
                 s += "CLASS {\n";
-                int32_t count = obj->iteratedValue(nullptr, Object::IteratorCount).asIntValue();
+                uint32_t count = obj->numProperties();
+
                 for (int32_t i = 0; i < count; ++i) {
-                    Atom name = obj->iteratedValue(nullptr, i).asIdValue();
+                    Atom name = obj->propertyKeyforIndex(i);
                     if (name) {
                         Value v = obj->property(nullptr, name);
                         indentCode(s);

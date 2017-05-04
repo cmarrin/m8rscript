@@ -141,31 +141,6 @@ MaterObject::~MaterObject()
     }
 }
 
-Value MaterObject::iteratedValue(ExecutionUnit*, int32_t index) const
-{
-    if (index == Object::IteratorCount) {
-        return Value(_isArray ? static_cast<int32_t>(_array.size()) : static_cast<int32_t>(_properties.size()));
-    }
-    if (_isArray) {
-        return _array[index];
-    } else {
-        return Value((_properties.size() > index) ? (_properties.begin() + index)->key : Atom());
-    }
-}
-
-bool MaterObject::setIteratedValue(ExecutionUnit*, int32_t index, const Value& value, Value::SetPropertyType type)
-{
-    if (!_isArray || index < 0 || (index >= _array.size() && type == Value::SetPropertyType::NeverAdd)) {
-        return false;
-    }
-    
-    if (index >= _array.size()) {
-        _array.resize(index + 1);
-    }
-    _array[index] = value;
-    return true;
-}
-
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, __typeName)).asIdValue());
@@ -346,6 +321,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     MaterObject* obj = new MaterObject();
     Value objectValue(obj);
     obj->setProto(this);
+    obj->_isArray = _isArray;
 
     auto it = _properties.find(ATOM(eu, constructor));
     if (it != _properties.end()) {
