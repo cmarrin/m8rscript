@@ -824,7 +824,7 @@ uint32_t Parser::ParseStack::bake()
             Value v = _parser->currentFunction()->constant(ConstantId(r - MaxRegister - 1));
             Object* obj = v.asObject();
             Function* func = (obj && obj->isFunction()) ? reinterpret_cast<Function*>(obj) : nullptr;
-            if (func && func->hasUpValues()) {
+            if (func) {
                 pop();
                 uint32_t dst = pushRegister();
                 _parser->emitCodeRRR(Op::CLOSURE, dst, r);
