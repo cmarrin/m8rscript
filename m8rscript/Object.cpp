@@ -390,7 +390,7 @@ void ObjectFactory::addProperty(Atom prop, const Value& value)
 
 Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
-    Value objectValue = eu->program()->property(eu, objectName);
+    Value objectValue = eu->program()->global()->property(eu, objectName);
     if (!objectValue) {
         return nullptr;
     }
