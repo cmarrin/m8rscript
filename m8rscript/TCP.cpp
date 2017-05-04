@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 TCPProto::TCPProto(Program* program)
-    : ObjectFactory(program, ROMSTR("TCPProto"))
+    : ObjectFactory(program, ATOM(program, TCPProto))
     , _constructor(constructor)
     , _send(send)
     , _disconnect(disconnect)

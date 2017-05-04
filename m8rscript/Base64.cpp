@@ -125,7 +125,7 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 }
 
 Base64::Base64(Program* program)
-    : ObjectFactory(program, ROMSTR("Base64"))
+    : ObjectFactory(program, ATOM(program, Base64))
     , _encode(encode)
     , _decode(decode)
 {

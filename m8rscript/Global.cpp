@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Global::Global(Program* program)
-    : ObjectFactory(program, ROMSTR("Global"))
+    : ObjectFactory(program, ATOM(program, Global))
     , _array(true)
     , _base64(program)
     , _gpio(program)

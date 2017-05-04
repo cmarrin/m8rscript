@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 JSON::JSON(Program* program)
-    : ObjectFactory(program, ROMSTR("JSON"))
+    : ObjectFactory(program, ATOM(program, JSON))
     , _parse(parse)
     , _stringify(stringify)
 {

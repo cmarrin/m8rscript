@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 UDPProto::UDPProto(Program* program)
-    : ObjectFactory(program, ROMSTR("UDPProto"))
+    : ObjectFactory(program, ATOM(program, UDPProto))
     , _constructor(constructor)
     , _send(send)
     , _disconnect(disconnect)

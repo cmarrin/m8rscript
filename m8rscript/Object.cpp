@@ -339,10 +339,10 @@ NativeFunction::NativeFunction(Func func)
 {
 }
 
-ObjectFactory::ObjectFactory(Program* program, const char* name)
+ObjectFactory::ObjectFactory(Program* program, Atom name)
 {
     if (name) {
-        _obj.setProperty(ATOM(program, __typeName), Value(Object::createString(name)));
+        _obj.setProperty(ATOM(program, __typeName), Value(name));
     }
 }
 

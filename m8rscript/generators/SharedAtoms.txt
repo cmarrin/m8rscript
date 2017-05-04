@@ -5,6 +5,7 @@ Connected
 Disconnected 
 Error 
 FallingEdge
+Global
 GPIO
 High
 Input
@@ -25,8 +26,10 @@ Reconnected
 RisingEdge
 SentData 
 TCP
+TCPProto
 Trigger
 UDP
+UDPProto
 a
 arguments
 b

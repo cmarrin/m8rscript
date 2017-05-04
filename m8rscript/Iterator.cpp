@@ -42,7 +42,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Iterator::Iterator(Program* program)
-    : ObjectFactory(program, ROMSTR("Iterator"))
+    : ObjectFactory(program, ATOM(program, Iterator))
     , _constructor(constructor)
     , _done(done)
     , _next(next)
