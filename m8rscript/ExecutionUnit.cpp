@@ -76,6 +76,7 @@ bool ExecutionUnit::printError(CallReturnValue::Error error, const char* name) c
         case CallReturnValue::Error::CannotConvertStringToNumber: errorString = ROMSTR("string cannot be converted"); break;
         case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
+        case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
     }
     
     return printError(errorString, name);
