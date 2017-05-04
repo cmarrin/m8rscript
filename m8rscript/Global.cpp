@@ -44,6 +44,7 @@ using namespace m8r;
 
 Global::Global(Program* program)
     : ObjectFactory(program, ROMSTR("Global"))
+    , _array(true)
     , _base64(program)
     , _gpio(program)
     , _json(program)
@@ -73,7 +74,7 @@ Global::Global(Program* program)
     addProperty(ATOM(program, toUInt), &_toUInt);
     addProperty(ATOM(program, arguments), &_arguments);
 
-    addProperty(ATOM(program, Array), &_object);
+    addProperty(ATOM(program, Array), &_array);
     addProperty(ATOM(program, Object), &_object);
     addProperty(ATOM(program, IPAddr), &_ipAddr);
     

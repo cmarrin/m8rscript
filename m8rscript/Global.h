@@ -53,6 +53,7 @@ public:
 
 private:
     MaterObject _object;
+    MaterObject _array;
     Base64 _base64;
     GPIO _gpio;
     JSON _json;
