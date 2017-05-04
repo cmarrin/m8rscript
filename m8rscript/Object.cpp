@@ -244,7 +244,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
 
 const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
 {
-    if (elt.isString()) {
+    if (elt.isString() || !_isArray) {
         Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
         return property(eu, prop);
     }
@@ -259,7 +259,7 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
         return true;
     }
     
-    if (elt.isString()) {
+    if (elt.isString() || !_isArray) {
         Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
         return setProperty(eu, prop, value, Value::SetPropertyType::NeverAdd);
     }
