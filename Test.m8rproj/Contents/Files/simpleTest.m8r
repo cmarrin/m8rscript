@@ -13,7 +13,7 @@ var strings = [
 ];
 
 for (var s : strings) {
-	printf("JSON.parse(\"%s\") ==> '%s'\n", s, JSON.parse(s));
+	printf("JSON.parse(\"%s\") ==> '%s'\n", s.value, JSON.parse(s.value));
 }
 
 printf("3.14 * 6 * 6 = %f\n", 3.14 * 6 * 6);
