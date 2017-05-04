@@ -277,8 +277,8 @@ CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }
     
-    for (uint32_t i = 0; i < eu->argumentCount(); ++i) {
-        array->setIteratedValue(eu, i, eu->argument(i), Value::SetPropertyType::AlwaysAdd);
+    for (int32_t i = 0; i < eu->argumentCount(); ++i) {
+        array->setElement(eu, Value(i), eu->argument(i), true);
     }
     eu->stack().push(Value(array));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
