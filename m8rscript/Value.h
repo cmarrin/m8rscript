@@ -87,6 +87,7 @@ public:
         CannotConvertStringToNumber,
         CannotCreateArgumentsArray,
         CannotCall,
+        InvalidArgumentValue,
     };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
