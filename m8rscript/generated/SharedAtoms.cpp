@@ -17,6 +17,7 @@ static const char _Input[] ROMSTR_ATTR = "Input";
 static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
 static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
+static const char _Iterator[] ROMSTR_ATTR = "Iterator";
 static const char _JSON[] ROMSTR_ATTR = "JSON";
 static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
@@ -67,7 +68,9 @@ static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
+static const char ___object[] ROMSTR_ATTR = "__object";
 static const char ___this[] ROMSTR_ATTR = "__this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char ___count__[] ROMSTR_ATTR = "__count__";
@@ -86,6 +89,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _InputPulldown,
     _InputPullup,
     _IPAddr,
+    _Iterator,
     _JSON,
     _Low,
     _MaxConnections,
@@ -136,7 +140,9 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _toUInt,
     _trim,
     _value,
+    ___index,
     ___nativeObject,
+    ___object,
     ___this,
     ___typeName,
     ___count__,

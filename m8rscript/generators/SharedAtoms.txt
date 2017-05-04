@@ -11,6 +11,7 @@ Input
 InputPulldown
 InputPullup
 IPAddr
+Iterator
 JSON
 Low
 MaxConnections
@@ -61,7 +62,9 @@ toInt
 toUInt
 trim
 value
+__index
 __nativeObject
+__object
 __this
 __typeName
 __count__
