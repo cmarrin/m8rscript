@@ -40,6 +40,7 @@
     __weak IBOutlet NSToolbarItem *reloadFilesButton;    
     
     __weak IBOutlet NSButton *enableDebugButton;
+    __weak IBOutlet NSTextField *freeMemoryLabel;
     NSMenuItem *commentSelectionMenuItem;
     
     NSString* _source;
@@ -77,8 +78,9 @@
     [consoleOutput setVerticallyResizable:YES];
     [buildOutput setVerticallyResizable:YES];
     
-    enableDebugButton.state = NSOffState;
-    
+    enableDebugButton.state = NSOnState;
+    [self setFreeMemory:45600];
+
     _device = [[Device alloc]init];
     _device.delegate = self;
     
@@ -190,6 +192,12 @@
     }
 
     return YES;
+}
+
+- (void) setFreeMemory:(NSUInteger)size
+{
+    NSString* s = [NSString stringWithFormat:@"%.1fkb", ((float) size) / 1000];
+    freeMemoryLabel.stringValue = s;
 }
 
 + (BOOL)autosavesInPlace {

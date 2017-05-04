@@ -286,6 +286,9 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
                 showMessage(MessageType::Info, ROMSTR("renamed file\n"));
             }
         }
+    } else if (array[0] == "heap") {
+        _state = State::NeedPrompt;
+        showMessage(MessageType::Info, ROMSTR("heap:%d\n"), _application->system()->freeMemory());
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("device name required"));

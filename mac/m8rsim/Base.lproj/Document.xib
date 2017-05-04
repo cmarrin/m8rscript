@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11191" systemVersion="16C60a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13090.2" systemVersion="16C62" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13090.2"/>
         <capability name="box content view" minToolsVersion="7.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="m8rsim" customModuleProvider="target">
@@ -15,6 +16,7 @@
                 <outlet property="editView" destination="E0T-Wz-mD4" id="7tW-Fd-D6A"/>
                 <outlet property="enableDebugButton" destination="xJQ-dg-Ox0" id="cRH-eY-IjE"/>
                 <outlet property="filesContainer" destination="ITH-sx-5DT" id="WZ2-Z6-8pn"/>
+                <outlet property="freeMemoryLabel" destination="6xc-6Y-scK" id="jyM-64-6OD"/>
                 <outlet property="imageView" destination="np9-g9-QUZ" id="6zF-UC-9yK"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
                 <outlet property="pauseButton" destination="7ed-ZA-LTG" id="ZFe-iA-0tc"/>
@@ -33,24 +35,24 @@
         <window identifier="m8rscript Document Window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="m8rscript Document Window" animationBehavior="default" id="xOd-HO-29H" userLabel="m8rscript Document Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="133" y="235" width="1094" height="606"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="contentRect" x="133" y="235" width="1102" height="611"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <value key="minSize" type="size" width="1094" height="606"/>
             <view key="contentView" wantsLayer="YES" id="gIp-Ho-8D9">
-                <rect key="frame" x="0.0" y="0.0" width="1094" height="606"/>
+                <rect key="frame" x="0.0" y="0.0" width="1102" height="611"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <splitView arrangesAllSubviews="NO" autosaveName="m8rscript SplitView" dividerStyle="paneSplitter" translatesAutoresizingMaskIntoConstraints="NO" id="ol7-JB-cDN">
-                        <rect key="frame" x="0.0" y="0.0" width="1094" height="606"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1102" height="611"/>
                         <subviews>
                             <customView id="yH8-L1-Khg" userLabel="Upper View">
-                                <rect key="frame" x="0.0" y="0.0" width="1094" height="423"/>
+                                <rect key="frame" x="0.0" y="0.0" width="1102" height="428"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <box borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="87i-3q-D04" userLabel="Sim Container Box">
-                                        <rect key="frame" x="-3" y="-4" width="256" height="429"/>
+                                        <rect key="frame" x="-3" y="-4" width="256" height="434"/>
                                         <view key="contentView" id="IEu-ZQ-lxz" userLabel="Sim Container View">
-                                            <rect key="frame" x="1" y="1" width="254" height="427"/>
+                                            <rect key="frame" x="1" y="1" width="254" height="432"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </view>
                                         <constraints>
@@ -58,18 +60,18 @@
                                         </constraints>
                                     </box>
                                     <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="E0T-Wz-mD4" userLabel="Edit View">
-                                        <rect key="frame" x="258" y="0.0" width="567" height="423"/>
+                                        <rect key="frame" x="258" y="0.0" width="575" height="428"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </customView>
                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="np9-g9-QUZ">
-                                        <rect key="frame" x="258" y="0.0" width="567" height="423"/>
+                                        <rect key="frame" x="258" y="0.0" width="575" height="428"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Y5x-05-ptV"/>
                                     </imageView>
                                     <box borderType="bezel" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="NwS-b5-0vz" userLabel="Files Container Box">
-                                        <rect key="frame" x="830" y="-4" width="267" height="429"/>
+                                        <rect key="frame" x="838" y="-4" width="267" height="434"/>
                                         <view key="contentView" id="ITH-sx-5DT" userLabel="Files Container View">
-                                            <rect key="frame" x="3" y="3" width="261" height="423"/>
+                                            <rect key="frame" x="3" y="3" width="261" height="428"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </view>
                                         <constraints>
@@ -87,28 +89,28 @@
                                 </constraints>
                             </customView>
                             <customView id="8PC-Tc-gAw" userLabel="Lower View">
-                                <rect key="frame" x="0.0" y="433" width="1094" height="173"/>
+                                <rect key="frame" x="0.0" y="438" width="1102" height="173"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <tabView controlSize="small" translatesAutoresizingMaskIntoConstraints="NO" id="i0v-Oc-7LR">
-                                        <rect key="frame" x="-7" y="-10" width="1108" height="186"/>
+                                        <rect key="frame" x="-7" y="-10" width="1116" height="186"/>
                                         <tabViewItems>
                                             <tabViewItem label="Console" identifier="1" id="Hzi-By-Eb1">
                                                 <view key="view" id="jIx-iV-Dow">
-                                                    <rect key="frame" x="10" y="29" width="1088" height="144"/>
+                                                    <rect key="frame" x="10" y="25" width="1096" height="148"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vO9-4P-bjr">
-                                                            <rect key="frame" x="-3" y="-4" width="1094" height="149"/>
+                                                            <rect key="frame" x="-3" y="-4" width="1102" height="153"/>
                                                             <clipView key="contentView" id="MA6-AD-tdC">
-                                                                <rect key="frame" x="1" y="1" width="1077" height="147"/>
+                                                                <rect key="frame" x="1" y="1" width="1085" height="151"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
                                                                     <textView importsGraphics="NO" horizontallyResizable="YES" verticallyResizable="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="kHQ-5K-DHj">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="1077" height="147"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="1085" height="151"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                        <size key="minSize" width="1077" height="147"/>
+                                                                        <size key="minSize" width="1085" height="151"/>
                                                                         <size key="maxSize" width="1094" height="10000000"/>
                                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     </textView>
@@ -120,7 +122,7 @@
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="9ZK-lD-vjz">
-                                                                <rect key="frame" x="1078" y="1" width="15" height="147"/>
+                                                                <rect key="frame" x="1086" y="1" width="15" height="151"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
@@ -183,6 +185,24 @@
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                     </button>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4aG-Qb-kP3">
+                                        <rect key="frame" x="930" y="155" width="88" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Free memory:" id="iQl-TA-tgH">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6xc-6Y-scK" userLabel="Memory Used Label">
+                                        <rect key="frame" x="1016" y="155" width="68" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="23.7kb" id="gxF-UM-2yp">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="i0v-Oc-7LR" secondAttribute="trailing" id="4dT-Lb-JAE"/>
@@ -276,7 +296,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="48" y="180"/>
+            <point key="canvasLocation" x="52" y="182.5"/>
         </window>
     </objects>
     <resources>

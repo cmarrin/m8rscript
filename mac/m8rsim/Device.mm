@@ -50,6 +50,10 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
+uint32_t g_baselineMemoryUsed = 0;
+#define MaxMemory 80000
+
+
 class DeviceSystemInterface : public m8r::SystemInterface
 {
 public:
@@ -62,6 +66,19 @@ public:
     }
     
     virtual m8r::GPIOInterface& gpio() override { return _gpio; }
+    virtual uint32_t freeMemory() const override
+    {
+        struct task_basic_info info;
+        mach_msg_type_number_t size = sizeof(info);
+        kern_return_t kerr = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
+        uint32_t used = (uint32_t) ((kerr == KERN_SUCCESS) ? info.resident_size : 0);
+        if (g_baselineMemoryUsed == 0) {
+            g_baselineMemoryUsed = used;
+        }
+        
+        uint32_t memoryUsed = used - g_baselineMemoryUsed;
+        return (memoryUsed > MaxMemory) ? 0 : MaxMemory - memoryUsed;
+    }
 
 private:
     class DeviceGPIOInterface : public m8r::GPIOInterface {
@@ -132,6 +149,8 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
         
         (void) m8r::IPAddr::myIPAddr();
+
+        [self updateFreeMemory];
      }
     return self;
 }
@@ -429,6 +448,24 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     });
 }
 
+- (void)updateFreeMemory
+{
+    NSString* __block command = @"heap\r\n";
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* sizeString = [self sendCommand:command fromService:service withTerminator:'>'];
+        NSArray* elements = [sizeString componentsSeparatedByString:@":"];
+        if (elements.count != 2 || ![elements[0] isEqualToString:@"heap"]) {
+            return;
+        }
+        NSUInteger size = [[elements objectAtIndex:1] intValue];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_delegate setFreeMemory:size];
+        });
+    });
+}
+
 - (NSString*)trimTrailingDot:(NSString*)s
 {
     if ([s characterAtIndex:s.length - 1] == '.') {
@@ -454,6 +491,8 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (void)setDevice:(NSString*)device
 {
+    [self updateFreeMemory];
+
     if (_logSocket) {
         _logSocket = nil;
         dispatch_sync(_logQueue, ^{ });
@@ -558,6 +597,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [errorArray addObject:syntaxError];
     }
     
+    [self updateFreeMemory];
     return errorArray;
 }
 
@@ -574,6 +614,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         NSString* command = [NSString stringWithFormat:@"run %@\r\n", name];
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateFreeMemory];
         });
     });
 }
@@ -590,6 +631,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         NSString* command = [NSString stringWithFormat:@"stop\r\n"];
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateFreeMemory];
         });
     });
 }

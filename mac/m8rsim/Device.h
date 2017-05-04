@@ -29,6 +29,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)setContents:(NSData*)contents withName:(NSString*)name;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build;
+- (void) setFreeMemory:(NSUInteger)size;
 - (void)markDirty;
 
 @end

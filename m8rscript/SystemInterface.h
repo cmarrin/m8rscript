@@ -98,6 +98,7 @@ public:
     
     virtual void vprintf(const char*, va_list) const = 0;
     virtual GPIOInterface& gpio() = 0;
+    virtual uint32_t freeMemory() const = 0;
     static uint64_t currentMicroseconds();
 };
 

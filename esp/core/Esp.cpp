@@ -120,6 +120,7 @@ class EspSystemInterface : public m8r::SystemInterface
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
     virtual m8r::GPIOInterface& gpio() { return _gpio; }
+    virtual uint32_t freeMemory() const override { return xPortGetFreeHeapSize(); }
     
 private:
     m8r::EspGPIOInterface _gpio;
