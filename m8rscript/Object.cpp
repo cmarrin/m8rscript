@@ -130,8 +130,6 @@ void Object::gc(ExecutionUnit* eu)
     }
 }
 
-MaterObject* MaterObject::_defaultIterator = nullptr;
-
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
@@ -291,14 +289,7 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     }
     
     if (prop == ATOM(eu, iterator)) {
-        if (_iterator) {
-            return Value(_iterator);
-        }
-        if (!_defaultIterator) {
-            _defaultIterator = new MaterObject();
-            addStaticObject(_defaultIterator);
-        }
-        return Value(_defaultIterator);
+        return Value(_iterator ?: eu->program()->global()->property(eu, ATOM(eu, Iterator)).asObject());
     }
 
     auto it = _properties.find(prop);

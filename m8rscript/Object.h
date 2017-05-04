@@ -190,8 +190,6 @@ private:
     Object* _iterator = nullptr;
     bool _isArray = false;
     bool _arrayNeedsGC;
-    
-    static MaterObject* _defaultIterator;
 };
 
 class NativeFunction : public Object {
