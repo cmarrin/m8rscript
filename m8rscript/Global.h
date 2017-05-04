@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base64.h"
 #include "GPIO.h"
+#include "Iterator.h"
 #include "JSON.h"
 #include "Object.h"
 #include "TCP.h"
@@ -58,6 +59,7 @@ private:
     TCPProto _tcp;
     UDPProto _udp;
     IPAddrProto _ipAddr;
+    Iterator _iterator;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);

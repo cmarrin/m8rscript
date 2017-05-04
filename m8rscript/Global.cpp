@@ -49,6 +49,7 @@ Global::Global(Program* program)
     , _json(program)
     , _tcp(program)
     , _udp(program)
+    , _iterator(program)
     , _currentTime(currentTime)
     , _delay(delay)
     , _print(print)
@@ -81,6 +82,7 @@ Global::Global(Program* program)
     addProperty(ATOM(program, JSON), Value(_json.nativeObject()));
     addProperty(ATOM(program, TCP), Value(_tcp.nativeObject()));
     addProperty(ATOM(program, UDP), Value(_udp.nativeObject()));
+    addProperty(ATOM(program, Iterator), Value(_iterator.nativeObject()));
 }
 
 Global::~Global()
