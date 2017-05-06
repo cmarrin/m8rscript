@@ -130,7 +130,7 @@ public:
         *this = other;
     };
     
-    ~String() { free(_data); };
+    ~String() { delete [ ] _data; };
 
     String& operator=(const String& other)
     {
@@ -144,7 +144,7 @@ public:
             return *this;
         }
         
-        _data = static_cast<char *>(malloc(_capacity));
+        _data = new char[_capacity];
         assert(_data);
         if (_data) {
             memcpy(_data, other._data, _size);
@@ -301,7 +301,7 @@ private:
         if (_capacity < size) {
             _capacity = size;
         }
-        char *newData = static_cast<char *>(malloc(_capacity));
+        char *newData = new char[_capacity];
         assert(newData);
         if (_data) {
             if (newData) {
@@ -310,7 +310,7 @@ private:
                 _capacity = 0;
                 _size = 1;
             }
-            free(_data);
+            delete _data;
         }
         _data = newData;
     };

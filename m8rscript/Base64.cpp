@@ -145,12 +145,12 @@ CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t npar
         String* string = Object::createString(outString, actualLength);
         eu->stack().push(Value(string));
     } else {
-        char* outString = static_cast<char*>(malloc(outLength));
+        char* outString = new char[outLength];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                          BASE64_STACK_ALLOC_LIMIT, outString);
         String* string = Object::createString(outString, actualLength);
         eu->stack().push(Value(string));
-        free(outString);
+        delete [ ] outString;
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
@@ -166,11 +166,11 @@ CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t npar
         String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(Value(string));
     } else {
-        unsigned char* outString = static_cast<unsigned char*>(malloc(outLength));
+        unsigned char* outString = new unsigned char[outLength];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
         String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(Value(string));
-        free(outString);
+        delete [ ] outString;
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
