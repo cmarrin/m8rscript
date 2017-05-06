@@ -121,7 +121,7 @@ void FLASH_ATTR runScript()
     });
 
     system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    system()->printf(ROMSTR("***** start - free ram:%d\n"), system_get_free_heap_size());
+    system()->printf(ROMSTR("***** start - free ram:%d\n"), system()->freeMemory());
     
     m8r::Error error;
     if (!_application.load(error, false)) {
@@ -130,7 +130,7 @@ void FLASH_ATTR runScript()
         system()->printf(ROMSTR("Error:failed to compile application"));
     } else {
         _application.run([]{
-            system()->printf(ROMSTR("***** finished - free ram:%d\n"), system_get_free_heap_size());
+            system()->printf(ROMSTR("***** finished - free ram:%d\n"), system()->freeMemory());
         });
     }
 }
