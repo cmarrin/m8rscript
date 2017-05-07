@@ -121,7 +121,7 @@ public:
         }
     }
 
-    static void gc(ExecutionUnit*);
+    static void gc(ExecutionUnit*, bool force);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }

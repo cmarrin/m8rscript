@@ -466,7 +466,6 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
             return;
         }
         NSUInteger size = [[elements objectAtIndex:1] intValue];
-NSLog(@"******** size=%lu\n", (unsigned long)size);        
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate setFreeMemory:size];
         });

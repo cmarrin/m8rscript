@@ -360,7 +360,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
                 goto L_END; \
             } \
             if ((checkCounter & 0xff) == 0) { \
-                Object::gc(this); \
+                Object::gc(this, false); \
             } \
             if (checkCounter == 0) { \
                 return CallReturnValue(CallReturnValue::Type::Continue); \
@@ -373,6 +373,8 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     if (!_program) {
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
+
+    Object::gc(this, false);
 
     uint16_t checkCounter = 0;
     updateCodePointer();
@@ -407,7 +409,7 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     L_END:
         if (_terminate) {
             _stack.clear();
-            Object::gc(this);
+            Object::gc(this, true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
             
@@ -419,11 +421,11 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
                     _terminate = true;
                     _stack.clear();
-                    Object::gc(this);
+                    Object::gc(this, true);
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
-                Object::gc(this);
+                Object::gc(this, true);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
                 // we'll hit the program end again
