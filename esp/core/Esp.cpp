@@ -447,7 +447,7 @@ void initmdns()
     }
 
     _responder = new m8r::MDNSResponder(name);
-    _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
+    _responder->addService(22, "m8r IoT", "m8rscript_shell");
 }
 
 void initSoftAP()
