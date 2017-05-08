@@ -92,7 +92,7 @@ Global::~Global()
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    uint64_t t = eu->system()->currentMicroseconds();
+    uint64_t t = SystemInterface::currentMicroseconds();
     eu->stack().push(Value(Float(static_cast<Float::value_type>(t), -6)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
