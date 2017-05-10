@@ -20,6 +20,11 @@
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
+		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
+		4945A8781EC3969100559CD1 /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
+		4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4945A87A1EC398B900559CD1 /* Foundation.framework */; };
+		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
+		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
 		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
 		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
@@ -33,13 +38,11 @@
 		494D255B1D2E90A9003755DB /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
 		494D255D1D2E90A9003755DB /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
-		494D25621D2E911F003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
 		494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
 		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
-		4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
@@ -89,14 +92,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		494D255E1D2E90C8003755DB /* PBXContainerItemProxy */ = {
+		4945A8761EC3712700559CD1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 494D254D1D2E9055003755DB;
 			remoteInfo = libm8rscript;
 		};
-		494D25601D2E90CF003755DB /* PBXContainerItemProxy */ = {
+		494D255E1D2E90C8003755DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
 			proxyType = 1;
@@ -106,7 +109,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		49C406E01EB6598B001E4DEC /* CopyFiles */ = {
+		4945A86D1EC3711D00559CD1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -115,7 +118,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		49E647E61D00B68F005F5059 /* CopyFiles */ = {
+		49C406E01EB6598B001E4DEC /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -162,6 +165,9 @@
 		4942EA8B1D0C870200E02088 /* basic.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = basic.m8r; path = ../basic.m8r; sourceTree = "<group>"; };
 		4942EA8C1D0D950100E02088 /* Defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Defines.h; path = ../m8rscript/Defines.h; sourceTree = "<group>"; };
 		4943BF521DC009CC00773D23 /* savebinary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = savebinary.png; sourceTree = "<group>"; };
+		4945A86F1EC3711D00559CD1 /* m8r */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8r; sourceTree = BUILT_PRODUCTS_DIR; };
+		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
 		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../m8rscript/SystemInterface.h; sourceTree = "<group>"; };
@@ -209,7 +215,6 @@
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
-		49C406E41EB6598B001E4DEC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generateSharedAtoms.c; path = ../m8rscript/generators/generateSharedAtoms.c; sourceTree = "<group>"; };
 		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../m8rscript/generators/SharedAtoms.txt; sourceTree = "<group>"; };
 		49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../m8rscript/generated/SharedAtoms.cpp; sourceTree = "<group>"; };
@@ -247,7 +252,6 @@
 		49E5AB5D1D98C00600C6988D /* FastSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FastSocket.h; path = FastSocket/FastSocket.h; sourceTree = "<group>"; };
 		49E5AB681DA1717300C6988D /* Device.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Device.mm; sourceTree = "<group>"; };
 		49E5AB6A1DA1718900C6988D /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
-		49E647E81D00B68F005F5059 /* m8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
 		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../m8rscript/Parser.cpp; sourceTree = "<group>"; };
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
@@ -267,6 +271,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4945A86C1EC3711D00559CD1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */,
+				4945A8781EC3969100559CD1 /* liblibm8rscript.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		494D254B1D2E9055003755DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -290,14 +303,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		49E647E51D00B68F005F5059 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				494D25621D2E911F003755DB /* liblibm8rscript.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -313,11 +318,26 @@
 			name = Tests;
 			sourceTree = "<group>";
 		};
+		4945A8701EC3711D00559CD1 /* m8r */ = {
+			isa = PBXGroup;
+			children = (
+				4945A8711EC3711D00559CD1 /* main.cpp */,
+			);
+			path = m8r;
+			sourceTree = "<group>";
+		};
+		4945A8791EC398B900559CD1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4945A87A1EC398B900559CD1 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		494BA1901D207A9B00E72725 /* m8rscript */ = {
 			isa = PBXGroup;
 			children = (
 				494D25891D32B2E6003755DB /* esp */,
-				494BA1911D207AB700E72725 /* mac */,
 			);
 			name = m8rscript;
 			sourceTree = "<group>";
@@ -360,14 +380,6 @@
 				497B449F1D469BB000BC1B57 /* Makefile */,
 			);
 			name = esp;
-			sourceTree = "<group>";
-		};
-		49C406E31EB6598B001E4DEC /* generateSharedAtoms */ = {
-			isa = PBXGroup;
-			children = (
-				49C406E41EB6598B001E4DEC /* main.cpp */,
-			);
-			path = generateSharedAtoms;
 			sourceTree = "<group>";
 		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
@@ -466,18 +478,19 @@
 				4942EA891D0C86BB00E02088 /* Tests */,
 				49E648071D00BEEC005F5059 /* libm8rscript */,
 				49D9B8191D1C854700724911 /* m8rsim */,
-				49C406E31EB6598B001E4DEC /* generateSharedAtoms */,
+				4945A8701EC3711D00559CD1 /* m8r */,
 				49E647E91D00B68F005F5059 /* Products */,
+				4945A8791EC398B900559CD1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		49E647E91D00B68F005F5059 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				49E647E81D00B68F005F5059 /* m8rscript */,
 				49D9B8181D1C854700724911 /* m8rsim.app */,
 				494D254E1D2E9055003755DB /* liblibm8rscript.a */,
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
+				4945A86F1EC3711D00559CD1 /* m8r */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -485,6 +498,7 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				494BA1911D207AB700E72725 /* mac */,
 				49C406EF1EB6759A001E4DEC /* generated */,
 				49C406E91EB65A15001E4DEC /* generators */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
@@ -570,6 +584,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4945A86E1EC3711D00559CD1 /* m8r */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8r" */;
+			buildPhases = (
+				4945A86B1EC3711D00559CD1 /* Sources */,
+				4945A86C1EC3711D00559CD1 /* Frameworks */,
+				4945A86D1EC3711D00559CD1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4945A8771EC3712700559CD1 /* PBXTargetDependency */,
+			);
+			name = m8r;
+			productName = m8r;
+			productReference = 4945A86F1EC3711D00559CD1 /* m8r */;
+			productType = "com.apple.product-type.tool";
+		};
 		494D254D1D2E9055003755DB /* libm8rscript */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8rscript" */;
@@ -623,24 +655,6 @@
 			productReference = 49D9B8181D1C854700724911 /* m8rsim.app */;
 			productType = "com.apple.product-type.application";
 		};
-		49E647E71D00B68F005F5059 /* m8rscript */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */;
-			buildPhases = (
-				49E647E41D00B68F005F5059 /* Sources */,
-				49E647E51D00B68F005F5059 /* Frameworks */,
-				49E647E61D00B68F005F5059 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				494D25611D2E90CF003755DB /* PBXTargetDependency */,
-			);
-			name = m8rscript;
-			productName = m8rscript;
-			productReference = 49E647E81D00B68F005F5059 /* m8rscript */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -651,6 +665,10 @@
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
+					4945A86E1EC3711D00559CD1 = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
 					494D254D1D2E9055003755DB = {
 						CreatedOnToolsVersion = 8.0;
 						ProvisioningStyle = Automatic;
@@ -662,10 +680,6 @@
 					49D9B8171D1C854700724911 = {
 						CreatedOnToolsVersion = 8.0;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
-					};
-					49E647E71D00B68F005F5059 = {
-						CreatedOnToolsVersion = 8.0;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -683,10 +697,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				49E647E71D00B68F005F5059 /* m8rscript */,
 				49D9B8171D1C854700724911 /* m8rsim */,
 				494D254D1D2E9055003755DB /* libm8rscript */,
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
+				4945A86E1EC3711D00559CD1 /* m8r */,
 			);
 		};
 /* End PBXProject section */
@@ -724,10 +738,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4945A86B1EC3711D00559CD1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4945A8721EC3711D00559CD1 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		494D254A1D2E9055003755DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
+				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
@@ -786,26 +810,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		49E647E41D00B68F005F5059 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4966A41D1D22F8C4008951F4 /* CodePrinter.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4945A8771EC3712700559CD1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 494D254D1D2E9055003755DB /* libm8rscript */;
+			targetProxy = 4945A8761EC3712700559CD1 /* PBXContainerItemProxy */;
+		};
 		494D255F1D2E90C8003755DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* libm8rscript */;
 			targetProxy = 494D255E1D2E90C8003755DB /* PBXContainerItemProxy */;
-		};
-		494D25611D2E90CF003755DB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8rscript */;
-			targetProxy = 494D25601D2E90CF003755DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -829,6 +845,36 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4945A8741EC3711D00559CD1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4945A8751EC3711D00559CD1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		494D25501D2E9055003755DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1001,37 +1047,17 @@
 			};
 			name = Release;
 		};
-		49E647F01D00B68F005F5059 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_UNREACHABLE_CODE = NO;
-				GCC_FAST_MATH = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "../m8rscript-mac";
-				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		49E647F11D00B68F005F5059 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_UNREACHABLE_CODE = NO;
-				GCC_FAST_MATH = NO;
-				GCC_OPTIMIZATION_LEVEL = fast;
-				HEADER_SEARCH_PATHS = "../m8rscript-mac";
-				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8r" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4945A8741EC3711D00559CD1 /* Debug */,
+				4945A8751EC3711D00559CD1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8rscript" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1064,15 +1090,6 @@
 			buildConfigurations = (
 				49E647ED1D00B68F005F5059 /* Debug */,
 				49E647EE1D00B68F005F5059 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		49E647EF1D00B68F005F5059 /* Build configuration list for PBXNativeTarget "m8rscript" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49E647F01D00B68F005F5059 /* Debug */,
-				49E647F11D00B68F005F5059 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
