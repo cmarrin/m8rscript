@@ -100,6 +100,8 @@ public:
     FS() { }
     virtual ~FS() { }
     
+    static FS* createFS();
+    
     virtual DirectoryEntry* directory() = 0;
     virtual bool mount() = 0;
     virtual bool mounted() const = 0;
@@ -112,9 +114,6 @@ public:
     
     virtual uint32_t totalSize() const = 0;
     virtual uint32_t totalUsed() const = 0;
-    
-private:
-    static FS* _sharedFS;
 };
 
 }

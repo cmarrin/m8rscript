@@ -132,7 +132,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 {
     self = [super init];
     if (self) {
-        _fs = new m8r::MacFS();
+        _fs = static_cast<m8r::MacFS*>(m8r::FS::createFS());
         
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];

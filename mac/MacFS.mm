@@ -45,6 +45,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+FS* FS::createFS()
+{
+    return new MacFS();
+}
+
 MacFS::MacFS()
 {
 }
