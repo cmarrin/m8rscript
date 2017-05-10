@@ -19,7 +19,7 @@
 #import <thread>
 #import <chrono>
 #import <MGSFragaria/MGSFragaria.h>
-
+#import <malloc/malloc.h>
 
 class DeviceSystemInterface;
 
@@ -53,6 +53,17 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
 uint32_t g_baselineMemoryUsed = 0;
 #define MaxMemory 80000
 
+malloc_zone_t* g_m8rzone = nullptr;
+
+void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
+{
+    return malloc_zone_malloc(g_m8rzone, size);
+}
+
+void m8r::SystemInterface::free(MemoryType, void* p)
+{
+    malloc_zone_free(g_m8rzone, p);
+}
 
 class DeviceSystemInterface : public m8r::SystemInterface
 {
@@ -132,6 +143,11 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 {
     self = [super init];
     if (self) {
+        if (!g_m8rzone) {
+            g_m8rzone = malloc_create_zone(MaxMemory, 0);
+            malloc_set_zone_name(g_m8rzone, "m8rzone");
+        }
+
         _fs = static_cast<m8r::MacFS*>(m8r::FS::createFS());
         
         _devices = [[NSMutableArray alloc] init];

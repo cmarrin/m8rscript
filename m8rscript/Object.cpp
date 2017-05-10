@@ -39,12 +39,29 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Function.h"
 #include "MStream.h"
 #include "Program.h"
+#include "SystemInterface.h"
 
 using namespace m8r;
 
 std::vector<String*> Object::_stringStore;
 std::vector<Object*> Object::_objectStore;
 std::vector<Object*> Object::_staticObjects;
+
+void* Object::operator new(size_t size)
+{
+    void* p = SystemInterface::alloc(SystemInterface::MemoryType::Object, size);
+    _objectStore.push_back(reinterpret_cast<Object*>(p));
+    return p;
+}
+
+void Object::operator delete(void* p)
+{
+    auto it = std::find(_objectStore.begin(), _objectStore.end(), p);
+    if (it == _objectStore.end()) {
+        return;
+    }
+    SystemInterface::free(SystemInterface::MemoryType::Object, *it);
+}
 
 void Object::_gcMark(ExecutionUnit* eu)
 {

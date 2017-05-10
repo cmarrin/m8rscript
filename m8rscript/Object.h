@@ -58,21 +58,8 @@ public:
     { }
     virtual ~Object() { }
 
-    void* operator new(size_t size)
-    {
-        void* p = malloc(size);
-        _objectStore.push_back(reinterpret_cast<Object*>(p));
-        return p;
-    }
-
-    void operator delete(void* p)
-    {
-        auto it = std::find(_objectStore.begin(), _objectStore.end(), p);
-        if (it == _objectStore.end()) {
-            return;
-        }
-        free(*it);
-    }
+    void* operator new(size_t size);
+    void operator delete(void* p);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     

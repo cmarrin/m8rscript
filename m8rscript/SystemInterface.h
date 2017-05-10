@@ -96,6 +96,10 @@ public:
         vprintf(fmt, args);
     }
     
+    enum class MemoryType { Object };
+    static void* alloc(MemoryType, size_t);
+    static void free(MemoryType, void*);
+    
     virtual void vprintf(const char*, va_list) const = 0;
     virtual GPIOInterface& gpio() = 0;
     virtual uint32_t freeMemory() const = 0;
