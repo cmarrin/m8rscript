@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #include "Application.h"
-#include "FS.h"
+#include "MacNativeFS.h"
 #include "SystemInterface.h"
 
 class MySystemInterface : public m8r::SystemInterface
@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
     
     const char* inputFile = argv[optind];
 
-    m8r::FS* fs = m8r::FS::createFS();
+    m8r::FS* fs = new m8r::MacNativeFS();
     MySystemInterface system;
     m8r::Application application(fs, &system);
     m8r::Error error;

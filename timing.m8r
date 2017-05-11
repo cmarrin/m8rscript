@@ -2,17 +2,21 @@
 // Timing test
 //
 
+var n = 3000;
 var a = [ ];
-var n = 2000;
+a.length = n;
 
-var startTime = Date.now();
+var startTime = currentTime();
 
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
-        var f = 1.5;
-        a[j] = 1.5 * j * (j + 1) / 2;
+        var f = 3;
+        a[j] = f * j * (j + 1) / 2;
     }
 }
 
-var t = Date.now() - startTime;
-Serial.print("Run time: " + (t * 1000.) + "ms\n");
+var t = currentTime() - startTime;
+println("Run time: " + (t * 1000.) + "ms");
+
+println("a[100] = " + a[100]);
+

@@ -25,6 +25,8 @@
 		4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4945A87A1EC398B900559CD1 /* Foundation.framework */; };
 		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
 		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
+		4945A8801EC4BC5400559CD1 /* MacNativeFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */; };
+		4945A8811EC4BC5400559CD1 /* MacNativeFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */; };
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
 		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
 		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
@@ -168,6 +170,8 @@
 		4945A86F1EC3711D00559CD1 /* m8r */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8r; sourceTree = BUILT_PRODUCTS_DIR; };
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacNativeFS.cpp; sourceTree = "<group>"; };
+		4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacNativeFS.h; sourceTree = "<group>"; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
 		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../m8rscript/SystemInterface.h; sourceTree = "<group>"; };
@@ -353,6 +357,8 @@
 				49E1907B1DBAE2570030DC89 /* MacUDP.h */,
 				49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */,
 				49BEB2051DC30EB600F70E0B /* MacTaskManager.h */,
+				4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */,
+				4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */,
 			);
 			name = mac;
 			sourceTree = "<group>";
@@ -569,6 +575,7 @@
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
+				4945A8811EC4BC5400559CD1 /* MacNativeFS.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
@@ -773,6 +780,7 @@
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
+				4945A8801EC4BC5400559CD1 /* MacNativeFS.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
@@ -1057,6 +1065,7 @@
 				4945A8751EC3711D00559CD1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8rscript" */ = {
 			isa = XCConfigurationList;
