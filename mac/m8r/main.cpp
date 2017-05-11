@@ -106,13 +106,19 @@ int main(int argc, char * argv[])
     MySystemInterface system;
     m8r::Application application(fs, &system);
     m8r::Error error;
+    bool done = false;
     if (application.load(error, true, inputFile)) {
         auto start = std::chrono::system_clock::now();
-        application.run([start]{
+        application.run([start, &done]{
             auto end = std::chrono::system_clock::now();
             std::chrono::duration<double> diff = end - start;
             printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
+            done = true;
         });
+    }
+    
+    while (!done) {
+        sleep(1);
     }
     
     return 0;
