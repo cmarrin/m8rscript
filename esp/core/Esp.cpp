@@ -149,6 +149,16 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return (c << 32) + m;
 }
 
+void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
+{
+    return ::malloc(size);
+}
+
+void m8r::SystemInterface::free(MemoryType, void* p)
+{
+    ::free(p);
+}
+
 static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* system() { return &_gSystemInterface; }
