@@ -85,10 +85,14 @@ int main(int argc, char * argv[])
 {
     bool printCode = false;
     int opt;
+    int numExecutions = 1;
     
-    while ((opt = getopt(argc, argv, "ph?")) != EOF) {
+    while ((opt = getopt(argc, argv, "n:ph?")) != EOF) {
         switch(opt)
         {
+            case 'n':
+                numExecutions = atoi(optarg);
+                break;
             case 'c':
                 printCode = true;
                 break;
@@ -101,24 +105,32 @@ int main(int argc, char * argv[])
     }
     
     const char* inputFile = argv[optind];
-
     m8r::FS* fs = new m8r::MacNativeFS();
-    MySystemInterface system;
-    m8r::Application application(fs, &system);
-    m8r::Error error;
-    bool done = false;
-    if (application.load(error, true, inputFile)) {
-        auto start = std::chrono::system_clock::now();
-        application.run([start, &done]{
-            auto end = std::chrono::system_clock::now();
-            std::chrono::duration<double> diff = end - start;
-            printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
-            done = true;
-        });
-    }
-    
-    while (!done) {
-        sleep(1);
+
+    while (numExecutions--) {
+        MySystemInterface system;
+        m8r::Application application(fs, &system);
+        m8r::Error error;
+        bool done = false;
+
+        system.printf("Executing '%s'...\n", inputFile);
+
+        if (application.load(error, true, inputFile)) {
+            auto start = std::chrono::system_clock::now();
+            application.run([start, &done]{
+                auto end = std::chrono::system_clock::now();
+                std::chrono::duration<double> diff = end - start;
+                printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
+                done = true;
+            });
+        } else {
+            error.showError(&system);
+            break;
+        }
+        
+        while (!done) {
+            usleep(100000);
+        }
     }
     
     return 0;
