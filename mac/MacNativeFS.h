@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstdio>
 #include <dirent.h>
 #include <cstring>
+#include <cerrno>
 
 namespace m8r {
 
@@ -65,20 +66,27 @@ class MacNativeFile : public File {
 public:
     virtual ~MacNativeFile() { if (_file) fclose(_file); }
   
-    virtual int32_t read(char* buf, uint32_t size) override { return static_cast<int32_t>(fread(buf, 1, size, _file)); }
-    virtual int32_t write(const char* buf, uint32_t size) override { return static_cast<int32_t>(fwrite(buf, 1, size, _file)); }
+    virtual int32_t read(char* buf, uint32_t size) override { return _file ? static_cast<int32_t>(fread(buf, 1, size, _file)) : -1; }
+    virtual int32_t write(const char* buf, uint32_t size) override { return _file ? static_cast<int32_t>(fwrite(buf, 1, size, _file)) : -1; }
 
     virtual bool seek(int32_t offset, File::SeekWhence whence) override
     {
+        if (!_file) {
+            return false;
+        }
         int origin = (whence == File::SeekWhence::Set) ? SEEK_SET : ((whence == File::SeekWhence::Cur) ? SEEK_CUR : SEEK_END);
         return fseek(_file, offset, origin) == 0;
     }
     
-    virtual int32_t tell() const override { return static_cast<int32_t>(ftell(_file)); }
-    virtual bool eof() const override { return feof(_file) != 0; }
+    virtual int32_t tell() const override { return _file ? static_cast<int32_t>(ftell(_file)) : -1; }
+    virtual bool eof() const override { return _file ? (feof(_file) != 0) : true; }
     
 private:
-    MacNativeFile(const char* name, const char* mode) { _file = fopen(name, mode); }
+    MacNativeFile(const char* name, const char* mode)
+    {
+        _file = fopen(name, mode);
+        _error = _file ? 0 : errno;
+    }
 
     FILE* _file = nullptr;
 };
