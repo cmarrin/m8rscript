@@ -1,0 +1,98 @@
+//
+// Test of various functionality of m8rscript
+//
+
+var strings = [
+	"123",
+	"'Hello World'",
+	"true",
+	"false",
+	"null",
+	"{ 'abc' : 5, 'def' : 'Hello' }",
+	"[ 3, 4, 5, 'goodbye' ]"
+];
+
+for (var s : strings) {
+	printf("JSON.parse(\"%s\") ==> '%s'\n", s.value, JSON.parse(s.value));
+}
+
+printf("3.14 * 6 * 6 = %f\n", 3.14 * 6 * 6);
+var f = function(a) { return a + n; };
+
+var o = { n : 3 };
+println("Test Function.call (s/b 8): " + f.call(o, 5));
+
+for (var i = 0; i < 4; ++i) {
+	printf("Ternary operator test: the value %d is %s\n", i, ((i & 1) == 0) ? "even" : "odd");
+} 
+
+var f1;
+f1 = toFloat("123");
+println("'123' converts to ", f1);
+f1 = toFloat("-123");
+println("'-123' converts to ", f1);
+f1 = toFloat(" 123");
+println("' 123' converts to ", f1);
+f1 = toFloat(" 123", false);
+println("' 123' converts to ", f1);
+f1 = toFloat("123.45");
+println("'123.45' converts to ", f1);
+f1 = toFloat("123e5");
+println("'123e5' converts to ", f1);
+f1 = toFloat("123.45e5");
+println("'123.45e5' converts to ", f1);
+printf("Here is a number: %1.25d and a string: '%2.1s'\n", 5, "hello");
+
+function add()
+{
+	var args = arguments();
+	var n = 0;
+	for (var i = 0; i < args.length; ++i) {
+		n += args[i];
+	}
+	return n;
+}
+
+println("add() = " + add());
+println("add(8) = " + add(8));
+println("add(5, 7) = " + add(5, 7));
+println("add(4, 3, 2) = " + add(4, 3, 2));
+println("add(1, 2, 3, 4) = " + add(1, 2, 3, 4));
+
+// Range tests
+var m1 = 9.5;
+println("m1 * 1000 = " + m1 * 1000);
+
+println("2100 / 1000 = " + 2100 / 1000);
+
+println("add(1, 2, 3) = " + add(1, 2, 3));
+var b = [ 1, 2, 3 ];
+var c = 12.5;
+var a = { b : 5+c, "foo" : b % c, 12.3 : "Bar", 54325667 : c };
+var d = 5;
+d *= 3;
+println("Array b[1] = " + b[1]);
+println("Object a[54325667] = " + a[54325667]);
+println("Object a.b = " + a.b);
+println("d=" + d);
+
+var e = 4;
+var a = c * c + e * e;
+
+println("a = " + a);
+
+function multi(x)
+{
+	return { q:x - 3, r:x * 4, s:x / 5 };
+}
+
+var a = multi(4);
+println("a=" + a);
+
+for (var i = 0; i < 1000; ++i) {
+	var x = "String " + i;
+}
+
+IPAddr.lookupHostname("time.nist.gov", function(name, ip) {
+	printf("***** hostname:'%s', ip:%s, my ip:%d.%d.%d.%d\n", name, ip, IPAddr[0], IPAddr[1], IPAddr[2], IPAddr[3]);
+});
