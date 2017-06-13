@@ -41,9 +41,18 @@ using namespace m8r;
 
 void Error::showError(const SystemInterface* system) const
 {
-    const char* codeString = "unknown";
+    const char* codeString;
     switch(_code) {
-        default: break;
+        case Code::None: return;
+        case Code::Unknown: codeString = "unknown"; break;
+        case Code::Write: codeString = "write"; break;
+        case Code::Read: codeString = "read"; break;
+        case Code::SerialHeader: codeString = "serial header"; break;
+        case Code::SerialType: codeString = "serial type"; break;
+        case Code::SerialVersion: codeString = "serial version"; break;
+        case Code::FileNotFound: codeString = "file not found"; break;
+        case Code::ParseError: codeString = "parse"; break;
+        case Code::RuntimeError: codeString = "runtime"; break;
     }
     system->printf(ROMSTR("Error: %s\n"), codeString);
 }
