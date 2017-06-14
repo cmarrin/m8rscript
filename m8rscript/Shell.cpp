@@ -288,7 +288,13 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
     } else if (array[0] == "heap") {
         _state = State::NeedPrompt;
-        showMessage(MessageType::Info, ROMSTR("heap:%d\n"), _application->system()->freeMemory());
+        SystemInterface::MemoryInfo info;
+        _application->system()->memoryInfo(info);
+        if (_binary) {
+            showMessage(MessageType::Info, ROMSTR("heap:%d:%d\n"), info.freeSize, info.numAllocations);
+        } else {
+            showMessage(MessageType::Info, ROMSTR("heap size: %d allocations: %d\n"), info.freeSize, info.numAllocations);
+        }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("device name required"));

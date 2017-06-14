@@ -65,6 +65,12 @@ void m8r::SystemInterface::free(MemoryType, void* p)
     malloc_zone_free(g_m8rzone, p);
 }
 
+void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
+{
+    // TODO: Implement
+    return;
+}
+
 class DeviceSystemInterface : public m8r::SystemInterface
 {
 public:
@@ -77,19 +83,6 @@ public:
     }
     
     virtual m8r::GPIOInterface& gpio() override { return _gpio; }
-    virtual uint32_t freeMemory() const override
-    {
-        struct task_basic_info info;
-        mach_msg_type_number_t size = sizeof(info);
-        kern_return_t kerr = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&info, &size);
-        uint32_t used = (uint32_t) ((kerr == KERN_SUCCESS) ? info.resident_size : 0);
-        if (g_baselineMemoryUsed == 0) {
-            g_baselineMemoryUsed = used;
-        }
-        
-        uint32_t memoryUsed = used - g_baselineMemoryUsed;
-        return (memoryUsed > MaxMemory) ? 0 : MaxMemory - memoryUsed;
-    }
 
 private:
     class DeviceGPIOInterface : public m8r::GPIOInterface {
@@ -166,7 +159,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         
         (void) m8r::IPAddr::myIPAddr();
 
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
      }
     return self;
 }
@@ -303,7 +296,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [array addObject:@{ @"name" : name, @"size" : size }];
     }
     
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
     return array;
 }
 
@@ -344,7 +337,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
     
     NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
     return data;
 }
 
@@ -361,7 +354,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate setContents:data withName:name];
         });
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
     });
 }
 
@@ -372,7 +365,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
     NSURL* url = [NSURL URLWithString:name relativeToURL:urlBase];
     NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
     return [data writeToURL:url atomically:YES];
 }
 
@@ -396,7 +389,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     contentString = [NSString stringWithFormat:@"%@\r\n\04", contentString];
 
     [self sendCommand:command andString:contentString fromService:service];
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
 }
 
 - (void)mirrorFiles
@@ -454,7 +447,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
     });
 }
 
@@ -467,23 +460,24 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
     });
 }
 
-- (void)updateFreeMemory
+- (void)updateMemoryInfo
 {
     NSString* __block command = @"heap\r\n";
     dispatch_async(_serialQueue, ^() {        
         NSNetService* service = _currentDevice[@"service"];
         NSString* sizeString = [self sendCommand:command fromService:service withTerminator:'>'];
         NSArray* elements = [sizeString componentsSeparatedByString:@":"];
-        if (elements.count != 2 || ![elements[0] isEqualToString:@"heap"]) {
+        if (elements.count != 3 || ![elements[0] isEqualToString:@"heap"]) {
             return;
         }
         NSUInteger size = [[elements objectAtIndex:1] intValue];
+        NSUInteger numAllocations = [[elements objectAtIndex:2] intValue];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_delegate setFreeMemory:size];
+            [_delegate setFreeMemory:size numAllocations:(NSUInteger)numAllocations];
         });
     });
 }
@@ -520,7 +514,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     }
 
     _currentDevice = [self findService:device];
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
 
     if (!_currentDevice) {
         return;
@@ -568,7 +562,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
         NSLog(@"renameDevice returned '%@'", s);
     });
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
 }
 
 - (BOOL)canRun
@@ -620,7 +614,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [errorArray addObject:syntaxError];
     }
     
-    [self updateFreeMemory];
+    [self updateMemoryInfo];
     return errorArray;
 }
 
@@ -638,7 +632,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{
         });
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
     });
 }
 
@@ -655,7 +649,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         [self sendCommand:command fromService:service withTerminator:'>'];
         dispatch_async(dispatch_get_main_queue(), ^{
         });
-        [self updateFreeMemory];
+        [self updateMemoryInfo];
     });
 }
 

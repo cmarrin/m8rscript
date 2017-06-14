@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, OutputType) { CTBuild, CTConsole };
 - (void)reloadFiles;
 - (void)setDevice:(NSString*)name;
 - (BOOL)saveFile:(NSString*)name withURLBase:(NSURL*)urlBase;
-- (void) setFreeMemory:(NSUInteger)size;
+- (void) setFreeMemory:(NSUInteger)size numAllocations:(NSUInteger)num;
 
 @end
 

@@ -120,7 +120,6 @@ class EspSystemInterface : public m8r::SystemInterface
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
     virtual m8r::GPIOInterface& gpio() { return _gpio; }
-    virtual uint32_t freeMemory() const override { return system_get_free_heap_size(); }
     
 private:
     m8r::EspGPIOInterface _gpio;
@@ -157,6 +156,12 @@ void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 void m8r::SystemInterface::free(MemoryType, void* p)
 {
     ::free(p);
+}
+
+void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
+{
+    info.freeSize = umm_free_heap_size();
+    info.numAllocations = ummHeapInfo.usedEntries;
 }
 
 static EspSystemInterface _gSystemInterface;
