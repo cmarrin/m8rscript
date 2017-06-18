@@ -56,11 +56,7 @@ void* Object::operator new(size_t size)
 
 void Object::operator delete(void* p)
 {
-    auto it = std::find(_objectStore.begin(), _objectStore.end(), p);
-    if (it == _objectStore.end()) {
-        return;
-    }
-    SystemInterface::free(SystemInterface::MemoryType::Object, *it);
+    SystemInterface::free(SystemInterface::MemoryType::Object, p);
 }
 
 void Object::_gcMark(ExecutionUnit* eu)
