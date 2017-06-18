@@ -41,7 +41,9 @@
     
     __weak IBOutlet NSButton *enableDebugButton;
     __weak IBOutlet NSTextField *freeMemoryLabel;
-    __weak IBOutlet NSTextField *numAllocationsLabel;
+    __weak IBOutlet NSTextField *numObjectAllocationsLabel;
+    __weak IBOutlet NSTextField *numStringAllocationsLabel;
+    __weak IBOutlet NSTextField *numOtherAllocationsLabel;
     NSMenuItem *commentSelectionMenuItem;
     
     NSString* _source;
@@ -80,7 +82,7 @@
     [buildOutput setVerticallyResizable:YES];
     
     enableDebugButton.state = NSOnState;
-    [self setFreeMemory:45600 numAllocations:42];
+    [self setFreeMemory:45600 numObj:42 numStr:43 numOther:44];
 
     _device = [[Device alloc]init];
     _device.delegate = self;
@@ -195,12 +197,16 @@
     return YES;
 }
 
-- (void) setFreeMemory:(NSUInteger)size numAllocations:(NSUInteger)num
+- (void) setFreeMemory:(NSUInteger)size numObj:(NSUInteger)obj numStr:(NSUInteger)str numOther:(NSUInteger)oth
 {
     NSString* s = [NSString stringWithFormat:@"%.1fkb", ((float) size) / 1000];
     freeMemoryLabel.stringValue = s;
-    s = [NSString stringWithFormat:@"%u", (uint32_t) num];
-    numAllocationsLabel.stringValue = s;
+    s = [NSString stringWithFormat:@"%u", (uint32_t) obj];
+    numObjectAllocationsLabel.stringValue = s;
+    s = [NSString stringWithFormat:@"%u", (uint32_t) str];
+    numStringAllocationsLabel.stringValue = s;
+    s = [NSString stringWithFormat:@"%u", (uint32_t) oth];
+    numOtherAllocationsLabel.stringValue = s;
 }
 
 + (BOOL)autosavesInPlace {

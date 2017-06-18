@@ -114,6 +114,8 @@ public:
     static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }
     static String* createString(const char* s, int32_t length = -1)  { String* string = new String(s, length); _stringStore.push_back(string); return string; }
     static String* createString(const String& s)  { String* string = new String(s); _stringStore.push_back(string); return string; }
+    static uint32_t numObjectAllocations() { return static_cast<uint32_t>(_objectStore.size()); }
+    static uint32_t numStringAllocations() { return static_cast<uint32_t>(_stringStore.size()); }
     
 protected:
     void setProto(Object* obj) { _proto = obj; }

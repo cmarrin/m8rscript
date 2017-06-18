@@ -68,6 +68,9 @@ void m8r::SystemInterface::free(MemoryType, void* p)
 void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
 {
     // TODO: Implement
+    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
     return;
 }
 
@@ -471,13 +474,15 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         NSNetService* service = _currentDevice[@"service"];
         NSString* sizeString = [self sendCommand:command fromService:service withTerminator:'>'];
         NSArray* elements = [sizeString componentsSeparatedByString:@":"];
-        if (elements.count != 3 || ![elements[0] isEqualToString:@"heap"]) {
+        if (elements.count != 5 || ![elements[0] isEqualToString:@"heap"]) {
             return;
         }
         NSUInteger size = [[elements objectAtIndex:1] intValue];
-        NSUInteger numAllocations = [[elements objectAtIndex:2] intValue];
+        NSUInteger numObj = [[elements objectAtIndex:2] intValue];
+        NSUInteger numStr = [[elements objectAtIndex:3] intValue];
+        NSUInteger numOth = [[elements objectAtIndex:4] intValue];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_delegate setFreeMemory:size numAllocations:(NSUInteger)numAllocations];
+            [_delegate setFreeMemory:size numObj:numObj numStr:numStr numOther: numOth];
         });
     });
 }

@@ -18,7 +18,9 @@
                 <outlet property="filesContainer" destination="ITH-sx-5DT" id="WZ2-Z6-8pn"/>
                 <outlet property="freeMemoryLabel" destination="6xc-6Y-scK" id="jyM-64-6OD"/>
                 <outlet property="imageView" destination="np9-g9-QUZ" id="6zF-UC-9yK"/>
-                <outlet property="numAllocationsLabel" destination="zRQ-Od-Sha" id="xw3-KJ-h6b"/>
+                <outlet property="numObjectAllocationsLabel" destination="zRQ-Od-Sha" id="hMD-gW-Xpq"/>
+                <outlet property="numOtherAllocationsLabel" destination="Ei6-Sc-iwd" id="pMa-ii-SXL"/>
+                <outlet property="numStringAllocationsLabel" destination="9TJ-J9-yMr" id="wJT-a9-dX2"/>
                 <outlet property="outputView" destination="i0v-Oc-7LR" id="obF-Ic-UJo"/>
                 <outlet property="pauseButton" destination="7ed-ZA-LTG" id="ZFe-iA-0tc"/>
                 <outlet property="reloadFilesButton" destination="ewM-ZG-vnX" id="k9u-M3-uSw"/>
@@ -187,9 +189,9 @@
                                         </buttonCell>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4aG-Qb-kP3">
-                                        <rect key="frame" x="930" y="155" width="88" height="17"/>
+                                        <rect key="frame" x="965" y="155" width="35" height="17"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Free memory:" id="iQl-TA-tgH">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Free:" id="iQl-TA-tgH">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -205,18 +207,54 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sim-tM-sjP">
-                                        <rect key="frame" x="760" y="155" width="107" height="17"/>
+                                        <rect key="frame" x="745" y="155" width="29" height="17"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Num Allocations:" id="2Tl-k3-8Lx">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Obj:" id="2Tl-k3-8Lx">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zRQ-Od-Sha" userLabel="Num Allocations Label">
-                                        <rect key="frame" x="866" y="155" width="68" height="17"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zRQ-Od-Sha" userLabel="Object Allocations Label">
+                                        <rect key="frame" x="772" y="155" width="29" height="17"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="23" id="JR6-0i-2uQ">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="999" id="JR6-0i-2uQ">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="idf-bB-6hI">
+                                        <rect key="frame" x="805" y="155" width="26" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Str:" id="wJf-AR-r52">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9TJ-J9-yMr" userLabel="String Allocations Label">
+                                        <rect key="frame" x="832" y="155" width="29" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="999" id="WR5-ll-Nez">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5O-ge-0hh">
+                                        <rect key="frame" x="865" y="155" width="43" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Other:" id="zbL-Rp-8Sp">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ei6-Sc-iwd" userLabel="Other Allocations Label">
+                                        <rect key="frame" x="906" y="155" width="44" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="9999" id="YUT-wV-mEi">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -162,6 +162,9 @@ void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
 {
     info.freeSize = umm_free_heap_size();
     info.numAllocations = ummHeapInfo.usedEntries;
+    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
 }
 
 static EspSystemInterface _gSystemInterface;

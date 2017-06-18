@@ -290,10 +290,16 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _state = State::NeedPrompt;
         SystemInterface::MemoryInfo info;
         _application->system()->memoryInfo(info);
+        
+        uint32_t numOth = info.numAllocations;
+        uint32_t numObj = info.numAllocationsByType[static_cast<uint32_t>(SystemInterface::MemoryType::Object)];
+        uint32_t numStr = info.numAllocationsByType[static_cast<uint32_t>(SystemInterface::MemoryType::String)];
+        numOth -= numObj + numStr;
+        
         if (_binary) {
-            showMessage(MessageType::Info, ROMSTR("heap:%d:%d\n"), info.freeSize, info.numAllocations);
+            showMessage(MessageType::Info, ROMSTR("heap:%d:%d:%d:%d\n"), info.freeSize, numObj, numStr, numOth);
         } else {
-            showMessage(MessageType::Info, ROMSTR("heap size: %d allocations: %d\n"), info.freeSize, info.numAllocations);
+            showMessage(MessageType::Info, ROMSTR("heap size: %d, numObj: %d, numStr: %d, numOth: %d\n"), info.freeSize, numObj, numStr, numOth);
         }
     } else if (array[0] == "dev") {
         if (array.size() < 2) {
