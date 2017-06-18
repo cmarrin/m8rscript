@@ -35,12 +35,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "GPIOInterface.h"
+#include <cstring>
+#include <cstddef>
 #include <cstdint>
 #include <cstdarg>
 #include <vector>
 
 namespace m8r {
+
+class GPIOInterface;
 
 struct ErrorEntry {
     ErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
@@ -96,7 +99,7 @@ public:
         vprintf(fmt, args);
     }
     
-    enum class MemoryType { Object };
+    enum class MemoryType { Object, String, NumTypes };
     static void* alloc(MemoryType, size_t);
     static void free(MemoryType, void*);
     
@@ -107,6 +110,7 @@ public:
     struct MemoryInfo {
         uint32_t freeSize = 0;
         uint32_t numAllocations = 0;
+        std::vector<uint32_t> numAllocationsByType;
     };
     
     static void memoryInfo(MemoryInfo&);

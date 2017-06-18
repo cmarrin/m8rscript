@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "ExecutionUnit.h"
+#include "GPIOInterface.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
 #include <functional>
