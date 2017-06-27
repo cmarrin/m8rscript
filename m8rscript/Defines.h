@@ -278,8 +278,6 @@ private:
 
 static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
 
-typedef std::vector<Instruction> Code;
-
 #undef DEC
 enum class Token : uint8_t {
     Break = 0x01,
