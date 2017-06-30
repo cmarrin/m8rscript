@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Containers.h"
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
@@ -99,7 +100,6 @@ public:
         vprintf(fmt, args);
     }
     
-    enum class MemoryType { Object, String, NumTypes };
     static void* alloc(MemoryType, size_t);
     static void free(MemoryType, void*);
     

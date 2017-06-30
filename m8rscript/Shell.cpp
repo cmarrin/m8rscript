@@ -292,8 +292,8 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _application->system()->memoryInfo(info);
         
         uint32_t numOth = info.numAllocations;
-        uint32_t numObj = info.numAllocationsByType[static_cast<uint32_t>(SystemInterface::MemoryType::Object)];
-        uint32_t numStr = info.numAllocationsByType[static_cast<uint32_t>(SystemInterface::MemoryType::String)];
+        uint32_t numObj = info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)];
+        uint32_t numStr = info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)];
         numOth -= numObj + numStr;
         
         if (_binary) {

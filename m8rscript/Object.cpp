@@ -49,14 +49,14 @@ std::vector<Object*> Object::_staticObjects;
 
 void* Object::operator new(size_t size)
 {
-    void* p = SystemInterface::alloc(SystemInterface::MemoryType::Object, size);
+    void* p = SystemInterface::alloc(MemoryType::Object, size);
     _objectStore.push_back(reinterpret_cast<Object*>(p));
     return p;
 }
 
 void Object::operator delete(void* p)
 {
-    SystemInterface::free(SystemInterface::MemoryType::Object, p);
+    SystemInterface::free(MemoryType::Object, p);
 }
 
 void Object::_gcMark(ExecutionUnit* eu)
