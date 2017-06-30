@@ -561,21 +561,65 @@ private:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-template <class T>
-struct Mallocator {
+enum class MemoryType {
+    Unknown,
+    Object,
+    String,
+    Instruction,
+    NumTypes
+};
+    
+class MallocatorBase {
+protected:
+    static MallocatorBase* _list;
+    
+    MallocatorBase* _next;
+    MemoryType _type;
+    uint32_t _count = 0;
+};
+
+template <class T, MemoryType type = MemoryType::Unknown>
+class Mallocator : public MallocatorBase {
+public:
     typedef T value_type;
-    Mallocator() = default;
-    template <class U> Mallocator(const Mallocator<U>&) { }
+    Mallocator()
+    {
+        _type = type;
+        _next = _list;
+        _list = this;
+    }
+    
+    template <class U> Mallocator(const Mallocator<U>&) : Mallocator() { }
+    
+    Mallocator(Mallocator&& other)
+    {
+        _type = other._type;
+        _next = other._next;
+        _count = other._count;
+        if (_list == other) {
+            _list = this;
+        }
+        other._next = nullptr;
+    }
     
     T* allocate(std::size_t n)
     {
+        _count++;
         return static_cast<T*>(std::malloc(n*sizeof(T)));
     }
     
     void deallocate(T* p, std::size_t)
     {
+        _count--;
         std::free(p);
     }
+    
+    template <typename U>  
+    struct rebind {
+        typedef Mallocator<U> other;
+    };
+    
+    static const MallocatorBase* list() { return _list; } 
 };
 
 template <class T, class U>
@@ -584,6 +628,6 @@ bool operator==(const Mallocator<T>&, const Mallocator<U>&) { return true; }
 template <class T, class U>
 bool operator!=(const Mallocator<T>&, const Mallocator<U>&) { return false; }
 
-typedef std::vector<Instruction, Mallocator<Instruction>> Code;
+#define Vector(type) std::vector<type, Mallocator<type, MemoryType::type>>
 
 }
