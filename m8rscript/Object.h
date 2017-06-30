@@ -87,7 +87,7 @@ public:
     bool hasSet() const { return _hasSet; }
     
     // methods for Callable (m8rscript) objects
-    virtual const Code* code() const { return nullptr; }
+    virtual const Vector(Instruction)* code() const { return nullptr; }
     virtual uint32_t localSize() const { return 0; }
     virtual const std::vector<Value>*  constants() const { return nullptr; }
     virtual uint32_t formalParamCount() const { return 0; }

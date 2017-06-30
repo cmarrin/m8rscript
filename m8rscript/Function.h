@@ -61,8 +61,8 @@ public:
         }
     }
 
-    virtual const Code* code() const override { return &_code; }
-    Code* code() { return &_code; }
+    virtual const Vector(Instruction)* code() const override { return &_code; }
+    Vector(Instruction)* code() { return &_code; }
 
     int32_t addLocal(const Atom& name);
     int32_t localIndex(const Atom& name) const;
@@ -123,7 +123,7 @@ private:
     
     std::vector<UpValueEntry> _upValues;
     
-    Code _code;
+    Vector(Instruction) _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
     std::vector<Value> _constants;

@@ -281,7 +281,7 @@ private:
     Program* _program;
     uint32_t _nerrors = 0;
     std::vector<size_t> _deferredCodeBlocks;
-    Code _deferredCode;
+    Vector(Instruction) _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     bool _debug;

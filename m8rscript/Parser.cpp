@@ -697,7 +697,7 @@ static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
 void Parser::reconcileRegisters(Function* function)
 {
     assert(function->code());
-    Code& code = *function->code();
+    Vector(Instruction)& code = *function->code();
     uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
     for (int i = 0; i < code.size(); ++i) {
