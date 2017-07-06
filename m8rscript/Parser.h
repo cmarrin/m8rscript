@@ -273,7 +273,7 @@ private:
         bool _ctor = false;
     };
         
-    std::vector<FunctionEntry> _functions;
+    Vector(FunctionEntry) _functions;
     
     std::vector<MaterObject*> _classes;
 

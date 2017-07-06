@@ -93,7 +93,7 @@ public:
     
     virtual const Vector(Instruction)* code() const override { return _func->code(); }
     virtual uint32_t localSize() const override { return _func->localSize(); }
-    virtual const std::vector<Value>*  constants() const override { return _func->constants(); }
+    virtual const Vector(ConstantValue)*  constants() const override { return _func->constants(); }
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;

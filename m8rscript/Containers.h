@@ -566,6 +566,10 @@ enum class MemoryType {
     Object,
     String,
     Instruction,
+    CallRecord,
+    EventValue,
+    ConstantValue,
+    FunctionEntry,
     NumTypes
 };
     

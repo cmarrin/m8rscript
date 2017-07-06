@@ -236,7 +236,7 @@ private:
         uint32_t _lineno;
     };
     
-    std::vector<CallRecord> _callRecords;
+    Vector(CallRecord) _callRecords;
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
@@ -254,8 +254,10 @@ private:
     
     mutable uint32_t _nerrors = 0;
     mutable bool _terminate = false;
+    
+    typedef Value EventValue;
 
-    std::vector<Value> _eventQueue;
+    Vector(EventValue) _eventQueue;
     bool _executingEvent = false;
     uint32_t _numEventListeners = 0;
     

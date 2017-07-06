@@ -76,8 +76,8 @@ public:
     Value constant(ConstantId id) const { return _constants[id.raw()]; }
 
     size_t constantCount() const { return _constants.size(); }
-    
-    virtual const std::vector<Value>*  constants() const override { return &_constants; }
+        
+    virtual const Vector(ConstantValue)*  constants() const override { return &_constants; }
     
     void setName(const Atom s) { _name = s; }
     virtual Atom name() const override { return _name; }
@@ -126,7 +126,7 @@ private:
     Vector(Instruction) _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
-    std::vector<Value> _constants;
+    Vector(ConstantValue) _constants;
     uint8_t _tempRegisterCount = 0;
     Atom _name;
     Function* _parent = nullptr;

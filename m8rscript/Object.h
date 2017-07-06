@@ -49,6 +49,8 @@ class Object;
 class Program;
 class Stream;
 
+typedef Value ConstantValue;
+
 class Object {    
 public:
     Object()
@@ -90,7 +92,7 @@ public:
     // methods for Callable (m8rscript) objects
     virtual const Vector(Instruction)* code() const { return nullptr; }
     virtual uint32_t localSize() const { return 0; }
-    virtual const std::vector<Value>*  constants() const { return nullptr; }
+    virtual const Vector(ConstantValue)*  constants() const { return nullptr; }
     virtual uint32_t formalParamCount() const { return 0; }
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
