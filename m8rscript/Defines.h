@@ -75,6 +75,12 @@ static inline bool isspace(uint8_t c)       { return c == ' ' || c == '\n' || c 
 static inline uint8_t tolower(uint8_t c)    { return isUpper(c) ? (c - 'A' + 'a') : c; }
 static inline uint8_t toupper(uint8_t c)    { return isLower(c) ? (c - 'a' + 'A') : c; }
 
+struct MemoryInfo {
+    uint32_t freeSize = 0;
+    uint32_t numAllocations = 0;
+    std::vector<uint32_t> numAllocationsByType;
+};
+
 struct Label {
     int32_t label : 20;
     uint32_t uniqueID : 12;

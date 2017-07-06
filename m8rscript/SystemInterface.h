@@ -107,12 +107,6 @@ public:
     virtual GPIOInterface& gpio() = 0;
     static uint64_t currentMicroseconds();
     
-    struct MemoryInfo {
-        uint32_t freeSize = 0;
-        uint32_t numAllocations = 0;
-        std::vector<uint32_t> numAllocationsByType;
-    };
-    
     static void memoryInfo(MemoryInfo&);
 };
 

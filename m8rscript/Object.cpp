@@ -47,6 +47,14 @@ std::vector<String*> Object::_stringStore;
 std::vector<Object*> Object::_objectStore;
 std::vector<Object*> Object::_staticObjects;
 
+void Object::memoryInfo(MemoryInfo& info)
+{
+    SystemInterface::memoryInfo(info);
+    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
+    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
+}
+
 void* Object::operator new(size_t size)
 {
     void* p = SystemInterface::alloc(MemoryType::Object, size);

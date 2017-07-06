@@ -288,8 +288,8 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         }
     } else if (array[0] == "heap") {
         _state = State::NeedPrompt;
-        SystemInterface::MemoryInfo info;
-        _application->system()->memoryInfo(info);
+        MemoryInfo info;
+        Object::memoryInfo(info);
         
         uint32_t numOth = info.numAllocations;
         uint32_t numObj = info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)];

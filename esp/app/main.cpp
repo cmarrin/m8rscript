@@ -121,8 +121,8 @@ void FLASH_ATTR runScript()
     });
 
     system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    m8r::SystemInterface::MemoryInfo info;
-    m8r::SystemInterface::memoryInfo(info);
+    m8r::MemoryInfo info;
+    m8r::Object::memoryInfo(info);
     system()->printf(ROMSTR("***** start - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
     
     m8r::Error error;
@@ -132,8 +132,8 @@ void FLASH_ATTR runScript()
         system()->printf(ROMSTR("Error:failed to compile application"));
     } else {
         _application.run([]{
-            m8r::SystemInterface::MemoryInfo info;
-            m8r::SystemInterface::memoryInfo(info);
+            m8r::MemoryInfo info;
+            m8r::Object::memoryInfo(info);
             system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
         });
     }
