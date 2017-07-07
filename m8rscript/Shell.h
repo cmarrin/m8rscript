@@ -69,7 +69,6 @@ public:
     long receive(void* data, long size);
         
     virtual void shellSend(const char* data, uint16_t size = 0) = 0;
-    virtual void setDeviceName(const char* name) { }
 
 private:
     bool executeCommand(const std::vector<m8r::String>& array);

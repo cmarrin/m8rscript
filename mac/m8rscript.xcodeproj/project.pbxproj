@@ -47,6 +47,12 @@
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
+		4988DC641F0C2461009F7ED5 /* m8rsim_xpc.m in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC631F0C2461009F7ED5 /* m8rsim_xpc.m */; };
+		4988DC661F0C2461009F7ED5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC651F0C2461009F7ED5 /* main.m */; };
+		4988DC6A1F0C2461009F7ED5 /* m8rsim_xpc.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 4988DC5F1F0C2461009F7ED5 /* m8rsim_xpc.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
+		4988DC791F0C29A3009F7ED5 /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
+		4988DC7C1F0E8293009F7ED5 /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC7A1F0E8293009F7ED5 /* Simulator.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
@@ -77,13 +83,9 @@
 		49DD77491D84D94900D7C374 /* Simulate.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77481D84D94900D7C374 /* Simulate.png */; };
 		49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD774A1D84DD7D00D7C374 /* Application.cpp */; };
 		49DD774D1D84DD7D00D7C374 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD774B1D84DD7D00D7C374 /* Application.h */; };
-		49E1907E1DBAE2570030DC89 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
-		49E1907F1DBAE2570030DC89 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
-		49E5AB521D94195F00C6988D /* Simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB511D94195F00C6988D /* Simulator.cpp */; };
 		49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49E5AB541D981D6100C6988D /* FileBrowser.xib */; };
 		49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.m */; };
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
-		49E5AB691DA1717300C6988D /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB681DA1717300C6988D /* Device.mm */; };
 		49E826301E95EB0100E416C4 /* JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E8262E1E95EB0100E416C4 /* JSON.cpp */; };
 		49E826311E95EB0100E416C4 /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E8262F1E95EB0100E416C4 /* JSON.h */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
@@ -102,7 +104,14 @@
 			remoteGlobalIDString = 494D254D1D2E9055003755DB;
 			remoteInfo = libm8rscript;
 		};
-		494D255E1D2E90C8003755DB /* PBXContainerItemProxy */ = {
+		4988DC681F0C2461009F7ED5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4988DC5E1F0C2461009F7ED5;
+			remoteInfo = m8rsim_xpc;
+		};
+		4988DC771F0C299B009F7ED5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
 			proxyType = 1;
@@ -120,6 +129,17 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		4988DC3D1F0A3713009F7ED5 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				4988DC6A1F0C2461009F7ED5 /* m8rsim_xpc.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		49C406E01EB6598B001E4DEC /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -202,6 +222,16 @@
 		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../m8rscript/Global.h; sourceTree = "<group>"; };
 		4984E8331D1492ED00D0ABA6 /* MStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MStream.h; path = ../m8rscript/MStream.h; sourceTree = "<group>"; };
 		4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Containers.cpp; path = ../m8rscript/Containers.cpp; sourceTree = "<group>"; };
+		4988DC5F1F0C2461009F7ED5 /* m8rsim_xpc.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = m8rsim_xpc.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		4988DC611F0C2461009F7ED5 /* m8rsim_xpcProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = m8rsim_xpcProtocol.h; sourceTree = "<group>"; };
+		4988DC621F0C2461009F7ED5 /* m8rsim_xpc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = m8rsim_xpc.h; sourceTree = "<group>"; };
+		4988DC631F0C2461009F7ED5 /* m8rsim_xpc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = m8rsim_xpc.m; sourceTree = "<group>"; };
+		4988DC651F0C2461009F7ED5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4988DC671F0C2461009F7ED5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4988DC741F0C296B009F7ED5 /* Device.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Device.mm; sourceTree = "<group>"; };
+		4988DC751F0C296B009F7ED5 /* Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
+		4988DC7A1F0E8293009F7ED5 /* Simulator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Simulator.mm; sourceTree = "<group>"; };
+		4988DC7B1F0E8293009F7ED5 /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
 		49899B981EA56A6E003B334B /* Closure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Closure.cpp; path = ../m8rscript/Closure.cpp; sourceTree = "<group>"; };
 		49899B991EA56A6E003B334B /* Closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../m8rscript/Closure.h; sourceTree = "<group>"; };
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../m8rscript/ParseEngine.cpp; sourceTree = "<group>"; };
@@ -249,15 +279,11 @@
 		49E1907B1DBAE2570030DC89 /* MacUDP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacUDP.h; sourceTree = "<group>"; };
 		49E1907C1DBAE2570030DC89 /* MacTCP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTCP.h; sourceTree = "<group>"; };
 		49E1907D1DBAE2570030DC89 /* MacTCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTCP.cpp; sourceTree = "<group>"; };
-		49E5AB501D94195F00C6988D /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
-		49E5AB511D94195F00C6988D /* Simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simulator.cpp; sourceTree = "<group>"; };
 		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
 		49E5AB561D981DDB00C6988D /* FileBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBrowser.h; sourceTree = "<group>"; };
 		49E5AB571D981DDB00C6988D /* FileBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileBrowser.m; sourceTree = "<group>"; };
 		49E5AB5C1D98C00600C6988D /* FastSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FastSocket.m; path = FastSocket/FastSocket.m; sourceTree = "<group>"; };
 		49E5AB5D1D98C00600C6988D /* FastSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FastSocket.h; path = FastSocket/FastSocket.h; sourceTree = "<group>"; };
-		49E5AB681DA1717300C6988D /* Device.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Device.mm; sourceTree = "<group>"; };
-		49E5AB6A1DA1718900C6988D /* Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Device.h; sourceTree = "<group>"; };
 		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../m8rscript/Float.h; sourceTree = "<group>"; };
 		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../m8rscript/Parser.cpp; sourceTree = "<group>"; };
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../m8rscript/Parser.h; sourceTree = "<group>"; };
@@ -290,6 +316,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4988DC5C1F0C2461009F7ED5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4988DC791F0C29A3009F7ED5 /* liblibm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +424,20 @@
 			name = esp;
 			sourceTree = "<group>";
 		};
+		4988DC601F0C2461009F7ED5 /* m8rsim_xpc */ = {
+			isa = PBXGroup;
+			children = (
+				4988DC611F0C2461009F7ED5 /* m8rsim_xpcProtocol.h */,
+				4988DC621F0C2461009F7ED5 /* m8rsim_xpc.h */,
+				4988DC631F0C2461009F7ED5 /* m8rsim_xpc.m */,
+				4988DC651F0C2461009F7ED5 /* main.m */,
+				4988DC671F0C2461009F7ED5 /* Info.plist */,
+				4988DC7A1F0E8293009F7ED5 /* Simulator.mm */,
+				4988DC7B1F0E8293009F7ED5 /* Simulator.h */,
+			);
+			path = m8rsim_xpc;
+			sourceTree = "<group>";
+		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
 			isa = PBXGroup;
 			children = (
@@ -416,14 +464,12 @@
 				49E5AB531D981A6300C6988D /* UI */,
 				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
+				4988DC741F0C296B009F7ED5 /* Device.mm */,
+				4988DC751F0C296B009F7ED5 /* Device.h */,
 				49562F691D1D7A75001AFAEE /* main.m */,
 				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
 				49D9B8261D1C854700724911 /* Info.plist */,
-				49E5AB681DA1717300C6988D /* Device.mm */,
-				49E5AB6A1DA1718900C6988D /* Device.h */,
-				49E5AB501D94195F00C6988D /* Simulator.h */,
-				49E5AB511D94195F00C6988D /* Simulator.cpp */,
 			);
 			path = m8rsim;
 			sourceTree = "<group>";
@@ -487,6 +533,7 @@
 				49E648071D00BEEC005F5059 /* libm8rscript */,
 				49D9B8191D1C854700724911 /* m8rsim */,
 				4945A8701EC3711D00559CD1 /* m8r */,
+				4988DC601F0C2461009F7ED5 /* m8rsim_xpc */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
 			);
@@ -499,6 +546,7 @@
 				494D254E1D2E9055003755DB /* liblibm8rscript.a */,
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
+				4988DC5F1F0C2461009F7ED5 /* m8rsim_xpc.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -629,6 +677,24 @@
 			productReference = 494D254E1D2E9055003755DB /* liblibm8rscript.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		4988DC5E1F0C2461009F7ED5 /* m8rsim_xpc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4988DC6B1F0C2461009F7ED5 /* Build configuration list for PBXNativeTarget "m8rsim_xpc" */;
+			buildPhases = (
+				4988DC5B1F0C2461009F7ED5 /* Sources */,
+				4988DC5C1F0C2461009F7ED5 /* Frameworks */,
+				4988DC5D1F0C2461009F7ED5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4988DC781F0C299B009F7ED5 /* PBXTargetDependency */,
+			);
+			name = m8rsim_xpc;
+			productName = m8rsim_xpc;
+			productReference = 4988DC5F1F0C2461009F7ED5 /* m8rsim_xpc.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 		49C406E11EB6598B001E4DEC /* generateSharedAtoms */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateSharedAtoms" */;
@@ -654,11 +720,12 @@
 				49D9B8151D1C854700724911 /* Frameworks */,
 				49D9B8161D1C854700724911 /* Resources */,
 				49F463351E0DD533004EF625 /* CopyFiles */,
+				4988DC3D1F0A3713009F7ED5 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				494D255F1D2E90C8003755DB /* PBXTargetDependency */,
+				4988DC691F0C2461009F7ED5 /* PBXTargetDependency */,
 			);
 			name = m8rsim;
 			productName = m8rsim;
@@ -681,6 +748,10 @@
 					};
 					494D254D1D2E9055003755DB = {
 						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
+					4988DC5E1F0C2461009F7ED5 = {
+						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
 					};
 					49C406E11EB6598B001E4DEC = {
@@ -711,11 +782,19 @@
 				494D254D1D2E9055003755DB /* libm8rscript */,
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
+				4988DC5E1F0C2461009F7ED5 /* m8rsim_xpc */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4988DC5D1F0C2461009F7ED5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49D9B8161D1C854700724911 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -794,6 +873,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4988DC5B1F0C2461009F7ED5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4988DC661F0C2461009F7ED5 /* main.m in Sources */,
+				4988DC641F0C2461009F7ED5 /* m8rsim_xpc.m in Sources */,
+				4988DC7C1F0E8293009F7ED5 /* Simulator.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49C406DE1EB6598B001E4DEC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -807,16 +896,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
-				49E1907E1DBAE2570030DC89 /* MacUDP.cpp in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
-				49E1907F1DBAE2570030DC89 /* MacTCP.cpp in Sources */,
+				4988DC761F0C296B009F7ED5 /* Device.mm in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
-				49E5AB521D94195F00C6988D /* Simulator.cpp in Sources */,
 				49F166F81DA7443100C07A1A /* SimulationView.m in Sources */,
-				49E5AB691DA1717300C6988D /* Device.mm in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
 			);
@@ -830,10 +916,15 @@
 			target = 494D254D1D2E9055003755DB /* libm8rscript */;
 			targetProxy = 4945A8761EC3712700559CD1 /* PBXContainerItemProxy */;
 		};
-		494D255F1D2E90C8003755DB /* PBXTargetDependency */ = {
+		4988DC691F0C2461009F7ED5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4988DC5E1F0C2461009F7ED5 /* m8rsim_xpc */;
+			targetProxy = 4988DC681F0C2461009F7ED5 /* PBXContainerItemProxy */;
+		};
+		4988DC781F0C299B009F7ED5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* libm8rscript */;
-			targetProxy = 494D255E1D2E90C8003755DB /* PBXContainerItemProxy */;
+			targetProxy = 4988DC771F0C299B009F7ED5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -907,6 +998,36 @@
 				LLVM_LTO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = generated;
+			};
+			name = Release;
+		};
+		4988DC6C1F0C2461009F7ED5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = m8rsim_xpc/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.marrin.m8rsim-xpc";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		4988DC6D1F0C2461009F7ED5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = m8rsim_xpc/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.marrin.m8rsim-xpc";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -1076,6 +1197,15 @@
 			buildConfigurations = (
 				494D25501D2E9055003755DB /* Debug */,
 				494D25511D2E9055003755DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4988DC6B1F0C2461009F7ED5 /* Build configuration list for PBXNativeTarget "m8rsim_xpc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4988DC6C1F0C2461009F7ED5 /* Debug */,
+				4988DC6D1F0C2461009F7ED5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

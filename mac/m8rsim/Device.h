@@ -12,20 +12,12 @@
 #define NameValidationBadLength 1
 #define NameValidationInvalidChar 2
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-int validateFileName(const char*);
-int validateBonjourName(const char*);
-#ifdef __cplusplus
-}
-#endif
-
 typedef NSMutableArray<NSDictionary*>* FileList;
 
 @protocol DeviceDelegate
 
 - (void)addDevice:(NSString*)name;
+- (void)setDevice:(NSString*)name;
 - (void)setContents:(NSData*)contents withName:(NSString*)name;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build;
@@ -38,19 +30,19 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 
 @property (weak) id <DeviceDelegate> delegate;
 @property (readonly) NSDictionary* currentDevice;
-@property (readonly, strong) NSFileWrapper* files;
+@property (readonly, strong) NSURL* files;
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)renameDevice:(NSString*)name;
 
 - (void)mirrorFiles;
-- (void)setFiles:(NSFileWrapper*)files;
+- (void)setFiles:(NSURL*)files;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
 - (void)removeFile:(NSString*)name;
 - (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName;
-- (void)setDevice:(NSString*)device;
+- (BOOL)setDevice:(NSString*)device;
 - (void)clearContents;
 - (BOOL)saveFile:(NSString*)name withURLBase:(NSURL*)urlBase;
 
@@ -68,7 +60,6 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 
 - (BOOL)saveChangedFiles;
 - (BOOL)isDeviceFile;
-
 
 @end
 

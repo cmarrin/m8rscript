@@ -55,7 +55,7 @@
     SimulationView* _simulationView;
     FileBrowser* _fileBrowser;
     
-    NSFileWrapper* _package;
+    NSURL* _packageURL;
     
     MGSFragaria* _fragaria;
     NSImageView* _imageView;
@@ -98,10 +98,6 @@
     [_fileBrowser.view setFrameSize:superFrame.size];
     
     commentSelectionMenuItem = ((AppDelegate*)[NSApplication sharedApplication].delegate).commentSelectionMenuItem;
-    
-    if (_package) {
-        [self setFiles];
-    }
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *) aController
@@ -371,10 +367,7 @@
         return;
     }
     
-    NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
-                                _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
-                                nil;
-    [_device setFiles: files];
+    [_device setFiles: _packageURL];
     [self reloadFiles];
 }
 
@@ -411,7 +404,9 @@
 
 - (void)setDevice:(NSString*)name
 {
-    [_device setDevice:name];
+    if (![_device setDevice:name]) {
+        return;
+    }
     [self clearContents];
     [self reloadFiles];
 }
@@ -422,36 +417,37 @@
     return @"Document";
 }
 
-- (BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper
-                     ofType:(NSString *)typeName 
-                      error:(NSError * _Nullable *)outError
+- (BOOL)readFromURL:(NSURL *)url 
+             ofType:(NSString *)typeName 
+              error:(NSError * _Nullable *)outError
 {
-    _package = fileWrapper;
+    _packageURL = url;
     [self setFiles];
     return YES;
 }
 
 - (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-    if ([_device saveChangedFiles]) {
-        [self updateChangeCount:NSChangeCleared];
-        return YES;
-    }
-    
-    BOOL result = [super writeToURL:url ofType:typeName error:outError];
-    return result;
+//    if ([_device saveChangedFiles]) {
+//        [self updateChangeCount:NSChangeCleared];
+//        return YES;
+//    }
+//    
+//    BOOL result = [super writeToURL:url ofType:typeName error:outError];
+//    return result;
+    return YES;
 }
 
-- (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError **)outError
-{
-    if (!_package) {
-        [self markDirty];
-        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _device.files }];
-        _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
-        [self setFiles];
-    }
-    return _package;
-}
+//- (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError **)outError
+//{
+//    if (!_package) {
+//        [self markDirty];
+//        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _device.files }];
+//        _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+//        [self setFiles];
+//    }
+//    return _package;
+//}
 
 - (void)clearOutput:(OutputType)output
 {
@@ -515,17 +511,17 @@
  */
 - (void)textDidChange:(NSNotification *)notification
 {
-    NSTextStorage *textStorage = [notification.object textStorage];
-    NSString *string = textStorage.string;
+//    NSTextStorage *textStorage = [notification.object textStorage];
+//    NSString *string = textStorage.string;
     
     if (_selectedFilename.length) {
-        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
-                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
-                                    nil;
-        if (files) {
-            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
-            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
-        }
+//        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
+//                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
+//                                    nil;
+//        if (files) {
+//            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
+//            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
+//        }
     }
     [self reloadFiles];
     [self updateChangeCount:NSChangeDone];

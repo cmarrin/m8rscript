@@ -8,12 +8,26 @@
 
 #import "m8rsim_xpc.h"
 
+#import "Simulator.h"
+
+@interface m8rsim_xpc ()
+{
+    Simulator* _simulator;
+}
+
+@end
+
 @implementation m8rsim_xpc
 
-// This implements the example protocol. Replace the body of this class with the implementation of this service's protocol.
-- (void)upperCaseString:(NSString *)aString withReply:(void (^)(NSString *))reply {
-    NSString *response = [aString uppercaseString];
-    reply(response);
+- (void)initWithPort:(NSUInteger)port withReply:(void (^)(NSInteger))reply
+{
+    _simulator = [[Simulator alloc] initWithPort:port];
+    reply(_simulator.status);
+}
+
+- (void)setFiles:(NSString*)files
+{
+    [_simulator setFiles:files];
 }
 
 @end

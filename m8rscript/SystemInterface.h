@@ -103,6 +103,8 @@ public:
     static void* alloc(MemoryType, size_t);
     static void free(MemoryType, void*);
     
+    virtual void setDeviceName(const char*) = 0;
+    
     virtual void vprintf(const char*, va_list) const = 0;
     virtual GPIOInterface& gpio() = 0;
     static uint64_t currentMicroseconds();

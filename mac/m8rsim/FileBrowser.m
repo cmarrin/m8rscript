@@ -272,21 +272,23 @@
             return;
         }
         name = renameDeviceTextField.stringValue;
-        NSString* errorString;
-        int returnType = validateBonjourName(name.UTF8String);
-        if (returnType == NameValidationBadLength) {
-            errorString = @"device name must be between 1 and 31 characters";
-        } else if (returnType == NameValidationInvalidChar) {
-            errorString = @"device name must only contain numbers, lowercase letters and hyphen";
-        }
-        if (errorString) {
-            name = nil;
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:errorString];
-            [alert setAlertStyle:NSWarningAlertStyle];
-            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) { }];
-        }
+        
+// FIXME: Need to deal with illegal names
+//        NSString* errorString;
+//        int returnType = validateBonjourName(name.UTF8String);
+//        if (returnType == NameValidationBadLength) {
+//            errorString = @"device name must be between 1 and 31 characters";
+//        } else if (returnType == NameValidationInvalidChar) {
+//            errorString = @"device name must only contain numbers, lowercase letters and hyphen";
+//        }
+//        if (errorString) {
+//            name = nil;
+//            NSAlert *alert = [[NSAlert alloc] init];
+//            [alert addButtonWithTitle:@"OK"];
+//            [alert setMessageText:errorString];
+//            [alert setAlertStyle:NSWarningAlertStyle];
+//            [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) { }];
+//        }
     }];
     
     return name;

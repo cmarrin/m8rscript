@@ -12,7 +12,9 @@
 @protocol m8rsim_xpcProtocol
 
 // Replace the API of this protocol with an API appropriate to the service you are vending.
-- (void)upperCaseString:(NSString *)aString withReply:(void (^)(NSString *))reply;
+- (void)initWithPort:(NSUInteger)port withReply:(void (^)(NSInteger))reply;
+
+- (void)setFiles:(NSString*)files;
     
 @end
 

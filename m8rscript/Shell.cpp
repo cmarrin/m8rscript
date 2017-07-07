@@ -312,7 +312,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             } else if (type == Application::NameValidationType::InvalidChar) {
                 showMessage(MessageType::Error, ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
-                setDeviceName(array[1].c_str());
+                _application->system()->setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
                 showMessage(MessageType::Info, ROMSTR("set dev name\n"));
             }

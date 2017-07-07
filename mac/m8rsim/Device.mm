@@ -9,9 +9,7 @@
 #import "Device.h"
 
 #import "FastSocket.h"
-#import "MacFS.h"
-#import "Simulator.h"
-#import "MacUDP.h"
+#import "m8rsim_xpcProtocol.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -19,9 +17,8 @@
 #import <thread>
 #import <chrono>
 #import <MGSFragaria/MGSFragaria.h>
-#import <malloc/malloc.h>
 
-class DeviceSystemInterface;
+#define LocalPort 2222
 
 @interface Device ()
 {
@@ -29,10 +26,9 @@ class DeviceSystemInterface;
     NSMutableArray<NSDictionary*>* _devices;
     NSDictionary* _currentDevice;
     FileList _fileList;
-    NSFileWrapper* _files;
+    
+    NSXPCConnection* _simulator;
 
-    m8r::MacFS* _fs;
-    Simulator* _simulator;
     FastSocket* _logSocket;
     
     dispatch_queue_t _serialQueue;
@@ -41,97 +37,11 @@ class DeviceSystemInterface;
     BOOL _isBuild;
 }
 
-- (void)outputMessage:(NSString*)msg;
+- (void)outputMessage:(NSString*)msg, ...;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
+- (void)updateMemoryInfo;
+
 @end
-
-uint64_t m8r::SystemInterface::currentMicroseconds()
-{
-    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
-}
-
-uint32_t g_baselineMemoryUsed = 0;
-#define MaxMemory 80000
-
-malloc_zone_t* g_m8rzone = nullptr;
-
-void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
-{
-    return malloc_zone_malloc(g_m8rzone, size);
-}
-
-void m8r::SystemInterface::free(MemoryType, void* p)
-{
-    malloc_zone_free(g_m8rzone, p);
-}
-
-void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
-{
-    // TODO: Implement
-    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
-    return;
-}
-
-class DeviceSystemInterface : public m8r::SystemInterface
-{
-public:
-    DeviceSystemInterface(Device* device) : _device(device), _gpio(device) { }
-    
-    virtual void vprintf(const char* s, va_list args) const override
-    {
-        NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
-        [_device outputMessage:string];
-    }
-    
-    virtual m8r::GPIOInterface& gpio() override { return _gpio; }
-
-private:
-    class DeviceGPIOInterface : public m8r::GPIOInterface {
-    public:
-        DeviceGPIOInterface(Device* device) : _device(device) { }
-        virtual ~DeviceGPIOInterface() { }
-
-        virtual bool setPinMode(uint8_t pin, PinMode mode) override
-        {
-            if (!GPIOInterface::setPinMode(pin, mode)) {
-                return false;
-            }
-            _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
-            [_device updateGPIOState:_pinio withMode:_pinstate];
-            return true;
-        }
-        
-        virtual bool digitalRead(uint8_t pin) const override
-        {
-            return _pinstate & (1 << pin);
-        }
-        
-        virtual void digitalWrite(uint8_t pin, bool level) override
-        {
-            if (pin > 16) {
-                return;
-            }
-            _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
-            [_device updateGPIOState:_pinstate withMode:_pinio];
-        }
-        
-        virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
-        
-    private:
-        Device* _device;
-        
-        // 0 = input, 1 = output
-        uint32_t _pinio = 0;
-        uint32_t _pinstate = 0;
-    };
-    
-    Device* _device;
-    DeviceGPIOInterface _gpio;
-};
-
-m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 @implementation Device
 
@@ -139,49 +49,44 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 {
     self = [super init];
     if (self) {
-        if (!g_m8rzone) {
-            g_m8rzone = malloc_create_zone(MaxMemory, 0);
-            malloc_set_zone_name(g_m8rzone, "m8rzone");
-        }
-
-        _fs = static_cast<m8r::MacFS*>(m8r::FS::createFS());
-        
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
-        [self setFiles:[[NSFileWrapper alloc]initDirectoryWithFileWrappers:@{ }]];
 
-        _deviceSystemInterface = new DeviceSystemInterface(self);
-        _simulator = new Simulator(_fs, _deviceSystemInterface);
+        _simulator = [[NSXPCConnection alloc] initWithServiceName:@"org.marrin.m8rsim-xpc"];
+        _simulator.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcProtocol)];
+        [_simulator resume];
         
-        _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
+        [[_simulator remoteObjectProxy] initWithPort:LocalPort withReply:^(NSInteger status) {
+            if (status < 0) {
+                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
+                [_simulator invalidate];
+                _simulator = nil;
+            } else {
+                [self.delegate setDevice:@""];
+            }
+        }];
 
+        _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
-        
-        (void) m8r::IPAddr::myIPAddr();
-
-        [self updateMemoryInfo];
-     }
+    }
     return self;
 }
 
 - (void)dealloc
 {
-    if (_simulator->isRunning()) {
-        _simulator->stop();
-        dispatch_sync(_serialQueue, ^{ });
-    }
-    delete _simulator;
-    delete _deviceSystemInterface;
-    delete _fs;
+     [_simulator invalidate];
 }
 
-- (void)outputMessage:(NSString*)msg
+- (void)outputMessage:(NSString*)msg, ...
 {
+    va_list args;
+    va_start(args, msg);
+    NSString* string = [[NSString alloc] initWithFormat:msg arguments:args];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate outputMessage:msg toBuild:_isBuild];
+        [self.delegate outputMessage:string toBuild:_isBuild];
     });
 }
 
@@ -194,7 +99,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 {
     while(1) {
         char c;
-        long count = socket ? [socket receiveBytes:&c count:1] : _simulator->receiveFromShell(&c, 1);
+        long count = [socket receiveBytes:&c count:1];
         if (count != 1 || c == '>') {
             break;
         }
@@ -207,7 +112,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     char c[2];
     c[1] = '\0';
     while(1) {
-        long count = socket ? [socket receiveBytes:c count:1] : _simulator->receiveFromShell(&c, 1);
+        long count = [socket receiveBytes:c count:1];
         if (count != 1 || c[0] == terminator) {
             break;
         }
@@ -219,30 +124,33 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 - (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
 {
     FastSocket* socket = nullptr;
+    NSString* ipString = @"localhost";
+    NSInteger port = LocalPort;
     
-    if (!service) {
-        _simulator->initShell();
-    } else {
+    if (service) {
         if (service.addresses.count == 0) {
             return nil;
         }
         NSData* address = [service.addresses objectAtIndex:0];
         struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-        NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-    
-        NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
-        socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-        if (![socket connect]) {
-            _deviceSystemInterface->printf("**** Failed to open socket for command '%@'\n", command);
-            return socket;
-        }
-        [socket setTimeout:5];
+        ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+        port = service.port;
+    } else if (!_simulator) {
+        return nil;
     }
+    
+    NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
+    socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
+    if (![socket connect]) {
+        [self outputMessage:@"**** Failed to open socket for command '%@'\n", command];
+        return socket;
+    }
+    [socket setTimeout:5];
     
     [self flushToPrompt:socket];
     
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
+    long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     (void) count;
     return socket;
@@ -255,7 +163,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
         return;
     }
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    long count = socket ? [socket sendBytes:data.bytes count:data.length] : _simulator->sendToShell(data.bytes, data.length);
+    long count = [socket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     (void) count;
     [self flushToPrompt:socket];
@@ -328,10 +236,9 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 {
 }
 
-- (void)setFiles:(NSFileWrapper*)files
+- (void)setFiles:(NSURL*)files
 {
-    _files = files;
-    _fs->setFiles(_files);
+    [[_simulator remoteObjectProxy] setFiles:[files path]];
 }
 
 - (NSData*)contentsOfFile:(NSString*)name forDevice:(NSNetService*)service
@@ -510,7 +417,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     return nil;
 }
 
-- (void)setDevice:(NSString*)device
+- (BOOL)setDevice:(NSString*)device
 {
     if (_logSocket) {
         _logSocket = nil;
@@ -519,23 +426,31 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
     }
 
     _currentDevice = [self findService:device];
-    [self updateMemoryInfo];
-
-    if (!_currentDevice) {
-        return;
+    if (!_currentDevice && !_simulator) {
+        [self outputMessage:@"**** No xpc connection\n"];
+        return NO;
     }
     
-    NSNetService* service = _currentDevice[@"service"];
-    if (service.addresses.count == 0) {
-        return;
+    [self updateMemoryInfo];
+
+    NSString* ipString = @"localhost";
+    NSUInteger port = LocalPort;
+    
+    if (_currentDevice) {
+        NSNetService* service = _currentDevice[@"service"];
+        if (service.addresses.count == 0) {
+            return NO;
+        }
+
+        NSData* address = [service.addresses objectAtIndex:0];
+        struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
+        ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
+        port = service.port + 1;
     }
-
+    
+    NSString* portString = [NSNumber numberWithInteger:port].stringValue;
+    
     _logQueue = dispatch_queue_create("LogQueue", DISPATCH_QUEUE_SERIAL);
-
-    NSData* address = [service.addresses objectAtIndex:0];
-    struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-    NSString* ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-    NSString* portString = [NSNumber numberWithInteger:service.port + 1].stringValue;
     
     _logSocket = [[FastSocket alloc]initWithHost:ipString andPort:portString];
     [_logSocket setTimeout:7200];
@@ -552,6 +467,8 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
             [self outputMessage:[NSString stringWithUTF8String:buffer]];
         }
     });
+    
+    return YES;
 }
 
 - (void)reloadDeviceList
@@ -572,7 +489,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (BOOL)canRun
 {
-    return _simulator->canRun();
+    return true;
 }
 
 - (BOOL)canBuild
@@ -582,7 +499,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (BOOL)canStop
 {
-    return _simulator->canStop();
+    return true;
 }
 
 - (BOOL)canUpload
@@ -592,34 +509,48 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (BOOL)canSimulate
 {
-    return _simulator->canRun();
+    return true;
 }
 
 - (BOOL)canSaveBinary
 {
-    return _simulator->canSaveBinary();
+    return _currentDevice == nil;
 }
 
 - (NSArray*)buildFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = YES;
-    const m8r::ErrorList* errors = _simulator->build(name.UTF8String, debug);
+    NSNetService* service = _currentDevice[@"service"];
+    if (debug) {
+        NSString* command = [NSString stringWithFormat:@"debug\r\n"];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+    }
     
-    if (!errors) {
+    NSString* command = [NSString stringWithFormat:@"build %@\r\n", name];
+    NSString* errors = [self sendCommand:command fromService:service withTerminator:'>'];
+    [self updateMemoryInfo];
+    
+    if (!errors || ![errors length]) {
         return nil;
     }
     
     NSMutableArray* errorArray = [[NSMutableArray alloc] init];
-    for (const auto& entry : *errors) {
+
+    NSArray* lines = [errors componentsSeparatedByString:@"\n"];
+
+    for (NSString* line in lines) {
+        NSArray* elements = [line componentsSeparatedByString:@":"];
+        if (elements.count != 4) {
+            continue;
+        }
+        
         SMLSyntaxError *syntaxError = [SMLSyntaxError new];
-        syntaxError.description = [NSString stringWithUTF8String:entry._description];
-        syntaxError.line = entry._lineno;
-        syntaxError.character = entry._charno;
-        syntaxError.length = entry._length;
+        syntaxError.description = [elements objectAtIndex:0];
+        syntaxError.line = [[elements objectAtIndex:1] intValue];
+        syntaxError.character = [[elements objectAtIndex:2] intValue];
+        syntaxError.length = [[elements objectAtIndex:3] intValue];
         [errorArray addObject:syntaxError];
     }
-    
-    [self updateMemoryInfo];
     return errorArray;
 }
 
@@ -643,7 +574,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (void)pause
 {
-    _simulator->pause();
+    // FIXME: Implement
 }
 
 - (void)stop
@@ -660,7 +591,7 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (void)simulate
 {
-    _simulator->simulate();
+    // FIXME: Implement
 }
 
 - (BOOL)saveChangedFiles
@@ -676,7 +607,14 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
 
 - (void)clearContents
 {
-    _simulator->clear();
+    dispatch_async(_serialQueue, ^() {        
+        NSNetService* service = _currentDevice[@"service"];
+        NSString* command = [NSString stringWithFormat:@"clear\r\n"];
+        [self sendCommand:command fromService:service withTerminator:'>'];
+        dispatch_async(dispatch_get_main_queue(), ^{
+        });
+        [self updateMemoryInfo];
+    });
 }
 
 // NSNetServiceBrowser delegate
@@ -707,23 +645,6 @@ m8r::SystemInterface* _deviceSystemInterface = nullptr;
      didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
 {
     NSLog(@"********* Did not resolve: %@\n", errorDict);
-}
-
-int validateFileName(const char* name) {
-    switch(m8r::Application::validateFileName(name)) {
-        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
-        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
-        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
-    }
-}
-    
-int validateBonjourName(const char* name)
-{
-    switch(m8r::Application::validateBonjourName(name)) {
-        case m8r::Application::NameValidationType::Ok: return NameValidationOk;
-        case m8r::Application::NameValidationType::BadLength: return NameValidationBadLength;
-        case m8r::Application::NameValidationType::InvalidChar: return NameValidationInvalidChar;
-    }
 }
 
 @end

@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Application.h"
 
 #include "MStream.h"
+#include "Shell.h"
 #include "SystemInterface.h"
 
 #ifndef NO_PARSER_SUPPORT
@@ -44,12 +45,70 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Application::Application(FS* fs, SystemInterface* system)
+class MyTCP;
+
+class MyShell : public m8r::Shell {
+public:
+    MyShell(m8r::Application* application, m8r::TCP* tcp, uint16_t connectionId) : Shell(application), _tcp(tcp), _connectionId(connectionId) { }
+    
+    // Shell Delegate
+    virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(_connectionId, data, size); }
+
+private:
+    m8r::TCP* _tcp;
+    uint16_t _connectionId;
+};
+
+class MyTCP : public TCPDelegate {
+public:
+    MyTCP(Application* application, uint16_t port)
+        : _tcp(m8r::TCP::create(this, port))
+        , _application(application)
+    { }
+    
+    // TCPDelegate
+    virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
+    {
+        switch(event) {
+            case m8r::TCPDelegate::Event::Connected:
+                _shells[connectionId] = new MyShell(_application, _tcp, connectionId);
+                _shells[connectionId]->connected();
+                break;
+            case m8r::TCPDelegate::Event::Disconnected:
+                if (_shells[connectionId]) {
+                    _shells[connectionId]->disconnected();
+                    delete _shells[connectionId];
+                    _shells[connectionId] = nullptr;
+                }
+                break;
+            case m8r::TCPDelegate::Event::ReceivedData:
+                if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
+                    _tcp->disconnect(connectionId);
+                }
+                break;
+            case m8r::TCPDelegate::Event::SentData:
+                if (_shells[connectionId]) {
+                    _shells[connectionId]->sendComplete();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+private:
+    m8r::TCP* _tcp;
+    Application* _application;
+    MyShell* _shells[m8r::TCP::MaxConnections];
+};
+
+Application::Application(FS* fs, SystemInterface* system, uint16_t port)
     : _fs(fs)
     , _system(system)
     , _runTask()
     , _heartbeatTask(system)
 {
+    _tcp = new MyTCP(this, port);
 }
 
 bool Application::load(Error& error, bool debug, const char* filename)
