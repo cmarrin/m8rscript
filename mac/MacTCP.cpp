@@ -224,14 +224,20 @@ MacTCP::~MacTCP()
 
 void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
 {
+    if (connectionId < 0 || connectionId >= MaxConnections) {
+        return;
+    }
+    if (!length) {
+        length = ::strlen(data);
+    }
+    
     if (_server) {
         std::lock_guard<std::mutex> lock(_mutex);
-        for (int socket : _clientSockets) {
-            if (socket) {
-                ssize_t result = ::send(socket, data, length, 0);
-                if (result == -1) {
-                    _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (server) failed");
-                }
+        int socket = _clientSockets[connectionId];
+        if (socket) {
+            ssize_t result = ::send(socket, data, length, 0);
+            if (result == -1) {
+                _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (server) failed");
             }
         }
     } else {

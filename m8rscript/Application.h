@@ -49,11 +49,13 @@ class Program;
 class Error;
 class ExecutionUnit;
 class FS;
+class Shell;
 class TCP;
 
 class Application {
 public:
     Application(FS*, SystemInterface*, uint16_t port);
+    ~Application();
     
     FS* fileSystem() { return _fs; }
     SystemInterface* system() const { return _system; }
@@ -139,7 +141,7 @@ private:
         bool _upbeat = false; // When true, heartbeat is occuring
     };
 
-    TCPDelegate* _tcp;
+    TCPDelegate* _shellSocket;
     FS* _fs;
     SystemInterface* _system;
     

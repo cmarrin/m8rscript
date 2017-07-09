@@ -50,6 +50,8 @@ class TCP;
 
 class TCPDelegate {
 public:
+    virtual ~TCPDelegate() { }
+    
     enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };
     
     virtual void TCPevent(TCP*, Event, int16_t connectionId, const char* data = nullptr, int16_t length = -1) = 0;

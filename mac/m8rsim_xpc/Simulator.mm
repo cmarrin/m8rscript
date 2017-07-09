@@ -17,6 +17,31 @@
 #import <chrono>
 #import <malloc/malloc.h>
 
+class MyLogSocket : public m8r::TCPDelegate {
+public:
+    MyLogSocket(uint16_t port)
+        : _tcp(m8r::TCP::create(this, port))
+    { }
+    
+    virtual ~MyLogSocket() { delete _tcp; }
+
+    virtual void TCPevent(m8r::TCP* tcp, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
+    {
+        if (event == m8r::TCPDelegate::Event::Connected) {
+            tcp->send(connectionId, "Start m8rscript Log\n\n");
+        }
+    }
+
+    void log(const char* s)
+    {
+        for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
+            _tcp->send(connection, s);
+        }
+    }
+private:
+    m8r::TCP* _tcp;
+};
+
 uint64_t m8r::SystemInterface::currentMicroseconds()
 {
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
@@ -46,14 +71,20 @@ void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface() { }
+    MySystemInterface(uint16_t port)
+    {
+        _logSocket = new MyLogSocket(port + 1);
+    }
+    
+    virtual ~MySystemInterface()
+    {
+        delete _logSocket;
+    }
     
     virtual void vprintf(const char* s, va_list args) const override
     {
-        //NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
-        
-        // FIXME: Implement
-        //[_device outputMessage:string];
+        NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:s] arguments:args];
+        _logSocket->log([string UTF8String]);
     }
     
     virtual void setDeviceName(const char*) override { }
@@ -103,6 +134,7 @@ private:
     };
     
     MyGPIOInterface _gpio;
+    MyLogSocket* _logSocket;
 };
 
 @interface Simulator ()
@@ -127,7 +159,7 @@ private:
     self = [super init];
     if (self) {
         (void) m8r::IPAddr::myIPAddr();
-        _system = new MySystemInterface();
+        _system = new MySystemInterface(port);
         _fs = m8r::FS::createFS();
         _application = new m8r::Application(_fs, _system, port);
         

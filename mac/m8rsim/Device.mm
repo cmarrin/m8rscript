@@ -124,7 +124,7 @@
 - (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
 {
     FastSocket* socket = nullptr;
-    NSString* ipString = @"localhost";
+    NSString* ipString = @"127.0.0.1";
     NSInteger port = LocalPort;
     
     if (service) {
@@ -139,7 +139,7 @@
         return nil;
     }
     
-    NSString* portString = [NSNumber numberWithInteger:service.port].stringValue;
+    NSString* portString = [NSNumber numberWithInteger:port].stringValue;
     socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
     if (![socket connect]) {
         [self outputMessage:@"**** Failed to open socket for command '%@'\n", command];
@@ -433,8 +433,8 @@
     
     [self updateMemoryInfo];
 
-    NSString* ipString = @"localhost";
-    NSUInteger port = LocalPort;
+    NSString* ipString = @"127.0.0.1";
+    NSUInteger port = LocalPort + 1;
     
     if (_currentDevice) {
         NSNetService* service = _currentDevice[@"service"];

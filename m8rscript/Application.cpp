@@ -49,7 +49,11 @@ class MyTCP;
 
 class MyShell : public m8r::Shell {
 public:
-    MyShell(m8r::Application* application, m8r::TCP* tcp, uint16_t connectionId) : Shell(application), _tcp(tcp), _connectionId(connectionId) { }
+    MyShell(m8r::Application* application, m8r::TCP* tcp, uint16_t connectionId)
+        : Shell(application)
+        , _tcp(tcp)
+        , _connectionId(connectionId)
+    { }
     
     // Shell Delegate
     virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(_connectionId, data, size); }
@@ -59,13 +63,15 @@ private:
     uint16_t _connectionId;
 };
 
-class MyTCP : public TCPDelegate {
+class MyShellSocket : public TCPDelegate {
 public:
-    MyTCP(Application* application, uint16_t port)
+    MyShellSocket(Application* application, uint16_t port)
         : _tcp(m8r::TCP::create(this, port))
         , _application(application)
     { }
     
+    virtual ~MyShellSocket() { delete _tcp; }
+
     // TCPDelegate
     virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
@@ -108,7 +114,12 @@ Application::Application(FS* fs, SystemInterface* system, uint16_t port)
     , _runTask()
     , _heartbeatTask(system)
 {
-    _tcp = new MyTCP(this, port);
+    _shellSocket = new MyShellSocket(this, port);
+}
+
+Application::~Application()
+{
+    delete _shellSocket;
 }
 
 bool Application::load(Error& error, bool debug, const char* filename)
