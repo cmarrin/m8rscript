@@ -361,16 +361,6 @@
     imageView.image = image;
 }
 
-- (void)setFiles
-{
-    if (!_fileBrowser) {
-        return;
-    }
-    
-    [_device setFiles: _packageURL];
-    [self reloadFiles];
-}
-
 - (void)selectFile:(NSInteger)index
 {
     [self clearContents];
@@ -404,11 +394,7 @@
 
 - (void)setDevice:(NSString*)name
 {
-    if (![_device setDevice:name]) {
-        return;
-    }
-    [self clearContents];
-    [self reloadFiles];
+    [_device setDevice:name];
 }
 
 - (NSString *)windowNibName {
@@ -422,7 +408,7 @@
               error:(NSError * _Nullable *)outError
 {
     _packageURL = url;
-    [self setFiles];
+    [self reloadFiles];
     return YES;
 }
 
@@ -468,7 +454,7 @@
 
 - (void)reloadFiles
 {
-    [_fileBrowser reloadFilesForDevice:_device];
+    [_fileBrowser reloadFilesWithURL:_packageURL forDevice:_device];
 }
 
 - (IBAction)upload:(id)sender {

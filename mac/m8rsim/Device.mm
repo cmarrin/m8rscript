@@ -33,7 +33,7 @@
     
     dispatch_queue_t _serialQueue;
     dispatch_queue_t _logQueue;
-    
+
     BOOL _isBuild;
 }
 
@@ -56,13 +56,21 @@
         _simulator.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcProtocol)];
         [_simulator resume];
         
-        [[_simulator remoteObjectProxy] initWithPort:LocalPort withReply:^(NSInteger status) {
+        [[_simulator remoteObjectProxy] initWithReply:^(NSInteger status) {
             if (status < 0) {
                 [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
                 [_simulator invalidate];
                 _simulator = nil;
             } else {
-                [self.delegate setDevice:@""];
+                [[_simulator remoteObjectProxy] setPort:LocalPort withReply:^(NSInteger status) {
+                    if (status < 0) {
+                        [self outputMessage:@"**** Failed to set xpc LocalPort, error: %d\n", status];
+                        [_simulator invalidate];
+                        _simulator = nil;
+                    } else {
+                        [self.delegate setDevice:@""];
+                    }
+                }];
             }
         }];
 
@@ -213,32 +221,36 @@
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler
 {
+    NSNetService* service = _currentDevice[@"service"];
+    NSArray* fileList = [self fileListForDevice:service];
+    for (NSDictionary* fileEntry in fileList) {
+        [_fileList addObject:fileEntry];
+    }
+    
+    [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
+        return [a[@"name"] compare:b[@"name"]];
+    }];
+    
+    handler(_fileList);
+}
+
+- (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
+{
     [_fileList removeAllObjects];
     
     dispatch_async(_serialQueue, ^() {
-        NSNetService* service = _currentDevice[@"service"];
-        NSArray* fileList = [self fileListForDevice:service];
-        for (NSDictionary* fileEntry in fileList) {
-            [_fileList addObject:fileEntry];
+        if (!_currentDevice) {
+            [[_simulator remoteObjectProxy] setFiles:url withReply:^(NSInteger status) {
+                [self reloadFilesWithBlock:handler];
+            }];
+        } else {
+            [self reloadFilesWithBlock:handler];
         }
-        
-        [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
-            return [a[@"name"] compare:b[@"name"]];
-        }];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            handler(_fileList);
-        });
     });
 }
 
 - (void)reloadDevices
 {
-}
-
-- (void)setFiles:(NSURL*)files
-{
-    [[_simulator remoteObjectProxy] setFiles:[files path]];
 }
 
 - (NSData*)contentsOfFile:(NSString*)name forDevice:(NSNetService*)service
@@ -430,8 +442,6 @@
         [self outputMessage:@"**** No xpc connection\n"];
         return NO;
     }
-    
-    [self updateMemoryInfo];
 
     NSString* ipString = @"127.0.0.1";
     NSUInteger port = LocalPort + 1;
@@ -467,6 +477,8 @@
             [self outputMessage:[NSString stringWithUTF8String:buffer]];
         }
     });
+    
+    [_delegate reloadFiles];
     
     return YES;
 }

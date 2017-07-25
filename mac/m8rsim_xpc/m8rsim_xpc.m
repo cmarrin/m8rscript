@@ -19,15 +19,20 @@
 
 @implementation m8rsim_xpc
 
-- (void)initWithPort:(NSUInteger)port withReply:(void (^)(NSInteger))reply
+- (void)initWithReply:(void (^)(NSInteger))reply
+{
+    reply(0);
+}
+
+- (void)setPort:(NSUInteger)port withReply:(void (^)(NSInteger))reply
 {
     _simulator = [[Simulator alloc] initWithPort:port];
     reply(_simulator.status);
 }
 
-- (void)setFiles:(NSString*)files
+- (void)setFiles:(NSURL*)files withReply:(void (^)(NSInteger))reply
 {
-    [_simulator setFiles:files];
+    reply([_simulator setFiles:files]);
 }
 
 @end

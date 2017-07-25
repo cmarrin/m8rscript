@@ -13,6 +13,6 @@
 @property (readonly) NSInteger status;
 
 - (instancetype)initWithPort:(NSUInteger)port;
-- (void)setFiles:(NSString*)files;
+- (NSInteger)setFiles:(NSURL*)files;
 
 @end

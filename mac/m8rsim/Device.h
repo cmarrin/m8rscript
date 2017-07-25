@@ -21,6 +21,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (void)setContents:(NSData*)contents withName:(NSString*)name;
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 - (void)outputMessage:(NSString*) message toBuild:(BOOL) build;
+- (void)reloadFiles;
 - (void) setFreeMemory:(NSUInteger)size numObj:(NSUInteger)obj numStr:(NSUInteger)str numOther:(NSUInteger)oth;
 - (void)markDirty;
 
@@ -32,12 +33,11 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 @property (readonly) NSDictionary* currentDevice;
 @property (readonly, strong) NSURL* files;
 
-- (void)reloadFilesWithBlock:(void (^)(FileList))handler;
+- (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)renameDevice:(NSString*)name;
 
 - (void)mirrorFiles;
-- (void)setFiles:(NSURL*)files;
 - (void)selectFile:(NSInteger)index;
 - (void)addFile:(NSFileWrapper*)fileWrapper;
 - (void)removeFile:(NSString*)name;

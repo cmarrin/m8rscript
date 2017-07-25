@@ -17,6 +17,24 @@
 #import <chrono>
 #import <malloc/malloc.h>
 
+static malloc_zone_t g_defaultZone;
+static uint32_t g_allocCount;
+static uint32_t g_freeHeapSize;
+
+static void* g_malloc(malloc_zone_t* zone, size_t size)
+{
+    ++g_allocCount;
+    g_freeHeapSize -= size;
+    return g_defaultZone.malloc(zone, size);
+}
+
+static void g_free(malloc_zone_t* zone, void* ptr)
+{
+    --g_allocCount;
+    g_freeHeapSize += malloc_size(ptr);
+    g_defaultZone.free(zone, ptr);
+}
+
 class MyLogSocket : public m8r::TCPDelegate {
 public:
     MyLogSocket(uint16_t port)
@@ -61,11 +79,8 @@ void m8r::SystemInterface::free(MemoryType, void* p)
 
 void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
 {
-    // TODO: Implement
-    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
-    return;
+    info.freeSize = g_freeHeapSize;
+    info.numAllocations = g_allocCount;
 }
 
 class MySystemInterface : public m8r::SystemInterface
@@ -159,6 +174,14 @@ private:
     self = [super init];
     if (self) {
         (void) m8r::IPAddr::myIPAddr();
+        
+        g_allocCount = 0;
+        g_freeHeapSize = 88000;
+        malloc_zone_t* zone = malloc_default_zone();
+        g_defaultZone = *zone;
+        zone->malloc = g_malloc;
+        zone->free = g_free;
+        
         _system = new MySystemInterface(port);
         _fs = m8r::FS::createFS();
         _application = new m8r::Application(_fs, _system, port);
@@ -177,10 +200,11 @@ private:
 }
 
 
-- (void)setFiles:(NSString*)files
+- (NSInteger)setFiles:(NSURL*)files
 {
-    //_files = files;
-    //_fs->setFiles(_files);
+    NSFileWrapper* wrapper = [[NSFileWrapper alloc] initWithURL:files options:0 error:NULL];
+    static_cast<m8r::MacFS*>(_fs)->setFiles(wrapper);
+    return 0;
 }
 
 @end
