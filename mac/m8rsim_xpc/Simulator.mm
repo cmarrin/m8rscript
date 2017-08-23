@@ -17,7 +17,10 @@
 #import <chrono>
 #import <malloc/malloc.h>
 
-static malloc_zone_t g_defaultZone;
+static malloc_zone_t* g_defaultZone;
+static void* (*g_defaultMalloc)(malloc_zone_t*, size_t);
+static void (*g_defaultFree)(malloc_zone_t*, void*);
+
 static uint32_t g_allocCount;
 static uint32_t g_freeHeapSize;
 
@@ -25,14 +28,14 @@ static void* g_malloc(malloc_zone_t* zone, size_t size)
 {
     ++g_allocCount;
     g_freeHeapSize -= size;
-    return g_defaultZone.malloc(zone, size);
+    return g_defaultZone->malloc(zone, size);
 }
 
 static void g_free(malloc_zone_t* zone, void* ptr)
 {
     --g_allocCount;
     g_freeHeapSize += malloc_size(ptr);
-    g_defaultZone.free(zone, ptr);
+    g_defaultZone->free(zone, ptr);
 }
 
 class MyLogSocket : public m8r::TCPDelegate {
@@ -69,12 +72,12 @@ malloc_zone_t* g_m8rzone = nullptr;
 
 void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 {
-    return malloc_zone_malloc(g_m8rzone, size);
+    return ::malloc(size);
 }
 
 void m8r::SystemInterface::free(MemoryType, void* p)
 {
-    malloc_zone_free(g_m8rzone, p);
+    ::free(p);
 }
 
 void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
@@ -177,10 +180,9 @@ private:
         
         g_allocCount = 0;
         g_freeHeapSize = 88000;
-        malloc_zone_t* zone = malloc_default_zone();
-        g_defaultZone = *zone;
-        zone->malloc = g_malloc;
-        zone->free = g_free;
+        g_defaultZone = malloc_default_zone();
+        g_defaultMalloc = g_malloc;
+        g_defaultFree = g_free;
         
         _system = new MySystemInterface(port);
         _fs = m8r::FS::createFS();

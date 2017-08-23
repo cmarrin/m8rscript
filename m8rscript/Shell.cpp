@@ -163,8 +163,8 @@ void Shell::sendComplete()
                 } else {
                     ROMsnprintf(_buffer, BufferSize - 1, ROMSTR("    %-32s %d\n"), _directoryEntry->name(), _directoryEntry->size());
                 }
-                shellSend(_buffer);
                 _directoryEntry->next();
+                shellSend(_buffer);
             } else {
                 if (_directoryEntry) {
                     delete _directoryEntry;

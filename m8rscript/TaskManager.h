@@ -86,7 +86,10 @@ class Task {
     friend class TaskManager;
     
 public:
-    virtual ~Task() { }
+    virtual ~Task()
+    {
+        TaskManager::shared()->removeTask(this);
+    }
     
     void runOnce(int32_t delay = 0)
     {

@@ -56,23 +56,23 @@
         _simulator.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcProtocol)];
         [_simulator resume];
         
-        [[_simulator remoteObjectProxy] initWithReply:^(NSInteger status) {
-            if (status < 0) {
-                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
-                [_simulator invalidate];
-                _simulator = nil;
-            } else {
-                [[_simulator remoteObjectProxy] setPort:LocalPort withReply:^(NSInteger status) {
-                    if (status < 0) {
-                        [self outputMessage:@"**** Failed to set xpc LocalPort, error: %d\n", status];
-                        [_simulator invalidate];
-                        _simulator = nil;
-                    } else {
-                        [self.delegate setDevice:@""];
-                    }
-                }];
-            }
-        }];
+//        [[_simulator remoteObjectProxy] initWithReply:^(NSInteger status) {
+//            if (status < 0) {
+//                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
+//                [_simulator invalidate];
+//                _simulator = nil;
+//            } else {
+//                [[_simulator remoteObjectProxy] setPort:LocalPort withReply:^(NSInteger status) {
+//                    if (status < 0) {
+//                        [self outputMessage:@"**** Failed to set xpc LocalPort, error: %d\n", status];
+//                        [_simulator invalidate];
+//                        _simulator = nil;
+//                    } else {
+//                        [self.delegate setDevice:@""];
+//                    }
+//                }];
+//            }
+//        }];
 
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
@@ -237,16 +237,9 @@
 - (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
 {
     [_fileList removeAllObjects];
-    
-    dispatch_async(_serialQueue, ^() {
-        if (!_currentDevice) {
-            [[_simulator remoteObjectProxy] setFiles:url withReply:^(NSInteger status) {
-                [self reloadFilesWithBlock:handler];
-            }];
-        } else {
-            [self reloadFilesWithBlock:handler];
-        }
-    });
+    [[_simulator remoteObjectProxy] initWithPort:LocalPort files:url];
+    usleep(1000000);
+    [self reloadFilesWithBlock:handler];
 }
 
 - (void)reloadDevices

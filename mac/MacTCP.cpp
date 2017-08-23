@@ -58,6 +58,7 @@ TCP* TCP::create(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 
 MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     : TCP(delegate, port, ip)
+    , _dispatchSemaphore(nullptr)
 {
     _server = !ip;
     
@@ -218,7 +219,9 @@ MacTCP::~MacTCP()
             close(socket);
         }
     }
-    dispatch_semaphore_wait(_dispatchSemaphore, DISPATCH_TIME_FOREVER);
+    if (_dispatchSemaphore) {
+        dispatch_semaphore_wait(_dispatchSemaphore, DISPATCH_TIME_FOREVER);
+    }
     dispatch_release(_queue);
 }
 

@@ -407,7 +407,7 @@
              ofType:(NSString *)typeName 
               error:(NSError * _Nullable *)outError
 {
-    _packageURL = url;
+    _packageURL = [url URLByAppendingPathComponent:@"Contents/Files"];
     [self reloadFiles];
     return YES;
 }
