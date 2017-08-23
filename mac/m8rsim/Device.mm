@@ -424,6 +424,8 @@
 
 - (BOOL)setDevice:(NSString*)device
 {
+    [_delegate reloadFiles];
+
     if (_logSocket) {
         _logSocket = nil;
         dispatch_sync(_logQueue, ^{ });
@@ -459,19 +461,20 @@
     [_logSocket setTimeout:7200];
 
     dispatch_async(_logQueue, ^{
-        [_logSocket connect];
-        while (1) {
-            char buffer[100];
-            long count = [_logSocket receiveBytes:buffer limit:99];
-            if (count == 0) {
-                break;
+        if ([_logSocket connect]) {
+            while (1) {
+                char buffer[100];
+                long count = [_logSocket receiveBytes:buffer limit:99];
+                if (count == 0) {
+                    continue;
+                }
+                buffer[count] = '\0';
+                [self outputMessage:[NSString stringWithUTF8String:buffer]];
             }
-            buffer[count] = '\0';
-            [self outputMessage:[NSString stringWithUTF8String:buffer]];
+        } else {
+            [self outputMessage:@"*** Could not open log socket: %@\n", _logSocket.lastError.localizedDescription];
         }
     });
-    
-    [_delegate reloadFiles];
     
     return YES;
 }
