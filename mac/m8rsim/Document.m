@@ -96,6 +96,8 @@
     [filesContainer addSubview:_fileBrowser.view];
     superFrame = filesContainer.frame;
     [_fileBrowser.view setFrameSize:superFrame.size];
+
+    [self reloadFiles];
     
     commentSelectionMenuItem = ((AppDelegate*)[NSApplication sharedApplication].delegate).commentSelectionMenuItem;
 }

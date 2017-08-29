@@ -56,29 +56,28 @@
         _simulator.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcProtocol)];
         [_simulator resume];
         
-//        [[_simulator remoteObjectProxy] initWithReply:^(NSInteger status) {
-//            if (status < 0) {
-//                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
-//                [_simulator invalidate];
-//                _simulator = nil;
-//            } else {
-//                [[_simulator remoteObjectProxy] setPort:LocalPort withReply:^(NSInteger status) {
-//                    if (status < 0) {
-//                        [self outputMessage:@"**** Failed to set xpc LocalPort, error: %d\n", status];
-//                        [_simulator invalidate];
-//                        _simulator = nil;
-//                    } else {
-//                        [self.delegate setDevice:@""];
-//                    }
-//                }];
-//            }
-//        }];
+        __block BOOL ready = NO;
+        [[_simulator remoteObjectProxy] initWithPort:LocalPort withReply:^(NSInteger status) {
+            if (status < 0) {
+                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
+                [_simulator invalidate];
+                _simulator = nil;
+            } else {
+                ready = YES;
+            }
+        }];
+        
+        while (!ready) {
+            usleep(1000);
+        }
 
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
         [_netServiceBrowser searchForServicesOfType:@"_m8rscript_shell._tcp." inDomain:@"local."];
+        
+        [self setDevice:@""];
     }
     return self;
 }
@@ -237,9 +236,9 @@
 - (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
 {
     [_fileList removeAllObjects];
-    [[_simulator remoteObjectProxy] initWithPort:LocalPort files:url];
-    usleep(1000000);
-    [self reloadFilesWithBlock:handler];
+    [[_simulator remoteObjectProxy] setFiles:url withReply:^(NSInteger status) {
+        [self reloadFilesWithBlock:handler];
+    }];
 }
 
 - (void)reloadDevices
@@ -466,7 +465,7 @@
                 char buffer[100];
                 long count = [_logSocket receiveBytes:buffer limit:99];
                 if (count == 0) {
-                    continue;
+                    break;
                 }
                 buffer[count] = '\0';
                 [self outputMessage:[NSString stringWithUTF8String:buffer]];
