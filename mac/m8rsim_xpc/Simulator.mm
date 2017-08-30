@@ -89,7 +89,7 @@ void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface(uint16_t port)
+    MySystemInterface(uint16_t port, Simulator* simulator) : _gpio(simulator)
     {
         _logSocket = new MyLogSocket(port + 1);
     }
@@ -112,7 +112,7 @@ public:
 private:
     class MyGPIOInterface : public m8r::GPIOInterface {
     public:
-        MyGPIOInterface() { }
+        MyGPIOInterface(Simulator* simulator) : _simulator(simulator) { }
         virtual ~MyGPIOInterface() { }
 
         virtual bool setPinMode(uint8_t pin, PinMode mode) override
@@ -122,8 +122,7 @@ private:
             }
             _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
 
-            // FIXME: Implement
-            //[_device updateGPIOState:_pinio withMode:_pinstate];
+            [_simulator updateGPIOState:_pinio withMode:_pinstate];
             return true;
         }
         
@@ -139,8 +138,7 @@ private:
             }
             _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
 
-            // FIXME: Implement
-            //[_device updateGPIOState:_pinstate withMode:_pinio];
+            [_simulator updateGPIOState:_pinstate withMode:_pinio];
         }
         
         virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
@@ -149,6 +147,8 @@ private:
         // 0 = input, 1 = output
         uint32_t _pinio = 0;
         uint32_t _pinstate = 0;
+        
+        Simulator* _simulator;
     };
     
     MyGPIOInterface _gpio;
@@ -172,10 +172,12 @@ private:
 
 @synthesize status = _status;
 
-- (instancetype)initWithPort:(NSUInteger)port
+- (instancetype)initWithPort:(NSUInteger)port connection:(NSXPCConnection*)xpc
 {
     self = [super init];
     if (self) {
+        _xpc = xpc;
+        
         (void) m8r::IPAddr::myIPAddr();
         
         g_allocCount = 0;
@@ -184,7 +186,7 @@ private:
         g_defaultMalloc = g_malloc;
         g_defaultFree = g_free;
         
-        _system = new MySystemInterface(port);
+        _system = new MySystemInterface(port, self);
         _fs = m8r::FS::createFS();
         _application = new m8r::Application(_fs, _system, port);
         
@@ -207,6 +209,11 @@ private:
     NSFileWrapper* wrapper = [[NSFileWrapper alloc] initWithURL:files options:0 error:NULL];
     static_cast<m8r::MacFS*>(_fs)->setFiles(wrapper);
     return 0;
+}
+
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
+{
+    [[_xpc remoteObjectProxy] updateGPIOState:state withMode:mode];
 }
 
 @end

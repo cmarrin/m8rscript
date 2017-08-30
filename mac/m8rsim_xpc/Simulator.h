@@ -12,7 +12,9 @@
 
 @property (readonly) NSInteger status;
 
-- (instancetype)initWithPort:(NSUInteger)port;
+- (instancetype)initWithPort:(NSUInteger)port connection:(NSXPCConnection*)xpc;
 - (NSInteger)setFiles:(NSURL*)files;
+
+- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode;
 
 @end
