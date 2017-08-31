@@ -91,9 +91,9 @@ void Object::gc(ExecutionUnit* eu, bool force)
                 if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
                     return;
                 }
-    #ifndef NDEBUG
-                debugf("+++ before:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
-    #endif
+//    #ifndef NDEBUG
+//                debugf("+++ before:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
+//    #endif
                 for (auto it : _objectStore) {
                     if (it) {
                         it->setMarked(false);
@@ -143,9 +143,9 @@ void Object::gc(ExecutionUnit* eu, bool force)
                 break;
             case GCState::ClearNullStr:
                 _stringStore.erase(std::remove(_stringStore.begin(), _stringStore.end(), nullptr), _stringStore.end());
-    #ifndef NDEBUG
-                debugf("--- after:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
-    #endif
+//    #ifndef NDEBUG
+//                debugf("--- after:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
+//    #endif
                 prevGCObjects = static_cast<uint32_t>(_objectStore.size());
                 prevGCStrings = static_cast<uint32_t>(_stringStore.size());
                 gcState = GCState::ClearMarkedObj;

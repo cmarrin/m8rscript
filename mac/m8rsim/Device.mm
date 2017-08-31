@@ -242,8 +242,10 @@
     [_fileList sortUsingComparator:^NSComparisonResult(NSDictionary* a, NSDictionary* b) {
         return [a[@"name"] compare:b[@"name"]];
     }];
-    
-    handler(_fileList);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        handler(_fileList);
+    });
 }
 
 - (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
