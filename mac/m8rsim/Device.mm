@@ -58,17 +58,8 @@
         _simulator.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcResponse)];
         _simulator.exportedObject = self;
 
-
-
         [_simulator resume];
-        
-        
-        
-        
-        
-        
-        
-        
+
         __block BOOL ready = NO;
         [[_simulator remoteObjectProxy] initWithPort:LocalPort withReply:^(NSInteger status) {
             if (status < 0) {
