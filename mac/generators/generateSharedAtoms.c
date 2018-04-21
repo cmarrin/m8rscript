@@ -67,19 +67,19 @@ int main()
     char* root = getenv("ROOT");
     chdir(root);
 
-    FILE* ifile = fopen("../m8rscript/generators/SharedAtoms.txt", "r");
+    FILE* ifile = fopen("generators/SharedAtoms.txt", "r");
     if (!ifile) {
         printf("could not open SharedAtoms.txt:%d\n", errno);
         return -1;
     }
     
-    FILE* hfile = fopen("../m8rscript/generated/SharedAtoms.h", "w");
+    FILE* hfile = fopen("../src/SharedAtoms.h", "w");
     if (!hfile) {
         printf("could not open SharedAtoms.h:%d\n", errno);
         return -1;
     }
     
-    FILE* cppfile = fopen("../m8rscript/generated/SharedAtoms.cpp", "w");
+    FILE* cppfile = fopen("../src/SharedAtoms.cpp", "w");
     if (!cppfile) {
         printf("could not open SharedAtoms.cpp:%d\n", errno);
         return -1;
