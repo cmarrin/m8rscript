@@ -47,11 +47,9 @@
 #import <CommonCrypto/CommonDigest.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
-#include <unistd.h>
-
+#include <sys/time.h>
 
 int connect_timeout(int sockfd, const struct sockaddr *address, socklen_t address_len, long timeout);
-
 
 @interface FastSocket () {
 @protected
