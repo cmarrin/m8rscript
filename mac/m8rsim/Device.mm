@@ -9,7 +9,7 @@
 #import "Device.h"
 
 #import "FastSocket.h"
-#import "m8rsim_xpcProtocol.h"
+#import "Simulator.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -27,7 +27,7 @@
     NSDictionary* _currentDevice;
     FileList _fileList;
     
-    NSXPCConnection* _simulator;
+    Simulator* _simulator;
 
     FastSocket* _logSocket;
     
@@ -52,29 +52,7 @@
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
 
-        _simulator = [[NSXPCConnection alloc] initWithServiceName:@"org.marrin.m8rsim-xpc"];
-        _simulator.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcProtocol)];
-
-        _simulator.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(m8rsim_xpcResponse)];
-        _simulator.exportedObject = self;
-
-        [_simulator resume];
-
-        __block BOOL ready = NO;
-        [[_simulator remoteObjectProxy] initWithPort:LocalPort withReply:^(NSInteger status) {
-            if (status < 0) {
-                [self outputMessage:@"**** Failed to create xpc, error: %d\n", status];
-                [_simulator invalidate];
-                _simulator = nil;
-            } else {
-                ready = YES;
-            }
-        }];
-        
-        while (!ready) {
-            usleep(1000);
-        }
-
+        _simulator = new Simulator(22);
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
@@ -88,7 +66,7 @@
 
 - (void)dealloc
 {
-     [_simulator invalidate];
+     delete _simulator;
 }
 
 - (void)outputMessage:(NSString*)msg, ...
@@ -242,9 +220,7 @@
 - (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
 {
     [_fileList removeAllObjects];
-    [[_simulator remoteObjectProxy] setFiles:url withReply:^(NSInteger status) {
-        [self reloadFilesWithBlock:handler];
-    }];
+    _simulator->setFiles(url);
 }
 
 - (void)reloadDevices
@@ -439,7 +415,7 @@
 
     _currentDevice = [self findService:device];
     if (!_currentDevice && !_simulator) {
-        [self outputMessage:@"**** No xpc connection\n"];
+        [self outputMessage:@"**** No simulator\n"];
         return NO;
     }
 

@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#import <Foundation/Foundation.h>
+
 #include "Application.h"
 #include "ExecutionUnit.h"
 #include "Shell.h"
@@ -42,11 +44,10 @@ POSSIBILITY OF SUCH DAMAGE.
 class Simulator
 {
 public:
-    Simulator(m8r::FS* fs, m8r::SystemInterface* system)
-        : _shell(fs, system, this)
-    { }
-    
+    Simulator(uint32_t port);
     ~Simulator();
+    
+    void setFiles(NSURL*);
     
     const m8r::ErrorList* build(const char* name, bool debug);
     void printCode();
@@ -54,15 +55,15 @@ public:
     void pause();
     void stop();
     void simulate();
-    void clear() { _shell.clear(); }
+    void clear() { _shell->clear(); }
     
     bool isRunning() const { return _running; }
 
     bool canRun() { return true; }
     bool canStop() { return true; }
-    bool canSaveBinary() { return _shell.program(); }
+    bool canSaveBinary() { return _shell->program(); }
     
-    void initShell() { _shell.init(); _receivedString.clear(); }
+    void initShell() { _shell->init(); _receivedString.clear(); }
     long sendToShell(const void* data, long size);
     long receiveFromShell(void* data, long size);
 
@@ -75,20 +76,12 @@ public:
     }
 
 private:
-    class MyShell : public m8r::Shell {
-        friend class Simulator;
-        
-    public:
-        MyShell(m8r::FS* fs, m8r::SystemInterface* system, Simulator* simulator) : _application(fs, system), Shell(&_application), _simulator(simulator) { }
-        virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
-
-    private:
-        m8r::Application _application;
-        Simulator* _simulator;
-    };
-    
     bool _running = false;
-    MyShell _shell;
     m8r::String _receivedString;
+    
+    std::unique_ptr<m8r::SystemInterface> _system;
+    std::unique_ptr<m8r::Shell> _shell;
+    std::unique_ptr<m8r::FS> _fs;
+    std::unique_ptr<m8r::Application> _application;
 };
 

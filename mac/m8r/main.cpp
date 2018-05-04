@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
 
     while (numExecutions--) {
         MySystemInterface system;
-        m8r::Application application(fs, &system);
+        m8r::Application application(fs, &system, 22);
         m8r::Error error;
         bool done = false;
 
