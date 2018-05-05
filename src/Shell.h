@@ -52,6 +52,7 @@ public:
     enum class State { Init, NeedPrompt, ShowingPrompt, ListFiles, GetFile, PutFile };
     
     Shell(Application* application) : _application(application) { }
+    ~Shell() { }
     
     void connected();
     void disconnected() { }
