@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 class Simulator
 {
 public:
-    Simulator(uint32_t port);
+    Simulator(uint32_t port, m8r::GPIOInterface*);
     ~Simulator();
     
     void setFiles(NSURL*);

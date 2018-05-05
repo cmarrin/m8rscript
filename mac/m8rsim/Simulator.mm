@@ -94,7 +94,7 @@ private:
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface(uint16_t port, Simulator* simulator) : _gpio(simulator)
+    MySystemInterface(uint16_t port, m8r::GPIOInterface* gpio) : _gpio(gpio)
     {
         _logSocket = new MyLogSocket(port + 1);
     }
@@ -112,58 +112,17 @@ public:
     
     virtual void setDeviceName(const char*) override { }
     
-    virtual m8r::GPIOInterface& gpio() override { return _gpio; }
+    virtual m8r::GPIOInterface& gpio() override { return *_gpio; }
 
-private:
-    class MyGPIOInterface : public m8r::GPIOInterface {
-    public:
-        MyGPIOInterface(Simulator* simulator) : _simulator(simulator) { }
-        virtual ~MyGPIOInterface() { }
-
-        virtual bool setPinMode(uint8_t pin, PinMode mode) override
-        {
-            if (!GPIOInterface::setPinMode(pin, mode)) {
-                return false;
-            }
-            _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
-
-            // FIXME: [_simulator updateGPIOState:_pinio withMode:_pinstate];
-            return true;
-        }
-        
-        virtual bool digitalRead(uint8_t pin) const override
-        {
-            return _pinstate & (1 << pin);
-        }
-        
-        virtual void digitalWrite(uint8_t pin, bool level) override
-        {
-            if (pin > 16) {
-                return;
-            }
-            _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
-
-            // FIXME: [_simulator updateGPIOState:_pinstate withMode:_pinio];
-        }
-        
-        virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
-        
-    private:
-        // 0 = input, 1 = output
-        uint32_t _pinio = 0;
-        uint32_t _pinstate = 0;
-        
-        Simulator* _simulator;
-    };
-    
-    MyGPIOInterface _gpio;
+private:    
+    m8r::GPIOInterface* _gpio;
     MyLogSocket* _logSocket;
 };
 
-Simulator::Simulator(uint32_t port)
+Simulator::Simulator(uint32_t port, m8r::GPIOInterface* gpio)
 {
     _fs.reset(m8r::FS::createFS());
-    _system.reset(new MySystemInterface(port, this));
+    _system.reset(new MySystemInterface(port, gpio));
     _application.reset(new m8r::Application(_fs.get(), _system.get(), port));
 }
 

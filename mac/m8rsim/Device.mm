@@ -20,6 +20,8 @@
 
 #define LocalPort 2222
 
+class MyGPIOInterface;
+
 @interface Device ()
 {
     NSNetServiceBrowser* _netServiceBrowser;
@@ -35,6 +37,8 @@
     dispatch_queue_t _logQueue;
 
     BOOL _isBuild;
+    
+    std::unique_ptr<MyGPIOInterface> _gpio;
 }
 
 - (void)outputMessage:(NSString*)msg, ...;
@@ -42,6 +46,47 @@
 - (void)updateMemoryInfo;
 
 @end
+
+class MyGPIOInterface : public m8r::GPIOInterface {
+public:
+    MyGPIOInterface(Device* device) : _device(device) { }
+    virtual ~MyGPIOInterface() { }
+
+    virtual bool setPinMode(uint8_t pin, PinMode mode) override
+    {
+        if (!GPIOInterface::setPinMode(pin, mode)) {
+            return false;
+        }
+        _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
+
+        [_device updateGPIOState:_pinstate withMode:_pinio];
+        return true;
+    }
+    
+    virtual bool digitalRead(uint8_t pin) const override
+    {
+        return _pinstate & (1 << pin);
+    }
+    
+    virtual void digitalWrite(uint8_t pin, bool level) override
+    {
+        if (pin > 16) {
+            return;
+        }
+        _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
+
+        [_device updateGPIOState:_pinstate withMode:_pinio];
+    }
+    
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
+    
+private:
+    // 0 = input, 1 = output
+    uint32_t _pinio = 0;
+    uint32_t _pinstate = 0;
+    
+    Device* _device;
+};
 
 @implementation Device
 
@@ -51,8 +96,10 @@
     if (self) {
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
+        
+        _gpio.reset(new MyGPIOInterface(self));
 
-        _simulator = new Simulator(LocalPort);
+        _simulator = new Simulator(LocalPort, _gpio.get());
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
