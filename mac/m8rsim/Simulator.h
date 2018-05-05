@@ -48,7 +48,8 @@ public:
     ~Simulator();
     
     void setFiles(NSURL*);
-    
+    void printCode();
+
 private:
     std::unique_ptr<m8r::SystemInterface> _system;
     std::unique_ptr<m8r::FS> _fs;

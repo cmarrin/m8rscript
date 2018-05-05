@@ -136,3 +136,12 @@ void Simulator::setFiles(NSURL* files)
     static_cast<m8r::MacFS*>(_fs.get())->setFiles(wrapper);
 }
 
+void Simulator::printCode()
+{
+    m8r::CodePrinter codePrinter;
+    m8r::String codeString = codePrinter.generateCodeString(_application->program());
+    
+    _system->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+    _system->printf("%s", codeString.c_str());
+    _system->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+}

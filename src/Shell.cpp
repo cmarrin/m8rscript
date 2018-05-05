@@ -342,6 +342,18 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
     } else if (array[0] == "stop") {
         stop();
         _state = State::NeedPrompt;
+    } else if (array[0] == "build") {
+        const m8r::ErrorList* errors = load((array.size() < 2) ? nullptr : array[1].c_str(), _debug);
+        if (errors) {
+            for (const auto& error : *errors) {
+                showMessage(MessageType::Info, ROMSTR("%s::%d::%d::%d\n"), error._description, error._lineno, error._charno, error._length);
+            }
+        } else {
+#ifdef PrintCode
+            printCode();
+#endif
+        }
+        _state = State::NeedPrompt;
     } else if (array[0] == "debug") {
         _debug = true;
         _state = State::NeedPrompt;

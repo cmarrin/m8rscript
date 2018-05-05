@@ -568,6 +568,7 @@ private:
     [self updateMemoryInfo];
     
     if (!errors || ![errors length]) {
+        _simulator->printCode();
         return nil;
     }
     
@@ -576,7 +577,7 @@ private:
     NSArray* lines = [errors componentsSeparatedByString:@"\n"];
 
     for (NSString* line in lines) {
-        NSArray* elements = [line componentsSeparatedByString:@":"];
+        NSArray* elements = [line componentsSeparatedByString:@"::"];
         if (elements.count != 4) {
             continue;
         }
