@@ -49,38 +49,8 @@ public:
     
     void setFiles(NSURL*);
     
-    const m8r::ErrorList* build(const char* name, bool debug);
-    void printCode();
-    void run();
-    void pause();
-    void stop();
-    void simulate();
-    void clear() { _shell->clear(); }
-    
-    bool isRunning() const { return _running; }
-
-    bool canRun() { return true; }
-    bool canStop() { return true; }
-    bool canSaveBinary() { return _shell->program(); }
-    
-    void initShell() { _shell->init(); _receivedString.clear(); }
-    long sendToShell(const void* data, long size);
-    long receiveFromShell(void* data, long size);
-
-    void shellSend(const char* data, uint16_t size)
-    {
-        if (!size) {
-            size = strlen(data);
-        }
-        _receivedString += m8r::String(data, size);
-    }
-
 private:
-    bool _running = false;
-    m8r::String _receivedString;
-    
     std::unique_ptr<m8r::SystemInterface> _system;
-    std::unique_ptr<m8r::Shell> _shell;
     std::unique_ptr<m8r::FS> _fs;
     std::unique_ptr<m8r::Application> _application;
 };

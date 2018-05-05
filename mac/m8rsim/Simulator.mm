@@ -91,18 +91,6 @@ private:
     m8r::TCP* _tcp;
 };
 
-class MyShell : public m8r::Shell {
-    friend class Simulator;
-    
-public:
-    MyShell(m8r::FS* fs, m8r::SystemInterface* system, Simulator* simulator) : _application(fs, system, 22), Shell(&_application), _simulator(simulator) { }
-    virtual void shellSend(const char* data, uint16_t size = 0) override { _simulator->shellSend(data, size); }
-
-private:
-    m8r::Application _application;
-    Simulator* _simulator;
-};
-    
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
@@ -177,7 +165,6 @@ Simulator::Simulator(uint32_t port)
     _fs.reset(m8r::FS::createFS());
     _system.reset(new MySystemInterface(port, this));
     _application.reset(new m8r::Application(_fs.get(), _system.get(), port));
-    _shell.reset(new MyShell(_fs.get(), _system.get(), this));
 }
 
 Simulator::~Simulator()
@@ -188,94 +175,5 @@ void Simulator::setFiles(NSURL* files)
 {
     NSFileWrapper* wrapper = [[NSFileWrapper alloc] initWithURL:files options:0 error:NULL];
     static_cast<m8r::MacFS*>(_fs.get())->setFiles(wrapper);
-}
-
-const m8r::ErrorList* Simulator::build(const char* name, bool debug)
-{
-    _running = false;
-    const m8r::ErrorList* errors = _shell->load(name, debug);
-    if (!errors) {
-#ifdef PrintCode
-        printCode();
-#endif
-        _shell->program()->system()->printf(ROMSTR("Ready to run\n"));
-    }
-    return errors;
-}
-
-void Simulator::printCode()
-{
-    m8r::CodePrinter codePrinter;
-    m8r::String codeString = codePrinter.generateCodeString(_shell->program());
-    
-    _shell->program()->system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-    _shell->program()->system()->printf("%s", codeString.c_str());
-    _shell->program()->system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
-}
-
-void Simulator::run()
-{
-    if (_running) {
-        assert(0);
-        return;
-    }
-    
-    _running = true;
-    _shell->program()->system()->printf(ROMSTR("*** Program started...\n\n"));
-
-    auto start = std::chrono::system_clock::now();
-    _shell->run([start, this]{
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> diff = end - start;
-        _shell->program()->system()->printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
-        _running = false;
-    });
-}
-
-void Simulator::pause()
-{
-}
-
-void Simulator::stop()
-{
-    if (!_running) {
-        assert(0);
-        return;
-    }
-    _shell->stop();
-    _running = false;
-    _shell->program()->system()->printf(ROMSTR("*** Stopped\n"));
-}
-
-void Simulator::simulate()
-{
-    if (!_shell->load(nullptr, false)) {
-        return;
-    }
-    _shell->run([]{});
-}
-
-long Simulator::sendToShell(const void* data, long size)
-{
-    if (_shell->received(reinterpret_cast<const char*>(data), static_cast<uint16_t>(size))) {
-        return size;
-    }
-    return 0;
-}
-long Simulator::receiveFromShell(void* data, long size)
-{
-    if (_receivedString.empty()) {
-        return 0;
-    }
-    if (size >_receivedString.size()) {
-        strcpy(reinterpret_cast<char*>(data), _receivedString.c_str());
-        _receivedString.clear();
-        _shell->sendComplete();
-        return _receivedString.size() + 1;
-    }
-    memcpy(data, _receivedString.c_str(), size);
-    _receivedString.erase(0, size);
-    _shell->sendComplete();
-    return size;
 }
 

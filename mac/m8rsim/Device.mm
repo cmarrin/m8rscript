@@ -52,7 +52,7 @@
         _devices = [[NSMutableArray alloc] init];
         _fileList = [[NSMutableArray alloc] init];
 
-        _simulator = new Simulator(22);
+        _simulator = new Simulator(LocalPort);
         _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
@@ -221,6 +221,7 @@
 {
     [_fileList removeAllObjects];
     _simulator->setFiles(url);
+    [self reloadFilesWithBlock:handler];
 }
 
 - (void)reloadDevices
