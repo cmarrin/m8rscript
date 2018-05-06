@@ -42,6 +42,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+static constexpr const char* Prompt = "\n>";
+
 void Shell::connected()
 {
     init();
@@ -152,7 +154,7 @@ void Shell::sendComplete()
             break;
         case State::NeedPrompt:
             _state = State::ShowingPrompt;
-            shellSend("\n>");
+            showMessage(MessageType::Info, ROMSTR(Prompt));
             break;
         case State::ShowingPrompt:
             break;
@@ -348,10 +350,6 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             for (const auto& error : *errors) {
                 showMessage(MessageType::Info, ROMSTR("%s::%d::%d::%d\n"), error._description, error._lineno, error._charno, error._length);
             }
-        } else {
-#ifdef PrintCode
-            printCode();
-#endif
         }
         _state = State::NeedPrompt;
     } else if (array[0] == "debug") {
@@ -362,6 +360,10 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         _debug = false;
         _state = State::NeedPrompt;
         showMessage(MessageType::Info, ROMSTR("Debug false\n"));
+    } else if (array[0] == "clear") {
+        _application->clear();
+        _state = State::NeedPrompt;
+        showMessage(MessageType::Info, ROMSTR("Application cleared\n"));
     } else if (array[0] == "quit") {
         return false;
     } else {

@@ -48,6 +48,8 @@ public:
     ~Simulator();
     
     void setFiles(NSURL*);
+    NSArray* listFiles();
+    NSData* getFile(NSString*);
     void printCode();
 
 private:

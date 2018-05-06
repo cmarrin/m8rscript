@@ -136,6 +136,51 @@ void Simulator::setFiles(NSURL* files)
     static_cast<m8r::MacFS*>(_fs.get())->setFiles(wrapper);
 }
 
+NSArray* Simulator::listFiles()
+{
+    m8r::DirectoryEntry* directoryEntry = _fs->directory();
+    if (!directoryEntry) {
+        return NULL;
+    }
+    
+    NSMutableArray* array = [[NSMutableArray alloc]init];
+
+    while (directoryEntry->valid()) {
+        [array addObject:@{ @"name" : [NSString stringWithUTF8String:directoryEntry->name()], 
+                            @"size" : [NSNumber numberWithUnsignedInt:directoryEntry->size()] }];
+        directoryEntry->next();
+    }
+
+    delete directoryEntry;
+    return array;
+}
+
+NSData* Simulator::getFile(NSString* name)
+{
+    m8r::File* file = _fs->open([name UTF8String], "r");
+    if (!file) {
+        return NULL;
+    }
+    
+    file->seek(0, m8r::File::SeekWhence::End);
+    uint32_t size = file->tell();
+    file->seek(0, m8r::File::SeekWhence::Set);
+
+    char* buffer = new char[size];
+    
+    int32_t result = file->read(buffer, size);
+    if (result != size) {
+        delete file;
+        delete [ ] buffer;
+        return NULL;
+    }
+    
+    NSData* data = [NSData dataWithBytes:buffer length:size];
+    delete file;
+    delete [ ] buffer;
+    return data;
+}
+
 void Simulator::printCode()
 {
     m8r::CodePrinter codePrinter;

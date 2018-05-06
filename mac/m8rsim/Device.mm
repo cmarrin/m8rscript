@@ -19,6 +19,7 @@
 #import <MGSFragaria/MGSFragaria.h>
 
 #define LocalPort 2222
+#define Prompt '>'
 
 class MyGPIOInterface;
 
@@ -32,8 +33,9 @@ class MyGPIOInterface;
     Simulator* _simulator;
 
     FastSocket* _logSocket;
+    FastSocket* _shellSocket;
     
-    dispatch_queue_t _serialQueue;
+    dispatch_queue_t _shellQueue;
     dispatch_queue_t _logQueue;
 
     BOOL _isBuild;
@@ -100,7 +102,8 @@ private:
         _gpio.reset(new MyGPIOInterface(self));
 
         _simulator = new Simulator(LocalPort, _gpio.get());
-        _serialQueue = dispatch_queue_create("DeviceQueue", DISPATCH_QUEUE_SERIAL);
+        _shellQueue = dispatch_queue_create("ShellQueue", DISPATCH_QUEUE_SERIAL);
+        _logQueue = dispatch_queue_create("LogQueue", DISPATCH_QUEUE_SERIAL);
     
         _netServiceBrowser = [[NSNetServiceBrowser alloc] init];
         [_netServiceBrowser setDelegate: (id) self];
@@ -131,12 +134,12 @@ private:
     [self.delegate updateGPIOState:state withMode:mode];
 }
 
-- (void)flushToPrompt:(FastSocket*) socket
+- (void)flushToPrompt
 {
     while(1) {
         char c;
-        long count = [socket receiveBytes:&c count:1];
-        if (count != 1 || c == '>') {
+        long count = [_shellSocket receiveBytes:&c count:1];
+        if (count != 1 || c == Prompt) {
             break;
         }
     }
@@ -157,70 +160,35 @@ private:
     return s;
 }
 
-- (FastSocket*)sendCommand:(NSString*)command fromService:(NSNetService*)service
+- (void)sendCommand:(NSString*)command
 {
-    FastSocket* socket = nullptr;
-    NSString* ipString = @"127.0.0.1";
-    NSInteger port = LocalPort;
-    
-    if (service) {
-        if (service.addresses.count == 0) {
-            return nil;
-        }
-        NSData* address = [service.addresses objectAtIndex:0];
-        struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
-        ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-        port = service.port;
-    } else if (!_simulator) {
-        return nil;
-    }
-    
-    NSString* portString = [NSNumber numberWithInteger:port].stringValue;
-    socket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
-    if (![socket connect]) {
-        [self outputMessage:@"**** Failed to open socket for command '%@'\n", command];
-        return socket;
-    }
-    [socket setTimeout:5];
-    
-    [self flushToPrompt:socket];
-    
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
+    long count = [_shellSocket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     (void) count;
-    return socket;
 }
 
-- (void)sendCommand:(NSString*)command andString:(NSString*) string fromService:(NSNetService*)service
+- (void)sendCommand:(NSString*)command andString:(NSString*) string
 {
-    FastSocket* socket = [self sendCommand:command fromService:service];
-    if (socket && ![socket isConnected]) {
-        return;
-    }
+    [self sendCommand:command];
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [socket sendBytes:data.bytes count:data.length];
+    long count = [_shellSocket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     (void) count;
-    [self flushToPrompt:socket];
-    [socket close];
+    [self flushToPrompt];
 }
 
-- (NSString*)sendCommand:(NSString*)command fromService:(NSNetService*)service withTerminator:(char)terminator
+- (NSString*)sendCommand:(NSString*)command withTerminator:(char)terminator
 {
-    FastSocket* socket = [self sendCommand:command fromService:service];
-    if (socket && ![socket isConnected]) {
-        return nil;
-    }
-    NSString* s = [self receiveFrom:socket toTerminator:terminator];
-    [socket close];
+    [self sendCommand:command];
+    NSString* s = [self receiveFrom:_shellSocket toTerminator:terminator];
     return s;
 }
 
-- (NSArray*) fileListForDevice:(NSNetService*)service
+- (NSArray*) fileListForDevice
 {
     NSMutableArray* array = [[NSMutableArray alloc]init];
-    NSString* fileString = [self sendCommand:@"ls\r\n" fromService:service withTerminator:'>'];
+    NSString* fileString = [self sendCommand:@"ls\r\n" withTerminator:Prompt];
     if (fileString && fileString.length > 0 && [fileString characterAtIndex:0] == ' ') {
         fileString = [fileString substringFromIndex:1];
     }
@@ -249,8 +217,7 @@ private:
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler
 {
-    NSNetService* service = _currentDevice[@"service"];
-    NSArray* fileList = [self fileListForDevice:service];
+    NSArray* fileList = [self fileListForDevice];
     for (NSDictionary* fileEntry in fileList) {
         [_fileList addObject:fileEntry];
     }
@@ -275,10 +242,10 @@ private:
 {
 }
 
-- (NSData*)contentsOfFile:(NSString*)name forDevice:(NSNetService*)service
+- (NSData*)contentsOfFile:(NSString*)name
 {
     NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-    NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
+    NSString* fileContents = [self sendCommand:command withTerminator:'\04'];
     
     NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
     [self updateMemoryInfo];
@@ -289,10 +256,9 @@ private:
 {
     NSString* name = _fileList[index][@"name"];
     
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-        NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];        
+        NSString* fileContents = [self sendCommand:command withTerminator:'\04'];        
         NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
     
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -304,9 +270,8 @@ private:
 
 - (BOOL)saveFile:(NSString*)name withURLBase:(NSURL*)urlBase
 {
-    NSNetService* service = _currentDevice[@"service"];
     NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-    NSString* fileContents = [self sendCommand:command fromService:service withTerminator:'\04'];
+    NSString* fileContents = [self sendCommand:command withTerminator:'\04'];
     NSURL* url = [NSURL URLWithString:name relativeToURL:urlBase];
     NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
     [self updateMemoryInfo];
@@ -323,7 +288,7 @@ private:
     return NO;
 }
 
-- (void)addFile:(NSString*)name withContents:(NSData*)contents toDevice:(NSNetService*)service
+- (void)addFile:(NSString*)name withContents:(NSData*)contents
 {
     NSString* contentString = [contents base64EncodedStringWithOptions:
                                                             NSDataBase64Encoding64CharacterLineLength |
@@ -332,7 +297,7 @@ private:
     NSString* command = [NSString stringWithFormat:@"put %@\r\n", name];
     contentString = [NSString stringWithFormat:@"%@\r\n\04", contentString];
 
-    [self sendCommand:command andString:contentString fromService:service];
+    [self sendCommand:command andString:contentString];
     [self updateMemoryInfo];
 }
 
@@ -342,9 +307,8 @@ private:
         return;
     }
     
-    NSNetService* service = _currentDevice[@"service"];
-    NSArray* deviceFileList = [self fileListForDevice:service];
-    NSArray* localFileList = [self fileListForDevice:nil];
+    NSArray* deviceFileList = [self fileListForDevice];
+    NSArray* localFileList = _simulator->listFiles();
     
     // Delete files in device but not in local
     for (NSDictionary* entry in deviceFileList) {
@@ -357,10 +321,10 @@ private:
     // Add files that are new or that have changed
     for (NSDictionary* entry in localFileList) {
         NSString* name = entry[@"name"];
-        NSData* contents = [self contentsOfFile:name forDevice:nil];
+        NSData* contents = _simulator->getFile(name);
         if ([self isFile:name inFileList:deviceFileList]) {
             // If contents are different, replace
-            NSData* deviceContents = [self contentsOfFile:name forDevice:service];
+            NSData* deviceContents = [self contentsOfFile:name];
             if (deviceContents.length == contents.length) {
                 if (memcmp(deviceContents.bytes, contents.bytes, contents.length) == 0) {
                     continue;
@@ -368,14 +332,14 @@ private:
             }
         }
 
-        [self addFile:name withContents:contents toDevice:service];
+        [self addFile:name withContents:contents];
     }
 }
 
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
-    dispatch_async(_serialQueue, ^() {
-        [self addFile:fileWrapper.preferredFilename withContents:fileWrapper.regularFileContents toDevice:_currentDevice[@"service"]];
+    dispatch_async(_shellQueue, ^() {
+        [self addFile:fileWrapper.preferredFilename withContents:fileWrapper.regularFileContents];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });
@@ -384,10 +348,9 @@ private:
 
 - (void)removeFile:(NSString*)name
 {
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"rm %@\r\n", name];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command withTerminator:Prompt];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });
@@ -398,9 +361,8 @@ private:
 - (void)renameFileFrom:(NSString*)oldName to:(NSString*)newName
 {
     NSString* __block command = [NSString stringWithFormat:@"mv %@ %@\r\n", oldName, newName];
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+    dispatch_async(_shellQueue, ^() {        
+        [self sendCommand:command withTerminator:Prompt];
         dispatch_async(dispatch_get_main_queue(), ^{
             [_delegate markDirty];
         });
@@ -411,9 +373,8 @@ private:
 - (void)updateMemoryInfo
 {
     NSString* __block command = @"heap\r\n";
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
-        NSString* sizeString = [self sendCommand:command fromService:service withTerminator:'>'];
+    dispatch_async(_shellQueue, ^() {        
+        NSString* sizeString = [self sendCommand:command withTerminator:Prompt];
         NSArray* elements = [sizeString componentsSeparatedByString:@":"];
         if (elements.count != 5 || ![elements[0] isEqualToString:@"heap"]) {
             return;
@@ -458,7 +419,11 @@ private:
     if (_logSocket) {
         _logSocket = nil;
         dispatch_sync(_logQueue, ^{ });
-        _logQueue = nil;
+    }
+
+    if (_shellSocket) {
+        _shellSocket = nil;
+        dispatch_sync(_logQueue, ^{ });
     }
 
     _currentDevice = [self findService:device];
@@ -468,7 +433,8 @@ private:
     }
 
     NSString* ipString = @"127.0.0.1";
-    NSUInteger port = LocalPort + 1;
+    NSUInteger shellPort = LocalPort;
+    NSUInteger logPort = LocalPort + 1;
     
     if (_currentDevice) {
         NSNetService* service = _currentDevice[@"service"];
@@ -479,13 +445,12 @@ private:
         NSData* address = [service.addresses objectAtIndex:0];
         struct sockaddr_in * socketAddress = (struct sockaddr_in *) address.bytes;
         ipString = [NSString stringWithFormat: @"%s", inet_ntoa(socketAddress->sin_addr)];
-        port = service.port + 1;
+        shellPort = service.port;
+        logPort = service.port + 1;
     }
     
-    NSString* portString = [NSNumber numberWithInteger:port].stringValue;
-    
-    _logQueue = dispatch_queue_create("LogQueue", DISPATCH_QUEUE_SERIAL);
-    
+    NSString* portString = [NSNumber numberWithInteger:logPort].stringValue;
+
     _logSocket = [[FastSocket alloc]initWithHost:ipString andPort:portString];
     [_logSocket setTimeout:7200];
 
@@ -505,6 +470,17 @@ private:
         }
     });
     
+    portString = [NSNumber numberWithInteger:shellPort].stringValue;
+    _shellSocket = [[FastSocket alloc] initWithHost:ipString andPort:portString];
+    [_shellSocket setTimeout:5];
+
+    dispatch_async(_shellQueue, ^{
+        if (![_shellSocket connect]) {
+            [self outputMessage:@"*** Could not open shell socket: %@\n", _shellSocket.lastError.localizedDescription];
+        }
+        [self flushToPrompt];
+    });
+
     return YES;
 }
 
@@ -514,11 +490,10 @@ private:
 
 - (void)renameDevice:(NSString*)name
 {
-    dispatch_async(_serialQueue, ^() {
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {
         NSString* command = [NSString stringWithFormat:@"dev %@\r\n", name];
         
-        NSString* s = [self sendCommand:command fromService:service withTerminator:'>'];
+        NSString* s = [self sendCommand:command withTerminator:Prompt];
         NSLog(@"renameDevice returned '%@'", s);
     });
     [self updateMemoryInfo];
@@ -557,14 +532,13 @@ private:
 - (NSArray*)buildFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = YES;
-    NSNetService* service = _currentDevice[@"service"];
     if (debug) {
         NSString* command = [NSString stringWithFormat:@"debug\r\n"];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command withTerminator:Prompt];
     }
     
     NSString* command = [NSString stringWithFormat:@"build %@\r\n", name];
-    NSString* errors = [self sendCommand:command fromService:service withTerminator:'>'];
+    NSString* errors = [self sendCommand:command withTerminator:Prompt];
     [self updateMemoryInfo];
     
     if (!errors || ![errors length]) {
@@ -595,15 +569,14 @@ private:
 - (void)runFile:(NSString*) name withDebug:(BOOL)debug
 {
     _isBuild = NO;
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {        
         if (debug) {
             NSString* command = [NSString stringWithFormat:@"debug\r\n"];
-            [self sendCommand:command fromService:service withTerminator:'>'];
+            [self sendCommand:command withTerminator:Prompt];
         }
         
         NSString* command = [NSString stringWithFormat:@"run %@\r\n", name];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command withTerminator:Prompt];
         dispatch_async(dispatch_get_main_queue(), ^{
         });
         [self updateMemoryInfo];
@@ -617,10 +590,9 @@ private:
 
 - (void)stop
 {
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"stop\r\n"];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command withTerminator:Prompt];
         dispatch_async(dispatch_get_main_queue(), ^{
         });
         [self updateMemoryInfo];
@@ -645,10 +617,9 @@ private:
 
 - (void)clearContents
 {
-    dispatch_async(_serialQueue, ^() {        
-        NSNetService* service = _currentDevice[@"service"];
+    dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"clear\r\n"];
-        [self sendCommand:command fromService:service withTerminator:'>'];
+        [self sendCommand:command withTerminator:Prompt];
         dispatch_async(dispatch_get_main_queue(), ^{
         });
         [self updateMemoryInfo];
