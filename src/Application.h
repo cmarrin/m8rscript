@@ -66,9 +66,6 @@ public:
     void clear()
     {
         stop();
-        if (!_program) {
-            return;
-        }
         _program = nullptr;
     }
     void pause();
