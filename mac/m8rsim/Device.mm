@@ -21,6 +21,8 @@
 #define LocalPort 2222
 #define Prompt '>'
 
+//#define MONITOR_TRAFFIC 1
+
 class MyGPIOInterface;
 
 @interface Device ()
@@ -147,43 +149,49 @@ private:
     }
 }
 
-- (NSString*) receiveFrom:(FastSocket*) socket toTerminator:(char) terminator
+- (NSString*) receiveToTerminator:(char) terminator
 {
     NSMutableString* s = [NSMutableString string];
     char c[2];
     c[1] = '\0';
     while(1) {
-        long count = [socket receiveBytes:c count:1];
+        long count = [_shellSocket receiveBytes:c count:1];
         if (count != 1 || c[0] == terminator) {
             break;
         }
         [s appendString:[NSString stringWithUTF8String:c]];
     }
+#ifdef MONITOR_TRAFFIC
+    NSLog(@"<<<<<<<< receiveToTerminator(%c):'%@'\n", terminator, s);
+#endif
     return s;
 }
 
-- (void)sendCommand:(NSString*)command
+- (void)sendCommand:(NSString*)command andString:(NSString*) string
 {
     NSData* data = [command dataUsingEncoding:NSUTF8StringEncoding];
     long count = [_shellSocket sendBytes:data.bytes count:data.length];
     assert(count == data.length);
     (void) count;
-}
+#ifdef MONITOR_TRAFFIC
+    NSLog(@">>>>>>>> sendCommand:'%@'\n", command);
+#endif
 
-- (void)sendCommand:(NSString*)command andString:(NSString*) string
-{
-    [self sendCommand:command];
-    NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    long count = [_shellSocket sendBytes:data.bytes count:data.length];
-    assert(count == data.length);
-    (void) count;
-    [self flushToPrompt];
+    if (string) {
+        NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        long count = [_shellSocket sendBytes:data.bytes count:data.length];
+        assert(count == data.length);
+        (void) count;
+#ifdef MONITOR_TRAFFIC
+        NSLog(@">>>>>>>> andString:'%@'\n", string);
+#endif
+    }
 }
 
 - (NSString*)sendCommand:(NSString*)command withTerminator:(char)terminator
 {
-    [self sendCommand:command];
-    NSString* s = [self receiveFrom:_shellSocket toTerminator:terminator];
+    [self sendCommand:command andString:nil];
+    NSString* s = [self receiveToTerminator:terminator];
     return s;
 }
 
