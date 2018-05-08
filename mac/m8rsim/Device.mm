@@ -268,7 +268,8 @@ private:
     
     dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"get %@\r\n", name];
-        NSString* fileContents = [self sendCommand:command withTerminator:'\04'];        
+        NSString* fileContents = [self sendCommand:command withTerminator:'\04'];
+        [self flushToPrompt];
         NSData* data = [[NSData alloc]initWithBase64EncodedString:fileContents options:NSDataBase64DecodingIgnoreUnknownCharacters];
     
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -308,6 +309,7 @@ private:
     contentString = [NSString stringWithFormat:@"%@\r\n\04", contentString];
 
     [self sendCommand:command andString:contentString];
+    [self flushToPrompt];
     [self updateMemoryInfo];
 }
 
@@ -630,8 +632,6 @@ private:
     dispatch_async(_shellQueue, ^() {        
         NSString* command = [NSString stringWithFormat:@"clear\r\n"];
         [self sendCommand:command withTerminator:Prompt];
-        dispatch_async(dispatch_get_main_queue(), ^{
-        });
         [self updateMemoryInfo];
     });
 }
