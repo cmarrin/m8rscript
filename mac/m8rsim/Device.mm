@@ -131,7 +131,9 @@ private:
 
 - (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
 {
-    [self.delegate updateGPIOState:state withMode:mode];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate updateGPIOState:state withMode:mode];
+    });
 }
 
 - (void)flushToPrompt
