@@ -50,6 +50,7 @@
     NSFont* _font;
     NSString* _selectedFilename;
     NSData* _selectedContents;
+    BOOL _selectedFileChanged;
     
     Device* _device;
     SimulationView* _simulationView;
@@ -320,9 +321,15 @@
 
 - (void)clearContents
 {
+    if (_selectedFileChanged && [_selectedFilename length] > 0) {
+        [self markDirty];
+        //[_device updateContents:_selectedContents withName:_selectedFilename];
+    }
+    
     _source = @"";
     _selectedFilename = @"";
     _selectedContents = nil;
+    _selectedFileChanged = NO;
     editView.hidden = YES;
     imageView.hidden = YES;
     [_fragaria setString:_source];
@@ -334,6 +341,7 @@
     [self clearContents];
     _selectedFilename = name;
     _selectedContents = contents;
+    _selectedFileChanged = NO;
     
     NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
     if (source) {
@@ -416,13 +424,8 @@
 
 - (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-//    if ([_device saveChangedFiles]) {
-//        [self updateChangeCount:NSChangeCleared];
-//        return YES;
-//    }
-//    
-//    BOOL result = [super writeToURL:url ofType:typeName error:outError];
-//    return result;
+    [_device saveFilesToURL:url];
+    [self updateChangeCount:NSChangeCleared];
     return YES;
 }
 
@@ -511,8 +514,9 @@
 //            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
 //        }
     }
+    
+    _selectedFileChanged = YES;
     [self reloadFiles];
-    [self updateChangeCount:NSChangeDone];
 }
 
 /*

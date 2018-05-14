@@ -616,10 +616,17 @@ private:
     // FIXME: Implement
 }
 
+- (void)saveFilesToURL:(NSURL*)url
+{
+}
+
 - (BOOL)saveChangedFiles
 {
-    // FIXME: Implement
-    return _currentDevice != nil;
+    if (_currentDevice != nil) {
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (BOOL)isDeviceFile

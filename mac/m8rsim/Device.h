@@ -33,6 +33,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 @property (readonly) NSDictionary* currentDevice;
 
 - (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler;
+- (void)saveFilesToURL:(NSURL*)url;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)renameDevice:(NSString*)name;
 
@@ -44,6 +45,7 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 - (BOOL)setDevice:(NSString*)device;
 - (void)clearContents;
 - (BOOL)saveFile:(NSString*)name withURLBase:(NSURL*)urlBase;
+//- (void)updateContents:(NSData*)contents withName:(NSString*)name;
 
 - (BOOL)canRun;
 - (BOOL)canBuild;
