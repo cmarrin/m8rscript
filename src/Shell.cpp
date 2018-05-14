@@ -87,6 +87,11 @@ void Shell::run(std::function<void()> function)
     _application->run(function);
 }
 
+void Shell::send(const char* data, uint16_t size)
+{
+    shellSend(data, size);
+}
+
 bool Shell::received(const char* data, uint16_t size)
 {
     if (_state == State::PutFile) {
@@ -166,7 +171,7 @@ void Shell::sendComplete()
                     ROMsnprintf(_buffer, BufferSize - 1, ROMSTR("    %-32s %d\n"), _directoryEntry->name(), _directoryEntry->size());
                 }
                 _directoryEntry->next();
-                shellSend(_buffer);
+                send(_buffer);
             } else {
                 if (_directoryEntry) {
                     delete _directoryEntry;
@@ -179,7 +184,7 @@ void Shell::sendComplete()
         case State::GetFile: {
             if (!_file) {
                 _state = State::NeedPrompt;
-                shellSend("\04");
+                send("\04");
                 break;
             }
             if (_binary) {
@@ -204,7 +209,7 @@ void Shell::sendComplete()
                 }
                 _buffer[length++] = '\r';
                 _buffer[length++] = '\n';
-                shellSend(_buffer, length);
+                send(_buffer, length);
             } else {
                 int32_t result = _file->read(_buffer, BufferSize);
                 if (result < 0) {
@@ -215,7 +220,7 @@ void Shell::sendComplete()
                     delete _file;
                     _file = nullptr;
                 }
-                shellSend(_buffer, result);
+                send(_buffer, result);
             }
             break;
         }
@@ -400,5 +405,5 @@ void Shell::showMessage(MessageType type, const char* msg, ...)
         ROMCopyString(p, "\n");
     }
     
-    shellSend(_buffer);
+    send(_buffer);
 }

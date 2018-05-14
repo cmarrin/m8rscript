@@ -10,6 +10,7 @@
 
 #import "FastSocket.h"
 #import "Simulator.h"
+#import "Shell.h"
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
@@ -20,8 +21,6 @@
 
 #define LocalPort 2222
 #define Prompt '>'
-
-//#define MONITOR_TRAFFIC 1
 
 class MyGPIOInterface;
 
@@ -162,7 +161,7 @@ private:
         [s appendString:[NSString stringWithUTF8String:c]];
     }
 #ifdef MONITOR_TRAFFIC
-    NSLog(@"<<<<<<<< receiveToTerminator(%c):'%@'\n", terminator, s);
+    NSLog(@"[Device] <<<< receiveToTerminator(%c):'%@'\n", terminator, s);
 #endif
     return s;
 }
@@ -174,7 +173,7 @@ private:
     assert(count == data.length);
     (void) count;
 #ifdef MONITOR_TRAFFIC
-    NSLog(@">>>>>>>> sendCommand:'%@'\n", command);
+    NSLog(@"[Device] >>>> sendCommand:'%@'\n", command);
 #endif
 
     if (string) {
@@ -183,7 +182,7 @@ private:
         assert(count == data.length);
         (void) count;
 #ifdef MONITOR_TRAFFIC
-        NSLog(@">>>>>>>> andString:'%@'\n", string);
+        NSLog(@"[Device] >>>> andString:'%@'\n", string);
 #endif
     }
 }

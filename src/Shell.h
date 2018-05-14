@@ -40,6 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Containers.h"
 #include <functional>
 
+#define MONITOR_TRAFFIC 1
+
 namespace m8r {
 
 class Shell {
@@ -57,6 +59,7 @@ public:
     void connected();
     void disconnected() { }
     bool received(const char* data, uint16_t size);
+    void send(const char* data, uint16_t size = 0);
     void sendComplete();
     void init();
     
@@ -66,10 +69,7 @@ public:
     void stop() { _application->stop(); }
     Program* program() const { return _application->program(); }
     
-    long send(const void* data, long size);
-    long receive(void* data, long size);
-        
-    virtual void shellSend(const char* data, uint16_t size = 0) = 0;
+    virtual void shellSend(const char* data, uint16_t size) = 0;
 
 private:
     bool executeCommand(const std::vector<m8r::String>& array);

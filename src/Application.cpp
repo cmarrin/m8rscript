@@ -56,7 +56,7 @@ public:
     { }
     
     // Shell Delegate
-    virtual void shellSend(const char* data, uint16_t size = 0) { _tcp->send(_connectionId, data, size); }
+    virtual void shellSend(const char* data, uint16_t size) { _tcp->send(_connectionId, data, size); }
 
 private:
     m8r::TCP* _tcp;
