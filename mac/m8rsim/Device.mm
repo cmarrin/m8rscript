@@ -332,7 +332,7 @@ private:
     // Add files that are new or that have changed
     for (NSDictionary* entry in localFileList) {
         NSString* name = entry[@"name"];
-        NSData* contents = _simulator->getFile(name);
+        NSData* contents = _simulator->getFileData(name);
         if ([self isFile:name inFileList:deviceFileList]) {
             // If contents are different, replace
             NSData* deviceContents = [self contentsOfFile:name];

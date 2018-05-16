@@ -136,6 +136,11 @@ void Simulator::setFiles(NSURL* files)
     static_cast<m8r::MacFS*>(_fs.get())->setFiles(wrapper);
 }
 
+NSFileWrapper* Simulator::getFiles() const
+{
+    return static_cast<m8r::MacFS*>(_fs.get())->getFiles();
+}
+
 NSArray* Simulator::listFiles()
 {
     m8r::DirectoryEntry* directoryEntry = _fs->directory();
@@ -155,7 +160,7 @@ NSArray* Simulator::listFiles()
     return array;
 }
 
-NSData* Simulator::getFile(NSString* name)
+NSData* Simulator::getFileData(NSString* name)
 {
     m8r::File* file = _fs->open([name UTF8String], "r");
     if (!file) {

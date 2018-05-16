@@ -49,7 +49,7 @@ public:
     
     void setFiles(NSURL*);
     NSArray* listFiles();
-    NSData* getFile(NSString*);
+    NSData* getFileData(NSString*);
     void printCode();
 
 private:
