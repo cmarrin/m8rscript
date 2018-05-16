@@ -94,6 +94,7 @@ public:
     virtual ~MacFS();
     
     void setFiles(NSFileWrapper* files) { _files = files; }
+    NSFileWrapper* getFiles() const { return _files; }
     
     virtual DirectoryEntry* directory() override;
     virtual bool mount() override;
