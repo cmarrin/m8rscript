@@ -426,18 +426,15 @@
 {
     [_device saveFilesToURL:url];
     [self updateChangeCount:NSChangeCleared];
+    outError = nil;
     return YES;
 }
 
 //- (NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError **)outError
 //{
-//    if (!_package) {
-//        [self markDirty];
-//        NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _device.files }];
-//        _package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
-//        [self setFiles];
-//    }
-//    return _package;
+//    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : _device.files }];
+//    NSFileWrapper* package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+//    return package;
 //}
 
 - (void)clearOutput:(OutputType)output
@@ -502,21 +499,16 @@
  */
 - (void)textDidChange:(NSNotification *)notification
 {
-//    NSTextStorage *textStorage = [notification.object textStorage];
-//    NSString *string = textStorage.string;
+    [_fragaria.textView breakUndoCoalescing];
+    NSTextStorage *textStorage = [notification.object textStorage];
+    NSString *string = textStorage.string;
+    NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
     
     if (_selectedFilename.length) {
-//        NSFileWrapper* files = (_package.fileWrappers && _package.fileWrappers[@"Contents"]) ?
-//                                    _package.fileWrappers[@"Contents"].fileWrappers[@"Files"] : 
-//                                    nil;
-//        if (files) {
-//            [files removeFileWrapper:files.fileWrappers[_selectedFilename]];
-//            [files addRegularFileWithContents:[string dataUsingEncoding:NSUTF8StringEncoding] preferredFilename:_selectedFilename];
-//        }
+        [_device updateFile:_selectedFilename withContents:data];
     }
     
-    _selectedFileChanged = YES;
-    [self reloadFiles];
+    [self markDirty];
 }
 
 /*

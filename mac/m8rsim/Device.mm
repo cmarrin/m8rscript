@@ -298,6 +298,15 @@ private:
     return NO;
 }
 
+- (void)updateFile:(NSString*)name withContents:(NSData*)contents
+{
+    NSFileWrapper* files = _simulator->getFiles();
+    if (files) {
+        [files removeFileWrapper:files.fileWrappers[name]];
+        [files addRegularFileWithContents:contents preferredFilename:name];
+    }
+}
+
 - (void)addFile:(NSString*)name withContents:(NSData*)contents
 {
     NSString* contentString = [contents base64EncodedStringWithOptions:
@@ -617,6 +626,14 @@ private:
 
 - (void)saveFilesToURL:(NSURL*)url
 {
+    NSFileWrapper* files = _simulator->getFiles();
+    NSFileWrapper *contentsFileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Files" : files }];
+    NSFileWrapper* package = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ @"Contents" : contentsFileWrapper }];
+
+    NSError* error;
+    if (![package writeToURL:url options:0 originalContentsURL:NULL error:&error]) {
+        NSLog(@"***** Error - saveFilesToURL:%@", error);
+    }
 }
 
 - (BOOL)saveChangedFiles

@@ -48,6 +48,7 @@ public:
     ~Simulator();
     
     void setFiles(NSURL*);
+    NSFileWrapper* getFiles() const;
     NSArray* listFiles();
     NSData* getFileData(NSString*);
     void printCode();
