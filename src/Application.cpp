@@ -43,6 +43,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Parser.h"
 #endif
 
+#ifdef MONITOR_TRAFFIC
+#include <string>
+#endif
 using namespace m8r;
 
 class MyTCP;
@@ -56,7 +59,13 @@ public:
     { }
     
     // Shell Delegate
-    virtual void shellSend(const char* data, uint16_t size) { _tcp->send(_connectionId, data, size); }
+    virtual void shellSend(const char* data, uint16_t size)
+    {
+#ifdef MONITOR_TRAFFIC
+    debugf("[Shell] >>>> shellSend:'%s'\n", std::string(data, size ? size : strlen(data)).c_str());
+#endif
+        _tcp->send(_connectionId, data, size);
+    }
 
 private:
     m8r::TCP* _tcp;
