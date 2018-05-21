@@ -10,24 +10,35 @@
 
 @interface SimulationView ()
 {
-    __weak IBOutlet NSButton *led0;
-    __weak IBOutlet NSButton *led1;
-    __weak IBOutlet NSButton *led2;
+    __weak IBOutlet NSView *GPIOView;
 }
 
 @end
 
 @implementation SimulationView
 
-- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
+- (void)updateGPIOState:(uint32_t) state withMode:(uint32_t) mode
 {
-    // LED on the Esp needs a false to turn on. Invert LED 2 here to match
-    [led0 setState: (state & 0x01) ? NSOnState : NSOffState];
-    [led0 setNeedsDisplay:YES];
-    [led1 setState: (state & 0x02) ? NSOnState : NSOffState];
-    [led1 setNeedsDisplay:YES];
-    [led2 setState: !(state & 0x04) ? NSOnState : NSOffState];
-    [led2 setNeedsDisplay:YES];
+    for (NSBox* gpio in GPIOView.subviews) {
+        NSButton* ledButton = gpio.contentView.subviews[0];
+        NSButton* pushButton = gpio.contentView.subviews[1];
+        NSButton* activeHighButton = gpio.contentView.subviews[2];
+        
+        NSInteger i = [gpio.title integerValue];
+        if (i < 0 || i > 16) {
+            continue;
+        }
+        
+        BOOL isOutput = (mode & (1 << i)) != 0;
+        BOOL isHigh = (state & (1 << i)) != 0;
+        BOOL isActiveHigh = activeHighButton.state == NSControlStateValueOn;
+        
+        ledButton.state = isHigh ^ !isActiveHigh;
+        ledButton.enabled = isOutput;
+        pushButton.enabled = !isOutput;
+    }
+        
+    [GPIOView setNeedsDisplay:YES];
 }
 
 @end

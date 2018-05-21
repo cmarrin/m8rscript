@@ -309,7 +309,7 @@
     [self updateChangeCount:NSChangeDone];
 }
 
-- (void)updateGPIOState:(uint16_t) state withMode:(uint16_t) mode
+- (void)updateGPIOState:(uint32_t) state withMode:(uint32_t) mode
 {
     [_simulationView updateGPIOState:state withMode:mode];
 }
