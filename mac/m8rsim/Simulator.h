@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 class Simulator
 {
 public:
-    Simulator(uint32_t port, m8r::GPIOInterface*);
+    Simulator(m8r::GPIOInterface*);
     ~Simulator();
     
     void setFiles(NSURL*);
@@ -52,10 +52,16 @@ public:
     NSArray* listFiles();
     NSData* getFileData(NSString*);
     void printCode();
+    
+    uint32_t localPort() const { return _localPort; }
 
 private:
     std::unique_ptr<m8r::SystemInterface> _system;
     std::unique_ptr<m8r::FS> _fs;
     std::unique_ptr<m8r::Application> _application;
+    
+    uint32_t _localPort = 0;
+    
+    static uint32_t _nextLocalPort;
 };
 

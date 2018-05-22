@@ -45,6 +45,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define PrintCode 1
 
+static constexpr uint32_t StaticPort = 2222;
+
 uint64_t m8r::SystemInterface::currentMicroseconds()
 {
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
@@ -119,11 +121,16 @@ private:
     MyLogSocket* _logSocket;
 };
 
-Simulator::Simulator(uint32_t port, m8r::GPIOInterface* gpio)
+uint32_t Simulator::_nextLocalPort = StaticPort;
+
+
+Simulator::Simulator(m8r::GPIOInterface* gpio)
 {
     _fs.reset(m8r::FS::createFS());
-    _system.reset(new MySystemInterface(port, gpio));
-    _application.reset(new m8r::Application(_fs.get(), _system.get(), port));
+    _system.reset(new MySystemInterface(_nextLocalPort, gpio));
+    _application.reset(new m8r::Application(_fs.get(), _system.get(), _nextLocalPort));
+    _localPort = _nextLocalPort;
+    _nextLocalPort += 2;
 }
 
 Simulator::~Simulator()

@@ -19,7 +19,6 @@
 #import <chrono>
 #import <MGSFragaria/MGSFragaria.h>
 
-#define LocalPort 2222
 #define Prompt '>'
 
 class MyGPIOInterface;
@@ -102,7 +101,7 @@ private:
         
         _gpio.reset(new MyGPIOInterface(self));
 
-        _simulator = new Simulator(LocalPort, _gpio.get());
+        _simulator = new Simulator(_gpio.get());
         _shellQueue = dispatch_queue_create("ShellQueue", DISPATCH_QUEUE_SERIAL);
         _logQueue = dispatch_queue_create("LogQueue", DISPATCH_QUEUE_SERIAL);
     
@@ -453,8 +452,8 @@ private:
     }
 
     NSString* ipString = @"127.0.0.1";
-    NSUInteger shellPort = LocalPort;
-    NSUInteger logPort = LocalPort + 1;
+    NSUInteger shellPort = _simulator->localPort();
+    NSUInteger logPort = _simulator->localPort() + 1;
     
     if (_currentDevice) {
         NSNetService* service = _currentDevice[@"service"];
