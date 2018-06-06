@@ -225,6 +225,7 @@ private:
 
 - (void)reloadFilesWithBlock:(void (^)(FileList))handler
 {
+    [_fileList removeAllObjects];
     NSArray* fileList = [self fileListForDevice];
     for (NSDictionary* fileEntry in fileList) {
         [_fileList addObject:fileEntry];
@@ -239,11 +240,21 @@ private:
     });
 }
 
-- (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler
+- (void)loadFilesWithURL:(NSURL*)url
 {
-    [_fileList removeAllObjects];
-    _simulator->setFiles(url);
-    [self reloadFilesWithBlock:handler];
+    NSError* error;
+    if (!_simulator->setFiles(url, &error)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:@"Invalid project file"];
+            [alert setInformativeText:@"File is not a valid m8r project or could not be opened"];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert runModal];
+        });
+    }
+    
+    [_delegate reloadFiles];
 }
 
 - (void)reloadDevices
@@ -357,11 +368,9 @@ private:
 
 - (void)addFile:(NSFileWrapper*)fileWrapper
 {
-    dispatch_async(_shellQueue, ^() {
-        [self addFile:fileWrapper.preferredFilename withContents:fileWrapper.regularFileContents];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_delegate markDirty];
-        });
+    [self addFile:fileWrapper.preferredFilename withContents:fileWrapper.regularFileContents];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_delegate markDirty];
     });
 }
 

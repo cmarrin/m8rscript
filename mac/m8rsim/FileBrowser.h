@@ -21,7 +21,7 @@
 - (BOOL)isFileSourceLocal;
 - (NSInteger)selectedFileCount;
 
-- (void)reloadFilesWithURL:(NSURL*)url forDevice:(Device*)device;
+- (void)reloadFilesForDevice:(Device*)device;
 - (NSString*)getNewDeviceName;
 - (void)addDevice:(NSString*)name;
 

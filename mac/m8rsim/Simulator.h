@@ -47,7 +47,7 @@ public:
     Simulator(m8r::GPIOInterface*);
     ~Simulator();
     
-    void setFiles(NSURL*);
+    bool setFiles(NSURL*, NSError**);
     NSFileWrapper* getFiles() const;
     NSArray* listFiles();
     NSData* getFileData(NSString*);

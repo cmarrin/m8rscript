@@ -32,7 +32,8 @@ typedef NSMutableArray<NSDictionary*>* FileList;
 @property (weak) id <DeviceDelegate> delegate;
 @property (readonly) NSDictionary* currentDevice;
 
-- (void)reloadFilesWithURL:(NSURL*)url withBlock:(void (^)(FileList))handler;
+- (void)loadFilesWithURL:(NSURL*)url;
+- (void)reloadFilesWithBlock:(void (^)(FileList))handler;
 - (void)saveFilesToURL:(NSURL*)url;
 - (NSDictionary*) findService:(NSString*)hostname;
 - (void)renameDevice:(NSString*)name;

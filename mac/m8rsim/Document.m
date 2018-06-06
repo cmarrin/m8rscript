@@ -56,7 +56,7 @@
     SimulationView* _simulationView;
     FileBrowser* _fileBrowser;
     
-    NSURL* _packageURL;
+    NSURL* _filesURL;
     
     MGSFragaria* _fragaria;
     NSImageView* _imageView;
@@ -98,7 +98,7 @@
     superFrame = filesContainer.frame;
     [_fileBrowser.view setFrameSize:superFrame.size];
 
-    [self reloadFiles];
+    [_device loadFilesWithURL:_filesURL];
     
     commentSelectionMenuItem = ((AppDelegate*)[NSApplication sharedApplication].delegate).commentSelectionMenuItem;
 }
@@ -343,7 +343,7 @@
     _selectedContents = contents;
     _selectedFileChanged = NO;
     
-    NSString* source = [[NSString alloc] initWithData:contents encoding:NSUTF8StringEncoding];
+    NSString* source = [[NSString alloc] initWithData:contents encoding:NSASCIIStringEncoding];
     if (source) {
         editView.hidden = NO;
         imageView.hidden = YES;
@@ -388,7 +388,6 @@
 
 - (void)addFile:(NSFileWrapper*)file
 {
-    [self clearContents];
     [_device addFile:file];
 }
 
@@ -417,8 +416,10 @@
              ofType:(NSString *)typeName 
               error:(NSError * _Nullable *)outError
 {
-    _packageURL = [url URLByAppendingPathComponent:@"Contents/Files"];
-    [self reloadFiles];
+    _filesURL = [url URLByAppendingPathComponent:@"Contents/Files"];
+    if (_device) {
+        [_device loadFilesWithURL:_filesURL];
+    }
     return YES;
 }
 
@@ -456,7 +457,7 @@
 
 - (void)reloadFiles
 {
-    [_fileBrowser reloadFilesWithURL:_packageURL forDevice:_device];
+    [_fileBrowser reloadFilesForDevice:_device];
 }
 
 - (IBAction)upload:(id)sender {

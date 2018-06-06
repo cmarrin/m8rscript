@@ -137,11 +137,22 @@ Simulator::~Simulator()
 {
 }
 
-void Simulator::setFiles(NSURL* files)
+bool Simulator::setFiles(NSURL* files, NSError** error)
 {
-    NSError* error;
-    NSFileWrapper* wrapper = [[NSFileWrapper alloc] initWithURL:files options:0 error:&error];
+    NSFileWrapper* wrapper = nullptr;
+    
+    if (files) {
+        wrapper = [[NSFileWrapper alloc] initWithURL:files options:0 error:error];
+    } else {
+        wrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:@{ }];
+        *error = nil;
+    }
+    
+    if (!wrapper) {
+        return false;
+    }
     static_cast<m8r::MacFS*>(_fs.get())->setFiles(wrapper);
+    return true;
 }
 
 NSFileWrapper* Simulator::getFiles() const

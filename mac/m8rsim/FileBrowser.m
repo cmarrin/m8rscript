@@ -70,11 +70,11 @@
     return NO;
 }
 
-- (void)reloadFilesWithURL:(NSURL*)url forDevice:(Device*)device;
+- (void)reloadFilesForDevice:(Device*)device;
 {
     [busyIndicator setHidden:NO];
     [busyIndicator startAnimation:nil];
-    [device reloadFilesWithURL:url withBlock:^(FileList fileList) {
+    [device reloadFilesWithBlock:^(FileList fileList) {
         _currentFileList = fileList;
         [fileListView reloadData];
         [busyIndicator stopAnimation:nil];
