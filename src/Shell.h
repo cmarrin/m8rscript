@@ -83,6 +83,7 @@ private:
     m8r::File* _file = nullptr;
     
     mutable char _buffer[BufferSize];
+    uint16_t _remainingReceivedDataSize = 0;
     
     Application* _application;
     

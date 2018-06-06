@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Base64.h"
 #include "Error.h"
 #include <cstdarg>
+#include <string>
 
 using namespace m8r;
 
@@ -94,6 +95,9 @@ void Shell::send(const char* data, uint16_t size)
 
 bool Shell::received(const char* data, uint16_t size)
 {
+#ifdef MONITOR_TRAFFIC
+    debugf("[Shell] <<<< received:'%s'\n", std::string(data, size ? size : strlen(data)).c_str());
+#endif
     if (_state == State::PutFile) {
         if (_binary) {
             // Process line by line
@@ -101,7 +105,7 @@ bool Shell::received(const char* data, uint16_t size)
             uint16_t remainingSize = size;
             
             while (1) {
-                if (remainingSize <= 1) {
+                if (remainingSize >= 1 && *p == '\04') {
                     delete _file;
                     _file = nullptr;
                     _state = State::NeedPrompt;
@@ -113,14 +117,38 @@ bool Shell::received(const char* data, uint16_t size)
                 _application->system()->printf(ROMSTR("."));
 
                 const char* next = reinterpret_cast<const char*>(memchr(p, '\n', remainingSize));
-                size_t lineSize = next ? (next - p + 1) : remainingSize;
+                if (!next) {
+                    // Incomplete line. Save it for next time
+                    assert(remainingSize < BufferSize);
+                    memcpy(_buffer, p, remainingSize);
+                    _remainingReceivedDataSize = remainingSize;
+                    return true;
+                }
+                
+                size_t lineSize = next - p + 1;
+                
+                char* prependedBuffer = nullptr;
+                size_t prependedLineSize = 0;
+                
+                if (_remainingReceivedDataSize) {
+                    // Prepend data from previous buffer
+                    prependedLineSize = lineSize + _remainingReceivedDataSize;
+                    prependedBuffer = new char[prependedLineSize];
+                    memcpy(prependedBuffer, _buffer, _remainingReceivedDataSize);
+                    memcpy(prependedBuffer + _remainingReceivedDataSize, p, lineSize);
+                    _remainingReceivedDataSize = 0;
+                }
             
                 // If line is too large, error
                 if (lineSize > BufferSize) {
                     showMessage(MessageType::Error, ROMSTR("binary 'put' too large"));
                 }
 
-                int length = Base64::decode(lineSize, p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
+                int length = Base64::decode(prependedBuffer ? prependedLineSize : lineSize, prependedBuffer ?: p, BufferSize, reinterpret_cast<uint8_t*>(_buffer));
+                if (prependedBuffer) {
+                    delete [ ] prependedBuffer;
+                }
+                
                 if (length < 0) {
                     delete _file;
                     _file = nullptr;
