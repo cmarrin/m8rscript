@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		490934922322EF1B00E7CDAC /* simpleFunction.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 490934902322EF1B00E7CDAC /* simpleFunction.m8r */; };
+		490934932322EF1B00E7CDAC /* simpleTest.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 490934912322EF1B00E7CDAC /* simpleTest.m8r */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3D61E15849C00242DA8 /* GPIO.cpp */; };
@@ -151,6 +153,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		490934902322EF1B00E7CDAC /* simpleFunction.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = simpleFunction.m8r; path = ../scripts/simpleFunction.m8r; sourceTree = "<group>"; };
+		490934912322EF1B00E7CDAC /* simpleTest.m8r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = simpleTest.m8r; path = ../scripts/simpleTest.m8r; sourceTree = "<group>"; };
 		492396C51E711D12007AC0BF /* UDP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UDP.cpp; path = ../src/UDP.cpp; sourceTree = "<group>"; };
 		492396C91E711E47007AC0BF /* IPAddr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPAddr.h; path = ../src/IPAddr.h; sourceTree = "<group>"; };
 		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../src/GPIO.h; sourceTree = "<group>"; };
@@ -323,6 +327,8 @@
 		4942EA891D0C86BB00E02088 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				490934902322EF1B00E7CDAC /* simpleFunction.m8r */,
+				490934912322EF1B00E7CDAC /* simpleTest.m8r */,
 				4942EA8A1D0C86CC00E02088 /* blink.m8r */,
 				4942EA8B1D0C870200E02088 /* basic.m8r */,
 				497F1F2F1D10D60C0045866E /* timing.m8r */,
@@ -700,6 +706,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -730,6 +737,7 @@
 				493C9ED91D218F100062152D /* play.png in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
+				490934922322EF1B00E7CDAC /* simpleFunction.m8r in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
 				49DD77491D84D94900D7C374 /* Simulate.png in Resources */,
 				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
@@ -741,6 +749,7 @@
 				49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */,
 				492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */,
 				493C9EDB1D2191E60062152D /* build.png in Resources */,
+				490934932322EF1B00E7CDAC /* simpleTest.m8r in Resources */,
 				49D9B8251D1C854700724911 /* MainMenu.xib in Resources */,
 				49DD77421D83E14B00D7C374 /* ReloadFIles2.png in Resources */,
 			);
