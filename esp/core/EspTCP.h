@@ -97,8 +97,8 @@ private:
         String _buffer;
     };
 
-    static err_t _accept(void *arg, tcp_pcb* pcb, int8_t err) { return reinterpret_cast<EspTCP*>(arg)->accept(pcb, err); }
-    static err_t _recv(void *arg, tcp_pcb* pcb, pbuf* buf, int8_t err) { return reinterpret_cast<EspTCP*>(arg)->recv(pcb, buf, err); }
+    static err_t _accept(void *arg, tcp_pcb* pcb, err_t err) { return reinterpret_cast<EspTCP*>(arg)->accept(pcb, err); }
+    static err_t _recv(void *arg, tcp_pcb* pcb, pbuf* buf, err_t err) { return reinterpret_cast<EspTCP*>(arg)->recv(pcb, buf, err); }
     static err_t _sent(void *arg, tcp_pcb* pcb, u16_t len) { return reinterpret_cast<EspTCP*>(arg)->sent(pcb, len); }
 
     err_t accept(tcp_pcb*, int8_t err);

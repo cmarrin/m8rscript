@@ -70,8 +70,10 @@ ESP_ROOT ?= $(HOME)/Library/Arduino15/packages/esp8266
 TOOLS_ROOT ?= $(ESP_ROOT)/tools
 TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9/bin
 SDK_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk
+LIB_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk/lib/NONOSDK3V0
+LWIP_LIB_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk/lib
 LWIP_ROOT = $(SDK_ROOT)/lwip
-FLASH_LAYOUT ?= eagle.flash.4m.ld
+FLASH_LAYOUT ?= core/eagle.flash.$(FLASH_SIZE).ld
 
 else
 
@@ -137,7 +139,7 @@ LD =  $(CC)
 AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
 OBJDUMP = $(TOOLS_BIN)/xtensa-lx106-elf-objdump
 
-LIBS = main net80211 wpa pp phy crypto smartconfig lwip gcc
+LIBS = main net80211 wpa pp phy crypto smartconfig lwip_gcc gcc
 LIBS := $(addprefix -l,$(LIBS))
 
 USE_PARSE_ENGINE ?= 1
@@ -147,7 +149,7 @@ ifeq ($(DEBUG), 1)
 INCLUDE_DIRS += $(GDB_DIR)
 endif
 
-C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT)
+C_DEFINES = -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DARDUINO_ESP8266_ESP01 -DARDUINO_ARCH_ESP8266 -DESP8266 -DUSE_PARSE_ENGINE=$(USE_PARSE_ENGINE) -DFIXED_POINT_FLOAT=$(FIXED_POINT_FLOAT) -DLWIP_OPEN_SRC
 
 ifeq ($(PARSER_SUPPORT), 0)
 C_DEFINES += -DNO_PARSER_SUPPORT
@@ -162,7 +164,7 @@ C_INCLUDES += $(foreach dir,$(USER_DIRS) $(INCLUDE_DIRS),-iquote$(dir))
 C_FLAGS ?= -c $(DEBUG_FLAGS) -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -std=gnu99 -ffunction-sections -fdata-sections
 CPP_FLAGS ?= -c $(DEBUG_FLAGS) -mlongcalls -mtext-section-literals -fno-exceptions -fno-rtti -falign-functions=4 -std=c++11 -MMD -ffunction-sections -fdata-sections
 S_FLAGS ?= -c -x assembler-with-cpp -MMD
-LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(SDK_ROOT)/lib -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-Map=$(OBJ_DIR)/$(MAIN_NAME).map
+LD_FLAGS ?= -flto -w $(DEBUG_FLAGS) -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -L$(LIB_ROOT) -L$(LWIP_LIB_ROOT) -L$(SDK_ROOT)/ld -Lcore -T$(FLASH_LAYOUT) -Wl,--gc-sections -Wl,-Map=$(OBJ_DIR)/$(MAIN_NAME).map
 
 LD_STD_LIBS = -nostdlib -Wl,--start-group $(LIBS) -Wl,--end-group -lgcc
 

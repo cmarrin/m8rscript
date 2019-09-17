@@ -97,9 +97,9 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static int32_t spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst);
-    static int32_t spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src);
-    static int32_t spiffsErase(uint32_t addr, uint32_t size);
+    static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst);
+    static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src);
+    static s32_t spiffsErase(u32_t addr, u32_t size);
 
     static spiffs* sharedSpiffs()
     {

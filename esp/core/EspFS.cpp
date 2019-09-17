@@ -143,14 +143,14 @@ bool EspFS::rename(const char* src, const char* dst)
 
 uint32_t EspFS::totalSize() const
 {
-    uint32_t total, used;
+    u32_t total, used;
     SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
     return total;
 }
 
 uint32_t EspFS::totalUsed() const
 {
-    uint32_t total, used;
+    u32_t total, used;
     SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
     return used;
 }
@@ -161,17 +161,17 @@ int32_t EspFS::internalMount()
                         _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
 }
 
-int32_t EspFS::spiffsRead(uint32_t addr, uint32_t size, uint8_t *dst)
+s32_t EspFS::spiffsRead(u32_t addr, u32_t size, u8_t *dst)
 {
     return (flashmem_read(dst, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_READABLE;
 }
 
-int32_t EspFS::spiffsWrite(uint32_t addr, uint32_t size, uint8_t *src)
+s32_t EspFS::spiffsWrite(u32_t addr, u32_t size, u8_t *src)
 {
     return (flashmem_write(src, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_WRITABLE;
 }
 
-int32_t EspFS::spiffsErase(uint32_t addr, uint32_t size)
+s32_t EspFS::spiffsErase(u32_t addr, u32_t size)
 {
     u32_t firstSector = flashmem_get_sector_of_address(addr);
     u32_t lastSector = firstSector;

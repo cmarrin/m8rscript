@@ -43,7 +43,7 @@ extern "C" {
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 
 uint32 user_rf_cal_sector_set(void) {
-    extern char flashchip;
+    extern SpiFlashChip* flashchip;
     SpiFlashChip *flash = (SpiFlashChip*)(&flashchip + 4);
     // We know that sector size in 4096
     //uint32_t sec_num = flash->chip_size / flash->sector_size;

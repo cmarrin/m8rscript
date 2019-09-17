@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-static constexpr const char* Prompt = "\n>";
+#define Prompt "\n>"
 
 void Shell::connected()
 {

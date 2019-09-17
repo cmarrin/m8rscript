@@ -36,11 +36,12 @@ int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 
 #define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
 
 #define debugf os_printf_plus
+    
+#define ipv4_addr_t ip_addr_t
 
 void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
 void ets_timer_disarm(ETSTimer *a);
 void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
-void uart_div_modify(int no, int freq);
 int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
 int ets_vsprintf(char *str, const char *format, va_list arg)  __attribute__ ((format (printf, 2, 0)));
 int ets_vsnprintf(char * s, size_t n, const char * format, va_list arg)  __attribute__ ((format (printf, 3, 0)));
