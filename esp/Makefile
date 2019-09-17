@@ -21,6 +21,8 @@ PARSER_SUPPORT = 1
 
 DEBUG ?= 0
 
+ARDUINO_TOOLCHAIN = 1
+
 ifeq ($(DEBUG), 0)
     DEBUG_FLAGS = -Os -DNDEBUG
 else
@@ -30,29 +32,29 @@ endif
 #=== Project specific definitions
 MAIN_NAME = m8rscript
 
-SRC ?=  ../m8rscript/Application.cpp \
-		../m8rscript/Atom.cpp \
-		../m8rscript/Base64.cpp \
-		../m8rscript/Closure.cpp \
-		../m8rscript/Containers.cpp \
-		../m8rscript/Error.cpp \
-		../m8rscript/ExecutionUnit.cpp \
-		../m8rscript/Function.cpp \
-		../m8rscript/Global.cpp \
-		../m8rscript/GPIO.cpp \
-		../m8rscript/IPAddr.cpp \
-		../m8rscript/Iterator.cpp \
-		../m8rscript/JSON.cpp \
-		../m8rscript/Object.cpp \
-		../m8rscript/Program.cpp \
-		../m8rscript/Shell.cpp \
-		../m8rscript/slre.cpp \
-		../m8rscript/TaskManager.cpp \
-		../m8rscript/TCP.cpp \
-		../m8rscript/UDP.cpp \
-		../m8rscript/Value.cpp \
-        ../m8rscript/Scanner.cpp \
-        ../m8rscript/generated/SharedAtoms.cpp \
+SRC ?=  ../src/Application.cpp \
+		../src/Atom.cpp \
+		../src/Base64.cpp \
+		../src/Closure.cpp \
+		../src/Containers.cpp \
+		../src/Error.cpp \
+		../src/ExecutionUnit.cpp \
+		../src/Function.cpp \
+		../src/Global.cpp \
+		../src/GPIO.cpp \
+		../src/IPAddr.cpp \
+		../src/Iterator.cpp \
+		../src/JSON.cpp \
+		../src/Object.cpp \
+		../src/Program.cpp \
+		../src/Shell.cpp \
+		../src/slre.cpp \
+		../src/TaskManager.cpp \
+		../src/TCP.cpp \
+		../src/UDP.cpp \
+		../src/Value.cpp \
+        ../src/Scanner.cpp \
+        ../src/generated/SharedAtoms.cpp \
         app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)
@@ -61,19 +63,28 @@ ifeq ($(PARSER_SUPPORT), 1)
 		../m8rscript/Parser.cpp
 endif
 
+ifeq ($(ARDUINO_TOOLCHAIN), 1)
+
 # Arduino based tools
-#ESP_ROOT ?= $(HOME)/esp8266
-#TOOLS_ROOT ?= $(ESP_ROOT)/tools
-#SDK_ROOT = esp8266_nonos_sdk_v2/ESP8266_NONOS_SDK
-#FLASH_LAYOUT ?= eagle.flash.4m.ld
+ESP_ROOT ?= $(HOME)/Library/Arduino15/packages/esp8266
+TOOLS_ROOT ?= $(ESP_ROOT)/tools
+TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9/bin
+SDK_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk
+LWIP_ROOT = $(SDK_ROOT)/lwip
+FLASH_LAYOUT ?= eagle.flash.4m.ld
+
+else
 
 # ESP open SDK base tools
 ESP_ROOT ?= $(HOME)/esp-open-sdk
 TOOLS_ROOT = $(ESP_ROOT)
+TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
 SDK_ROOT = $(TOOLS_ROOT)/sdk
 LWIP_ROOT = $(SDK_ROOT)/examples/lwip_open_src_template_proj
 FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
 #FLASH_LAYOUT ?= eagle.app.v6.ld
+
+endif
 
 ESP_TOOL_BIN = ./esptool
 ESP_TOOL_PY ?= ./esptool.py
@@ -113,8 +124,6 @@ SRC_GIT_VERSION = $(call git_description,$(dir .))
 
 # esp8266 arduino directories
 ESP_GIT_VERSION = $(call git_description,$(ESP_ROOT))
-
-TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
 
 # Directory for intermedite build files
 OBJ_DIR = $(BUILD_BASE)/obj
