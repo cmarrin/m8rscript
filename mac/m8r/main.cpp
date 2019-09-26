@@ -24,8 +24,8 @@ public:
         ::vprintf(s, args);
     }
     
+    virtual void setDeviceName(const char*) override { }
     virtual m8r::GPIOInterface& gpio() override { return _gpio; }
-    virtual uint32_t freeMemory() const override { return 80000; }
 
 private:
     class MyGPIOInterface : public m8r::GPIOInterface {
@@ -79,6 +79,12 @@ void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 void m8r::SystemInterface::free(MemoryType, void* p)
 {
     ::free(p);
+}
+
+void m8r::SystemInterface::memoryInfo(m8r::MemoryInfo& info)
+{
+    // FIXME: info.freeSize = g_freeHeapSize;
+    // FIXME: info.numAllocations = g_allocCount;
 }
 
 int main(int argc, char * argv[])
