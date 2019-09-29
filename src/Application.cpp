@@ -62,7 +62,14 @@ public:
     virtual void shellSend(const char* data, uint16_t size)
     {
 #ifdef MONITOR_TRAFFIC
-    debugf("[Shell] >>>> shellSend:'%s'\n", std::string(data, size ? size : strlen(data)).c_str());
+    if (!size) {
+        size = strlen(data);
+    }
+    char* s = new char[size + 1];
+    memcpy(s, data, size);
+    s[size] = '\0';
+    debugf("[Shell] >>>> shellSend:'%s'\n", s);
+    delete [ ] s;
 #endif
         _tcp->send(_connectionId, data, size);
     }

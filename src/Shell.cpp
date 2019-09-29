@@ -96,7 +96,14 @@ void Shell::send(const char* data, uint16_t size)
 bool Shell::received(const char* data, uint16_t size)
 {
 #ifdef MONITOR_TRAFFIC
-    debugf("[Shell] <<<< received:'%s'\n", std::string(data, size ? size : strlen(data)).c_str());
+    if (!size) {
+        size = strlen(data);
+    }
+    char* s = new char[size + 1];
+    memcpy(s, data, size);
+    s[size] = '\0';
+    debugf("[Shell] <<<< received:'%s'\n", s);
+    delete [ ] s;
 #endif
     if (_state == State::PutFile) {
         if (_binary) {

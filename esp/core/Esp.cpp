@@ -40,6 +40,12 @@ extern "C" {
 
 //#define NEED_HEXDUMP
 
+// Needed by lwip
+static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
+static inline bool isUCHex(uint8_t c)       { return c >= 'A' && c <= 'F'; }
+static inline bool isHex(uint8_t c)         { return isUCHex(c) || isLCHex(c); }
+extern "C" int isxdigit(int c)        { return isHex(c) || isdigit(c); }
+
 extern const uint32_t __attribute__((section(".ver_number"))) core_version = 0;
 
 uint32 user_rf_cal_sector_set(void) {
