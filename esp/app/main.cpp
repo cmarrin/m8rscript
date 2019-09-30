@@ -50,23 +50,12 @@ extern "C" {
 
 #include <cstdarg>
 
-extern "C" {
-    int ets_putc(int);
-    int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
-}
-
 class MyTCP;
 
 m8r::Application _application(fs(), system(), 22);
 
-void FLASH_ATTR runScript()
+void runScript()
 {
-    const char* dnsname = "time.nist.gov";
-    m8r::IPAddr::lookupHostName(dnsname, [](const char* name, m8r::IPAddr ipaddr) {
-        uint32_t ip = ipaddr;
-        system()->printf(ROMSTR("\n************** DNS Lookup:'%s = %d.%d.%d.%d\n"), name, ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
-    });
-
     system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
     m8r::MemoryInfo info;
     m8r::Object::memoryInfo(info);
@@ -91,7 +80,7 @@ void systemInitialized()
     runScript();
 }
 
-extern "C" void FLASH_ATTR user_init()
+extern "C" void user_init()
 {
     initializeSystem(systemInitialized);
 }
