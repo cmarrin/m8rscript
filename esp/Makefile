@@ -100,7 +100,7 @@ FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_PORT ?= /dev/tty.usbserial-AD02CUJ5
+UPLOAD_PORT ?= /dev/tty.wchusbserial220
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
 
