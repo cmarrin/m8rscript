@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Containers.h"
 #include "Defines.h"
-#include "SystemInterface.h"
 #include "Value.h"
 #include <algorithm>
 

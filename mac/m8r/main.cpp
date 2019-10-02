@@ -26,10 +26,6 @@ public:
     
     virtual void setDeviceName(const char*) override { }
     virtual m8r::GPIOInterface& gpio() override { return _gpio; }
-    virtual uint64_t currentMicroseconds() override
-    {
-        return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
-    }
 
 private:
     class MyGPIOInterface : public m8r::GPIOInterface {
@@ -69,6 +65,11 @@ private:
     
     MyGPIOInterface _gpio;
 };
+
+uint64_t m8r::SystemInterface::currentMicroseconds()
+{
+    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
+}
 
 void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 {

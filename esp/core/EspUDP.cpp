@@ -42,11 +42,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
-{
-    return new EspUDP(delegate, port);
-}
-
 void UDP::joinMulticastGroup(IPAddr addr)
 {
     ip_addr_t ifaddr;

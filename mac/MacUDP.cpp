@@ -66,11 +66,6 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
     func(name, ip);
 }
 
-UDP* UDP::create(UDPDelegate* delegate, uint16_t port)
-{
-    return new MacUDP(delegate, port);
-}
-
 void UDP::joinMulticastGroup(IPAddr addr)
 {
 //    struct ip_addr mDNSmulticast;

@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "UDP.h"
 #include <cstdint>
 #include <cstring>
+#include <memory>
 
 namespace m8r {
 
@@ -63,8 +64,6 @@ public:
     static constexpr int MaxConnections = 4;
     static constexpr uint32_t DefaultTimeout = 7200;
      
-    static TCP* create(TCPDelegate*, uint16_t port);
-    static TCP* create(TCPDelegate*, uint16_t port, IPAddr ip);
     virtual ~TCP() { }
     
     virtual void send(int16_t connectionId, char c) = 0;
@@ -126,7 +125,7 @@ public:
     virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, int16_t length) override;
 
 private:
-    TCP* _tcp = nullptr;
+    std::unique_ptr<TCP> _tcp;
     Value _func;
     Value _parent;
     ExecutionUnit* _eu;

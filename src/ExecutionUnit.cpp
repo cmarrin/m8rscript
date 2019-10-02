@@ -87,6 +87,24 @@ void ExecutionUnit::objectError(const char* s) const
     printError(ROMSTR("Value must be Object for %s"), s);
 }
 
+void ExecutionUnit::gcMark()
+{
+    assert(_program);
+    Object::gcMark(_program);
+    
+    for (auto entry : _stack) {
+        entry.gcMark(this);
+    }
+    
+    _program->gcMark(this);
+
+    system()->taskManager()->lock();
+    for (auto it : _eventQueue) {
+        it.gcMark(this);
+    }
+    system()->taskManager()->unlock();
+}
+
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 {
     // Start at the current object and walk up the chain
@@ -204,7 +222,7 @@ void ExecutionUnit::startExecution(Program* program)
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
-    TaskManager::lock();
+    system()->taskManager()->lock();
     
     _eventQueue.push_back(func);
     _eventQueue.push_back(thisValue);
@@ -213,7 +231,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
         _eventQueue.push_back(args[i]);
     }
 
-    TaskManager::unlock();
+    system()->taskManager()->unlock();
 }
 
 CallReturnValue ExecutionUnit::runNextEvent()
@@ -225,7 +243,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     int32_t nargs = 0;
     bool haveEvent = false;
     
-    TaskManager::lock();
+    system()->taskManager()->lock();
 
     if (!_eventQueue.empty()) {
         assert(_eventQueue.size() >= 3);
@@ -244,7 +262,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
     }
 
-    TaskManager::unlock();
+    system()->taskManager()->unlock();
     
     if (haveEvent) {
         CallReturnValue callReturnValue = func.call(this, Value(), nargs, false);

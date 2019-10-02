@@ -21,7 +21,11 @@
 #include "Esp.h"
 
 #include "EspGPIOInterface.h"
+#include "EspTaskManager.h"
 #include "EspFS.h"
+#include "EspTaskManager.h"
+#include "EspTCP.h"
+#include "EspUDP.h"
 #include "MDNSResponder.h"
 #include "SystemInterface.h"
 #include "TCP.h"
@@ -70,10 +74,6 @@ static uint32_t micros_overflow_count = 0;
 static void (*_initializedCB)();
 static bool _calledInitializeCB = false;
 
-static m8r::EspFS fileSystem;
-
-m8r::FS* fs() { return &fileSystem; }
-
 m8r::IPAddr m8r::IPAddr::myIPAddr()
 {
     struct ip_info info;
@@ -119,19 +119,36 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-static m8r::TCP* _logTCP = nullptr;
+static std::unique_ptr<m8r::TCP> _logTCP;
 
 void setDeviceName(const char*);
 
 class EspSystemInterface : public m8r::SystemInterface
 {
 public:
+    EspSystemInterface() { }
+    
     virtual void vprintf(const char* fmt, va_list) const override;
-    virtual m8r::GPIOInterface& gpio() { return _gpio; }
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
     
+    virtual m8r::FS* fileSystem() override { return &_fileSystem; }
+    virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
+    virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
+    
+    virtual std::unique_ptr<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    {
+        return std::unique_ptr<m8r::TCP>(new m8r::EspTCP(delegate, port, ip));
+    }
+    
+    virtual std::unique_ptr<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
+    {
+        return std::unique_ptr<m8r::UDP>(new m8r::EspUDP(delegate, port));
+    }
+
 private:
     m8r::EspGPIOInterface _gpio;
+    m8r::EspFS _fileSystem;
+    m8r::EspTaskManager _taskManager;
 };
 
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const
@@ -348,14 +365,14 @@ void writeUserData()
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
     _gUserData.magic[3] = 's';
-    m8r::File* file = fileSystem.open(UserDataFilename, "w");
+    m8r::File* file = system()->fileSystem()->open(UserDataFilename, "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
     delete file;
 }
 
 void getUserData()
 {
-    m8r::File* file = fileSystem.open(UserDataFilename, "r");
+    m8r::File* file = system()->fileSystem()->open(UserDataFilename, "r");
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
@@ -470,7 +487,7 @@ void initmdns()
         name = "m8rscript";
     }
 
-    _responder = new m8r::MDNSResponder(name);
+    _responder = new m8r::MDNSResponder(system(), name);
     _responder->addService(22, "m8r IoT", "m8rscript_shell");
 }
 
@@ -501,7 +518,7 @@ void gotStationIP()
         _initializedCB();
         _calledInitializeCB = true;
     }
-    _logTCP = m8r::TCP::create(&_myLogTCPDelegate, 23);
+    _logTCP = system()->createTCP(&_myLogTCPDelegate, 23);
 }
 
 static const uint8_t NumWifiTries = 10;
@@ -535,9 +552,9 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 
 void startup(void*)
 {
-    if (!fileSystem.mount()) {
+    if (!system()->fileSystem()->mount()) {
         system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
-        if (fileSystem.format()) {
+        if (system()->fileSystem()->format()) {
             system()->printf(ROMSTR("succeeded.\n"));
             getUserData();
         } else {
@@ -545,8 +562,8 @@ void startup(void*)
         }
     }
 
-    if (fileSystem.mount()) {
-        system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), fileSystem.totalSize(), fileSystem.totalUsed());
+    if (system()->fileSystem()->mount()) {
+        system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), system()->fileSystem()->totalSize(), system()->fileSystem()->totalUsed());
     }
 
     system()->printf(ROMSTR("Starting WiFi:\n"));

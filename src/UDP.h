@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
+#include <memory>
 
 namespace m8r {
 
@@ -57,7 +58,6 @@ public:
 
 class UDP {
 public:
-    static UDP* create(UDPDelegate*, uint16_t port = 0);
     virtual ~UDP() { }
         
     static void joinMulticastGroup(IPAddr);
@@ -92,12 +92,7 @@ private:
 class MyUDPDelegate : public NativeObject, public UDPDelegate {
 public:
     MyUDPDelegate(ExecutionUnit*, uint16_t port, const Value& func, const Value& parent);
-    virtual ~MyUDPDelegate()
-    {
-        if (_udp) {
-            delete _udp;
-        }
-    }
+    virtual ~MyUDPDelegate() { }
 
     void send(IPAddr ip, uint16_t port, const char* data, uint16_t size)
     {
@@ -119,7 +114,7 @@ public:
     virtual void UDPevent(UDP* udp, Event, const char* data, uint16_t length) override;
 
 private:
-    UDP* _udp = nullptr;
+    std::unique_ptr<UDP> _udp;
     Value _func;
     Value _parent;
     ExecutionUnit* _eu;

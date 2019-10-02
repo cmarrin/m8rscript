@@ -99,9 +99,7 @@ class FS {
 public:
     FS() { }
     virtual ~FS() { }
-    
-    static FS* createFS();
-    
+
     virtual DirectoryEntry* directory() = 0;
     virtual bool mount() = 0;
     virtual bool mounted() const = 0;

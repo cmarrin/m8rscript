@@ -46,16 +46,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-TCP* TCP::create(TCPDelegate* delegate, uint16_t port)
-{
-    return new MacTCP(delegate, port, IPAddr());
-}
-
-TCP* TCP::create(TCPDelegate* delegate, uint16_t port, IPAddr ip)
-{
-    return new MacTCP(delegate, port, ip);
-}
-
 MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
     : TCP(delegate, port, ip)
     , _dispatchSemaphore(nullptr)

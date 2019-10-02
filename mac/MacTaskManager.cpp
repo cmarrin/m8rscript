@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "MacTaskManager.h"
 
 #include "Defines.h"
+#include "SystemInterface.h"
 #include <cassert>
 
 using namespace m8r;
@@ -44,7 +45,7 @@ MacTaskManager::MacTaskManager()
 {
     _eventThread = new std::thread([this]{
         while (true) {
-            int32_t now = msNow();
+            int32_t now = SystemInterface::currentMicroseconds() / 1000;
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
                 if (empty()) {
@@ -81,14 +82,6 @@ MacTaskManager::~MacTaskManager()
     postEvent();
     _eventThread->join();
     delete _eventThread;
-}
-
-TaskManager* TaskManager::shared()
-{
-    if (!_sharedTaskManager) {
-        _sharedTaskManager = new MacTaskManager();
-    }
-    return _sharedTaskManager;
 }
 
 void MacTaskManager::postEvent()

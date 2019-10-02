@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "MDNSResponder.h"
 
+#include "SystemInterface.h"
 #include "IPAddr.h"
 #include <cstring>
 #include <cstdlib>
@@ -49,13 +50,13 @@ using namespace m8r;
 
 static os_timer_t bc_timer;
 
-MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint32_t ttl)
+MDNSResponder::MDNSResponder(SystemInterface* systemInterface, const char* name, uint32_t broadcastInterval, uint32_t ttl)
 {
 	_ttl = ttl;
     _hostname = name;
     
     UDP::joinMulticastGroup({ 224,0,0,251 });
-    _udp = UDP::create(this, 5353);
+    _udp = systemInterface->createUDP(this, 5353);
 
 	os_timer_disarm(&bc_timer);
 	if (broadcastInterval > 0) {
@@ -68,7 +69,6 @@ MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint3
 MDNSResponder::~MDNSResponder()
 {
 	os_timer_disarm(&bc_timer);
-    delete _udp;
     UDP::leaveMulticastGroup({ 224,0,0,251 });
 }
 
