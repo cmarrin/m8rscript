@@ -380,8 +380,9 @@ enum class Token : uint8_t {
     EndOfFile = 0xff,
 };
 
-static const uint8_t MajorVersion = 0;
-static const uint8_t MinorVersion = 1;
+static constexpr uint8_t MajorVersion = 0;
+static constexpr uint8_t MinorVersion = 2;
+static const char* BuildDate = __DATE__;
 
 // File format is a sequence of blocks. Some blocks are simply a byte
 // token indicating the block type and others are a generic format

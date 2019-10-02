@@ -169,7 +169,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     }
     
     // See if there is a 'main' file (which contains the name of the program to run)
-    String name = "main";
+    String name = MainFileName;
     FileStream mainStream(system()->fileSystem(), name.c_str());
     if (mainStream.loaded()) {
         name.clear();
@@ -291,4 +291,32 @@ bool Application::MyRunTask::execute()
         runOnce(_eu.system()->taskManager(), 50);
     }
     return true;
+}
+
+bool Application::autostart() const
+{
+    // FIXME: Implement - Look for a file or a config file or something
+    return false;
+}
+
+void Application::runLoop()
+{
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildDate);
+
+    // If autostart is on, run the main program
+    if (autostart()) {
+        m8r::Error error;
+        if (!load(error, false)) {
+            error.showError(system());
+        } else if (!program()) {
+            system()->printf(ROMSTR("Error:failed to compile application"));
+        } else {
+            run([this]{
+                m8r::MemoryInfo info;
+                m8r::Object::memoryInfo(info);
+                system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
+        });
+    }
+}
+    
 }

@@ -42,7 +42,7 @@ using namespace m8r;
 
 void TaskManager::runTask(Task* newTask, int32_t delay)
 {
-    int32_t now = SystemInterface::currentMicroseconds() / 1000;
+    int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
     if (delay > 6000000) {
         delay = 6000000;
     } else if (delay < 5) {

@@ -45,7 +45,7 @@ MacTaskManager::MacTaskManager()
 {
     _eventThread = new std::thread([this]{
         while (true) {
-            int32_t now = SystemInterface::currentMicroseconds() / 1000;
+            int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
                 if (empty()) {

@@ -64,20 +64,14 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-n 100"
+            argument = "-p 800"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "simpleTest.m8r"
+            argument = "$(PROJECT_DIR)/../scripts"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "timing.m8r"
-            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

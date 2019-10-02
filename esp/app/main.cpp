@@ -53,30 +53,9 @@ class MyTCP;
 
 m8r::Application _application(system(), 23);
 
-void runScript()
-{
-    system()->printf(ROMSTR("\n*** m8rscript v0.1\n\n"));
-    m8r::MemoryInfo info;
-    m8r::Object::memoryInfo(info);
-    system()->printf(ROMSTR("***** start - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
-    
-    m8r::Error error;
-    if (!_application.load(error, false)) {
-        error.showError(system());
-    } else if (!_application.program()) {
-        system()->printf(ROMSTR("Error:failed to compile application"));
-    } else {
-        _application.run([]{
-            m8r::MemoryInfo info;
-            m8r::Object::memoryInfo(info);
-            system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
-        });
-    }
-}
-
 void systemInitialized()
 {
-    runScript();
+    _application.runLoop();
 }
 
 extern "C" void user_init()

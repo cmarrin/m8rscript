@@ -61,6 +61,7 @@ public:
     bool load(Error&, bool debug, const char* name = nullptr);
     const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
     void run(std::function<void()>);
+    void runLoop();
     void clear()
     {
         stop();
@@ -68,6 +69,8 @@ public:
     }
     void pause();
     void stop();
+    
+    bool autostart() const;
     
     Program* program() const { return _program; }
     
