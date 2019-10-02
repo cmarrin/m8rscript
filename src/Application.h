@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "GPIOInterface.h"
 #include "SystemInterface.h"
-#include "TaskManager.h"
 #include <functional>
 
 namespace m8r {

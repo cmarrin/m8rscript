@@ -36,7 +36,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Object.h"
-#include "TaskManager.h"
 #include "IPAddr.h"
 #include "UDP.h"
 #include <cstdint>

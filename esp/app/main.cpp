@@ -39,7 +39,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "MStream.h"
 #include "Shell.h"
 #include "SystemInterface.h"
-#include "TaskManager.h"
 #include "TCP.h"
 
 extern "C" {

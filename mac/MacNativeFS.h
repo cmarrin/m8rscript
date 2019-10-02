@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdio>
 #include <dirent.h>
+#include <unistd.h>
 #include <cstring>
 #include <cerrno>
 
@@ -93,7 +94,7 @@ private:
 
 class MacNativeFS : public FS {
 public:
-    MacNativeFS() { }
+    MacNativeFS(const char* root = ".") { chdir(root); }
     virtual ~MacNativeFS() { }
     
     virtual DirectoryEntry* directory() override { return new MacNativeDirectoryEntry(); }
