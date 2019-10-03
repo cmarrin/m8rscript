@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Defines.h"
 #include "ExecutionUnit.h"
 #include "Program.h"
+#include "SystemInterface.h"
 
 using namespace m8r;
 
@@ -105,15 +106,12 @@ MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const 
     , _parent(parent)
     , _eu(eu)
 {
-    _tcp = ip ? TCP::create(this, port, ip) :  TCP::create(this, port);
+    _tcp = eu->system()->createTCP(this, port, ip);
     _eu->startEventListening();
 }
 
 MyTCPDelegate::~MyTCPDelegate()
 {
-    if (_tcp) {
-        delete _tcp;
-    }
     _eu->stopEventListening();
 }
 

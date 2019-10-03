@@ -63,23 +63,7 @@ public:
     {
     }
     
-    void gcMark()
-    {
-        assert(_program);
-        Object::gcMark(_program);
-        
-        for (auto entry : _stack) {
-            entry.gcMark(this);
-        }
-        
-        _program->gcMark(this);
-
-        TaskManager::lock();
-        for (auto it : _eventQueue) {
-            it.gcMark(this);
-        }
-        TaskManager::unlock();
-    }
+    void gcMark();
     
     SystemInterface* system() const { return _program->system(); }
 

@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "GPIOInterface.h"
 #include "SystemInterface.h"
-#include "TaskManager.h"
 #include <functional>
 
 namespace m8r {
@@ -54,15 +53,15 @@ class TCP;
 
 class Application {
 public:
-    Application(FS*, SystemInterface*, uint16_t port);
+    Application(SystemInterface*, uint16_t port);
     ~Application();
     
-    FS* fileSystem() { return _fs; }
     SystemInterface* system() const { return _system; }
     
     bool load(Error&, bool debug, const char* name = nullptr);
     const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
     void run(std::function<void()>);
+    void runLoop();
     void clear()
     {
         stop();
@@ -70,6 +69,8 @@ public:
     }
     void pause();
     void stop();
+    
+    bool autostart() const;
     
     Program* program() const { return _program; }
     
@@ -88,7 +89,7 @@ private:
             _function = function;
             _running = true;
             _eu.startExecution(program);
-            runOnce();
+            runOnce(_eu.system()->taskManager());
         }
         
         void pause() { }
@@ -115,7 +116,7 @@ private:
         MyHeartbeatTask(SystemInterface* system)
             : _system(system)
         {
-            _system->gpio().enableHeartbeat();
+            _system->gpio()->enableHeartbeat();
             execute();
         }
         
@@ -125,9 +126,9 @@ private:
         
         virtual bool execute() override
         {
-            _system->gpio().heartbeat(!_upbeat);
+            _system->gpio()->heartbeat(!_upbeat);
             _upbeat = !_upbeat;
-            runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
+            runOnce(_system->taskManager(), _upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
             return true;
         }
         
@@ -139,7 +140,6 @@ private:
     };
 
     TCPDelegate* _shellSocket;
-    FS* _fs;
     SystemInterface* _system;
     
     Program* _program = nullptr;

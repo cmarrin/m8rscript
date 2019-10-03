@@ -12,12 +12,15 @@
 
 #include "Application.h"
 #include "MacNativeFS.h"
+#include "MacTaskManager.h"
+#include "MacTCP.h"
+#include "MacUDP.h"
 #include "SystemInterface.h"
 
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface() { }
+    MySystemInterface(const char* fsdir) : _fileSystem(fsdir) { }
     
     virtual void vprintf(const char* s, va_list args) const override
     {
@@ -25,7 +28,19 @@ public:
     }
     
     virtual void setDeviceName(const char*) override { }
-    virtual m8r::GPIOInterface& gpio() override { return _gpio; }
+    virtual m8r::FS* fileSystem() override { return &_fileSystem; }
+    virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
+    virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
+    
+    virtual std::unique_ptr<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    {
+        return std::unique_ptr<m8r::TCP>(new m8r::MacTCP(delegate, port, ip));
+    }
+    
+    virtual std::unique_ptr<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
+    {
+        return std::unique_ptr<m8r::UDP>(new m8r::MacUDP(delegate, port));
+    }
 
 private:
     class MyGPIOInterface : public m8r::GPIOInterface {
@@ -64,6 +79,8 @@ private:
     };
     
     MyGPIOInterface _gpio;
+    m8r::MacNativeFS _fileSystem;
+    m8r::MacTaskManager _taskManager;
 };
 
 uint64_t m8r::SystemInterface::currentMicroseconds()
@@ -87,57 +104,40 @@ void m8r::SystemInterface::memoryInfo(m8r::MemoryInfo& info)
     // FIXME: info.numAllocations = g_allocCount;
 }
 
+static void usage(const char* name)
+{
+    fprintf(stderr,
+                "usage: %s [-p <port>] [-h] <dir>\n"
+                "    -p   : set shell port (log port +1, sim port +2)\n"
+                "    -h   : print this message\n"
+                "    <dir>: root directory for simulation filesystem\n"
+            , name);
+}
+
 int main(int argc, char * argv[])
 {
-    bool printCode = false;
     int opt;
-    int numExecutions = 1;
+    uint16_t port;
     
-    while ((opt = getopt(argc, argv, "n:ph?")) != EOF) {
+    while ((opt = getopt(argc, argv, "p:h")) != EOF) {
         switch(opt)
         {
-            case 'n':
-                numExecutions = atoi(optarg);
-                break;
-            case 'c':
-                printCode = true;
+            case 'p':
+                port = atoi(optarg);
                 break;
             case 'h':
-            case '?':
-                fprintf(stderr, "usage:\n -?,\t-h: print this message\n\t-c: print generated code\n");
+                usage(argv[0]);
+                break;
             default:
                 break;
         }
     }
     
-    const char* inputFile = argv[optind];
-    m8r::FS* fs = new m8r::MacNativeFS();
+    const char* fsdir = (optind < argc) ? argv[optind] : nullptr;
 
-    while (numExecutions--) {
-        MySystemInterface system;
-        m8r::Application application(fs, &system, 22);
-        m8r::Error error;
-        bool done = false;
+    MySystemInterface system(fsdir);
+    m8r::Application application(&system, 23);
+    application.runLoop();
 
-        system.printf("Executing '%s'...\n", inputFile);
-
-        if (application.load(error, true, inputFile)) {
-            auto start = std::chrono::system_clock::now();
-            application.run([start, &done]{
-                auto end = std::chrono::system_clock::now();
-                std::chrono::duration<double> diff = end - start;
-                printf(ROMSTR("\n\n*** Finished (run time:%fms)\n"), diff.count() * 1000);
-                done = true;
-            });
-        } else {
-            error.showError(&system);
-            break;
-        }
-        
-        while (!done) {
-            usleep(100000);
-        }
-    }
-    
     return 0;
 }

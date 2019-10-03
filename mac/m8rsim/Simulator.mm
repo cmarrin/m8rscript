@@ -126,7 +126,7 @@ uint32_t Simulator::_nextLocalPort = StaticPort;
 
 Simulator::Simulator(m8r::GPIOInterface* gpio)
 {
-    _fs.reset(m8r::FS::createFS());
+    //_fs.reset(m8r::FS::createFS());
     _system.reset(new MySystemInterface(_nextLocalPort, gpio));
     _application.reset(new m8r::Application(_fs.get(), _system.get(), _nextLocalPort));
     _localPort = _nextLocalPort;

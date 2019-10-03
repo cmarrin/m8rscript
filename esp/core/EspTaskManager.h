@@ -51,10 +51,10 @@ public:
     EspTaskManager();
     virtual ~EspTaskManager();
     
-private:    
-    virtual void _lock() override { noInterrupts(); }
-    virtual void _unlock() override { interrupts(); }
+    virtual void lock() override { noInterrupts(); }
+    virtual void unlock() override { interrupts(); }
 
+private:
     virtual void postEvent() override;
     
     static constexpr uint32_t ExecutionTaskPrio = 0;

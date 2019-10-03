@@ -82,18 +82,18 @@ private:
 class MyShellSocket : public TCPDelegate {
 public:
     MyShellSocket(Application* application, uint16_t port)
-        : _tcp(m8r::TCP::create(this, port))
+        : _tcp(application->system()->createTCP(this, port))
         , _application(application)
     { }
     
-    virtual ~MyShellSocket() { delete _tcp; }
+    virtual ~MyShellSocket() { }
 
     // TCPDelegate
     virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId] = new MyShell(_application, _tcp, connectionId);
+                _shells[connectionId] = new MyShell(_application, _tcp.get(), connectionId);
                 _shells[connectionId]->connected();
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
@@ -119,14 +119,13 @@ public:
     }
 
 private:
-    m8r::TCP* _tcp;
+    std::unique_ptr<m8r::TCP> _tcp;
     Application* _application;
     MyShell* _shells[m8r::TCP::MaxConnections];
 };
 
-Application::Application(FS* fs, SystemInterface* system, uint16_t port)
-    : _fs(fs)
-    , _system(system)
+Application::Application(SystemInterface* system, uint16_t port)
+    : _system(system)
     , _runTask()
     , _heartbeatTask(system)
 {
@@ -145,7 +144,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
     _syntaxErrors.clear();
     
     if (filename && validateFileName(filename) == NameValidationType::Ok) {
-        FileStream m8rbStream(_fs, filename);
+        FileStream m8rbStream(system()->fileSystem(), filename);
         if (!m8rbStream.loaded()) {
             error.setError(Error::Code::FileNotFound);
             return false;
@@ -155,7 +154,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
         return false;
 #else
         // See if we can parse it
-        FileStream m8rStream(_fs, filename);
+        FileStream m8rStream(system()->fileSystem(), filename);
         _system->printf(ROMSTR("Parsing...\n"));
         Parser parser(_system);
         parser.parse(&m8rStream, debug);
@@ -170,8 +169,8 @@ bool Application::load(Error& error, bool debug, const char* filename)
     }
     
     // See if there is a 'main' file (which contains the name of the program to run)
-    String name = "main";
-    FileStream mainStream(_fs, name.c_str());
+    String name = MainFileName;
+    FileStream mainStream(system()->fileSystem(), name.c_str());
     if (mainStream.loaded()) {
         name.clear();
         while (!mainStream.eof()) {
@@ -191,7 +190,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
 #else
     name = name.slice(0, -1);
     _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
-    FileStream m8rMainStream(_fs, name.c_str());
+    FileStream m8rMainStream(system()->fileSystem(), name.c_str());
     
     if (!m8rMainStream.loaded()) {
         error.setError(Error::Code::FileNotFound);
@@ -282,14 +281,46 @@ bool Application::MyRunTask::execute()
     }
     CallReturnValue returnValue = _eu.continueExecution();
     if (returnValue.isMsDelay()) {
-        runOnce(returnValue.msDelay());
+        runOnce(_eu.system()->taskManager(), returnValue.msDelay());
     } else if (returnValue.isContinue()) {
-        runOnce(0);
+        runOnce(_eu.system()->taskManager(), 0);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
         _function();
         _running = false;
     } else if (returnValue.isWaitForEvent()) {
-        runOnce(50);
+        runOnce(_eu.system()->taskManager(), 50);
     }
     return true;
+}
+
+bool Application::autostart() const
+{
+    // FIXME: Implement - Look for a file or a config file or something
+    return false;
+}
+
+void Application::runLoop()
+{
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
+
+    // If autostart is on, run the main program
+    if (autostart()) {
+        m8r::Error error;
+        if (!load(error, false)) {
+            error.showError(system());
+        } else if (!program()) {
+            system()->printf(ROMSTR("Error:failed to compile application"));
+        } else {
+            run([this]{
+                m8r::MemoryInfo info;
+                m8r::Object::memoryInfo(info);
+                system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
+            });
+        }
+    }
+    
+    // For now we'll just sleep a lot. How do we handle events?
+    while (1) {
+        
+    }
 }

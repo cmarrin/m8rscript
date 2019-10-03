@@ -36,15 +36,23 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
+#include "IPAddr.h"
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
 #include <cstdarg>
+#include <memory>
 #include <vector>
 
 namespace m8r {
 
 class GPIOInterface;
+class FS;
+class TaskManager;
+class TCP;
+class TCPDelegate;
+class UDP;
+class UDPDelegate;
 
 struct ErrorEntry {
     ErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
@@ -100,13 +108,18 @@ public:
         vprintf(fmt, args);
     }
     
+    virtual FS* fileSystem() = 0;
+    virtual GPIOInterface* gpio() = 0;
+    virtual TaskManager* taskManager() = 0;
+    virtual std::unique_ptr<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
+    virtual std::unique_ptr<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
+    
     static void* alloc(MemoryType, size_t);
     static void free(MemoryType, void*);
     
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(const char*, va_list) const = 0;
-    virtual GPIOInterface& gpio() = 0;
     static uint64_t currentMicroseconds();
     
     static void memoryInfo(MemoryInfo&);

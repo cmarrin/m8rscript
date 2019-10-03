@@ -136,7 +136,6 @@ namespace m8r {
 }
 
 m8r::SystemInterface* system();
-m8r::FS* fs();
 #endif
 
 #define panic() __panic_func(__FILE__, __LINE__, __func__, "panic")

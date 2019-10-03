@@ -40,11 +40,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-TaskManager* TaskManager::_sharedTaskManager = nullptr;
-
 void TaskManager::runTask(Task* newTask, int32_t delay)
 {
-    int32_t now = msNow();
+    int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
     if (delay > 6000000) {
         delay = 6000000;
     } else if (delay < 5) {
@@ -125,10 +123,5 @@ void TaskManager::prepareForNextEvent()
         return;
     }
     postEvent();
-}
-
-int32_t TaskManager::msNow()
-{
-    return static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
 }
 

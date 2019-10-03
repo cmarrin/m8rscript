@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Defines.h"
 #include "ExecutionUnit.h"
 #include "Program.h"
+#include "SystemInterface.h"
 
 using namespace m8r;
 
@@ -85,7 +86,7 @@ MyUDPDelegate::MyUDPDelegate(ExecutionUnit* eu, uint16_t port, const Value& func
     , _parent(parent)
     , _eu(eu)
 {
-    _udp = UDP::create(this, port);
+    _udp = eu->system()->createUDP(this, port);
 }
 
 CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

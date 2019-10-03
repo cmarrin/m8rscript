@@ -45,14 +45,12 @@ class TaskManager {
     friend class Task;
 
 public:
-    static void lock() { shared()->_lock(); }
-    static void unlock() { shared()->_unlock(); }
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
     
 protected:
     static constexpr uint8_t MaxTasks = 8;
-    
-    static TaskManager* shared();
-    
+
     TaskManager() { }
     virtual ~TaskManager() { }
     
@@ -64,13 +62,8 @@ protected:
     
     bool empty() const { return !_head; }
     int32_t nextTimeToFire() const;
-    
-    static int32_t msNow();
-    
+
 private:
-    virtual void _lock() = 0;
-    virtual void _unlock() = 0;
-    
     void prepareForNextEvent();
     
     // Post an event now. When event occurs, call fireEvent
@@ -78,8 +71,6 @@ private:
     
     Task* _head = nullptr;
     bool _eventPosted = false;
-
-    static TaskManager* _sharedTaskManager;
 };
 
 class Task {
@@ -88,21 +79,23 @@ class Task {
 public:
     virtual ~Task()
     {
-        TaskManager::shared()->removeTask(this);
+        remove();
     }
     
-    void runOnce(int32_t delay = 0)
+    void runOnce(TaskManager* taskManager, int32_t delay = 0)
     {
         _repeating = false;
-        TaskManager::shared()->runTask(this, delay);
+        _taskManager = taskManager;
+        _taskManager->runTask(this, delay);
     }
-    void runRepeating(int32_t delay = 0)
+    void runRepeating(TaskManager* taskManager, int32_t delay = 0)
     {
         _repeating = true;
-        TaskManager::shared()->runTask(this, delay);
+        _taskManager = taskManager;
+        _taskManager->runTask(this, delay);
     }
     
-    void remove() { TaskManager::shared()->removeTask(this); }
+    void remove() { if (_taskManager) _taskManager->removeTask(this); }
     
     virtual bool execute() { return true; }
     
@@ -111,6 +104,7 @@ private:
     int32_t _msTimeToFire = -1;
     Task* _next = nullptr;
     bool _repeating;
+    TaskManager* _taskManager = nullptr;
 };
 
 inline int32_t TaskManager::nextTimeToFire() const { return _head ? _head->_msTimeToFire : 0; }
