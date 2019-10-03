@@ -301,7 +301,7 @@ bool Application::autostart() const
 
 void Application::runLoop()
 {
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildDate);
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
 
     // If autostart is on, run the main program
     if (autostart()) {
