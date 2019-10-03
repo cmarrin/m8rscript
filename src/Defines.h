@@ -174,6 +174,7 @@ struct Label {
 
 static constexpr uint32_t MaxRegister = 255;
 
+// Opcodes are 6 bits, 0x00 to 0x3f
 enum class Op : uint8_t {
     
     MOVE = 0x00, LOADREFK, STOREFK, LOADLITA, LOADLITO,
@@ -188,9 +189,9 @@ enum class Op : uint8_t {
     
     LINENO,
     
-    LOADTHIS, LOADUP, STOREUP, CLOSURE,
+    LOADTHIS, LOADUP, STOREUP, CLOSURE, CONTINUE,
     
-    // 0x28 - 0x2f unused (8)
+    // 0x29 - 0x2f unused (8)
 
     UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
     CALL, NEW, CALLPROP, JMP, JT, JF,

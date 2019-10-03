@@ -161,6 +161,21 @@ public:
     Atom internalAtom(SharedAtom a) const { return _program->internalAtom(a); }
 
 private:
+    Op dispatchNextOp(Instruction& inst, uint16_t& checkCounter)
+    {
+        if ((++checkCounter & 0xff) == 0) {
+            if (_terminate) {
+                return Op::END;
+            }
+            Object::gc(this, false);
+            if (checkCounter == 0) {
+                return Op::CONTINUE;
+            }
+        }
+        inst = _code[_pc++];
+        return inst.op();
+    }
+
     void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 

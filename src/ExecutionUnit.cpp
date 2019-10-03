@@ -341,7 +341,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
         /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CLOSURE)
-        /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x28 */ OP(CONTINUE)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
         /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
@@ -350,25 +350,9 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
     };
  
-static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
+    static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-    #undef DISPATCH
-    #define DISPATCH { \
-        ++checkCounter; \
-        if ((checkCounter & 0xf) == 0) { \
-            if (_terminate) { \
-                goto L_END; \
-            } \
-            if ((checkCounter & 0xff) == 0) { \
-                Object::gc(this, false); \
-            } \
-            if (checkCounter == 0) { \
-                return CallReturnValue(CallReturnValue::Type::Continue); \
-            } \
-        } \
-        inst = _code[_pc++]; \
-        goto *dispatchTable[static_cast<uint8_t>(inst.op())]; \
-    }
+    #define DISPATCH goto *dispatchTable[static_cast<uint8_t>(dispatchNextOp(inst, checkCounter))]
     
     if (!_program) {
         return CallReturnValue(CallReturnValue::Type::Finished);
@@ -376,9 +360,9 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
 
     Object::gc(this, false);
 
-    uint16_t checkCounter = 0;
     updateCodePointer();
     
+    uint16_t checkCounter = 0;
     m8r::String strValue;
     uint32_t uintValue;
     int32_t intValue;
@@ -404,6 +388,10 @@ static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch tabl
     L_UNKNOWN:
         assert(0);
         return CallReturnValue(CallReturnValue::Type::Finished);
+
+    L_CONTINUE:
+        return CallReturnValue(CallReturnValue::Type::Continue);
+
     L_RET:
     L_RETX:
     L_END:
