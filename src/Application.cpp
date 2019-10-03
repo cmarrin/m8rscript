@@ -315,8 +315,12 @@ void Application::runLoop()
                 m8r::MemoryInfo info;
                 m8r::Object::memoryInfo(info);
                 system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
-        });
+            });
+        }
     }
-}
     
+    // For now we'll just sleep a lot. How do we handle events?
+    while (1) {
+        
+    }
 }
