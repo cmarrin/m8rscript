@@ -210,11 +210,11 @@ bool Application::load(Error& error, bool debug, const char* filename)
 #endif
 }
 
-void Application::run(std::function<void()> function)
+void Application::run(std::function<void()> finishedCB)
 {
     stop();
     _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-    _runTask.run(_program, function);
+    _runTask.run(_program, finishedCB);
 }
 
 void Application::pause()
@@ -285,7 +285,7 @@ bool Application::MyRunTask::execute()
     } else if (returnValue.isContinue()) {
         runOnce(_eu.system()->taskManager(), 0);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
-        _function();
+        _finishedCB();
         _running = false;
     } else if (returnValue.isWaitForEvent()) {
         runOnce(_eu.system()->taskManager(), 50);

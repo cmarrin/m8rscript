@@ -83,10 +83,10 @@ private:
     public:
         MyRunTask() : _eu() { }
         
-        void run(Program* program, std::function<void()> function)
+        void run(Program* program, std::function<void()> finishedCB)
         {
             stop();
-            _function = function;
+            _finishedCB = finishedCB;
             _running = true;
             _eu.startExecution(program);
             runOnce(_eu.system()->taskManager());
@@ -107,7 +107,7 @@ private:
         virtual bool execute() override;
         
         ExecutionUnit _eu;
-        std::function<void()> _function;
+        std::function<void()> _finishedCB;
         bool _running = false;
     };
 
