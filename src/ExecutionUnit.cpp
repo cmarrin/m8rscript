@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Closure.h"
 #include "Float.h"
+#include "TaskManager.h"
 #include "SystemInterface.h"
 
 using namespace m8r;
@@ -55,7 +56,7 @@ bool ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    Error::vprintError(system(), Error::Code::RuntimeError, _lineno, format, args);
+    Error::vprintError(Error::Code::RuntimeError, _lineno, format, args);
     return checkTooManyErrors();
 }
 

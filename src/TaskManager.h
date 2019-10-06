@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "SystemInterface.h"
 #include <cstdint>
 
 namespace m8r {
@@ -82,20 +83,18 @@ public:
         remove();
     }
     
-    void runOnce(TaskManager* taskManager, int32_t delay = 0)
+    void runOnce(int32_t delay = 0)
     {
         _repeating = false;
-        _taskManager = taskManager;
-        _taskManager->runTask(this, delay);
+        system()->taskManager()->runTask(this, delay);
     }
-    void runRepeating(TaskManager* taskManager, int32_t delay = 0)
+    void runRepeating(int32_t delay = 0)
     {
         _repeating = true;
-        _taskManager = taskManager;
-        _taskManager->runTask(this, delay);
+        system()->taskManager()->runTask(this, delay);
     }
     
-    void remove() { if (_taskManager) _taskManager->removeTask(this); }
+    void remove() { system()->taskManager()->removeTask(this); }
     
     virtual bool execute() { return true; }
     
@@ -104,7 +103,6 @@ private:
     int32_t _msTimeToFire = -1;
     Task* _next = nullptr;
     bool _repeating;
-    TaskManager* _taskManager = nullptr;
 };
 
 inline int32_t TaskManager::nextTimeToFire() const { return _head ? _head->_msTimeToFire : 0; }

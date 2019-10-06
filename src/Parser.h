@@ -54,7 +54,7 @@ class Parser  {
     friend class ParseStack;
     
 public:
-	Parser(SystemInterface*);
+	Parser();
     
     ~Parser()
     {

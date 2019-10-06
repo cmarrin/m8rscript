@@ -70,10 +70,10 @@ public:
     
     Code code() const { return _code; }
     
-    void showError(const SystemInterface*) const;
+    void showError() const;
     
-    static void printError(const SystemInterface*, Code, int32_t lineno, const char* format = nullptr, ...);
-    static void vprintError(const SystemInterface*, Code, int32_t lineno, const char* format, va_list);
+    static void printError(Code, int32_t lineno, const char* format = nullptr, ...);
+    static void vprintError(Code, int32_t lineno, const char* format, va_list);
     
 private:
     Code _code = Code::None;

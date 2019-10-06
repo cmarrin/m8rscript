@@ -50,13 +50,13 @@ using namespace m8r;
 
 static os_timer_t bc_timer;
 
-MDNSResponder::MDNSResponder(SystemInterface* systemInterface, const char* name, uint32_t broadcastInterval, uint32_t ttl)
+MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint32_t ttl)
 {
 	_ttl = ttl;
     _hostname = name;
     
     UDP::joinMulticastGroup({ 224,0,0,251 });
-    _udp = systemInterface->createUDP(this, 5353);
+    _udp = system()->createUDP(this, 5353);
 
 	os_timer_disarm(&bc_timer);
 	if (broadcastInterval > 0) {

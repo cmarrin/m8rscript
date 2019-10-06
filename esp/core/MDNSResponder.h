@@ -45,7 +45,7 @@ class MDNSResponder : public UDPDelegate {
 public:
     enum class ServiceProtocol { TCP, UDP };
     
-    MDNSResponder(SystemInterface*, const char* name, uint32_t broadcastInterval = 30, uint32_t ttl = 120);
+    MDNSResponder(const char* name, uint32_t broadcastInterval = 30, uint32_t ttl = 120);
     ~MDNSResponder();
 
     void addService(uint16_t port, const char* instance, const char* serviceType, 

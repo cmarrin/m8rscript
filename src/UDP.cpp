@@ -86,7 +86,7 @@ MyUDPDelegate::MyUDPDelegate(ExecutionUnit* eu, uint16_t port, const Value& func
     , _parent(parent)
     , _eu(eu)
 {
-    _udp = eu->system()->createUDP(this, port);
+    _udp = system()->createUDP(this, port);
 }
 
 CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

@@ -43,10 +43,8 @@ namespace m8r {
 
 class Program : public Function {
 public:
-    Program(SystemInterface*);
+    Program();
     ~Program();
-    
-    SystemInterface* system() const { return _system; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
@@ -81,7 +79,6 @@ private:
     std::vector<char> _stringLiteralTable;
 
     Global _global;
-    SystemInterface* _system;
 };
 
 }

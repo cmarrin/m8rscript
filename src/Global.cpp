@@ -106,7 +106,7 @@ CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t npara
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
-        eu->system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+        system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -127,7 +127,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
-            eu->system()->printf(s);
+            system()->printf(s);
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         if (next < 0) {
@@ -138,7 +138,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         assert(caps[0].len == 1);
         if (s != caps[0].ptr) {
             String str(s, static_cast<int32_t>(caps[0].ptr - s));
-            eu->system()->printf(str.c_str());
+            system()->printf(str.c_str());
         }
         
         // FIXME: handle the leading number(s) in the format
@@ -159,34 +159,34 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         
         switch (formatChar) {
             case 'c':
-                eu->system()->printf("%c", value.toIntValue(eu));
+                system()->printf("%c", value.toIntValue(eu));
                 break;
             case 's':
-                eu->system()->printf("%s", value.toStringValue(eu).c_str());
+                system()->printf("%s", value.toStringValue(eu).c_str());
                 break;
             case 'd':
             case 'i':
                 format += "d";
-                eu->system()->printf(format.c_str(), value.toIntValue(eu));
+                system()->printf(format.c_str(), value.toIntValue(eu));
                 break;
             case 'x':
             case 'X':
                 format += (formatChar == 'x') ? "x" : "X";
-                eu->system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
+                system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'u':
                 format += "u";
-                eu->system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
+                system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
                 break;
             case 'f':
             case 'e':
             case 'E':
             case 'g':
             case 'G':
-                eu->system()->printf("%s", value.toStringValue(eu).c_str());
+                system()->printf("%s", value.toStringValue(eu).c_str());
                 break;
             case 'p':
-                eu->system()->printf("%p", *(reinterpret_cast<void**>(&value)));
+                system()->printf("%p", *(reinterpret_cast<void**>(&value)));
                 break;
             default: return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
         }
@@ -198,9 +198,9 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
-        eu->system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
+        system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
-    eu->system()->printf("\n");
+    system()->printf("\n");
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

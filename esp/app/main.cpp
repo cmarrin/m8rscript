@@ -51,7 +51,7 @@ extern "C" {
 
 class MyTCP;
 
-m8r::Application _application(system(), 23);
+m8r::Application _application(23);
 
 void systemInitialized()
 {

@@ -82,7 +82,7 @@ private:
 class MyShellSocket : public TCPDelegate {
 public:
     MyShellSocket(Application* application, uint16_t port)
-        : _tcp(application->system()->createTCP(this, port))
+        : _tcp(system()->createTCP(this, port))
         , _application(application)
     { }
     
@@ -124,10 +124,9 @@ private:
     MyShell* _shells[m8r::TCP::MaxConnections];
 };
 
-Application::Application(SystemInterface* system, uint16_t port)
-    : _system(system)
-    , _runTask()
-    , _heartbeatTask(system)
+Application::Application(uint16_t port)
+    : _runTask()
+    , _heartbeatTask()
 {
     _shellSocket = new MyShellSocket(this, port);
 }
@@ -155,10 +154,10 @@ bool Application::load(Error& error, bool debug, const char* filename)
 #else
         // See if we can parse it
         FileStream m8rStream(system()->fileSystem(), filename);
-        _system->printf(ROMSTR("Parsing...\n"));
-        Parser parser(_system);
+        system()->printf(ROMSTR("Parsing...\n"));
+        Parser parser;
         parser.parse(&m8rStream, debug);
-        _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             _syntaxErrors.swap(parser.syntaxErrors());
             return false;
@@ -181,15 +180,15 @@ bool Application::load(Error& error, bool debug, const char* filename)
             name += static_cast<char>(c);
         }
     } else {
-        _system->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
+        system()->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
     }
     
 #ifdef NO_PARSER_SUPPORT
-    _system->printf(ROMSTR("File not found, nothing to load\n"));
+    system()->printf(ROMSTR("File not found, nothing to load\n"));
     return false;
 #else
     name = name.slice(0, -1);
-    _system->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
+    system()->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
     FileStream m8rMainStream(system()->fileSystem(), name.c_str());
     
     if (!m8rMainStream.loaded()) {
@@ -197,9 +196,9 @@ bool Application::load(Error& error, bool debug, const char* filename)
         return false;
     }
 
-    Parser parser(_system);
+    Parser parser;
     parser.parse(&m8rMainStream, debug);
-    _system->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+    system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
     if (parser.nerrors()) {
         _syntaxErrors.swap(parser.syntaxErrors());
         return false;
@@ -213,7 +212,7 @@ bool Application::load(Error& error, bool debug, const char* filename)
 void Application::run(std::function<void()> finishedCB)
 {
     stop();
-    _system->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
+    system()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
     _runTask.run(_program, finishedCB);
 }
 
@@ -225,7 +224,7 @@ void Application::pause()
 void Application::stop()
 {
     if (_runTask.stop()) {
-        _system->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
+        system()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
     }
 }
 
@@ -281,14 +280,14 @@ bool Application::MyRunTask::execute()
     }
     CallReturnValue returnValue = _eu.continueExecution();
     if (returnValue.isMsDelay()) {
-        runOnce(_eu.system()->taskManager(), returnValue.msDelay());
+        runOnce(returnValue.msDelay());
     } else if (returnValue.isContinue()) {
-        runOnce(_eu.system()->taskManager(), 0);
+        runOnce(0);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
         _finishedCB();
         _running = false;
     } else if (returnValue.isWaitForEvent()) {
-        runOnce(_eu.system()->taskManager(), 50);
+        runOnce(50);
     }
     return true;
 }
@@ -307,7 +306,7 @@ void Application::runLoop()
     if (autostart()) {
         m8r::Error error;
         if (!load(error, false)) {
-            error.showError(system());
+            error.showError();
         } else if (!program()) {
             system()->printf(ROMSTR("Error:failed to compile application"));
         } else {

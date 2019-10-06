@@ -98,6 +98,8 @@ typedef std::vector<ErrorEntry> ErrorList;
 
 class SystemInterface  {
 public:
+    static SystemInterface* get();
+
 	SystemInterface() { }
     virtual ~SystemInterface() { }
 
@@ -124,5 +126,7 @@ public:
     
     static void memoryInfo(MemoryInfo&);
 };
+
+static inline SystemInterface* system() { return SystemInterface::get(); }
 
 }

@@ -40,7 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Atom.h"
 #include "Closure.h"
 #include "Program.h"
-#include "TaskManager.h"
 
 namespace m8r {
 
@@ -64,8 +63,6 @@ public:
     }
     
     void gcMark();
-    
-    SystemInterface* system() const { return _program->system(); }
 
     void startExecution(Program*);
     

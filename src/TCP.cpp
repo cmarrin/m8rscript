@@ -106,7 +106,7 @@ MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const 
     , _parent(parent)
     , _eu(eu)
 {
-    _tcp = eu->system()->createTCP(this, port, ip);
+    _tcp = system()->createTCP(this, port, ip);
     _eu->startEventListening();
 }
 

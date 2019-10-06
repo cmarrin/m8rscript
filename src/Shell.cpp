@@ -69,7 +69,7 @@ const ErrorList* Shell::load(const char* filename, bool debug)
 {
     Error error;
     if (!_application->load(error, debug, filename)) {
-        error.showError(_application->system());
+        error.showError();
         return _application->syntaxErrors();
     }
     if (!_application->program()) {
@@ -117,11 +117,11 @@ bool Shell::received(const char* data, uint16_t size)
                     _file = nullptr;
                     _state = State::NeedPrompt;
                     sendComplete();
-                    _application->system()->printf(ROMSTR("done\n"));
+                    system()->printf(ROMSTR("done\n"));
                     return true;
                 }
                 
-                _application->system()->printf(ROMSTR("."));
+                system()->printf(ROMSTR("."));
 
                 const char* next = reinterpret_cast<const char*>(memchr(p, '\n', remainingSize));
                 if (!next) {
@@ -271,7 +271,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         return true;
     }
     if (array[0] == "ls") {
-        _directoryEntry = _application->system()->fileSystem()->directory();
+        _directoryEntry = system()->fileSystem()->directory();
         _state = State::ListFiles;
         sendComplete();
     } else if (array[0] == "t") {
@@ -286,7 +286,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            _file = _application->system()->fileSystem()->open(array[1].c_str(), "r");
+            _file = system()->fileSystem()->open(array[1].c_str(), "r");
             if (!_file) {
                 showMessage(MessageType::Error, ROMSTR("could not open file for 'get'"));
             } else {
@@ -298,11 +298,11 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            _file = _application->system()->fileSystem()->open(array[1].c_str(), "w");
+            _file = system()->fileSystem()->open(array[1].c_str(), "w");
             if (!_file) {
                 showMessage(MessageType::Error, ROMSTR("could not open file for 'put'"));
             } else {
-                _application->system()->printf(ROMSTR("Put '%s'"), array[1].c_str());
+                system()->printf(ROMSTR("Put '%s'"), array[1].c_str());
                 _state = State::PutFile;
             }
         }
@@ -310,7 +310,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 2) {
             showMessage(MessageType::Error, ROMSTR("filename required"));
         } else {
-            if (!_application->system()->fileSystem()->remove(array[1].c_str())) {
+            if (!system()->fileSystem()->remove(array[1].c_str())) {
                 showMessage(MessageType::Error, ROMSTR("could not remove file"));
             } else {
                 _state = State::NeedPrompt;
@@ -321,7 +321,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         if (array.size() < 3) {
             showMessage(MessageType::Error, ROMSTR("source and destination filenames required"));
         } else {
-            if (!_application->system()->fileSystem()->rename(array[1].c_str(), array[2].c_str())) {
+            if (!system()->fileSystem()->rename(array[1].c_str(), array[2].c_str())) {
                 showMessage(MessageType::Error, ROMSTR("could not rename file"));
             } else {
                 _state = State::NeedPrompt;
@@ -354,20 +354,20 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
             } else if (type == Application::NameValidationType::InvalidChar) {
                 showMessage(MessageType::Error, ROMSTR("illegal character (only numbers, lowercase letters and hyphen)"));
             } else {
-                _application->system()->setDeviceName(array[1].c_str());
+                system()->setDeviceName(array[1].c_str());
                 _state = State::NeedPrompt;
                 showMessage(MessageType::Info, ROMSTR("set dev name\n"));
             }
         }
     } else if (array[0] == "format") {
-        _application->system()->fileSystem()->format();
+        system()->fileSystem()->format();
         _state = State::NeedPrompt;
         showMessage(MessageType::Info, ROMSTR("formatted FS\n"));
     } else if (array[0] == "erase") {
-        m8r::DirectoryEntry* dir = _application->system()->fileSystem()->directory();
+        m8r::DirectoryEntry* dir = system()->fileSystem()->directory();
         while (dir->valid()) {
             if (strcmp(dir->name(), ".userdata") != 0) {
-                _application->system()->fileSystem()->remove(dir->name());
+                system()->fileSystem()->remove(dir->name());
             }
             dir->next();
         }
@@ -377,7 +377,7 @@ bool Shell::executeCommand(const std::vector<m8r::String>& array)
         load((array.size() < 2) ? nullptr : array[1].c_str(), _debug);
         m8r::Application* app = _application;
         run([app]{
-            app->system()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
+            system()->printf(ROMSTR("\n***** Program Finished *****\n\n"));
         });
         _state = State::NeedPrompt;
         showMessage(MessageType::Info, ROMSTR("Program started...\n"));

@@ -52,6 +52,8 @@
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
+		499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8DF2349B1BC00459451 /* Heartbeat.cpp */; };
+		499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E02349B1BC00459451 /* Heartbeat.h */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
 		49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AB794B1DC143B700DE6332 /* TaskManager.cpp */; };
@@ -221,6 +223,8 @@
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../src/ParseEngine.cpp; sourceTree = "<group>"; };
 		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../src/ParseEngine.h; sourceTree = "<group>"; };
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
+		499AE8DF2349B1BC00459451 /* Heartbeat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Heartbeat.cpp; path = ../src/Heartbeat.cpp; sourceTree = "<group>"; };
+		499AE8E02349B1BC00459451 /* Heartbeat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Heartbeat.h; path = ../src/Heartbeat.h; sourceTree = "<group>"; };
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../src/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../src/Error.h; sourceTree = "<group>"; };
 		49AB794B1DC143B700DE6332 /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskManager.cpp; path = ../src/TaskManager.cpp; sourceTree = "<group>"; };
@@ -539,6 +543,8 @@
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
 				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				492BA3D81E15944000242DA8 /* GPIOInterface.h */,
+				499AE8DF2349B1BC00459451 /* Heartbeat.cpp */,
+				499AE8E02349B1BC00459451 /* Heartbeat.h */,
 				49CB74301E7F3028007A4805 /* IPAddr.cpp */,
 				492396C91E711E47007AC0BF /* IPAddr.h */,
 				49F4633B1E1873D6004EF625 /* Iterator.cpp */,
@@ -588,6 +594,7 @@
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
+				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
@@ -784,6 +791,7 @@
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
 				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
+				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,

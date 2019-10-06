@@ -43,9 +43,9 @@ using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(SystemInterface* system)
+Parser::Parser()
     : _parseStack(this)
-    , _program(new Program(system))
+    , _program(new Program())
 {
 }
 
@@ -73,7 +73,7 @@ void Parser::printError(const char* format, ...)
 
     va_list args;
     va_start(args, format);
-    Error::vprintError(_program->system(), Error::Code::ParseError, _scanner.lineno(), format, args);
+    Error::vprintError(Error::Code::ParseError, _scanner.lineno(), format, args);
     va_end(args);
     
     char s[80];

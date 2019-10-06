@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "GPIOInterface.h"
 #include "SystemInterface.h"
+#include "TaskManager.h"
 #include <functional>
 
 namespace m8r {
@@ -53,11 +54,9 @@ class TCP;
 
 class Application {
 public:
-    Application(SystemInterface*, uint16_t port);
+    Application(uint16_t port);
     ~Application();
-    
-    SystemInterface* system() const { return _system; }
-    
+        
     bool load(Error&, bool debug, const char* name = nullptr);
     const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
     void run(std::function<void()>);
@@ -89,7 +88,7 @@ private:
             _finishedCB = finishedCB;
             _running = true;
             _eu.startExecution(program);
-            runOnce(_eu.system()->taskManager());
+            runOnce();
         }
         
         void pause() { }
@@ -113,10 +112,9 @@ private:
 
     class MyHeartbeatTask : public m8r::Task {
     public:
-        MyHeartbeatTask(SystemInterface* system)
-            : _system(system)
+        MyHeartbeatTask()
         {
-            _system->gpio()->enableHeartbeat();
+            system()->gpio()->enableHeartbeat();
             execute();
         }
         
@@ -126,13 +124,11 @@ private:
         
         virtual bool execute() override
         {
-            _system->gpio()->heartbeat(!_upbeat);
+            system()->gpio()->heartbeat(!_upbeat);
             _upbeat = !_upbeat;
-            runOnce(_system->taskManager(), _upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
+            runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
             return true;
         }
-        
-        SystemInterface* _system;
 
         // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
         // when the downbeat started 
@@ -140,7 +136,6 @@ private:
     };
 
     TCPDelegate* _shellSocket;
-    SystemInterface* _system;
     
     Program* _program = nullptr;
     MyRunTask _runTask;

@@ -104,6 +104,10 @@ void m8r::SystemInterface::memoryInfo(m8r::MemoryInfo& info)
     // FIXME: info.numAllocations = g_allocCount;
 }
 
+static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
+
+m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get(); }
+
 static void usage(const char* name)
 {
     fprintf(stderr,
@@ -134,9 +138,9 @@ int main(int argc, char * argv[])
     }
     
     const char* fsdir = (optind < argc) ? argv[optind] : nullptr;
-
-    MySystemInterface system(fsdir);
-    m8r::Application application(&system, 23);
+    _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
+    
+    m8r::Application application(23);
     application.runLoop();
 
     return 0;
