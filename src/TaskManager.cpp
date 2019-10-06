@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "TaskManager.h"
 
 #include "SystemInterface.h"
+#include "Task.h"
 #include <cassert>
 
 using namespace m8r;
@@ -125,3 +126,7 @@ void TaskManager::prepareForNextEvent()
     postEvent();
 }
 
+int32_t TaskManager::nextTimeToFire() const
+{
+    return _head ? _head->_msTimeToFire : 0;
+}

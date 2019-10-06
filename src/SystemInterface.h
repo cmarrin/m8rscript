@@ -125,6 +125,9 @@ public:
     static uint64_t currentMicroseconds();
     
     static void memoryInfo(MemoryInfo&);
+    
+    void lock();
+    void unlock();
 };
 
 static inline SystemInterface* system() { return SystemInterface::get(); }

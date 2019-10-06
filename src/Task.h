@@ -36,44 +36,40 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "SystemInterface.h"
+#include "TaskManager.h"
 #include <cstdint>
 
 namespace m8r {
 
-class Task;
-
-class TaskManager {
-    friend class SystemInterface;
-    friend class Task;
-
+class Task {
+    friend class TaskManager;
+    
 public:
-
-protected:
-    static constexpr uint8_t MaxTasks = 8;
-
-    TaskManager() { }
-    virtual ~TaskManager() { }
+    virtual ~Task()
+    {
+        remove();
+    }
     
-    virtual void runTask(Task*, int32_t delay);
+    void runOnce(int32_t delay = 0)
+    {
+        _repeating = false;
+        system()->taskManager()->runTask(this, delay);
+    }
+    void runRepeating(int32_t delay = 0)
+    {
+        _repeating = true;
+        system()->taskManager()->runTask(this, delay);
+    }
     
-    void removeTask(Task*);
+    void remove() { system()->taskManager()->removeTask(this); }
     
-    void fireEvent();
+    virtual bool execute() { return true; }
     
-    bool empty() const { return !_head; }
-    int32_t nextTimeToFire() const;
-
 private:
-    virtual void lock() = 0;
-    virtual void unlock() = 0;
-    
-    void prepareForNextEvent();
-    
-    // Post an event now. When event occurs, call fireEvent
-    virtual void postEvent() = 0;
-    
-    Task* _head = nullptr;
-    bool _eventPosted = false;
+    int32_t _msSet = 0;
+    int32_t _msTimeToFire = -1;
+    Task* _next = nullptr;
+    bool _repeating;
 };
 
 }

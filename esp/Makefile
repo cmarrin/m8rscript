@@ -50,6 +50,8 @@ SRC ?=  ../src/Application.cpp \
 		../src/Program.cpp \
 		../src/Shell.cpp \
 		../src/slre.cpp \
+		../src/SystemInterface.cpp \
+		../src/Task.cpp \
 		../src/TaskManager.cpp \
 		../src/TCP.cpp \
 		../src/UDP.cpp \

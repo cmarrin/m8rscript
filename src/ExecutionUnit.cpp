@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Closure.h"
 #include "Float.h"
-#include "TaskManager.h"
 #include "SystemInterface.h"
 
 using namespace m8r;
@@ -99,11 +98,11 @@ void ExecutionUnit::gcMark()
     
     _program->gcMark(this);
 
-    system()->taskManager()->lock();
+    system()->lock();
     for (auto it : _eventQueue) {
         it.gcMark(this);
     }
-    system()->taskManager()->unlock();
+    system()->unlock();
 }
 
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
@@ -223,7 +222,7 @@ void ExecutionUnit::startExecution(Program* program)
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
-    system()->taskManager()->lock();
+    system()->lock();
     
     _eventQueue.push_back(func);
     _eventQueue.push_back(thisValue);
@@ -232,7 +231,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
         _eventQueue.push_back(args[i]);
     }
 
-    system()->taskManager()->unlock();
+    system()->unlock();
 }
 
 CallReturnValue ExecutionUnit::runNextEvent()
@@ -244,7 +243,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     int32_t nargs = 0;
     bool haveEvent = false;
     
-    system()->taskManager()->lock();
+    system()->lock();
 
     if (!_eventQueue.empty()) {
         assert(_eventQueue.size() >= 3);
@@ -263,7 +262,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
     }
 
-    system()->taskManager()->unlock();
+    system()->unlock();
     
     if (haveEvent) {
         CallReturnValue callReturnValue = func.call(this, Value(), nargs, false);
