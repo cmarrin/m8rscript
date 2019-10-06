@@ -42,6 +42,18 @@ public:
     Heartbeat();
     
 private:
+//    static constexpr uint32_t HeartrateMs = 3000;
+//    static constexpr uint32_t DownbeatMs = 50;
+
+//    virtual bool execute() override
+//    {
+//        system()->gpio()->heartbeat(!_upbeat);
+//        _upbeat = !_upbeat;
+//        runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
+//        return true;
+//    }
+    
+    bool _upbeat = false;
 };
     
 }
