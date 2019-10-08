@@ -41,92 +41,61 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void TaskManager::run(TaskBase* newTask)
+static Duration MaxTaskDelay = Duration(6000000, Duration::Units::msec);
+static Duration MinTaskDelay = Duration(1, Duration::Units::msec);
+static Duration TaskPollingRate = 50_ms;
+
+
+void TaskManager::yield(const std::shared_ptr<TaskBase>& newTask, Duration delay)
 {
-    int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
-    if (delay > 6000000) {
-        delay = 6000000;
-    } else if (delay < 5) {
-        delay = 0;
+    Time now = Time::now();
+    if (delay > MaxTaskDelay) {
+        delay = MaxTaskDelay;
+    } else if (delay < MinTaskDelay) {
+        delay = Duration();
     }
     
-    newTask->_msSet = delay;
-    newTask->_next = nullptr;
-    int32_t msTimeToFire = now + delay;
-    newTask->_msTimeToFire = msTimeToFire;
+    Time timeToFire = now + delay;
     
-    TaskBase* prev = nullptr;
-    for (TaskBase* task = _head; ; task = task->_next) {
-        if (!task) {
-            // Placing a new task in an empty list, need to schedule
-            _head = newTask;
-            break;
+    for (auto it = _list.before_begin(); it != _list.end(); ++it) {
+        if (timeToFire < std::next(it)->first) {
+            _list.emplace_after(it, timeToFire, newTask);
         }
-        if (msTimeToFire < task->_msTimeToFire) {
-            if (prev) {
-                // Placing a new task in a list that already has tasks, assume an event is already scheduled
-                newTask->_next = prev->_next;
-                prev->_next = newTask;
-                return;
-            } else {
-                // Placing a new task at the head of an existing list, need to schedule
-                newTask->_next = _head;
-                _head = newTask;
-                break;
-            }
-        }
-        if (!task->_next) {
-            // Placing new task at end of list, assume an event is already scheduled
-            task->_next = newTask;
-            return;
-        }
-        prev = task;
     }
-    prepareForNextEvent();
+
+    readyToExecuteNextTask();
 }
 
-void TaskManager::terminate(TaskBase* task)
+void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
 {
-    TaskBase* prev = nullptr;
-    for (TaskBase* t = _head; t; t = t->_next) {
-        if (t == task) {
-            if (!prev) {
-                _head = _head->_next;
-            } else {
-                prev->_next = t->_next;
-            }
-            return;
+    for (auto it = _list.before_begin(); it != _list.end(); ++it) {
+        if (std::next(it)->second == task) {
+            _list.erase_after(it);
         }
-        prev = t;
     }
 }
 
-void TaskManager::fireEvent()
+void TaskManager::executeNextTask()
 {
-    assert(_head);
-    
-    TaskBase* task = _head;
-    _head = task->_next;
-    task->_next = nullptr;
-    
-    task->execute();
-    
-    if (task->_repeating) {
-        runTask(task, task->_msSet);
-    } else {
-        prepareForNextEvent();
-    }
-}
-
-void TaskManager::prepareForNextEvent()
-{
-    if (!_head) {
+    if (_list.empty() || !_list.front().second) {
         return;
     }
-    postEvent();
+    
+    std::shared_ptr<TaskBase> task = _list.front().second;
+    CallReturnValue returnValue = task->execute();
+    
+    if (returnValue.isMsDelay()) {
+        yield(task, returnValue.msDelay());
+    } else if (returnValue.isYield()) {
+        yield(task);
+    } else if (returnValue.isFinished() || returnValue.isTerminated()) {
+        _list.pop_front();
+    } else if (returnValue.isWaitForEvent()) {
+        yield(task, TaskPollingRate);
+    }
 }
 
-int32_t TaskManager::nextTimeToFire() const
+Time TaskManager::nextTimeToFire() const
 {
-    return _head ? _head->_msTimeToFire : 0;
+    return _list.empty() ? Time::longestTime() : _list.front().first;
 }

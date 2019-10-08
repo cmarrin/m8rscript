@@ -98,6 +98,8 @@ typedef std::vector<ErrorEntry> ErrorList;
 
 class SystemInterface  {
 public:
+    friend class Time;
+    
     static SystemInterface* get();
 
 	SystemInterface() { }
@@ -122,12 +124,14 @@ public:
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(const char*, va_list) const = 0;
-    static uint64_t currentMicroseconds();
     
     static void memoryInfo(MemoryInfo&);
     
     void lock();
     void unlock();
+
+private:
+    static uint64_t currentMicroseconds();
 };
 
 static inline SystemInterface* system() { return SystemInterface::get(); }

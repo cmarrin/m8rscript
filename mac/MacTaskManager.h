@@ -50,7 +50,7 @@ public:
     virtual void unlock() override { _lockMutex.unlock(); }
 
 private:
-    virtual void postEvent() override;
+    virtual void readyToExecuteNextTask() override;
     
     std::thread* _eventThread = nullptr;
     std::condition_variable _eventCondition;

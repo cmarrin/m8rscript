@@ -42,26 +42,21 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class TaskBase {
+class TaskBase : std::enable_shared_from_this<TaskBase> {
     friend class TaskManager;
     
 public:
     virtual ~TaskBase()
     {
-        remove();
+        terminate();
     }
     
-    void run() { system()->taskManager()->yield(this); }
-    void yield() { system()->taskManager()->yield(this); }
-    void terminate() { system()->taskManager()->terminate(this); }
+    void run(Duration duration = 0_sec) { system()->taskManager()->yield(shared_from_this(), duration); }
+    void yield() { system()->taskManager()->yield(shared_from_this()); }
+    void terminate() { system()->taskManager()->terminate(shared_from_this()); }
 
 private:
     virtual CallReturnValue execute() = 0;
-
-    int32_t _msSet = 0;
-    int32_t _msTimeToFire = -1;
-    TaskBase* _next = nullptr;
-    bool _repeating;
 };
 
 class Task : public TaskBase {

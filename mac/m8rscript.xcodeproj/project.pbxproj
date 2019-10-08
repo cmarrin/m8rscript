@@ -59,7 +59,7 @@
 		499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8E7234A667D00459451 /* SystemInterface.cpp */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
-		49A39F20234C513600F6A144 /* Duration.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A39F1E234C513600F6A144 /* Duration.h */; };
+		49A39F20234C513600F6A144 /* SystemTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A39F1E234C513600F6A144 /* SystemTime.h */; };
 		49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AB794B1DC143B700DE6332 /* TaskManager.cpp */; };
 		49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AB794C1DC143B700DE6332 /* TaskManager.h */; };
 		49AD0A20209B534F00F86278 /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AD0A1E209B534F00F86278 /* Simulator.mm */; };
@@ -234,7 +234,7 @@
 		499AE8E7234A667D00459451 /* SystemInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SystemInterface.cpp; path = ../src/SystemInterface.cpp; sourceTree = "<group>"; };
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../src/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../src/Error.h; sourceTree = "<group>"; };
-		49A39F1E234C513600F6A144 /* Duration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Duration.h; path = ../src/Duration.h; sourceTree = "<group>"; };
+		49A39F1E234C513600F6A144 /* SystemTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemTime.h; path = ../src/SystemTime.h; sourceTree = "<group>"; };
 		49AB794B1DC143B700DE6332 /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskManager.cpp; path = ../src/TaskManager.cpp; sourceTree = "<group>"; };
 		49AB794C1DC143B700DE6332 /* TaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskManager.h; path = ../src/TaskManager.h; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../src/ExecutionUnit.h; sourceTree = "<group>"; };
@@ -538,7 +538,6 @@
 				4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */,
 				49E648221D00CB57005F5059 /* Containers.h */,
 				4942EA8C1D0D950100E02088 /* Defines.h */,
-				49A39F1E234C513600F6A144 /* Duration.h */,
 				49A3286A1D35BDC50006D0FE /* Error.cpp */,
 				49A3286B1D35BDC50006D0FE /* Error.h */,
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
@@ -579,6 +578,7 @@
 				492BA3EF1E19727C00242DA8 /* slre.h */,
 				499AE8E7234A667D00459451 /* SystemInterface.cpp */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
+				49A39F1E234C513600F6A144 /* SystemTime.h */,
 				499AE8E3234A625100459451 /* Task.cpp */,
 				499AE8E4234A625100459451 /* Task.h */,
 				49AB794B1DC143B700DE6332 /* TaskManager.cpp */,
@@ -609,7 +609,7 @@
 				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
-				49A39F20234C513600F6A144 /* Duration.h in Headers */,
+				49A39F20234C513600F6A144 /* SystemTime.h in Headers */,
 				499AE8E6234A625100459451 /* Task.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,

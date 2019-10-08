@@ -36,7 +36,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "SystemInterface.h"
+#include "SystemTime.h"
 #include <cstdint>
+#include <forward_list>
 
 namespace m8r {
 
@@ -54,25 +56,24 @@ protected:
     TaskManager() { }
     virtual ~TaskManager() { }
     
-    virtual void yield(TaskBase*);
+    virtual void yield(const std::shared_ptr<TaskBase>&, Duration = Duration());
     
-    void terminate(TaskBase*);
+    void terminate(const std::shared_ptr<TaskBase>&);
     
-    void fireEvent();
+    void executeNextTask();
     
-    bool empty() const { return !_head; }
-    int32_t nextTimeToFire() const;
+    bool empty() const { return _list.empty(); }
+    Time nextTimeToFire() const;
 
 private:
     virtual void lock() = 0;
     virtual void unlock() = 0;
     
-    void prepareForNextEvent();
-    
     // Post an event now. When event occurs, call fireEvent
-    virtual void postEvent() = 0;
+    virtual void readyToExecuteNextTask() = 0;
     
-    TaskBase* _head = nullptr;
+    using ListItem = std::pair<Time, std::shared_ptr<TaskBase>>;
+    std::forward_list<ListItem> _list;
     bool _eventPosted = false;
 };
 

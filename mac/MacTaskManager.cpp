@@ -45,7 +45,7 @@ MacTaskManager::MacTaskManager()
 {
     _eventThread = new std::thread([this]{
         while (true) {
-            int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
+            Time now = Time::now();
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
                 if (empty()) {
@@ -56,9 +56,9 @@ MacTaskManager::MacTaskManager()
                 }
             }
             
-            int32_t timeToNextEvent = nextTimeToFire() - now;
-            if (timeToNextEvent <= 0) {
-                fireEvent();
+            Time timeToNextEvent = nextTimeToFire() - now;
+            if (timeToNextEvent <= Duration()) {
+                executeNextTask();
             } else {
                 std::cv_status status;
                 {
@@ -69,7 +69,7 @@ MacTaskManager::MacTaskManager()
                     break;
                 }
                 if (status == std::cv_status::timeout) {
-                    fireEvent();
+                    executeNextTask();
                 }
             }
         }
@@ -79,12 +79,12 @@ MacTaskManager::MacTaskManager()
 MacTaskManager::~MacTaskManager()
 {
     _terminating = true;
-    postEvent();
+    readyToExecuteNextTask();
     _eventThread->join();
     delete _eventThread;
 }
 
-void MacTaskManager::postEvent()
+void MacTaskManager::readyToExecuteNextTask()
 {
     std::unique_lock<std::mutex> lock(_eventMutex);
     _eventCondition.notify_all();

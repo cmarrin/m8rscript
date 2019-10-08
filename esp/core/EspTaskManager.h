@@ -55,7 +55,7 @@ public:
     virtual void unlock() override { interrupts(); }
 
 private:
-    virtual void postEvent() override;
+    virtual void readyToExecuteNextTask() override;
     
     static constexpr uint32_t ExecutionTaskPrio = 0;
     static constexpr uint32_t ExecutionTaskQueueLen = 1;

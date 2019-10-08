@@ -51,7 +51,7 @@ EspTaskManager::~EspTaskManager()
 {
 }
 
-void EspTaskManager::postEvent()
+void EspTaskManager::readyToExecuteNextTask()
 {
     system_os_post(ExecutionTaskPrio, 0, reinterpret_cast<uint32_t>(this));
 }
@@ -64,9 +64,9 @@ void EspTaskManager::executionTask(os_event_t *event)
     }
 
     int32_t now = SystemInterface::currentMicroseconds() / 1000;
-    int32_t timeToNextEvent = taskManager->nextTimeToFire() - now;
+    Time timeToNextEvent = taskManager->nextTimeToFire() - now;
     if (timeToNextEvent <= 5) {
-        taskManager->fireEvent();
+        taskManager->executeNextTask();
     } else {
         os_timer_arm(&taskManager->_executionTimer, timeToNextEvent, false);
     }
@@ -75,5 +75,5 @@ void EspTaskManager::executionTask(os_event_t *event)
 void EspTaskManager::executionTimerTick(void* data)
 {
     EspTaskManager* taskManager = reinterpret_cast<EspTaskManager*>(data);
-    taskManager->postEvent();
+    taskManager->readyToExecuteNextTask();
 }
