@@ -66,12 +66,12 @@ public:
     static constexpr int32_t FinishedValue = 1001;
     static constexpr int32_t TerminatedValue = 1002;
     static constexpr int32_t WaitForEventValue = 1003;
-    static constexpr int32_t ContinueValue = 1004;
+    static constexpr int32_t YieldValue = 1004;
     static constexpr int32_t MaxMsDelay = 6000000;
 
     static constexpr int32_t ErrorValue = 2000;
     
-    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Continue };
+    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Yield };
     
     enum class Error {
         Ok,
@@ -93,13 +93,18 @@ public:
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
         switch(type) {
+            case Type::MsDelay:
+                 assert(value >= 0 && value <= MaxMsDelay);
+                 
+                 // If a 0 delay was passed, handle this like a yield
+                 _value = (value == 0) ? YieldValue : -value;
+                 break;
             case Type::ReturnCount: assert(value <= MaxReturnCount); _value = value; break;
-            case Type::MsDelay: assert(value > 0 && value <= MaxMsDelay); _value = -value; break;
-            case Type::FunctionStart: _value = FunctionStartValue; break;
+             case Type::FunctionStart: _value = FunctionStartValue; break;
             case Type::Finished: _value = FinishedValue; break;
             case Type::Terminated: _value = TerminatedValue; break;
             case Type::WaitForEvent: _value = WaitForEventValue; break;
-            case Type::Continue: _value = ContinueValue; break;
+            case Type::Yield: _value = YieldValue; break;
         }
     }
     
@@ -110,7 +115,7 @@ public:
     bool isFinished() const { return _value == FinishedValue; }
     bool isTerminated() const { return _value == TerminatedValue; }
     bool isWaitForEvent() const { return _value == WaitForEventValue; }
-    bool isContinue() const { return _value == ContinueValue; }
+    bool isYield() const { return _value == YieldValue; }
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
     bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
     uint32_t msDelay() const { assert(isMsDelay()); return -_value; }

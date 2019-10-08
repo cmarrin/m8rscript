@@ -126,7 +126,6 @@ private:
 
 Application::Application(uint16_t port)
     : _runTask()
-    , _heartbeatTask()
 {
     _shellSocket = new MyShellSocket(this, port);
 }
@@ -273,15 +272,15 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     return NameValidationType::Ok;
 }
 
-bool Application::MyRunTask::execute()
+CallReturnValue Application::MyRunTask::execute()
 {
     if (!_running) {
-        return false;
+        return CallReturnValue(CallReturnValue::Error::Ok);
     }
     CallReturnValue returnValue = _eu.continueExecution();
     if (returnValue.isMsDelay()) {
         runOnce(returnValue.msDelay());
-    } else if (returnValue.isContinue()) {
+    } else if (returnValue.isYield()) {
         runOnce(0);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
         _finishedCB();
@@ -289,7 +288,7 @@ bool Application::MyRunTask::execute()
     } else if (returnValue.isWaitForEvent()) {
         runOnce(50);
     }
-    return true;
+    return returnValue;
 }
 
 bool Application::autostart() const

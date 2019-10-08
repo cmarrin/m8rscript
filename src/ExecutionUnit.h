@@ -150,7 +150,7 @@ private:
             }
             Object::gc(this, false);
             if (checkCounter == 0) {
-                return Op::CONTINUE;
+                return Op::YIELD;
             }
         }
         inst = _code[_pc++];

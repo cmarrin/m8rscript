@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "GPIOInterface.h"
+#include "Heartbeat.h"
 #include "SystemInterface.h"
 #include "Task.h"
 #include <functional>
@@ -103,43 +104,18 @@ private:
         }
 
     private:
-        virtual bool execute() override;
+        virtual CallReturnValue execute() override;
         
         ExecutionUnit _eu;
         std::function<void()> _finishedCB;
         bool _running = false;
     };
 
-    class MyHeartbeatTask : public m8r::Task {
-    public:
-        MyHeartbeatTask()
-        {
-            system()->gpio()->enableHeartbeat();
-            execute();
-        }
-        
-    private:
-        static constexpr uint32_t HeartrateMs = 3000;
-        static constexpr uint32_t DownbeatMs = 50;
-        
-        virtual bool execute() override
-        {
-            system()->gpio()->heartbeat(!_upbeat);
-            _upbeat = !_upbeat;
-            runOnce(_upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
-            return true;
-        }
-
-        // Heartbeat is a short flash of the LED. The state of the LED is inverted from what it was
-        // when the downbeat started 
-        bool _upbeat = false; // When true, heartbeat is occuring
-    };
-
     TCPDelegate* _shellSocket;
     
     Program* _program = nullptr;
     MyRunTask _runTask;
-    MyHeartbeatTask _heartbeatTask;
+    Heartbeat _heartbeat;
     
     ErrorList _syntaxErrors;
 };

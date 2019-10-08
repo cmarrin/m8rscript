@@ -40,11 +40,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class Task;
+class TaskBase;
 
 class TaskManager {
     friend class SystemInterface;
-    friend class Task;
+    friend class TaskBase;
 
 public:
 
@@ -54,9 +54,9 @@ protected:
     TaskManager() { }
     virtual ~TaskManager() { }
     
-    virtual void runTask(Task*, int32_t delay);
+    virtual void yield(TaskBase*);
     
-    void removeTask(Task*);
+    void terminate(TaskBase*);
     
     void fireEvent();
     
@@ -72,7 +72,7 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void postEvent() = 0;
     
-    Task* _head = nullptr;
+    TaskBase* _head = nullptr;
     bool _eventPosted = false;
 };
 

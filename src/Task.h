@@ -35,41 +35,64 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
 #include <cstdint>
 
 namespace m8r {
 
-class Task {
+class TaskBase {
     friend class TaskManager;
     
 public:
-    virtual ~Task()
+    virtual ~TaskBase()
     {
         remove();
     }
     
-    void runOnce(int32_t delay = 0)
-    {
-        _repeating = false;
-        system()->taskManager()->runTask(this, delay);
-    }
-    void runRepeating(int32_t delay = 0)
-    {
-        _repeating = true;
-        system()->taskManager()->runTask(this, delay);
-    }
-    
-    void remove() { system()->taskManager()->removeTask(this); }
-    
-    virtual bool execute() { return true; }
-    
+    void run() { system()->taskManager()->yield(this); }
+    void yield() { system()->taskManager()->yield(this); }
+    void terminate() { system()->taskManager()->terminate(this); }
+
 private:
+    virtual CallReturnValue execute() = 0;
+
     int32_t _msSet = 0;
     int32_t _msTimeToFire = -1;
-    Task* _next = nullptr;
+    TaskBase* _next = nullptr;
     bool _repeating;
+};
+
+class Task : public TaskBase {
+public:
+
+private:
+    virtual CallReturnValue execute() { return _eu.continueExecution(); }
+
+    ExecutionUnit _eu;
+};
+
+class TaskProto : public ObjectFactory {
+public:
+    TaskProto(Program*);
+
+private:
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    NativeFunction _constructor;
+};
+
+class NativeTask : public TaskBase {
+public:
+    using Function = std::function<CallReturnValue()>;
+    
+    NativeTask(Function f) : _f(f) { }
+
+private:
+    virtual CallReturnValue execute() { return _f(); }
+
+    Function _f;
 };
 
 }

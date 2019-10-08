@@ -64,6 +64,8 @@ public:
     virtual void digitalWrite(uint8_t pin, bool level) = 0;
     virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
     
+    uint8_t builtinLED() const { return LED; }
+    
     void enableHeartbeat() { setPinMode(LED, PinMode::Output); }
     void heartbeat(bool on)
     {

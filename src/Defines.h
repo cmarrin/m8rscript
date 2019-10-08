@@ -189,7 +189,7 @@ enum class Op : uint8_t {
     
     LINENO,
     
-    LOADTHIS, LOADUP, STOREUP, CLOSURE, CONTINUE,
+    LOADTHIS, LOADUP, STOREUP, CLOSURE, YIELD,
     
     // 0x29 - 0x2f unused (8)
 

@@ -359,7 +359,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         
         /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
         /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CLOSURE)
-        /* 0x28 */ OP(CONTINUE)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x28 */ OP(YIELD)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
 
         /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
@@ -407,8 +407,8 @@ CallReturnValue ExecutionUnit::continueExecution()
         assert(0);
         return CallReturnValue(CallReturnValue::Type::Finished);
 
-    L_CONTINUE:
-        return CallReturnValue(CallReturnValue::Type::Continue);
+    L_YIELD:
+        return CallReturnValue(CallReturnValue::Type::Yield);
 
     L_RET:
     L_RETX:

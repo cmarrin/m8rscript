@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void TaskManager::runTask(Task* newTask, int32_t delay)
+void TaskManager::run(TaskBase* newTask)
 {
     int32_t now = static_cast<int32_t>(SystemInterface::currentMicroseconds() / 1000);
     if (delay > 6000000) {
@@ -55,8 +55,8 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     int32_t msTimeToFire = now + delay;
     newTask->_msTimeToFire = msTimeToFire;
     
-    Task* prev = nullptr;
-    for (Task* task = _head; ; task = task->_next) {
+    TaskBase* prev = nullptr;
+    for (TaskBase* task = _head; ; task = task->_next) {
         if (!task) {
             // Placing a new task in an empty list, need to schedule
             _head = newTask;
@@ -85,10 +85,10 @@ void TaskManager::runTask(Task* newTask, int32_t delay)
     prepareForNextEvent();
 }
 
-void TaskManager::removeTask(Task* task)
+void TaskManager::terminate(TaskBase* task)
 {
-    Task* prev = nullptr;
-    for (Task* t = _head; t; t = t->_next) {
+    TaskBase* prev = nullptr;
+    for (TaskBase* t = _head; t; t = t->_next) {
         if (t == task) {
             if (!prev) {
                 _head = _head->_next;
@@ -105,7 +105,7 @@ void TaskManager::fireEvent()
 {
     assert(_head);
     
-    Task* task = _head;
+    TaskBase* task = _head;
     _head = task->_next;
     task->_next = nullptr;
     
