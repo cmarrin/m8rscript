@@ -56,14 +56,14 @@ MacTaskManager::MacTaskManager()
                 }
             }
             
-            Time timeToNextEvent = nextTimeToFire() - now;
-            if (timeToNextEvent <= Duration()) {
+            Duration durationToNextEvent = nextTimeToFire() - now;
+            if (durationToNextEvent <= Duration()) {
                 executeNextTask();
             } else {
                 std::cv_status status;
                 {
                     std::unique_lock<std::mutex> lock(_eventMutex);
-                    status = _eventCondition.wait_for(lock, std::chrono::milliseconds(timeToNextEvent));
+                    status = _eventCondition.wait_for(lock, std::chrono::milliseconds(durationToNextEvent.ms()));
                 }
                 if (_terminating) {
                     break;
@@ -88,4 +88,12 @@ void MacTaskManager::readyToExecuteNextTask()
 {
     std::unique_lock<std::mutex> lock(_eventMutex);
     _eventCondition.notify_all();
+}
+
+void MacTaskManager::runLoop()
+{
+    // The mac main thread has to keep running
+    while(1) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }

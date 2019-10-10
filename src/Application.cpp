@@ -35,49 +35,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 
-#include "MStream.h"
-#include "Shell.h"
 #include "SystemInterface.h"
-
-#ifndef NO_PARSER_SUPPORT
-#include "Parser.h"
-#endif
 
 #ifdef MONITOR_TRAFFIC
 #include <string>
 #endif
 using namespace m8r;
-
-class MyTCP;
-
-class MyShell : public m8r::Shell {
-public:
-    MyShell(m8r::Application* application, m8r::TCP* tcp, uint16_t connectionId)
-        : Shell(application)
-        , _tcp(tcp)
-        , _connectionId(connectionId)
-    { }
-    
-    // Shell Delegate
-    virtual void shellSend(const char* data, uint16_t size)
-    {
-#ifdef MONITOR_TRAFFIC
-    if (!size) {
-        size = strlen(data);
-    }
-    char* s = new char[size + 1];
-    memcpy(s, data, size);
-    s[size] = '\0';
-    debugf("[Shell] >>>> shellSend:'%s'\n", s);
-    delete [ ] s;
-#endif
-        _tcp->send(_connectionId, data, size);
-    }
-
-private:
-    m8r::TCP* _tcp;
-    uint16_t _connectionId;
-};
 
 class MyShellSocket : public TCPDelegate {
 public:
@@ -93,25 +56,25 @@ public:
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId] = new MyShell(_application, _tcp.get(), connectionId);
-                _shells[connectionId]->connected();
+                _shells[connectionId] = Task::create(Application::shellName());
+                Task::run(_shells[connectionId]);
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
                 if (_shells[connectionId]) {
-                    _shells[connectionId]->disconnected();
-                    delete _shells[connectionId];
+                    Task::terminate(_shells[connectionId]);
                     _shells[connectionId] = nullptr;
                 }
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
-                if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
-                    _tcp->disconnect(connectionId);
-                }
+                // FIXME: We need an Object to send to the shell that controls console I/O, essentially stdin and stdout
+                //if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
+                //    _tcp->disconnect(connectionId);
+                //}
                 break;
             case m8r::TCPDelegate::Event::SentData:
-                if (_shells[connectionId]) {
-                    _shells[connectionId]->sendComplete();
-                }
+                //if (_shells[connectionId]) {
+                //    _shells[connectionId]->sendComplete();
+                //}
                 break;
             default:
                 break;
@@ -121,11 +84,10 @@ public:
 private:
     std::unique_ptr<m8r::TCP> _tcp;
     Application* _application;
-    MyShell* _shells[m8r::TCP::MaxConnections];
+    std::shared_ptr<Task> _shells[m8r::TCP::MaxConnections];
 };
 
 Application::Application(uint16_t port)
-    : _runTask()
 {
     _shellSocket = new MyShellSocket(this, port);
 }
@@ -133,98 +95,6 @@ Application::Application(uint16_t port)
 Application::~Application()
 {
     delete _shellSocket;
-}
-
-bool Application::load(Error& error, bool debug, const char* filename)
-{
-    stop();
-    _program = nullptr;
-    _syntaxErrors.clear();
-    
-    if (filename && validateFileName(filename) == NameValidationType::Ok) {
-        FileStream m8rbStream(system()->fileSystem(), filename);
-        if (!m8rbStream.loaded()) {
-            error.setError(Error::Code::FileNotFound);
-            return false;
-        }
-        
-#ifdef NO_PARSER_SUPPORT
-        return false;
-#else
-        // See if we can parse it
-        FileStream m8rStream(system()->fileSystem(), filename);
-        system()->printf(ROMSTR("Parsing...\n"));
-        Parser parser;
-        parser.parse(&m8rStream, debug);
-        system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-        if (parser.nerrors()) {
-            _syntaxErrors.swap(parser.syntaxErrors());
-            return false;
-        }
-        _program = parser.program();
-        return true;
-#endif
-    }
-    
-    // See if there is a 'main' file (which contains the name of the program to run)
-    String name = MainFileName;
-    FileStream mainStream(system()->fileSystem(), name.c_str());
-    if (mainStream.loaded()) {
-        name.clear();
-        while (!mainStream.eof()) {
-            int c = mainStream.read();
-            if (c < 0) { 
-                break;
-            }
-            name += static_cast<char>(c);
-        }
-    } else {
-        system()->printf(ROMSTR("'main' not found in filesystem, trying default...\n"));
-    }
-    
-#ifdef NO_PARSER_SUPPORT
-    system()->printf(ROMSTR("File not found, nothing to load\n"));
-    return false;
-#else
-    name = name.slice(0, -1);
-    system()->printf(ROMSTR("File not found, trying '%s'...\n"), name.c_str());
-    FileStream m8rMainStream(system()->fileSystem(), name.c_str());
-    
-    if (!m8rMainStream.loaded()) {
-        error.setError(Error::Code::FileNotFound);
-        return false;
-    }
-
-    Parser parser;
-    parser.parse(&m8rMainStream, debug);
-    system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), name.c_str(), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-    if (parser.nerrors()) {
-        _syntaxErrors.swap(parser.syntaxErrors());
-        return false;
-    }
-
-    _program = parser.program();
-    return true;
-#endif
-}
-
-void Application::run(std::function<void()> finishedCB)
-{
-    stop();
-    system()->printf(ROMSTR("\n***** Start of Program Output *****\n\n"));
-    _runTask.run(_program, finishedCB);
-}
-
-void Application::pause()
-{
-    _runTask.pause();
-}
-
-void Application::stop()
-{
-    if (_runTask.stop()) {
-        system()->printf(ROMSTR("\n***** Program Stopped *****\n\n"));
-    }
 }
 
 Application::NameValidationType Application::validateFileName(const char* name)
@@ -272,29 +142,10 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     return NameValidationType::Ok;
 }
 
-CallReturnValue Application::MyRunTask::execute()
-{
-    if (!_running) {
-        return CallReturnValue(CallReturnValue::Error::Ok);
-    }
-    CallReturnValue returnValue = _eu.continueExecution();
-    if (returnValue.isMsDelay()) {
-        runOnce(returnValue.msDelay());
-    } else if (returnValue.isYield()) {
-        runOnce(0);
-    } else if (returnValue.isFinished() || returnValue.isTerminated()) {
-        _finishedCB();
-        _running = false;
-    } else if (returnValue.isWaitForEvent()) {
-        runOnce(50);
-    }
-    return returnValue;
-}
-
-bool Application::autostart() const
+String Application::autostartFilename() const
 {
     // FIXME: Implement - Look for a file or a config file or something
-    return false;
+    return "";
 }
 
 void Application::runLoop()
@@ -302,23 +153,22 @@ void Application::runLoop()
     system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
 
     // If autostart is on, run the main program
-    if (autostart()) {
-        m8r::Error error;
-        if (!load(error, false)) {
-            error.showError();
-        } else if (!program()) {
-            system()->printf(ROMSTR("Error:failed to compile application"));
-        } else {
-            run([this]{
-                m8r::MemoryInfo info;
-                m8r::Object::memoryInfo(info);
-                system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
-            });
-        }
+    String filename = autostartFilename();
+    if (filename) {
+        // FIXME: Create a task and run the autostart file
+//        m8r::Error error;
+//        if (!load(error, false)) {
+//            error.showError();
+//        } else if (!program()) {
+//            system()->printf(ROMSTR("Error:failed to compile application"));
+//        } else {
+//            run([this]{
+//                m8r::MemoryInfo info;
+//                m8r::Object::memoryInfo(info);
+//                system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
+//            });
+//        }
     }
     
-    // For now we'll just sleep a lot. How do we handle events?
-    while (1) {
-        
-    }
+    system()->runLoop();
 }

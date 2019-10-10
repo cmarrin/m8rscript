@@ -48,3 +48,9 @@ void SystemInterface::unlock()
 {
     taskManager()->unlock();
 }
+
+void SystemInterface::runLoop()
+{
+    taskManager()->runLoop();
+}
+

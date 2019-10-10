@@ -66,28 +66,8 @@ public:
     
     uint8_t builtinLED() const { return LED; }
     
-    void enableHeartbeat() { setPinMode(LED, PinMode::Output); }
-    void heartbeat(bool on)
-    {
-        if (_pinMode[LED] != PinMode::Output) {
-            return;
-        }
-        
-        // Generally the heartbeat is the inverse of the current state of the LED pin. But when turning
-        // it off (which will be for a longer period of time) if the pin has changed state from when
-        // we turned it on, we assume it is being used somewhere else, so we don't change it
-        bool state = digitalRead(LED);
-        if ((!on && (state ^ _heartbeatState)) || (on == _heartbeatState)) {
-            _heartbeatState = on;
-            return;
-        }
-        _heartbeatState = !state;
-        digitalWrite(LED, _heartbeatState);
-    }
-    
 private:
     PinMode _pinMode[PinCount];
-    bool _heartbeatState = false;
 };
 
 }

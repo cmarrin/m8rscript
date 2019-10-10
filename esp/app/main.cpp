@@ -33,23 +33,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#include "ExecutionUnit.h"
-#include "FS.h"
-#include "MStream.h"
-#include "Shell.h"
-#include "SystemInterface.h"
-#include "TCP.h"
-
-extern "C" {
-#include <gpio.h>
-#include <osapi.h>
-#include <user_interface.h>
-}
-
-#include <cstdarg>
-
-class MyTCP;
+#include "Application.h"
 
 m8r::Application _application(23);
 

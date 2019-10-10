@@ -54,17 +54,12 @@ public:
     friend class Closure;
     friend class Function;
     
-    ExecutionUnit()
-        : _stack(200)
-    {
-    }
-    ~ExecutionUnit()
-    {
-    }
+    ExecutionUnit() : _stack(200) { }
+    ~ExecutionUnit() { }
     
     void gcMark();
 
-    void startExecution(Program*);
+    void startExecution(const std::shared_ptr<Program>&);
     
     CallReturnValue continueExecution();
     
@@ -72,7 +67,7 @@ public:
 
     void requestTermination() { _terminate = true; }
     
-    Program* program() const { return _program; }
+    const std::shared_ptr<Program>& program() const { return _program; }
     
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
@@ -236,7 +231,7 @@ private:
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
-    Program* _program = nullptr;
+    std::shared_ptr<Program> _program;
     Object* _function;
     Object* _this;
     const Value* _constants;

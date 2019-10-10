@@ -69,7 +69,7 @@ public:
     ErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return _nerrors; }
-    Program* program() { return _program; }
+    const std::shared_ptr<Program>& program() const { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
@@ -278,7 +278,7 @@ private:
     std::vector<MaterObject*> _classes;
 
     Scanner _scanner;
-    Program* _program;
+    std::shared_ptr<Program> _program;
     uint32_t _nerrors = 0;
     std::vector<size_t> _deferredCodeBlocks;
     Vector(Instruction) _deferredCode;

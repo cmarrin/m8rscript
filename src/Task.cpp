@@ -35,6 +35,45 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Task.h"
 
+#include "Application.h"
+#include "MStream.h"
+
+#ifndef NO_PARSER_SUPPORT
+#include "Parser.h"
+#endif
+
 #include <cassert>
 
 using namespace m8r;
+
+Task::Task(const char* filename)
+{
+    // FIXME: What do we do with these?
+    ErrorList syntaxErrors;
+    bool debug = false;
+    
+    if (filename && Application::validateFileName(filename) == Application::NameValidationType::Ok) {
+        FileStream m8rbStream(system()->fileSystem(), filename);
+        if (!m8rbStream.loaded()) {
+            _error.setError(Error::Code::FileNotFound);
+            return;
+        }
+        
+#ifdef NO_PARSER_SUPPORT
+        return;
+#else
+        // See if we can parse it
+        FileStream m8rStream(system()->fileSystem(), filename);
+        system()->printf(ROMSTR("Parsing...\n"));
+        Parser parser;
+        parser.parse(&m8rStream, debug);
+        system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        if (parser.nerrors()) {
+            syntaxErrors.swap(parser.syntaxErrors());
+            return;
+        }
+        
+        _eu.startExecution(parser.program());
+#endif
+    }
+}

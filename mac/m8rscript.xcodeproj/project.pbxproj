@@ -65,8 +65,6 @@
 		49AD0A20209B534F00F86278 /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AD0A1E209B534F00F86278 /* Simulator.mm */; };
 		49AE34F41D82321300C4E680 /* MacFS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F21D82321300C4E680 /* MacFS.mm */; };
 		49AE34F51D82321300C4E680 /* MacFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F31D82321300C4E680 /* MacFS.h */; };
-		49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F61D8330CA00C4E680 /* Shell.cpp */; };
-		49AE34F91D8330CA00C4E680 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F71D8330CA00C4E680 /* Shell.h */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */; };
@@ -244,8 +242,6 @@
 		49AE34F11D8231BF00C4E680 /* FS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FS.h; path = ../src/FS.h; sourceTree = "<group>"; };
 		49AE34F21D82321300C4E680 /* MacFS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFS.mm; sourceTree = "<group>"; };
 		49AE34F31D82321300C4E680 /* MacFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFS.h; sourceTree = "<group>"; };
-		49AE34F61D8330CA00C4E680 /* Shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../src/Shell.cpp; sourceTree = "<group>"; };
-		49AE34F71D8330CA00C4E680 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../src/Shell.h; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -572,8 +568,6 @@
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */,
 				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
-				49AE34F61D8330CA00C4E680 /* Shell.cpp */,
-				49AE34F71D8330CA00C4E680 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
 				499AE8E7234A667D00459451 /* SystemInterface.cpp */,
@@ -601,7 +595,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
-				49AE34F91D8330CA00C4E680 /* Shell.h in Headers */,
 				4945A8811EC4BC5400559CD1 /* MacNativeFS.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
@@ -798,7 +791,6 @@
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
-				49AE34F81D8330CA00C4E680 /* Shell.cpp in Sources */,
 				499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,

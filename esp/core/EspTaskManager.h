@@ -55,6 +55,9 @@ public:
     virtual void unlock() override { interrupts(); }
 
 private:
+    // The ESP handlles it's own runloop, we can just return here
+    virtual void runLoop() { }
+
     virtual void readyToExecuteNextTask() override;
     
     static constexpr uint32_t ExecutionTaskPrio = 0;

@@ -48,7 +48,6 @@ SRC ?=  ../src/Application.cpp \
 		../src/JSON.cpp \
 		../src/Object.cpp \
 		../src/Program.cpp \
-		../src/Shell.cpp \
 		../src/slre.cpp \
 		../src/SystemInterface.cpp \
 		../src/Task.cpp \

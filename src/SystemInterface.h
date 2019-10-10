@@ -129,6 +129,8 @@ public:
     
     void lock();
     void unlock();
+    
+    void runLoop();
 
 private:
     static uint64_t currentMicroseconds();

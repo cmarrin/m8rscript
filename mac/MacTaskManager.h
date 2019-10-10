@@ -50,6 +50,8 @@ public:
     virtual void unlock() override { _lockMutex.unlock(); }
 
 private:
+    virtual void runLoop() override;
+    
     virtual void readyToExecuteNextTask() override;
     
     std::thread* _eventThread = nullptr;

@@ -42,30 +42,48 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class TaskBase : std::enable_shared_from_this<TaskBase> {
+class TaskBase {
     friend class TaskManager;
     
 public:
-    virtual ~TaskBase()
-    {
-        terminate();
-    }
+    virtual ~TaskBase() { }
     
-    void run(Duration duration = 0_sec) { system()->taskManager()->yield(shared_from_this(), duration); }
-    void yield() { system()->taskManager()->yield(shared_from_this()); }
-    void terminate() { system()->taskManager()->terminate(shared_from_this()); }
+    static void run(const std::shared_ptr<TaskBase>& task, Duration duration = 0_sec) { system()->taskManager()->yield(task, duration); }
+    static void yield(const std::shared_ptr<TaskBase>& task) { system()->taskManager()->yield(task); }
+    static void terminate(const std::shared_ptr<TaskBase>& task) { system()->taskManager()->terminate(task); }
 
+protected:
+    TaskBase() { }
+    
 private:
     virtual CallReturnValue execute() = 0;
 };
 
 class Task : public TaskBase {
 public:
+    template<typename ...Arg> std::shared_ptr<Task> static create(Arg&&...arg) {
+        struct EnableMakeShared : public Task {
+            EnableMakeShared(Arg&&...arg) :Task(std::forward<Arg>(arg)...) {}
+        };
+        return std::make_shared<EnableMakeShared>(std::forward<Arg>(arg)...);
+    }
+    
+    Error error() const { return _error; }
 
 private:
+    Task() { }
+    
+    Task(const char* filename);
+    
+    Task(const std::shared_ptr<Program>& program)
+    {
+        _eu.startExecution(program);
+    }
+    
     virtual CallReturnValue execute() { return _eu.continueExecution(); }
 
     ExecutionUnit _eu;
+    Error _error;
 };
 
 class TaskProto : public ObjectFactory {
@@ -82,9 +100,19 @@ class NativeTask : public TaskBase {
 public:
     using Function = std::function<CallReturnValue()>;
     
-    NativeTask(Function f) : _f(f) { }
+    template<typename ...Arg> std::shared_ptr<NativeTask> static create(Arg&&...arg) {
+        struct EnableMakeShared : public NativeTask {
+            EnableMakeShared(Arg&&...arg) :NativeTask(std::forward<Arg>(arg)...) {}
+        };
+        return std::make_shared<EnableMakeShared>(std::forward<Arg>(arg)...);
+    }
+
 
 private:
+    NativeTask() { }
+    
+    NativeTask(Function f) : _f(f) { }
+
     virtual CallReturnValue execute() { return _f(); }
 
     Function _f;

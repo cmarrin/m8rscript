@@ -155,6 +155,8 @@ public:
         return *this;
     }
     
+    operator bool () { return !empty(); }
+    
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
     char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
 	size_t size() const { return _size ? (_size - 1) : 0; }

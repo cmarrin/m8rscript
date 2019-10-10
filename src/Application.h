@@ -44,8 +44,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-static const char* MainFileName = "main";
-
 class Program;
 class Error;
 class ExecutionUnit;
@@ -58,66 +56,19 @@ public:
     Application(uint16_t port);
     ~Application();
         
-    bool load(Error&, bool debug, const char* name = nullptr);
-    const ErrorList* syntaxErrors() const { return _syntaxErrors.empty() ? nullptr : &_syntaxErrors; }
-    void run(std::function<void()>);
     void runLoop();
-    void clear()
-    {
-        stop();
-        _program = nullptr;
-    }
-    void pause();
-    void stop();
-    
-    bool autostart() const;
-    
-    Program* program() const { return _program; }
-    
+    String autostartFilename() const;
+
     enum class NameValidationType { Ok, BadLength, InvalidChar };
     static NameValidationType validateFileName(const char* name);
     static NameValidationType validateBonjourName(const char* name);
+    
+    static const char* shellName() { return "m8rsh"; }
 
 private:
-    class MyRunTask : public Task {
-    public:
-        MyRunTask() : _eu() { }
-        
-        void run(Program* program, std::function<void()> finishedCB)
-        {
-            stop();
-            _finishedCB = finishedCB;
-            _running = true;
-            _eu.startExecution(program);
-            runOnce();
-        }
-        
-        void pause() { }
-        
-        bool stop()
-        {
-            if (_running) {
-                _eu.requestTermination();
-                return true;
-            }
-            return false;
-        }
-
-    private:
-        virtual CallReturnValue execute() override;
-        
-        ExecutionUnit _eu;
-        std::function<void()> _finishedCB;
-        bool _running = false;
-    };
-
     TCPDelegate* _shellSocket;
     
-    Program* _program = nullptr;
-    MyRunTask _runTask;
     Heartbeat _heartbeat;
-    
-    ErrorList _syntaxErrors;
 };
     
 }

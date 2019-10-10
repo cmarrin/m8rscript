@@ -64,8 +64,10 @@ protected:
     
     bool empty() const { return _list.empty(); }
     Time nextTimeToFire() const;
-
+    
 private:
+    virtual void runLoop() = 0;
+
     virtual void lock() = 0;
     virtual void unlock() = 0;
     

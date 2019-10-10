@@ -41,8 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-static Duration MaxTaskDelay = Duration(6000000, Duration::Units::msec);
-static Duration MinTaskDelay = Duration(1, Duration::Units::msec);
+static Duration MaxTaskDelay = Duration(6000000, Duration::Units::ms);
+static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
 static Duration TaskPollingRate = 50_ms;
 
 
@@ -57,10 +57,13 @@ void TaskManager::yield(const std::shared_ptr<TaskBase>& newTask, Duration delay
     
     Time timeToFire = now + delay;
     
-    for (auto it = _list.before_begin(); it != _list.end(); ++it) {
-        if (timeToFire < std::next(it)->first) {
-            _list.emplace_after(it, timeToFire, newTask);
+    auto prev = _list.before_begin();
+    for (auto it = _list.begin(); it != _list.end(); ++it) {
+        if (timeToFire < it->first) {
+            _list.emplace_after(prev, timeToFire, newTask);
+            break;
         }
+        prev = it;
     }
 
     readyToExecuteNextTask();
@@ -68,10 +71,13 @@ void TaskManager::yield(const std::shared_ptr<TaskBase>& newTask, Duration delay
 
 void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
 {
-    for (auto it = _list.before_begin(); it != _list.end(); ++it) {
-        if (std::next(it)->second == task) {
+    auto prev = _list.before_begin();
+    for (auto it = _list.begin(); it != _list.end(); ++it) {
+        if (it->second == task) {
             _list.erase_after(it);
+            break;
         }
+        prev = it;
     }
 }
 
