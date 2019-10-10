@@ -62,6 +62,8 @@ public:
     Error() { }
     ~Error() { }
     
+    operator bool () const { return _code != Code::None; }
+    
     bool setError(Code code)
     {
         _code = code;

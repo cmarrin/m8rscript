@@ -52,12 +52,19 @@ public:
     virtual ~MyShellSocket() { }
 
     // TCPDelegate
-    virtual void TCPevent(m8r::TCP*, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
+    virtual void TCPevent(m8r::TCP* tcp, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
                 _shells[connectionId] = Task::create(Application::shellName());
-                Task::run(_shells[connectionId]);
+                if (_shells[connectionId]->error()) {
+                    system()->printf("Failed to create shell task '%s'\n", Application::shellName());
+                    _shells[connectionId]->error().showError();
+                    _shells[connectionId] = nullptr;
+                    tcp->disconnect(connectionId);
+                } else {
+                    Task::run(_shells[connectionId]);
+                }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
                 if (_shells[connectionId]) {
