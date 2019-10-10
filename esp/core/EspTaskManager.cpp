@@ -63,12 +63,12 @@ void EspTaskManager::executionTask(os_event_t *event)
         return;
     }
 
-    int32_t now = SystemInterface::currentMicroseconds() / 1000;
-    Time timeToNextEvent = taskManager->nextTimeToFire() - now;
-    if (timeToNextEvent <= 5) {
+    Time now = Time::now();
+    Duration durationToNextEvent = taskManager->nextTimeToFire() - now;
+    if (durationToNextEvent <= 5_ms) {
         taskManager->executeNextTask();
     } else {
-        os_timer_arm(&taskManager->_executionTimer, timeToNextEvent, false);
+        os_timer_arm(&taskManager->_executionTimer, durationToNextEvent.ms(), false);
     }
 }
 
