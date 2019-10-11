@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #include "Application.h"
-#include "MacNativeFS.h"
+#include "SpiffsFS.h"
 #include "MacTaskManager.h"
 #include "MacTCP.h"
 #include "MacUDP.h"
@@ -20,7 +20,7 @@
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface(const char* fsdir) : _fileSystem(fsdir) { }
+    MySystemInterface(const char* fsFile) : _fileSystem(fsFile) { }
     
     virtual void vprintf(const char* s, va_list args) const override
     {
@@ -79,7 +79,7 @@ private:
     };
     
     MyGPIOInterface _gpio;
-    m8r::MacNativeFS _fileSystem;
+    m8r::SpiffsFS _fileSystem;
     m8r::MacTaskManager _taskManager;
 };
 

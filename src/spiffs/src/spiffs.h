@@ -729,7 +729,7 @@ s32_t SPIFFS_ix_unmap(spiffs *fs, spiffs_file fh);
  * @param fh      the mapped file handle of the file to remap
  * @param offset  new absolute file offset where to start the index map
  */
-s32_t SPIFFS_ix_remap(spiffs *fs, spiffs_file fh, u32_t offs);
+s32_t SPIFFS_ix_remap(spiffs *fs, spiffs_file fh, u32_t offset);
 
 /**
  * Utility function to get number of spiffs_page_ix entries a map buffer must

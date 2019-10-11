@@ -552,20 +552,6 @@ static inline char nibbleToHexChar(uint8_t b) { return (b >= 10) ? (b - 10 + 'A'
 
 void startup(void*)
 {
-    if (!m8r::system()->fileSystem()->mount()) {
-        m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
-        if (m8r::system()->fileSystem()->format()) {
-            m8r::system()->printf(ROMSTR("succeeded.\n"));
-            getUserData();
-        } else {
-            m8r::system()->printf(ROMSTR("FAILED.\n"));
-        }
-    }
-
-    if (m8r::system()->fileSystem()->mount()) {
-        m8r::system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), m8r::system()->fileSystem()->totalSize(), m8r::system()->fileSystem()->totalUsed());
-    }
-
     m8r::system()->printf(ROMSTR("Starting WiFi:\n"));
     if (wifi_station_get_connect_status() == STATION_GOT_IP) {
         m8r::system()->printf(ROMSTR("    already connected, done\n"));
@@ -609,6 +595,36 @@ void initializeSystem(void (*initializedCB)())
     os_timer_disarm(&startupTimer);
     os_timer_setfn(&startupTimer, (os_timer_func_t*) &startup, nullptr);
     os_timer_arm(&startupTimer, 2000, false);
+}
+
+static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst)
+{
+    return (flashmem_read(dst, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_READABLE;
+}
+
+static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src)
+{
+    return (flashmem_write(src, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_WRITABLE;
+}
+
+static s32_t spiffsErase(u32_t addr, u32_t size)
+{
+    u32_t firstSector = flashmem_get_sector_of_address(addr);
+    u32_t lastSector = firstSector;
+    while(firstSector <= lastSector) {
+        if(!flashmem_erase_sector(firstSector++)) {
+            return SPIFFS_ERR_INTERNAL;
+        }
+    }
+    return SPIFFS_OK;
+}
+
+void SpiffsFS::setConfig(spiffs_config& config, const char*)
+{
+    memset(&config, 0, sizeof(config));
+    config.hal_read_f = spiffsRead;
+    config.hal_write_f = spiffsWrite;
+    config.hal_erase_f = spiffsErase;
 }
 
 extern "C" {

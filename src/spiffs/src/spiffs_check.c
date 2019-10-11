@@ -73,6 +73,7 @@ static s32_t spiffs_object_get_data_page_index_reference(
   return res;
 }
 
+#if SPIFFS_LOOKUP_CHECK
 // copies page contents to a new page
 static s32_t spiffs_rewrite_page(spiffs *fs, spiffs_page_ix cur_pix, spiffs_page_header *p_hdr, spiffs_page_ix *new_pix) {
   s32_t res;
@@ -85,6 +86,7 @@ static s32_t spiffs_rewrite_page(spiffs *fs, spiffs_page_ix cur_pix, spiffs_page
   SPIFFS_CHECK_RES(res);
   return res;
 }
+#endif
 
 // rewrites the object index for given object id and replaces the
 // data page index to a new page index
@@ -169,6 +171,7 @@ static s32_t spiffs_delete_obj_lazy(spiffs *fs, spiffs_obj_id obj_id) {
   return res;
 }
 
+#if SPIFFS_LOOKUP_CHECK
 // validates the given look up entry
 static s32_t spiffs_lookup_check_validate(spiffs *fs, spiffs_obj_id lu_obj_id, spiffs_page_header *p_hdr,
     spiffs_page_ix cur_pix, spiffs_block_ix cur_block, int cur_entry, int *reload_lu) {
@@ -468,7 +471,7 @@ static s32_t spiffs_lookup_check_v(spiffs *fs, spiffs_obj_id obj_id, spiffs_bloc
   }
   return res;
 }
-
+#endif
 
 // Scans all object look up. For each entry, corresponding page header is checked for validity.
 // If an object index header page is found, this is also checked
@@ -478,8 +481,11 @@ s32_t spiffs_lookup_consistency_check(spiffs *fs, u8_t check_all_objects) {
 
   CHECK_CB(fs, SPIFFS_CHECK_LOOKUP, SPIFFS_CHECK_PROGRESS, 0, 0);
 
-  res = SPIFFS_VIS_END; //spiffs_obj_lu_find_entry_visitor(fs, 0, 0, 0, 0, spiffs_lookup_check_v, 0, 0, 0, 0);
-
+#if SPIFFS_LOOKUP_CHECK
+  res = spiffs_obj_lu_find_entry_visitor(fs, 0, 0, 0, 0, spiffs_lookup_check_v, 0, 0, 0, 0);
+#else
+  res = SPIFFS_VIS_END;
+#endif
   if (res == SPIFFS_VIS_END) {
     res = SPIFFS_OK;
   }
@@ -864,7 +870,7 @@ s32_t spiffs_page_consistency_check(spiffs *fs) {
 // searches for given object id in temporary object id index,
 // returns the index or -1
 static int spiffs_object_index_search(spiffs *fs, spiffs_obj_id obj_id) {
-  u32_t i;
+  int i;
   spiffs_obj_id *obj_table = (spiffs_obj_id *)fs->work;
   obj_id &= ~SPIFFS_OBJ_ID_IX_FLAG;
   for (i = 0; i < SPIFFS_CFG_LOG_PAGE_SZ(fs) / sizeof(spiffs_obj_id); i++) {

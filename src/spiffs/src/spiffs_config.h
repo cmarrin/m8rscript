@@ -15,6 +15,18 @@
 #define STORE_TYPEDEF_ATTR  __attribute__((aligned(4),packed))
 #define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
 
+// Instead of giving parameters in config struct, singleton build must
+// give parameters in defines below.
+extern uint32_t _SPIFFS_start;
+extern uint32_t _SPIFFS_end;
+extern uint32_t _SPIFFS_page;
+extern uint32_t _SPIFFS_block;
+
+#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
+#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
+#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
+#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
+
 #include <assert.h>
 #include <string.h>
 #include <c_types.h>
@@ -22,22 +34,31 @@
 #include <osapi.h>
 #include "user_config.h"
 #include "flashmem.h"
-typedef signed long s32_t;
-typedef unsigned long u32_t;
-typedef signed short s16_t;
-typedef unsigned short u16_t;
-typedef signed char s8_t;
-typedef unsigned char u8_t;
 #else
+
+#define SPIFFS_PHYS_ADDR 0
+#define SPIFFS_PHYS_SIZE (3 * 1024 * 1024)
+#define SPIFFS_PHYS_PAGE 0x100
+#define SPIFFS_PHYS_BLOCK 0x2000
+
 // Following includes are for the linux test build of spiffs
 // These may/should/must be removed/altered/replaced in your target
-#include "params_test.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 #include <unistd.h>
+
+#define SPI_FLASH_SEC_SIZE 4096
+
 #endif /* __ets__ */
+
+typedef int32_t s32_t;
+typedef uint32_t u32_t;
+typedef int16_t s16_t;
+typedef uint16_t u16_t;
+typedef int8_t s8_t;
+typedef uint8_t u8_t;
 
 // compile time switches
 #define DEBUG_SPIFFS 0
@@ -180,18 +201,6 @@ typedef unsigned char u8_t;
 #endif
 
 #if SPIFFS_SINGLETON
-// Instead of giving parameters in config struct, singleton build must
-// give parameters in defines below.
-extern uint32_t _SPIFFS_start;
-extern uint32_t _SPIFFS_end;
-extern uint32_t _SPIFFS_page;
-extern uint32_t _SPIFFS_block;
-
-#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
-#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
-#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
-#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
-
 #ifndef SPIFFS_CFG_PHYS_SZ
 #define SPIFFS_CFG_PHYS_SZ(ignore)        (SPIFFS_PHYS_SIZE)
 #endif

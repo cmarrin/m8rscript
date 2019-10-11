@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Application.h"
 
+#include "FS.h"
 #include "SystemInterface.h"
 
 #ifdef MONITOR_TRAFFIC
@@ -158,6 +159,19 @@ String Application::autostartFilename() const
 void Application::runLoop()
 {
     system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
+
+    if (!system()->fileSystem()->mount() != 0) {
+        m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
+        if (m8r::system()->fileSystem()->format()) {
+            m8r::system()->printf(ROMSTR("succeeded.\n"));
+        } else {
+            m8r::system()->printf(ROMSTR("FAILED.\n"));
+        }
+    }
+
+    if (m8r::system()->fileSystem()->mounted()) {
+        m8r::system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), m8r::system()->fileSystem()->totalSize(), m8r::system()->fileSystem()->totalUsed());
+    }
 
     // If autostart is on, run the main program
     String filename = autostartFilename();

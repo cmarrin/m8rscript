@@ -246,7 +246,7 @@ s32_t spiffs_gc_find_candidate(
   int cur_entry = 0;
 
   // using fs->work area as sorted candidate memory, (spiffs_block_ix)cand_bix/(s32_t)score
-  int max_candidates = MIN(fs->block_count, (SPIFFS_CFG_LOG_PAGE_SZ(fs)-8)/(sizeof(spiffs_block_ix) + sizeof(s32_t)));
+  u32_t max_candidates = MIN(fs->block_count, (SPIFFS_CFG_LOG_PAGE_SZ(fs)-8)/(sizeof(spiffs_block_ix) + sizeof(s32_t)));
   *candidate_count = 0;
   memset(fs->work, 0xff, SPIFFS_CFG_LOG_PAGE_SZ(fs));
 
@@ -321,7 +321,7 @@ s32_t spiffs_gc_find_candidate(
           cand_scores[cand_ix] = score;
           break;
         } else if (cand_scores[cand_ix] < score) {
-          int reorder_cand_ix = max_candidates - 2;
+          u32_t reorder_cand_ix = max_candidates - 2;
           while (reorder_cand_ix >= cand_ix) {
             cand_blocks[reorder_cand_ix + 1] = cand_blocks[reorder_cand_ix];
             cand_scores[reorder_cand_ix + 1] = cand_scores[reorder_cand_ix];

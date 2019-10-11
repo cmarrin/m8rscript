@@ -2019,7 +2019,7 @@ static s32_t spiffs_obj_lu_find_free_obj_id_bitmap_v(spiffs *fs, spiffs_obj_id i
     // if conflicting name parameter is given, also check if this name is found in object index hdrs
     if (conflicting_name && (id & SPIFFS_OBJ_ID_IX_FLAG)) {
       spiffs_page_ix pix = SPIFFS_OBJ_LOOKUP_ENTRY_TO_PIX(fs, bix, ix_entry);
-      int res;
+      u32_t res;
       spiffs_page_object_ix_header objix_hdr;
       res = _spiffs_rd(fs, SPIFFS_OP_T_OBJ_LU2 | SPIFFS_OP_C_READ,
           0, SPIFFS_PAGE_TO_PADDR(fs, pix), sizeof(spiffs_page_object_ix_header), (u8_t *)&objix_hdr);

@@ -27,8 +27,6 @@
 		4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4945A87A1EC398B900559CD1 /* Foundation.framework */; };
 		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
 		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
-		4945A8801EC4BC5400559CD1 /* MacNativeFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */; };
-		4945A8811EC4BC5400559CD1 /* MacNativeFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */; };
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
 		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
 		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
@@ -63,8 +61,14 @@
 		49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49AB794B1DC143B700DE6332 /* TaskManager.cpp */; };
 		49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AB794C1DC143B700DE6332 /* TaskManager.h */; };
 		49AD0A20209B534F00F86278 /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AD0A1E209B534F00F86278 /* Simulator.mm */; };
-		49AE34F41D82321300C4E680 /* MacFS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AE34F21D82321300C4E680 /* MacFS.mm */; };
-		49AE34F51D82321300C4E680 /* MacFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AE34F31D82321300C4E680 /* MacFS.h */; };
+		49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CB92350DBA900BF6D9E /* SpiffsFS.cpp */; };
+		49BE1CDE2350DD9100BF6D9E /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CC82350DD9100BF6D9E /* spiffs_nucleus.c */; };
+		49BE1CDF2350DD9100BF6D9E /* spiffs_hydrogen.c in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CC92350DD9100BF6D9E /* spiffs_hydrogen.c */; };
+		49BE1CEB2350DD9100BF6D9E /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CD62350DD9100BF6D9E /* spiffs_cache.c */; };
+		49BE1CED2350DD9100BF6D9E /* spiffs_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CD92350DD9100BF6D9E /* spiffs_gc.c */; };
+		49BE1CEE2350DD9100BF6D9E /* spiffs_check.c in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CDA2350DD9100BF6D9E /* spiffs_check.c */; };
+		49BE1CF02350DD9100BF6D9E /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BE1CDC2350DD9100BF6D9E /* spiffs.h */; };
+		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */; };
@@ -187,8 +191,6 @@
 		4945A86F1EC3711D00559CD1 /* m8r */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8r; sourceTree = BUILT_PRODUCTS_DIR; };
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacNativeFS.cpp; sourceTree = "<group>"; };
-		4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacNativeFS.h; sourceTree = "<group>"; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
 		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../src/SystemInterface.h; sourceTree = "<group>"; };
@@ -240,8 +242,36 @@
 		49AD0A1E209B534F00F86278 /* Simulator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Simulator.mm; sourceTree = "<group>"; };
 		49AD0A1F209B534F00F86278 /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
 		49AE34F11D8231BF00C4E680 /* FS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FS.h; path = ../src/FS.h; sourceTree = "<group>"; };
-		49AE34F21D82321300C4E680 /* MacFS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFS.mm; sourceTree = "<group>"; };
-		49AE34F31D82321300C4E680 /* MacFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFS.h; sourceTree = "<group>"; };
+		49BE1CB82350DBA900BF6D9E /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
+		49BE1CB92350DBA900BF6D9E /* SpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpiffsFS.cpp; path = ../src/SpiffsFS.cpp; sourceTree = "<group>"; };
+		49BE1CBF2350DD9100BF6D9E /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		49BE1CC02350DD9100BF6D9E /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		49BE1CC22350DD9100BF6D9E /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
+		49BE1CC32350DD9100BF6D9E /* TECH_SPEC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TECH_SPEC; sourceTree = "<group>"; };
+		49BE1CC42350DD9100BF6D9E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		49BE1CC52350DD9100BF6D9E /* files.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = files.mk; sourceTree = "<group>"; };
+		49BE1CC62350DD9100BF6D9E /* .travis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .travis.yml; sourceTree = "<group>"; };
+		49BE1CC82350DD9100BF6D9E /* spiffs_nucleus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiffs_nucleus.c; sourceTree = "<group>"; };
+		49BE1CC92350DD9100BF6D9E /* spiffs_hydrogen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiffs_hydrogen.c; sourceTree = "<group>"; };
+		49BE1CCB2350DD9100BF6D9E /* test_check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test_check.c; sourceTree = "<group>"; };
+		49BE1CCC2350DD9100BF6D9E /* testsuites.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testsuites.c; sourceTree = "<group>"; };
+		49BE1CCD2350DD9100BF6D9E /* test_bugreports.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test_bugreports.c; sourceTree = "<group>"; };
+		49BE1CCE2350DD9100BF6D9E /* test_spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_spiffs.h; sourceTree = "<group>"; };
+		49BE1CCF2350DD9100BF6D9E /* testrunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testrunner.h; sourceTree = "<group>"; };
+		49BE1CD02350DD9100BF6D9E /* test_hydrogen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test_hydrogen.c; sourceTree = "<group>"; };
+		49BE1CD12350DD9100BF6D9E /* params_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = params_test.h; sourceTree = "<group>"; };
+		49BE1CD22350DD9100BF6D9E /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		49BE1CD32350DD9100BF6D9E /* test_dev.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test_dev.c; sourceTree = "<group>"; };
+		49BE1CD42350DD9100BF6D9E /* test_spiffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test_spiffs.c; sourceTree = "<group>"; };
+		49BE1CD52350DD9100BF6D9E /* testrunner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testrunner.c; sourceTree = "<group>"; };
+		49BE1CD62350DD9100BF6D9E /* spiffs_cache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiffs_cache.c; sourceTree = "<group>"; };
+		49BE1CD82350DD9100BF6D9E /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spiffs_config.h; sourceTree = "<group>"; };
+		49BE1CD92350DD9100BF6D9E /* spiffs_gc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiffs_gc.c; sourceTree = "<group>"; };
+		49BE1CDA2350DD9100BF6D9E /* spiffs_check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiffs_check.c; sourceTree = "<group>"; };
+		49BE1CDB2350DD9100BF6D9E /* spiffs_nucleus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spiffs_nucleus.h; sourceTree = "<group>"; };
+		49BE1CDC2350DD9100BF6D9E /* spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spiffs.h; sourceTree = "<group>"; };
+		49BE1CF12350E65900BF6D9E /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs/src/spiffs_config.h; sourceTree = "<group>"; };
+		49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacSpiffsFS.cpp; sourceTree = "<group>"; };
 		49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTaskManager.cpp; sourceTree = "<group>"; };
 		49BEB2051DC30EB600F70E0B /* MacTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTaskManager.h; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -374,16 +404,13 @@
 		494BA1911D207AB700E72725 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				49AE34F21D82321300C4E680 /* MacFS.mm */,
-				49AE34F31D82321300C4E680 /* MacFS.h */,
 				49E1907D1DBAE2570030DC89 /* MacTCP.cpp */,
 				49E1907C1DBAE2570030DC89 /* MacTCP.h */,
 				49E1907A1DBAE2570030DC89 /* MacUDP.cpp */,
 				49E1907B1DBAE2570030DC89 /* MacUDP.h */,
+				49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */,
 				49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */,
 				49BEB2051DC30EB600F70E0B /* MacTaskManager.h */,
-				4945A87E1EC4BC5400559CD1 /* MacNativeFS.cpp */,
-				4945A87F1EC4BC5400559CD1 /* MacNativeFS.h */,
 			);
 			name = mac;
 			sourceTree = "<group>";
@@ -411,6 +438,72 @@
 				497B449F1D469BB000BC1B57 /* Makefile */,
 			);
 			name = esp;
+			sourceTree = "<group>";
+		};
+		49BE1CBE2350DD9100BF6D9E /* spiffs */ = {
+			isa = PBXGroup;
+			children = (
+				49BE1CBF2350DD9100BF6D9E /* LICENSE */,
+				49BE1CC02350DD9100BF6D9E /* makefile */,
+				49BE1CC12350DD9100BF6D9E /* docs */,
+				49BE1CC42350DD9100BF6D9E /* README.md */,
+				49BE1CC52350DD9100BF6D9E /* files.mk */,
+				49BE1CC62350DD9100BF6D9E /* .travis.yml */,
+				49BE1CC72350DD9100BF6D9E /* src */,
+			);
+			name = spiffs;
+			path = ../src/spiffs;
+			sourceTree = "<group>";
+		};
+		49BE1CC12350DD9100BF6D9E /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				49BE1CC22350DD9100BF6D9E /* TODO */,
+				49BE1CC32350DD9100BF6D9E /* TECH_SPEC */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		49BE1CC72350DD9100BF6D9E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				49BE1CC82350DD9100BF6D9E /* spiffs_nucleus.c */,
+				49BE1CC92350DD9100BF6D9E /* spiffs_hydrogen.c */,
+				49BE1CCA2350DD9100BF6D9E /* test */,
+				49BE1CD62350DD9100BF6D9E /* spiffs_cache.c */,
+				49BE1CD72350DD9100BF6D9E /* default */,
+				49BE1CD92350DD9100BF6D9E /* spiffs_gc.c */,
+				49BE1CDA2350DD9100BF6D9E /* spiffs_check.c */,
+				49BE1CDB2350DD9100BF6D9E /* spiffs_nucleus.h */,
+				49BE1CDC2350DD9100BF6D9E /* spiffs.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		49BE1CCA2350DD9100BF6D9E /* test */ = {
+			isa = PBXGroup;
+			children = (
+				49BE1CCB2350DD9100BF6D9E /* test_check.c */,
+				49BE1CCC2350DD9100BF6D9E /* testsuites.c */,
+				49BE1CCD2350DD9100BF6D9E /* test_bugreports.c */,
+				49BE1CCE2350DD9100BF6D9E /* test_spiffs.h */,
+				49BE1CCF2350DD9100BF6D9E /* testrunner.h */,
+				49BE1CD02350DD9100BF6D9E /* test_hydrogen.c */,
+				49BE1CD12350DD9100BF6D9E /* params_test.h */,
+				49BE1CD22350DD9100BF6D9E /* main.c */,
+				49BE1CD32350DD9100BF6D9E /* test_dev.c */,
+				49BE1CD42350DD9100BF6D9E /* test_spiffs.c */,
+				49BE1CD52350DD9100BF6D9E /* testrunner.c */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		49BE1CD72350DD9100BF6D9E /* default */ = {
+			isa = PBXGroup;
+			children = (
+				49BE1CD82350DD9100BF6D9E /* spiffs_config.h */,
+			);
+			path = default;
 			sourceTree = "<group>";
 		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
@@ -520,6 +613,8 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				49BE1CBE2350DD9100BF6D9E /* spiffs */,
+				49BE1CF12350E65900BF6D9E /* spiffs_config.h */,
 				494BA1911D207AB700E72725 /* mac */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
@@ -568,6 +663,8 @@
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */,
 				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
+				49BE1CB92350DBA900BF6D9E /* SpiffsFS.cpp */,
+				49BE1CB82350DBA900BF6D9E /* SpiffsFS.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
 				499AE8E7234A667D00459451 /* SystemInterface.cpp */,
@@ -595,9 +692,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
-				4945A8811EC4BC5400559CD1 /* MacNativeFS.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
-				49AE34F51D82321300C4E680 /* MacFS.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
 				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
@@ -607,6 +702,7 @@
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
+				49BE1CF02350DD9100BF6D9E /* spiffs.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -787,7 +883,10 @@
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
+				49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
+				49BE1CDF2350DD9100BF6D9E /* spiffs_hydrogen.c in Sources */,
+				49BE1CEB2350DD9100BF6D9E /* spiffs_cache.c in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
@@ -797,11 +896,11 @@
 				492396C71E711D12007AC0BF /* UDP.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
-				49AE34F41D82321300C4E680 /* MacFS.mm in Sources */,
 				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
+				49BE1CED2350DD9100BF6D9E /* spiffs_gc.c in Sources */,
 				49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
@@ -809,13 +908,15 @@
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
-				4945A8801EC4BC5400559CD1 /* MacNativeFS.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
+				49BE1CEE2350DD9100BF6D9E /* spiffs_check.c in Sources */,
+				49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
+				49BE1CDE2350DD9100BF6D9E /* spiffs_nucleus.c in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -916,6 +1017,7 @@
 			buildSettings = {
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = "";
 				LLVM_LTO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = generated;
@@ -928,6 +1030,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_OPTIMIZATION_LEVEL = fast;
+				HEADER_SEARCH_PATHS = "";
 				LLVM_LTO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = generated;

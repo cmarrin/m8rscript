@@ -37,35 +37,30 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "FS.h"
 
-#include <cstdio>
-#include <dirent.h>
-
-@class NSFileWrapper;
+#include "spiffs.h"
+#include "spiffs_nucleus.h"
 
 namespace m8r {
 
-class MacFS;
-
-class MacDirectoryEntry : public DirectoryEntry {
-    friend class MacFS;
+class SpiffsDirectoryEntry : public DirectoryEntry {
+    friend class SpiffsFS;
     
 public:
-    virtual ~MacDirectoryEntry();
+    virtual ~SpiffsDirectoryEntry();
     
     virtual bool next() override;
     
 private:
-    MacDirectoryEntry(NSFileWrapper*);
+    SpiffsDirectoryEntry();
     
-    int32_t _index;
-    NSFileWrapper* _files;
+    spiffs_DIR _dir;
 };
 
-class MacFile : public File {
-    friend class MacFS;
+class SpiffsFile : public File {
+    friend class SpiffsFS;
     
 public:
-    virtual ~MacFile();
+    virtual ~SpiffsFile();
   
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
@@ -75,26 +70,18 @@ public:
     virtual bool eof() const override;
     
 private:
-    MacFile(MacFS*, const char* name, const char* mode);
+    SpiffsFile(const char* name, const char* mode);
 
-    NSFileWrapper* _file = NULL;
-    bool _readable = true;
-    bool _writable = true;
-    size_t _offset = 0;
-    
-    NSFileWrapper* _files;
+    spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
-class MacFS : public FS {
-    friend class MacDirectoryEntry;
-    friend class MacFile;
+class SpiffsFS : public FS {
+    friend SpiffsDirectoryEntry;
+    friend SpiffsFile;
     
-public:    
-    MacFS();
-    virtual ~MacFS();
-    
-    void setFiles(NSFileWrapper* files) { _files = files; }
-    NSFileWrapper* getFiles() const { return _files; }
+public:
+    SpiffsFS(const char* name);
+    virtual ~SpiffsFS();
     
     virtual DirectoryEntry* directory() override;
     virtual bool mount() override;
@@ -110,9 +97,20 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static constexpr uint32_t MaxSize = 4000000;
+    static void setConfig(spiffs_config&, const char*);
     
-    NSFileWrapper* _files;
+    static spiffs* sharedSpiffs()
+    {
+        return &_spiffsFileSystem;
+    }
+    
+    int32_t internalMount();
+
+    spiffs_config _config;
+
+    static spiffs _spiffsFileSystem;
+    uint8_t* _spiffsWorkBuf;
+    uint8_t _spiffsFileDescriptors[sizeof(spiffs_fd) * 4];
 };
 
 }
