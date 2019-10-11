@@ -48,7 +48,7 @@ private:
     static constexpr uint32_t DownbeatMs = 50;
 
     bool _upbeat = false;
-    std::shared_ptr<NativeTask> _task;
+    NativeTask _task;
 };
 
 }

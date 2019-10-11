@@ -56,9 +56,9 @@ protected:
     TaskManager() { }
     virtual ~TaskManager() { }
     
-    virtual void yield(const std::shared_ptr<TaskBase>&, Duration = Duration());
+    virtual void yield(TaskBase*, Duration = Duration());
     
-    void terminate(const std::shared_ptr<TaskBase>&);
+    void terminate(TaskBase*);
     
     void executeNextTask();
     
@@ -74,7 +74,7 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     
-    using ListItem = std::pair<Time, std::shared_ptr<TaskBase>>;
+    using ListItem = std::pair<Time, TaskBase*>;
     std::forward_list<ListItem> _list;
     bool _eventPosted = false;
 };

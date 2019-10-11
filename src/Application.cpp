@@ -57,19 +57,19 @@ public:
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId] = Task::create(Application::shellName());
+                _shells[connectionId] = new Task(Application::shellName());
                 if (_shells[connectionId]->error()) {
                     system()->printf("Failed to create shell task '%s'\n", Application::shellName());
                     _shells[connectionId]->error().showError();
                     _shells[connectionId] = nullptr;
                     tcp->disconnect(connectionId);
                 } else {
-                    Task::run(_shells[connectionId]);
+                    _shells[connectionId]->run();
                 }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
                 if (_shells[connectionId]) {
-                    Task::terminate(_shells[connectionId]);
+                    _shells[connectionId]->terminate();
                     _shells[connectionId] = nullptr;
                 }
                 break;
@@ -92,7 +92,7 @@ public:
 private:
     std::unique_ptr<m8r::TCP> _tcp;
     Application* _application;
-    std::shared_ptr<Task> _shells[m8r::TCP::MaxConnections];
+    Task* _shells[m8r::TCP::MaxConnections];
 };
 
 Application::Application(uint16_t port)

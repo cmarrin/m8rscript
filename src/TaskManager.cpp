@@ -46,7 +46,7 @@ static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
 static Duration TaskPollingRate = 50_ms;
 
 
-void TaskManager::yield(const std::shared_ptr<TaskBase>& newTask, Duration delay)
+void TaskManager::yield(TaskBase* newTask, Duration delay)
 {
     Time now = Time::now();
     if (delay > MaxTaskDelay) {
@@ -69,7 +69,7 @@ void TaskManager::yield(const std::shared_ptr<TaskBase>& newTask, Duration delay
     readyToExecuteNextTask();
 }
 
-void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
+void TaskManager::terminate(TaskBase* task)
 {
     auto prev = _list.before_begin();
     for (auto it = _list.begin(); it != _list.end(); ++it) {
@@ -87,7 +87,7 @@ void TaskManager::executeNextTask()
         return;
     }
     
-    std::shared_ptr<TaskBase> task = _list.front().second;
+    TaskBase* task = _list.front().second;
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {

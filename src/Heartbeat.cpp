@@ -40,13 +40,14 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Heartbeat::Heartbeat()
-{
-    _task = NativeTask::create([this]() {
+    : _task([this]() {
         system()->gpio()->digitalWrite(system()->gpio()->builtinLED(), !_upbeat);
         _upbeat = !_upbeat;
         return CallReturnValue(CallReturnValue::Type::MsDelay, _upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
-    });
-
+    })
+{
     system()->gpio()->setPinMode(system()->gpio()->builtinLED(), GPIOInterface::PinMode::Output);
-    Task::run(_task);
+    _task.run();
+    
+    NativeTask newtask;
 }
