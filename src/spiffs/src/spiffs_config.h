@@ -17,16 +17,6 @@
 
 // Instead of giving parameters in config struct, singleton build must
 // give parameters in defines below.
-extern uint32_t _SPIFFS_start;
-extern uint32_t _SPIFFS_end;
-extern uint32_t _SPIFFS_page;
-extern uint32_t _SPIFFS_block;
-
-#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
-#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
-#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
-#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
-
 #include <assert.h>
 #include <string.h>
 #include <c_types.h>
@@ -34,6 +24,24 @@ extern uint32_t _SPIFFS_block;
 #include <osapi.h>
 #include "user_config.h"
 #include "flashmem.h"
+
+typedef signed long s32_t;
+typedef unsigned long u32_t;
+typedef signed short s16_t;
+typedef unsigned short u16_t;
+typedef signed char s8_t;
+typedef unsigned char u8_t;
+
+extern u32_t _SPIFFS_start;
+extern u32_t _SPIFFS_end;
+extern u32_t _SPIFFS_page;
+extern u32_t _SPIFFS_block;
+
+#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
+#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
+#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
+#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
+
 #else
 
 #define SPIFFS_PHYS_ADDR 0
@@ -49,16 +57,16 @@ extern uint32_t _SPIFFS_block;
 #include <stddef.h>
 #include <unistd.h>
 
-#define SPI_FLASH_SEC_SIZE 4096
-
-#endif /* __ets__ */
-
 typedef int32_t s32_t;
 typedef uint32_t u32_t;
 typedef int16_t s16_t;
 typedef uint16_t u16_t;
 typedef int8_t s8_t;
 typedef uint8_t u8_t;
+
+#define SPI_FLASH_SEC_SIZE 4096
+
+#endif /* __ets__ */
 
 // compile time switches
 #define DEBUG_SPIFFS 0

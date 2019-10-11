@@ -22,7 +22,7 @@
 
 #include "EspGPIOInterface.h"
 #include "EspTaskManager.h"
-#include "EspFS.h"
+#include "SpiffsFS.h"
 #include "EspTaskManager.h"
 #include "EspTCP.h"
 #include "EspUDP.h"
@@ -126,7 +126,7 @@ void setDeviceName(const char*);
 class EspSystemInterface : public m8r::SystemInterface
 {
 public:
-    EspSystemInterface() { }
+    EspSystemInterface() : _fileSystem("") { }
     
     virtual void vprintf(const char* fmt, va_list) const override;
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
@@ -147,7 +147,7 @@ public:
 
 private:
     m8r::EspGPIOInterface _gpio;
-    m8r::EspFS _fileSystem;
+    m8r::SpiffsFS _fileSystem;
     m8r::EspTaskManager _taskManager;
 };
 
@@ -619,7 +619,7 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     return SPIFFS_OK;
 }
 
-void SpiffsFS::setConfig(spiffs_config& config, const char*)
+void m8r::SpiffsFS::setConfig(spiffs_config& config, const char*)
 {
     memset(&config, 0, sizeof(config));
     config.hal_read_f = spiffsRead;
