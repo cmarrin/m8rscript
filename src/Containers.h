@@ -292,6 +292,8 @@ public:
     
     bool isMarked() const { return _marked; }
     void setMarked(bool b) { _marked = b; }
+    
+    void reserve(size_t size) { ensureCapacity(size); }
 	
 private:
     void ensureCapacity(size_t size)
