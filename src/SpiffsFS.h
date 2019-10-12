@@ -37,23 +37,78 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "FS.h"
 
+#include "Containers.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 
+// Spiffs++ File System
+//
+// The underlying file system is Spiffs. But that doesn't provide a
+// hierarchical directory structure. So Spiffs++ layers that on top.
+// The root system directory is at "/". This contains a directory file
+// with sequential entries. Each entry has a filename and information
+// about its type and location in the Spiffs file system. The entry
+// contains a file id, which is a 3 character filename in the actual
+// Spiffs file system. This name is passed to SPIFFS_open() to open the 
+// actual file.
+//
+// Generating file ids
+//
+// When a file is created a random file id is generated. A SPIFFS_open() is 
+// then done with the SPIFFS_RDONLY flag. If the file opens successfully
+// it means a file with that name already exists so we generate another
+// random name and try again. The name range is 255^3 or 16 million
+// so the chance of collision is incredibly rare.
+//
+// Directory structure
+//
+// A directory is just a file containing a sequence of entries. Each entry
+// starts with a byte in which the lower 6 bits are the length of the
+// name, allowing for 64 character names max. The upper 2 bits 
+// indicate the file type. Currently 00b is a deleted file, 01b is a 
+// directory, 10b is a file and 11b is reserved for future use. Following
+// this byte is the filename itself, occupying the number of bytes 
+// indicated in the length field of the first byte. After the name is
+// a 3 character filename in the actual Spiffs file system.
+//
+// Deleted file entries, indicated by a type value of 00b, can be used
+// if the new file name is <= the old name. If the new name is shorter,
+// the space is filled with '\0'.
+//
+// When placing a new name is a directory, it is searched from the 
+// beginning. If no deleted entries are found that fit, the name is 
+// appended to the directory file.
+//
+// TODO: compress the deleted file space when it gets too large
+
 namespace m8r {
 
-class SpiffsDirectoryEntry : public DirectoryEntry {
+static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
+
+class SpiffsDirectory : public Directory {
     friend class SpiffsFS;
     
 public:
-    virtual ~SpiffsDirectoryEntry();
+    SpiffsDirectory(const char* name);
+    virtual ~SpiffsDirectory() { }
     
     virtual bool next() override;
     
 private:
-    SpiffsDirectoryEntry();
+    enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
     
-    spiffs_DIR _dir;
+    class Entry {
+    public:
+        EntryType type() const { return static_cast<EntryType>(_value >> 6); }
+        uint8_t size() const { return _value & 0x3f; }
+
+    private:
+        uint8_t _value;
+    };
+    
+    SpiffsDirectory();
+    
+    std::shared_ptr<File> _dirFile;
 };
 
 class SpiffsFile : public File {
@@ -70,26 +125,26 @@ public:
     virtual bool eof() const override;
     
 private:
-    SpiffsFile(const char* name, const char* mode);
+    SpiffsFile(const char* name, spiffs_flags mode);
 
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
 class SpiffsFS : public FS {
-    friend SpiffsDirectoryEntry;
+    friend SpiffsDirectory;
     friend SpiffsFile;
     
 public:
     SpiffsFS(const char* name);
     virtual ~SpiffsFS();
     
-    virtual DirectoryEntry* directory() override;
     virtual bool mount() override;
     virtual bool mounted() const override;
     virtual void unmount() override;
     virtual bool format() override;
     
-    virtual File* open(const char* name, const char* mode) override;
+    virtual std::shared_ptr<File> open(const char* name, const char* mode) override;
+    virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;
 
@@ -97,6 +152,10 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
+    std::shared_ptr<File> find(const char* name);
+    String findNameInDirectory(const std::shared_ptr<File>&, const String& name);
+    std::shared_ptr<File> rawOpen(const String& name, spiffs_flags);
+    
     static void setConfig(spiffs_config&, const char*);
     
     static spiffs* sharedSpiffs()

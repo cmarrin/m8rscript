@@ -365,14 +365,13 @@ void writeUserData()
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
     _gUserData.magic[3] = 's';
-    m8r::File* file = m8r::system()->fileSystem()->open(UserDataFilename, "w");
+    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, "w");
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
-    delete file;
 }
 
 void getUserData()
 {
-    m8r::File* file = m8r::system()->fileSystem()->open(UserDataFilename, "r");
+    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, "r");
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 

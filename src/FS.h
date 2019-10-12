@@ -36,17 +36,18 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 namespace m8r {
 
 const uint32_t FilenameLength = 32;
 
-class DirectoryEntry {
+class Directory {
     friend class FS;
     
 public:
-    DirectoryEntry() { }
-    virtual  ~DirectoryEntry() { }
+    Directory() { }
+    virtual  ~Directory() { }
 
     const char* name() const { return _name; }
     uint32_t size() const { return _size; }
@@ -100,13 +101,13 @@ public:
     FS() { }
     virtual ~FS() { }
 
-    virtual DirectoryEntry* directory() = 0;
     virtual bool mount() = 0;
     virtual bool mounted() const = 0;
     virtual void unmount() = 0;
     virtual bool format() = 0;
     
-    virtual File* open(const char* name, const char* mode) = 0;
+    virtual std::shared_ptr<File> open(const char* name, const char* mode) = 0;
+    virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
     virtual bool remove(const char* name) = 0;
     virtual bool rename(const char* src, const char* dst) = 0;
     

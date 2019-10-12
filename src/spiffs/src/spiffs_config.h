@@ -160,7 +160,7 @@ typedef uint8_t u8_t;
 // zero-termination character, meaning maximum string of characters
 // can at most be SPIFFS_OBJ_NAME_LEN - 1.
 #ifndef SPIFFS_OBJ_NAME_LEN
-#define SPIFFS_OBJ_NAME_LEN             (32)
+#define SPIFFS_OBJ_NAME_LEN             (4)
 #endif
 
 // Size of buffer allocated on stack used when copying data.

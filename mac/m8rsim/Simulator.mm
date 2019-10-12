@@ -162,20 +162,20 @@ NSFileWrapper* Simulator::getFiles() const
 
 NSArray* Simulator::listFiles()
 {
-    m8r::DirectoryEntry* directoryEntry = _fs->directory();
-    if (!directoryEntry) {
+    m8r::Directory* directory = _fs->directory();
+    if (!directory) {
         return NULL;
     }
     
     NSMutableArray* array = [[NSMutableArray alloc]init];
 
-    while (directoryEntry->valid()) {
-        [array addObject:@{ @"name" : [NSString stringWithUTF8String:directoryEntry->name()], 
-                            @"size" : [NSNumber numberWithUnsignedInt:directoryEntry->size()] }];
-        directoryEntry->next();
+    while (directory->valid()) {
+        [array addObject:@{ @"name" : [NSString stringWithUTF8String:directory->name()], 
+                            @"size" : [NSNumber numberWithUnsignedInt:directory->size()] }];
+        directory->next();
     }
 
-    delete directoryEntry;
+    delete directory;
     return array;
 }
 

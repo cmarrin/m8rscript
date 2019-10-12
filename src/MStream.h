@@ -73,13 +73,6 @@ public:
         _file = fs->open(file, mode);
     }
 
-    ~FileStream()
-    {
-        if (_file) {
-            delete _file;
-        }
-    }
-    
     bool loaded()
     {
         return _file && _file->valid();
@@ -112,7 +105,7 @@ public:
 	virtual void flush() override { }
 	
 private:
-    File* _file = nullptr;
+    std::shared_ptr<File> _file;
 };
 
 //////////////////////////////////////////////////////////////////////////////

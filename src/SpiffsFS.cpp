@@ -58,14 +58,6 @@ SpiffsFS::~SpiffsFS()
     delete _spiffsWorkBuf;
 }
 
-DirectoryEntry* SpiffsFS::directory()
-{
-    if (!mounted()) {
-        return nullptr;
-    }
-    return new SpiffsDirectoryEntry();
-}
-
 bool SpiffsFS::mount()
 {
     system()->printf(ROMSTR("Mounting SPIFFS...\n"));
@@ -122,9 +114,105 @@ bool SpiffsFS::format()
     return true;
 }
 
-File* SpiffsFS::open(const char* name, const char* mode)
+std::shared_ptr<File> SpiffsFS::find(const char* name)
 {
-    return new SpiffsFile(name, mode);
+    if (!name || name[0] != '/') {
+        return nullptr;
+    }
+    
+    // Split up the name and find each component
+    std::shared_ptr<File> file = rawOpen("/", SPIFFS_O_RDONLY);
+    std::vector<String> components = String(name).split("/");
+    
+    for (auto it : components) {
+        if (it.empty()) {
+            continue;
+        }
+        
+        String fileid = findNameInDirectory(file, it);
+        if (fileid.empty()) {
+            return nullptr;
+        }
+        
+        file = rawOpen(fileid, SPIFFS_O_RDONLY);
+    }
+    
+    return file;
+}
+
+String SpiffsFS::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name)
+{
+    String s;
+    char fileIdBuffer[FileIDLength];
+    
+    while (!dir->eof()) {
+        SpiffsDirectory::Entry entry;
+        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (entry.type() == SpiffsDirectory::EntryType::File || 
+            entry.type() == SpiffsDirectory::EntryType::Directory) {
+            uint8_t size = entry.size();
+            s.reserve(size + 1);
+            for ( ; size > 0; --size) {
+                char c;
+                dir->read(&c, 1);
+                s += c;
+            }
+            
+            dir->read(fileIdBuffer, sizeof(fileIdBuffer));
+            if (s == name) {
+                return String(fileIdBuffer, sizeof(fileIdBuffer));
+            }
+        }
+    }
+    
+    return "";
+}
+
+std::shared_ptr<File> SpiffsFS::rawOpen(const String& name, spiffs_flags flags)
+{
+    return std::shared_ptr<SpiffsFile>(new SpiffsFile(name.c_str(), flags));
+}
+
+struct FileModeEntry {
+    const char* _mode;
+    spiffs_flags _flags;
+};
+
+static const FileModeEntry _fileModeMap[] = {
+    { "r",  SPIFFS_RDONLY },
+    { "r+", SPIFFS_RDWR },
+    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
+    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
+    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
+    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
+};
+
+std::shared_ptr<File> SpiffsFS::open(const char* name, const char* mode)
+{
+    // Convert mode to spiffs_flags
+    spiffs_flags flags = 0;
+    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
+        if (strcmp(mode, _fileModeMap[i]._mode) == 0) {
+            flags = _fileModeMap[i]._flags;
+            break;
+        }
+    }
+    
+    if (!flags) {
+        system()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
+        return nullptr;
+    }
+    
+    // TODO: If flags allow file creation, generate a new fileId and create the file
+    return find(name);
+}
+
+std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name)
+{
+    if (!mounted()) {
+        return nullptr;
+    }
+    return std::shared_ptr<SpiffsDirectory>(new SpiffsDirectory(name));
 }
 
 bool SpiffsFS::remove(const char* name)
@@ -157,62 +245,30 @@ int32_t SpiffsFS::internalMount()
                         _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
 }
 
-SpiffsDirectoryEntry::SpiffsDirectoryEntry()
+SpiffsDirectory::SpiffsDirectory(const char* name)
 {
-	SPIFFS_opendir(SpiffsFS::sharedSpiffs(), "/", &_dir);
-    next();
+//    if (
+//
+//
+//
+//
+//	SPIFFS_opendir(SpiffsFS::sharedSpiffs(), "/", &_dir);
+//    next();
 }
 
-SpiffsDirectoryEntry::~SpiffsDirectoryEntry()
+bool SpiffsDirectory::next()
 {
-    SPIFFS_closedir(&_dir);
-}
-
-bool SpiffsDirectoryEntry::next()
-{
-    spiffs_dirent entry;
-    _valid = SPIFFS_readdir(&_dir, &entry);
-    if (_valid) {
-        strcpy(_name, reinterpret_cast<const char*>(&(entry.name[0])));
-        _size = entry.size;
-    }
+//    spiffs_dirent entry;
+//    _valid = SPIFFS_readdir(&_dir, &entry);
+//    if (_valid) {
+//        strcpy(_name, reinterpret_cast<const char*>(&(entry.name[0])));
+//        _size = entry.size;
+//    }
     return _valid;
 }
 
-struct FileModeEntry {
-    const char* _mode;
-    spiffs_flags _flags;
-};
-
-static const FileModeEntry _fileModeMap[] = {
-    { "r",  SPIFFS_RDONLY },
-    { "r+", SPIFFS_RDWR },
-    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
-    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
-    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
-    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
-};
-
-SpiffsFile::SpiffsFile(const char* name, const char* mode)
+SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
 {
-    if (Application::validateFileName(name) != Application::NameValidationType::Ok) {
-        system()->printf(ROMSTR("ERROR: invalid filename '%s' for open\n"), name);
-        _file = SPIFFS_ERR_NAME_TOO_LONG;
-        return;
-    }
-    
-    spiffs_flags flags = 0;
-    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
-        if (strcmp(mode, _fileModeMap[i]._mode) == 0) {
-            flags = _fileModeMap[i]._flags;
-            break;
-        }
-    }
-    if (!flags) {
-        system()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
-        _file = SPIFFS_ERR_FILE_CLOSED;
-        return;
-    }
     _file = SPIFFS_open(SpiffsFS::sharedSpiffs(), name, flags, 0);
     _error = (_file < 0) ? static_cast<uint32_t>(-_file) : 0;
 }
