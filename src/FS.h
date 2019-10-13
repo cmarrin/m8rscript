@@ -50,9 +50,22 @@ class FS {
 public:
     enum class Error : int32_t {
         OK,
-        FileNotFound,
+        NotFound,
+        Exists,
+        ReadError,
+        WriteError,
+        NotReadable,
+        NotWritable,
+        TooManyOpenFiles,
         DirectoryNotFound,
         NotADirectory,
+        FSNotFormatted,
+        NoSpace,
+        MountFailed,
+        NotMounted,
+        Mounted,
+        FSConsistencyCheckFailed,
+        InternalError,
     };
     
     FS() { }
@@ -70,6 +83,9 @@ public:
     
     virtual uint32_t totalSize() const = 0;
     virtual uint32_t totalUsed() const = 0;
+    
+protected:
+    Error _error = Error::OK;
 };
 
 class Directory {

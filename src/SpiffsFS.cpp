@@ -65,13 +65,16 @@ bool SpiffsFS::mount()
     if (result != SPIFFS_OK) {
         if (result == SPIFFS_ERR_NOT_A_FS) {
             system()->printf(ROMSTR("ERROR: Not a valid SPIFFS filesystem. Please format.\n"));
+            _error = Error::FSNotFormatted;
         } else {
             system()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), result);
+            _error = Error::MountFailed;
         }
         return false;
     }
     if (!mounted()) {
         system()->printf(ROMSTR("ERROR: SPIFFS filesystem failed to mount\n"));
+        _error = Error::MountFailed;
         return false;
     }
 
@@ -79,9 +82,11 @@ bool SpiffsFS::mount()
     result = SPIFFS_check(&_spiffsFileSystem);
     if (result != SPIFFS_OK) {
         system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
+        _error = Error::FSConsistencyCheckFailed;
         return false;
     } else {
         system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
+        _error = Error::OK;
     }
     return true;
 }
@@ -194,6 +199,24 @@ int32_t SpiffsFS::internalMount()
                         _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
 }
 
+FS::Error SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
+{
+    assert(spiffsError < 0);
+
+    switch(spiffsError) {
+        case SPIFFS_ERR_NOT_MOUNTED          : return Error::NotMounted;
+        case SPIFFS_ERR_FULL                 : return Error::NoSpace;
+        case SPIFFS_ERR_NOT_FOUND            : return Error::NotFound;
+        case SPIFFS_ERR_END_OF_OBJECT        : return Error::ReadError;
+        case SPIFFS_ERR_OUT_OF_FILE_DESCS    : return Error::TooManyOpenFiles;
+        case SPIFFS_ERR_NOT_WRITABLE         : return Error::NotWritable;
+        case SPIFFS_ERR_NOT_READABLE         : return Error::NotReadable;
+        case SPIFFS_ERR_MOUNTED              : return Error::Mounted;
+        case SPIFFS_ERR_FILE_EXISTS          : return Error::Exists;
+        default                              : return Error::InternalError;
+    }
+}
+
 SpiffsDirectory::SpiffsDirectory(const char* name)
 {
     _dirFile = find(name);
@@ -297,7 +320,7 @@ void SpiffsDirectory::createFileID(FileID& fileID)
 SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
 {
     _file = SPIFFS_open(SpiffsFS::sharedSpiffs(), name, flags, 0);
-    _error = (_file < 0) ? static_cast<FS::Error>(SPIFFS_errno(SpiffsFS::sharedSpiffs())) : FS::Error::OK;
+    _error = (_file < 0) ? SpiffsFS::mapSpiffsError(_file) : FS::Error::OK;
 }
 
 SpiffsFile::~SpiffsFile()

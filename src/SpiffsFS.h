@@ -165,6 +165,7 @@ public:
 
 private:
     static std::shared_ptr<SpiffsFile> rawOpen(const String& name, spiffs_flags, File::Type);
+    static Error mapSpiffsError(spiffs_file);
 
     static void setConfig(spiffs_config&, const char*);
     
