@@ -114,65 +114,6 @@ bool SpiffsFS::format()
     return true;
 }
 
-std::shared_ptr<File> SpiffsFS::find(const char* name)
-{
-    if (!name || name[0] != '/') {
-        return nullptr;
-    }
-    
-    // Split up the name and find each component
-    std::shared_ptr<File> file = rawOpen("/", SPIFFS_O_RDONLY);
-    std::vector<String> components = String(name).split("/");
-    
-    for (auto it : components) {
-        if (it.empty()) {
-            continue;
-        }
-        
-        String fileid = findNameInDirectory(file, it);
-        if (fileid.empty()) {
-            return nullptr;
-        }
-        
-        file = rawOpen(fileid, SPIFFS_O_RDONLY);
-    }
-    
-    return file;
-}
-
-String SpiffsFS::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name)
-{
-    String s;
-    FileID fileId;
-    
-    while (!dir->eof()) {
-        Entry entry;
-        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
-        if (entry.type() == EntryType::File || 
-            entry.type() == EntryType::Directory) {
-            uint8_t size = entry.size();
-            s.reserve(size + 1);
-            for ( ; size > 0; --size) {
-                char c;
-                dir->read(&c, 1);
-                s += c;
-            }
-            
-            dir->read(fileId, sizeof(fileId));
-            if (s == name) {
-                return String(fileId, sizeof(fileId));
-            }
-        }
-    }
-    
-    return "";
-}
-
-void SpiffsFS::createFileID(FileID& fileID)
-{
-    ::rand();
-}
-
 std::shared_ptr<File> SpiffsFS::rawOpen(const String& name, spiffs_flags flags)
 {
     return std::shared_ptr<SpiffsFile>(new SpiffsFile(name.c_str(), flags));
@@ -209,7 +150,8 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, const char* mode)
     }
     
     // TODO: If flags allow file creation, generate a new fileId and create the file
-    return find(name);
+    
+    return SpiffsDirectory::find(name);
 }
 
 std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name)
@@ -270,6 +212,69 @@ bool SpiffsDirectory::next()
 //        _size = entry.size;
 //    }
     return _valid;
+}
+
+std::shared_ptr<File> SpiffsDirectory::find(const char* name)
+{
+    if (!name || name[0] != '/') {
+        return nullptr;
+    }
+    
+    // Split up the name and find each component
+    std::shared_ptr<File> file = SpiffsFS::rawOpen("/", SPIFFS_O_RDONLY);
+    std::vector<String> components = String(name).split("/");
+    
+    for (auto it : components) {
+        if (it.empty()) {
+            continue;
+        }
+        
+        String fileid = findNameInDirectory(file, it);
+        if (fileid.empty()) {
+            return nullptr;
+        }
+        
+        file = SpiffsFS::rawOpen(fileid, SPIFFS_O_RDONLY);
+    }
+    
+    return file;
+}
+
+String SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name)
+{
+    String s;
+    FileID fileId;
+    
+    while (!dir->eof()) {
+        Entry entry;
+        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (entry.type() == EntryType::File ||
+            entry.type() == EntryType::Directory) {
+            uint8_t size = entry.size();
+            s.reserve(size + 1);
+            for ( ; size > 0; --size) {
+                char c;
+                dir->read(&c, 1);
+                s += c;
+            }
+            
+            dir->read(fileId, sizeof(fileId));
+            if (s == name) {
+                return String(fileId, sizeof(fileId));
+            }
+        }
+    }
+    
+    return "";
+}
+
+void SpiffsDirectory::createFileID(FileID& fileID)
+{
+    char offset = 0x21;
+    char range = 0x7e - offset + 1;
+    for (char i = 0; i < FileIDLength; ++i) {
+        fileID[i] = static_cast<char>(rand() % range) + offset;
+    }
 }
 
 SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
