@@ -35,12 +35,42 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Containers.h"
 #include <cstdint>
 #include <memory>
 
 namespace m8r {
 
-const uint32_t FilenameLength = 32;
+class File;
+class Directory;
+
+class FS {
+    friend class File;
+    
+public:
+    enum class Error : int32_t {
+        OK,
+        FileNotFound,
+        DirectoryNotFound,
+        NotADirectory,
+    };
+    
+    FS() { }
+    virtual ~FS() { }
+
+    virtual bool mount() = 0;
+    virtual bool mounted() const = 0;
+    virtual void unmount() = 0;
+    virtual bool format() = 0;
+    
+    virtual std::shared_ptr<File> open(const char* name, const char* mode) = 0;
+    virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
+    virtual bool remove(const char* name) = 0;
+    virtual bool rename(const char* src, const char* dst) = 0;
+    
+    virtual uint32_t totalSize() const = 0;
+    virtual uint32_t totalUsed() const = 0;
+};
 
 class Directory {
     friend class FS;
@@ -49,15 +79,15 @@ public:
     Directory() { }
     virtual  ~Directory() { }
 
-    const char* name() const { return _name; }
+    const String& name() const { return _name; }
     uint32_t size() const { return _size; }
-    bool valid() const { return _valid; }
+    bool valid() const { return _error == FS::Error::OK; }
     
     virtual bool next() = 0;
     
 protected:
-    bool _valid = false;
-    char _name[FilenameLength];
+    FS::Error _error = FS::Error::OK;
+    String _name;
     uint32_t _size = 0;
 };
 
@@ -66,6 +96,7 @@ class File {
     
 public:
     enum class SeekWhence { Set, Cur, End };
+    enum class Type { File, Directory, Unknown };
     
     virtual ~File() { }
   
@@ -87,32 +118,13 @@ public:
     virtual int32_t tell() const = 0;
     virtual bool eof() const = 0;
     
-    bool valid() const { return _error == 0; }
-    uint32_t error() const { return _error; }
+    bool valid() const { return _error == FS::Error::OK; }
+    FS::Error error() const { return _error; }
+    Type type() const { return _type; }
 
 protected:
-    uint32_t _error = 0;
-};
-
-class FS {
-    friend class File;
-    
-public:
-    FS() { }
-    virtual ~FS() { }
-
-    virtual bool mount() = 0;
-    virtual bool mounted() const = 0;
-    virtual void unmount() = 0;
-    virtual bool format() = 0;
-    
-    virtual std::shared_ptr<File> open(const char* name, const char* mode) = 0;
-    virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
-    virtual bool remove(const char* name) = 0;
-    virtual bool rename(const char* src, const char* dst) = 0;
-    
-    virtual uint32_t totalSize() const = 0;
-    virtual uint32_t totalUsed() const = 0;
+    FS::Error _error = FS::Error::OK;
+    Type _type = Type::Unknown;
 };
 
 }

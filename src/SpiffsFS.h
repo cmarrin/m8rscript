@@ -109,18 +109,20 @@ private:
     using FileID = char[FileIDLength];
     
     static std::shared_ptr<File> find(const char* name);
-    static String findNameInDirectory(const std::shared_ptr<File>&, const String& name);
+    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
 
     void createFileID(FileID&);
 
     SpiffsDirectory();
     
     std::shared_ptr<File> _dirFile;
+    FileID _fileID;
 };
 
 class SpiffsFile : public File {
     friend class SpiffsFS;
-    
+    friend class SpiffsDirectory;
+
 public:
     virtual ~SpiffsFile();
   
@@ -130,6 +132,9 @@ public:
     virtual bool seek(int32_t offset, File::SeekWhence whence) override;
     virtual int32_t tell() const override;
     virtual bool eof() const override;
+    
+protected:
+    void setType(File::Type type) { _type = type; }
     
 private:
     SpiffsFile(const char* name, spiffs_flags mode);
@@ -159,7 +164,7 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static std::shared_ptr<File> rawOpen(const String& name, spiffs_flags);
+    static std::shared_ptr<SpiffsFile> rawOpen(const String& name, spiffs_flags, File::Type);
 
     static void setConfig(spiffs_config&, const char*);
     

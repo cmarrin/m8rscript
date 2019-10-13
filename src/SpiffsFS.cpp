@@ -114,9 +114,11 @@ bool SpiffsFS::format()
     return true;
 }
 
-std::shared_ptr<File> SpiffsFS::rawOpen(const String& name, spiffs_flags flags)
+std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const String& name, spiffs_flags flags, File::Type type)
 {
-    return std::shared_ptr<SpiffsFile>(new SpiffsFile(name.c_str(), flags));
+    std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(name.c_str(), flags));
+    file->setType(type);
+    return file;
 }
 
 struct FileModeEntry {
@@ -194,24 +196,38 @@ int32_t SpiffsFS::internalMount()
 
 SpiffsDirectory::SpiffsDirectory(const char* name)
 {
-//    if (
-//
-//
-//
-//
-//	SPIFFS_opendir(SpiffsFS::sharedSpiffs(), "/", &_dir);
-//    next();
+    _dirFile = find(name);
+    if (!_dirFile || _dirFile->type() != File::Type::Directory) {
+        _dirFile = nullptr;
+        _error = FS::Error::NotADirectory;
+        return;
+    }
+    next();
 }
 
 bool SpiffsDirectory::next()
 {
-//    spiffs_dirent entry;
-//    _valid = SPIFFS_readdir(&_dir, &entry);
-//    if (_valid) {
-//        strcpy(_name, reinterpret_cast<const char*>(&(entry.name[0])));
-//        _size = entry.size;
-//    }
-    return _valid;
+    String s;
+    
+    if (_dirFile->eof()) {
+        Entry entry;
+        _dirFile->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (entry.type() == EntryType::File ||
+            entry.type() == EntryType::Directory) {
+            uint8_t size = entry.size();
+            s.reserve(size + 1);
+            for ( ; size > 0; --size) {
+                char c;
+                _dirFile->read(&c, 1);
+                s += c;
+            }
+            
+            _dirFile->read(_fileID, sizeof(_fileID));
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 std::shared_ptr<File> SpiffsDirectory::find(const char* name)
@@ -221,7 +237,7 @@ std::shared_ptr<File> SpiffsDirectory::find(const char* name)
     }
     
     // Split up the name and find each component
-    std::shared_ptr<File> file = SpiffsFS::rawOpen("/", SPIFFS_O_RDONLY);
+    std::shared_ptr<File> file = SpiffsFS::rawOpen("/", SPIFFS_O_RDONLY, File::Type::Directory);
     std::vector<String> components = String(name).split("/");
     
     for (auto it : components) {
@@ -229,21 +245,21 @@ std::shared_ptr<File> SpiffsDirectory::find(const char* name)
             continue;
         }
         
-        String fileid = findNameInDirectory(file, it);
-        if (fileid.empty()) {
+        FileID fileID;
+        File::Type type;
+        if (findNameInDirectory(file, it, fileID, type)) {
             return nullptr;
         }
         
-        file = SpiffsFS::rawOpen(fileid, SPIFFS_O_RDONLY);
+        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY, type);
     }
     
     return file;
 }
 
-String SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name)
+bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name, FileID& fileID, File::Type& type)
 {
     String s;
-    FileID fileId;
     
     while (!dir->eof()) {
         Entry entry;
@@ -258,14 +274,15 @@ String SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, co
                 s += c;
             }
             
-            dir->read(fileId, sizeof(fileId));
+            dir->read(fileID, sizeof(fileID));
             if (s == name) {
-                return String(fileId, sizeof(fileId));
+                type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
+                return true;
             }
         }
     }
     
-    return "";
+    return false;
 }
 
 void SpiffsDirectory::createFileID(FileID& fileID)
@@ -280,7 +297,7 @@ void SpiffsDirectory::createFileID(FileID& fileID)
 SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
 {
     _file = SPIFFS_open(SpiffsFS::sharedSpiffs(), name, flags, 0);
-    _error = (_file < 0) ? static_cast<uint32_t>(-_file) : 0;
+    _error = (_file < 0) ? static_cast<FS::Error>(SPIFFS_errno(SpiffsFS::sharedSpiffs())) : FS::Error::OK;
 }
 
 SpiffsFile::~SpiffsFile()
