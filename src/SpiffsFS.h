@@ -109,12 +109,27 @@ private:
         uint8_t _value;
     };
 
-    using FileID = char[FileIDLength];
-    
-    static std::shared_ptr<File> find(const char* name);
-    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
+    class FileID
+    {
+    public:
+        FileID() { }
+        
+        const char* value() const { return _value; }
+        char* value() { return _value; }
+        operator bool() const { return _value[0] != '\0'; }
+        
+        static FileID bad() { return FileID(); }
+        static FileID root() { return FileID('/'); }
+        static FileID random();
 
-    void createFileID(FileID&);
+    private:
+        FileID(char c) { _value[0] = c; }
+        
+        char _value[FileIDLength] = { '\0', '\0', '\0' };
+    };
+    
+    static FileID find(const char* name);
+    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
 
     SpiffsDirectory();
     
@@ -167,7 +182,8 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static std::shared_ptr<SpiffsFile> rawOpen(const String& name, spiffs_flags, File::Type);
+    static std::shared_ptr<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type);
+    
     static Error mapSpiffsError(spiffs_file);
 
     static void setConfig(spiffs_config&, const char*);
