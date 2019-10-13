@@ -31,6 +31,10 @@ extern "C" {
 #include <osapi.h>
 #include <ets_sys.h>
 
+// Hardware random number generator
+#define ESP8266_DREG(addr) *((volatile uint32_t *)(0x3FF00000+(addr)))
+#define RANDOM_REG32  ESP8266_DREG(0x20E44)
+
 int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 2)));
 
 #define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)

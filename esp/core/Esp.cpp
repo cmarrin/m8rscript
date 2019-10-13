@@ -575,6 +575,9 @@ void startup(void*)
 void initializeSystem(void (*initializedCB)())
 {
     gpio_init();
+
+    // Seed the random number generator
+    srand(RANDOM_REG32);
     
     wifi_station_set_auto_connect(0);
     do_global_ctors();
