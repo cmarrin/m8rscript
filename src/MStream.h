@@ -68,7 +68,7 @@ private:
 
 class FileStream : public m8r::Stream {
 public:
-	FileStream(FS* fs, const char* file, const char* mode = "r")
+	FileStream(FS* fs, const char* file, FS::FileOpenMode mode = FS::FileOpenMode::Read)
     {
         _file = fs->open(file, mode);
     }

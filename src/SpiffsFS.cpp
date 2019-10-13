@@ -131,30 +131,17 @@ struct FileModeEntry {
     spiffs_flags _flags;
 };
 
-static const FileModeEntry _fileModeMap[] = {
-    { "r",  SPIFFS_RDONLY },
-    { "r+", SPIFFS_RDWR },
-    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
-    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
-    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
-    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
-};
+//static const FileModeEntry _fileModeMap[] = {
+//    { "r",  SPIFFS_RDONLY },
+//    { "r+", SPIFFS_RDWR },
+//    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
+//    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
+//    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
+//    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
+//};
 
-std::shared_ptr<File> SpiffsFS::open(const char* name, const char* mode)
+std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
-    // Convert mode to spiffs_flags
-    spiffs_flags flags = 0;
-    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
-        if (strcmp(mode, _fileModeMap[i]._mode) == 0) {
-            flags = _fileModeMap[i]._flags;
-            break;
-        }
-    }
-    
-    if (!flags) {
-        system()->printf(ROMSTR("ERROR: invalid mode '%s' for open\n"), mode);
-        return nullptr;
-    }
     
     // TODO: If flags allow file creation, generate a new fileId and create the file
     

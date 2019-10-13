@@ -80,7 +80,10 @@ POSSIBILITY OF SUCH DAMAGE.
 // appended to the directory file.
 //
 // TODO: compress the deleted file space when it gets too large
-
+//
+// Supprted open modes:
+//
+//
 namespace m8r {
 
 class SpiffsDirectory : public Directory {
@@ -155,7 +158,7 @@ public:
     virtual void unmount() override;
     virtual bool format() override;
     
-    virtual std::shared_ptr<File> open(const char* name, const char* mode) override;
+    virtual std::shared_ptr<File> open(const char* name, FileOpenMode) override;
     virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;

@@ -68,6 +68,8 @@ public:
         InternalError,
     };
     
+    enum class FileOpenMode { Read, ReadUpdate, Write, WriteUpdate, Append, AppendUpdate };
+    
     FS() { }
     virtual ~FS() { }
 
@@ -76,7 +78,7 @@ public:
     virtual void unmount() = 0;
     virtual bool format() = 0;
     
-    virtual std::shared_ptr<File> open(const char* name, const char* mode) = 0;
+    virtual std::shared_ptr<File> open(const char* name, FileOpenMode) = 0;
     virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
     virtual bool remove(const char* name) = 0;
     virtual bool rename(const char* src, const char* dst) = 0;
