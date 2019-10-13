@@ -164,7 +164,10 @@ static int match_set(const char *re, int re_len, const char *s,
                      struct regex_info *info) {
   int len = 0, result = -1, invert = re[0] == '^';
 
-  if (invert) re++, re_len--;
+  if (invert) {
+    re++;
+    re_len--;
+  }
 
   while (len <= re_len && re[len] != ']' && result <= 0) {
     /* Support character range */
