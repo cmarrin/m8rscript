@@ -56,6 +56,7 @@ public:
         WriteError,
         NotReadable,
         NotWritable,
+        SeekNotAllowed,
         TooManyOpenFiles,
         DirectoryNotFound,
         NotADirectory,
@@ -143,6 +144,7 @@ public:
 protected:
     FS::Error _error = FS::Error::OK;
     Type _type = Type::Unknown;
+    FS::FileOpenMode _mode = FS::FileOpenMode::Read;
 };
 
 }

@@ -131,24 +131,34 @@ struct FileModeEntry {
     spiffs_flags _flags;
 };
 
-//static const FileModeEntry _fileModeMap[] = {
-//    { "r",  SPIFFS_RDONLY },
-//    { "r+", SPIFFS_RDWR },
-//    { "w",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_TRUNC },
-//    { "w+", SPIFFS_RDWR | SPIFFS_CREAT | SPIFFS_TRUNC },
-//    { "a",  SPIFFS_WRONLY | SPIFFS_CREAT | SPIFFS_APPEND },
-//    { "a+", SPIFFS_RDWR | SPIFFS_CREAT },
-//};
-
 std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
     SpiffsDirectory::FileID fileID = SpiffsDirectory::find(name);
     
-    // TODO: Handle all open modes
-    // Raw Spiffs files are always opened SPIFFS_RDWR | SPIFFS_CREAT so they can be read
-    // and written and will be created if they don't exist. FileOpenMode will be used to
-    // determine when you can read and write, whether a file is truncated, etc.
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(fileID, SPIFFS_RDWR | SPIFFS_CREAT, File::Type::File);
+    // If the file exists its contents are preserved unless it is in Write or
+    // WriteAppend mode, in which case it's truncated. If it doesn't exist
+    // use the SPIFFS_CREAT flag so the file is created and then opened for
+    // read/write
+    spiffs_flags flags = SPIFFS_RDWR;
+    
+    if (fileID) {
+        if (mode == FileOpenMode::Write || mode == FileOpenMode::WriteUpdate) {
+            flags |= SPIFFS_TRUNC;
+        }
+    } else {
+        if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
+            _error = FS::Error::NotFound;
+            return nullptr;
+        }
+        flags |= SPIFFS_CREAT;
+    }
+    
+    std::shared_ptr<File> file = SpiffsFS::rawOpen(fileID, flags, File::Type::File);
+    
+    // At this point we either exited early because the file doesn't exist and the
+    // mode is Read or ReadUpdate. Or we have a newly created file, an existing file whose
+    // contents have been thrown away or an existing file whose contents have
+    // been preserved. In all cases we're open read/write
     return file;
 }
 
@@ -333,16 +343,34 @@ SpiffsFile::~SpiffsFile()
   
 int32_t SpiffsFile::read(char* buf, uint32_t size)
 {
+    if (_mode == FS::FileOpenMode::Write || _mode == FS::FileOpenMode::Append) {
+        _error = FS::Error::NotReadable;
+        return -1;
+    }
     return SPIFFS_read(SpiffsFS::sharedSpiffs(), _file, buf, size);
 }
 
 int32_t SpiffsFile::write(const char* buf, uint32_t size)
 {
+    if (_mode == FS::FileOpenMode::Read) {
+        _error = FS::Error::NotWritable;
+        return -1;
+    }
+    
+    if (_mode == FS::FileOpenMode::AppendUpdate) {
+        seek(0, SeekWhence::End);
+    }
+
     return SPIFFS_write(SpiffsFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
 }
 
 bool SpiffsFile::seek(int32_t offset, SeekWhence whence)
 {
+    if (_mode == FS::FileOpenMode::Append) {
+        _error = FS::Error::SeekNotAllowed;
+        return -1;
+    }
+
     int whenceFlag = SPIFFS_SEEK_SET;
     if (whence == SeekWhence::Cur) {
         whenceFlag = SPIFFS_SEEK_CUR;
