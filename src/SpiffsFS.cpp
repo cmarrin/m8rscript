@@ -143,13 +143,13 @@ std::shared_ptr<File> SpiffsFS::find(const char* name)
 String SpiffsFS::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name)
 {
     String s;
-    char fileIdBuffer[FileIDLength];
+    FileID fileId;
     
     while (!dir->eof()) {
-        SpiffsDirectory::Entry entry;
+        Entry entry;
         dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
-        if (entry.type() == SpiffsDirectory::EntryType::File || 
-            entry.type() == SpiffsDirectory::EntryType::Directory) {
+        if (entry.type() == EntryType::File || 
+            entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
             s.reserve(size + 1);
             for ( ; size > 0; --size) {
@@ -158,14 +158,19 @@ String SpiffsFS::findNameInDirectory(const std::shared_ptr<File>& dir, const Str
                 s += c;
             }
             
-            dir->read(fileIdBuffer, sizeof(fileIdBuffer));
+            dir->read(fileId, sizeof(fileId));
             if (s == name) {
-                return String(fileIdBuffer, sizeof(fileIdBuffer));
+                return String(fileId, sizeof(fileId));
             }
         }
     }
     
     return "";
+}
+
+void SpiffsFS::createFileID(FileID& fileID)
+{
+    ::rand();
 }
 
 std::shared_ptr<File> SpiffsFS::rawOpen(const String& name, spiffs_flags flags)

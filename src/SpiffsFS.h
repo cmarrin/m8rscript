@@ -83,8 +83,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
-
 class SpiffsDirectory : public Directory {
     friend class SpiffsFS;
     
@@ -95,17 +93,6 @@ public:
     virtual bool next() override;
     
 private:
-    enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
-    
-    class Entry {
-    public:
-        EntryType type() const { return static_cast<EntryType>(_value >> 6); }
-        uint8_t size() const { return _value & 0x3f; }
-
-    private:
-        uint8_t _value;
-    };
-    
     SpiffsDirectory();
     
     std::shared_ptr<File> _dirFile;
@@ -152,10 +139,27 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
+    static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
+
+    enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
+    
+    class Entry {
+    public:
+        EntryType type() const { return static_cast<EntryType>(_value >> 6); }
+        uint8_t size() const { return _value & 0x3f; }
+
+    private:
+        uint8_t _value;
+    };
+
+    using FileID = char[FileIDLength];
+    
     std::shared_ptr<File> find(const char* name);
     String findNameInDirectory(const std::shared_ptr<File>&, const String& name);
     std::shared_ptr<File> rawOpen(const String& name, spiffs_flags);
-    
+
+    void createFileID(FileID&);
+
     static void setConfig(spiffs_config&, const char*);
     
     static spiffs* sharedSpiffs()
