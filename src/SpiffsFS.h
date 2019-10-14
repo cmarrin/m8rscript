@@ -196,7 +196,7 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static std::shared_ptr<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type);
+    static std::shared_ptr<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
     
     static Error::Code mapSpiffsError(spiffs_file);
 

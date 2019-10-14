@@ -119,10 +119,11 @@ bool SpiffsFS::format()
     return true;
 }
 
-std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type)
+std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
 {
     std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(fileID.value(), flags));
     file->setType(type);
+    file->_mode = mode;
     return file;
 }
 
@@ -154,7 +155,7 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
         flags |= SPIFFS_CREAT;
     }
     
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(fileID, flags, File::Type::File);
+    std::shared_ptr<File> file = SpiffsFS::rawOpen(fileID, flags, File::Type::File, mode);
     
     // At this point we either exited early because the file doesn't exist and the
     // mode is Read or ReadUpdate. Or we have a newly created file, an existing file whose
