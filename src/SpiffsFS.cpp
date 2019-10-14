@@ -133,6 +133,7 @@ struct FileModeEntry {
 
 std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
+    _error = Error::OK;
     SpiffsDirectory::FileID fileID = SpiffsDirectory::find(name);
     
     // If the file exists its contents are preserved unless it is in Write or

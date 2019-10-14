@@ -87,6 +87,8 @@ public:
     virtual uint32_t totalSize() const = 0;
     virtual uint32_t totalUsed() const = 0;
     
+    Error lastError() const { return _error; }
+    
 protected:
     Error _error = Error::OK;
 };
