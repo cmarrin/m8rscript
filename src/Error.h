@@ -47,7 +47,7 @@ public:
     enum class Level { Error, Warning, Info };
     
     enum class Code {
-        None,
+        OK,
         Unknown,
         Write,
         Read,
@@ -57,28 +57,41 @@ public:
         FileNotFound,
         ParseError,
         RuntimeError,
-    };
+        NotFound,
+        Exists,
+        ReadError,
+        WriteError,
+        NotReadable,
+        NotWritable,
+        SeekNotAllowed,
+        TooManyOpenFiles,
+        DirectoryNotFound,
+        NotADirectory,
+        FSNotFormatted,
+        NoSpace,
+        MountFailed,
+        NotMounted,
+        Mounted,
+        InternalError,
+     };
     
     Error() { }
     ~Error() { }
     
-    operator bool () const { return _code != Code::None; }
-    
-    bool setError(Code code)
-    {
-        _code = code;
-        return false;
-    }
-    
+    operator bool () const { return _code == Code::OK; }
+    Error& operator= (const Error::Code& code) { _code = code; return *this; }
+
     Code code() const { return _code; }
     
-    void showError() const;
+    static void showError(Code);
     
+    static void printError(Code code, const char* format = nullptr, ...);
     static void printError(Code, int32_t lineno, const char* format = nullptr, ...);
+    static void vprintError(Code, const char* format, va_list);
     static void vprintError(Code, int32_t lineno, const char* format, va_list);
-    
+
 private:
-    Code _code = Code::None;
+    Code _code = Code::OK;
 };
 
 }

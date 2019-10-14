@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
+#include "Error.h"
 #include <cstdint>
 #include <memory>
 
@@ -48,27 +49,6 @@ class FS {
     friend class File;
     
 public:
-    enum class Error : int32_t {
-        OK,
-        NotFound,
-        Exists,
-        ReadError,
-        WriteError,
-        NotReadable,
-        NotWritable,
-        SeekNotAllowed,
-        TooManyOpenFiles,
-        DirectoryNotFound,
-        NotADirectory,
-        FSNotFormatted,
-        NoSpace,
-        MountFailed,
-        NotMounted,
-        Mounted,
-        FSConsistencyCheckFailed,
-        InternalError,
-    };
-    
     enum class FileOpenMode { Read, ReadUpdate, Write, WriteUpdate, Append, AppendUpdate };
     
     FS() { }
@@ -89,8 +69,10 @@ public:
     
     Error lastError() const { return _error; }
     
+    static const char* errorString(Error);
+    
 protected:
-    Error _error = Error::OK;
+    Error _error;
 };
 
 class Directory {
@@ -102,12 +84,12 @@ public:
 
     const String& name() const { return _name; }
     uint32_t size() const { return _size; }
-    bool valid() const { return _error == FS::Error::OK; }
+    bool valid() const { return _error; }
     
     virtual bool next() = 0;
     
 protected:
-    FS::Error _error = FS::Error::OK;
+    Error _error;
     String _name;
     uint32_t _size = 0;
 };
@@ -139,12 +121,12 @@ public:
     virtual int32_t tell() const = 0;
     virtual bool eof() const = 0;
     
-    bool valid() const { return _error == FS::Error::OK; }
-    FS::Error error() const { return _error; }
+    bool valid() const { return _error; }
+    Error error() const { return _error; }
     Type type() const { return _type; }
 
 protected:
-    FS::Error _error = FS::Error::OK;
+    Error _error;
     Type _type = Type::Unknown;
     FS::FileOpenMode _mode = FS::FileOpenMode::Read;
 };

@@ -55,7 +55,7 @@ Task::Task(const char* filename)
     if (filename && Application::validateFileName(filename) == Application::NameValidationType::Ok) {
         FileStream m8rbStream(system()->fileSystem(), filename);
         if (!m8rbStream.loaded()) {
-            _error.setError(Error::Code::FileNotFound);
+            _error = Error::Code::FileNotFound;
             return;
         }
         

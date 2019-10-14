@@ -39,22 +39,45 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-void Error::showError() const
+void Error::showError(Code code)
 {
     const char* codeString;
-    switch(_code) {
-        case Code::None: return;
-        case Code::Unknown: codeString = "unknown"; break;
-        case Code::Write: codeString = "write"; break;
-        case Code::Read: codeString = "read"; break;
-        case Code::SerialHeader: codeString = "serial header"; break;
-        case Code::SerialType: codeString = "serial type"; break;
-        case Code::SerialVersion: codeString = "serial version"; break;
-        case Code::FileNotFound: codeString = "file not found"; break;
-        case Code::ParseError: codeString = "parse"; break;
-        case Code::RuntimeError: codeString = "runtime"; break;
+    switch(code) {
+        case Code::OK                       : codeString = ROMSTR("OK"); break;
+        case Code::Unknown                  : codeString = ROMSTR("Unknown"); break;
+        case Code::Write                    : codeString = ROMSTR("Write"); break;
+        case Code::Read                     : codeString = ROMSTR("Read"); break;
+        case Code::SerialHeader             : codeString = ROMSTR("Serial Header"); break;
+        case Code::SerialType               : codeString = ROMSTR("Serial Type"); break;
+        case Code::SerialVersion            : codeString = ROMSTR("Serial Version"); break;
+        case Code::FileNotFound             : codeString = ROMSTR("File Not Found"); break;
+        case Code::ParseError               : codeString = ROMSTR("Parse"); break;
+        case Code::RuntimeError             : codeString = ROMSTR("Runtime"); break;
+        case Code::NotFound                 : codeString = ROMSTR("File Not Found"); break;
+        case Code::Exists                   : codeString = ROMSTR("Exists"); break;
+        case Code::ReadError                : codeString = ROMSTR("Read Error"); break;
+        case Code::WriteError               : codeString = ROMSTR("Write Error"); break;
+        case Code::NotReadable              : codeString = ROMSTR("Not Readable"); break;
+        case Code::NotWritable              : codeString = ROMSTR("Not Writable"); break;
+        case Code::SeekNotAllowed           : codeString = ROMSTR("Seek Not Allowed"); break;
+        case Code::TooManyOpenFiles         : codeString = ROMSTR("Too Many Open Files"); break;
+        case Code::DirectoryNotFound        : codeString = ROMSTR("Directory Not Found"); break;
+        case Code::NotADirectory            : codeString = ROMSTR("Not A Directory"); break;
+        case Code::FSNotFormatted           : codeString = ROMSTR("Fs Not Formatted"); break;
+        case Code::NoSpace                  : codeString = ROMSTR("No Space Left"); break;
+        case Code::MountFailed              : codeString = ROMSTR("Mount Failed"); break;
+        case Code::NotMounted               : codeString = ROMSTR("Not Mounted"); break;
+        case Code::Mounted                  : codeString = ROMSTR("Already Mounted"); break;
+        case Code::InternalError            : codeString = ROMSTR("Internal Error"); break;
     }
-    system()->printf(ROMSTR("Error: %s\n"), codeString);
+    system()->printf(codeString);
+}
+
+void Error::printError(Code code, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vprintError(code, format, args);
 }
 
 void Error::printError(Code code, int32_t lineno, const char* format, ...)
@@ -64,25 +87,14 @@ void Error::printError(Code code, int32_t lineno, const char* format, ...)
     vprintError(code, lineno, format, args);
 }
 
+void Error::vprintError(Code code, const char* format, va_list args)
+{
+    vprintError(code, 0, format, args);
+}
+
 void Error::vprintError(Code code, int32_t lineno, const char* format, va_list args)
 {
-    const char* codeString = "";
-    
-    switch(code) {
-        case Code::None: break;
-        case Code::Unknown: codeString = ROMSTR("Unknown"); break;
-        case Code::Write: codeString = ROMSTR("Write"); break;
-        case Code::Read: codeString = ROMSTR("Read"); break;
-        case Code::SerialHeader: codeString = ROMSTR("Serial Header"); break;
-        case Code::SerialType: codeString = ROMSTR("Serial Type"); break;
-        case Code::SerialVersion: codeString = ROMSTR("Serial Version"); break;
-        case Code::FileNotFound: codeString = ROMSTR("File Not Found"); break;
-        case Code::ParseError: codeString = ROMSTR("Parse"); break;
-        case Code::RuntimeError: codeString = ROMSTR("Runtime"); break;
-    }
-    
-    system()->printf("***** ");
-    system()->printf(codeString);
+    showError(code);
     system()->printf(ROMSTR(" Error"));
     if (!format) {
         return;
