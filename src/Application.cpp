@@ -59,8 +59,7 @@ public:
             case m8r::TCPDelegate::Event::Connected:
                 _shells[connectionId] = new Task(Application::shellName());
                 if (_shells[connectionId]->error()) {
-                    system()->printf("Failed to create shell task '%s'\n", Application::shellName());
-                    _shells[connectionId]->error().showError();
+                    Error::printError(_shells[connectionId]->error().code());
                     _shells[connectionId] = nullptr;
                     tcp->disconnect(connectionId);
                 } else {

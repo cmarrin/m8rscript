@@ -55,6 +55,8 @@ bool ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
+    system()->printf(ROMSTR("***** "));
+
     Error::vprintError(Error::Code::RuntimeError, _lineno, format, args);
     return checkTooManyErrors();
 }

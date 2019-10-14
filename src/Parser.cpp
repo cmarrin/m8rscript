@@ -73,6 +73,7 @@ void Parser::printError(const char* format, ...)
 
     va_list args;
     va_start(args, format);
+    system()->printf(ROMSTR("***** "));
     Error::vprintError(Error::Code::ParseError, _scanner.lineno(), format, args);
     va_end(args);
     
