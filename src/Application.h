@@ -64,6 +64,8 @@ public:
     static NameValidationType validateBonjourName(const char* name);
     
     static const char* shellName() { return "m8rsh"; }
+    
+    static void mountFileSystem();
 
 private:
     TCPDelegate* _shellSocket;
