@@ -50,9 +50,6 @@ static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst)
         return SPIFFS_ERR_NOT_READABLE;
     }
     
-    addr *= SPIFFS_PHYS_PAGE;
-    //size *= SPIFFS_PHYS_PAGE;
-
     if (fseek(fsFile, addr, SEEK_SET)) {
         printf("******** MacSpiffsFS error seeking to sector %d on read (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
         return SPIFFS_ERR_NOT_READABLE;
@@ -70,9 +67,6 @@ static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src)
         return SPIFFS_ERR_NOT_WRITABLE;
     }
     
-    addr *= SPIFFS_PHYS_PAGE;
-    //size *= SPIFFS_PHYS_PAGE;
-    
     if (fseek(fsFile, addr, SEEK_SET)) {
         printf("******** MacSpiffsFS error seeking to sector %d on write (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
         return SPIFFS_ERR_NOT_WRITABLE;
@@ -86,6 +80,17 @@ static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src)
 
 static s32_t spiffsErase(u32_t addr, u32_t size)
 {
+    if (fseek(fsFile, addr, SEEK_SET)) {
+        printf("******** MacSpiffsFS error seeking to sector %d on erase (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
+        return SPIFFS_ERR_NOT_WRITABLE;
+    }
+    
+    char* buf = new char[size];
+    memset(buf, 0xff, size);
+    if (fwrite(buf, 1, size, fsFile) != size) {
+        printf("******** MacSpiffsFS error erasing sector %d (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
+        return SPIFFS_ERR_NOT_WRITABLE;
+    }
     return SPIFFS_OK;
 }
 
