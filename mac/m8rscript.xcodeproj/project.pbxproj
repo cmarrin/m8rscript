@@ -51,6 +51,9 @@
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
+		4984DDC32354EC46004D2D6D /* spiffs_nucleus.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED392235392FF00DE0C42 /* spiffs_nucleus.h */; };
+		4984DDC42354EC4C004D2D6D /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38D235392FF00DE0C42 /* spiffs.h */; };
+		4984DDC52354EC52004D2D6D /* spiffs_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38F235392FF00DE0C42 /* spiffs_config.h */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
@@ -652,8 +655,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
+				4984DDC42354EC4C004D2D6D /* spiffs.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
+				4984DDC52354EC52004D2D6D /* spiffs_config.h in Headers */,
+				4984DDC32354EC46004D2D6D /* spiffs_nucleus.h in Headers */,
 				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
