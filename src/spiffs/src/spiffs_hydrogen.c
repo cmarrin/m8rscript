@@ -980,13 +980,16 @@ s32_t SPIFFS_check(spiffs *fs) {
   SPIFFS_LOCK(fs);
 
   res = spiffs_lookup_consistency_check(fs, 0);
-
-  res = spiffs_object_index_consistency_check(fs);
-
-  //res = spiffs_page_consistency_check(fs);
-
-  res = spiffs_obj_lu_scan(fs);
-
+  if (res == SPIFFS_OK) {
+    res = spiffs_object_index_consistency_check(fs);
+  }
+  if (res == SPIFFS_OK) {
+    res = spiffs_page_consistency_check(fs);
+  }
+  if (res == SPIFFS_OK) {
+    res = spiffs_obj_lu_scan(fs);
+  }
+  
   SPIFFS_UNLOCK(fs);
   return res;
 #endif // SPIFFS_READ_ONLY
