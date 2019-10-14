@@ -161,7 +161,9 @@ bool Application::mountFileSystem()
         if (system()->fileSystem()->lastError().code() == Error::Code::FSNotFormatted) {
             m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
         } else {
-            system()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), system()->fileSystem()->lastError().code());
+            system()->printf(ROMSTR("ERROR: SPIFFS mount failed: "));
+            Error::showError(system()->fileSystem()->lastError().code());
+            system()->printf(ROMSTR("\n"));
             return false;
         }
         if (m8r::system()->fileSystem()->format()) {
