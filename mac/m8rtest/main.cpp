@@ -118,9 +118,22 @@ static void usage(const char* name)
             , name);
 }
 
-static void testExpect(const char* expected, bool got, const char* s)
+template<typename T>
+static void testExpect(T expected, T got, const char* s)
 {
-    printf("**** %s: expected %s - test %s\n", s, expected, got ? "passed" : "FAILED");
+    std::cout << "**** " << s << "\n";
+    std::cout << std::boolalpha << "     expected " << expected << ", got " << got << " - test " << ((expected == got) ? "passed" : "FAILED") << "\n";
+}
+
+template<>
+void testExpect<m8r::Error::Code>(m8r::Error::Code expected, m8r::Error::Code got, const char* s)
+{
+    std::cout << "**** " << s << "\n";
+    std::cout << "     expected '";
+    m8r::Error::showError(expected);
+    std::cout << "', got '";
+    m8r::Error::showError(got);
+    std::cout << "'\n     test " << ((expected == got) ? "passed" : "FAILED") << "\n\n";
 }
 
 int main(int argc, char * argv[])
@@ -157,20 +170,17 @@ int main(int argc, char * argv[])
     
     // Open Read-only. Should fail
     std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Read);
-    testExpect("!file", !file, "Open non-existant file in Read mode (should fail)");
-    printf("    Error code: %d\n", m8r::system()->fileSystem()->lastError());
+    testExpect(m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in Read mode error return");
 
     file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::ReadUpdate);
-    testExpect("!file", !file, "Open non-existant file in ReadUpdate mode (should fail)");
-    printf("    Error code: %d\n", m8r::system()->fileSystem()->lastError());
+    testExpect(m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in ReadUpdate mode error return");
     
     file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Write);
-    testExpect("file", file != nullptr, "Open non-existant file in Write mode (should succeed)");
-    printf("    Error code: %d\n", m8r::system()->fileSystem()->lastError());
-    
+    testExpect(m8r::Error::Code::OK, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in Write mode error return");
 
-    
-    
-    
+    m8r::String testString = "The quick brown fox jumps over the lazy dog";
+    file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
+    testExpect(m8r::Error::Code::OK, file->error().code(), "Write string to file error return");
+
     return 0;
 }
