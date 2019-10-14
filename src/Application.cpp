@@ -155,10 +155,8 @@ String Application::autostartFilename() const
     return "";
 }
 
-void Application::runLoop()
+void Application::mountFileSystem()
 {
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
-
     if (!system()->fileSystem()->mount() != 0) {
         m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
         if (m8r::system()->fileSystem()->format()) {
@@ -171,7 +169,13 @@ void Application::runLoop()
     if (m8r::system()->fileSystem()->mounted()) {
         m8r::system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), m8r::system()->fileSystem()->totalSize(), m8r::system()->fileSystem()->totalUsed());
     }
+}
 
+void Application::runLoop()
+{
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
+    mountFileSystem();
+    
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {

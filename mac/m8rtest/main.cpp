@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#include "Application.h"
 #include "GPIOInterface.h"
 #include "MacTaskManager.h"
 #include "MacTCP.h"
@@ -160,6 +161,7 @@ int main(int argc, char * argv[])
     
     const char* fsdir = (optind < argc) ? argv[optind] : nullptr;
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
+    m8r::Application::mountFileSystem();
 
     // Run tests
     
@@ -176,7 +178,7 @@ int main(int argc, char * argv[])
     testExpect(m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in ReadUpdate mode error return");
     
     file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Write);
-    testExpect(m8r::Error::Code::OK, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in Write mode error return");
+    testExpect(m8r::Error::Code::OK, file->error().code(), "Open non-existant file in Write mode error return");
 
     m8r::String testString = "The quick brown fox jumps over the lazy dog";
     file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
