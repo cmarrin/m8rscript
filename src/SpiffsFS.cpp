@@ -121,7 +121,7 @@ bool SpiffsFS::format()
 
 std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
 {
-    std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(fileID.value(), flags));
+    std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(fileID.str().c_str(), flags));
     file->setType(type);
     file->_mode = mode;
     return file;
@@ -152,6 +152,7 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
             _error = Error::Code::NotFound;
             return nullptr;
         }
+        fileID = SpiffsDirectory::FileID::random();
         flags |= SPIFFS_CREAT;
     }
     

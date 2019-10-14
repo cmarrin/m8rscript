@@ -131,6 +131,7 @@ private:
         const char* value() const { return _value; }
         char* value() { return _value; }
         operator bool() const { return _value[0] != '\0'; }
+        String str() const { return String(_value, FileIDLength); }
         
         static FileID bad() { return FileID(); }
         static FileID root() { return FileID('/'); }
