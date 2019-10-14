@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <unistd.h>
+#include <sstream>
 
 #include "Application.h"
 #include "GPIOInterface.h"
@@ -119,15 +120,31 @@ static void usage(const char* name)
             , name);
 }
 
-template<typename T>
-static void testExpect(T expected, T got, const char* s)
+static void testExpect(const char* s, const char* expected, const char* got, bool result)
 {
     std::cout << "**** " << s << "\n";
-    std::cout << std::boolalpha << "     expected " << expected << ", got " << got << " - test " << ((expected == got) ? "passed" : "FAILED") << "\n";
+    std::cout << "     expected '" << expected << "', got '" << got << "'\n";
+    std::cout << "     test " << (result ? "passed" : "FAILED") << "\n";
+}
+
+template<typename T>
+static void testExpect(const char* s, T expected, T got)
+{
+    std::stringstream expectedString;
+    std::stringstream gotString;
+    expectedString << expected;
+    gotString << got;
+    testExpect(s, expectedString.str().c_str(), gotString.str().c_str(), expected == got);
 }
 
 template<>
-void testExpect<m8r::Error::Code>(m8r::Error::Code expected, m8r::Error::Code got, const char* s)
+void testExpect<m8r::String>(const char* s, m8r::String expected, m8r::String got)
+{
+    testExpect(s, expected.c_str(), got.c_str(), expected == got);
+}
+
+template<>
+void testExpect<m8r::Error::Code>(const char* s, m8r::Error::Code expected, m8r::Error::Code got)
 {
     std::cout << "**** " << s << "\n";
     std::cout << "     expected '";
@@ -175,17 +192,25 @@ int main(int argc, char * argv[])
     
     // Open Read-only. Should fail
     std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Read);
-    testExpect(m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in Read mode error return");
+    testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code());
 
     file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::ReadUpdate);
-    testExpect(m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code(), "Open non-existant file in ReadUpdate mode error return");
+    testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code());
     
-    file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Write);
-    testExpect(m8r::Error::Code::OK, file->error().code(), "Open non-existant file in Write mode error return");
+    file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::WriteUpdate);
+    testExpect("Open non-existant file in Write mode error return", m8r::Error::Code::OK, file->error().code());
 
     m8r::String testString = "The quick brown fox jumps over the lazy dog";
     file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
-    testExpect(m8r::Error::Code::OK, file->error().code(), "Write string to file error return");
+    testExpect("Write string to file error return", m8r::Error::Code::OK, file->error().code());
+    
+    file->seek(0);
+    testExpect("Seek to 0 error return", m8r::Error::Code::OK, file->error().code());
+
+    char buf[9];
+    file->read(buf, 9);
+    testExpect("Read error return", m8r::Error::Code::OK, file->error().code());
+    testExpect("Read return value", m8r::String("The quick"), m8r::String(buf, 9));
 
     return 0;
 }
