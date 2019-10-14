@@ -155,10 +155,15 @@ String Application::autostartFilename() const
     return "";
 }
 
-void Application::mountFileSystem()
+bool Application::mountFileSystem()
 {
     if (!system()->fileSystem()->mount() != 0) {
-        m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
+        if (system()->fileSystem()->lastError().code() == Error::Code::FSNotFormatted) {
+            m8r::system()->printf(ROMSTR("SPIFFS filessytem not present, formatting..."));
+        } else {
+            system()->printf(ROMSTR("ERROR: SPIFFS mount failed, error=%d\n"), system()->fileSystem()->lastError().code());
+            return false;
+        }
         if (m8r::system()->fileSystem()->format()) {
             m8r::system()->printf(ROMSTR("succeeded.\n"));
         } else {
@@ -169,6 +174,7 @@ void Application::mountFileSystem()
     if (m8r::system()->fileSystem()->mounted()) {
         m8r::system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), m8r::system()->fileSystem()->totalSize(), m8r::system()->fileSystem()->totalUsed());
     }
+    return true;
 }
 
 void Application::runLoop()

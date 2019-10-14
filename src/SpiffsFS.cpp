@@ -208,16 +208,17 @@ Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
     assert(spiffsError < 0);
 
     switch(spiffsError) {
-        case SPIFFS_ERR_NOT_MOUNTED          : return Error::Code::NotMounted;
-        case SPIFFS_ERR_FULL                 : return Error::Code::NoSpace;
-        case SPIFFS_ERR_NOT_FOUND            : return Error::Code::NotFound;
-        case SPIFFS_ERR_END_OF_OBJECT        : return Error::Code::ReadError;
-        case SPIFFS_ERR_OUT_OF_FILE_DESCS    : return Error::Code::TooManyOpenFiles;
-        case SPIFFS_ERR_NOT_WRITABLE         : return Error::Code::NotWritable;
-        case SPIFFS_ERR_NOT_READABLE         : return Error::Code::NotReadable;
-        case SPIFFS_ERR_MOUNTED              : return Error::Code::Mounted;
-        case SPIFFS_ERR_FILE_EXISTS          : return Error::Code::Exists;
-        default                              : return Error::Code::InternalError;
+        case SPIFFS_ERR_NOT_MOUNTED         : return Error::Code::NotMounted;
+        case SPIFFS_ERR_FULL                : return Error::Code::NoSpace;
+        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::NotFound;
+        case SPIFFS_ERR_END_OF_OBJECT       : return Error::Code::ReadError;
+        case SPIFFS_ERR_OUT_OF_FILE_DESCS   : return Error::Code::TooManyOpenFiles;
+        case SPIFFS_ERR_NOT_WRITABLE        : return Error::Code::NotWritable;
+        case SPIFFS_ERR_NOT_READABLE        : return Error::Code::NotReadable;
+        case SPIFFS_ERR_MOUNTED             : return Error::Code::Mounted;
+        case SPIFFS_ERR_FILE_EXISTS         : return Error::Code::Exists;
+        case SPIFFS_ERR_NOT_CONFIGURED      : return Error::Code::NotMounted;
+        default                             : return Error::Code::InternalError;
     }
 }
 

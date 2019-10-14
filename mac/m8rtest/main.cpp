@@ -161,7 +161,10 @@ int main(int argc, char * argv[])
     
     const char* fsdir = (optind < argc) ? argv[optind] : nullptr;
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
-    m8r::Application::mountFileSystem();
+    if (!m8r::Application::mountFileSystem()) {
+        printf("**** Count not mount file system, exiting...\n");
+        return -1;
+    }
 
     // Run tests
     

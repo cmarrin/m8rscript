@@ -65,7 +65,7 @@ public:
     
     static const char* shellName() { return "m8rsh"; }
     
-    static void mountFileSystem();
+    static bool mountFileSystem();
 
 private:
     TCPDelegate* _shellSocket;
