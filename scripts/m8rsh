@@ -1,0 +1,4 @@
+// m8rsh - m8rscript shell
+//
+
+printf("Hello world\n");
