@@ -117,8 +117,10 @@ m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get
 static void usage(const char* name)
 {
     fprintf(stderr,
-                "usage: %s [-p <port>] [-h] <dir>\n"
+                "usage: %s [-p <port>] [-u <file>] [-l <path>] [-h] <dir>\n"
                 "    -p   : set shell port (log port +1, sim port +2)\n"
+                "    -u   : upload file (use file's basename as Spiffs name)\n"
+                "    -l   : path for uploaded file (default '/')\n"
                 "    -h   : print this message\n"
                 "    <dir>: root directory for simulation filesystem\n"
             , name);
@@ -127,19 +129,18 @@ static void usage(const char* name)
 int main(int argc, char * argv[])
 {
     int opt;
-    uint16_t port;
+    uint16_t port = 23;
+    const char* uploadFilename = nullptr;
+    const char* uploadPath = "/";
     
-    while ((opt = getopt(argc, argv, "p:h")) != EOF) {
+    while ((opt = getopt(argc, argv, "p:u:l:h")) != EOF) {
         switch(opt)
         {
-            case 'p':
-                port = atoi(optarg);
-                break;
-            case 'h':
-                usage(argv[0]);
-                break;
-            default:
-                break;
+            case 'p': port = atoi(optarg); break;
+            case 'u': uploadFilename = optarg; break;
+            case 'l': uploadPath = optarg;
+            case 'h': usage(argv[0]); break;
+            default : break;
         }
     }
     
@@ -149,6 +150,41 @@ int main(int argc, char * argv[])
     const char* fsdir = (optind < argc) ? argv[optind] : "SpiffsFSFile";
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
     
+    m8r::Application::mountFileSystem();
+    
+    // Upload the file if present
+    if (uploadFilename) {
+        m8r::String toPath;
+        FILE* fromFile = fopen(uploadFilename, "r");
+        if (!fromFile) {
+            fprintf(stderr, "Unable to open '%s' for upload, skipping\n", uploadFilename);
+        } else {
+            std::vector<m8r::String> parts = m8r::String(uploadFilename).split("/");
+            m8r::String baseName = parts[parts.size() - 1];
+            
+            if (uploadPath[0] != '/') {
+                toPath += '/';
+            }
+            toPath += uploadPath;
+            if (toPath[toPath.size() - 1] != '/') {
+                toPath += '/';
+            }
+            toPath += baseName;
+            
+            std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read);
+            if (!toFile) {
+                fprintf(stderr, "Unable to open '%s' on Spiffs file system, skipping\n", toPath.c_str());
+            } else {
+                while(!feof(fromFile)) {
+                    char c;
+                    fread(&c, 1, 1, fromFile);
+                    toFile->write(&c, 1);
+                }
+            }
+        }
+        printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
+    }
+
     m8r::Application application(23);
     application.runLoop();
 
