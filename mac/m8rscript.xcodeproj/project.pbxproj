@@ -13,7 +13,7 @@
 		491ED39D2353935900DE0C42 /* spiffs_hydrogen.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */; };
 		491ED39E2353935900DE0C42 /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED394235392FF00DE0C42 /* spiffs_nucleus.c */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
-		491ED3AC2353F48100DE0C42 /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
+		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3D61E15849C00242DA8 /* GPIO.cpp */; };
@@ -28,8 +28,7 @@
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
 		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
-		4945A8781EC3969100559CD1 /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
-		4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4945A87A1EC398B900559CD1 /* Foundation.framework */; };
+		4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
 		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
@@ -45,7 +44,7 @@
 		494D255B1D2E90A9003755DB /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA821D070C9B00E02088 /* Program.cpp */; };
 		494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E6481A1D00C088005F5059 /* Scanner.cpp */; };
 		494D255D1D2E90A9003755DB /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4942EA841D0AEAC600E02088 /* Value.cpp */; };
-		494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8rscript.a */; };
+		494D25631D2E9337003755DB /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		494D25971D33D33E003755DB /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494D25961D33D33E003755DB /* Object.cpp */; };
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
@@ -228,7 +227,7 @@
 		494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberView.m; path = "NSTextView+JSDExtensions/NoodleLineNumberView.m"; sourceTree = "<group>"; };
 		494BA1A71D20B26100E72725 /* NSTextView+JSDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextView+JSDExtensions.h"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.h"; sourceTree = "<group>"; };
 		494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextView+JSDExtensions.m"; path = "NSTextView+JSDExtensions/NSTextView+JSDExtensions.m"; sourceTree = "<group>"; };
-		494D254E1D2E9055003755DB /* liblibm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		494D254E1D2E9055003755DB /* libm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		494D25961D33D33E003755DB /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../src/Object.cpp; sourceTree = "<group>"; };
 		49562F691D1D7A75001AFAEE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -334,7 +333,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				491ED3AC2353F48100DE0C42 /* liblibm8rscript.a in Frameworks */,
+				491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,8 +341,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4945A87B1EC398B900559CD1 /* Foundation.framework in Frameworks */,
-				4945A8781EC3969100559CD1 /* liblibm8rscript.a in Frameworks */,
+				4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +363,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				494D25631D2E9337003755DB /* liblibm8rscript.a in Frameworks */,
+				494D25631D2E9337003755DB /* libm8rscript.a in Frameworks */,
 				49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -570,7 +568,7 @@
 			isa = PBXGroup;
 			children = (
 				49D9B8181D1C854700724911 /* m8rsim.app */,
-				494D254E1D2E9055003755DB /* liblibm8rscript.a */,
+				494D254E1D2E9055003755DB /* libm8rscript.a */,
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
@@ -715,9 +713,9 @@
 			productReference = 4945A86F1EC3711D00559CD1 /* m8r */;
 			productType = "com.apple.product-type.tool";
 		};
-		494D254D1D2E9055003755DB /* libm8rscript */ = {
+		494D254D1D2E9055003755DB /* m8rscript */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8rscript" */;
+			buildConfigurationList = 494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "m8rscript" */;
 			buildPhases = (
 				494D254A1D2E9055003755DB /* Sources */,
 				494D254B1D2E9055003755DB /* Frameworks */,
@@ -727,9 +725,9 @@
 			);
 			dependencies = (
 			);
-			name = libm8rscript;
+			name = m8rscript;
 			productName = libm8rscript;
-			productReference = 494D254E1D2E9055003755DB /* liblibm8rscript.a */;
+			productReference = 494D254E1D2E9055003755DB /* libm8rscript.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		49C406E11EB6598B001E4DEC /* generateSharedAtoms */ = {
@@ -816,7 +814,7 @@
 			projectRoot = "";
 			targets = (
 				49D9B8171D1C854700724911 /* m8rsim */,
-				494D254D1D2E9055003755DB /* libm8rscript */,
+				494D254D1D2E9055003755DB /* m8rscript */,
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
@@ -949,17 +947,17 @@
 /* Begin PBXTargetDependency section */
 		491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8rscript */;
+			target = 494D254D1D2E9055003755DB /* m8rscript */;
 			targetProxy = 491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */;
 		};
 		4945A8771EC3712700559CD1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8rscript */;
+			target = 494D254D1D2E9055003755DB /* m8rscript */;
 			targetProxy = 4945A8761EC3712700559CD1 /* PBXContainerItemProxy */;
 		};
 		49AD0A1D209B503A00F86278 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8rscript */;
+			target = 494D254D1D2E9055003755DB /* m8rscript */;
 			targetProxy = 49AD0A1C209B503A00F86278 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1270,7 +1268,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8rscript" */ = {
+		494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "m8rscript" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				494D25501D2E9055003755DB /* Debug */,

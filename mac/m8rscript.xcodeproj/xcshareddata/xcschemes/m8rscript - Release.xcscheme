@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "49E647E71D00B68F005F5059"
-               BuildableName = "m8rscript"
+               BlueprintIdentifier = "494D254D1D2E9055003755DB"
+               BuildableName = "libm8rscript.a"
                BlueprintName = "m8rscript"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
@@ -30,8 +30,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49E647E71D00B68F005F5059"
-            BuildableName = "m8rscript"
+            BlueprintIdentifier = "494D254D1D2E9055003755DB"
+            BuildableName = "libm8rscript.a"
             BlueprintName = "m8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
@@ -53,8 +53,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49E647E71D00B68F005F5059"
-            BuildableName = "m8rscript"
+            BlueprintIdentifier = "494D254D1D2E9055003755DB"
+            BuildableName = "libm8rscript.a"
             BlueprintName = "m8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
@@ -76,8 +76,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "49E647E71D00B68F005F5059"
-            BuildableName = "m8rscript"
+            BlueprintIdentifier = "494D254D1D2E9055003755DB"
+            BuildableName = "libm8rscript.a"
             BlueprintName = "m8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
