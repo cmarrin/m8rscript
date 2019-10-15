@@ -143,7 +143,7 @@ private:
         char _value[FileIDLength] = { '\0', '\0', '\0' };
     };
     
-    static FileID find(const char* name);
+    static bool find(const char* name, FileID&, File::Type&, Error&);
     static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
 
     SpiffsDirectory();
@@ -168,6 +168,7 @@ public:
     
 protected:
     void setType(File::Type type) { _type = type; }
+    void setError(Error error) { _error = error; }
     
 private:
     SpiffsFile(const char* name, spiffs_flags mode);
