@@ -394,7 +394,7 @@
 			path = m8rtest;
 			sourceTree = "<group>";
 		};
-		4942EA891D0C86BB00E02088 /* Scripts */ = {
+		4942EA891D0C86BB00E02088 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
 				49A39F252350A1A700F6A144 /* examples */,
@@ -403,7 +403,7 @@
 				49A39F222350A1A600F6A144 /* timing */,
 				49A39F2123509E5200F6A144 /* m8rsh */,
 			);
-			name = Scripts;
+			name = scripts;
 			sourceTree = "<group>";
 		};
 		4945A8701EC3711D00559CD1 /* m8r */ = {
@@ -557,7 +557,7 @@
 				49E648071D00BEEC005F5059 /* libm8rscript */,
 				4945A8701EC3711D00559CD1 /* m8r */,
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
-				4942EA891D0C86BB00E02088 /* Scripts */,
+				4942EA891D0C86BB00E02088 /* scripts */,
 				49D9B8191D1C854700724911 /* m8rsim */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
