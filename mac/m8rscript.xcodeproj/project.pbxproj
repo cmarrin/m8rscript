@@ -63,6 +63,8 @@
 		499AE8E5234A625100459451 /* Task.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8E3234A625100459451 /* Task.cpp */; };
 		499AE8E6234A625100459451 /* Task.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E4234A625100459451 /* Task.h */; };
 		499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8E7234A667D00459451 /* SystemInterface.cpp */; };
+		499D95F22355323D00F45585 /* m8rtest in CopyFiles */ = {isa = PBXBuildFile; fileRef = 491ED3A32353EFE600DE0C42 /* m8rtest */; };
+		499D95F3235532F100F45585 /* m8r in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4945A86F1EC3711D00559CD1 /* m8r */; };
 		49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49A3286A1D35BDC50006D0FE /* Error.cpp */; };
 		49A3286D1D35BDC50006D0FE /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A3286B1D35BDC50006D0FE /* Error.h */; };
 		49A39F20234C513600F6A144 /* SystemTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A39F1E234C513600F6A144 /* SystemTime.h */; };
@@ -131,21 +133,23 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		491ED3A12353EFE600DE0C42 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 12;
+			dstPath = "$(HOME)/bin";
 			dstSubfolderSpec = 0;
 			files = (
+				499D95F22355323D00F45585 /* m8rtest in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4945A86D1EC3711D00559CD1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 12;
+			dstPath = "$(HOME)/bin";
 			dstSubfolderSpec = 0;
 			files = (
+				499D95F3235532F100F45585 /* m8r in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4988DC3D1F0A3713009F7ED5 /* Embed XPC Services */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -1028,6 +1032,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = "$(HOME)/bin";
 			};
 			name = Debug;
 		};
@@ -1044,6 +1049,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = "$(HOME)/bin";
 			};
 			name = Release;
 		};
