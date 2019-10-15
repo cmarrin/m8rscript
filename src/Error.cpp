@@ -63,6 +63,8 @@ void Error::showError(Code code)
         case Code::TooManyOpenFiles         : codeString = ROMSTR("Too Many Open Files"); break;
         case Code::DirectoryNotFound        : codeString = ROMSTR("Directory Not Found"); break;
         case Code::NotADirectory            : codeString = ROMSTR("Not A Directory"); break;
+        case Code::NotAFile                 : codeString = ROMSTR("Not A File"); break;
+        case Code::InvalidFileName          : codeString = ROMSTR("Invalid Filename"); break;
         case Code::FSNotFormatted           : codeString = ROMSTR("Fs Not Formatted"); break;
         case Code::NoSpace                  : codeString = ROMSTR("No Space Left"); break;
         case Code::MountFailed              : codeString = ROMSTR("Mount Failed"); break;

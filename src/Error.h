@@ -67,6 +67,8 @@ public:
         TooManyOpenFiles,
         DirectoryNotFound,
         NotADirectory,
+        NotAFile,
+        InvalidFileName,
         FSNotFormatted,
         NoSpace,
         MountFailed,
