@@ -140,7 +140,7 @@ int main(int argc, char * argv[])
     // Seed the random number generator
     srand(static_cast<uint32_t>(time(nullptr)));
     
-    const char* fsdir = (optind < argc) ? argv[optind] : nullptr;
+    const char* fsdir = (optind < argc) ? argv[optind] : "SpiffsFSFile";
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
     
     m8r::Application application(23);
