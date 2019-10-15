@@ -1032,7 +1032,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "$(HOME)/bin";
 			};
 			name = Debug;
 		};
@@ -1049,7 +1048,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = "$(HOME)/bin";
 			};
 			name = Release;
 		};
