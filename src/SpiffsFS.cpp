@@ -84,10 +84,21 @@ bool SpiffsFS::mount()
         system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
         _error = Error::Code::InternalError;
         return false;
-    } else {
-        system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
-        _error = Error::Code::OK;
     }
+    
+    // Make sure there is a root directory
+    spiffs_file rootDir = SPIFFS_open(SpiffsFS::sharedSpiffs(), "/", SPIFFS_CREAT, 0);
+    if (rootDir < 0) {
+        system()->printf(ROMSTR("ERROR: Could not create root directory, error=%d\n"), rootDir);
+        _error = Error::Code::InternalError;
+        return false;
+    }
+    
+    SPIFFS_close(SpiffsFS::sharedSpiffs(), rootDir);
+
+    system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
+    _error = Error::Code::OK;
+
     return true;
 }
 
@@ -160,14 +171,16 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
             }
         } else {
             if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
-                error = Error::Code::NotFound;
-                return nullptr;
+                error = Error::Code::FileNotFound;
+            } else {
+                fileID = SpiffsDirectory::FileID::random();
+                flags |= SPIFFS_CREAT;
             }
-            fileID = SpiffsDirectory::FileID::random();
-            flags |= SPIFFS_CREAT;
         }
         
-        file = SpiffsFS::rawOpen(fileID, flags, File::Type::File, mode);
+        if (fileID) {
+            file = SpiffsFS::rawOpen(fileID, flags, File::Type::File, mode);
+        }
     }
     
     // At this point file is null because the file doesn't exist and the mode is Read
@@ -231,7 +244,7 @@ Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
     switch(spiffsError) {
         case SPIFFS_ERR_NOT_MOUNTED         : return Error::Code::NotMounted;
         case SPIFFS_ERR_FULL                : return Error::Code::NoSpace;
-        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::NotFound;
+        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::FileNotFound;
         case SPIFFS_ERR_END_OF_OBJECT       : return Error::Code::ReadError;
         case SPIFFS_ERR_OUT_OF_FILE_DESCS   : return Error::Code::TooManyOpenFiles;
         case SPIFFS_ERR_NOT_WRITABLE        : return Error::Code::NotWritable;
@@ -313,7 +326,7 @@ bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, E
         }
         
         if (!findNameInDirectory(file, components[i], fileID, type)) {
-            error = Error::Code::DirectoryNotFound;
+            error = (i == components.size() - 1) ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
             return false;
         }
         
