@@ -82,6 +82,8 @@ public:
     
     operator bool () const { return _code == Code::OK; }
     Error& operator= (const Error::Code& code) { _code = code; return *this; }
+    bool operator==(const Error::Code& code) const { return _code == code; }
+    bool operator!=(const Error::Code& code) const { return _code != code; }
 
     Code code() const { return _code; }
     
