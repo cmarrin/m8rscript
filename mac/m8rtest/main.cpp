@@ -188,16 +188,17 @@ int main(int argc, char * argv[])
     // Filesystem
     
     // Make sure file isn't there
-    m8r::system()->fileSystem()->remove("Foo");
+    static const char* RootFileName = "/Foo";
+    m8r::system()->fileSystem()->remove(RootFileName);
     
     // Open Read-only. Should fail
-    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::Read);
-    testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code());
+    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::Read);
+    testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::NotFound, file->error().code());
 
-    file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::ReadUpdate);
-    testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::NotFound, m8r::system()->fileSystem()->lastError().code());
+    file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::ReadUpdate);
+    testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::NotFound, file->error().code());
     
-    file = m8r::system()->fileSystem()->open("Foo", m8r::FS::FileOpenMode::WriteUpdate);
+    file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::WriteUpdate);
     testExpect("Open non-existant file in Write mode error return", m8r::Error::Code::OK, file->error().code());
 
     m8r::String testString = "The quick brown fox jumps over the lazy dog";
