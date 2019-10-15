@@ -57,7 +57,6 @@ public:
         FileNotFound,
         ParseError,
         RuntimeError,
-        NotFound,
         Exists,
         ReadError,
         WriteError,

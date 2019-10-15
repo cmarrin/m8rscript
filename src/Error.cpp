@@ -53,7 +53,6 @@ void Error::showError(Code code)
         case Code::FileNotFound             : codeString = ROMSTR("File Not Found"); break;
         case Code::ParseError               : codeString = ROMSTR("Parse"); break;
         case Code::RuntimeError             : codeString = ROMSTR("Runtime"); break;
-        case Code::NotFound                 : codeString = ROMSTR("File Not Found"); break;
         case Code::Exists                   : codeString = ROMSTR("Exists"); break;
         case Code::ReadError                : codeString = ROMSTR("Read Error"); break;
         case Code::WriteError               : codeString = ROMSTR("Write Error"); break;

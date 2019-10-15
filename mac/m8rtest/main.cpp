@@ -193,10 +193,10 @@ int main(int argc, char * argv[])
     
     // Open Read-only. Should fail
     std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::Read);
-    testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::NotFound, file->error().code());
+    testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::FileNotFound, file->error().code());
 
     file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::ReadUpdate);
-    testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::NotFound, file->error().code());
+    testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::FileNotFound, file->error().code());
     
     file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::WriteUpdate);
     testExpect("Open non-existant file in Write mode error return", m8r::Error::Code::OK, file->error().code());
