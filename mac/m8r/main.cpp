@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "Application.h"
 #include "SpiffsFS.h"
@@ -27,6 +28,11 @@ public:
         ::vprintf(s, args);
     }
     
+    virtual int getChar() const override
+    {
+        return getchar();
+    }
+
     virtual void setDeviceName(const char*) override { }
     virtual m8r::FS* fileSystem() override { return &_fileSystem; }
     virtual m8r::GPIOInterface* gpio() override { return &_gpio; }

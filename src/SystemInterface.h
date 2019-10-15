@@ -112,6 +112,9 @@ public:
         vprintf(fmt, args);
     }
     
+    // Return false if no character is available
+    virtual int getChar() const { return -1; }
+    
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
     virtual TaskManager* taskManager() = 0;
