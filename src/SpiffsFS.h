@@ -104,6 +104,7 @@ class SpiffsDirectory : public Directory {
     friend class SpiffsFS;
     
 public:
+    SpiffsDirectory(const char* name);
     virtual ~SpiffsDirectory() { }
     
     virtual bool next() override;
@@ -115,20 +116,11 @@ private:
     
     class Entry {
     public:
-        Entry() { }
-        Entry(uint8_t size, EntryType type) { setType(type); setSize(size); }
-        
-        EntryType type() const { return static_cast<EntryType>(static_cast<uint8_t>(_value) >> 6); }
+        EntryType type() const { return static_cast<EntryType>(_value >> 6); }
         uint8_t size() const { return _value & 0x3f; }
 
-        const char& value() const { return _value; }
-        char& value() { return _value; }
-
     private:
-        void setType(EntryType type) { _value = (_value & 0x3f) | (static_cast<uint8_t>(type) << 6); }
-        void setSize(uint8_t size) { _value = (_value & 0xc0) | (size & 0x3f); }
-
-        char _value = 0;
+        uint8_t _value;
     };
 
     class FileID
@@ -151,14 +143,11 @@ private:
         char _value[FileIDLength] = { '\0', '\0', '\0' };
     };
     
-    static bool find(const char* name, FileID&, File::Type&, Error&, bool create = false);
-    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&, Error&);
-    
-    static void createEntry(const std::shared_ptr<File>&, const String& name, File::Type, FileID&);
+    static bool find(const char* name, FileID&, File::Type&, Error&);
+    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
 
     SpiffsDirectory();
-    SpiffsDirectory(const char* name, bool create);
-
+    
     std::shared_ptr<File> _dirFile;
     FileID _fileID;
 };
@@ -201,7 +190,7 @@ public:
     virtual bool format() override;
     
     virtual std::shared_ptr<File> open(const char* name, FileOpenMode) override;
-    virtual std::shared_ptr<Directory> openDirectory(const char* name, bool create = false) override;
+    virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;
 
