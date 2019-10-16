@@ -60,7 +60,7 @@ public:
     virtual bool format() = 0;
     
     virtual std::shared_ptr<File> open(const char* name, FileOpenMode) = 0;
-    virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
+    virtual std::shared_ptr<Directory> openDirectory(const char* name, bool create = false) = 0;
     virtual bool remove(const char* name) = 0;
     virtual bool rename(const char* src, const char* dst) = 0;
     

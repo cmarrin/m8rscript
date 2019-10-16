@@ -171,6 +171,7 @@ int main(int argc, char * argv[])
             }
             toPath += baseName;
             
+            std::shared_ptr<m8r::Directory> dir = m8r::system()->fileSystem()->openDirectory(uploadPath, true);
             std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
             if (!toFile->valid()) {
                 printf("Error: unable to open '%s' on Spiffs file system - ", toPath.c_str());

@@ -199,12 +199,12 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
     return file;
 }
 
-std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name)
+std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name, bool create)
 {
     if (!mounted()) {
         return nullptr;
     }
-    return std::shared_ptr<SpiffsDirectory>(new SpiffsDirectory(name));
+    return std::shared_ptr<SpiffsDirectory>(new SpiffsDirectory(name, create));
 }
 
 bool SpiffsFS::remove(const char* name)
@@ -256,11 +256,11 @@ Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
     }
 }
 
-SpiffsDirectory::SpiffsDirectory(const char* name)
+SpiffsDirectory::SpiffsDirectory(const char* name, bool create)
 {
     FileID fileID;
     File::Type fileType;
-    if (!find(name, fileID, fileType, _error)) {
+    if (!find(name, fileID, fileType, _error, create)) {
         if (_error == Error::Code::FileNotFound) {
             _error = Error::Code::DirectoryNotFound;
         } else if (fileType != File::Type::Directory) {
@@ -269,7 +269,7 @@ SpiffsDirectory::SpiffsDirectory(const char* name)
         return;
     }
     
-    _dirFile = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY, fileType);
+    _dirFile = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY | SPIFFS_O_CREAT, fileType);
     if (!_dirFile) {
         _error = Error::Code::InternalError;
         return;
@@ -284,7 +284,7 @@ bool SpiffsDirectory::next()
     
     if (_dirFile->eof()) {
         Entry entry;
-        _dirFile->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        _dirFile->read(&(entry.value()), sizeof(entry));
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
@@ -303,7 +303,7 @@ bool SpiffsDirectory::next()
     return false;
 }
 
-bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, Error& error)
+bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, Error& error, bool create)
 {
     error = Error::Code::OK;
 
@@ -313,7 +313,7 @@ bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, E
     }
     
     // Split up the name and find each component
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDONLY, File::Type::Directory);
+    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
     if (!file || !file->valid()) {
         error = Error::Code::InternalError;
         return false;
@@ -325,12 +325,26 @@ bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, E
             continue;
         }
         
-        if (!findNameInDirectory(file, components[i], fileID, type)) {
-            error = (i == components.size() - 1) ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
-            return false;
+        bool last = i == components.size() - 1;
+        
+        if (!findNameInDirectory(file, components[i], fileID, type, error)) {
+            if (error == Error::Code::DirectoryNotFound) {
+                if (create) {
+                    createEntry(file, components[i], File::Type::Directory, fileID);
+                    error = Error::Code::OK;
+                    type = File::Type::Directory;
+                } else {
+                    if (last) {
+                        error = Error::Code::FileNotFound;
+                    }
+                    return false;
+                }
+            } else if (error != Error::Code::OK) {
+                return false;
+            }
         }
         
-        if (i == components.size() - 1) {
+        if (last) {
             return true;
         }
         
@@ -339,20 +353,25 @@ bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, E
             return false;
         }
         
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY, type);
+        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_CREAT, type);
     }
 
     error = Error::Code::DirectoryNotFound;
     return false;
 }
 
-bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name, FileID& fileID, File::Type& type)
+bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name, FileID& fileID, File::Type& type, Error& error)
 {
     String s;
     
     while (!dir->eof()) {
         Entry entry;
         dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (!dir->valid()) {
+            error = dir->error();
+            return false;
+        }
+        
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
@@ -366,12 +385,24 @@ bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, cons
             dir->read(fileID.value(), sizeof(fileID));
             if (s == name) {
                 type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
+                error = Error::Code::OK;
                 return true;
             }
         }
     }
     
+    error = Error::Code::DirectoryNotFound;
     return false;
+}
+
+void SpiffsDirectory::createEntry(const std::shared_ptr<File>& dir, const String& name, File::Type type, FileID& fileID)
+{
+    fileID = FileID::random();
+    EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;
+    Entry entry(name.size(), entryType);
+    dir->write(entry.value());
+    dir->write(name.c_str(), static_cast<uint32_t>(name.size()));
+    dir->write(fileID.value(), FileIDLength);
 }
 
 SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
