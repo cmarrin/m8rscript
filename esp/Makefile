@@ -181,7 +181,7 @@ CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # Spiffs source files
-SPIFFS_DIR = ../src/spiffs/src
+SPIFFS_DIR = ../src/littlefs
 SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
 SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
 

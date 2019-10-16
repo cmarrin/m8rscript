@@ -1,4 +1,5 @@
 #include "flashmem.h"
+#include "Esp.h"
 #include <stdlib.h>
 
 // Based on NodeMCU platform_flash
