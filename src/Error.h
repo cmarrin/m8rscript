@@ -86,6 +86,7 @@ public:
 
     Code code() const { return _code; }
     
+    static void showError(Error error) { showError(error.code()); }
     static void showError(Code);
     
     static void printError(Code code, const char* format = nullptr, ...);
