@@ -7,11 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		491ED39A2353934B00DE0C42 /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED38E235392FF00DE0C42 /* spiffs_cache.c */; };
-		491ED39B2353934F00DE0C42 /* spiffs_check.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED390235392FF00DE0C42 /* spiffs_check.c */; };
-		491ED39C2353935300DE0C42 /* spiffs_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED393235392FF00DE0C42 /* spiffs_gc.c */; };
-		491ED39D2353935900DE0C42 /* spiffs_hydrogen.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */; };
-		491ED39E2353935900DE0C42 /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED394235392FF00DE0C42 /* spiffs_nucleus.c */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
@@ -50,9 +45,6 @@
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
-		4984DDC32354EC46004D2D6D /* spiffs_nucleus.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED392235392FF00DE0C42 /* spiffs_nucleus.h */; };
-		4984DDC42354EC4C004D2D6D /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38D235392FF00DE0C42 /* spiffs.h */; };
-		4984DDC52354EC52004D2D6D /* spiffs_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38F235392FF00DE0C42 /* spiffs_config.h */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
@@ -97,6 +89,10 @@
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
 		49E826301E95EB0100E416C4 /* JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E8262E1E95EB0100E416C4 /* JSON.cpp */; };
 		49E826311E95EB0100E416C4 /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E8262F1E95EB0100E416C4 /* JSON.h */; };
+		49EED98B2357971500831598 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49EED9872357971500831598 /* lfs.c */; };
+		49EED98C2357971500831598 /* lfs_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 49EED9882357971500831598 /* lfs_util.h */; };
+		49EED98D2357971500831598 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49EED9892357971500831598 /* lfs.h */; };
+		49EED98E2357971500831598 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49EED98A2357971500831598 /* lfs_util.c */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
@@ -219,7 +215,6 @@
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
-		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../src/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
@@ -320,6 +315,10 @@
 		49E6482C1D01F3CA005F5059 /* Atom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Atom.cpp; path = ../src/Atom.cpp; sourceTree = "<group>"; };
 		49E8262E1E95EB0100E416C4 /* JSON.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSON.cpp; path = ../src/JSON.cpp; sourceTree = "<group>"; };
 		49E8262F1E95EB0100E416C4 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSON.h; path = ../src/JSON.h; sourceTree = "<group>"; };
+		49EED9872357971500831598 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs.c; sourceTree = "<group>"; };
+		49EED9882357971500831598 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs_util.h; sourceTree = "<group>"; };
+		49EED9892357971500831598 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs.h; sourceTree = "<group>"; };
+		49EED98A2357971500831598 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs_util.c; sourceTree = "<group>"; };
 		49F166F41DA7443100C07A1A /* SimulationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SimulationView.xib; sourceTree = "<group>"; };
 		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
@@ -462,7 +461,6 @@
 			isa = PBXGroup;
 			children = (
 				4979C6711DDB790D00180BC2 /* gdbstub */,
-				4945DD8B1D795821006945BC /* spiffs */,
 				4945DD831D5ACE12006945BC /* core */,
 				497B449E1D469B3200BC1B57 /* app */,
 				497B449F1D469BB000BC1B57 /* Makefile */,
@@ -579,6 +577,7 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				49EED9862357971500831598 /* littlefs */,
 				494BA1911D207AB700E72725 /* mac */,
 				491ED38C235392D400DE0C42 /* spiffs */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
@@ -649,6 +648,18 @@
 			name = libm8rscript;
 			sourceTree = "<group>";
 		};
+		49EED9862357971500831598 /* littlefs */ = {
+			isa = PBXGroup;
+			children = (
+				49EED9872357971500831598 /* lfs.c */,
+				49EED9882357971500831598 /* lfs_util.h */,
+				49EED9892357971500831598 /* lfs.h */,
+				49EED98A2357971500831598 /* lfs_util.c */,
+			);
+			name = littlefs;
+			path = ../src/littlefs;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -657,11 +668,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
-				4984DDC42354EC4C004D2D6D /* spiffs.h in Headers */,
+				49EED98C2357971500831598 /* lfs_util.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
-				4984DDC52354EC52004D2D6D /* spiffs_config.h in Headers */,
-				4984DDC32354EC46004D2D6D /* spiffs_nucleus.h in Headers */,
 				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
@@ -671,6 +680,7 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
+				49EED98D2357971500831598 /* lfs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -879,12 +889,9 @@
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */,
-				491ED39D2353935900DE0C42 /* spiffs_hydrogen.c in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
-				491ED39B2353934F00DE0C42 /* spiffs_check.c in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
-				491ED39C2353935300DE0C42 /* spiffs_gc.c in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
@@ -901,12 +908,12 @@
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
-				491ED39E2353935900DE0C42 /* spiffs_nucleus.c in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
+				49EED98E2357971500831598 /* lfs_util.c in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
+				49EED98B2357971500831598 /* lfs.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
-				491ED39A2353934B00DE0C42 /* spiffs_cache.c in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,

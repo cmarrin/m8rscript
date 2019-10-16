@@ -38,8 +38,14 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "FS.h"
 
 #include "Containers.h"
-#include "spiffs.h"
-#include "spiffs_nucleus.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "lfs.h"
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 // Spiffs++ File System
 //
@@ -109,58 +115,10 @@ public:
     virtual bool next() override;
     
 private:
-    static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
-
-    enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
-    
-    class Entry {
-    public:
-        Entry() { }
-        Entry(uint8_t size, EntryType type) { setType(type); setSize(size); }
-        
-        EntryType type() const { return static_cast<EntryType>(static_cast<uint8_t>(_value) >> 6); }
-        uint8_t size() const { return _value & 0x3f; }
-
-        const char& value() const { return _value; }
-        char& value() { return _value; }
-
-    private:
-        void setType(EntryType type) { _value = (_value & 0x3f) | (static_cast<uint8_t>(type) << 6); }
-        void setSize(uint8_t size) { _value = (_value & 0xc0) | (size & 0x3f); }
-
-        char _value = 0;
-    };
-
-    class FileID
-    {
-    public:
-        FileID() { }
-        
-        const char* value() const { return _value; }
-        char* value() { return _value; }
-        operator bool() const { return _value[0] != '\0'; }
-        String str() const { return String(_value, FileIDLength); }
-        
-        static FileID bad() { return FileID(); }
-        static FileID root() { return FileID('/'); }
-        static FileID random();
-
-    private:
-        FileID(char c) { _value[0] = c; }
-        
-        char _value[FileIDLength] = { '\0', '\0', '\0' };
-    };
-    
-    static bool find(const char* name, FileID&, File::Type&, Error&, bool create = false);
-    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&, Error&);
-    
-    static void createEntry(const std::shared_ptr<File>&, const String& name, File::Type, FileID&);
-
     SpiffsDirectory();
     SpiffsDirectory(const char* name, bool create);
 
-    std::shared_ptr<File> _dirFile;
-    FileID _fileID;
+    lfs_dir_t _dir;
 };
 
 class SpiffsFile : public File {
@@ -182,9 +140,9 @@ protected:
     void setError(Error error) { _error = error; }
     
 private:
-    SpiffsFile(const char* name, spiffs_flags mode);
+    SpiffsFile(const char* name, FS::FileOpenMode mode);
 
-    spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
+    lfs_file_t _file;
 };
 
 class SpiffsFS : public FS {
@@ -209,24 +167,20 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static std::shared_ptr<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
-    
-    static Error::Code mapSpiffsError(spiffs_file);
+    static Error::Code mapSpiffsError(int);
 
-    static void setConfig(spiffs_config&, const char*);
+    static void setConfig(lfs_config&, const char*);
     
-    static spiffs* sharedSpiffs()
+    static lfs_t* sharedSpiffs()
     {
         return &_spiffsFileSystem;
     }
     
     int32_t internalMount();
 
-    spiffs_config _config;
+    lfs_config _config;
 
-    static spiffs _spiffsFileSystem;
-    uint8_t* _spiffsWorkBuf;
-    uint8_t _spiffsFileDescriptors[sizeof(spiffs_fd) * 4];
+    static lfs_t _spiffsFileSystem;
 };
 
 }

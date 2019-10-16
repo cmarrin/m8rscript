@@ -35,35 +35,30 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "SpiffsFS.h"
 
-#include "spiffs_nucleus.h"
 #include "Application.h"
 
 using namespace m8r;
 
-spiffs SpiffsFS::_spiffsFileSystem;
+lfs_t SpiffsFS::_spiffsFileSystem;
 
 
 SpiffsFS::SpiffsFS(const char* name)
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));
-    _spiffsWorkBuf = new uint8_t[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
-    assert(_spiffsWorkBuf);
-    
     setConfig(_config, name);
 }
 
 SpiffsFS::~SpiffsFS()
 {
-    SPIFFS_unmount(&_spiffsFileSystem);
-    delete [ ] _spiffsWorkBuf;
+    lfs_unmount(&_spiffsFileSystem);
 }
 
 bool SpiffsFS::mount()
 {
     system()->printf(ROMSTR("Mounting SPIFFS...\n"));
     int32_t result = internalMount();
-    if (result != SPIFFS_OK) {
-        if (result == SPIFFS_ERR_NOT_A_FS) {
+    if (result != 0) {
+        if (result != 0) {
             system()->printf(ROMSTR("ERROR: Not a valid SPIFFS filesystem. Please format.\n"));
             _error = Error::Code::FSNotFormatted;
         } else {
@@ -78,23 +73,23 @@ bool SpiffsFS::mount()
         return false;
     }
 
-    system()->printf(ROMSTR("Checking file system...\n"));
-    result = SPIFFS_check(&_spiffsFileSystem);
-    if (result != SPIFFS_OK) {
-        system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
-        _error = Error::Code::InternalError;
-        return false;
-    }
+//    system()->printf(ROMSTR("Checking file system...\n"));
+//    result = SPIFFS_check(&_spiffsFileSystem);
+//    if (result != SPIFFS_OK) {
+//        system()->printf(ROMSTR("ERROR: Consistency check failed during SPIFFS mount, error=%d\n"), result);
+//        _error = Error::Code::InternalError;
+//        return false;
+//    }
     
     // Make sure there is a root directory
-    spiffs_file rootDir = SPIFFS_open(SpiffsFS::sharedSpiffs(), "/", SPIFFS_CREAT, 0);
-    if (rootDir < 0) {
-        system()->printf(ROMSTR("ERROR: Could not create root directory, error=%d\n"), rootDir);
-        _error = Error::Code::InternalError;
-        return false;
-    }
-    
-    SPIFFS_close(SpiffsFS::sharedSpiffs(), rootDir);
+//    spiffs_file rootDir = SPIFFS_open(SpiffsFS::sharedSpiffs(), "/", SPIFFS_CREAT, 0);
+//    if (rootDir < 0) {
+//        system()->printf(ROMSTR("ERROR: Could not create root directory, error=%d\n"), rootDir);
+//        _error = Error::Code::InternalError;
+//        return false;
+//    }
+//    
+//    SPIFFS_close(SpiffsFS::sharedSpiffs(), rootDir);
 
     system()->printf(ROMSTR("SPIFFS mounted successfully\n"));
     _error = Error::Code::OK;
@@ -104,13 +99,13 @@ bool SpiffsFS::mount()
 
 bool SpiffsFS::mounted() const
 {
-    return SPIFFS_mounted(const_cast<spiffs_t*>(&_spiffsFileSystem));
+    return true; //SPIFFS_mounted(const_cast<spiffs_t*>(&_spiffsFileSystem));
 }
 
 void SpiffsFS::unmount()
 {
     if (mounted()) {
-        SPIFFS_unmount(&_spiffsFileSystem);
+        lfs_unmount(&_spiffsFileSystem);
     }
 }
 
@@ -121,8 +116,8 @@ bool SpiffsFS::format()
     }
     unmount();
     
-    int32_t result = SPIFFS_format(&_spiffsFileSystem);
-    if (result != SPIFFS_OK) {
+    int32_t result = lfs_format(&_spiffsFileSystem, &_config);
+    if (result != 0) {
         system()->printf(ROMSTR("ERROR: SPIFFS format failed, error=%d\n"), result);
         return false;
     }
@@ -130,73 +125,23 @@ bool SpiffsFS::format()
     return true;
 }
 
-std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
-{
-    std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(fileID.str().c_str(), flags));
-    if (!file->valid()) {
-        file->_file = SPIFFS_ERR_FILE_CLOSED;
-        return file;
-    }
-    
-    file->setType(type);
-    file->_mode = mode;
-    return file;
-}
-
 struct FileModeEntry {
-    const char* _mode;
-    spiffs_flags _flags;
+    FS::FileOpenMode _mode;
+    int _flags;
+};
+
+static const FileModeEntry _fileModeMap[] = {
+    { FS::FileOpenMode::Read,  LFS_O_RDONLY },
+    { FS::FileOpenMode::ReadUpdate, LFS_O_RDWR },
+    { FS::FileOpenMode::Write,  LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC },
+    { FS::FileOpenMode::WriteUpdate, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC },
+    { FS::FileOpenMode::Append,  LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND },
+    { FS::FileOpenMode::AppendUpdate, LFS_O_RDWR | LFS_O_CREAT },
 };
 
 std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
-    std::shared_ptr<File> file;
-    SpiffsDirectory::FileID fileID;
-    File::Type fileType;
-    Error error;
-    SpiffsDirectory::find(name, fileID, fileType, error);
-
-    if (error == Error::Code::OK && fileType != File::Type::File) {
-        error = Error::Code::NotAFile;
-    } else if (error == Error::Code::OK || error == Error::Code::FileNotFound) {
-        // If the file exists its contents are preserved unless it is in Write or
-        // WriteAppend mode, in which case it's truncated. If it doesn't exist
-        // use the SPIFFS_CREAT flag so the file is created and then opened for
-        // read/write
-        spiffs_flags flags = SPIFFS_RDWR;
-        
-        if (error == Error::Code::OK) {
-            if (mode == FileOpenMode::Write || mode == FileOpenMode::WriteUpdate) {
-                flags |= SPIFFS_TRUNC;
-            }
-        } else {
-            if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
-                error = Error::Code::FileNotFound;
-            } else {
-                fileID = SpiffsDirectory::FileID::random();
-                flags |= SPIFFS_CREAT;
-            }
-        }
-        
-        if (fileID) {
-            file = SpiffsFS::rawOpen(fileID, flags, File::Type::File, mode);
-        }
-    }
-    
-    // At this point file is null because the file doesn't exist and the mode is Read
-    // or ReadUpdate. Or it's null because there was an error, which is in 'error'.
-    // Or we have a newly created file, an existing file whose contents have been
-    // thrown away or an existing file whose contents have been preserved. In all
-    // cases we're open read/write
-    
-    // If file is null, open a dummy file and put 'error' in it.
-    if (!file) {
-        assert(error != Error::Code::OK);
-        file = SpiffsFS::rawOpen(SpiffsDirectory::FileID::bad(), 0, File::Type::File, mode);
-        reinterpret_cast<SpiffsFile*>(file.get())->_error = error;
-    }
-    
-    return file;
+    return std::shared_ptr<File>(new SpiffsFile(name, mode));
 }
 
 std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name, bool create)
@@ -209,228 +154,80 @@ std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name, bool create
 
 bool SpiffsFS::remove(const char* name)
 {
-    return SPIFFS_remove(&_spiffsFileSystem, name) == SPIFFS_OK;
+    return lfs_remove(&_spiffsFileSystem, name) == 0;
 }
 
 bool SpiffsFS::rename(const char* src, const char* dst)
 {
-    return SPIFFS_rename(&_spiffsFileSystem, src, dst) == SPIFFS_OK;
+    return lfs_rename(&_spiffsFileSystem, src, dst) == 0;
 }
 
 uint32_t SpiffsFS::totalSize() const
 {
-    u32_t total, used;
-    SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
-    return total;
+    return 1000;
 }
 
 uint32_t SpiffsFS::totalUsed() const
 {
-    u32_t total, used;
-    SPIFFS_info(const_cast<spiffs*>(&_spiffsFileSystem), &total, &used);
-    return used;
+    return 100;
 }
 
 int32_t SpiffsFS::internalMount()
 {
-    return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
-                        _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
+    return lfs_mount(&_spiffsFileSystem, &_config);
 }
 
-Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
-{
-    assert(spiffsError < 0);
-
-    switch(spiffsError) {
-        case SPIFFS_ERR_NOT_MOUNTED         : return Error::Code::NotMounted;
-        case SPIFFS_ERR_FULL                : return Error::Code::NoSpace;
-        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::FileNotFound;
-        case SPIFFS_ERR_END_OF_OBJECT       : return Error::Code::ReadError;
-        case SPIFFS_ERR_OUT_OF_FILE_DESCS   : return Error::Code::TooManyOpenFiles;
-        case SPIFFS_ERR_NOT_WRITABLE        : return Error::Code::NotWritable;
-        case SPIFFS_ERR_NOT_READABLE        : return Error::Code::NotReadable;
-        case SPIFFS_ERR_MOUNTED             : return Error::Code::Mounted;
-        case SPIFFS_ERR_FILE_EXISTS         : return Error::Code::Exists;
-        case SPIFFS_ERR_NOT_CONFIGURED      : return Error::Code::NotMounted;
-        default                             : return Error::Code::InternalError;
-    }
-}
+//Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
+//{
+//    assert(spiffsError < 0);
+//
+//    switch(spiffsError) {
+//        case SPIFFS_ERR_NOT_MOUNTED         : return Error::Code::NotMounted;
+//        case SPIFFS_ERR_FULL                : return Error::Code::NoSpace;
+//        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::FileNotFound;
+//        case SPIFFS_ERR_END_OF_OBJECT       : return Error::Code::ReadError;
+//        case SPIFFS_ERR_OUT_OF_FILE_DESCS   : return Error::Code::TooManyOpenFiles;
+//        case SPIFFS_ERR_NOT_WRITABLE        : return Error::Code::NotWritable;
+//        case SPIFFS_ERR_NOT_READABLE        : return Error::Code::NotReadable;
+//        case SPIFFS_ERR_MOUNTED             : return Error::Code::Mounted;
+//        case SPIFFS_ERR_FILE_EXISTS         : return Error::Code::Exists;
+//        case SPIFFS_ERR_NOT_CONFIGURED      : return Error::Code::NotMounted;
+//        default                             : return Error::Code::InternalError;
+//    }
+//}
 
 SpiffsDirectory::SpiffsDirectory(const char* name, bool create)
 {
-    FileID fileID;
-    File::Type fileType;
-    if (!find(name, fileID, fileType, _error, create)) {
-        if (_error == Error::Code::FileNotFound) {
-            _error = Error::Code::DirectoryNotFound;
-        } else if (fileType != File::Type::Directory) {
-            _error = Error::Code::NotADirectory;
-        }
-        return;
-    }
-    
-    _dirFile = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY | SPIFFS_O_CREAT, fileType);
-    if (!_dirFile) {
-        _error = Error::Code::InternalError;
-        return;
-    }
-
+    lfs_dir_open(&SpiffsFS::_spiffsFileSystem, &_dir, name);
     next();
 }
 
 bool SpiffsDirectory::next()
 {
-    String s;
-    
-    if (_dirFile->eof()) {
-        Entry entry;
-        _dirFile->read(&(entry.value()), sizeof(entry));
-        if (entry.type() == EntryType::File ||
-            entry.type() == EntryType::Directory) {
-            uint8_t size = entry.size();
-            s.reserve(size + 1);
-            for ( ; size > 0; --size) {
-                char c;
-                _dirFile->read(&c, 1);
-                s += c;
-            }
-            
-            _dirFile->read(_fileID.value(), sizeof(_fileID));
-            return true;
-        }
-    }
-    
-    return false;
+    lfs_info info;
+    lfs_dir_read(&SpiffsFS::_spiffsFileSystem, &_dir, &info);
+    _size = info.size;
+    _name = String(info.name);
+    return true;
 }
 
-bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, Error& error, bool create)
+SpiffsFile::SpiffsFile(const char* name, FS::FileOpenMode mode)
 {
-    error = Error::Code::OK;
-
-    if (!name || name[0] != '/') {
-        error = Error::Code::InvalidFileName;
-        return false;
-    }
-    
-    // Split up the name and find each component
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
-    if (!file || !file->valid()) {
-        error = Error::Code::InternalError;
-        return false;
-    }
-    std::vector<String> components = String(name).split("/");
-    
-    for (int i = 0; i < components.size(); ++i) {
-        if (components[i].empty()) {
-            continue;
-        }
-        
-        bool last = i == components.size() - 1;
-        
-        if (!findNameInDirectory(file, components[i], fileID, type, error)) {
-            if (error == Error::Code::DirectoryNotFound) {
-                if (create) {
-                    createEntry(file, components[i], File::Type::Directory, fileID);
-                    error = Error::Code::OK;
-                    type = File::Type::Directory;
-                } else {
-                    if (last) {
-                        error = Error::Code::FileNotFound;
-                    }
-                    return false;
-                }
-            } else if (error != Error::Code::OK) {
-                return false;
-            }
-        }
-        
-        if (last) {
-            return true;
-        }
-        
-        if (type != File::Type::Directory) {
-            error = Error::Code::DirectoryNotFound;
-            return false;
-        }
-        
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_CREAT, type);
-    }
-
-    error = Error::Code::DirectoryNotFound;
-    return false;
-}
-
-bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name, FileID& fileID, File::Type& type, Error& error)
-{
-    String s;
-    
-    while (!dir->eof()) {
-        Entry entry;
-        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
-        if (!dir->valid()) {
-            error = dir->error();
-            return false;
-        }
-        
-        if (entry.type() == EntryType::File ||
-            entry.type() == EntryType::Directory) {
-            uint8_t size = entry.size();
-            s.reserve(size + 1);
-            for ( ; size > 0; --size) {
-                char c;
-                dir->read(&c, 1);
-                s += c;
-            }
-            
-            dir->read(fileID.value(), sizeof(fileID));
-            if (s == name) {
-                type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
-                error = Error::Code::OK;
-                return true;
-            }
+    // Convert mode to spiffs_flags
+    int flags = 0;
+    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
+        if (_fileModeMap[i]._mode == mode) {
+            flags = _fileModeMap[i]._flags;
+            break;
         }
     }
-    
-    error = Error::Code::DirectoryNotFound;
-    return false;
-}
 
-void SpiffsDirectory::createEntry(const std::shared_ptr<File>& dir, const String& name, File::Type type, FileID& fileID)
-{
-    fileID = FileID::random();
-    EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;
-    Entry entry(name.size(), entryType);
-    dir->write(entry.value());
-    dir->write(name.c_str(), static_cast<uint32_t>(name.size()));
-    dir->write(fileID.value(), FileIDLength);
-}
-
-SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
-{
-    SpiffsDirectory::FileID fileID;
-    
-    char offset = 0x21;
-    char range = 0x7e - offset + 1;
-    for (char i = 0; i < FileIDLength; ++i) {
-        fileID._value[i] = static_cast<char>(rand() % range) + offset;
-    }
-    
-    return fileID;
-}
-
-SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
-{
-    if (!name || name[0] == '\0') {
-        // We're opening a dummy file just so it can hold an error
-        return;
-    }
-    _file = SPIFFS_open(SpiffsFS::sharedSpiffs(), name, flags, 0);
-    _error = (_file < 0) ? SpiffsFS::mapSpiffsError(_file) : Error::Code::OK;
+    lfs_file_open(&SpiffsFS::_spiffsFileSystem, &_file, name, flags);
 }
 
 SpiffsFile::~SpiffsFile()
 {
-    SPIFFS_close(SpiffsFS::sharedSpiffs(), _file);
+    lfs_file_close(&SpiffsFS::_spiffsFileSystem, &_file);
 }
   
 int32_t SpiffsFile::read(char* buf, uint32_t size)
@@ -439,7 +236,7 @@ int32_t SpiffsFile::read(char* buf, uint32_t size)
         _error = Error::Code::NotReadable;
         return -1;
     }
-    return SPIFFS_read(SpiffsFS::sharedSpiffs(), _file, buf, size);
+    return lfs_file_read(&SpiffsFS::_spiffsFileSystem, &_file, buf, size);
 }
 
 int32_t SpiffsFile::write(const char* buf, uint32_t size)
@@ -453,7 +250,7 @@ int32_t SpiffsFile::write(const char* buf, uint32_t size)
         seek(0, SeekWhence::End);
     }
 
-    return SPIFFS_write(SpiffsFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
+    return lfs_file_write(&SpiffsFS::_spiffsFileSystem, &_file, const_cast<char*>(buf), size);
 }
 
 bool SpiffsFile::seek(int32_t offset, SeekWhence whence)
@@ -462,24 +259,17 @@ bool SpiffsFile::seek(int32_t offset, SeekWhence whence)
         _error = Error::Code::SeekNotAllowed;
         return -1;
     }
-
-    int whenceFlag = SPIFFS_SEEK_SET;
-    if (whence == SeekWhence::Cur) {
-        whenceFlag = SPIFFS_SEEK_CUR;
-    } else if (whence == SeekWhence::End) {
-        whenceFlag = SPIFFS_SEEK_END;
-    }
-    return SPIFFS_lseek(SpiffsFS::sharedSpiffs(), _file, offset, whenceFlag) == SPIFFS_OK;
+    return lfs_file_seek(&SpiffsFS::_spiffsFileSystem, &_file, offset, 0) == 0;
 }
 
 int32_t SpiffsFile::tell() const
 {
-    return SPIFFS_tell(SpiffsFS::sharedSpiffs(), _file);
+    return lfs_file_tell(&SpiffsFS::_spiffsFileSystem, const_cast<lfs_file_t*>(&_file));
 }
 
 bool SpiffsFile::eof() const
 {
-    return SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
+    return true; //SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
 }
 
 

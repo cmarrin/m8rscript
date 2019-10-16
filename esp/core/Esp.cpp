@@ -31,6 +31,9 @@
 #include "TCP.h"
 #include <cstdlib>
 
+#include "flashmem.h"
+
+
 #ifndef NDEBUG
 #include <gdbstub.h>
 #endif
@@ -43,6 +46,13 @@ extern "C" {
 #include "umm_malloc.h"
 
 //#define NEED_HEXDUMP
+
+
+size_t strspn(const char *str1, const char *str2) { return 0; }
+size_t strcspn ( const char * str1, const char * str2 ) { return 0; }
+int printf ( const char * format, ... ) { return 0; }
+
+
 
 // Needed by lwip
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
@@ -621,14 +631,56 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     return SPIFFS_OK;
 }
 
-void m8r::SpiffsFS::setConfig(spiffs_config& config, const char*)
-{
-    memset(&config, 0, sizeof(config));
-    config.hal_read_f = spiffsRead;
-    config.hal_write_f = spiffsWrite;
-    config.hal_erase_f = spiffsErase;
+static int lfs_flash_read(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size) {
+    uint32_t addr = (block * 256) + off;
+    return spiffsRead(addr, size, static_cast<uint8_t*>(dst)) == SPIFFS_OK ? 0 : -1;
 }
 
+static int lfs_flash_prog(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) {
+    uint32_t addr = (block * 256) + off;
+    const uint8_t *src = reinterpret_cast<const uint8_t *>(buffer);
+    return spiffsWrite(addr, size, const_cast<uint8_t*>(src)) == SPIFFS_OK ? 0 : -1;
+}
+
+static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block) {
+    uint32_t addr = (block * 256);
+    uint32_t size = 256;
+    return spiffsErase(addr, size) == SPIFFS_OK ? 0 : -1;
+}
+
+static int lfs_flash_sync(const struct lfs_config *c) {
+    /* NOOP */
+    (void) c;
+    return 0;
+}
+
+void m8r::SpiffsFS::setConfig(lfs_config& config, const char* name)
+{
+    lfs_size_t blockSize = 256;
+    lfs_size_t size = 3 * 1024 * 1024;
+    
+    memset(&config, 0, sizeof(config));
+    //config.context = (void*) this;
+    config.read = lfs_flash_read;
+    config.prog = lfs_flash_prog;
+    config.erase = lfs_flash_erase;
+    config.sync = lfs_flash_sync;
+    config.read_size = 64;
+    config.prog_size = 64;
+    config.block_size =  blockSize;
+    config.block_count = blockSize ? size / blockSize: 0;
+    config.block_cycles = 16; // TODO - need better explanation
+    config.cache_size = 64;
+    config.lookahead_size = 64;
+    config.read_buffer = nullptr;
+    config.prog_buffer = nullptr;
+    config.lookahead_buffer = nullptr;
+    config.name_max = 0;
+    config.file_max = 0;
+    config.attr_max = 0;
+}
 extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)

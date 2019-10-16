@@ -61,7 +61,7 @@ static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst)
     return SPIFFS_OK;
 }
 
-static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src)
+static s32_t spiffsWrite(u32_t addr, u32_t size, const u8_t *src)
 {
     if (!fsFile) {
         return SPIFFS_ERR_NOT_WRITABLE;
@@ -94,7 +94,32 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     return SPIFFS_OK;
 }
 
-void SpiffsFS::setConfig(spiffs_config& config, const char* name)
+static int lfs_flash_read(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size) {
+    uint32_t addr = (block * 256) + off;
+    return spiffsRead(addr, size, static_cast<uint8_t*>(dst)) == SPIFFS_OK ? 0 : -1;
+}
+
+static int lfs_flash_prog(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) {
+    uint32_t addr = (block * 256) + off;
+    const uint8_t *src = reinterpret_cast<const uint8_t *>(buffer);
+    return spiffsWrite(addr, size, static_cast<const uint8_t*>(src)) == SPIFFS_OK ? 0 : -1;
+}
+
+static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block) {
+    uint32_t addr = (block * 256);
+    uint32_t size = 256;
+    return spiffsErase(addr, size) == SPIFFS_OK ? 0 : -1;
+}
+
+static int lfs_flash_sync(const struct lfs_config *c) {
+    /* NOOP */
+    (void) c;
+    return 0;
+}
+
+void SpiffsFS::setConfig(lfs_config& config, const char* name)
 {
     // If the file exists, use it as long as it is big enough
     fsFile = fopen(name, "rb+");
@@ -116,9 +141,28 @@ void SpiffsFS::setConfig(spiffs_config& config, const char* name)
             ftruncate(fileno(fsFile), SPIFFS_PHYS_SIZE);
         }
     }
+
+    lfs_size_t blockSize = 256;
+    lfs_size_t size = 3 * 1024 * 1024;
+    
     memset(&config, 0, sizeof(config));
-    config.hal_read_f = spiffsRead;
-    config.hal_write_f = spiffsWrite;
-    config.hal_erase_f = spiffsErase;
+    //config.context = (void*) this;
+    config.read = lfs_flash_read;
+    config.prog = lfs_flash_prog;
+    config.erase = lfs_flash_erase;
+    config.sync = lfs_flash_sync;
+    config.read_size = 64;
+    config.prog_size = 64;
+    config.block_size =  blockSize;
+    config.block_count = blockSize ? size / blockSize: 0;
+    config.block_cycles = 16; // TODO - need better explanation
+    config.cache_size = 64;
+    config.lookahead_size = 64;
+    config.read_buffer = nullptr;
+    config.prog_buffer = nullptr;
+    config.lookahead_buffer = nullptr;
+    config.name_max = 0;
+    config.file_max = 0;
+    config.attr_max = 0;
 }
 
