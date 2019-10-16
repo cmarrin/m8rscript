@@ -138,7 +138,7 @@ int main(int argc, char * argv[])
         {
             case 'p': port = atoi(optarg); break;
             case 'u': uploadFilename = optarg; break;
-            case 'l': uploadPath = optarg;
+            case 'l': uploadPath = optarg; break;
             case 'h': usage(argv[0]); break;
             default : break;
         }
@@ -171,21 +171,40 @@ int main(int argc, char * argv[])
             }
             toPath += baseName;
             
-            std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read);
-            if (!toFile) {
-                fprintf(stderr, "Unable to open '%s' on Spiffs file system, skipping\n", toPath.c_str());
+            std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
+            if (!toFile->valid()) {
+                printf("Error: unable to open '%s' on Spiffs file system - ", toPath.c_str());
+                m8r::Error::showError(toFile->error());
+                printf("\n");                
             } else {
-                while(!feof(fromFile)) {
+                bool success = true;
+                while(1) {
                     char c;
-                    fread(&c, 1, 1, fromFile);
-                    toFile->write(&c, 1);
+                    size_t size = fread(&c, 1, 1, fromFile);
+                    if (size != 1) {
+                        if (!feof(fromFile)) {
+                            fprintf(stderr, "Error reading '%s', upload failed\n", uploadFilename);
+                            success = false;
+                        }
+                        break;
+                    }
+                    
+                    toFile->write(c);
+                    if (!toFile->valid()) {
+                        fprintf(stderr, "Error writing '%s', upload failed\n", toPath.c_str());
+                        success = false;
+                        break;
+                    }
+                }
+                if (success) {
+                    printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
                 }
             }
         }
-        printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
     }
 
-    m8r::Application application(23);
+    m8r::Application application(port);
+    m8r::Application::mountFileSystem();
     application.runLoop();
 
     return 0;
