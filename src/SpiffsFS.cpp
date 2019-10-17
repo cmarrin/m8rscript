@@ -154,7 +154,7 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
     SpiffsDirectory::FileID fileID;
     File::Type fileType;
     Error error;
-    SpiffsDirectory::find(name, fileID, fileType, error);
+    SpiffsDirectory::find(name, false, fileID, fileType, error);
 
     if (error == Error::Code::OK && fileType != File::Type::File) {
         error = Error::Code::NotAFile;
@@ -205,6 +205,28 @@ std::shared_ptr<Directory> SpiffsFS::openDirectory(const char* name)
         return nullptr;
     }
     return std::shared_ptr<SpiffsDirectory>(new SpiffsDirectory(name));
+}
+
+bool SpiffsFS::makeDirectory(const char* name)
+{
+    SpiffsDirectory::FileID fileID;
+    File::Type type;
+    Error error;
+    
+    if (SpiffsDirectory::find(name, true, fileID, type, error)) {
+        // If the file was found that's bad. It means it already exists
+        _error = Error::Code::Exists;
+        return false;
+    }
+    
+    // If the returned error is not FileNotFound it means there was some other error
+    if (error != Error::Code::FileNotFound) {
+        _error = error;
+        return false;
+    }
+    
+    // find() created all the directories in the path at this point
+    return true;
 }
 
 bool SpiffsFS::remove(const char* name)
@@ -260,7 +282,7 @@ SpiffsDirectory::SpiffsDirectory(const char* name)
 {
     FileID fileID;
     File::Type fileType;
-    if (!find(name, fileID, fileType, _error)) {
+    if (!find(name, false, fileID, fileType, _error)) {
         if (_error == Error::Code::FileNotFound) {
             _error = Error::Code::DirectoryNotFound;
         } else if (fileType != File::Type::Directory) {
@@ -303,7 +325,7 @@ bool SpiffsDirectory::next()
     return false;
 }
 
-bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, Error& error)
+bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::Type& type, Error& error)
 {
     error = Error::Code::OK;
 
@@ -325,12 +347,28 @@ bool SpiffsDirectory::find(const char* name, FileID& fileID, File::Type& type, E
             continue;
         }
         
+        bool last = i == components.size() - 1;
+        
         if (!findNameInDirectory(file, components[i], fileID, type)) {
-            error = (i == components.size() - 1) ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
-            return false;
+            if (!last && create) {
+                createEntry(file, components[i], File::Type::Directory, fileID);
+                if (!findNameInDirectory(file, components[i], fileID, type)) {
+                    // We should find the dir if we just created it
+                    error = Error::Code::InternalError;
+                }
+            } else {
+                error = last ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
+                
+                // If we are creating directories and the error is FileNotFound, it means this is the
+                // tail of the path and we are creating directories. So create one here
+                if (create && error == Error::Code::FileNotFound) {
+                    createEntry(file, components[i], File::Type::Directory, fileID);
+                }
+                return false;
+            }
         }
         
-        if (i == components.size() - 1) {
+        if (last) {
             return true;
         }
         
@@ -372,6 +410,16 @@ bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, cons
     }
     
     return false;
+}
+
+void SpiffsDirectory::createEntry(const std::shared_ptr<File>& dir, const String& name, File::Type type, FileID& fileID)
+{
+    fileID = FileID::random();
+    EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;
+    Entry entry(name.size(), entryType);
+    dir->write(entry.value());
+    dir->write(name.c_str(), static_cast<uint32_t>(name.size()));
+    dir->write(fileID.value(), FileIDLength);
 }
 
 SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
