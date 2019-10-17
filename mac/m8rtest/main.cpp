@@ -124,7 +124,7 @@ static void testExpect(const char* s, const char* expected, const char* got, boo
 {
     std::cout << "**** " << s << "\n";
     std::cout << "     expected '" << expected << "', got '" << got << "'\n";
-    std::cout << "     test " << (result ? "passed" : "FAILED") << "\n";
+    std::cout << "     test " << (result ? "passed" : "FAILED") << "\n\n";
 }
 
 template<typename T>
@@ -132,8 +132,8 @@ static void testExpect(const char* s, T expected, T got)
 {
     std::stringstream expectedString;
     std::stringstream gotString;
-    expectedString << expected;
-    gotString << got;
+    expectedString << std::boolalpha << expected;
+    gotString << std::boolalpha << got;
     testExpect(s, expectedString.str().c_str(), gotString.str().c_str(), expected == got);
 }
 
@@ -188,19 +188,27 @@ int main(int argc, char * argv[])
     // Filesystem
     
     // Make sure file isn't there
-    static const char* RootFileName = "/Foo";
-    m8r::system()->fileSystem()->remove(RootFileName);
+    static const char* Filename = "Foo";
+    static const char* Subdir = "Bar";
     
-    // Open Read-only. Should fail
-    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::Read);
+    m8r::String rootFilename = m8r::String("/") + Filename;
+    m8r::String subdir = m8r::String("/") + Subdir;
+    m8r::String subdirFilename = subdir + "/" + Filename;
+
+    m8r::system()->fileSystem()->remove(rootFilename.c_str());
+    m8r::system()->fileSystem()->remove(subdirFilename.c_str());
+
+    // Open file in root directory tests
+    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::Read);
     testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::FileNotFound, file->error().code());
 
-    file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::ReadUpdate);
+    file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::ReadUpdate);
     testExpect("Open non-existant file in ReadUpdate mode error return", m8r::Error::Code::FileNotFound, file->error().code());
     
-    file = m8r::system()->fileSystem()->open(RootFileName, m8r::FS::FileOpenMode::WriteUpdate);
-    testExpect("Open non-existant file in Write mode error return", m8r::Error::Code::OK, file->error().code());
+    file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::WriteUpdate);
+    testExpect("Open non-existant root file in Write mode error return", m8r::Error::Code::OK, file->error().code());
 
+    // Writing to a file and then reading back
     m8r::String testString = "The quick brown fox jumps over the lazy dog";
     file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
     testExpect("Write string to file error return", m8r::Error::Code::OK, file->error().code());
@@ -209,6 +217,21 @@ int main(int argc, char * argv[])
     testExpect("Seek to 0 error return", m8r::Error::Code::OK, file->error().code());
 
     char buf[9];
+    file->read(buf, 9);
+    testExpect("Read error return", m8r::Error::Code::OK, file->error().code());
+    testExpect("Read return value", m8r::String("The quick"), m8r::String(buf, 9));
+
+    // Open file in subdirectory tests
+    bool success = m8r::system()->fileSystem()->makeDirectory(subdir.c_str());
+    testExpect("makeDirectory bool return", true, success);
+
+    file = m8r::system()->fileSystem()->open(subdirFilename.c_str(), m8r::FS::FileOpenMode::WriteUpdate);
+    testExpect("Open non-existant subdir file in Write mode error return", m8r::Error::Code::OK, file->error().code());
+
+    file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
+    testExpect("Write string to subdir file error return", m8r::Error::Code::OK, file->error().code());
+    
+    file->seek(0);
     file->read(buf, 9);
     testExpect("Read error return", m8r::Error::Code::OK, file->error().code());
     testExpect("Read return value", m8r::String("The quick"), m8r::String(buf, 9));
