@@ -169,6 +169,10 @@ int main(int argc, char * argv[])
             if (toPath[toPath.size() - 1] != '/') {
                 toPath += '/';
             }
+            
+            // Make sure the directory path exists
+            m8r::system()->fileSystem()->makeDirectory(toPath.c_str);
+            
             toPath += baseName;
             
             std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
