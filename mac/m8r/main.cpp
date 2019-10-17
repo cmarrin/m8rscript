@@ -171,7 +171,7 @@ int main(int argc, char * argv[])
             }
             
             // Make sure the directory path exists
-            m8r::system()->fileSystem()->makeDirectory(toPath.c_str);
+            m8r::system()->fileSystem()->makeDirectory(toPath.c_str());
             
             toPath += baseName;
             
