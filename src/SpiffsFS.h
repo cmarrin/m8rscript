@@ -152,7 +152,15 @@ private:
         char _value[FileIDLength] = { '\0', '\0', '\0' };
     };
     
-    static bool find(const char* name, bool create, FileID&, File::Type&, Error&);
+    // What happens in find when part of the path doesn't exist?
+    //
+    // None         - Nothing. Return not found error
+    // Directory    - Some of the components of the path may not exist. If not, crete a directory
+    // File         - If the tail of the path doesn't exist, create an entry for a new file
+    
+    enum class FindCreateMode { None, Directory, File };
+    
+    static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
     static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
     static void createEntry(const std::shared_ptr<File>&, const String& name, File::Type, FileID&);
 

@@ -150,11 +150,17 @@ struct FileModeEntry {
 
 std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
+    // If our open mode allows file creation, tell find that it can create a file if it doesn't exist
+    SpiffsDirectory::FindCreateMode createMode = SpiffsDirectory::FindCreateMode::File;
+    if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
+        createMode = SpiffsDirectory::FindCreateMode::None;
+    }
+
     std::shared_ptr<File> file;
     SpiffsDirectory::FileID fileID;
     File::Type fileType;
     Error error;
-    SpiffsDirectory::find(name, false, fileID, fileType, error);
+    SpiffsDirectory::find(name, createMode, fileID, fileType, error);
 
     if (error == Error::Code::OK && fileType != File::Type::File) {
         error = Error::Code::NotAFile;
@@ -169,13 +175,11 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
             if (mode == FileOpenMode::Write || mode == FileOpenMode::WriteUpdate) {
                 flags |= SPIFFS_TRUNC;
             }
+        }
+        if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
+            error = Error::Code::FileNotFound;
         } else {
-            if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
-                error = Error::Code::FileNotFound;
-            } else {
-                fileID = SpiffsDirectory::FileID::random();
-                flags |= SPIFFS_CREAT;
-            }
+            flags |= SPIFFS_CREAT;
         }
         
         if (fileID) {
@@ -213,20 +217,9 @@ bool SpiffsFS::makeDirectory(const char* name)
     File::Type type;
     Error error;
     
-    if (SpiffsDirectory::find(name, true, fileID, type, error)) {
-        // If the file was found that's bad. It means it already exists
-        _error = Error::Code::Exists;
-        return false;
-    }
-    
-    // If the returned error is not FileNotFound it means there was some other error
-    if (error != Error::Code::FileNotFound) {
-        _error = error;
-        return false;
-    }
-    
-    // find() created all the directories in the path at this point
-    return true;
+    SpiffsDirectory::find(name, SpiffsDirectory::FindCreateMode::Directory, fileID, type, error);
+    _error = error;
+    return error == Error::Code::OK;
 }
 
 bool SpiffsFS::remove(const char* name)
@@ -282,7 +275,7 @@ SpiffsDirectory::SpiffsDirectory(const char* name)
 {
     FileID fileID;
     File::Type fileType;
-    if (!find(name, false, fileID, fileType, _error)) {
+    if (!find(name, SpiffsDirectory::FindCreateMode::None, fileID, fileType, _error)) {
         if (_error == Error::Code::FileNotFound) {
             _error = Error::Code::DirectoryNotFound;
         } else if (fileType != File::Type::Directory) {
@@ -325,7 +318,7 @@ bool SpiffsDirectory::next()
     return false;
 }
 
-bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::Type& type, Error& error)
+bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& fileID, File::Type& type, Error& error)
 {
     error = Error::Code::OK;
 
@@ -335,7 +328,7 @@ bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::
     }
     
     // Split up the name and find each component
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDONLY, File::Type::Directory);
+    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
     if (!file || !file->valid()) {
         error = Error::Code::InternalError;
         return false;
@@ -350,7 +343,7 @@ bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::
         bool last = i == components.size() - 1;
         
         if (!findNameInDirectory(file, components[i], fileID, type)) {
-            if (!last && create) {
+            if (!last && createMode == FindCreateMode::Directory) {
                 createEntry(file, components[i], File::Type::Directory, fileID);
                 if (!findNameInDirectory(file, components[i], fileID, type)) {
                     // We should find the dir if we just created it
@@ -359,10 +352,16 @@ bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::
             } else {
                 error = last ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
                 
-                // If we are creating directories and the error is FileNotFound, it means this is the
-                // tail of the path and we are creating directories. So create one here
-                if (create && error == Error::Code::FileNotFound) {
-                    createEntry(file, components[i], File::Type::Directory, fileID);
+                // If the error is FileNotFound, the baseName doesn't exist. If we are createMode
+                // is None, just return the error. Otherwise create a file or directory
+                if (error == Error::Code::FileNotFound) {
+                    if (createMode == FindCreateMode::None) {
+                        return false;
+                    }
+                    type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
+                    createEntry(file, components[i], type, fileID);
+                    error = Error::Code::OK;
+                    return true;
                 }
                 return false;
             }
@@ -377,7 +376,7 @@ bool SpiffsDirectory::find(const char* name, bool create, FileID& fileID, File::
             return false;
         }
         
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY, type);
+        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
     }
 
     error = Error::Code::DirectoryNotFound;
@@ -394,6 +393,7 @@ bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, cons
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
+            s.clear();
             s.reserve(size + 1);
             for ( ; size > 0; --size) {
                 char c;
