@@ -120,11 +120,13 @@ static void usage(const char* name)
             , name);
 }
 
+static m8r::String resultString(bool result)
+{
+    return m8r::String(result ? "     passed" : "**** FAILED");
+}
 static void testExpect(const char* s, const char* expected, const char* got, bool result)
 {
-    std::cout << "**** " << s << "\n";
-    std::cout << "     expected '" << expected << "', got '" << got << "'\n";
-    std::cout << "     test " << (result ? "passed" : "FAILED") << "\n\n";
+    std::cout << resultString(result).c_str() << " (" << s << ": expected '" << expected << "', got '" << got << "')\n";
 }
 
 template<typename T>
@@ -146,12 +148,11 @@ void testExpect<m8r::String>(const char* s, m8r::String expected, m8r::String go
 template<>
 void testExpect<m8r::Error::Code>(const char* s, m8r::Error::Code expected, m8r::Error::Code got)
 {
-    std::cout << "**** " << s << "\n";
-    std::cout << "     expected '";
+    std::cout << resultString(expected == got).c_str() << " (" << s << ": expected '";
     m8r::Error::showError(expected);
     std::cout << "', got '";
     m8r::Error::showError(got);
-    std::cout << "'\n     test " << ((expected == got) ? "passed" : "FAILED") << "\n\n";
+    std::cout << "')\n";
 }
 
 int main(int argc, char * argv[])
@@ -207,7 +208,7 @@ int main(int argc, char * argv[])
     
     file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::WriteUpdate);
     testExpect("Open non-existant root file in Write mode error return", m8r::Error::Code::OK, file->error().code());
-
+    
     // Writing to a file and then reading back
     m8r::String testString = "The quick brown fox jumps over the lazy dog";
     file->write(testString.c_str(), static_cast<uint32_t>(testString.size()) + 1);
@@ -220,6 +221,11 @@ int main(int argc, char * argv[])
     file->read(buf, 9);
     testExpect("Read error return", m8r::Error::Code::OK, file->error().code());
     testExpect("Read return value", m8r::String("The quick"), m8r::String(buf, 9));
+
+    // Close then reopen
+    file->close();
+    file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::Read);
+    testExpect("Reopen root file in read mode error return", m8r::Error::Code::OK, file->error().code());
 
     // Open file in subdirectory tests
     bool success = m8r::system()->fileSystem()->makeDirectory(subdir.c_str());
