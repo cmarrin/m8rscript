@@ -219,7 +219,6 @@
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
-		4945DD8B1D795821006945BC /* spiffs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spiffs; path = ../esp/spiffs; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../src/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
@@ -462,7 +461,6 @@
 			isa = PBXGroup;
 			children = (
 				4979C6711DDB790D00180BC2 /* gdbstub */,
-				4945DD8B1D795821006945BC /* spiffs */,
 				4945DD831D5ACE12006945BC /* core */,
 				497B449E1D469B3200BC1B57 /* app */,
 				497B449F1D469BB000BC1B57 /* Makefile */,
