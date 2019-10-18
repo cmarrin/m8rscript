@@ -167,8 +167,9 @@ class SpiffsFile : public File {
     friend class SpiffsDirectory;
 
 public:
-    virtual ~SpiffsFile();
+    virtual ~SpiffsFile() { close(); }
   
+    virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
 

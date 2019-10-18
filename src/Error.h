@@ -55,6 +55,7 @@ public:
         SerialType,
         SerialVersion,
         FileNotFound,
+        FileClosed,
         ParseError,
         RuntimeError,
         Exists,

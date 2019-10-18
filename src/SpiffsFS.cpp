@@ -445,11 +445,12 @@ SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
     _error = (_file < 0) ? SpiffsFS::mapSpiffsError(_file) : Error::Code::OK;
 }
 
-SpiffsFile::~SpiffsFile()
+void SpiffsFile:: close()
 {
     SPIFFS_close(SpiffsFS::sharedSpiffs(), _file);
+    _error = Error::Code::FileClosed;
 }
-  
+
 int32_t SpiffsFile::read(char* buf, uint32_t size)
 {
     if (_mode == FS::FileOpenMode::Write || _mode == FS::FileOpenMode::Append) {

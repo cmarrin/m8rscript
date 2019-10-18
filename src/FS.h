@@ -105,6 +105,7 @@ public:
     
     virtual ~File() { }
   
+    virtual void close() = 0;
     virtual int32_t read(char* buf, uint32_t size) = 0;
     virtual int32_t write(const char* buf, uint32_t size) = 0;
     

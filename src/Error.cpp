@@ -51,6 +51,7 @@ void Error::showError(Code code)
         case Code::SerialType               : codeString = ROMSTR("Serial Type"); break;
         case Code::SerialVersion            : codeString = ROMSTR("Serial Version"); break;
         case Code::FileNotFound             : codeString = ROMSTR("File Not Found"); break;
+        case Code::FileClosed             : codeString = ROMSTR("File Closed"); break;
         case Code::ParseError               : codeString = ROMSTR("Parse"); break;
         case Code::RuntimeError             : codeString = ROMSTR("Runtime"); break;
         case Code::Exists                   : codeString = ROMSTR("Exists"); break;
