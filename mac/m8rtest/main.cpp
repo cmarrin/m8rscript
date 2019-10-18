@@ -196,6 +196,7 @@ int main(int argc, char * argv[])
     m8r::String subdir = m8r::String("/") + Subdir;
     m8r::String subdirFilename = subdir + "/" + Filename;
 
+    // Delete any existing filesystem
     m8r::system()->fileSystem()->format();
 
     // Open file in root directory tests
