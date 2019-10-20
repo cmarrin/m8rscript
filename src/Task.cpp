@@ -52,9 +52,9 @@ Task::Task(const char* filename)
     ErrorList syntaxErrors;
     bool debug = false;
     
-    if (filename && Application::validateFileName(filename) == Application::NameValidationType::Ok) {
-        FileStream m8rbStream(system()->fileSystem(), filename);
-        if (!m8rbStream.loaded()) {
+    if (filename) {
+        FileStream m8rStream(system()->fileSystem(), filename);
+        if (!m8rStream.loaded()) {
             _error = Error::Code::FileNotFound;
             return;
         }
@@ -63,7 +63,6 @@ Task::Task(const char* filename)
         return;
 #else
         // See if we can parse it
-        FileStream m8rStream(system()->fileSystem(), filename);
         system()->printf(ROMSTR("Parsing...\n"));
         Parser parser;
         parser.parse(&m8rStream, debug);
