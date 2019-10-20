@@ -196,8 +196,7 @@ int main(int argc, char * argv[])
     m8r::String subdir = m8r::String("/") + Subdir;
     m8r::String subdirFilename = subdir + "/" + Filename;
 
-    m8r::system()->fileSystem()->remove(rootFilename.c_str());
-    m8r::system()->fileSystem()->remove(subdirFilename.c_str());
+    m8r::system()->fileSystem()->format();
 
     // Open file in root directory tests
     std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::Read);
