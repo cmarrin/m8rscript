@@ -360,6 +360,9 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                     }
                     type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
                     createEntry(file, components[i], type, fileID);
+                    if (type == File::Type::Directory) {
+                        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
+                    }
                     error = Error::Code::OK;
                     return true;
                 }
