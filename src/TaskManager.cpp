@@ -58,8 +58,8 @@ void TaskManager::yield(TaskBase* newTask, Duration delay)
     Time timeToFire = now + delay;
     
     auto prev = _list.before_begin();
-    for (auto it = _list.begin(); it != _list.end(); ++it) {
-        if (timeToFire < it->first) {
+    for (auto it = _list.begin(); ; ++it) {
+        if (it == _list.end() || timeToFire < it->first) {
             _list.emplace_after(prev, timeToFire, newTask);
             break;
         }
