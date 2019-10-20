@@ -47,7 +47,4 @@ Heartbeat::Heartbeat()
     })
 {
     system()->gpio()->setPinMode(system()->gpio()->builtinLED(), GPIOInterface::PinMode::Output);
-    _task.run();
-    
-    NativeTask newtask;
 }
