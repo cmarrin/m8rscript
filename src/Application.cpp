@@ -43,8 +43,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 using namespace m8r;
 
-static const char* AutostartFilename = "/sys/bin/m8rsh";
-
 class MyShellSocket : public TCPDelegate {
 public:
     MyShellSocket(Application* application, uint16_t port)
@@ -131,7 +129,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return AutostartFilename;
+    return shellName();
 }
 
 bool Application::mountFileSystem()
