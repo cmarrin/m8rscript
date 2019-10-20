@@ -345,6 +345,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         if (!findNameInDirectory(file, components[i], fileID, type)) {
             if (!last && createMode == FindCreateMode::Directory) {
                 createEntry(file, components[i], File::Type::Directory, fileID);
+                SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
                 if (!findNameInDirectory(file, components[i], fileID, type)) {
                     // We should find the dir if we just created it
                     error = Error::Code::InternalError;
@@ -362,6 +363,10 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                     createEntry(file, components[i], type, fileID);
                     if (type == File::Type::Directory) {
                         file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
+                        if (!file->valid()) {
+                            error = Error::Code::InternalError;
+                            return false;
+                        }
                     }
                     error = Error::Code::OK;
                     return true;
@@ -380,6 +385,10 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         }
         
         file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
+        if (!file->valid()) {
+            error = Error::Code::InternalError;
+            return false;
+        }
     }
 
     error = Error::Code::DirectoryNotFound;
