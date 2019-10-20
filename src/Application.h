@@ -60,7 +60,6 @@ public:
     String autostartFilename() const;
 
     enum class NameValidationType { Ok, BadLength, InvalidChar };
-    static NameValidationType validateFileName(const char* name);
     static NameValidationType validateBonjourName(const char* name);
     
     static const char* shellName() { return "m8rsh"; }
@@ -71,6 +70,7 @@ private:
     TCPDelegate* _shellSocket;
     
     Heartbeat _heartbeat;
+    std::shared_ptr<Task> _autostartTask;
 };
     
 }

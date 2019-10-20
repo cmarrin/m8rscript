@@ -43,6 +43,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 using namespace m8r;
 
+static const char* AutostartFilename = "/sys/bin/m8rsh";
+
 class MyShellSocket : public TCPDelegate {
 public:
     MyShellSocket(Application* application, uint16_t port)
@@ -104,29 +106,6 @@ Application::~Application()
     delete _shellSocket;
 }
 
-Application::NameValidationType Application::validateFileName(const char* name)
-{
-    if (!name || name[0] == '\0') {
-        return NameValidationType::BadLength;
-    }
-    
-    for (size_t i = 0; name[i]; i++) {
-        if (i >= 31) {
-            return NameValidationType::BadLength;
-        }
-        
-        char c = name[i];
-        if (c == '-' || c == '.' || c == '_' || c == '+' ||
-            (c >= '0' && c <= '9') ||
-            (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z')) {
-            continue;
-        }
-        return NameValidationType::InvalidChar;
-    }
-    return NameValidationType::Ok;
-}
-
 Application::NameValidationType Application::validateBonjourName(const char* name)
 {
     if (!name || name[0] == '\0') {
@@ -151,8 +130,8 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 
 String Application::autostartFilename() const
 {
-    // FIXME: Implement - Look for a file or a config file or something
-    return "";
+    // Look for it in config first
+    return AutostartFilename;
 }
 
 bool Application::mountFileSystem()
@@ -186,6 +165,8 @@ void Application::runLoop()
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {
+        _autostartTask = std::shared_ptr<Task>(new Task(filename.c_str()));
+        _autostartTask->run();
         // FIXME: Create a task and run the autostart file
 //        m8r::Error error;
 //        if (!load(error, false)) {
