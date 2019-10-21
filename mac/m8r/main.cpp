@@ -172,36 +172,41 @@ int main(int argc, char * argv[])
             
             // Make sure the directory path exists
             m8r::system()->fileSystem()->makeDirectory(toPath.c_str());
-            
-            toPath += baseName;
-            
-            std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
-            if (!toFile->valid()) {
-                printf("Error: unable to open '%s' on Spiffs file system - ", toPath.c_str());
-                m8r::Error::showError(toFile->error());
-                printf("\n");                
+            if (m8r::system()->fileSystem()->lastError() != m8r::Error::Code::OK) {
+                printf("Error: unable to create '%s' on Spiffs file system - ", toPath.c_str());
+                m8r::Error::showError(m8r::system()->fileSystem()->lastError());
+                printf("\n");
             } else {
-                bool success = true;
-                while(1) {
-                    char c;
-                    size_t size = fread(&c, 1, 1, fromFile);
-                    if (size != 1) {
-                        if (!feof(fromFile)) {
-                            fprintf(stderr, "Error reading '%s', upload failed\n", uploadFilename);
-                            success = false;
+                toPath += baseName;
+                
+                std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
+                if (!toFile->valid()) {
+                    printf("Error: unable to open '%s' on Spiffs file system - ", toPath.c_str());
+                    m8r::Error::showError(toFile->error());
+                    printf("\n");
+                } else {
+                    bool success = true;
+                    while(1) {
+                        char c;
+                        size_t size = fread(&c, 1, 1, fromFile);
+                        if (size != 1) {
+                            if (!feof(fromFile)) {
+                                fprintf(stderr, "Error reading '%s', upload failed\n", uploadFilename);
+                                success = false;
+                            }
+                            break;
                         }
-                        break;
+                        
+                        toFile->write(c);
+                        if (!toFile->valid()) {
+                            fprintf(stderr, "Error writing '%s', upload failed\n", toPath.c_str());
+                            success = false;
+                            break;
+                        }
                     }
-                    
-                    toFile->write(c);
-                    if (!toFile->valid()) {
-                        fprintf(stderr, "Error writing '%s', upload failed\n", toPath.c_str());
-                        success = false;
-                        break;
+                    if (success) {
+                        printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
                     }
-                }
-                if (success) {
-                    printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
                 }
             }
         }
