@@ -54,7 +54,7 @@ void Parser::parse(m8r::Stream* istream, bool debug)
     _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
-    _functions.emplace_back(_program.get(), false);
+    _functions.emplace_back(_program, false);
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;

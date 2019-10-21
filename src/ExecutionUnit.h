@@ -59,7 +59,7 @@ public:
     
     void gcMark();
 
-    void startExecution(const std::shared_ptr<Program>&);
+    void startExecution(Program*);
     
     CallReturnValue continueExecution();
     
@@ -69,7 +69,7 @@ public:
 
     void requestTermination() { _terminate = true; }
     
-    const std::shared_ptr<Program>& program() const { return _program; }
+    const Program* program() const { return _program; }
     
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
@@ -233,7 +233,7 @@ private:
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
-    std::shared_ptr<Program> _program;
+    Program* _program;
     Object* _function;
     Object* _this;
     const Value* _constants;

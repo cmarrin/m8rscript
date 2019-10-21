@@ -101,7 +101,7 @@ void ExecutionUnit::objectError(const char* s) const
 void ExecutionUnit::gcMark()
 {
     assert(_program);
-    Object::gcMark(_program.get());
+    Object::gcMark(_program);
     
     for (auto entry : _stack) {
         entry.gcMark(this);
@@ -195,7 +195,7 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     }
 }
 
-void ExecutionUnit::startExecution(const std::shared_ptr<Program>& program)
+void ExecutionUnit::startExecution(Program* program)
 {
     if (!program) {
         _terminate = true;
@@ -210,8 +210,8 @@ void ExecutionUnit::startExecution(const std::shared_ptr<Program>& program)
 
     _pc = 0;
     _program = program;
-    _function =  _program.get();
-    _this = program.get();
+    _function =  _program;
+    _this = program;
     _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     _stack.setLocalFrame(0, 0, _function->localSize());
     _framePtr =_stack.framePtr();
@@ -336,7 +336,7 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
     Object* prevThis = _this;
     _this = thisObject;
     if (!_this) {
-        _this = _program.get();
+        _this = _program;
     }
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
@@ -365,23 +365,8 @@ CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
         return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
     }
 
-    startFunction(parser.program().get(), thisValue.asObject(), 0, false);
-
-    Time timeout = Time::now() + EvalDurationMax;
-    while (Time::now() < timeout) {
-        CallReturnValue returnValue = continueExecution();
-
-        if (returnValue.isMsDelay()) {
-            return CallReturnValue(CallReturnValue::Error::DelayNotAllowedInEval);
-        } else if (returnValue.isYield()) {
-            continue;
-        } else if (returnValue.isFinished() || returnValue.isTerminated()) {
-            break;
-        } else if (returnValue.isWaitForEvent()) {
-            return CallReturnValue(CallReturnValue::Error::EventNotAllowedInEval);
-        }
-    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    startFunction(parser.program(), thisValue.asObject(), 0, false);
+    return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
 CallReturnValue ExecutionUnit::continueExecution()
@@ -463,7 +448,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
             
         if (inst.op() == Op::END) {
-            if (_program.get() == _function) {
+            if (_program == _function) {
                 // We've hit the end of the program
                 
                 if (!_stack.validateFrame(0, _program->localSize())) {
