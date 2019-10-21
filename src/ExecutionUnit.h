@@ -63,6 +63,8 @@ public:
     
     CallReturnValue continueExecution();
     
+    CallReturnValue eval(const String&, Value);
+    
     ExecutionStack& stack() { return _stack; }
 
     void requestTermination() { _terminate = true; }

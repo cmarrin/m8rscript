@@ -37,9 +37,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Closure.h"
 #include "Float.h"
+#include "MStream.h"
+#include "Parser.h"
 #include "SystemInterface.h"
+#include "SystemTime.h"
 
 using namespace m8r;
+
+static const Duration EvalDurationMax = 2_sec;
 
 bool ExecutionUnit::checkTooManyErrors() const
 {
@@ -79,6 +84,10 @@ bool ExecutionUnit::printError(CallReturnValue::Error error, const char* name) c
         case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
         case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
+        case CallReturnValue::Error::SyntaxErrors: errorString = ROMSTR("syntax errors"); break;
+        case CallReturnValue::Error::EvalTimeout: errorString = ROMSTR("eval() timeout"); break;
+        case CallReturnValue::Error::DelayNotAllowedInEval: errorString = ROMSTR("delay not allowed in eval()"); break;
+        case CallReturnValue::Error::EventNotAllowedInEval: errorString = ROMSTR("event not allowed in eval()"); break;
     }
     
     return printError(errorString, name);
@@ -341,6 +350,38 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
 static inline bool valuesAreInt(const Value& a, const Value& b)
 {
     return a.isInteger() && b.isInteger();
+}
+
+CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
+{
+    StringStream ss(s);
+    Parser parser;
+    ErrorList syntaxErrors;
+    parser.parse(&ss, false);
+    if (parser.nerrors()) {
+        syntaxErrors.swap(parser.syntaxErrors());
+        
+        // TODO: Do something with syntaxErrors
+        return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
+    }
+
+    startFunction(parser.program().get(), thisValue.asObject(), 0, false);
+
+    Time timeout = Time::now() + EvalDurationMax;
+    while (Time::now() < timeout) {
+        CallReturnValue returnValue = continueExecution();
+
+        if (returnValue.isMsDelay()) {
+            return CallReturnValue(CallReturnValue::Error::DelayNotAllowedInEval);
+        } else if (returnValue.isYield()) {
+            continue;
+        } else if (returnValue.isFinished() || returnValue.isTerminated()) {
+            break;
+        } else if (returnValue.isWaitForEvent()) {
+            return CallReturnValue(CallReturnValue::Error::EventNotAllowedInEval);
+        }
+    }
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
 CallReturnValue ExecutionUnit::continueExecution()

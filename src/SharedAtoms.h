@@ -48,6 +48,7 @@ enum class SharedAtom {
     disconnect,
     done,
     encode,
+    eval,
     getValue,
     iterator,
     length,

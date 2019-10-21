@@ -37,23 +37,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "SystemTime.h"
 #include "slre.h"
 #include <string>
 
 using namespace m8r;
 
-static const char* IteratorString = ROMSTR(
-   "class Iterator {\n"
-   "    var _obj;\n"
-   "    var _index;\n"
-   "    constructor(obj) { _obj = obj; _index = 0; }\n"
-   "    function done() { return _index >= _obj.length; }\n"
-   "    function next() { if (!done()) ++_index; }\n"
-   "    function getValue() { return done() ? null : _obj[_index]; }\n"
-   "    function setValue(v) { if (!done()) _obj[_index] = v; }\n"
-   "};\n"
-);
+//static const char* IteratorString = ROMSTR(
+//   "class Iterator {\n"
+//   "    var _obj;\n"
+//   "    var _index;\n"
+//   "    constructor(obj) { _obj = obj; _index = 0; }\n"
+//   "    function done() { return _index >= _obj.length; }\n"
+//   "    function next() { if (!done()) ++_index; }\n"
+//   "    function getValue() { return done() ? null : _obj[_index]; }\n"
+//   "    function setValue(v) { if (!done()) _obj[_index] = v; }\n"
+//   "};\n"
+//);
 
 Global::Global(Program* program)
     : ObjectFactory(program, ATOM(program, Global))
@@ -309,31 +308,5 @@ CallReturnValue Global::eval(ExecutionUnit* eu, Value thisValue, uint32_t nparam
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    StringStream ss(eu->stack().top(1 - nparams).toStringValue(eu));
-    Parser parser;
-    ErrorList syntaxErrors;
-    parser.parse(&ss);
-    if (parser.nerrors()) {
-        syntaxErrors.swap(parser.syntaxErrors());
-        
-        // TODO: Do something with syntaxErrors
-        return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
-    }
-    
-    
-    // TODO: We need to execute the parsed code, but how. Does it look
-    // like a function called in the place of the eval statement? If so
-    // then we need to call startFunction and get the return value and
-    // return that. We probably to call continueExecution. But we should
-    // only do that a few times, maybe timing it so it doesn't run too
-    // long. And if continueExecution returns anything other than Continue
-    // it's an error. We can't allow delay() or anything like that
-
-    void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);
-
-
-    eu.startExecution(parser.program());
-    
-
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    return eu->eval(eu->stack().top(1 - nparams).toStringValue(eu), thisValue);
 }

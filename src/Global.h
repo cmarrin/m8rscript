@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Iterator.h"
 #include "JSON.h"
 #include "Object.h"
+#include "SystemTime.h"
 #include "TCP.h"
 
 namespace m8r {
