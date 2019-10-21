@@ -335,6 +335,10 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     }
     std::vector<String> components = String(name).split("/");
     
+    while (!components.empty() && components.back().empty()) {
+        components.pop_back();
+    }
+    
     for (int i = 0; i < components.size(); ++i) {
         if (components[i].empty()) {
             continue;
@@ -345,9 +349,9 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         if (!findNameInDirectory(file, components[i], fileID, type)) {
             if (!last && createMode == FindCreateMode::Directory) {
                 createEntry(file, components[i], File::Type::Directory, fileID);
-                SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
-                if (!findNameInDirectory(file, components[i], fileID, type)) {
-                    // We should find the dir if we just created it
+                file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
+                if (!file->valid()) {
+                    // We should be able to create the new directory
                     error = Error::Code::InternalError;
                 }
             } else {
