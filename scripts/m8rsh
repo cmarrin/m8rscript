@@ -2,3 +2,10 @@
 //
 
 printf("Hello world\n");
+
+// Test eval
+var x = 10;
+var y = 20;
+var z = 30;
+var a = eval("x + y") + z;
+printf("result=%d\n", a);

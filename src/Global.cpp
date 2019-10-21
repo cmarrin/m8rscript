@@ -37,11 +37,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
-#include "SystemTime.h"
 #include "slre.h"
 #include <string>
 
 using namespace m8r;
+
+//static const char* IteratorString = ROMSTR(
+//   "class Iterator {\n"
+//   "    var _obj;\n"
+//   "    var _index;\n"
+//   "    constructor(obj) { _obj = obj; _index = 0; }\n"
+//   "    function done() { return _index >= _obj.length; }\n"
+//   "    function next() { if (!done()) ++_index; }\n"
+//   "    function getValue() { return done() ? null : _obj[_index]; }\n"
+//   "    function setValue(v) { if (!done()) _obj[_index] = v; }\n"
+//   "};\n"
+//);
 
 Global::Global(Program* program)
     : ObjectFactory(program, ATOM(program, Global))
@@ -61,6 +72,7 @@ Global::Global(Program* program)
     , _toInt(toInt)
     , _toUInt(toUInt)
     , _arguments(arguments)
+    , _eval(eval)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
@@ -74,6 +86,7 @@ Global::Global(Program* program)
     addProperty(ATOM(program, toInt), &_toInt);
     addProperty(ATOM(program, toUInt), &_toUInt);
     addProperty(ATOM(program, arguments), &_arguments);
+    addProperty(ATOM(program, eval), &_eval);
 
     addProperty(ATOM(program, Array), &_array);
     addProperty(ATOM(program, Object), &_object);
@@ -85,6 +98,8 @@ Global::Global(Program* program)
     addProperty(ATOM(program, TCP), Value(_tcp.nativeObject()));
     addProperty(ATOM(program, UDP), Value(_udp.nativeObject()));
     addProperty(ATOM(program, Iterator), Value(_iterator.nativeObject()));
+    
+    
 }
 
 Global::~Global()
@@ -284,4 +299,14 @@ CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t n
     }
     eu->stack().push(Value(array));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
+CallReturnValue Global::eval(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // string
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    return eu->eval(eu->stack().top(1 - nparams).toStringValue(eu), thisValue);
 }

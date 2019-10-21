@@ -45,6 +45,7 @@ digitalWrite
 disconnect
 done
 encode
+eval
 getValue
 iterator
 length

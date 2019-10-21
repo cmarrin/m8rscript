@@ -37,9 +37,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Closure.h"
 #include "Float.h"
+#include "MStream.h"
+#include "Parser.h"
 #include "SystemInterface.h"
+#include "SystemTime.h"
 
 using namespace m8r;
+
+static const Duration EvalDurationMax = 2_sec;
 
 bool ExecutionUnit::checkTooManyErrors() const
 {
@@ -79,6 +84,10 @@ bool ExecutionUnit::printError(CallReturnValue::Error error, const char* name) c
         case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
         case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
+        case CallReturnValue::Error::SyntaxErrors: errorString = ROMSTR("syntax errors"); break;
+        case CallReturnValue::Error::EvalTimeout: errorString = ROMSTR("eval() timeout"); break;
+        case CallReturnValue::Error::DelayNotAllowedInEval: errorString = ROMSTR("delay not allowed in eval()"); break;
+        case CallReturnValue::Error::EventNotAllowedInEval: errorString = ROMSTR("event not allowed in eval()"); break;
     }
     
     return printError(errorString, name);
@@ -92,7 +101,7 @@ void ExecutionUnit::objectError(const char* s) const
 void ExecutionUnit::gcMark()
 {
     assert(_program);
-    Object::gcMark(_program.get());
+    Object::gcMark(_program);
     
     for (auto entry : _stack) {
         entry.gcMark(this);
@@ -186,7 +195,7 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     }
 }
 
-void ExecutionUnit::startExecution(const std::shared_ptr<Program>& program)
+void ExecutionUnit::startExecution(Program* program)
 {
     if (!program) {
         _terminate = true;
@@ -201,8 +210,8 @@ void ExecutionUnit::startExecution(const std::shared_ptr<Program>& program)
 
     _pc = 0;
     _program = program;
-    _function =  _program.get();
-    _this = program.get();
+    _function =  _program;
+    _this = program;
     _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
     _stack.setLocalFrame(0, 0, _function->localSize());
     _framePtr =_stack.framePtr();
@@ -327,7 +336,7 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
     Object* prevThis = _this;
     _this = thisObject;
     if (!_this) {
-        _this = _program.get();
+        _this = _program;
     }
     
     uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
@@ -341,6 +350,23 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
 static inline bool valuesAreInt(const Value& a, const Value& b)
 {
     return a.isInteger() && b.isInteger();
+}
+
+CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
+{
+    StringStream ss(s);
+    Parser parser;
+    ErrorList syntaxErrors;
+    parser.parse(&ss, false);
+    if (parser.nerrors()) {
+        syntaxErrors.swap(parser.syntaxErrors());
+        
+        // TODO: Do something with syntaxErrors
+        return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
+    }
+
+    startFunction(parser.program(), thisValue.asObject(), 0, false);
+    return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
 CallReturnValue ExecutionUnit::continueExecution()
@@ -422,7 +448,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
             
         if (inst.op() == Op::END) {
-            if (_program.get() == _function) {
+            if (_program == _function) {
                 // We've hit the end of the program
                 
                 if (!_stack.validateFrame(0, _program->localSize())) {

@@ -88,6 +88,10 @@ public:
         CannotCreateArgumentsArray,
         CannotCall,
         InvalidArgumentValue,
+        SyntaxErrors,
+        EvalTimeout,
+        DelayNotAllowedInEval,
+        EventNotAllowedInEval,
     };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)

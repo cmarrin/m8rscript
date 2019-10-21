@@ -68,7 +68,7 @@ public:
     
     Task(const char* filename);
     
-    Task(const std::shared_ptr<Program>& program)
+    Task(Program* program)
     {
         _eu.startExecution(program);
     }
