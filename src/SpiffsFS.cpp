@@ -388,7 +388,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
             return false;
         }
         
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | (type != File::Type::Directory) ? SPIFFS_O_CREAT : 0, type, FS::FileOpenMode::ReadUpdate);
+        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
         if (!file->valid()) {
             error = Error::Code::InternalError;
             return false;
