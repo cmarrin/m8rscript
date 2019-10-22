@@ -43,9 +43,9 @@ using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser()
+Parser::Parser(Program* program)
     : _parseStack(this)
-    , _program(new Program())
+    , _program(program ?: new Program())
 {
 }
 

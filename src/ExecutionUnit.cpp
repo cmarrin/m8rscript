@@ -355,7 +355,7 @@ static inline bool valuesAreInt(const Value& a, const Value& b)
 CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
 {
     StringStream ss(s);
-    Parser parser;
+    Parser parser(_program);
     ErrorList syntaxErrors;
     parser.parse(&ss, Parser::Syntax::Expression, Parser::Debug::None);
     if (parser.nerrors()) {
