@@ -49,22 +49,13 @@ Parser::Parser(Program* program)
 {
 }
 
-Function* Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
+Function* Parser::parse(m8r::Stream* istream, Debug debug)
 {
     _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
-    _functions.emplace_back((syntax == Syntax::Expression) ? new Function(_program) : _program, false);
+    _functions.emplace_back(_program, false);
     while(1) {
-        bool success = false;
-        if (syntax == Syntax::Program) {
-            success = p.statement();
-        } else if (syntax == Syntax::Expression) {
-            success = p.expression();
-        } else {
-            return nullptr;
-        }
-        
         if (!p.statement()) {
             Scanner::TokenType type;
             if (_scanner.getToken(type) != Token::EndOfFile) {
@@ -74,6 +65,19 @@ Function* Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
         }
     }
     return functionEnd();
+}
+
+Function* Parser::parseEval(m8r::Stream* stream, Function* parent)
+{
+    // The contents of an eval string is an expression. We wrap this in a function
+    // which will make it a closure. When called, it will evaluate the expression
+    // in the context of the parent function
+    _debug = Debug::None;
+    _scanner.setStream(stream);
+    ParseEngine p(this);
+    _functions.emplace_back(new Function(parent), false);
+
+    return nullptr;
 }
 
 void Parser::printError(const char* format, ...)

@@ -61,10 +61,10 @@ public:
     }
     
     enum class Debug { None, Full };
-    enum class Syntax { Program, Expression };
     
-    Function* parse(m8r::Stream* stream, Syntax, Debug);
-    
+    Function* parse(m8r::Stream* stream, Debug);
+    Function* parseEval(m8r::Stream* stream, Function* parent);
+
 	void printError(const char* format, ...);
     void expectedError(Token token);
     void unknownError(Token token);
