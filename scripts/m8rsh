@@ -1,11 +1,13 @@
 // m8rsh - m8rscript shell
 //
 
-printf("Hello world\n");
+//printf("Hello world\n");
+//var b = function(x, y) { return x + y; };
+//printf("fake result=%d\n", b(3, 5));
 
 // Test eval
-var x = 10;
-var y = 20;
-var z = 30;
-var a = eval("x + y") + z;
-printf("result=%d\n", a);
+var x = 5;
+var y = 7;
+var f = x + y;
+//var f = eval("x + y");
+printf("result=%d\n", f);

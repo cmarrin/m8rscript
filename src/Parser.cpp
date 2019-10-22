@@ -49,12 +49,12 @@ Parser::Parser(Program* program)
 {
 }
 
-void Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
+Function* Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
 {
     _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
-    _functions.emplace_back(_program, false);
+    _functions.emplace_back((syntax == Syntax::Expression) ? new Function(_program) : _program, false);
     while(1) {
         bool success = false;
         if (syntax == Syntax::Program) {
@@ -62,7 +62,7 @@ void Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
         } else if (syntax == Syntax::Expression) {
             success = p.expression();
         } else {
-            return;
+            return nullptr;
         }
         
         if (!p.statement()) {
@@ -73,7 +73,7 @@ void Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
             break;
         }
     }
-    functionEnd();
+    return functionEnd();
 }
 
 void Parser::printError(const char* format, ...)
