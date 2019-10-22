@@ -60,7 +60,10 @@ public:
     {
     }
     
-    void parse(m8r::Stream* stream, bool debug);
+    enum class Debug { None, Full };
+    enum class Syntax { Program, Expression };
+    
+    void parse(m8r::Stream* stream, Syntax, Debug);
     
 	void printError(const char* format, ...);
     void expectedError(Token token);
@@ -177,7 +180,7 @@ private:
     
     void emitLineNumber()
     {
-        if (!_debug) {
+        if (_debug == Debug::None) {
             return;
         }
         uint32_t lineno = _scanner.lineno();
@@ -284,7 +287,7 @@ private:
     Vector(Instruction) _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
-    bool _debug;
+    Debug _debug;
 
     static uint32_t _nextLabelId;
 

@@ -62,6 +62,7 @@ public:
   
     bool statement();
     bool classContentsStatement();
+    bool expression(uint8_t minPrec = 1);
 
 private:
     struct OpInfo {
@@ -92,7 +93,6 @@ private:
     bool variableDeclaration();
     
     bool arithmeticPrimary();
-    bool expression(uint8_t minPrec = 1);
     
     bool leftHandSideExpression();
     bool memberExpression();

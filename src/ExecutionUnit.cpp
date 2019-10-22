@@ -357,7 +357,7 @@ CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
     StringStream ss(s);
     Parser parser;
     ErrorList syntaxErrors;
-    parser.parse(&ss, false);
+    parser.parse(&ss, Parser::Syntax::Expression, Parser::Debug::None);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         

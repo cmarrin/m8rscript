@@ -50,7 +50,7 @@ Task::Task(const char* filename)
 {
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
-    bool debug = false;
+    Parser::Debug debug = Parser::Debug::None;
     
     if (filename) {
         FileStream m8rStream(system()->fileSystem(), filename);
@@ -65,7 +65,7 @@ Task::Task(const char* filename)
         // See if we can parse it
         system()->printf(ROMSTR("Parsing...\n"));
         Parser parser;
-        parser.parse(&m8rStream, debug);
+        parser.parse(&m8rStream, Parser::Syntax::Program, debug);
         system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             syntaxErrors.swap(parser.syntaxErrors());

@@ -49,13 +49,22 @@ Parser::Parser()
 {
 }
 
-void Parser::parse(m8r::Stream* istream, bool debug)
+void Parser::parse(m8r::Stream* istream, Syntax syntax, Debug debug)
 {
     _debug = debug;
     _scanner.setStream(istream);
     ParseEngine p(this);
     _functions.emplace_back(_program, false);
     while(1) {
+        bool success = false;
+        if (syntax == Syntax::Program) {
+            success = p.statement();
+        } else if (syntax == Syntax::Expression) {
+            success = p.expression();
+        } else {
+            return;
+        }
+        
         if (!p.statement()) {
             Scanner::TokenType type;
             if (_scanner.getToken(type) != Token::EndOfFile) {
