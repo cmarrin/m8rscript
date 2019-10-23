@@ -55,7 +55,7 @@ using namespace m8r;
 //);
 
 Global::Global(Program* program)
-    : ObjectFactory(program, ATOM(program, Global))
+    : ObjectFactory(program, ATOM(program, SA::Global))
     , _array(true)
     , _base64(program)
     , _gpio(program)
@@ -77,27 +77,27 @@ Global::Global(Program* program)
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
-    addProperty(ATOM(program, currentTime), &_currentTime);
-    addProperty(ATOM(program, delay), &_delay);
-    addProperty(ATOM(program, print), &_print);
-    addProperty(ATOM(program, printf), &_printf);
-    addProperty(ATOM(program, println), &_println);
-    addProperty(ATOM(program, toFloat), &_toFloat);
-    addProperty(ATOM(program, toInt), &_toInt);
-    addProperty(ATOM(program, toUInt), &_toUInt);
-    addProperty(ATOM(program, arguments), &_arguments);
-    addProperty(ATOM(program, eval), &_eval);
+    addProperty(ATOM(program, SA::currentTime), &_currentTime);
+    addProperty(ATOM(program, SA::delay), &_delay);
+    addProperty(ATOM(program, SA::print), &_print);
+    addProperty(ATOM(program, SA::printf), &_printf);
+    addProperty(ATOM(program, SA::println), &_println);
+    addProperty(ATOM(program, SA::toFloat), &_toFloat);
+    addProperty(ATOM(program, SA::toInt), &_toInt);
+    addProperty(ATOM(program, SA::toUInt), &_toUInt);
+    addProperty(ATOM(program, SA::arguments), &_arguments);
+    addProperty(ATOM(program, SA::eval), &_eval);
 
-    addProperty(ATOM(program, Array), &_array);
-    addProperty(ATOM(program, Object), &_object);
-    addProperty(ATOM(program, IPAddr), &_ipAddr);
+    addProperty(ATOM(program, SA::Array), &_array);
+    addProperty(ATOM(program, SA::Object), &_object);
+    addProperty(ATOM(program, SA::IPAddr), &_ipAddr);
     
-    addProperty(ATOM(program, Base64), Value(_base64.nativeObject()));
-    addProperty(ATOM(program, GPIO), Value(_gpio.nativeObject()));
-    addProperty(ATOM(program, JSON), Value(_json.nativeObject()));
-    addProperty(ATOM(program, TCP), Value(_tcp.nativeObject()));
-    addProperty(ATOM(program, UDP), Value(_udp.nativeObject()));
-    addProperty(ATOM(program, Iterator), Value(_iterator.nativeObject()));
+    addProperty(ATOM(program, SA::Base64), Value(_base64.nativeObject()));
+    addProperty(ATOM(program, SA::GPIO), Value(_gpio.nativeObject()));
+    addProperty(ATOM(program, SA::JSON), Value(_json.nativeObject()));
+    addProperty(ATOM(program, SA::TCP), Value(_tcp.nativeObject()));
+    addProperty(ATOM(program, SA::UDP), Value(_udp.nativeObject()));
+    addProperty(ATOM(program, SA::Iterator), Value(_iterator.nativeObject()));
     
     
 }
@@ -289,7 +289,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* array = ObjectFactory::create(ATOM(eu, Array), eu, 0);
+    Object* array = ObjectFactory::create(ATOM(eu, SA::Array), eu, 0);
     if (!array) {
         return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }

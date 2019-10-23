@@ -47,7 +47,7 @@ class Parser;
 class Function;
 class Program;
 
-typedef Stack<Value> ExecutionStack;
+using ExecutionStack = Stack<Value>;
 
 class ExecutionUnit {
 public:
@@ -136,7 +136,7 @@ public:
     
     uint32_t lineno() const { return _lineno; }
 
-    Atom internalAtom(SharedAtom a) const { return _program->internalAtom(a); }
+    Atom internalAtom(SA a) const { return _program->internalAtom(a); }
 
 private:
     Op dispatchNextOp(Instruction& inst, uint16_t& checkCounter)
@@ -258,5 +258,8 @@ private:
     
     UpValue* _openUpValues = nullptr;
 };
-    
+
+static inline Atom ATOM(Program* p, SA a) { return p ? p->internalAtom(a) : Atom(); }
+static inline Atom ATOM(ExecutionUnit* p, SA a) { return p ? p->internalAtom(a) : Atom(); }
+
 }

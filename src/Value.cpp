@@ -323,7 +323,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
-            if (prop == ATOM(eu, length)) {
+            if (prop == ATOM(eu, SA::length)) {
                 return Value(static_cast<int32_t>(s.size()));
             }
             break;
@@ -380,12 +380,12 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
-            if (prop == ATOM(eu, trim)) {
+            if (prop == ATOM(eu, SA::trim)) {
                 s = s.trim();
                 eu->stack().push(Value(Object::createString(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            if (prop == ATOM(eu, split)) {
+            if (prop == ATOM(eu, SA::split)) {
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 std::vector<String> array = s.split(separator, skipEmpty);

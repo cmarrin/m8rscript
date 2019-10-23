@@ -360,7 +360,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
-    if (atom == ATOM(program(), value)) {
+    if (atom == ATOM(program(), SA::value)) {
         _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, 0);
         _parseStack.setIsValue(true);
         return;
@@ -400,7 +400,7 @@ void Parser::emitMove()
                 //
                 _parseStack.propRefToReg();
                 _parseStack.swap();
-                emitId(ATOM(program(), setValue), IdType::NotLocal);
+                emitId(ATOM(program(), SA::setValue), IdType::NotLocal);
                 _parseStack.swap();
                 emitPush();
                 uint32_t objReg = emitDeref(DerefType::Prop);
@@ -796,7 +796,7 @@ uint32_t Parser::ParseStack::bake()
                 //      dst.setValue(src
                 //
                 propRefToReg();
-                _parser->emitId(ATOM(_parser->program(), getValue), Parser::IdType::NotLocal);
+                _parser->emitId(ATOM(_parser->program(), SA::getValue), Parser::IdType::NotLocal);
                 uint32_t objectReg = _parser->emitDeref(Parser::DerefType::Prop);
                 _parser->emitCallRet(Op::CALL, objectReg, 0);
                 return _stack.top()._reg;
@@ -812,7 +812,7 @@ uint32_t Parser::ParseStack::bake()
             uint32_t r = pushRegister();
             if (entry._isValue) {
                 pushRegister();
-                _parser->emitId(ATOM(_parser->program(), getValue), Parser::IdType::MightBeLocal);
+                _parser->emitId(ATOM(_parser->program(), SA::getValue), Parser::IdType::MightBeLocal);
                 _parser->emitMove();
                 _parser->emitCallRet(Op::CALL, -1, 0);
                 _parser->emitMove();

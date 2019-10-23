@@ -86,7 +86,7 @@ int main()
     }
     
     // Write the preambles
-    fprintf(hfile, "// This file is generated. Do not edit\n\nenum class SharedAtom {\n");
+    fprintf(hfile, "// This file is generated. Do not edit\n\nenum class SA {\n");
     fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <stdlib.h>\n\n");
     
     // Write the .h entries and the first .cpp entries
@@ -139,8 +139,8 @@ int main()
     }
     
     // Write the postambles
-    fprintf(hfile, "};\n\nconst char* sharedAtom(enum SharedAtom id);\n");
-    fprintf(cppfile, "};\n\nconst char* sharedAtom(enum SharedAtom id)\n{\n    return sharedAtoms[static_cast<uint32_t>(id)];\n}\n");
+    fprintf(hfile, "};\n\nconst char* sharedAtom(SA id);\n");
+    fprintf(cppfile, "};\n\nconst char* sharedAtom(SA id)\n{\n    return sharedAtoms[static_cast<uint32_t>(id)];\n}\n");
     
     fclose(ifile);
     fclose(hfile);

@@ -156,7 +156,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     ___count__,
 };
 
-const char* sharedAtom(enum SharedAtom id)
+const char* sharedAtom(SA id)
 {
     return sharedAtoms[static_cast<uint32_t>(id)];
 }

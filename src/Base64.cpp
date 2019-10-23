@@ -125,15 +125,15 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 }
 
 Base64::Base64(Program* program)
-    : ObjectFactory(program, ATOM(program, Base64))
-    , _encode(encode)
-    , _decode(decode)
+    : ObjectFactory(program, ATOM(program, SA::Base64))
+    , _encode(encodeFunc)
+    , _decode(decodeFunc)
 {
-    addProperty(ATOM(program, encode), &_encode);
-    addProperty(ATOM(program, decode), &_decode);
+    addProperty(ATOM(program, SA::encode), &_encode);
+    addProperty(ATOM(program, SA::decode), &_decode);
 }
 
-CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
     size_t inLength = inString.size();
@@ -155,7 +155,7 @@ CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t npar
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Base64::decode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
     size_t inLength = inString.size();

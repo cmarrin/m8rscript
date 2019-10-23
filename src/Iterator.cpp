@@ -42,28 +42,28 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Iterator::Iterator(Program* program)
-    : ObjectFactory(program, ATOM(program, Iterator))
+    : ObjectFactory(program, ATOM(program, SA::Iterator))
     , _constructor(constructor)
     , _done(done)
     , _next(next)
     , _getValue(getValue)
     , _setValue(setValue)
 {
-    addProperty(ATOM(program, constructor), &_constructor);
-    addProperty(ATOM(program, done), &_done);
-    addProperty(ATOM(program, next), &_next);
-    addProperty(ATOM(program, getValue), &_getValue);
-    addProperty(ATOM(program, setValue), &_setValue);
+    addProperty(ATOM(program, SA::constructor), &_constructor);
+    addProperty(ATOM(program, SA::done), &_done);
+    addProperty(ATOM(program, SA::next), &_next);
+    addProperty(ATOM(program, SA::getValue), &_getValue);
+    addProperty(ATOM(program, SA::setValue), &_setValue);
 }
 
 static bool done(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
 {
-    obj = thisValue.property(eu, ATOM(eu, __object)).asObject();
-    index = thisValue.property(eu, ATOM(eu, __index)).asIntValue();
+    obj = thisValue.property(eu, ATOM(eu, SA::__object)).asObject();
+    index = thisValue.property(eu, ATOM(eu, SA::__index)).asIntValue();
     if (!obj) {
         return true;
     }
-    int32_t size = obj->property(eu, ATOM(eu, length)).asIntValue();
+    int32_t size = obj->property(eu, ATOM(eu, SA::length)).asIntValue();
     return index >= size;
 }
 
@@ -78,8 +78,8 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
-    thisValue.setProperty(eu, ATOM(eu, __object), Value(obj), Value::SetPropertyType::AlwaysAdd);
-    thisValue.setProperty(eu, ATOM(eu, __index), Value(0), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, ATOM(eu, SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -98,7 +98,7 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
-        if (!thisValue.setProperty(eu, ATOM(eu, __index), Value(index), Value::SetPropertyType::NeverAdd)) {
+        if (!thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(index), Value::SetPropertyType::NeverAdd)) {
             return CallReturnValue(CallReturnValue::Error::InternalError);
         }
     }

@@ -182,16 +182,16 @@ private:
 
 class NativeFunction : public Object {
 public:
-    typedef CallReturnValue (*Func)(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    using CallableFunction = std::function<CallReturnValue(ExecutionUnit*, Value thisValue, uint32_t nparams)>;
     
-    NativeFunction(Func func);
+    NativeFunction(CallableFunction func);
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("NativeFunction") : Object::toString(eu, false); }
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override { return _func(eu, thisValue, nparams); }
 
 private:
-    Func _func = nullptr;
+    CallableFunction _func = nullptr;
 };
 
 class NativeObject {

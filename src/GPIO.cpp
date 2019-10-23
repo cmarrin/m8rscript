@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 GPIO::GPIO(Program* program)
-    : ObjectFactory(program, ATOM(program, GPIO))
+    : ObjectFactory(program, ATOM(program, SA::GPIO))
     , _pinMode(program)
     , _trigger(program)
     , _setPinMode(setPinMode)
@@ -51,13 +51,13 @@ GPIO::GPIO(Program* program)
     , _digitalRead(digitalRead)
     , _onInterrupt(onInterrupt)
 {
-    addProperty(ATOM(program, setPinMode), &_setPinMode);
-    addProperty(ATOM(program, digitalWrite), &_digitalWrite);
-    addProperty(ATOM(program, digitalRead), &_digitalRead);
-    addProperty(ATOM(program, onInterrupt), &_onInterrupt);
+    addProperty(ATOM(program, SA::setPinMode), &_setPinMode);
+    addProperty(ATOM(program, SA::digitalWrite), &_digitalWrite);
+    addProperty(ATOM(program, SA::digitalRead), &_digitalRead);
+    addProperty(ATOM(program, SA::onInterrupt), &_onInterrupt);
     
-    addProperty(ATOM(program, PinMode), Value(_pinMode.nativeObject()));
-    addProperty(ATOM(program, Trigger), Value(_trigger.nativeObject()));
+    addProperty(ATOM(program, SA::PinMode), Value(_pinMode.nativeObject()));
+    addProperty(ATOM(program, SA::Trigger), Value(_trigger.nativeObject()));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -89,22 +89,22 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 }
 
 PinMode::PinMode(Program* program)
-    : ObjectFactory(program, ATOM(program, PinMode))
+    : ObjectFactory(program, ATOM(program, SA::PinMode))
 {
-    addProperty(ATOM(program, Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
-    addProperty(ATOM(program, OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
-    addProperty(ATOM(program, Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
-    addProperty(ATOM(program, InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
-    addProperty(ATOM(program, InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
+    addProperty(ATOM(program, SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
+    addProperty(ATOM(program, SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
+    addProperty(ATOM(program, SA::Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
+    addProperty(ATOM(program, SA::InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
+    addProperty(ATOM(program, SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
 Trigger::Trigger(Program* program)
-    : ObjectFactory(program, ATOM(program, Trigger))
+    : ObjectFactory(program, ATOM(program, SA::Trigger))
 {
-    addProperty(ATOM(program, None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
-    addProperty(ATOM(program, RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
-    addProperty(ATOM(program, FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
-    addProperty(ATOM(program, BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
-    addProperty(ATOM(program, Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
-    addProperty(ATOM(program, High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
+    addProperty(ATOM(program, SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
+    addProperty(ATOM(program, SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
+    addProperty(ATOM(program, SA::FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
+    addProperty(ATOM(program, SA::BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
+    addProperty(ATOM(program, SA::Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
+    addProperty(ATOM(program, SA::High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
 }

@@ -176,7 +176,7 @@ MaterObject::~MaterObject()
 
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, __typeName)).asIdValue());
+    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, SA::__typeName)).asIdValue());
     
     if (typeOnly) {
         return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
@@ -226,7 +226,7 @@ void MaterObject::gcMark(ExecutionUnit* eu)
     for (auto entry : _properties) {
         entry.value.gcMark(eu);
     }
-    auto it = _properties.find(ATOM(eu, __nativeObject));
+    auto it = _properties.find(ATOM(eu, SA::__nativeObject));
     if (it != _properties.end()) {
         NativeObject* obj = it->value.asNativeObject();
         if (obj) {
@@ -292,12 +292,12 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
-    if (prop == ATOM(eu, length)) {
+    if (prop == ATOM(eu, SA::length)) {
         return Value(static_cast<int32_t>(_array.size()));
     }
     
-    if (prop == ATOM(eu, iterator)) {
-        return Value(_iterator ?: eu->program()->global()->property(eu, ATOM(eu, Iterator)).asObject());
+    if (prop == ATOM(eu, SA::iterator)) {
+        return Value(_iterator ?: eu->program()->global()->property(eu, ATOM(eu, SA::Iterator)).asObject());
     }
 
     auto it = _properties.find(prop);
@@ -309,7 +309,7 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 
 bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
-    if (prop == ATOM(eu, iterator)) {
+    if (prop == ATOM(eu, SA::iterator)) {
         _iterator = v.asObject();
         return true;
     }
@@ -323,7 +323,7 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
         return false;
     }
 
-    if (prop == ATOM(eu, length)) {
+    if (prop == ATOM(eu, SA::length)) {
         _array.resize(v.asIntValue());
         return true;
     }
@@ -356,7 +356,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     obj->setProto(this);
     obj->_isArray = _isArray;
 
-    auto it = _properties.find(ATOM(eu, constructor));
+    auto it = _properties.find(ATOM(eu, SA::constructor));
     if (it != _properties.end()) {
         CallReturnValue retval = it->value.call(eu, objectValue, nparams, true);
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
@@ -367,7 +367,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-NativeFunction::NativeFunction(Func func)
+NativeFunction::NativeFunction(CallableFunction func)
     : _func(func)
 {
 }
@@ -375,7 +375,7 @@ NativeFunction::NativeFunction(Func func)
 ObjectFactory::ObjectFactory(Program* program, Atom name)
 {
     if (name) {
-        _obj.setProperty(ATOM(program, __typeName), Value(name));
+        _obj.setProperty(ATOM(program, SA::__typeName), Value(name));
     }
 }
 

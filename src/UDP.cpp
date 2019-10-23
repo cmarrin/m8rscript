@@ -43,17 +43,17 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 UDPProto::UDPProto(Program* program)
-    : ObjectFactory(program, ATOM(program, UDPProto))
+    : ObjectFactory(program, ATOM(program, SA::UDPProto))
     , _constructor(constructor)
     , _send(send)
     , _disconnect(disconnect)
 {
-    addProperty(ATOM(program, constructor), &_constructor);
-    addProperty(ATOM(program, send), &_send);
-    addProperty(ATOM(program, disconnect), &_disconnect);
+    addProperty(ATOM(program, SA::constructor), &_constructor);
+    addProperty(ATOM(program, SA::send), &_send);
+    addProperty(ATOM(program, SA::disconnect), &_disconnect);
     
-    addProperty(ATOM(program, ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
-    addProperty(ATOM(program, SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
+    addProperty(ATOM(program, SA::ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
+    addProperty(ATOM(program, SA::SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
 }
 
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -76,7 +76,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
-    obj->setProperty(eu, ATOM(eu, __nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, ATOM(eu, SA::__nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -101,7 +101,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
+    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, SA::__nativeObject)).asNativeObject());
     if (!delegate) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
@@ -124,7 +124,7 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
+    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, ATOM(eu, SA::__nativeObject)).asNativeObject());
     
     delegate->disconnect();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

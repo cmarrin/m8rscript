@@ -42,7 +42,7 @@ AtomTable::AtomTable()
 {
 }
 
-Atom AtomTable::internalAtom(SharedAtom a) const
+Atom AtomTable::internalAtom(SA a) const
 {
     auto it = _sharedAtomMap.find(static_cast<int32_t>(a));
     if (it == _sharedAtomMap.end()) {

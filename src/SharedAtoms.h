@@ -1,6 +1,7 @@
 // This file is generated. Do not edit
+#pragma once
 
-enum class SharedAtom {
+enum class SA {
     Array,
     Base64,
     BothEdges,
@@ -77,4 +78,4 @@ enum class SharedAtom {
     __count__,
 };
 
-const char* sharedAtom(enum SharedAtom id);
+const char* sharedAtom(SA id);

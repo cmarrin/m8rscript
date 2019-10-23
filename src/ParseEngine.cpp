@@ -154,7 +154,7 @@ bool ParseEngine::classContentsStatement()
         if (!f) {
             return false;
         }
-        _parser->currentClass()->setProperty(ATOM(_parser->program(), constructor), Value(f));
+        _parser->currentClass()->setProperty(ATOM(_parser->program(), SA::constructor), Value(f));
         return true;
     }
     if (getToken() == Token::Var) {
@@ -396,7 +396,7 @@ void ParseEngine::forIteration(Atom iteratorName)
 
     _parser->emitDup();
     _parser->emitPush();
-    _parser->emitId(ATOM(_parser->program(), iterator), Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), SA::iterator), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::NEW, -1, 1);
     _parser->emitMove();
@@ -404,7 +404,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     
     Label label = _parser->label();
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(ATOM(_parser->program(), done), Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), SA::done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, -1, 0);
 
@@ -418,7 +418,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     }
 
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(ATOM(_parser->program(), next), Parser::IdType::NotLocal);
+    _parser->emitId(ATOM(_parser->program(), SA::next), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, -1, 0);
     _parser->discardResult();

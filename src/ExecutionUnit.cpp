@@ -152,7 +152,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return Value();
     }
     
-    if (atom == ATOM(this, __this)) {
+    if (atom == ATOM(this,SA:: __this)) {
         return Value(_this);
     }
 

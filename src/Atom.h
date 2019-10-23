@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Containers.h"
 #include "SharedAtoms.h"
+#include "SharedAtoms.h"
 
 namespace m8r {
 
@@ -51,8 +52,6 @@ class Stream;
 //  a size. So max size of an individual atom is 127 bytes
 //
 //////////////////////////////////////////////////////////////////////////////
-
-#define ATOM(p, a) (p ? p->internalAtom(SharedAtom::a) : Atom())
 
 class AtomTable {
     friend class Program;
@@ -73,7 +72,7 @@ public:
     
     const std::vector<int8_t>& stringTable() const { return _table; }
     
-    Atom internalAtom(SharedAtom) const;
+    Atom internalAtom(SA) const;
 
 private:
     int32_t findAtom(const char* s) const;

@@ -53,7 +53,7 @@ public:
         
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
-    Atom internalAtom(SharedAtom a) const { return _atomTable.internalAtom(a); }
+    Atom internalAtom(SA a) const { return _atomTable.internalAtom(a); }
     
     // For debugging
     static void printAtomId(Program*, int id);

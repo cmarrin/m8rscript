@@ -44,12 +44,12 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 JSON::JSON(Program* program)
-    : ObjectFactory(program, ATOM(program, JSON))
-    , _parse(parse)
-    , _stringify(stringify)
+    : ObjectFactory(program, ATOM(program, SA::JSON))
+    , _parse(parseFunc)
+    , _stringify(stringifyFunc)
 {
-    addProperty(ATOM(program, parse), &_parse);
-    addProperty(ATOM(program, stringify), &_stringify);
+    addProperty(ATOM(program, SA::parse), &_parse);
+    addProperty(ATOM(program, SA::stringify), &_stringify);
 }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
@@ -163,7 +163,7 @@ String JSON::stringify(ExecutionUnit* eu, const Value v)
     return String();
 }
 
-CallReturnValue JSON::parse(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue JSON::parseFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
@@ -175,7 +175,7 @@ CallReturnValue JSON::parse(ExecutionUnit* eu, Value thisValue, uint32_t nparams
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue JSON::stringify(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue JSON::stringifyFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
