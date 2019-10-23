@@ -97,6 +97,8 @@ public:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    void setIPAddr(IPAddr);
 
 private:
     NativeFunction _toString;

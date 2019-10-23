@@ -19,3 +19,4 @@
 
 var a = new IPAddr("127.0.0.1");
 println(a);
+println(IPAddr);

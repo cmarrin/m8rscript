@@ -76,7 +76,7 @@ Global::Global(Program* program)
     , _eval(eval, program, SA::eval, this)
 {
     // The proto for IPAddr contains the local IP address
-    //_ipAddr.setIPAddr(IPAddr::myIPAddr());
+    _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
