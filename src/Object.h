@@ -98,6 +98,7 @@ public:
     virtual Atom name() const { return Atom(); }
     virtual bool hasUpValues() const { return false; }
     virtual bool isFunction() const { return false; }
+    virtual void setArray(bool b) { }
     
     static void addStaticObject(Object* obj) { _staticObjects.push_back(obj); }
     static void removeStaticObject(Object* obj)
@@ -159,6 +160,8 @@ public:
     virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
     virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, Value::SetPropertyType type) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
+
+    virtual void setArray(bool b) override { _isArray = b; }
 
     uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
     Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }

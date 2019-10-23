@@ -90,36 +90,18 @@ private:
 
 // Object
 
-class IPAddrProto : public Object {
+class IPAddrProto : public ObjectFactory {
 public:
-    IPAddrProto();
+    IPAddrProto(Program*);
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override;
-
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
-
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
-    
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override
-    {
-        int32_t index = elt.toIntValue(eu);
-        return (index >= 0 && index < 4) ? Value(static_cast<int32_t>(_ipAddr[index])) : Value();
-    }
-    
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override
-    {
-        int32_t index = elt.toIntValue(eu);
-        if (append || index < 0 || index >= 4) {
-            return false;
-        }
-        _ipAddr[index] = value.asIntValue();
-        return true;
-    }
-    
-    void setIPAddr(IPAddr addr) { _ipAddr = addr; }
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
 private:
-    IPAddr _ipAddr;
+    NativeFunction _constructor;
+    NativeFunction _toString;
+    NativeFunction _lookupHostname;
 };
 
 }

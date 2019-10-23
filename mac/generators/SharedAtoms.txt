@@ -64,6 +64,7 @@ stringify
 toFloat
 toInt
 toUInt
+toString
 trim
 value
 __index

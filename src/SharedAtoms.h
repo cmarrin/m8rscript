@@ -1,5 +1,4 @@
 // This file is generated. Do not edit
-#pragma once
 
 enum class SA {
     Array,
@@ -68,6 +67,7 @@ enum class SA {
     toFloat,
     toInt,
     toUInt,
+    toString,
     trim,
     value,
     __index,

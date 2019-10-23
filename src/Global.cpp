@@ -62,6 +62,7 @@ Global::Global(Program* program)
     , _json(program)
     , _tcp(program)
     , _udp(program)
+    , _ipAddr(program)
     , _iterator(program)
     , _currentTime(currentTime)
     , _delay(delay)
@@ -75,7 +76,7 @@ Global::Global(Program* program)
     , _eval(eval)
 {
     // The proto for IPAddr contains the local IP address
-    _ipAddr.setIPAddr(IPAddr::myIPAddr());
+    //_ipAddr.setIPAddr(IPAddr::myIPAddr());
     
     addProperty(ATOM(program, SA::currentTime), &_currentTime);
     addProperty(ATOM(program, SA::delay), &_delay);
@@ -90,16 +91,14 @@ Global::Global(Program* program)
 
     addProperty(ATOM(program, SA::Array), &_array);
     addProperty(ATOM(program, SA::Object), &_object);
-    addProperty(ATOM(program, SA::IPAddr), &_ipAddr);
     
+    addProperty(ATOM(program, SA::IPAddr), Value(_ipAddr.nativeObject()));    
     addProperty(ATOM(program, SA::Base64), Value(_base64.nativeObject()));
     addProperty(ATOM(program, SA::GPIO), Value(_gpio.nativeObject()));
     addProperty(ATOM(program, SA::JSON), Value(_json.nativeObject()));
     addProperty(ATOM(program, SA::TCP), Value(_tcp.nativeObject()));
     addProperty(ATOM(program, SA::UDP), Value(_udp.nativeObject()));
     addProperty(ATOM(program, SA::Iterator), Value(_iterator.nativeObject()));
-    
-    
 }
 
 Global::~Global()

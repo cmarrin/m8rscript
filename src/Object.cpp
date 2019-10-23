@@ -176,12 +176,23 @@ MaterObject::~MaterObject()
 
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, SA::__typeName)).asIdValue());
-    
     if (typeOnly) {
+        String typeName = eu->program()->stringFromAtom(property(eu, ATOM(eu, SA::__typeName)).asIdValue());
         return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
     }
     
+    Value callable = property(eu, ATOM(eu, SA::toString));
+    
+    if (callable) {
+        CallReturnValue retval = callable.call(eu, Value(const_cast<MaterObject*>(this)), 0, true);
+        if (!retval.isReturnCount()) {
+            return "";
+        }
+        Value stringValue = eu->stack().top(1 - retval.returnCount());
+        eu->stack().pop(retval.returnCount());
+        return stringValue.toStringValue(eu);
+    }
+
     if (_isArray) {
         String s = "[ ";
         bool first = true;

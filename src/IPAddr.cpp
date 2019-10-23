@@ -58,8 +58,15 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-IPAddrProto::IPAddrProto()
+IPAddrProto::IPAddrProto(Program* program)
+    : ObjectFactory(program, ATOM(program, SA::IPAddr))
+    , _constructor(constructor)
+    , _toString(toString)
+    , _lookupHostname(lookupHostname)
 {
+    addProperty(ATOM(program, SA::constructor), &_constructor);
+    addProperty(ATOM(program, SA::toString), &_toString);
+    addProperty(ATOM(program, SA::lookupHostname), &_lookupHostname);
 }
 
 IPAddr::IPAddr(const String& ipString)
@@ -75,18 +82,13 @@ String IPAddr::toString() const
            Value::toString(_addr[3]);
 }
 
-String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
-{
-    return typeOnly ? String("IPAddr") : _ipAddr.toString();
-}
+//String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
+//{
+//    return typeOnly ? String("IPAddr") : _ipAddr.toString();
+//}
 
-CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (!ctor) {
-        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
-        return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
-    }
-    
     // Stack: string ip octets or 4 integers
     IPAddr ipAddr;
     if (nparams == 1) {
@@ -106,50 +108,68 @@ CallReturnValue IPAddrProto::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     } else {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
-
-    IPAddrProto* obj = new IPAddrProto();
-    obj->setProto(this);
     
-    obj->_ipAddr = ipAddr;
+    Object* thisObject = thisValue.asObject();
+    if (thisObject) {
+        thisObject->setArray(true);
+        thisObject->setElement(eu, Value(0), Value(ipAddr[0]), true);
+        thisObject->setElement(eu, Value(1), Value(ipAddr[1]), true);
+        thisObject->setElement(eu, Value(2), Value(ipAddr[2]), true);
+        thisObject->setElement(eu, Value(3), Value(ipAddr[3]), true);
+    }
+    
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
 
-    eu->stack().push(Value(obj));
+CallReturnValue IPAddrProto::toString(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    if (nparams != 0) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    IPAddr ipAddr;
+    ipAddr[0] = thisValue.element(eu, Value(0)).toIntValue(eu);
+    ipAddr[1] = thisValue.element(eu, Value(1)).toIntValue(eu);
+    ipAddr[2] = thisValue.element(eu, Value(2)).toIntValue(eu);
+    ipAddr[3] = thisValue.element(eu, Value(3)).toIntValue(eu);
+    
+    String* string = Object::createString(ipAddr.toString());
+    eu->stack().push(Value(string));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (prop == ATOM(eu, SA::lookupHostname)) {
-        if (nparams < 2) {
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-
-        Value hostnameValue = eu->stack().top(1 - nparams);
-        String hostname = hostnameValue.toStringValue(eu);
-        Value funcValue = eu->stack().top(2 - nparams);
-        if (funcValue.asObject()) {
-            addStaticObject(funcValue.asObject());
-        }
-        
-        eu->startEventListening();
-        
-        IPAddr::lookupHostName(hostname.c_str(), [this, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
-            Object* obj = ObjectFactory::create(ATOM(eu, SA::IPAddr), eu, 0);
-            obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
-            obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
-            obj->setElement(eu, Value(2), Value(ipaddr[2]), true);
-            obj->setElement(eu, Value(3), Value(ipaddr[3]), true);
-
-            Value args[2];
-            args[0] = Value(createString(name));
-            args[1] = Value(obj);
-            
-            eu->fireEvent(funcValue, Value(this), args, 2);
-            if (funcValue.asObject()) {
-                removeStaticObject(funcValue.asObject());
-            }
-            eu->stopEventListening();
-        });
+    if (nparams < 2) {
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
-    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+
+    Value hostnameValue = eu->stack().top(1 - nparams);
+    String hostname = hostnameValue.toStringValue(eu);
+    Value funcValue = eu->stack().top(2 - nparams);
+    if (funcValue.asObject()) {
+        Object::addStaticObject(funcValue.asObject());
+    }
+    
+    eu->startEventListening();
+    Object* thisObject = thisValue.asObject();
+            
+    IPAddr::lookupHostName(hostname.c_str(), [thisObject, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
+        Object* obj = ObjectFactory::create(ATOM(eu, SA::IPAddr), eu, 0);
+        obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
+        obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
+        obj->setElement(eu, Value(2), Value(ipaddr[2]), true);
+        obj->setElement(eu, Value(3), Value(ipaddr[3]), true);
+
+        Value args[2];
+        args[0] = Value(Object::createString(name));
+        args[1] = Value(obj);
+        
+        eu->fireEvent(funcValue, Value(thisObject), args, 2);
+        if (funcValue.asObject()) {
+            Object::removeStaticObject(funcValue.asObject());
+        }
+        eu->stopEventListening();
+    });
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

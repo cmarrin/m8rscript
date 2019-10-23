@@ -70,6 +70,7 @@ static const char _stringify[] ROMSTR_ATTR = "stringify";
 static const char _toFloat[] ROMSTR_ATTR = "toFloat";
 static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
+static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char ___index[] ROMSTR_ATTR = "__index";
@@ -146,6 +147,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _toFloat,
     _toInt,
     _toUInt,
+    _toString,
     _trim,
     _value,
     ___index,
