@@ -16,6 +16,9 @@
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
+		49263ABD23611DF0005CB9F9 /* StreamProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49263ABB23611DF0005CB9F9 /* StreamProto.cpp */; };
+		49263ABE23611DFC005CB9F9 /* StreamProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49263ABB23611DF0005CB9F9 /* StreamProto.cpp */; };
+		49263ABF23611DFC005CB9F9 /* StreamProto.h in Headers */ = {isa = PBXBuildFile; fileRef = 49263ABC23611DF0005CB9F9 /* StreamProto.h */; };
 		492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3D61E15849C00242DA8 /* GPIO.cpp */; };
 		492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 492BA3D81E15944000242DA8 /* GPIOInterface.h */; };
 		492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492BA3DA1E15987C00242DA8 /* Base64.cpp */; };
@@ -196,6 +199,8 @@
 		492396C91E711E47007AC0BF /* IPAddr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPAddr.h; path = ../src/IPAddr.h; sourceTree = "<group>"; };
 		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../src/GPIO.h; sourceTree = "<group>"; };
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
+		49263ABB23611DF0005CB9F9 /* StreamProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StreamProto.cpp; path = ../src/StreamProto.cpp; sourceTree = "<group>"; };
+		49263ABC23611DF0005CB9F9 /* StreamProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StreamProto.h; path = ../src/StreamProto.h; sourceTree = "<group>"; };
 		492BA3D61E15849C00242DA8 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../src/GPIO.cpp; sourceTree = "<group>"; };
 		492BA3D81E15944000242DA8 /* GPIOInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIOInterface.h; path = ../src/GPIOInterface.h; sourceTree = "<group>"; };
 		492BA3DA1E15987C00242DA8 /* Base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Base64.cpp; path = ../src/Base64.cpp; sourceTree = "<group>"; };
@@ -630,6 +635,8 @@
 				49BE1CB82350DBA900BF6D9E /* SpiffsFS.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
+				49263ABB23611DF0005CB9F9 /* StreamProto.cpp */,
+				49263ABC23611DF0005CB9F9 /* StreamProto.h */,
 				499AE8E7234A667D00459451 /* SystemInterface.cpp */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				49A39F1E234C513600F6A144 /* SystemTime.h */,
@@ -657,6 +664,7 @@
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				4984DDC42354EC4C004D2D6D /* spiffs.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
+				49263ABF23611DFC005CB9F9 /* StreamProto.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
 				4984DDC52354EC52004D2D6D /* spiffs_config.h in Headers */,
 				4984DDC32354EC46004D2D6D /* spiffs_nucleus.h in Headers */,
@@ -877,6 +885,7 @@
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */,
+				49263ABE23611DFC005CB9F9 /* StreamProto.cpp in Sources */,
 				491ED39D2353935900DE0C42 /* spiffs_hydrogen.c in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
@@ -930,6 +939,7 @@
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
+				49263ABD23611DF0005CB9F9 /* StreamProto.cpp in Sources */,
 				4988DC761F0C296B009F7ED5 /* Device.mm in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
