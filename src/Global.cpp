@@ -55,50 +55,31 @@ using namespace m8r;
 //);
 
 Global::Global(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::Global))
+    : ObjectFactory(program, SA::Global)
     , _array(true)
-    , _base64(program)
-    , _gpio(program)
-    , _json(program)
-    , _tcp(program)
-    , _udp(program)
-    , _ipAddr(program)
-    , _iterator(program)
-    , _currentTime(currentTime)
-    , _delay(delay)
-    , _print(print)
-    , _printf(printf)
-    , _println(println)
-    , _toFloat(toFloat)
-    , _toInt(toInt)
-    , _toUInt(toUInt)
-    , _arguments(arguments)
-    , _eval(eval)
+    , _base64(program, this)
+    , _gpio(program, this)
+    , _json(program, this)
+    , _tcp(program, this)
+    , _udp(program, this)
+    , _ipAddr(program, this)
+    , _iterator(program, this)
+    , _currentTime(currentTime, program, SA::currentTime, this)
+    , _delay(delay, program, SA::delay, this)
+    , _print(print, program, SA::print, this)
+    , _printf(printf, program, SA::printf, this)
+    , _println(println, program, SA::println, this)
+    , _toFloat(toFloat, program, SA::toFloat, this)
+    , _toInt(toInt, program, SA::toInt, this)
+    , _toUInt(toUInt, program, SA::toUInt, this)
+    , _arguments(arguments, program, SA::arguments, this)
+    , _eval(eval, program, SA::eval, this)
 {
     // The proto for IPAddr contains the local IP address
     //_ipAddr.setIPAddr(IPAddr::myIPAddr());
     
-    addProperty(ATOM(program, SA::currentTime), &_currentTime);
-    addProperty(ATOM(program, SA::delay), &_delay);
-    addProperty(ATOM(program, SA::print), &_print);
-    addProperty(ATOM(program, SA::printf), &_printf);
-    addProperty(ATOM(program, SA::println), &_println);
-    addProperty(ATOM(program, SA::toFloat), &_toFloat);
-    addProperty(ATOM(program, SA::toInt), &_toInt);
-    addProperty(ATOM(program, SA::toUInt), &_toUInt);
-    addProperty(ATOM(program, SA::arguments), &_arguments);
-    addProperty(ATOM(program, SA::eval), &_eval);
-
-    addProperty(ATOM(program, SA::Array), &_array);
-    addProperty(ATOM(program, SA::Object), &_object);
-    
-    addProperty(ATOM(program, SA::IPAddr), Value(_ipAddr.nativeObject()));    
-    addProperty(ATOM(program, SA::Base64), Value(_base64.nativeObject()));
-    addProperty(ATOM(program, SA::GPIO), Value(_gpio.nativeObject()));
-    addProperty(ATOM(program, SA::JSON), Value(_json.nativeObject()));
-    addProperty(ATOM(program, SA::TCP), Value(_tcp.nativeObject()));
-    addProperty(ATOM(program, SA::UDP), Value(_udp.nativeObject()));
-    addProperty(ATOM(program, SA::Iterator), Value(_iterator.nativeObject()));
+    addProperty(program, SA::Array, &_array);
+    addProperty(program, SA::Object, &_object);
 }
 
 Global::~Global()

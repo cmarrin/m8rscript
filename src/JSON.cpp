@@ -43,13 +43,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-JSON::JSON(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::JSON))
-    , _parse(parseFunc)
-    , _stringify(stringifyFunc)
+JSON::JSON(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::JSON, parent)
+    , _parse(parseFunc, program, SA::parse, this)
+    , _stringify(stringifyFunc, program, SA::stringify, this)
 {
-    addProperty(ATOM(program, SA::parse), &_parse);
-    addProperty(ATOM(program, SA::stringify), &_stringify);
 }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)

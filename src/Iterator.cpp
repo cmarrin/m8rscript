@@ -41,19 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Iterator::Iterator(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::Iterator))
-    , _constructor(constructor)
-    , _done(done)
-    , _next(next)
-    , _getValue(getValue)
-    , _setValue(setValue)
+Iterator::Iterator(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::Iterator, parent, constructor)
+    , _done(done, program, SA::done, this)
+    , _next(next, program, SA::next, this)
+    , _getValue(getValue, program, SA::getValue, this)
+    , _setValue(setValue, program, SA::setValue, this)
 {
-    addProperty(ATOM(program, SA::constructor), &_constructor);
-    addProperty(ATOM(program, SA::done), &_done);
-    addProperty(ATOM(program, SA::next), &_next);
-    addProperty(ATOM(program, SA::getValue), &_getValue);
-    addProperty(ATOM(program, SA::setValue), &_setValue);
 }
 
 static bool done(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)

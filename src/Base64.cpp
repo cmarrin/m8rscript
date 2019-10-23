@@ -124,13 +124,11 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 	return io;
 }
 
-Base64::Base64(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::Base64))
-    , _encode(encodeFunc)
-    , _decode(decodeFunc)
+Base64::Base64(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::Base64, parent)
+    , _encode(encodeFunc, program, SA::encode, this)
+    , _decode(decodeFunc, program, SA::decode, this)
 {
-    addProperty(ATOM(program, SA::encode), &_encode);
-    addProperty(ATOM(program, SA::decode), &_decode);
 }
 
 CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

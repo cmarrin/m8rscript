@@ -41,7 +41,7 @@ namespace m8r {
 
 class Iterator : public ObjectFactory {
 public:
-    Iterator(Program*);
+    Iterator(Program*, ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -50,7 +50,6 @@ private:
     static CallReturnValue getValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue setValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
-    NativeFunction _constructor;
     NativeFunction _done;
     NativeFunction _next;
     NativeFunction _getValue;

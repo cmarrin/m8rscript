@@ -58,15 +58,11 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-IPAddrProto::IPAddrProto(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::IPAddr))
-    , _constructor(constructor)
-    , _toString(toString)
-    , _lookupHostname(lookupHostname)
+IPAddrProto::IPAddrProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::IPAddr, parent, constructor)
+    , _toString(toString, program, SA::toString, this)
+    , _lookupHostname(lookupHostname, program, SA::lookupHostname, this)
 {
-    addProperty(ATOM(program, SA::constructor), &_constructor);
-    addProperty(ATOM(program, SA::toString), &_toString);
-    addProperty(ATOM(program, SA::lookupHostname), &_lookupHostname);
 }
 
 IPAddr::IPAddr(const String& ipString)

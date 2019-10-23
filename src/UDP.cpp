@@ -42,16 +42,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-UDPProto::UDPProto(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::UDPProto))
-    , _constructor(constructor)
-    , _send(send)
-    , _disconnect(disconnect)
+UDPProto::UDPProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::UDPProto, parent, constructor)
+    , _send(send, program, SA::send, this)
+    , _disconnect(disconnect, program, SA::disconnect, this)
 {
-    addProperty(ATOM(program, SA::constructor), &_constructor);
-    addProperty(ATOM(program, SA::send), &_send);
-    addProperty(ATOM(program, SA::disconnect), &_disconnect);
-    
     addProperty(ATOM(program, SA::ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
     addProperty(ATOM(program, SA::SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
 }

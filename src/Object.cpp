@@ -378,16 +378,31 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-NativeFunction::NativeFunction(CallableFunction func)
+NativeFunction::NativeFunction(CallableFunction func, Program* program, SA sa, ObjectFactory* parent)
     : _func(func)
 {
+    if (!_func) {
+        return;
+    }
+    
+    Atom name = ATOM(program, sa);
+    if (name && parent) {
+        parent->addProperty(name, this);
+    }
 }
 
-ObjectFactory::ObjectFactory(Program* program, Atom name)
+ObjectFactory::ObjectFactory(Program* program, SA sa, ObjectFactory* parent, NativeFunction::CallableFunction constructor)
+    : _constructor(constructor, program, SA::constructor, this)
 {
+    Atom name = ATOM(program, sa);
     if (name) {
         _obj.setProperty(ATOM(program, SA::__typeName), Value(name));
+        
+        if (parent) {
+            parent->addProperty(name, nativeObject());
+        }
     }
+    
 }
 
 ObjectFactory::~ObjectFactory()
@@ -406,6 +421,16 @@ void ObjectFactory::addProperty(Atom prop, Object* obj)
 void ObjectFactory::addProperty(Atom prop, const Value& value)
 {
     _obj.setProperty(prop, value);
+}
+
+void ObjectFactory::addProperty(Program* program, SA sa, Object* obj)
+{
+    addProperty(ATOM(program, sa), obj);
+}
+
+void ObjectFactory::addProperty(Program* program, SA sa, const Value& value)
+{
+    addProperty(ATOM(program, sa), value);
 }
 
 Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)

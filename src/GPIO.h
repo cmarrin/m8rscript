@@ -53,7 +53,7 @@ public:
 
 class GPIO : public ObjectFactory {
 public:
-    GPIO(Program*);
+    GPIO(Program*, ObjectFactory* parent);
     
 private:
     PinMode _pinMode;

@@ -42,16 +42,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-TCPProto::TCPProto(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::TCPProto))
-    , _constructor(constructor)
-    , _send(send)
-    , _disconnect(disconnect)
+TCPProto::TCPProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::TCPProto, parent, constructor)
+    , _send(send, program, SA::send, this)
+    , _disconnect(disconnect, program, SA::disconnect, this)
 {
-    addProperty(ATOM(program, SA::constructor), &_constructor);
-    addProperty(ATOM(program, SA::send), &_send);
-    addProperty(ATOM(program, SA::disconnect), &_disconnect);
-    
     addProperty(ATOM(program, SA::Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
     addProperty(ATOM(program, SA::Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
     addProperty(ATOM(program, SA::Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));

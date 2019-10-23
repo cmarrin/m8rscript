@@ -92,14 +92,13 @@ private:
 
 class IPAddrProto : public ObjectFactory {
 public:
-    IPAddrProto(Program*);
+    IPAddrProto(Program*, ObjectFactory* parent);
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
 private:
-    NativeFunction _constructor;
     NativeFunction _toString;
     NativeFunction _lookupHostname;
 };

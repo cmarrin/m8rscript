@@ -42,20 +42,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-GPIO::GPIO(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::GPIO))
+GPIO::GPIO(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::GPIO, parent)
     , _pinMode(program)
     , _trigger(program)
-    , _setPinMode(setPinMode)
-    , _digitalWrite(digitalWrite)
-    , _digitalRead(digitalRead)
-    , _onInterrupt(onInterrupt)
+    , _setPinMode(setPinMode, program, SA::setPinMode, this)
+    , _digitalWrite(digitalWrite, program, SA::digitalWrite, this)
+    , _digitalRead(digitalRead, program, SA::digitalRead, this)
+    , _onInterrupt(onInterrupt, program, SA::onInterrupt, this)
 {
-    addProperty(ATOM(program, SA::setPinMode), &_setPinMode);
-    addProperty(ATOM(program, SA::digitalWrite), &_digitalWrite);
-    addProperty(ATOM(program, SA::digitalRead), &_digitalRead);
-    addProperty(ATOM(program, SA::onInterrupt), &_onInterrupt);
-    
     addProperty(ATOM(program, SA::PinMode), Value(_pinMode.nativeObject()));
     addProperty(ATOM(program, SA::Trigger), Value(_trigger.nativeObject()));
 }
@@ -89,7 +84,7 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 }
 
 PinMode::PinMode(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::PinMode))
+    : ObjectFactory(program, SA::PinMode)
 {
     addProperty(ATOM(program, SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
     addProperty(ATOM(program, SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
@@ -99,7 +94,7 @@ PinMode::PinMode(Program* program)
 }
 
 Trigger::Trigger(Program* program)
-    : ObjectFactory(program, ATOM(program, SA::Trigger))
+    : ObjectFactory(program, SA::Trigger)
 {
     addProperty(ATOM(program, SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
     addProperty(ATOM(program, SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));

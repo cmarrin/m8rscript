@@ -77,14 +77,13 @@ protected:
 
 class UDPProto : public ObjectFactory {
 public:
-    UDPProto(Program*);
+    UDPProto(Program*, ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
-    NativeFunction _constructor;
     NativeFunction _send;
     NativeFunction _disconnect;
 };
