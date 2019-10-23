@@ -133,15 +133,15 @@ CallReturnValue IPAddrProto::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         eu->startEventListening();
         
         IPAddr::lookupHostName(hostname.c_str(), [this, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
-            Object* newIPAddr = nullptr;
-            IPAddrProto* obj = new IPAddrProto();
-            obj->setProto(this);
-            obj->_ipAddr = ipaddr;
-            newIPAddr = obj;
+            Object* obj = ObjectFactory::create(ATOM(eu, SA::IPAddr), eu, 0);
+            obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
+            obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
+            obj->setElement(eu, Value(2), Value(ipaddr[2]), true);
+            obj->setElement(eu, Value(3), Value(ipaddr[3]), true);
 
             Value args[2];
             args[0] = Value(createString(name));
-            args[1] = Value(newIPAddr);
+            args[1] = Value(obj);
             
             eu->fireEvent(funcValue, Value(this), args, 2);
             if (funcValue.asObject()) {

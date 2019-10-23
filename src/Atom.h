@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Containers.h"
 #include "SharedAtoms.h"
-#include "SharedAtoms.h"
 
 namespace m8r {
 

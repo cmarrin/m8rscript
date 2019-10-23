@@ -6,13 +6,16 @@
 //printf("fake result=%d\n", b(3, 5));
 
 // Test eval
-var x = 5;
-var y = 7;
+//var x = 5;
+//var y = 7;
 //var f = x + y;
 //var f = eval("x + y");
 
-function a() {
-    return x + y;
-}
+//function a() {
+//    return x + y;
+//}
+//
+//printf("result=%d\n", a());
 
-printf("result=%d\n", a());
+var a = new IPAddr("127.0.0.1");
+println(a);
