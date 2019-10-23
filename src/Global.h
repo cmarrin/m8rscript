@@ -73,7 +73,7 @@ private:
     static CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toUInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue eval(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue library(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
     NativeFunction _currentTime;
     NativeFunction _delay;
@@ -84,7 +84,7 @@ private:
     NativeFunction _toInt;
     NativeFunction _toUInt;
     NativeFunction _arguments;
-    NativeFunction _eval;
+    NativeFunction _library;
 };
     
 }

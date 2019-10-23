@@ -45,10 +45,10 @@ digitalWrite
 disconnect
 done
 encode
-eval
 getValue
 iterator
 length
+library
 lookupHostname
 next
 onInterrupt

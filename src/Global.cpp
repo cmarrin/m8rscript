@@ -73,7 +73,7 @@ Global::Global(Program* program)
     , _toInt(toInt, program, SA::toInt, this)
     , _toUInt(toUInt, program, SA::toUInt, this)
     , _arguments(arguments, program, SA::arguments, this)
-    , _eval(eval, program, SA::eval, this)
+    , _library(library, program, SA::library, this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
@@ -281,9 +281,9 @@ CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue Global::eval(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Global::library(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // string
+    // Library is loaded from a Stream or a string which is a filename
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
