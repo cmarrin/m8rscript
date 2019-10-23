@@ -53,7 +53,6 @@ public:
 	virtual bool eof() const = 0;
     virtual int read() const = 0;
     virtual int write(uint8_t) = 0;
-	virtual void flush() = 0;
 	
 private:
 };
@@ -102,7 +101,6 @@ public:
         }
         return c;
     }
-	virtual void flush() override { }
 	
 private:
     std::shared_ptr<File> _file;
@@ -143,7 +141,6 @@ public:
         _index++;
         return c;
     }
-	virtual void flush() override { }
 	
 private:
     String _string;
@@ -184,7 +181,6 @@ public:
         _index++;
         return c;
     }
-	virtual void flush() override { }
     
     void swap(std::vector<uint8_t>& vector) { std::swap(vector, _vector); }
 	
