@@ -82,11 +82,6 @@ String IPAddr::toString() const
            Value::toString(_addr[3]);
 }
 
-//String IPAddrProto::toString(ExecutionUnit* eu, bool typeOnly) const
-//{
-//    return typeOnly ? String("IPAddr") : _ipAddr.toString();
-//}
-
 CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // Stack: string ip octets or 4 integers
