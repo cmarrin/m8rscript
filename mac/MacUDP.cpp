@@ -55,6 +55,7 @@ IPAddr IPAddr::myIPAddr()
     struct hostent* entry = gethostbyname(name);
     if (entry) {
         IPAddr ip(entry->h_addr_list[0][0], entry->h_addr_list[0][1], entry->h_addr_list[0][2], entry->h_addr_list[0][3]);
+        return ip;
     }
     return IPAddr();
 }
