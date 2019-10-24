@@ -8,7 +8,7 @@
 // Test import
 var x = 5;
 var y = 7;
-var lib = import("function f(a, b) { return a + b; }");
+var lib = importString("function f(a, b) { return a + b; }");
 var r = f(x, y);
 println(r);
 
