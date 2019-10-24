@@ -46,11 +46,12 @@ GPIO::GPIO(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::GPIO, parent)
     , _pinMode(program)
     , _trigger(program)
-    , _setPinMode(setPinMode, program, SA::setPinMode, this)
-    , _digitalWrite(digitalWrite, program, SA::digitalWrite, this)
-    , _digitalRead(digitalRead, program, SA::digitalRead, this)
-    , _onInterrupt(onInterrupt, program, SA::onInterrupt, this)
 {
+    addProperty(program, SA::setPinMode, setPinMode);
+    addProperty(program, SA::digitalWrite, digitalWrite);
+    addProperty(program, SA::digitalRead, digitalRead);
+    addProperty(program, SA::onInterrupt, onInterrupt);
+
     addProperty(ATOM(program, SA::PinMode), Value(_pinMode.nativeObject()));
     addProperty(ATOM(program, SA::Trigger), Value(_trigger.nativeObject()));
 }

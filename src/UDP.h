@@ -83,9 +83,6 @@ private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _send;
-    NativeFunction _disconnect;
 };
 
 class MyUDPDelegate : public NativeObject, public UDPDelegate {

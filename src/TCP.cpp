@@ -44,9 +44,10 @@ using namespace m8r;
 
 TCPProto::TCPProto(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::TCPProto, parent, constructor)
-    , _send(send, program, SA::send, this)
-    , _disconnect(disconnect, program, SA::disconnect, this)
 {
+    addProperty(program, SA::send, send);
+    addProperty(program, SA::disconnect, disconnect);
+
     addProperty(ATOM(program, SA::Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
     addProperty(ATOM(program, SA::Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
     addProperty(ATOM(program, SA::Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));

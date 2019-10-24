@@ -44,9 +44,10 @@ using namespace m8r;
 
 UDPProto::UDPProto(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::UDPProto, parent, constructor)
-    , _send(send, program, SA::send, this)
-    , _disconnect(disconnect, program, SA::disconnect, this)
 {
+    addProperty(program, SA::send, send);
+    addProperty(program, SA::disconnect, disconnect);
+    
     addProperty(ATOM(program, SA::ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
     addProperty(ATOM(program, SA::SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
 }

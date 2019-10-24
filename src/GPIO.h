@@ -63,11 +63,6 @@ private:
     static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _setPinMode;
-    NativeFunction _digitalWrite;
-    NativeFunction _digitalRead;
-    NativeFunction _onInterrupt;
 };
 
 }

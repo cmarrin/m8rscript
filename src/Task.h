@@ -88,8 +88,6 @@ public:
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _constructor;
 };
 
 class NativeTask : public TaskBase {

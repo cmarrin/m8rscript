@@ -60,9 +60,10 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
 
 IPAddrProto::IPAddrProto(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::IPAddr, parent, constructor)
-    , _toString(toString, program, SA::toString, this)
-    , _lookupHostname(lookupHostname, program, SA::lookupHostname, this)
 {
+    addProperty(program, SA::toString, toString);
+    addProperty(program, SA::lookupHostname, lookupHostname);
+
     _obj.setArray(true);
     _obj.resize(4);
     _obj[0] = Value(0);

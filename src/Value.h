@@ -132,9 +132,7 @@ private:
     int32_t _value = 0;
 };
 
-using CallableFunctionType = CallReturnValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
-using CallableFunction = std::function<CallableFunctionType>;
-using CallableFunctionPtr = CallableFunctionType*;
+using NativeFunction = CallReturnValue(*)(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
 class Value {
 public:
@@ -151,7 +149,7 @@ public:
         Id = 12,
         Null = 14,
         NativeObject = 16,
-        CallableFunction = 18,
+        NativeFunction = 18,
     };
 
     Value() { _value._float = 0; }
@@ -162,7 +160,7 @@ public:
     explicit Value(Function* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Function; }
     explicit Value(String* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::String; }
     explicit Value(NativeObject* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::NativeObject; }
-    explicit Value(CallableFunctionPtr value) { assert(value); _value._raw = 0; _value._callable = value; _value._type = Type::CallableFunction; }
+    explicit Value(NativeFunction value) { assert(value); _value._raw = 0; _value._callable = value; _value._type = Type::NativeFunction; }
 
     explicit Value(int32_t value) { _value._raw = 0; _value._int = value; _value._type = Type::Integer; }
     explicit Value(Atom value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::Id; }
@@ -191,7 +189,7 @@ public:
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
-    CallableFunctionPtr asCallableFunction() { return (type() == Type::CallableFunction) ? callableFunctionFromValue() : nullptr; }
+    NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
 
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return (type() == Type::Integer) ? (int32FromValue() != 0) : (toIntValue(eu) != 0); }
@@ -223,7 +221,7 @@ public:
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Function; }
-    bool isCallableFunction() const { return type() == Type::CallableFunction; }
+    bool isNativeFunction() const { return type() == Type::NativeFunction; }
 
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
@@ -257,7 +255,7 @@ private:
     inline String* stringFromValue() const { return reinterpret_cast<String*>(_value._ptr); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._int)); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._ptr); }
-    inline CallableFunctionPtr callableFunctionFromValue() { return _value._callable; }
+    inline NativeFunction nativeFunctionFromValue() { return _value._callable; }
     inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value._ptr); }
     inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
 
@@ -274,7 +272,7 @@ private:
                 union {
                     void* _ptr;
                     Object* _obj;
-                    CallableFunctionPtr _callable;
+                    NativeFunction _callable;
                 };
                 int32_t _int;
             };

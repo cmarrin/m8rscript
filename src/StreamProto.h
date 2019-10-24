@@ -47,11 +47,6 @@ public:
     static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
-
-private:
-    NativeFunction _eof;
-    NativeFunction _read;
-    NativeFunction _write;
 };
 
 }

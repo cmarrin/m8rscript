@@ -54,9 +54,6 @@ private:
 
     static CallReturnValue parseFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue stringifyFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    NativeFunction _parse;
-    NativeFunction _stringify;
 };
     
 }

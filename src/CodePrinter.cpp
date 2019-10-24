@@ -414,6 +414,7 @@ static String escapeString(const String& s)
 void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value, bool abbreviated) const
 {
     switch(value.type()) {
+        case Value::Type::NativeFunction: s += "NativeFunction"; break;
         case Value::Type::NativeObject: s += "NativeObject"; break;
         case Value::Type::None: s += "NONE"; break;
         case Value::Type::Null: s += "Null"; break;

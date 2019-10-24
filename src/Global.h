@@ -75,17 +75,6 @@ private:
     static CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue import(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue importString(ExecutionUnit*, Value thisValue, uint32_t nparams);
-
-    NativeFunction _currentTime;
-    NativeFunction _delay;
-    NativeFunction _print;
-    NativeFunction _printf;
-    NativeFunction _println;
-    NativeFunction _toFloat;
-    NativeFunction _toInt;
-    NativeFunction _toUInt;
-    NativeFunction _arguments;
-    NativeFunction _import;
 };
     
 }

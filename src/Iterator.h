@@ -49,11 +49,6 @@ private:
     static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue getValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue setValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
-
-    NativeFunction _done;
-    NativeFunction _next;
-    NativeFunction _getValue;
-    NativeFunction _setValue;
 };
     
 }

@@ -39,10 +39,10 @@ using namespace m8r;
 
 StreamProto::StreamProto(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Iterator, parent, constructor)
-    , _eof(eof, program, SA::eof, this)
-    , _read(read, program, SA::read, this)
-    , _write(write, program, SA::write, this)
 {
+    addProperty(program, SA::eof, eof);
+    addProperty(program, SA::read, read);
+    addProperty(program, SA::write, write);
 }
 
 CallReturnValue StreamProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

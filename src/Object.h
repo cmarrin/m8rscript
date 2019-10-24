@@ -187,18 +187,6 @@ private:
 
 class ObjectFactory;
 
-class NativeFunction : public Object {
-public:
-    NativeFunction(CallableFunction func, Program*, SA, ObjectFactory* parent = nullptr);
-    
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("NativeFunction") : Object::toString(eu, false); }
-
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override { return _func(eu, thisValue, nparams); }
-
-private:
-    CallableFunction _func = nullptr;
-};
-
 class NativeObject {
 public:
     NativeObject() { }
@@ -209,14 +197,14 @@ public:
 
 class ObjectFactory {
 public:
-    ObjectFactory(Program*, SA, ObjectFactory* parent = nullptr, CallableFunction constructor = nullptr);
+    ObjectFactory(Program*, SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
     ~ObjectFactory();
     
     void addProperty(Atom prop, Object*);
     void addProperty(Atom prop, const Value&);
     void addProperty(Program*, SA, Object*);
     void addProperty(Program*, SA, const Value&);
-    void addProperty(Program*, SA, CallableFunctionPtr);
+    void addProperty(Program*, SA, NativeFunction);
 
     Object* nativeObject() { return &_obj; }
     const Object* nativeObject() const { return &_obj; }

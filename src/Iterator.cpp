@@ -43,11 +43,11 @@ using namespace m8r;
 
 Iterator::Iterator(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Iterator, parent, constructor)
-    , _done(done, program, SA::done, this)
-    , _next(next, program, SA::next, this)
-    , _getValue(getValue, program, SA::getValue, this)
-    , _setValue(setValue, program, SA::setValue, this)
 {
+    addProperty(program, SA::done, done);
+    addProperty(program, SA::next, next);
+    addProperty(program, SA::getValue, getValue);
+    addProperty(program, SA::setValue, setValue);
 }
 
 static bool done(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)

@@ -99,10 +99,6 @@ public:
     static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
     void setIPAddr(IPAddr);
-
-private:
-    NativeFunction _toString;
-    NativeFunction _lookupHostname;
 };
 
 }

@@ -65,20 +65,20 @@ Global::Global(Program* program)
     , _udp(program, this)
     , _ipAddr(program, this)
     , _iterator(program, this)
-    , _currentTime(currentTime, program, SA::currentTime, this)
-    , _delay(delay, program, SA::delay, this)
-    , _print(print, program, SA::print, this)
-    , _printf(printf, program, SA::printf, this)
-    , _println(println, program, SA::println, this)
-    , _toFloat(toFloat, program, SA::toFloat, this)
-    , _toInt(toInt, program, SA::toInt, this)
-    , _toUInt(toUInt, program, SA::toUInt, this)
-    , _arguments(arguments, program, SA::arguments, this)
-    , _import(import, program, SA::import, this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
+    addProperty(program, SA::currentTime, currentTime);
+    addProperty(program, SA::delay, delay);
+    addProperty(program, SA::print, print);
+    addProperty(program, SA::printf, printf);
+    addProperty(program, SA::println, println);
+    addProperty(program, SA::toFloat, toFloat);
+    addProperty(program, SA::toInt, toInt);
+    addProperty(program, SA::toUInt, toUInt);
+    addProperty(program, SA::arguments, arguments);
+    addProperty(program, SA::import, import);
     addProperty(program, SA::importString, importString);
     
     addProperty(program, SA::Array, &_array);

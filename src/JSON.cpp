@@ -45,9 +45,9 @@ using namespace m8r;
 
 JSON::JSON(Program* program, ObjectFactory* parent)
     : ObjectFactory(program, SA::JSON, parent)
-    , _parse(parseFunc, program, SA::parse, this)
-    , _stringify(stringifyFunc, program, SA::stringify, this)
 {
+    addProperty(program, SA::parse, parseFunc);
+    addProperty(program, SA::stringify, stringifyFunc);
 }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
