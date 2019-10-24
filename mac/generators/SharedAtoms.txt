@@ -47,9 +47,10 @@ done
 encode
 eof
 getValue
+import
+importString
 iterator
 length
-library
 lookupHostname
 next
 onInterrupt
