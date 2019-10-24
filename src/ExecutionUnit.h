@@ -63,7 +63,7 @@ public:
     
     CallReturnValue continueExecution();
     
-    CallReturnValue eval(const String&, Value);
+    CallReturnValue import(const Stream&, Value);
     
     ExecutionStack& stack() { return _stack; }
 

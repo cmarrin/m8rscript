@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Global.h"
 
 #include "ExecutionUnit.h"
+#include "MStream.h"
 #include "SystemInterface.h"
 #include "slre.h"
 #include <string>
@@ -289,7 +290,8 @@ CallReturnValue Global::import(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    return eu->eval(eu->stack().top(1 - nparams).toStringValue(eu), thisValue);
+    String s = eu->stack().top(1 - nparams).toStringValue(eu);
+    return eu->import(FileStream(system()->fileSystem(), s.c_str()), thisValue);
 }
 
 CallReturnValue Global::importString(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -299,5 +301,6 @@ CallReturnValue Global::importString(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    return eu->eval(eu->stack().top(1 - nparams).toStringValue(eu), thisValue);
+    String s = eu->stack().top(1 - nparams).toStringValue(eu);
+    return eu->import(StringStream(s), thisValue);
 }

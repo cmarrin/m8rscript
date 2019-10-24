@@ -89,9 +89,9 @@ public:
         CannotCall,
         InvalidArgumentValue,
         SyntaxErrors,
-        EvalTimeout,
-        DelayNotAllowedInEval,
-        EventNotAllowedInEval,
+        ImportTimeout,
+        DelayNotAllowedInImport,
+        EventNotAllowedInImport,
     };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)

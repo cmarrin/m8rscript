@@ -62,8 +62,8 @@ public:
     
     enum class Debug { None, Full };
     
-    Function* parse(m8r::Stream* stream, Debug);
-    Function* parseEval(m8r::Stream* stream, Function* parent);
+    Function* parse(const m8r::Stream& stream, Debug);
+    Function* parseImport(const m8r::Stream& stream, Function* parent);
 
 	void printError(const char* format, ...);
     void expectedError(Token token);

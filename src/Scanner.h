@@ -80,7 +80,7 @@ public:
   	{
     }
     
-    void setStream(m8r::Stream* istream) { _istream = istream; }
+    void setStream(const m8r::Stream* istream) { _istream = istream; }
   
     uint32_t lineno() const { return _lineno; }
   	
@@ -124,7 +124,7 @@ private:
     
   	mutable uint8_t _lastChar;
   	m8r::String _tokenString;
-  	m8r::Stream* _istream;
+  	const m8r::Stream* _istream;
     mutable uint32_t _lineno;
 
     Token _currentToken = Token::None;

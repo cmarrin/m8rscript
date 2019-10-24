@@ -85,9 +85,9 @@ bool ExecutionUnit::printError(CallReturnValue::Error error, const char* name) c
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
         case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
         case CallReturnValue::Error::SyntaxErrors: errorString = ROMSTR("syntax errors"); break;
-        case CallReturnValue::Error::EvalTimeout: errorString = ROMSTR("eval() timeout"); break;
-        case CallReturnValue::Error::DelayNotAllowedInEval: errorString = ROMSTR("delay not allowed in eval()"); break;
-        case CallReturnValue::Error::EventNotAllowedInEval: errorString = ROMSTR("event not allowed in eval()"); break;
+        case CallReturnValue::Error::ImportTimeout: errorString = ROMSTR("import() timeout"); break;
+        case CallReturnValue::Error::DelayNotAllowedInImport: errorString = ROMSTR("delay not allowed in import()"); break;
+        case CallReturnValue::Error::EventNotAllowedInImport: errorString = ROMSTR("event not allowed in import()"); break;
     }
     
     return printError(errorString, name);
@@ -352,12 +352,11 @@ static inline bool valuesAreInt(const Value& a, const Value& b)
     return a.isInteger() && b.isInteger();
 }
 
-CallReturnValue ExecutionUnit::eval(const String& s, Value thisValue)
+CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
 {
-    StringStream ss(s);
     Parser parser(_program);
     ErrorList syntaxErrors;
-    Function* function = parser.parseEval(&ss, nullptr);
+    Function* function = parser.parseImport(stream, nullptr);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         
