@@ -356,16 +356,31 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
 {
     Parser parser(_program);
     ErrorList syntaxErrors;
-    Function* function = parser.parseImport(stream, nullptr);
+    
+    // Contents of import are placed inside the parent Function and then they will
+    // be extracted into an Object
+    Function* parent = new Function(nullptr);
+    
+    Function* function = parser.parse(stream, Parser::Debug::None, parent);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         
         // TODO: Do something with syntaxErrors
         return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
     }
+    
+    // Get all the contents into a new object
+    Object* obj = new MaterObject();
+    
+    // Get any constant functions
+    for (auto it : *(function->constants())) {
+        Function* func = it.asFunction();
+        if (func && func->name()) {
+            obj->setProperty(this, func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
+        }
+    }
 
-    startFunction(function, thisValue.asObject(), 0, false);
-    return CallReturnValue(CallReturnValue::Type::FunctionStart);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
 CallReturnValue ExecutionUnit::continueExecution()

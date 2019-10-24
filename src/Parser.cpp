@@ -49,12 +49,12 @@ Parser::Parser(Program* program)
 {
 }
 
-Function* Parser::parse(const m8r::Stream& stream, Debug debug)
+Function* Parser::parse(const m8r::Stream& stream, Debug debug, Function* parent)
 {
     _debug = debug;
     _scanner.setStream(&stream);
     ParseEngine p(this);
-    _functions.emplace_back(_program, false);
+    _functions.emplace_back(parent ?: _program, false);
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;
@@ -65,19 +65,6 @@ Function* Parser::parse(const m8r::Stream& stream, Debug debug)
         }
     }
     return functionEnd();
-}
-
-Function* Parser::parseImport(const m8r::Stream& stream, Function* parent)
-{
-    // The contents of an eval string is an expression. We wrap this in a function
-    // which will make it a closure. When called, it will evaluate the expression
-    // in the context of the parent function
-    _debug = Debug::None;
-    _scanner.setStream(&stream);
-    ParseEngine p(this);
-    _functions.emplace_back(new Function(parent), false);
-
-    return nullptr;
 }
 
 void Parser::printError(const char* format, ...)
@@ -321,8 +308,8 @@ void Parser::emitId(const Atom& atom, IdType type)
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
-        for (uint32_t i = 0; i < currentFunction()->constantCount(); ++i) {
-            Object* func = currentFunction()->constant(ConstantId(i)).asObject();
+        for (uint32_t i = 0; i < currentFunction()->constants()->size(); ++i) {
+            Object* func = currentFunction()->constants()->at(ConstantId(i)).asObject();
             if (func) {
                 if (func->name() == atom) {
                     _parseStack.pushConstant(i);
@@ -835,7 +822,7 @@ uint32_t Parser::ParseStack::bake()
         }
         case Type::Constant: {
             uint32_t r = entry._reg;
-            Value v = _parser->currentFunction()->constant(ConstantId(r - MaxRegister - 1));
+            Value v = _parser->currentFunction()->constants()->at(ConstantId(r - MaxRegister - 1));
             Object* obj = v.asObject();
             Function* func = (obj && obj->isFunction()) ? reinterpret_cast<Function*>(obj) : nullptr;
             if (func) {

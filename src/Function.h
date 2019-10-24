@@ -72,10 +72,6 @@ public:
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
     
     ConstantId addConstant(const Value&);
-
-    Value constant(ConstantId id) const { return _constants[id.raw()]; }
-
-    size_t constantCount() const { return _constants.size(); }
         
     virtual const Vector(ConstantValue)*  constants() const override { return &_constants; }
     
