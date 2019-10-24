@@ -242,6 +242,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
         case Type::Null: return String("null");
         case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
+        case Type::CallableFunction: return String("Callable()"); // FIXME: Add formatted toString and show the address
     }
 }
 
@@ -276,6 +277,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         }
         case Type::Id:
         case Type::NativeObject:
+        case Type::CallableFunction:
         case Type::None:
         case Type::Null:
             return Float();
@@ -302,6 +304,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         }
         case Type::Id:
         case Type::NativeObject:
+        case Type::CallableFunction:
         case Type::None:
         case Type::Null:
             return Atom();
@@ -330,6 +333,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
         }
         case Type::Id:
         case Type::NativeObject:
+        case Type::CallableFunction:
         case Type::None:
         case Type::Null:
             break;
@@ -361,6 +365,9 @@ bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
+    if (isCallableFunction()) {
+        return asCallableFunction()(eu, thisValue, nparams);
+    }
     Object* obj = asObject();
     return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Error::CannotCall);
 }
@@ -401,6 +408,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         }
         case Type::Id:
         case Type::NativeObject:
+        case Type::CallableFunction:
         case Type::None:
         case Type::Null:
             return CallReturnValue(CallReturnValue::Error::CannotCall);

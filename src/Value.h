@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Containers.h"
 #include "Error.h"
 #include "Float.h"
+#include <functional>
 
 namespace m8r {
 
@@ -47,6 +48,7 @@ class Object;
 class Function;
 class ExecutionUnit;
 class Program;
+class Value;
 
 class CallReturnValue {
 public:
@@ -129,7 +131,11 @@ public:
 private:
     int32_t _value = 0;
 };
-        
+
+using CallableFunctionType = CallReturnValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
+using CallableFunction = std::function<CallableFunctionType>;
+using CallableFunctionPtr = CallableFunctionType*;
+
 class Value {
 public:
     typedef m8r::Map<Atom, Value> Map;
@@ -137,7 +143,15 @@ public:
     enum class Type : uint32_t {
         None = 0,
         Float = 1,
-        Object = 2, Function = 4, Integer = 6, String = 8, StringLiteral = 10, Id = 12, Null = 14, NativeObject = 16,
+        Object = 2,
+        Function = 4,
+        Integer = 6,
+        String = 8,
+        StringLiteral = 10,
+        Id = 12,
+        Null = 14,
+        NativeObject = 16,
+        CallableFunction = 18,
     };
 
     Value() { _value._float = 0; }
@@ -148,7 +162,8 @@ public:
     explicit Value(Function* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Function; }
     explicit Value(String* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::String; }
     explicit Value(NativeObject* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::NativeObject; }
-    
+    explicit Value(CallableFunctionPtr value) { assert(value); _value._raw = 0; _value._callable = value; _value._type = Type::CallableFunction; }
+
     explicit Value(int32_t value) { _value._raw = 0; _value._int = value; _value._type = Type::Integer; }
     explicit Value(Atom value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::Id; }
     explicit Value(StringLiteral value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::StringLiteral; }
@@ -176,7 +191,8 @@ public:
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     NativeObject* asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : nullptr; }
-    
+    CallableFunctionPtr asCallableFunction() { return (type() == Type::CallableFunction) ? callableFunctionFromValue() : nullptr; }
+
     m8r::String toStringValue(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const { return (type() == Type::Integer) ? (int32FromValue() != 0) : (toIntValue(eu) != 0); }
     Float toFloatValue(ExecutionUnit* eu) const
@@ -207,7 +223,8 @@ public:
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Function; }
-    
+    bool isCallableFunction() const { return type() == Type::CallableFunction; }
+
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);
     static bool toFloat(Float&, const char*, bool allowWhitespace = true);
@@ -240,6 +257,7 @@ private:
     inline String* stringFromValue() const { return reinterpret_cast<String*>(_value._ptr); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._int)); }
     inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._ptr); }
+    inline CallableFunctionPtr callableFunctionFromValue() { return _value._callable; }
     inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value._ptr); }
     inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
 
@@ -256,6 +274,7 @@ private:
                 union {
                     void* _ptr;
                     Object* _obj;
+                    CallableFunctionPtr _callable;
                 };
                 int32_t _int;
             };

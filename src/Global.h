@@ -86,7 +86,6 @@ private:
     NativeFunction _toUInt;
     NativeFunction _arguments;
     NativeFunction _import;
-    NativeFunction _importString;
 };
     
 }

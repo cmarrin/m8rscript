@@ -391,7 +391,7 @@ NativeFunction::NativeFunction(CallableFunction func, Program* program, SA sa, O
     }
 }
 
-ObjectFactory::ObjectFactory(Program* program, SA sa, ObjectFactory* parent, NativeFunction::CallableFunction constructor)
+ObjectFactory::ObjectFactory(Program* program, SA sa, ObjectFactory* parent, CallableFunction constructor)
     : _constructor(constructor, program, SA::constructor, this)
 {
     Atom name = ATOM(program, sa);
@@ -431,6 +431,11 @@ void ObjectFactory::addProperty(Program* program, SA sa, Object* obj)
 void ObjectFactory::addProperty(Program* program, SA sa, const Value& value)
 {
     addProperty(ATOM(program, sa), value);
+}
+
+void ObjectFactory::addProperty(Program* program, SA sa, CallableFunctionPtr f)
+{
+    addProperty(ATOM(program, sa), Value(f));    
 }
 
 Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)

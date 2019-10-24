@@ -75,13 +75,15 @@ Global::Global(Program* program)
     , _toUInt(toUInt, program, SA::toUInt, this)
     , _arguments(arguments, program, SA::arguments, this)
     , _import(import, program, SA::import, this)
-    , _importString(importString, program, SA::importString, this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
+    addProperty(program, SA::importString, importString);
+    
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
+    addProperty(program, SA::FS, system()->fileSystem());
 }
 
 Global::~Global()
