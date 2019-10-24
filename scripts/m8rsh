@@ -9,7 +9,7 @@
 var x = 5;
 var y = 7;
 var lib = importString("function f(a, b) { return a + b; }");
-var r = f(x, y);
+var r = lib.f(x, y);
 println(r);
 
 //function a() {
