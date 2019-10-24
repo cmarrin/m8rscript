@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Containers.h"
 #include "Error.h"
+#include "Object.h"
 #include <cstdint>
 #include <memory>
 
@@ -45,7 +46,7 @@ namespace m8r {
 class File;
 class Directory;
 
-class FS {
+class FS : public MaterObject {
     friend class File;
     
 public:
@@ -71,6 +72,8 @@ public:
     Error lastError() const { return _error; }
     
     static const char* errorString(Error);
+    
+    // m8rscript object methods
     
 protected:
     Error _error;
