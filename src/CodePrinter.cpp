@@ -96,7 +96,7 @@ String CodePrinter::regString(const Program* program, const Function* function, 
     }
     
     String s = String("K[") + Value::toString(reg - MaxRegister - 1) + "](";
-    showConstant(program, s, function->constants()->at(ConstantId(reg - MaxRegister - 1)), true);
+    showConstant(program, s, function->constants()->at(ConstantId(reg - MaxRegister - 1).raw()), true);
     s += ")";
     return s;
 }
@@ -250,7 +250,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         _nestingLevel++;
 
         for (uint8_t i = 1; i < function->constants()->size(); ++i) {
-            Value constant = function->constants()->at(ConstantId(i));
+            Value constant = function->constants()->at(ConstantId(i).raw());
             indentCode(outputString);
             outputString += "[" + Value::toString(i) + "] = ";
             showConstant(program, outputString, constant);

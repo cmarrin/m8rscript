@@ -380,6 +380,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
         }
     }
 
+    stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
