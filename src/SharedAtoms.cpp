@@ -51,6 +51,7 @@ static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
 static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
+static const char _eof[] ROMSTR_ATTR = "eof";
 static const char _getValue[] ROMSTR_ATTR = "getValue";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _length[] ROMSTR_ATTR = "length";
@@ -62,6 +63,7 @@ static const char _parse[] ROMSTR_ATTR = "parse";
 static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
+static const char _read[] ROMSTR_ATTR = "read";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setValue[] ROMSTR_ATTR = "setValue";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
@@ -73,6 +75,7 @@ static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char _write[] ROMSTR_ATTR = "write";
 static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
@@ -128,6 +131,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _disconnect,
     _done,
     _encode,
+    _eof,
     _getValue,
     _iterator,
     _length,
@@ -139,6 +143,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _print,
     _printf,
     _println,
+    _read,
     _send,
     _setValue,
     _setPinMode,
@@ -150,6 +155,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _toString,
     _trim,
     _value,
+    _write,
     ___index,
     ___nativeObject,
     ___object,

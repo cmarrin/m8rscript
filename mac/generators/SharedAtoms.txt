@@ -45,6 +45,7 @@ digitalWrite
 disconnect
 done
 encode
+eof
 getValue
 iterator
 length
@@ -56,6 +57,7 @@ parse
 print
 printf
 println
+read
 send
 setValue
 setPinMode
@@ -67,6 +69,7 @@ toUInt
 toString
 trim
 value
+write
 __index
 __nativeObject
 __object

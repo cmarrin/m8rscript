@@ -36,3 +36,46 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "StreamProto.h"
 
 using namespace m8r;
+
+StreamProto::StreamProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::Iterator, parent, constructor)
+    , _eof(eof, program, SA::eof, this)
+    , _read(read, program, SA::read, this)
+    , _write(write, program, SA::write, this)
+{
+}
+
+static bool constructor(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+{
+    // If there are 2 params, they are a filename and open mode (r, r+, w, w+, a, a+)
+    // for a FileStream
+    // If there is one param, it is a string for a StringStream.
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    Object* obj = eu->stack().top(1 - nparams).asObject();
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+    }
+    
+    thisValue.setProperty(eu, ATOM(eu, SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
+    
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+static bool eof(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+{
+
+}
+
+static bool read(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+{
+
+}
+
+static bool write(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+{
+
+}
