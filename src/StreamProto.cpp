@@ -45,7 +45,7 @@ StreamProto::StreamProto(Program* program, ObjectFactory* parent)
 {
 }
 
-static bool constructor(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+CallReturnValue StreamProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // If there are 2 params, they are a filename and open mode (r, r+, w, w+, a, a+)
     // for a FileStream
@@ -54,28 +54,20 @@ static bool constructor(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Object* obj = eu->stack().top(1 - nparams).asObject();
-    if (!obj) {
-        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
-    }
-    
-    thisValue.setProperty(eu, ATOM(eu, SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
-    thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
-    
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static bool eof(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+CallReturnValue StreamProto::eof(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static bool read(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+CallReturnValue StreamProto::read(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static bool write(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+CallReturnValue StreamProto::write(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
