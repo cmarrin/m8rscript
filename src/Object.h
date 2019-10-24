@@ -48,7 +48,9 @@ class Object;
 class Program;
 class Stream;
 
-typedef Value ConstantValue;
+using ConstantValue = Value;
+using ConstantValueVector = std::vector<ConstantValue, Mallocator<ConstantValue, MemoryType::ConstantValue>>;
+using InstructionVector = std::vector<Instruction, Mallocator<Instruction, MemoryType::Instruction>>;
 
 class Object {    
 public:
@@ -89,9 +91,9 @@ public:
     bool hasSet() const { return _hasSet; }
     
     // methods for Callable (m8rscript) objects
-    virtual const Vector(Instruction)* code() const { return nullptr; }
+    virtual const InstructionVector* code() const { return nullptr; }
     virtual uint32_t localSize() const { return 0; }
-    virtual const Vector(ConstantValue)*  constants() const { return nullptr; }
+    virtual const ConstantValueVector*  constants() const { return nullptr; }
     virtual uint32_t formalParamCount() const { return 0; }
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }

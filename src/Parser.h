@@ -275,7 +275,9 @@ private:
         bool _ctor = false;
     };
         
-    Vector(FunctionEntry) _functions;
+    using FunctionEntryVector = std::vector<FunctionEntry, Mallocator<FunctionEntry, MemoryType::FunctionEntry>>;
+
+    FunctionEntryVector _functions;
     
     std::vector<MaterObject*> _classes;
 
@@ -283,7 +285,7 @@ private:
     Program* _program;
     uint32_t _nerrors = 0;
     std::vector<size_t> _deferredCodeBlocks;
-    Vector(Instruction) _deferredCode;
+    InstructionVector _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     Debug _debug;

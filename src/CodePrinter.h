@@ -77,7 +77,7 @@ private:
         uint32_t addr;
         uint32_t uniqueID;
     };
-    typedef std::vector<Annotation> Annotations;
+    using Annotations = std::vector<Annotation>;
 
     uint32_t findAnnotation(uint32_t addr) const;
     void preamble(m8r::String& s, uint32_t addr) const;

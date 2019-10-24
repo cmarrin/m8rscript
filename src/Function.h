@@ -61,8 +61,8 @@ public:
         }
     }
 
-    virtual const Vector(Instruction)* code() const override { return &_code; }
-    Vector(Instruction)* code() { return &_code; }
+    virtual const InstructionVector* code() const override { return &_code; }
+    InstructionVector* code() { return &_code; }
 
     int32_t addLocal(const Atom& name);
     int32_t localIndex(const Atom& name) const;
@@ -73,7 +73,7 @@ public:
     
     ConstantId addConstant(const Value&);
         
-    virtual const Vector(ConstantValue)*  constants() const override { return &_constants; }
+    virtual const ConstantValueVector*  constants() const override { return &_constants; }
     
     void setName(const Atom s) { _name = s; }
     virtual Atom name() const override { return _name; }
@@ -119,10 +119,10 @@ private:
     
     std::vector<UpValueEntry> _upValues;
     
-    Vector(Instruction) _code;
+    InstructionVector _code;
     std::vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
-    Vector(ConstantValue) _constants;
+    ConstantValueVector _constants;
     uint8_t _tempRegisterCount = 0;
     Atom _name;
     Function* _parent = nullptr;

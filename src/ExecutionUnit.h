@@ -229,7 +229,11 @@ private:
         uint32_t _lineno;
     };
     
-    Vector(CallRecord) _callRecords;
+    using EventValue = Value;
+    using CallRecordVector = std::vector<CallRecord, Mallocator<CallRecord, MemoryType::CallRecord>>;
+    using EventValueVector = std::vector<EventValue, Mallocator<EventValue, MemoryType::EventValue>>;
+
+    CallRecordVector _callRecords;
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
@@ -248,9 +252,7 @@ private:
     mutable uint32_t _nerrors = 0;
     mutable bool _terminate = false;
     
-    typedef Value EventValue;
-
-    Vector(EventValue) _eventQueue;
+    EventValueVector _eventQueue;
     bool _executingEvent = false;
     uint32_t _numEventListeners = 0;
     

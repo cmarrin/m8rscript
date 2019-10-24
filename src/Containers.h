@@ -636,6 +636,4 @@ bool operator==(const Mallocator<T>&, const Mallocator<U>&) { return true; }
 template <class T, class U>
 bool operator!=(const Mallocator<T>&, const Mallocator<U>&) { return false; }
 
-#define Vector(type) std::vector<type, Mallocator<type, MemoryType::type>>
-
 }

@@ -36,8 +36,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Function.h"
-#include "Object.h"
-#include "Containers.h"
 
 namespace m8r {
 
@@ -91,9 +89,9 @@ public:
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;
     
-    virtual const Vector(Instruction)* code() const override { return _func->code(); }
+    virtual const InstructionVector* code() const override { return _func->code(); }
     virtual uint32_t localSize() const override { return _func->localSize(); }
-    virtual const Vector(ConstantValue)*  constants() const override { return _func->constants(); }
+    virtual const ConstantValueVector*  constants() const override { return _func->constants(); }
     virtual uint32_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
