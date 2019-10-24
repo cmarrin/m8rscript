@@ -11,6 +11,7 @@ static const char _Connected[] ROMSTR_ATTR = "Connected";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
 static const char _Error[] ROMSTR_ATTR = "Error";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
+static const char _FS[] ROMSTR_ATTR = "FS";
 static const char _Global[] ROMSTR_ATTR = "Global";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
 static const char _High[] ROMSTR_ATTR = "High";
@@ -36,14 +37,10 @@ static const char _TCPProto[] ROMSTR_ATTR = "TCPProto";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _UDP[] ROMSTR_ATTR = "UDP";
 static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
-static const char _a[] ROMSTR_ATTR = "a";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
-static const char _b[] ROMSTR_ATTR = "b";
-static const char _c[] ROMSTR_ATTR = "c";
 static const char _call[] ROMSTR_ATTR = "call";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
-static const char _d[] ROMSTR_ATTR = "d";
 static const char _decode[] ROMSTR_ATTR = "decode";
 static const char _delay[] ROMSTR_ATTR = "delay";
 static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
@@ -92,6 +89,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _Disconnected,
     _Error,
     _FallingEdge,
+    _FS,
     _Global,
     _GPIO,
     _High,
@@ -117,14 +115,10 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _Trigger,
     _UDP,
     _UDPProto,
-    _a,
     _arguments,
-    _b,
-    _c,
     _call,
     _constructor,
     _currentTime,
-    _d,
     _decode,
     _delay,
     _digitalRead,

@@ -5,6 +5,7 @@ Connected
 Disconnected 
 Error 
 FallingEdge
+FS
 Global
 GPIO
 High
@@ -30,14 +31,10 @@ TCPProto
 Trigger
 UDP
 UDPProto
-a
 arguments
-b
-c
 call
 constructor
 currentTime
-d
 decode
 delay
 digitalRead
