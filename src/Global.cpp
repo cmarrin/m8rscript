@@ -83,7 +83,7 @@ Global::Global(Program* program)
     addProperty(program, SA::Object, &_object);
     addProperty(program, SA::FS, system()->fileSystem());
     
-    addProperty(program, SA::consoleListener, Value());
+    addProperty(program, SA::consoleListener, Value::NullValue());
 }
 
 Global::~Global()

@@ -73,6 +73,8 @@ public:
         _eu.startExecution(program);
     }
     
+    void receivedChar(char c) { _eu.receivedChar(c); }
+
     Error error() const { return _error; }
 
 private:

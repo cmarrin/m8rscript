@@ -125,7 +125,9 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
-    
+
+    void receivedChar(char c);
+
     void startEventListening() { _numEventListeners++; }
     void stopEventListening() { _numEventListeners--; }
 
@@ -237,16 +239,16 @@ private:
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
-    Program* _program;
-    Object* _function;
-    Object* _this;
-    const Value* _constants;
-    Value* _framePtr;
+    Program* _program = nullptr;
+    Object* _function = nullptr;
+    Object* _this = nullptr;
+    const Value* _constants = nullptr;
+    Value* _framePtr = nullptr;
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
 
-    const Instruction* _code;
+    const Instruction* _code = nullptr;
     size_t _codeSize;
     
     mutable uint32_t _nerrors = 0;

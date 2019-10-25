@@ -6,11 +6,11 @@
 //printf("fake result=%d\n", b(3, 5));
 
 // Test import
-var x = 5;
-var y = 7;
-var lib = importString("function f(a, b) { return a + b; }");
-var r = lib.f(x, y);
-println(r);
+//var x = 5;
+//var y = 7;
+//var lib = importString("function f(a, b) { return a + b; }");
+//var r = lib.f(x, y);
+//println(r);
 
 //function a() {
 //    return x + y;
@@ -21,3 +21,8 @@ println(r);
 //var a = new IPAddr("127.0.0.1");
 //println(a);
 //println(IPAddr);
+
+consoleListener = function(c) { printf("GOT A CHAR!!! '%d'\n", c); };
+while(1) {
+    delay(1000);
+}

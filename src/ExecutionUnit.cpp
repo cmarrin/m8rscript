@@ -140,7 +140,16 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
             return;
         }
     }
-    
+
+    // See if it's in global
+    Value oldValue = _program->global()->property(this, atom);
+    if (oldValue) {
+        if (!_program->global()->setProperty(this, atom, value, Value::SetPropertyType::AddIfNeeded)) {
+            printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
+        }
+        return;
+    }
+
     // FIXME: Do we ever want to set a property in program or global object?
     printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom).c_str());
     return;
@@ -244,6 +253,16 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     }
 
     system()->unlock();
+}
+
+void ExecutionUnit::receivedChar(char c)
+{
+    // Get the consoleListener from Global and use that to fire an event
+    Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
+    Value arg(static_cast<int32_t>(c));
+    if (listener) {
+        fireEvent(listener, Value(), &arg, 1);
+    }
 }
 
 CallReturnValue ExecutionUnit::runNextEvent()

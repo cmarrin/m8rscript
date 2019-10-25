@@ -69,6 +69,7 @@ Task::Task(const char* filename)
         system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
             syntaxErrors.swap(parser.syntaxErrors());
+            _error = Error::Code::ParseError;
             return;
         }
         

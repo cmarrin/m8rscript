@@ -58,7 +58,7 @@ public:
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
                 _shells[connectionId] = new Task(Application::shellName());
-                if (_shells[connectionId]->error()) {
+                if (_shells[connectionId]->error() != Error::Code::OK) {
                     Error::printError(_shells[connectionId]->error().code());
                     _shells[connectionId] = nullptr;
                     tcp->disconnect(connectionId);
@@ -73,10 +73,11 @@ public:
                 }
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
-                // FIXME: We need an Object to send to the shell that controls console I/O, essentially stdin and stdout
-                //if (_shells[connectionId] && !_shells[connectionId]->received(data, length)) {
-                //    _tcp->disconnect(connectionId);
-                //}
+                if (_shells[connectionId]) {
+                    for (int16_t i = 0; i < length; ++i) {
+                        _shells[connectionId]->receivedChar(data[i]);
+                    }
+                }
                 break;
             case m8r::TCPDelegate::Event::SentData:
                 //if (_shells[connectionId]) {
