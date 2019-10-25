@@ -54,6 +54,7 @@ enum class SA {
     importString,
     iterator,
     length,
+    consoleListener,
     lookupHostname,
     next,
     onInterrupt,

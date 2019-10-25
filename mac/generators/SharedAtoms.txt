@@ -51,6 +51,7 @@ import
 importString
 iterator
 length
+consoleListener
 lookupHostname
 next
 onInterrupt
