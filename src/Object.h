@@ -124,6 +124,8 @@ public:
     
     static void memoryInfo(MemoryInfo&);
     
+    Atom typeName(ExecutionUnit*) const;
+    
 protected:
     void setProto(Object* obj) { _proto = obj; }
     Object* proto() const { return _proto; }

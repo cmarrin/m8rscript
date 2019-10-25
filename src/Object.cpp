@@ -163,6 +163,12 @@ void Object::gc(ExecutionUnit* eu, bool force)
     }
 }
 
+Atom Object::typeName(ExecutionUnit* eu) const
+{
+    Value nameValue = property(eu, ATOM(eu, SA::__typeName));
+    return nameValue.asIdValue();
+}
+
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {

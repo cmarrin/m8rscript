@@ -311,6 +311,20 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
+bool Value::isType(ExecutionUnit* eu, Atom atom)
+{
+    if (!isObject()) {
+        return false;
+    }
+    Atom typeAtom = asObject()->typeName(eu);
+    return typeAtom == atom;
+}
+
+bool Value::isType(ExecutionUnit* eu, SA sa)
+{
+    return isType(eu, ATOM(eu, sa));
+}
+
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
     switch(type()) {
