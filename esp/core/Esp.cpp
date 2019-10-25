@@ -225,6 +225,13 @@ void *memchr(const void *s, int c, size_t n)
     return 0;
 }
 
+int snprintf ( char * s, size_t n, const char * format, ... )
+{
+    va_list args;
+    va_start(args, format);
+    return ets_vsnprintf(s, n, format, args);
+}
+
 void* ROMmemcpy(void* dst, const void* src, size_t len)
 {
     uint8_t* s = (uint8_t*) src;
