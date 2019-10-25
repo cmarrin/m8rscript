@@ -461,7 +461,7 @@ SpiffsFile::SpiffsFile(const char* name, spiffs_flags flags)
     _error = (_file < 0) ? SpiffsFS::mapSpiffsError(_file) : Error::Code::OK;
 }
 
-void SpiffsFile:: close()
+void SpiffsFile::close()
 {
     SPIFFS_close(SpiffsFS::sharedSpiffs(), _file);
     _error = Error::Code::FileClosed;

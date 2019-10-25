@@ -2,9 +2,11 @@ Array
 Base64
 BothEdges
 Connected
+Directory
 Disconnected 
 Error 
 FallingEdge
+File
 FS
 Global
 GPIO

@@ -94,6 +94,7 @@ public:
         ImportTimeout,
         DelayNotAllowedInImport,
         EventNotAllowedInImport,
+        Error,
     };
     
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
@@ -222,6 +223,9 @@ public:
     bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Function; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }
+    
+    bool isType(ExecutionUnit*, Atom);
+    bool isType(ExecutionUnit*, SA);
 
     static m8r::String toString(Float value);
     static m8r::String toString(int32_t value);

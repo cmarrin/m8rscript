@@ -8,9 +8,11 @@ static const char _Array[] ROMSTR_ATTR = "Array";
 static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
 static const char _Connected[] ROMSTR_ATTR = "Connected";
+static const char _Directory[] ROMSTR_ATTR = "Directory";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
 static const char _Error[] ROMSTR_ATTR = "Error";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
+static const char _File[] ROMSTR_ATTR = "File";
 static const char _FS[] ROMSTR_ATTR = "FS";
 static const char _Global[] ROMSTR_ATTR = "Global";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
@@ -86,9 +88,11 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _Base64,
     _BothEdges,
     _Connected,
+    _Directory,
     _Disconnected,
     _Error,
     _FallingEdge,
+    _File,
     _FS,
     _Global,
     _GPIO,
