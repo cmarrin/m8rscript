@@ -387,6 +387,10 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 ObjectFactory::ObjectFactory(Program* program, SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
+    if (!program) {
+        return;
+    }
+    
     Atom name = ATOM(program, sa);
     if (name) {
         _obj.setProperty(ATOM(program, SA::__typeName), Value(name));

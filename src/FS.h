@@ -95,11 +95,10 @@ private:
     static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
-class Directory {
+class Directory : public ObjectFactory {
     friend class FS;
     
 public:
-    Directory() { }
     virtual  ~Directory() { }
 
     const String& name() const { return _name; }
@@ -110,12 +109,21 @@ public:
     virtual bool next() = 0;
     
 protected:
+    Directory() : ObjectFactory(nullptr, SA::Directory) { }
+
     Error _error;
     String _name;
     uint32_t _size = 0;
+
+private:
+    static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
-class File {
+class File : public ObjectFactory {
     friend class FS;
     
 public:
@@ -148,9 +156,22 @@ public:
     Type type() const { return _type; }
 
 protected:
+    File() : ObjectFactory(nullptr, SA::File) { }
+
     Error _error;
     Type _type = Type::Unknown;
     FS::FileOpenMode _mode = FS::FileOpenMode::Read;
+
+private:        
+    static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }
