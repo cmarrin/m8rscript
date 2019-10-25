@@ -38,8 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "ExecutionUnit.h"
 #include "MStream.h"
 #include "SystemInterface.h"
-#include "slre.h"
-#include <string>
 
 using namespace m8r;
 
@@ -113,94 +111,7 @@ CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t npara
 
 CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
-    
-    size_t formatRegexSize = ROMstrlen(formatRegexROM);
-    char* formatRegex = new char[formatRegexSize];
-    ROMmemcpy(formatRegex, formatRegexROM, formatRegexSize);
-    
-    int32_t nextParam = 1 - nparams;
-
-    String format = eu->stack().top(nextParam++).toStringValue(eu);
-    int size = static_cast<int>(format.size());
-    const char* start = format.c_str();
-    const char* s = start;
-    while (true) {
-        struct slre_cap caps[5];
-        memset(caps, 0, sizeof(caps));
-        int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
-        if (nextParam > 0 || next == SLRE_NO_MATCH) {
-            // Print the remainder of the string
-            system()->printf(s);
-            delete [ ] formatRegex;
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-        if (next < 0) {
-            delete [ ] formatRegex;
-            return CallReturnValue(CallReturnValue::Error::BadFormatString);
-        }
-        
-        // Output anything from s to the '%'
-        assert(caps[0].len == 1);
-        if (s != caps[0].ptr) {
-            String str(s, static_cast<int32_t>(caps[0].ptr - s));
-            system()->printf(str.c_str());
-        }
-        
-        // FIXME: handle the leading number(s) in the format
-        assert(caps[4].len == 1);
-        
-        uint32_t width = 0;
-        bool zeroFill = false;
-        if (caps[1].len) {
-            Value::toUInt(width, caps[1].ptr);
-            if (caps[1].ptr[0] == '0') {
-                zeroFill = true;
-            }
-        }
-        
-        Value value = eu->stack().top(nextParam++);
-        char formatChar = *(caps[4].ptr);
-        String format = String("%") + (zeroFill ? "0" : "") + (width ? Value::toString(width).c_str() : "");
-        
-        switch (formatChar) {
-            case 'c':
-                system()->printf(ROMSTR("%c"), value.toIntValue(eu));
-                break;
-            case 's':
-                system()->printf(ROMSTR("%s"), value.toStringValue(eu).c_str());
-                break;
-            case 'd':
-            case 'i':
-                format += "d";
-                system()->printf(format.c_str(), value.toIntValue(eu));
-                break;
-            case 'x':
-            case 'X':
-                format += (formatChar == 'x') ? "x" : "X";
-                system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
-                break;
-            case 'u':
-                format += "u";
-                system()->printf(format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
-                break;
-            case 'f':
-            case 'e':
-            case 'E':
-            case 'g':
-            case 'G':
-                system()->printf(ROMSTR("%s"), value.toStringValue(eu).c_str());
-                break;
-            case 'p':
-                system()->printf(ROMSTR("%p"), *(reinterpret_cast<void**>(&value)));
-                break;
-            default:
-                delete [ ] formatRegex;
-                return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
-        }
-        
-        s += next;
-    }
+    return Value::format(eu, thisValue, nparams);
 }
 
 CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

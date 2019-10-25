@@ -45,6 +45,7 @@ disconnect
 done
 encode
 eof
+format
 getValue
 import
 importString

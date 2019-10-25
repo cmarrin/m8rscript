@@ -40,6 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Object.h"
 #include "Program.h"
 #include "Scanner.h"
+#include "slre.h"
 
 using namespace m8r;
 
@@ -311,6 +312,121 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
+CallReturnValue Value::format(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // thisValue is the format string
+    String* format = thisValue.asString();
+    if (!format) {
+        return CallReturnValue(CallReturnValue::Error::BadFormatString);
+    }
+    
+    String resultString;
+    
+    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
+        
+    size_t formatRegexSize = ROMstrlen(formatRegexROM);
+    char* formatRegex = new char[formatRegexSize];
+    ROMmemcpy(formatRegex, formatRegexROM, formatRegexSize);
+    
+    int32_t nextParam = 1 - nparams;
+
+    int size = static_cast<int>(format->size());
+    const char* start = format->c_str();
+    const char* s = start;
+    while (true) {
+        struct slre_cap caps[5];
+        memset(caps, 0, sizeof(caps));
+        int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
+        if (nextParam > 0 || next == SLRE_NO_MATCH) {
+            // Print the remainder of the string
+            resultString += s;
+            delete [ ] formatRegex;
+            eu->stack().push(Value(resultString));
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+        }
+        if (next < 0) {
+            delete [ ] formatRegex;
+            return CallReturnValue(CallReturnValue::Error::BadFormatString);
+        }
+        
+        // Output anything from s to the '%'
+        assert(caps[0].len == 1);
+        if (s != caps[0].ptr) {
+            resultString += String(s, static_cast<int32_t>(caps[0].ptr - s));
+        }
+        
+        // FIXME: handle the leading number(s) in the format
+        assert(caps[4].len == 1);
+        
+        uint32_t width = 0;
+        bool zeroFill = false;
+        if (caps[1].len) {
+            Value::toUInt(width, caps[1].ptr);
+            if (caps[1].ptr[0] == '0') {
+                zeroFill = true;
+            }
+        }
+        
+        Value value = eu->stack().top(nextParam++);
+        char formatChar = *(caps[4].ptr);
+        
+        switch (formatChar) {
+            case 'c':
+                resultString += static_cast<char>(value.toIntValue(eu));
+                break;
+            case 's':
+                resultString += value.toStringValue(eu);
+                break;
+            case 'd':
+            case 'i':
+            case 'x':
+            case 'X':
+            case 'u': {
+                String format = String("%") + (zeroFill ? "0" : "") + (width ? Value::toString(width).c_str() : "");
+                char numberBuf[20] = "";
+                
+                switch(formatChar) {
+                    case 'd':
+                    case 'i':
+                        format += "d";
+                        ::snprintf(numberBuf, 20, format.c_str(), value.toIntValue(eu));
+                        break;
+                    case 'x':
+                    case 'X':
+                        format += (formatChar == 'x') ? "x" : "X";
+                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
+                        break;
+                    case 'u':
+                        format += "u";
+                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
+                        break;
+                }
+                
+                resultString += numberBuf;
+                break;
+            }
+            case 'f':
+            case 'e':
+            case 'E':
+            case 'g':
+            case 'G':
+                resultString += value.toStringValue(eu);
+                break;
+            case 'p': {
+                char pointerBuf[20] = "";
+                snprintf(pointerBuf, 20, "%p", *(reinterpret_cast<void**>(&value)));
+                resultString += pointerBuf;
+                break;
+            }
+            default:
+                delete [ ] formatRegex;
+                return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
+        }
+        
+        s += next;
+    }
+}
+
 bool Value::isType(ExecutionUnit* eu, Atom atom)
 {
     if (!isObject()) {
@@ -401,6 +517,9 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
+            if (prop == ATOM(eu, SA::format)) {
+                return format(eu, *this, nparams);
+            }
             if (prop == ATOM(eu, SA::trim)) {
                 s = s.trim();
                 eu->stack().push(Value(Object::createString(s)));

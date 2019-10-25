@@ -51,6 +51,7 @@ static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _eof[] ROMSTR_ATTR = "eof";
+static const char _format[] ROMSTR_ATTR = "format";
 static const char _getValue[] ROMSTR_ATTR = "getValue";
 static const char _import[] ROMSTR_ATTR = "import";
 static const char _importString[] ROMSTR_ATTR = "importString";
@@ -131,6 +132,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _done,
     _encode,
     _eof,
+    _format,
     _getValue,
     _import,
     _importString,

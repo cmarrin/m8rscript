@@ -48,6 +48,7 @@ enum class SA {
     done,
     encode,
     eof,
+    format,
     getValue,
     import,
     importString,

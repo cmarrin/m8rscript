@@ -233,6 +233,8 @@ public:
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
+    static CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
     void gcMark(ExecutionUnit* eu);
     
     enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
