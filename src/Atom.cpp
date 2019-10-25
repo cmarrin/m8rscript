@@ -69,13 +69,7 @@ Atom AtomTable::atomizeString(const char* romstr) const
         return Atom(static_cast<uint16_t>(index));
     }
     
-    index = findAtom(s);
-    if (index >= 0) {
-        delete [ ] s;
-        return Atom(static_cast<uint16_t>(index));
-    }
-
-    if (_table.size() == 0) {
+     if (_table.size() == 0) {
         _table.push_back('\0');
     }
     
