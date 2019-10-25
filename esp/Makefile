@@ -39,6 +39,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/Containers.cpp \
 		../src/Error.cpp \
 		../src/ExecutionUnit.cpp \
+		../src/FS.cpp \
 		../src/Function.cpp \
 		../src/Global.cpp \
 		../src/GPIO.cpp \
