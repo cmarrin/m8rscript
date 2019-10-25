@@ -113,7 +113,11 @@ CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t npara
 
 CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    static const char* formatRegex = "(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])";
+    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
+    
+    size_t formatRegexSize = ROMstrlen(formatRegexROM);
+    char* formatRegex = new char[formatRegexSize];
+    ROMmemcpy(formatRegex, formatRegexROM, formatRegexSize);
     
     int32_t nextParam = 1 - nparams;
 
@@ -128,9 +132,11 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
             system()->printf(s);
+            delete [ ] formatRegex;
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
         }
         if (next < 0) {
+            delete [ ] formatRegex;
             return CallReturnValue(CallReturnValue::Error::BadFormatString);
         }
         
@@ -159,10 +165,10 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
         
         switch (formatChar) {
             case 'c':
-                system()->printf("%c", value.toIntValue(eu));
+                system()->printf(ROMSTR("%c"), value.toIntValue(eu));
                 break;
             case 's':
-                system()->printf("%s", value.toStringValue(eu).c_str());
+                system()->printf(ROMSTR("%s"), value.toStringValue(eu).c_str());
                 break;
             case 'd':
             case 'i':
@@ -183,12 +189,14 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
             case 'E':
             case 'g':
             case 'G':
-                system()->printf("%s", value.toStringValue(eu).c_str());
+                system()->printf(ROMSTR("%s"), value.toStringValue(eu).c_str());
                 break;
             case 'p':
-                system()->printf("%p", *(reinterpret_cast<void**>(&value)));
+                system()->printf(ROMSTR("%p"), *(reinterpret_cast<void**>(&value)));
                 break;
-            default: return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
+            default:
+                delete [ ] formatRegex;
+                return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
         }
         
         s += next;
@@ -200,7 +208,7 @@ CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t npa
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         system()->printf(eu->stack().top(i).toStringValue(eu).c_str());
     }
-    system()->printf("\n");
+    system()->printf(ROMSTR("\n"));
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
