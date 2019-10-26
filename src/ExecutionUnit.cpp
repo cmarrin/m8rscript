@@ -265,6 +265,8 @@ void ExecutionUnit::receivedChar(char c)
     }
 }
 
+// This function will only ever return MSDelay, Yield, WaitForEvent and Error.
+// everything else is handled
 CallReturnValue ExecutionUnit::runNextEvent()
 {
     // Each event is at least 3 entries long. First is the function, followed by the this pointer
@@ -304,7 +306,14 @@ CallReturnValue ExecutionUnit::runNextEvent()
                 _stack.pop(callReturnValue.returnCount());
             }
             _stack.pop(nargs);
+            callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
+        } else if (callReturnValue.isFunctionStart()) {
+            updateCodePointer();
+            callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
+        } else if (callReturnValue.isFinished() || callReturnValue.isTerminated()) {
+            callReturnValue = CallReturnValue(CallReturnValue::Error::InternalError);
         }
+
         return callReturnValue;
     }
     
@@ -471,7 +480,17 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
 
     L_YIELD:
-        return CallReturnValue(CallReturnValue::Type::Yield);
+        callReturnValue = runNextEvent();
+        
+        // The only returns we expect are MsDelay, Yield, WaitForEvent and Error
+        // In this case if it's WaitForEvent it means there are no events
+        // in the queue. But since we're in a Yield, we want to yield instead
+        if (callReturnValue.isError()) {
+            printError(callReturnValue.error());
+            return CallReturnValue(CallReturnValue::Type::Finished);
+        }
+        
+        return callReturnValue.isWaitForEvent() ? CallReturnValue(CallReturnValue::Type::Yield) : callReturnValue;
 
     L_RET:
     L_RETX:
@@ -503,18 +522,14 @@ CallReturnValue ExecutionUnit::continueExecution()
                 
                 callReturnValue = runNextEvent();
 
+                // The only returns we expect are MsDelay, Yield, WaitForEvent and Error
+                // Since we're ending we ignore MsDelay as long as there are no listeners
                 if (callReturnValue.isError()) {
                     printError(callReturnValue.error());
                     return CallReturnValue(CallReturnValue::Type::Finished);
                 }
-
-                // If the callReturnValue is FunctionStart it means we've called a Function and it just
-                // setup the EU to execute it. In that case just continue
-                if (callReturnValue.isFunctionStart()) {
-                    updateCodePointer();
-                    DISPATCH;
-                }
-                return CallReturnValue(_numEventListeners ? CallReturnValue::Type::WaitForEvent : CallReturnValue::Type::Finished);
+                
+                return CallReturnValue(_numEventListeners ? callReturnValue : CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
         }
