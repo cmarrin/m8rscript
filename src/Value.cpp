@@ -324,7 +324,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     
     static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
-    size_t formatRegexSize = ROMstrlen(formatRegexROM);
+    size_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
     char* formatRegex = new char[formatRegexSize];
     ROMmemcpy(formatRegex, formatRegexROM, formatRegexSize);
     
@@ -370,9 +370,32 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
         char formatChar = *(caps[4].ptr);
         
         switch (formatChar) {
-            case 'c':
-                resultString += static_cast<char>(value.toIntValue(eu));
+            case 'c': {
+                uint8_t uc = static_cast<char>(value.toIntValue(eu));
+                char escapeChar = '\0';
+                switch(uc) {
+                    case 0x07: escapeChar = 'a'; break;
+                    case 0x08: escapeChar = 'b'; break;
+                    case 0x09: escapeChar = 't'; break;
+                    case 0x0a: escapeChar = 'n'; break;
+                    case 0x0b: escapeChar = 'v'; break;
+                    case 0x0c: escapeChar = 'f'; break;
+                    case 0x0d: escapeChar = 'r'; break;
+                    case 0x1b: escapeChar = 'e'; break;
+                }
+                if (escapeChar) {
+                    resultString += '\\';
+                    resultString += escapeChar;
+                } else if (uc < ' ') {
+                    char buf[4] = "";
+                    ::snprintf(buf, 3, "%02x", uc);
+                    resultString += "\\x";
+                    resultString += buf;
+                } else {
+                    resultString += static_cast<char>(uc);
+                }
                 break;
+            }
             case 's':
                 resultString += value.toStringValue(eu);
                 break;

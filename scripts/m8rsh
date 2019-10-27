@@ -22,7 +22,15 @@
 //println(a);
 //println(IPAddr);
 
-consoleListener = function(c) { printf("GOT A CHAR!!! '%d'\n", c); };
-while(1) {
+var done = false;
+consoleListener =   function(c)
+                    {
+                        printf("GOT A CHAR!!! '%c'\n", c);
+                        if (c == 0x06) {
+                            printf("EXITING!!!\n");
+                            done = true;
+                        }
+                    };
+while(!done) {
     delay(1000);
 }
