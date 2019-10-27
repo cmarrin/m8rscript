@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Containers.h"
 #include "Error.h"
 #include "Float.h"
+#include "SystemTime.h"
 #include <functional>
 
 namespace m8r {
@@ -125,7 +126,7 @@ public:
     bool isYield() const { return _value == YieldValue; }
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
     bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
-    uint32_t msDelay() const { assert(isMsDelay()); return -_value; }
+    Duration msDelay() const { assert(isMsDelay()); return Duration(-_value, Duration::Units::ms); }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
     Error error() const { assert(_value >= ErrorValue); return static_cast<Error>(_value - ErrorValue); }
 
