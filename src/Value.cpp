@@ -312,12 +312,12 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
-CallReturnValue Value::format(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
 {
     // thisValue is the format string
-    String* format = thisValue.asString();
-    if (!format) {
-        return CallReturnValue(CallReturnValue::Error::BadFormatString);
+    String format = formatValue.toStringValue(eu);
+    if (format.empty()) {
+        return String();
     }
     
     String resultString;
@@ -330,8 +330,8 @@ CallReturnValue Value::format(ExecutionUnit* eu, Value thisValue, uint32_t npara
     
     int32_t nextParam = 1 - nparams;
 
-    int size = static_cast<int>(format->size());
-    const char* start = format->c_str();
+    int size = static_cast<int>(format.size());
+    const char* start = format.c_str();
     const char* s = start;
     while (true) {
         struct slre_cap caps[5];
@@ -341,12 +341,11 @@ CallReturnValue Value::format(ExecutionUnit* eu, Value thisValue, uint32_t npara
             // Print the remainder of the string
             resultString += s;
             delete [ ] formatRegex;
-            eu->stack().push(Value(resultString));
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+            return resultString;
         }
         if (next < 0) {
             delete [ ] formatRegex;
-            return CallReturnValue(CallReturnValue::Error::BadFormatString);
+            return String();
         }
         
         // Output anything from s to the '%'
@@ -420,7 +419,7 @@ CallReturnValue Value::format(ExecutionUnit* eu, Value thisValue, uint32_t npara
             }
             default:
                 delete [ ] formatRegex;
-                return CallReturnValue(CallReturnValue::Error::UnknownFormatSpecifier);
+                return String();
         }
         
         s += next;
@@ -518,7 +517,9 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::String: {
             String s = toStringValue(eu);
             if (prop == ATOM(eu, SA::format)) {
-                return format(eu, *this, nparams);
+                String s = Value::format(eu, eu->stack().top(1 - nparams), nparams - 1);
+                eu->stack().push(Value(s));
+                return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             if (prop == ATOM(eu, SA::trim)) {
                 s = s.trim();

@@ -113,7 +113,15 @@ CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t npara
 
 CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    return Value::format(eu, thisValue, nparams);
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Error::BadFormatString);
+    }
+    String s = Value::format(eu, eu->stack().top(1 - nparams), nparams - 1);
+    if (s.empty()) {
+        return CallReturnValue(CallReturnValue::Error::BadFormatString);
+    }
+    system()->printf(ROMSTR("%s"), s.c_str());
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
