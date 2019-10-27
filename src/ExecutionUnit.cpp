@@ -111,11 +111,9 @@ void ExecutionUnit::gcMark()
     
     _program->gcMark();
 
-    system()->lock();
     for (auto it : _eventQueue) {
         it.gcMark();
     }
-    system()->unlock();
 }
 
 Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const

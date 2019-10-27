@@ -79,11 +79,13 @@ static constexpr int32_t MaxCountSinceLastGC = 50;
 
 void Object::gc(bool force)
 {
+    system()->lock();
     bool didFullCycle = gcState == GCState::ClearMarkedObj;
     while (1) {
         switch(gcState) {
             case GCState::ClearMarkedObj:
                 if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
+                    system()->unlock();
                     return;
                 }
 //    #ifndef NDEBUG
@@ -148,6 +150,7 @@ void Object::gc(bool force)
                 gcState = GCState::ClearMarkedObj;
                 
                 if (!force || didFullCycle) {
+                    system()->unlock();
                     return;
                 }
                 didFullCycle = true;
@@ -158,6 +161,7 @@ void Object::gc(bool force)
             break;
         }
     }
+    system()->unlock();
 }
 
 Atom Object::typeName(ExecutionUnit* eu) const
