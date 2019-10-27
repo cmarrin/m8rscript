@@ -72,13 +72,16 @@ public:
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : Object::toString(eu, false); }
 
-    virtual void gcMark(ExecutionUnit* eu) override
+    virtual void gcMark() override
     {
-        Object::gcMark(eu);
-        _func->gcMark(eu);
-        _thisValue.gcMark(eu);
+        if (isMarked()) {
+            return;
+        }
+        Object::gcMark();
+        _func->gcMark();
+        _thisValue.gcMark();
         for (auto it : _upValues) {
-            it->value().gcMark(eu);
+            it->value().gcMark();
             it->setMarked(true);
         }
     }

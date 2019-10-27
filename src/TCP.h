@@ -95,10 +95,10 @@ public:
     MyTCPDelegate(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
     virtual ~MyTCPDelegate();
 
-    virtual void gcMark(ExecutionUnit* eu) override
+    virtual void gcMark() override
     {
-        _func.gcMark(eu);
-        _parent.gcMark(eu);
+        _func.gcMark();
+        _parent.gcMark();
     }
 
     void send(int16_t connectionId, const char* data, uint16_t size)

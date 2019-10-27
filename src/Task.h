@@ -64,14 +64,17 @@ private:
 
 class Task : public TaskBase {
 public:
-    Task() { }
+    Task() { Object::addEU(&_eu); }
     
     Task(const char* filename);
     
     Task(Program* program)
     {
+        Object::addEU(&_eu);
         _eu.startExecution(program);
     }
+    
+    ~Task() { Object::removeEU(&_eu); }
     
     void receivedChar(char c) { _eu.receivedChar(c); }
 

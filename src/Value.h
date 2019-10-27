@@ -236,7 +236,7 @@ public:
     
     static CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
-    void gcMark(ExecutionUnit* eu);
+    void gcMark();
     
     enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
 

@@ -48,6 +48,8 @@ using namespace m8r;
 
 Task::Task(const char* filename)
 {
+    Object::addEU(&_eu);
+    
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
     Parser::Debug debug = Parser::Debug::None;

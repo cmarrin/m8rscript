@@ -548,7 +548,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
     }
 }
 
-void Value::gcMark(ExecutionUnit* eu)
+void Value::gcMark()
 {
     String* string = asString();
     if (string) {
@@ -558,6 +558,6 @@ void Value::gcMark(ExecutionUnit* eu)
     
     Object* obj = asObject();
     if (obj) {
-        obj->gcMark(eu);
+        obj->gcMark();
     }
 }

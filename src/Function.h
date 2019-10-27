@@ -53,11 +53,14 @@ public:
         
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
 
-    virtual void gcMark(ExecutionUnit* eu) override
+    virtual void gcMark() override
     {
-        Object::gcMark(eu);
+        if (isMarked()) {
+            return;
+        }
+        Object::gcMark();
         for (auto it : _constants) {
-            it.gcMark(eu);
+            it.gcMark();
         }
     }
 

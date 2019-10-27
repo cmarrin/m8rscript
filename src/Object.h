@@ -67,7 +67,7 @@ public:
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
-    virtual void gcMark(ExecutionUnit* eu) { _gcMark(eu); }
+    virtual void gcMark() { gcMark(this); gcMark(_proto);; }
     
     virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
     
@@ -113,7 +113,18 @@ public:
         }
     }
 
-    static void gc(ExecutionUnit*, bool force);
+    static void addEU(ExecutionUnit* eu) { _euStore.push_back(eu); }
+    static void removeEU(ExecutionUnit* eu)
+    {
+        for (auto it = _euStore.begin(); it != _euStore.end(); ++it) {
+            if (*it == eu) {
+                _euStore.erase(it);
+                return;
+            }
+        }
+    }
+
+    static void gc(bool force = false);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }
@@ -135,8 +146,6 @@ protected:
     void setHasSet(bool b) { _hasSet = b; }
     
 private:
-    void _gcMark(ExecutionUnit*);
-
     Object* _proto = nullptr;
     bool _marked : 1;
     bool _hasIterator : 1;
@@ -146,6 +155,7 @@ private:
     static std::vector<String*> _stringStore;
     static std::vector<Object*> _objectStore;
     static std::vector<Object*> _staticObjects;
+    static std::vector<ExecutionUnit*> _euStore;
 };
 
 class MaterObject : public Object {
@@ -155,7 +165,7 @@ public:
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
 
-    virtual void gcMark(ExecutionUnit* eu) override;
+    virtual void gcMark() override;
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
@@ -195,7 +205,7 @@ public:
     NativeObject() { }
     virtual ~NativeObject() { }
 
-    virtual void gcMark(ExecutionUnit* eu) { }
+    virtual void gcMark() { }
 };
 
 class ObjectFactory {

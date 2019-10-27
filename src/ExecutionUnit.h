@@ -147,7 +147,7 @@ private:
             if (_terminate) {
                 return Op::END;
             }
-            Object::gc(this, false);
+            Object::gc();
             if (checkCounter == 0) {
                 return Op::YIELD;
             }

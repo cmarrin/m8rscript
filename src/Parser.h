@@ -56,10 +56,8 @@ class Parser  {
 public:
     Parser(Program* = nullptr);
     
-    ~Parser()
-    {
-    }
-    
+    ~Parser();
+        
     enum class Debug { None, Full };
     
     Function* parse(const m8r::Stream& stream, Debug, Function* parent = nullptr);

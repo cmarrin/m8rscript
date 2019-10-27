@@ -46,6 +46,12 @@ public:
     Program();
     ~Program();
 
+    virtual void gcMark() override
+    {
+        Function::gcMark();
+        _global.nativeObject()->gcMark();
+    }
+
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
     const Object* global() const { return _global.nativeObject(); }

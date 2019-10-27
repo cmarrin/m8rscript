@@ -101,18 +101,19 @@ void ExecutionUnit::objectError(const char* s) const
 
 void ExecutionUnit::gcMark()
 {
-    assert(_program);
-    Object::gcMark(_program);
-    
-    for (auto entry : _stack) {
-        entry.gcMark(this);
+    if (!_program) {
+        return;
     }
     
-    _program->gcMark(this);
+    for (auto entry : _stack) {
+        entry.gcMark();
+    }
+    
+    _program->gcMark();
 
     system()->lock();
     for (auto it : _eventQueue) {
-        it.gcMark(this);
+        it.gcMark();
     }
     system()->unlock();
 }
@@ -448,7 +449,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 
-    Object::gc(this, false);
+    Object::gc();
 
     updateCodePointer();
     
@@ -497,7 +498,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_END:
         if (_terminate) {
             _stack.clear();
-            Object::gc(this, true);
+            Object::gc(true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
             
@@ -509,11 +510,9 @@ CallReturnValue ExecutionUnit::continueExecution()
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
                     _terminate = true;
                     _stack.clear();
-                    Object::gc(this, true);
+                    Object::gc(true);
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
-                
-                Object::gc(this, true);
                 
                 // Backup the PC to point at the END instruction, so when we return from events
                 // we'll hit the program end again
@@ -530,6 +529,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 }
                 
                 return CallReturnValue(_numEventListeners ? callReturnValue : CallReturnValue::Type::Finished);
+                Object::gc(true);
             }
             callReturnValue = CallReturnValue();
         }

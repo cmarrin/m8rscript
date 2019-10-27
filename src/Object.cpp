@@ -46,6 +46,7 @@ using namespace m8r;
 std::vector<String*> Object::_stringStore;
 std::vector<Object*> Object::_objectStore;
 std::vector<Object*> Object::_staticObjects;
+std::vector<ExecutionUnit*> Object::_euStore;
 
 void Object::memoryInfo(MemoryInfo& info)
 {
@@ -67,12 +68,6 @@ void Object::operator delete(void* p)
     SystemInterface::free(MemoryType::Object, p);
 }
 
-void Object::_gcMark(ExecutionUnit* eu)
-{
-    gcMark(this);
-    gcMark(_proto);
-}
-
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };
 static GCState gcState = GCState::ClearMarkedObj;
 static uint32_t prevGCObjects = 0;
@@ -82,7 +77,7 @@ static constexpr int32_t MaxGCObjectDiff = 10;
 static constexpr int32_t MaxGCStringDiff = 10;
 static constexpr int32_t MaxCountSinceLastGC = 50;
 
-void Object::gc(ExecutionUnit* eu, bool force)
+void Object::gc(bool force)
 {
     bool didFullCycle = gcState == GCState::ClearMarkedObj;
     while (1) {
@@ -110,12 +105,14 @@ void Object::gc(ExecutionUnit* eu, bool force)
                 gcState = GCState::MarkActive;
                 break;
             case GCState::MarkActive:
-                eu->gcMark();
+                for (auto it : _euStore) {
+                    it->gcMark();
+                }
                 gcState = GCState::MarkStatic;
                 break;
             case GCState::MarkStatic:
                 for (auto it : _staticObjects) {
-                    it->gcMark(eu);
+                    it->gcMark();
                 }
                 gcState = GCState::SweepObj;
                 break;
@@ -237,11 +234,14 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return s;
 }
 
-void MaterObject::gcMark(ExecutionUnit* eu)
+void MaterObject::gcMark()
 {
-    Object::gcMark(eu);
+    if (isMarked()) {
+        return;
+    }
+    Object::gcMark();
     for (auto entry : _properties) {
-        entry.value.gcMark(eu);
+        entry.value.gcMark();
     }
     if (_iterator) {
         _iterator->gcMark();
