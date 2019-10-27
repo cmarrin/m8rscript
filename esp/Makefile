@@ -48,6 +48,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/Iterator.cpp \
 		../src/JSON.cpp \
 		../src/Object.cpp \
+		../src/Mallocator.cpp \
 		../src/Program.cpp \
 		../src/slre.cpp \
 		../src/SpiffsFS.cpp \

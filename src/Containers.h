@@ -45,13 +45,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-//////////////////////////////////////////////////////////////////////////////
-//
 //  Class: Id/RawId template
 //
 //  Generic Id class
-//
-//////////////////////////////////////////////////////////////////////////////
 
 template <typename RawType>
 class Id
@@ -98,13 +94,11 @@ class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class Atom : public Id<uint16_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
-//////////////////////////////////////////////////////////////////////////////
 //
 //  Class: String
 //
 //  Wrapper String class that works on both Mac and ESP
 //
-//////////////////////////////////////////////////////////////////////////////
 
 class String {
 public:
@@ -325,14 +319,12 @@ private:
     bool _marked = true;
 };
 
-//////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Map
 //
 //  Wrapper Map class that works on both Mac and ESP
 //  Simle ordered array. Done this way to minimize space
 //
-//////////////////////////////////////////////////////////////////////////////
 
 template<class T>
 struct CompareKeys
@@ -412,13 +404,11 @@ private:
     Compare _compare;
 };
 
-//////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Stack
 //
 //  Wrapper around Vector to give stack semantics
 //
-//////////////////////////////////////////////////////////////////////////////
 
 template<typename type>
 class Stack : std::vector<type> {
@@ -493,13 +483,11 @@ private:
     uint32_t _frame = 0;
 };
 
-//////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Pool
 //
 //  Object pool which stores values in multiple fixed size segments
 //
-//////////////////////////////////////////////////////////////////////////////
 
 template<typename type, uint32_t numPerSegment>
 class Pool {
@@ -557,83 +545,73 @@ private:
     Entry* _freeList = nullptr;
 };
 
-//////////////////////////////////////////////////////////////////////////////
 //
-//  Class: Mallocator
+//  Class: List
 //
-//  C++11 Allocator which tracks allocations
+//  Singly linked list of ListItems
 //
-//////////////////////////////////////////////////////////////////////////////
 
-enum class MemoryType {
-    Unknown,
-    Object,
-    String,
-    Instruction,
-    CallRecord,
-    EventValue,
-    ConstantValue,
-    FunctionEntry,
-    NumTypes
-};
-    
-class MallocatorBase {
-protected:
-    static MallocatorBase* _list;
-    
-    MallocatorBase* _next;
-    MemoryType _type;
-    uint32_t _count = 0;
-};
-
-template <class T, MemoryType type = MemoryType::Unknown>
-class Mallocator : public MallocatorBase {
+class ListItem {
 public:
-    typedef T value_type;
-    Mallocator()
+
+private:
+    ListItem* _next;
+};
+
+template<typename type, uint32_t numPerSegment>
+class Pool {
+public:
+    type* alloc()
     {
-        _type = type;
-        _next = _list;
-        _list = this;
-    }
-    
-    template <class U> Mallocator(const Mallocator<U>&) : Mallocator() { }
-    
-    Mallocator(Mallocator&& other)
-    {
-        _type = other._type;
-        _next = other._next;
-        _count = other._count;
-        if (_list == other) {
-            _list = this;
+        if (!_freeList) {
+            allocSegment();
         }
-        other._next = nullptr;
+        Entry* entry = _freeList;
+        _freeList = _freeList->next();
+        return entry->value();
     }
-    
-    T* allocate(std::size_t n)
+            
+    void free(type* value)
     {
-        _count++;
-        return static_cast<T*>(std::malloc(n*sizeof(T)));
+        Entry* entry = reinterpret_cast<Entry*>(value);
+        entry->setNext(_freeList);
+        _freeList = entry;
     }
-    
-    void deallocate(T* p, std::size_t)
+
+private:
+    void allocSegment()
     {
-        _count--;
-        std::free(p);
+        assert(!_freeList);
+        _segments.resize(_segments.size() + 1);
+        Entry prev = nullptr;
+        for (auto it : _segments.back()) {
+            if (!_freeList) {
+                _freeList = it;
+            } else {
+                assert(prev);
+                prev->setNext(it);
+            }
+            it->setNext(nullptr);
+            prev = it;
+        }
     }
     
-    template <typename U>  
-    struct rebind {
-        typedef Mallocator<U> other;
+    class Entry {
+    public:
+        const type* value() const { return reinterpret_cast<type*>(_value); }
+        type* value() { return reinterpret_cast<type*>(_value); }
+        Entry* next() const { return reinterpret_cast<Entry*>(_value); }
+        void setNext(Entry* next) { reinterpret_cast<Entry*>(_value) = next; }
+        
+    private:
+        static constexpr uint32_t size = std::max(sizeof(type), sizeof(void*));
+        uint8_t _value[size];
     };
     
-    static const MallocatorBase* list() { return _list; } 
+    typedef Entry Segment[numPerSegment];
+    
+    std::vector<Segment> _segments;
+    Entry* _freeList = nullptr;
 };
-
-template <class T, class U>
-bool operator==(const Mallocator<T>&, const Mallocator<U>&) { return true; }
-
-template <class T, class U>
-bool operator!=(const Mallocator<T>&, const Mallocator<U>&) { return false; }
 
 }

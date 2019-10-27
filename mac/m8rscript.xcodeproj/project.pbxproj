@@ -101,6 +101,8 @@
 		49E826301E95EB0100E416C4 /* JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E8262E1E95EB0100E416C4 /* JSON.cpp */; };
 		49E826311E95EB0100E416C4 /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E8262F1E95EB0100E416C4 /* JSON.h */; };
 		49E9871223628AE600C17CB6 /* FS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E9871123628AE600C17CB6 /* FS.cpp */; };
+		49E987182365CEF000C17CB6 /* Mallocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E987162365CEF000C17CB6 /* Mallocator.cpp */; };
+		49E987192365CEF000C17CB6 /* Mallocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E987172365CEF000C17CB6 /* Mallocator.h */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
@@ -326,6 +328,8 @@
 		49E8262E1E95EB0100E416C4 /* JSON.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSON.cpp; path = ../src/JSON.cpp; sourceTree = "<group>"; };
 		49E8262F1E95EB0100E416C4 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSON.h; path = ../src/JSON.h; sourceTree = "<group>"; };
 		49E9871123628AE600C17CB6 /* FS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FS.cpp; path = ../src/FS.cpp; sourceTree = "<group>"; };
+		49E987162365CEF000C17CB6 /* Mallocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Mallocator.cpp; path = ../src/Mallocator.cpp; sourceTree = "<group>"; };
+		49E987172365CEF000C17CB6 /* Mallocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mallocator.h; path = ../src/Mallocator.h; sourceTree = "<group>"; };
 		49F166F41DA7443100C07A1A /* SimulationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SimulationView.xib; sourceTree = "<group>"; };
 		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
@@ -621,6 +625,8 @@
 				49F4633C1E1873D6004EF625 /* Iterator.h */,
 				49E8262E1E95EB0100E416C4 /* JSON.cpp */,
 				49E8262F1E95EB0100E416C4 /* JSON.h */,
+				49E987162365CEF000C17CB6 /* Mallocator.cpp */,
+				49E987172365CEF000C17CB6 /* Mallocator.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
 				494D25961D33D33E003755DB /* Object.cpp */,
 				4942EA7E1D06FC2500E02088 /* Object.h */,
@@ -676,6 +682,7 @@
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				49A39F20234C513600F6A144 /* SystemTime.h in Headers */,
 				499AE8E6234A625100459451 /* Task.h in Headers */,
+				49E987192365CEF000C17CB6 /* Mallocator.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
@@ -884,6 +891,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49E987182365CEF000C17CB6 /* Mallocator.cpp in Sources */,
 				49E9871223628AE600C17CB6 /* FS.cpp in Sources */,
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
