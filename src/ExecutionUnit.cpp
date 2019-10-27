@@ -860,7 +860,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         _stack.pop(uintValue);
         _stack.push(returnedValue);
         if (callReturnValue.isMsDelay()) {
-            return callReturnValue;
+            goto L_YIELD;
         }
         DISPATCH;
     }
