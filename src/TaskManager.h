@@ -74,8 +74,7 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     
-    using ListItem = std::pair<Time, TaskBase*>;
-    std::forward_list<ListItem> _list;
+    List<TaskBase, Time> _list;
     bool _eventPosted = false;
 };
 

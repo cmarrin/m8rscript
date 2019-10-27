@@ -57,37 +57,24 @@ void TaskManager::yield(TaskBase* newTask, Duration delay)
     
     Time timeToFire = now + delay;
     
-    auto prev = _list.before_begin();
-    for (auto it = _list.begin(); ; ++it) {
-        if (it == _list.end() || timeToFire < it->first) {
-            _list.emplace_after(prev, timeToFire, newTask);
-            break;
-        }
-        prev = it;
-    }
-
+    _list.insert(newTask, timeToFire);
+    
     readyToExecuteNextTask();
 }
 
 void TaskManager::terminate(TaskBase* task)
 {
-    auto prev = _list.before_begin();
-    for (auto it = _list.begin(); it != _list.end(); ++it) {
-        if (it->second == task) {
-            _list.erase_after(it);
-            break;
-        }
-        prev = it;
-    }
+    _list.remove(task);
 }
 
 void TaskManager::executeNextTask()
 {
-    if (_list.empty() || !_list.front().second) {
+    if (_list.empty()) {
         return;
     }
     
-    TaskBase* task = _list.front().second;
+    TaskBase* task = _list.front();
+    _list.pop_front();
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {
@@ -103,5 +90,5 @@ void TaskManager::executeNextTask()
 
 Time TaskManager::nextTimeToFire() const
 {
-    return _list.empty() ? Time::longestTime() : _list.front().first;
+    return _list.empty() ? Time::longestTime() : _list.front()->key();
 }

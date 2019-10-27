@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Containers.h"
 #include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
@@ -42,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace m8r {
 
-class TaskBase {
+class TaskBase : public List<TaskBase, Time>::Item {
     friend class TaskManager;
     
 public:
