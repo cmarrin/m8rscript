@@ -149,7 +149,7 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
     Instruction inst = _deferred ? _deferredCode.at(matchAddr) : currentFunction()->code()->at(matchAddr);
     Op op = static_cast<Op>(inst.op());
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
-    uint32_t reg = inst.ra();
+    uint32_t reg = inst.rn();
     if (_deferred) {
         _deferredCode.at(matchAddr) = Instruction(op, reg, jumpAddr);
     } else {
