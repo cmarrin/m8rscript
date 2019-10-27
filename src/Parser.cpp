@@ -47,6 +47,14 @@ Parser::Parser(Program* program)
     : _parseStack(this)
     , _program(program ?: new Program())
 {
+    // While parsing the program is unprotected. It could get collected.
+    // Register it to protect it during the compile
+    Object::addStaticObject(_program);
+}
+
+Parser::~Parser()
+{
+    Object::removeStaticObject(_program);
 }
 
 Function* Parser::parse(const m8r::Stream& stream, Debug debug, Function* parent)
