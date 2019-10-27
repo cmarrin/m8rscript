@@ -215,6 +215,7 @@ public:
         return _toIdValue(eu);
     }
         
+    bool isNull() const { return type() == Type::Null; }
     bool isString() const { return type() == Type::String || type() == Type::StringLiteral; }
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
