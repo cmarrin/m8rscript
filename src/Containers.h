@@ -551,67 +551,102 @@ private:
 //  Singly linked list of ListItems
 //
 
-class ListItem {
+template<typename T, typename Key>
+class List {
 public:
+    class Item {
+        friend List;
 
-private:
-    ListItem* _next;
-};
-
-template<typename type, uint32_t numPerSegment>
-class Pool {
-public:
-    type* alloc()
-    {
-        if (!_freeList) {
-            allocSegment();
-        }
-        Entry* entry = _freeList;
-        _freeList = _freeList->next();
-        return entry->value();
-    }
-            
-    void free(type* value)
-    {
-        Entry* entry = reinterpret_cast<Entry*>(value);
-        entry->setNext(_freeList);
-        _freeList = entry;
-    }
-
-private:
-    void allocSegment()
-    {
-        assert(!_freeList);
-        _segments.resize(_segments.size() + 1);
-        Entry prev = nullptr;
-        for (auto it : _segments.back()) {
-            if (!_freeList) {
-                _freeList = it;
-            } else {
-                assert(prev);
-                prev->setNext(it);
-            }
-            it->setNext(nullptr);
-            prev = it;
-        }
-    }
-    
-    class Entry {
     public:
-        const type* value() const { return reinterpret_cast<type*>(_value); }
-        type* value() { return reinterpret_cast<type*>(_value); }
-        Entry* next() const { return reinterpret_cast<Entry*>(_value); }
-        void setNext(Entry* next) { reinterpret_cast<Entry*>(_value) = next; }
+        const Key& key() const { return _key; }
+
+    private:
+        T* _next = nullptr;
+        Key _key;
+    };
+
+    template<typename IT>
+    class Iterator {
+    public:
+        Iterator(IT* value = nullptr) : _value(value) { }
+        
+        operator bool() const { return _value; }
+        Iterator<IT> operator++(T*){ auto t(*this); _value = _value->_next; return t; }
+        Iterator<IT>& operator++(){ _value = _value->_next; return *this; }
         
     private:
-        static constexpr uint32_t size = std::max(sizeof(type), sizeof(void*));
-        uint8_t _value[size];
+        IT* _value;
     };
     
-    typedef Entry Segment[numPerSegment];
+    using iterator = Iterator<List>;
+    using const_iterator = Iterator<const List>;
     
-    std::vector<Segment> _segments;
-    Entry* _freeList = nullptr;
+    iterator begin() { return iterator(_head); }
+    const_iterator begin() const { return const_iterator(_head); }
+    
+    iterator end() { return iterator(); }
+    const_iterator end() const { return const_iterator(); }
+    
+    T* front() { return _head; }
+    const T* front() const { return _head; }
+    
+    bool empty() const { return !_head; }
+    
+    void pop_front() { if (_head) _head = _head->_next; }
+
+    void insert(T* newItem, Key key)
+    {
+        newItem->_next = nullptr;
+        newItem->_key = key;
+        T* prev = nullptr;
+        
+        for (T* item = _head; ; item = item->_next) {
+            if (!item) {
+                // Placing a new item in an empty list
+                _head = newItem;
+                break;
+            }
+            assert(item != newItem);
+            if (key <= item->_key) {
+                if (prev) {
+                    // Placing a new item in a list that already has items
+                    newItem->_next = prev->_next;
+                    prev->_next = newItem;
+                    return;
+                } else {
+                    // Placing a new item at the head of an existing list
+                    newItem->_next = _head;
+                    _head = newItem;
+                    break;
+                }
+            }
+            if (!item->_next) {
+                // Placing new item at end of list
+                item->_next = newItem;
+                return;
+            }
+            prev = item;
+        }
+    }
+    
+    void remove(T* itemToRemove)
+    {
+        T* prev = nullptr;
+        for (T* item = _head; item; item = item->_next) {
+            if (item == itemToRemove) {
+                if (!prev) {
+                    _head = _head->_next;
+                } else {
+                    prev->_next = item->_next;
+                }
+                return;
+            }
+            prev = item;
+        }
+    }
+
+private:
+    T* _head = nullptr;
 };
 
 }
