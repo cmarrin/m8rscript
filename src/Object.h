@@ -209,13 +209,13 @@ public:
     void addProperty(Program*, SA, const Value&);
     void addProperty(Program*, SA, NativeFunction);
 
-    Object* nativeObject() { return &_obj; }
-    const Object* nativeObject() const { return &_obj; }
+    Object* nativeObject() { return _obj; }
+    const Object* nativeObject() const { return _obj; }
     
     static Object* create(Atom objectName, ExecutionUnit*, uint32_t nparams);
 
 protected:
-    MaterObject _obj;
+    MaterObject* _obj = nullptr;
     NativeFunction _constructor;
 };
     

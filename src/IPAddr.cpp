@@ -64,12 +64,12 @@ IPAddrProto::IPAddrProto(Program* program, ObjectFactory* parent)
     addProperty(program, SA::toString, toString);
     addProperty(program, SA::lookupHostname, lookupHostname);
 
-    _obj.setArray(true);
-    _obj.resize(4);
-    _obj[0] = Value(0);
-    _obj[1] = Value(0);
-    _obj[2] = Value(0);
-    _obj[3] = Value(0);
+    _obj->setArray(true);
+    _obj->resize(4);
+    (*_obj)[0] = Value(0);
+    (*_obj)[1] = Value(0);
+    (*_obj)[2] = Value(0);
+    (*_obj)[3] = Value(0);
 }
 
 IPAddr::IPAddr(const String& ipString)
@@ -174,9 +174,9 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
 
 void IPAddrProto::setIPAddr(IPAddr ipaddr)
 {
-    _obj.resize(4);
-    _obj[0] = Value(ipaddr[0]);
-    _obj[1] = Value(ipaddr[1]);
-    _obj[2] = Value(ipaddr[2]);
-    _obj[3] = Value(ipaddr[3]);
+    _obj->resize(4);
+    (*_obj)[0] = Value(ipaddr[0]);
+    (*_obj)[1] = Value(ipaddr[1]);
+    (*_obj)[2] = Value(ipaddr[2]);
+    (*_obj)[3] = Value(ipaddr[3]);
 }
