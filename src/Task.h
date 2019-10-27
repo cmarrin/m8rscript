@@ -65,15 +65,7 @@ private:
 
 class Task : public TaskBase {
 public:
-    Task() { Object::addEU(&_eu); }
-    
     Task(const char* filename);
-    
-    Task(Program* program)
-    {
-        Object::addEU(&_eu);
-        _eu.startExecution(program);
-    }
     
     ~Task() { Object::removeEU(&_eu); }
     
