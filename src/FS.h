@@ -46,7 +46,7 @@ namespace m8r {
 class File;
 class Directory;
 
-class FS : public MaterObject {
+class FS {
     friend class File;
     
 public:
@@ -95,7 +95,7 @@ private:
     static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
-class Directory : public ObjectFactory {
+class Directory {
     friend class FS;
     
 public:
@@ -109,7 +109,7 @@ public:
     virtual bool next() = 0;
     
 protected:
-    Directory() : ObjectFactory(nullptr, SA::Directory) { }
+    Directory() { }
 
     Error _error;
     String _name;
@@ -123,7 +123,7 @@ private:
     static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
-class File : public ObjectFactory {
+class File {
     friend class FS;
     
 public:
@@ -156,7 +156,7 @@ public:
     Type type() const { return _type; }
 
 protected:
-    File() : ObjectFactory(nullptr, SA::File) { }
+    File() { }
 
     Error _error;
     Type _type = Type::Unknown;
