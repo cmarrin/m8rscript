@@ -35,8 +35,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "SystemInterface.h"
-
 #include <cstdint>
 #include <limits>
 
@@ -153,7 +151,7 @@ public:
     Time() { }
     Time(const Time& other) : _value(other) { }
 
-    static Time now() { return Time(SystemInterface::currentMicroseconds()); }
+    static Time now();
     static Time longestTime() { return Time(std::numeric_limits<uint64_t>::max()); }
     
     friend Time operator+(const Time& t, const Duration& d) { return Time(t._value + d.us()); }

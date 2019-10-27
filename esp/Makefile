@@ -53,6 +53,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/slre.cpp \
 		../src/SpiffsFS.cpp \
 		../src/SystemInterface.cpp \
+		../src/SystemTime.cpp \
 		../src/Task.cpp \
 		../src/TaskManager.cpp \
 		../src/TCP.cpp \
