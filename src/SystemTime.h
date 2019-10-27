@@ -55,7 +55,7 @@ public:
     
     static constexpr uint32_t Shift = 2;
     static constexpr uint32_t UnitsMask = (1 << Shift) - 1;
-    static constexpr uint32_t MaxValue = (1 << (sizeof(int32_t) - Shift)) - 1;
+    static constexpr uint32_t MaxValue = (1 << (sizeof(int32_t) * 8 - Shift)) - 1;
     
     enum class Units { us = 0, ms = 1, sec = 2, none = 3 };
 
