@@ -321,6 +321,7 @@ bool SpiffsDirectory::next()
 bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& fileID, File::Type& type, Error& error)
 {
     error = Error::Code::OK;
+    type = File::Type::Unknown;
 
     if (!name || name[0] != '/') {
         error = Error::Code::InvalidFileName;
@@ -348,6 +349,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         
         if (!findNameInDirectory(file, components[i], fileID, type)) {
             if (!last && createMode == FindCreateMode::Directory) {
+                type = File::Type::Directory;
                 createEntry(file, components[i], File::Type::Directory, fileID);
                 file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
                 if (!file->valid()) {
