@@ -243,27 +243,20 @@ void MaterObject::gcMark(ExecutionUnit* eu)
     for (auto entry : _properties) {
         entry.value.gcMark(eu);
     }
-    auto it = _properties.find(ATOM(eu, SA::__nativeObject));
-    if (it != _properties.end()) {
-        NativeObject* obj = it->value.asNativeObject();
-        if (obj) {
-            obj->gcMark(eu);
-        }
-    }
-    
-    if (!_arrayNeedsGC) {
-        return;
-    }
-    _arrayNeedsGC = false;
-    for (auto entry : _array) {
-        entry.gcMark(eu);
-        if (entry.needsGC()) {
-            _arrayNeedsGC = true;
-        }
-    }
-    
     if (_iterator) {
-        _iterator->gcMark(eu);
+        _iterator->gcMark();
+    }
+    if (_nativeObject) {
+        _nativeObject->gcMark();
+    }
+    if (_arrayNeedsGC) {
+        _arrayNeedsGC = false;
+        for (auto entry : _array) {
+            entry.gcMark();
+            if (entry.needsGC()) {
+                _arrayNeedsGC = true;
+            }
+        }
     }
 }
 
@@ -317,6 +310,10 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
         return Value(_iterator ?: eu->program()->global()->property(eu, ATOM(eu, SA::Iterator)).asObject());
     }
 
+    if (prop == ATOM(eu, SA::__nativeObject)) {
+        return _nativeObject ? Value(_nativeObject) : Value();
+    }
+
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         return proto() ? proto()->property(eu, prop) : Value();
@@ -328,6 +325,11 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
 {
     if (prop == ATOM(eu, SA::iterator)) {
         _iterator = v.asObject();
+        return true;
+    }
+    
+    if (prop == ATOM(eu, SA::__nativeObject)) {
+        _nativeObject = v.asObject();
         return true;
     }
     

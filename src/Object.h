@@ -183,6 +183,7 @@ private:
     Value::Map _properties;
     std::vector<Value> _array;
     Object* _iterator = nullptr;
+    Object* _nativeObject = nullptr;
     bool _isArray = false;
     bool _arrayNeedsGC;
 };
