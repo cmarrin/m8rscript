@@ -261,7 +261,7 @@ void ExecutionUnit::receivedChar(char c)
     // Get the consoleListener from Global and use that to fire an event
     Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
     Value arg(static_cast<int32_t>(c));
-    if (listener) {
+    if (listener && !listener.isNull()) {
         fireEvent(listener, Value(), &arg, 1);
     }
 }
@@ -481,17 +481,18 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
 
     L_YIELD:
-        callReturnValue = runNextEvent();
-        
-        // The only returns we expect are MsDelay, Yield, WaitForEvent and Error
-        // In this case if it's WaitForEvent it means there are no events
-        // in the queue. But since we're in a Yield, we want to yield instead
-        if (callReturnValue.isError()) {
-            printError(callReturnValue.error());
-            return CallReturnValue(CallReturnValue::Type::Finished);
+        if (!_eventQueue.empty()) {
+            callReturnValue = runNextEvent();
+            if (callReturnValue.isError()) {
+                printError(callReturnValue.error());
+                _terminate = true; 
+                _stack.clear();
+                Object::gc(true);
+                return CallReturnValue(CallReturnValue::Type::Terminated);
+            }
+            return callReturnValue;
         }
-        
-        return callReturnValue.isWaitForEvent() ? CallReturnValue(CallReturnValue::Type::Yield) : callReturnValue;
+        return CallReturnValue(CallReturnValue::Type::Yield);
 
     L_RET:
     L_RETX:
@@ -514,22 +515,8 @@ CallReturnValue ExecutionUnit::continueExecution()
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
-                // Backup the PC to point at the END instruction, so when we return from events
-                // we'll hit the program end again
-                _pc--;
-                assert(_code[_pc].op() == Op::END);
-                
-                callReturnValue = runNextEvent();
-
-                // The only returns we expect are MsDelay, Yield, WaitForEvent and Error
-                // Since we're ending we ignore MsDelay as long as there are no listeners
-                if (callReturnValue.isError()) {
-                    printError(callReturnValue.error());
-                    return CallReturnValue(CallReturnValue::Type::Finished);
-                }
-                
-                return CallReturnValue(_numEventListeners ? callReturnValue : CallReturnValue::Type::Finished);
                 Object::gc(true);
+                return CallReturnValue(CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
         }
