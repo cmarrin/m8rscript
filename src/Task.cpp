@@ -46,6 +46,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
+void TaskBase::finish()
+{
+    if (_finishCB) {
+        _finishCB(this);
+    }
+}
+
 Task::Task(const char* filename)
 {
     Object::addEU(&_eu);

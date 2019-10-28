@@ -82,7 +82,7 @@ void TaskManager::executeNextTask()
     } else if (returnValue.isYield()) {
         yield(task);
     } else if (returnValue.isFinished() || returnValue.isTerminated()) {
-        _list.pop_front();
+        task->finish();
     } else if (returnValue.isWaitForEvent()) {
         yield(task, TaskPollingRate);
     }

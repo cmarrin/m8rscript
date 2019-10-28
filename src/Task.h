@@ -47,12 +47,19 @@ class TaskBase : public List<TaskBase, Time>::Item {
     friend class TaskManager;
     
 public:
+    using FinishCallback = std::function<void(TaskBase*)>;
+    
     virtual ~TaskBase()
     {
         system()->taskManager()->terminate(this);
     }
     
-    void run(Duration duration = 0_sec) { system()->taskManager()->yield(this, duration); }
+    void run(FinishCallback cb = nullptr, Duration duration = 0_sec)
+    {
+        _finishCB = cb;
+        system()->taskManager()->yield(this, duration);
+    }
+    
     void yield() { system()->taskManager()->yield(this); }
     void terminate() { system()->taskManager()->terminate(this); }
 
@@ -60,7 +67,11 @@ protected:
     TaskBase() { }
     
 private:
+    void finish();
+    
     virtual CallReturnValue execute() = 0;
+    
+    FinishCallback _finishCB;
 };
 
 class Task : public TaskBase {
