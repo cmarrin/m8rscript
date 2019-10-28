@@ -22,15 +22,29 @@
 //println(a);
 //println(IPAddr);
 
-var done = false;
+var done = [ false ];
 consoleListener =   function(c)
                     {
                         printf("GOT A CHAR!!! '%c'\n", c);
                         if (c == 0x06) {
                             printf("EXITING!!!\n");
-                            done = true;
+                            done[0] = true;
                         }
                     };
-while(!done) {
+while(!done[0]) {
     delay(1000);
+    printf("currentTime is %f, done is %d\n", currentTime(), done);
 }
+
+//var c = [ 2 ];
+//function a(b)
+//{
+//    var e = 1;
+//    return function(d) { return b + c[0] + d + e; };
+//    //                          3   2   4   1 => 10
+//}
+//
+//var g = a(3);
+//printf("result is %d\n", g(4));
+//c[0] = 5;
+//printf("result is %d\n", g(4));
