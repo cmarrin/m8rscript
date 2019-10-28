@@ -78,7 +78,8 @@ Global::Global(Program* program)
     addProperty(program, SA::arguments, arguments);
     addProperty(program, SA::import, import);
     addProperty(program, SA::importString, importString);
-    
+    addProperty(program, SA::waitForEvent, waitForEvent);
+
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
     //addProperty(program, SA::FS, system()->fileSystem());
@@ -234,4 +235,9 @@ CallReturnValue Global::importString(ExecutionUnit* eu, Value thisValue, uint32_
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
     return eu->import(StringStream(s), thisValue);
+}
+
+CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }

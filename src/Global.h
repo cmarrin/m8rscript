@@ -75,6 +75,7 @@ private:
     static CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue import(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue importString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue waitForEvent(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
     
 }

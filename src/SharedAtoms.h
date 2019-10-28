@@ -74,6 +74,7 @@ enum class SA {
     toString,
     trim,
     value,
+    waitForEvent,
     write,
     __index,
     __nativeObject,

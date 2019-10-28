@@ -77,6 +77,7 @@ static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _value[] ROMSTR_ATTR = "value";
+static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
 static const char _write[] ROMSTR_ATTR = "write";
 static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
@@ -159,6 +160,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     _toString,
     _trim,
     _value,
+    _waitForEvent,
     _write,
     ___index,
     ___nativeObject,
