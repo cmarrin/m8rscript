@@ -1,6 +1,20 @@
 // m8rsh - m8rscript shell
 //
 
+printf("m8rscript shell v 1.0\n\n");
+
+var done = [ false ];
+
+consoleListener = function(line)
+{
+    printf("*** received %s\n", line);
+};
+
+while (!done[0]) {
+    delay(1000);
+    //waitForEvent();
+}
+
 //printf("Hello world\n");
 //var b = function(x, y) { return x + y; };
 //printf("fake result=%d\n", b(3, 5));
@@ -22,19 +36,19 @@
 //println(a);
 //println(IPAddr);
 
-var done = [ false ];
-consoleListener =   function(c)
-                    {
-                        printf("GOT A CHAR!!! '%c'\n", c);
-                        if (c == 0x06) {
-                            printf("EXITING!!!\n");
-                            done[0] = true;
-                        }
-                    };
-while(!done[0]) {
-    delay(1000);
-    printf("currentTime is %f, done is %d\n", currentTime(), done);
-}
+//var done = [ false ];
+//consoleListener =   function(c)
+//                    {
+//                        printf("GOT A CHAR!!! '%c'\n", c);
+//                        if (c == 0x06) {
+//                            printf("EXITING!!!\n");
+//                            done[0] = true;
+//                        }
+//                    };
+//while(!done[0]) {
+//    delay(1000);
+//    printf("currentTime is %f, done is %d\n", currentTime(), done);
+//}
 
 //var c = [ 2 ];
 //function a(b)

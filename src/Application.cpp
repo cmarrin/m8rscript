@@ -79,9 +79,7 @@ public:
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
                 if (_shells[connectionId]) {
-                    for (int16_t i = 0; i < length; ++i) {
-                        _shells[connectionId]->receivedChar(data[i]);
-                    }
+                    _shells[connectionId]->receivedData(data, length);
                 }
                 break;
             case m8r::TCPDelegate::Event::SentData:

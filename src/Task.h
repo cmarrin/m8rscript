@@ -80,7 +80,7 @@ public:
     
     ~Task() { Object::removeEU(&_eu); }
     
-    void receivedChar(char c) { _eu.receivedChar(c); }
+    void receivedData(const char* data, int16_t length) { _eu.receivedData(data, length); }
 
     Error error() const { return _error; }
 

@@ -254,11 +254,11 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     system()->unlock();
 }
 
-void ExecutionUnit::receivedChar(char c)
+void ExecutionUnit::receivedData(const char* data, int16_t length)
 {
     // Get the consoleListener from Global and use that to fire an event
     Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
-    Value arg(static_cast<int32_t>(c));
+    Value arg(static_cast<int32_t>(String(data, length)));
     if (listener && !listener.isNull()) {
         fireEvent(listener, Value(), &arg, 1);
     }

@@ -126,7 +126,7 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    void receivedChar(char c);
+    void receivedData(const char*, int16_t length);
 
     void startEventListening() { _numEventListeners++; }
     void stopEventListening() { _numEventListeners--; }
