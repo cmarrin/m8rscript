@@ -63,7 +63,12 @@ public:
                     _shells[connectionId] = nullptr;
                     tcp->disconnect(connectionId);
                 } else {
-                    _shells[connectionId]->run();
+                    _shells[connectionId]->run([tcp, connectionId, this](TaskBase*)
+                    {
+                        tcp->disconnect(connectionId);
+                        delete _shells[connectionId];
+                        _shells[connectionId] = nullptr;
+                    });
                 }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
