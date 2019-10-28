@@ -479,6 +479,8 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
 
     L_YIELD:
+        callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
+    L_MSDELAY:
         if (!_eventQueue.empty()) {
             callReturnValue = runNextEvent();
             if (callReturnValue.isError()) {
@@ -490,7 +492,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             }
             return callReturnValue;
         }
-        return CallReturnValue(CallReturnValue::Type::Yield);
+        return callReturnValue;
 
     L_RET:
     L_RETX:
@@ -860,7 +862,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         _stack.pop(uintValue);
         _stack.push(returnedValue);
         if (callReturnValue.isMsDelay()) {
-            goto L_YIELD;
+            goto L_MSDELAY;
         }
         DISPATCH;
     }
