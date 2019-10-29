@@ -54,6 +54,9 @@ POSSIBILITY OF SUCH DAMAGE.
     static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
     #define ROMSTR(s) s
     #define debugf printf
+    
+    #define USE_LITTLEFS
+
 #else
     #include "Esp.h"
 #endif

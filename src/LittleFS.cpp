@@ -134,6 +134,14 @@ std::shared_ptr<Directory> LittleFS::openDirectory(const char* name)
     return std::shared_ptr<LittleDirectory>(new LittleDirectory(name));
 }
 
+bool LittleFS::makeDirectory(const char* name)
+{
+    int result = lfs_mkdir(&_littleFileSystem, name);
+    (void) result;
+    //_error = error;
+    return _error == Error::Code::OK;
+}
+
 bool LittleFS::remove(const char* name)
 {
     return lfs_remove(&_littleFileSystem, name) == 0;
@@ -158,25 +166,6 @@ int32_t LittleFS::internalMount()
 {
     return lfs_mount(&_littleFileSystem, &_config);
 }
-
-//Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
-//{
-//    assert(spiffsError < 0);
-//
-//    switch(spiffsError) {
-//        case SPIFFS_ERR_NOT_MOUNTED         : return Error::Code::NotMounted;
-//        case SPIFFS_ERR_FULL                : return Error::Code::NoSpace;
-//        case SPIFFS_ERR_NOT_FOUND           : return Error::Code::FileNotFound;
-//        case SPIFFS_ERR_END_OF_OBJECT       : return Error::Code::ReadError;
-//        case SPIFFS_ERR_OUT_OF_FILE_DESCS   : return Error::Code::TooManyOpenFiles;
-//        case SPIFFS_ERR_NOT_WRITABLE        : return Error::Code::NotWritable;
-//        case SPIFFS_ERR_NOT_READABLE        : return Error::Code::NotReadable;
-//        case SPIFFS_ERR_MOUNTED             : return Error::Code::Mounted;
-//        case SPIFFS_ERR_FILE_EXISTS         : return Error::Code::Exists;
-//        case SPIFFS_ERR_NOT_CONFIGURED      : return Error::Code::NotMounted;
-//        default                             : return Error::Code::InternalError;
-//    }
-//}
 
 LittleDirectory::LittleDirectory(const char* name)
 {

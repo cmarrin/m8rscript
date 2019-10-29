@@ -22,7 +22,6 @@
 
 #include "EspGPIOInterface.h"
 #include "EspTaskManager.h"
-#include "SpiffsFS.h"
 #include "EspTaskManager.h"
 #include "EspTCP.h"
 #include "EspUDP.h"
@@ -30,6 +29,12 @@
 #include "SystemInterface.h"
 #include "TCP.h"
 #include <cstdlib>
+
+#ifndef USE_LITTLEFS
+#include "SpiffsFS.h"
+#else
+#include "LittleFS.h"
+#endif
 
 #include "flashmem.h"
 
@@ -154,7 +159,11 @@ public:
 
 private:
     m8r::EspGPIOInterface _gpio;
+#ifndef USE_LITTLEFS
     m8r::SpiffsFS _fileSystem;
+#else
+    m8r::LittleFS _fileSystem;
+#endif
     m8r::EspTaskManager _taskManager;
 };
 
@@ -613,7 +622,6 @@ void initializeSystem(void (*initializedCB)())
     os_timer_arm(&startupTimer, 2000, false);
 }
 
-#ifndef USE_LITTLEFS
 static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst)
 {
     return (flashmem_read(dst, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_READABLE;
@@ -635,6 +643,8 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     }
     return SPIFFS_OK;
 }
+
+#ifndef USE_LITTLEFS
 
 void m8r::SpiffsFS::setConfig(spiffs_config& config, const char*)
 {

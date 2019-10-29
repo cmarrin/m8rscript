@@ -18,7 +18,7 @@
 #====================================================================================
 
 PARSER_SUPPORT = 1
-USE_LITTLEFS = 0
+USE_LITTLEFS = 1
 
 DEBUG ?= 0
 
@@ -52,7 +52,6 @@ SRC ?=  ../src/Application.cpp \
 		../src/Mallocator.cpp \
 		../src/Program.cpp \
 		../src/slre.cpp \
-		../src/SpiffsFS.cpp \
 		../src/SystemInterface.cpp \
 		../src/SystemTime.cpp \
 		../src/Task.cpp \
@@ -68,6 +67,14 @@ ifeq ($(PARSER_SUPPORT), 1)
     SRC += \
 		../m8rscript/ParseEngine.cpp \
 		../m8rscript/Parser.cpp
+endif
+
+ifeq ($(USE_LITTLEFS), 1)
+    SRC += \
+		../src/LittleFS.cpp
+else
+	SRC += \
+		../src/SpiffsFS.cpp
 endif
 
 ifeq ($(ARDUINO_TOOLCHAIN), 1)
@@ -186,15 +193,15 @@ CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
 # filesystem source files
-#ifeq ($(FILESYSTEM), SPIFFS)
+ifeq ($(USE_LITTLEFS), 1)
+SPIFFS_DIR = ../src/littlefs
+SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
+SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
+else
 SPIFFS_DIR = ../src/spiffs/src
 SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
 SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
-#else
-#SPIFFS_DIR = ../src/littlefs
-#SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
-#SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
-#endif
+endif
 
 # GDB source files
 ifeq ($(DEBUG), 1)

@@ -16,8 +16,13 @@
 #include "MacTaskManager.h"
 #include "MacTCP.h"
 #include "MacUDP.h"
-#include "SpiffsFS.h"
 #include "SystemInterface.h"
+
+#ifndef USE_LITTLEFS
+#include "SpiffsFS.h"
+#else
+#include "LittleFS.h"
+#endif
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -81,7 +86,11 @@ private:
     };
     
     MyGPIOInterface _gpio;
+#ifndef USE_LITTLEFS
     m8r::SpiffsFS _fileSystem;
+#else
+    m8r::LittleFS _fileSystem;
+#endif
     m8r::MacTaskManager _taskManager;
 };
 
@@ -177,7 +186,7 @@ int main(int argc, char * argv[])
     // Seed the random number generator
     srand(static_cast<uint32_t>(time(nullptr)));
     
-    const char* fsdir = (optind < argc) ? argv[optind] : "SpiffsFSFile";
+    const char* fsdir = (optind < argc) ? argv[optind] : "m8rFSFile";
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
     if (!m8r::Application::mountFileSystem()) {
         printf("**** Count not mount file system, exiting...\n");
