@@ -62,6 +62,7 @@ void Error::showError(Code code)
         case Code::SeekNotAllowed           : codeString = ROMSTR("Seek Not Allowed"); break;
         case Code::TooManyOpenFiles         : codeString = ROMSTR("Too Many Open Files"); break;
         case Code::DirectoryNotFound        : codeString = ROMSTR("Directory Not Found"); break;
+        case Code::DirectoryNotEmpty        : codeString = ROMSTR("Directory Not Empty"); break;
         case Code::NotADirectory            : codeString = ROMSTR("Not A Directory"); break;
         case Code::NotAFile                 : codeString = ROMSTR("Not A File"); break;
         case Code::InvalidFileName          : codeString = ROMSTR("Invalid Filename"); break;
@@ -70,6 +71,8 @@ void Error::showError(Code code)
         case Code::MountFailed              : codeString = ROMSTR("Mount Failed"); break;
         case Code::NotMounted               : codeString = ROMSTR("Not Mounted"); break;
         case Code::Mounted                  : codeString = ROMSTR("Already Mounted"); break;
+        case Code::Corrupted                : codeString = ROMSTR("Corrupted"); break;
+        case Code::OutOfMemory              : codeString = ROMSTR("Out of Memory"); break;
         case Code::InternalError            : codeString = ROMSTR("Internal Error"); break;
     }
     system()->printf(codeString);

@@ -66,6 +66,7 @@ public:
         SeekNotAllowed,
         TooManyOpenFiles,
         DirectoryNotFound,
+        DirectoryNotEmpty,
         NotADirectory,
         NotAFile,
         InvalidFileName,
@@ -74,6 +75,8 @@ public:
         MountFailed,
         NotMounted,
         Mounted,
+        Corrupted,
+        OutOfMemory,
         InternalError,
      };
     

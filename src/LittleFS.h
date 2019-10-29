@@ -48,23 +48,6 @@ extern "C" {
 #endif
 
 // LittleFS File System
-//
-// Supprted open modes:
-//
-// Mode           Read/write    File does not exist   File Exists            Seek
-// -------------+-------------+---------------------+----------------------+--------------
-// Read         | Read only   | NotFound error      | Contents preserved   | Yes
-// ReadUpdate   | Read/write  | NotFound error      | Contents preserved   | Yes
-// Write        | Write only  | Create file         | Contents deleted     | Yes
-// WriteUpdate  | Read/write  | Create file         | Contents deleted     | Yes
-// Append       | Write only  | Create file         | Position at end      | No
-// AppendUpdate | Read/write  | Create file         | Position at end      | Only for read
-//              |             |                     |                      | Resets to end on write
-// Create       | Read/write  | Create file         | Contents preserved   | Yes
-//
-// Note: Create mode is not part of the Posix standard. It gives you the ability to
-// open a file for read/write, creates it if it doesn't exist and allows full seek
-// with no repositioning on write
 
 namespace m8r {
 
@@ -131,7 +114,7 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static Error::Code mapLittleError(int);
+    static Error::Code mapLittleError(lfs_error);
 
     static void setConfig(lfs_config&, const char*);
     

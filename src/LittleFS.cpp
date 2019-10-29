@@ -107,20 +107,6 @@ bool LittleFS::format()
     return true;
 }
 
-struct FileModeEntry {
-    FS::FileOpenMode _mode;
-    int _flags;
-};
-
-static const FileModeEntry _fileModeMap[] = {
-    { FS::FileOpenMode::Read,  LFS_O_RDONLY },
-    { FS::FileOpenMode::ReadUpdate, LFS_O_RDWR },
-    { FS::FileOpenMode::Write,  LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC },
-    { FS::FileOpenMode::WriteUpdate, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC },
-    { FS::FileOpenMode::Append,  LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND },
-    { FS::FileOpenMode::AppendUpdate, LFS_O_RDWR | LFS_O_CREAT },
-};
-
 std::shared_ptr<File> LittleFS::open(const char* name, FileOpenMode mode)
 {
     return std::shared_ptr<File>(new LittleFile(name, mode));
@@ -167,6 +153,28 @@ int32_t LittleFS::internalMount()
     return lfs_mount(&_littleFileSystem, &_config);
 }
 
+Error::Code LittleFS::mapLittleError(lfs_error error)
+{
+    switch(error) {
+        case LFS_ERR_OK          : return Error::Code::OK;  // No error
+        case LFS_ERR_IO          : return Error::Code::InternalError;  // Error during device operation
+        case LFS_ERR_CORRUPT     : return Error::Code::Corrupted;  // Corrupted
+        case LFS_ERR_NOENT       : return Error::Code::FileNotFound;  // No directory entry
+        case LFS_ERR_EXIST       : return Error::Code::Exists;  // Entry already exists
+        case LFS_ERR_NOTDIR      : return Error::Code::NotADirectory;  // Entry is not a dir
+        case LFS_ERR_ISDIR       : return Error::Code::NotAFile;  // Entry is a dir
+        case LFS_ERR_NOTEMPTY    : return Error::Code::DirectoryNotEmpty;  // Dir is not empty
+        case LFS_ERR_BADF        : return Error::Code::InternalError;  // Bad file number
+        case LFS_ERR_FBIG        : return Error::Code::NoSpace;  // File too large
+        case LFS_ERR_INVAL       : return Error::Code::InternalError;  // Invalid parameter
+        case LFS_ERR_NOSPC       : return Error::Code::NoSpace;  // No space left on device
+        case LFS_ERR_NOMEM       : return Error::Code::OutOfMemory;  // No more memory available
+        case LFS_ERR_NOATTR      : return Error::Code::InternalError;  // No data/attr available
+        case LFS_ERR_NAMETOOLONG : return Error::Code::InvalidFileName;  // File name too long
+        default                  : return Error::Code::InternalError;
+    }
+}
+
 LittleDirectory::LittleDirectory(const char* name)
 {
     lfs_dir_open(&LittleFS::_littleFileSystem, &_dir, name);
@@ -182,18 +190,21 @@ bool LittleDirectory::next()
     return true;
 }
 
+static const int _fileModeMap[] = {
+    /* FS::FileOpenMode::Read */            LFS_O_RDONLY,
+    /* FS::FileOpenMode::ReadUpdate */      LFS_O_RDWR,
+    /* FS::FileOpenMode::Write */           LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC,
+    /* FS::FileOpenMode::WriteUpdate */     LFS_O_RDWR | LFS_O_CREAT,
+    /* FS::FileOpenMode::Append */          LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND,
+    /* FS::FileOpenMode::AppendUpdate */    LFS_O_RDWR | LFS_O_CREAT,
+    /* FS::FileOpenMode::Create */          LFS_O_RDWR | LFS_O_CREAT,
+};
+
 LittleFile::LittleFile(const char* name, FS::FileOpenMode mode)
 {
-    // Convert mode to lfs_flags
-    int flags = 0;
-    for (int i = 0; i < sizeof(_fileModeMap) / sizeof(FileModeEntry); ++i) {
-        if (_fileModeMap[i]._mode == mode) {
-            flags = _fileModeMap[i]._flags;
-            break;
-        }
-    }
-
-    lfs_file_open(&LittleFS::_littleFileSystem, &_file, name, flags);
+    lfs_error err = static_cast<lfs_error>(lfs_file_open(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)]));
+    _error = LittleFS::mapLittleError(err);
+    _mode = mode;
 }
 
 LittleFile::~LittleFile()
