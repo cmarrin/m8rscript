@@ -86,12 +86,13 @@ int main()
     }
     
     // Write the preambles
-    fprintf(hfile, "// This file is generated. Do not edit\n\nenum class SA {\n");
-    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <stdlib.h>\n\n");
+    fprintf(hfile, "// This file is generated. Do not edit\n\n#include <cstdint>\n\nenum class SA : uint16_t {\n");
+    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <cstdlib>\n\n");
     
     // Write the .h entries and the first .cpp entries
     char entry[128];
-    
+    int32_t count = 0;
+
     while (1) {
         char* line;
         size_t length;
@@ -110,12 +111,13 @@ int main()
             continue;
         }
         
-        fprintf(hfile, "    %s,\n", entry);
+        fprintf(hfile, "    %s = %d,\n", entry, count);
         fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", entry, entry);
+        ++count;
     }
     
     // Write the second .cpp entries
-    fprintf(cppfile, "\nconst char* RODATA_ATTR sharedAtoms[] = {\n");
+    fprintf(cppfile, "\nconst char* RODATA_ATTR _sharedAtoms[] = {\n");
     rewind(ifile);
     while (1) {
         char* line;
@@ -138,9 +140,14 @@ int main()
         fprintf(cppfile, "    _%s,\n", entry);
     }
     
+    // Round count to the nearest 100 to make it easier to compute byte offset into table.
+    count = ((count + 99) / 100) * 100;
+    
     // Write the postambles
-    fprintf(hfile, "};\n\nconst char* sharedAtom(SA id);\n");
-    fprintf(cppfile, "};\n\nconst char* sharedAtom(SA id)\n{\n    return sharedAtoms[static_cast<uint32_t>(id)];\n}\n");
+    fprintf(hfile, "};\n\nconst char** sharedAtoms(uint16_t& nelts);\n");
+    fprintf(hfile, "static constexpr uint16_t ExternalAtomOffset = %d;\n", count);
+
+    fprintf(cppfile, "};\n\nconst char** sharedAtoms(uint16_t& nelts)\n{\n    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n    return _sharedAtoms;\n}\n");
     
     fclose(ifile);
     fclose(hfile);

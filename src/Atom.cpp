@@ -35,22 +35,32 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Atom.h"
 #include "Program.h"
+#include <algorithm>
 
 using namespace m8r;
 
-AtomTable::AtomTable()
+static int32_t binarySearch(const char** names, uint16_t nelts, const char* value)
 {
+    int32_t first = 0;
+    int32_t last = nelts - 1;
+
+    while (first <= last)
+    {
+        int32_t middle = (first + last) / 2;
+        int result = strcmp(names[middle], value);
+        if (result == 0) {
+            return middle;
+        } else if (result > 0) {
+            last = middle - 1;
+        } else {
+            first = middle + 1;
+        }
+    }
+    return -1;
 }
 
-Atom AtomTable::internalAtom(SA a) const
+AtomTable::AtomTable()
 {
-    auto it = _sharedAtomMap.find(static_cast<int32_t>(a));
-    if (it == _sharedAtomMap.end()) {
-        Atom atom = atomizeString(sharedAtom(a));
-        _sharedAtomMap.emplace(static_cast<int32_t>(a), atom);
-        return atom;
-    }
-    return it->value;
 }
 
 Atom AtomTable::atomizeString(const char* romstr) const
@@ -63,17 +73,17 @@ Atom AtomTable::atomizeString(const char* romstr) const
     char* s = new char[len + 1];
     ROMCopyString(s, romstr);
     
-    int32_t index = findAtom(s);
-    if (index >= 0) {
+    Atom atom = findAtom(s);
+    if (atom) {
         delete [ ] s;
-        return Atom(static_cast<uint16_t>(index));
+        return atom;
     }
     
      if (_table.size() == 0) {
         _table.push_back('\0');
     }
     
-    Atom a(static_cast<Atom::value_type>(_table.size() - 1));
+    Atom a(static_cast<Atom::value_type>(_table.size() - 1 + ExternalAtomOffset));
     _table[_table.size() - 1] = -static_cast<int8_t>(len);
     for (size_t i = 0; i < len; ++i) {
         _table.push_back(s[i]);
@@ -83,12 +93,20 @@ Atom AtomTable::atomizeString(const char* romstr) const
     return a;
 }
 
-int32_t AtomTable::findAtom(const char* s) const
+Atom AtomTable::findAtom(const char* s) const
 {
+    // First look in the sharedAtom table
+    uint16_t nelts;
+    const char** sharedAtomTable = sharedAtoms(nelts);
+    int32_t result = binarySearch(sharedAtomTable, nelts, s);
+    if (result >= 0) {
+        return Atom(static_cast<Atom::value_type>(result));
+    }
+    
     size_t len = strlen(s);
 
     if (_table.size() == 0) {
-        return -1;
+        return Atom();
     }
 
     if (_table.size() > 1) {
@@ -101,11 +119,11 @@ int32_t AtomTable::findAtom(const char* s) const
             if (p && static_cast<int8_t>(p[-1]) < 0) {
                 // The next char either needs to be negative (meaning the start of the next word) or the end of the string
                 if (static_cast<int8_t>(p[len]) <= 0) {
-                    return static_cast<int32_t>(p - start - 1);
+                    return Atom(static_cast<Atom::value_type>(p - start - 1 + ExternalAtomOffset));
                 }
             }
         }
     }
     
-    return -1;
+    return Atom();
 }

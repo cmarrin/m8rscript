@@ -42,15 +42,24 @@ namespace m8r {
 
 class Stream;
 
-//////////////////////////////////////////////////////////////////////////////
+//************************************************************************
 //
 //  Class: AtomTable
 //
 //  Atoms go in a single string where each atom is preceeded by its size.
 //  Size byte is negated so its high order bit is set to identify it as
-//  a size. So max size of an individual atom is 127 bytes
+//  a size. So max size of an individual atom is 127 bytes.
 //
-//////////////////////////////////////////////////////////////////////////////
+//  Atoms are a 16 bit id, so 64K maximum. For non built-in Atoms, this
+//  id is the index into the string table. Given an average size of 8
+//  characters per atom, that can hold around 8000 Atoms.
+//
+//  Predefined Atoms, those in the SA enum, have a table of their own
+//  which is a simple array of char pointers. These will have an Atom
+//  id which matches their enumerant. We'll make space for 500 of these
+//  ids, so the normal Atom Ids will be offset by that amount.
+//
+//************************************************************************
 
 class AtomTable {
     friend class Program;
@@ -66,22 +75,26 @@ public:
             return String();
         }
         uint16_t index = atom.raw();
+        if (index < ExternalAtomOffset) {
+            uint16_t nelts;
+            const char** p = sharedAtoms(nelts);
+            assert(index < nelts);
+            return String(p[index]);
+        }
+        
+        index -= ExternalAtomOffset;
         return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    const std::vector<int8_t>& stringTable() const { return _table; }
-    
-    Atom internalAtom(SA) const;
+    Atom internalAtom(SA sa) const { return Atom(static_cast<Atom::value_type>(sa));
+}
 
 private:
-    int32_t findAtom(const char* s) const;
-
-    std::vector<int8_t>& stringTable() { return _table; }
+    Atom findAtom(const char* s) const;
 
     static constexpr uint8_t MaxAtomSize = 127;
 
     mutable std::vector<int8_t> _table;
-    mutable Map<int32_t, Atom> _sharedAtomMap;
 };
 
 }
