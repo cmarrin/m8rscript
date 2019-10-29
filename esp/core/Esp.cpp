@@ -47,12 +47,9 @@ extern "C" {
 
 //#define NEED_HEXDUMP
 
-
 size_t strspn(const char *str1, const char *str2) { return 0; }
 size_t strcspn ( const char * str1, const char * str2 ) { return 0; }
 int printf ( const char * format, ... ) { return 0; }
-
-
 
 // Needed by lwip
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
@@ -616,6 +613,7 @@ void initializeSystem(void (*initializedCB)())
     os_timer_arm(&startupTimer, 2000, false);
 }
 
+#ifndef USE_LITTLEFS
 static s32_t spiffsRead(u32_t addr, u32_t size, u8_t *dst)
 {
     return (flashmem_read(dst, addr, size) == size) ? SPIFFS_OK : SPIFFS_ERR_NOT_READABLE;
@@ -637,6 +635,16 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     }
     return SPIFFS_OK;
 }
+
+void m8r::SpiffsFS::setConfig(spiffs_config& config, const char*)
+{
+    memset(&config, 0, sizeof(config));
+    config.hal_read_f = spiffsRead;
+    config.hal_write_f = spiffsWrite;
+    config.hal_erase_f = spiffsErase;
+}
+
+#else
 
 static int lfs_flash_read(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size) {
@@ -663,7 +671,7 @@ static int lfs_flash_sync(const struct lfs_config *c) {
     return 0;
 }
 
-void m8r::SpiffsFS::setConfig(lfs_config& config, const char* name)
+void m8r::LittleFS::setConfig(lfs_config& config, const char* name)
 {
     lfs_size_t blockSize = 256;
     lfs_size_t size = 3 * 1024 * 1024;
@@ -688,6 +696,9 @@ void m8r::SpiffsFS::setConfig(lfs_config& config, const char* name)
     config.file_max = 0;
     config.attr_max = 0;
 }
+
+#endif
+
 extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)

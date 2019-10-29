@@ -18,6 +18,7 @@
 #====================================================================================
 
 PARSER_SUPPORT = 1
+USE_LITTLEFS = 0
 
 DEBUG ?= 0
 
@@ -161,6 +162,10 @@ ifeq ($(PARSER_SUPPORT), 0)
 C_DEFINES += -DNO_PARSER_SUPPORT
 endif
 
+ifeq ($(USE_LITTLEFS), 1)
+C_DEFINES += -DUSE_LITTLEFS
+endif
+
 # The xtensa folder inside gdbstub is technically a system library, it just doesn't happen to be in the non-os SDK. So make gdbstub look like a system dir
 C_INCLUDES = -isystem $(SDK_ROOT)/include -isystem $(LWIP_ROOT)/include
 ifeq ($(DEBUG), 1)
@@ -180,10 +185,16 @@ CORE_SRC = $(shell find $(CORE_DIR) -name "*.S" -o -name "*.c" -o -name "*.cpp")
 CORE_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(CORE_SRC)))
 CORE_LIB = $(OBJ_DIR)/core.ar
 
-# Spiffs source files
-SPIFFS_DIR = ../src/littlefs
+# filesystem source files
+#ifeq ($(FILESYSTEM), SPIFFS)
+SPIFFS_DIR = ../src/spiffs/src
 SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
 SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
+#else
+#SPIFFS_DIR = ../src/littlefs
+#SPIFFS_SRC = $(shell ls $(SPIFFS_DIR)/*.c)
+#SPIFFS_OBJ = $(patsubst %,$(OBJ_DIR)/%$(OBJ_EXT),$(notdir $(SPIFFS_SRC)))
+#endif
 
 # GDB source files
 ifeq ($(DEBUG), 1)
