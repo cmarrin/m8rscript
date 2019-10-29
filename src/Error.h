@@ -78,6 +78,7 @@ public:
      };
     
     Error() { }
+    Error(const Error::Code& code) : _code(code) { }
     ~Error() { }
     
     operator bool () const { return _code == Code::OK; }

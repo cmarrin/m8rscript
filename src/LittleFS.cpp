@@ -226,7 +226,9 @@ int32_t LittleFile::write(const char* buf, uint32_t size)
 
 void LittleFile::close()
 {
-    lfs_file_close(&LittleFS::_littleFileSystem, &_file);
+    if (valid()) {
+        lfs_file_close(&LittleFS::_littleFileSystem, &_file);
+    }
     _error = Error::Code::FileClosed;
 }
 

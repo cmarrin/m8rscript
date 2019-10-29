@@ -3474,16 +3474,19 @@ cleanup:
 
 static int lfs_deinit(lfs_t *lfs) {
     // free allocated memory
-    if (!lfs->cfg->read_buffer) {
+    if (!lfs->cfg->read_buffer && lfs->rcache.buffer) {
         lfs_free(lfs->rcache.buffer);
+        lfs->rcache.buffer = NULL;
     }
 
-    if (!lfs->cfg->prog_buffer) {
+    if (!lfs->cfg->prog_buffer && lfs->pcache.buffer) {
         lfs_free(lfs->pcache.buffer);
+        lfs->pcache.buffer = NULL;
     }
 
-    if (!lfs->cfg->lookahead_buffer) {
+    if (!lfs->cfg->lookahead_buffer && lfs->free.buffer) {
         lfs_free(lfs->free.buffer);
+        lfs->free.buffer = NULL;
     }
 
     return 0;

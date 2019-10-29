@@ -177,7 +177,7 @@ int main(int argc, char * argv[])
             // Make sure the directory path exists
             m8r::system()->fileSystem()->makeDirectory(toPath.c_str());
             if (m8r::system()->fileSystem()->lastError() != m8r::Error::Code::OK) {
-                printf("Error: unable to create '%s' on Spiffs file system - ", toPath.c_str());
+                printf("Error: unable to create '%s' - ", toPath.c_str());
                 m8r::Error::showError(m8r::system()->fileSystem()->lastError());
                 printf("\n");
             } else {
@@ -185,7 +185,7 @@ int main(int argc, char * argv[])
                 
                 std::shared_ptr<m8r::File> toFile = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write);
                 if (!toFile->valid()) {
-                    printf("Error: unable to open '%s' on Spiffs file system - ", toPath.c_str());
+                    printf("Error: unable to open '%s' - ", toPath.c_str());
                     m8r::Error::showError(toFile->error());
                     printf("\n");
                 } else {

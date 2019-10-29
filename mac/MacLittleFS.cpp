@@ -132,7 +132,7 @@ void LittleFS::setConfig(lfs_config& config, const char* name)
     }
 
     lfs_size_t blockSize = 256;
-    lfs_size_t size = 3 * 1024 * 1024;
+    lfs_size_t size = SPIFFS_PHYS_SIZE;
     
     memset(&config, 0, sizeof(config));
     //config.context = (void*) this;

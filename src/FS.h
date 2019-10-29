@@ -158,7 +158,7 @@ public:
 protected:
     File() { }
 
-    Error _error;
+    Error _error = Error::Code::FileClosed;
     Type _type = Type::Unknown;
     FS::FileOpenMode _mode = FS::FileOpenMode::Read;
 
