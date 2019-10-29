@@ -122,9 +122,23 @@ std::shared_ptr<Directory> LittleFS::openDirectory(const char* name)
 
 bool LittleFS::makeDirectory(const char* name)
 {
-    int result = lfs_mkdir(&_littleFileSystem, name);
-    (void) result;
-    //_error = error;
+    // TODO: For now assume the filename is in the root directory, whether it starts with '/' or not
+    _error = Error::Code::OK;
+    
+    std::vector<String> components = String(name).split("/");
+    String path = "/";
+    for (auto it : components) {
+        if (!it.empty()) {
+            path += it;
+            lfs_error result = static_cast<lfs_error>(lfs_mkdir(&_littleFileSystem, path.c_str()));
+            if (result != LFS_ERR_OK && result != LFS_ERR_EXIST) {
+                _error = LittleFS::mapLittleError(result);
+                return false;
+            }
+            path += "/";
+        }
+    }
+
     return _error == Error::Code::OK;
 }
 
