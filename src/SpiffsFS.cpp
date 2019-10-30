@@ -513,6 +513,16 @@ int32_t SpiffsFile::tell() const
     return SPIFFS_tell(SpiffsFS::sharedSpiffs(), _file);
 }
 
+int32_t SpiffsFile::size() const
+{
+    spiffs_stat stat;
+    s32_t res = SPIFFS_fstat(SpiffsFS::sharedSpiffs(), _file, &stat);
+    if (res < SPIFFS_OK) {
+        return -1;
+    }
+    return stat.size;
+}
+
 bool SpiffsFile::eof() const
 {
     return SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
