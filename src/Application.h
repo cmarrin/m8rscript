@@ -62,7 +62,7 @@ public:
     enum class NameValidationType { Ok, BadLength, InvalidChar };
     static NameValidationType validateBonjourName(const char* name);
     
-    static const char* shellName() { return "/sys/bin/m8rsh"; }
+    static const char* shellName() { return "/sys/bin/mrsh"; }
     
     static bool mountFileSystem();
 

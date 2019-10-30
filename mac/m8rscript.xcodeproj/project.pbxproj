@@ -274,7 +274,7 @@
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../src/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../src/Error.h; sourceTree = "<group>"; };
 		49A39F1E234C513600F6A144 /* SystemTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemTime.h; path = ../src/SystemTime.h; sourceTree = "<group>"; };
-		49A39F2123509E5200F6A144 /* m8rsh */ = {isa = PBXFileReference; lastKnownFileType = text; name = m8rsh; path = ../scripts/m8rsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
+		49A39F2123509E5200F6A144 /* mrsh */ = {isa = PBXFileReference; lastKnownFileType = text; name = mrsh; path = ../scripts/mrsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49A39F222350A1A600F6A144 /* timing */ = {isa = PBXFileReference; lastKnownFileType = folder; name = timing; path = ../scripts/timing; sourceTree = "<group>"; };
 		49A39F232350A1A700F6A144 /* simple */ = {isa = PBXFileReference; lastKnownFileType = folder; name = simple; path = ../scripts/simple; sourceTree = "<group>"; };
 		49A39F242350A1A700F6A144 /* tests */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tests; path = ../scripts/tests; sourceTree = "<group>"; };
@@ -427,7 +427,7 @@
 				49A39F232350A1A700F6A144 /* simple */,
 				49A39F242350A1A700F6A144 /* tests */,
 				49A39F222350A1A600F6A144 /* timing */,
-				49A39F2123509E5200F6A144 /* m8rsh */,
+				49A39F2123509E5200F6A144 /* mrsh */,
 			);
 			name = scripts;
 			sourceTree = "<group>";

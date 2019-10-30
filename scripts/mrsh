@@ -1,4 +1,4 @@
-// m8rsh - m8rscript shell
+// mrsh - m8rscript shell
 //
 
 printf("m8rscript shell v 1.0\n\n");
