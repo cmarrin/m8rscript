@@ -8,11 +8,14 @@ var done = [ false ];
 consoleListener = function(line)
 {
     printf("*** received %s\n", line);
+    if (line[0] == 0x06) {
+        printf("EXITING!!!\n");
+        done[0] = true;
+    }
 };
 
 while (!done[0]) {
-    delay(1000);
-    //waitForEvent();
+    waitForEvent();
 }
 
 //printf("Hello world\n");

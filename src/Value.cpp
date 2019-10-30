@@ -502,9 +502,31 @@ bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value,
 
 const Value Value::element(ExecutionUnit* eu, const Value& elt) const
 {
-    // FIXME: Handle Integer, Float, String and StringLiteral
-    Object* obj = asObject();
-    return obj ? obj->element(eu, elt) : Value();
+    if (isString()) {
+        // This means String or StringLiteral
+        int32_t index = elt.toIntValue(eu);
+        const String* s = asString();
+        if (s) {
+            if (s->size() > index && index >= 0) {
+                return Value(static_cast<int32_t>((*s)[index]));
+            }
+        } else {
+            // Must be a string literal
+            const char* s = eu->program()->stringFromStringLiteral(asStringLiteralValue());
+            if (s) {
+                size_t size = strlen(s);
+                if (size > index && index >= 0) {
+                    return Value(static_cast<int32_t>((s[index])));
+                }
+            }
+        }
+    } else {
+        Object* obj = asObject();
+        if (obj) {
+            return obj->element(eu, elt);
+        }
+    }
+    return Value();
 }
 
 bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)

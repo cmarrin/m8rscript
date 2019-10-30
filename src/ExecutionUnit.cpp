@@ -258,7 +258,7 @@ void ExecutionUnit::receivedData(const char* data, int16_t length)
 {
     // Get the consoleListener from Global and use that to fire an event
     Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
-    Value arg(static_cast<int32_t>(String(data, length)));
+    Value arg(Object::createString(data, length));
     if (listener && !listener.isNull()) {
         fireEvent(listener, Value(), &arg, 1);
     }
@@ -480,7 +480,7 @@ CallReturnValue ExecutionUnit::continueExecution()
 
     L_YIELD:
         callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
-    L_MSDELAY:
+    L_CHECK_EVENTS:
         if (!_eventQueue.empty()) {
             callReturnValue = runNextEvent();
             if (callReturnValue.isError()) {
@@ -861,8 +861,8 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         _stack.pop(uintValue);
         _stack.push(returnedValue);
-        if (callReturnValue.isMsDelay()) {
-            goto L_MSDELAY;
+        if (callReturnValue.isMsDelay() || callReturnValue.isWaitForEvent()) {
+            goto L_CHECK_EVENTS;
         }
         DISPATCH;
     }
