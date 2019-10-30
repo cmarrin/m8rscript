@@ -278,7 +278,7 @@ int32_t LittleFile::size() const
 
 bool LittleFile::eof() const
 {
-    return true; //SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
+    return tell() >= size();
 }
 
 
