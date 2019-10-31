@@ -126,7 +126,7 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    void receivedData(const char*, int16_t length);
+    void receivedData(const String&);
 
     void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
     std::function<void(const String&)>& consolePrintFunction() { return _consolePrintFunction; }

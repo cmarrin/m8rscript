@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "Containers.h"
 #include <cstdint>
 
 namespace m8r {
@@ -50,27 +51,44 @@ namespace m8r {
 // 0xff this command must be followed by another 0xff. So the sequence of
 // events this class performs is:
 //
-//  1) If char is not IAC, pass through, exit
-//  2) If the next char is 0xff, pass 0xff through, exit
+//  1) If char is not IAC, pass through to Client, exit
+//  2) If the next char is 0xff, pass 0xff through to Client, exit
 //  3) Enter command mode
 //
 // Command mode is where all the action is. And example of a command is
-// when the user types a ^D on a telnet client. This sends IAC 
-
-// data. Most of the time it's receiving
-
+// when the user types a ^c on a telnet client. This sends IAC IP.
+//
+// This class is a line editor. It maintains a line buffer which is
+// edited based on input from the Channel. It supports delete, backspace,
+// right and left arrow, ctl-a, ctl-e, etc. When a newline is received
+// from the Channel, the line buffer is sent to the Client. As the line
+// is edited edits are sent back to the Channel to keep the line up to
+// date at that end.
+//
 //--------------------------------------------------------------------------
 
 class Telnet {
 public:
-
-protected:
-    static constexpr uint8_t MaxTasks = 8;
-
-    Telnet() { }
-    virtual ~Telnet() { }
+    // Interrupt is control-c
+    enum class Command { None, UpArrow, DownArrow, RightArrow, LeftArrow, Delete, Backspace, Interrupt };
     
+    // Return the init string to be sent to the Channel
+    String init();
+    
+    // This function:
+    //
+    //  - Receives characters from the Channel
+    //  - Modifies internal state
+    //  - Constructs string to send back to Channel (e.g., echo) if any
+    //  - Constructs string to send to Client if any
+    //  - Returns any command that resulted from the incoming data
+    Command receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient);
+    
+    String sendCommand(Command);
+
 private:
+    std::vector<char> _line;
+    int32_t _position = 0;
 };
 
 }

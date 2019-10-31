@@ -83,7 +83,7 @@ public:
     
     ~Task() { Object::removeEU(&_eu); }
     
-    void receivedData(const char* data, int16_t length) { _eu.receivedData(data, length); }
+    void receivedData(const String& data) { _eu.receivedData(data); }
 
     void setConsolePrintFunction(std::function<void(const String&)> f) { _eu.setConsolePrintFunction(f); }
 

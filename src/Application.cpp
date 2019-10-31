@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "FS.h"
 #include "SystemInterface.h"
+#include "Telnet.h"
 
 #ifdef MONITOR_TRAFFIC
 #include <string>
@@ -57,38 +58,42 @@ public:
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId] = new Task(Application::shellName());
-                if (_shells[connectionId]->error() != Error::Code::OK) {
-                    Error::printError(_shells[connectionId]->error().code());
-                    _shells[connectionId] = nullptr;
+                _shells[connectionId].task = new Task(Application::shellName());
+                if (_shells[connectionId].task->error() != Error::Code::OK) {
+                    Error::printError(_shells[connectionId].task->error().code());
+                    _shells[connectionId].task = nullptr;
                     tcp->disconnect(connectionId);
                 } else {
-                    _shells[connectionId]->setConsolePrintFunction([tcp, connectionId](const String& s) {
+                    _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
                         tcp->send(connectionId, s.c_str());
                     });
-                    _shells[connectionId]->run([tcp, connectionId, this](TaskBase*)
+                    _shells[connectionId].task->run([tcp, connectionId, this](TaskBase*)
                     {
+                        // On return from finished task, drop the connection
                         tcp->disconnect(connectionId);
-                        delete _shells[connectionId];
-                        _shells[connectionId] = nullptr;
+                        delete _shells[connectionId].task;
+                        _shells[connectionId].task = nullptr;
                     });
                 }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
-                if (_shells[connectionId]) {
-                    _shells[connectionId]->terminate();
-                    _shells[connectionId] = nullptr;
+                if (_shells[connectionId].task) {
+                    _shells[connectionId].task->terminate();
+                    _shells[connectionId].task = nullptr;
                 }
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
-                if (_shells[connectionId]) {
-                    _shells[connectionId]->receivedData(data, length);
+                if (_shells[connectionId].task) {
+                    // Receiving characters. Pass them through Telnet
+                    String toChannel, toClient;
+                    Telnet::Command command = _shells[connectionId].telnet.receive(data, length, toChannel, toClient);
+                    (void) command;
+                    
+                    // TODO: Handle command and toChannel
+                    _shells[connectionId].task->receivedData(toClient);
                 }
                 break;
             case m8r::TCPDelegate::Event::SentData:
-                //if (_shells[connectionId]) {
-                //    _shells[connectionId]->sendComplete();
-                //}
                 break;
             default:
                 break;
@@ -98,7 +103,15 @@ public:
 private:
     std::unique_ptr<m8r::TCP> _tcp;
     Application* _application;
-    Task* _shells[m8r::TCP::MaxConnections];
+    
+    struct ShellEntry
+    {
+        ShellEntry() { }
+        Task* task = nullptr;
+        Telnet telnet;
+    };
+    
+    ShellEntry _shells[m8r::TCP::MaxConnections];
 };
 
 Application::Application(uint16_t port)
