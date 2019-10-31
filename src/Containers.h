@@ -178,6 +178,15 @@ public:
         return *this;
     }
     
+    String& operator=(char c)
+    {
+        ensureCapacity(2);
+        _data[0] = c;
+        _data[1] = '\0';
+        _size = 2;
+        return *this;
+    }
+
     operator bool () { return !empty(); }
     
     const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
@@ -309,6 +318,16 @@ public:
             } else {
                 s += separator;
             }
+            s += it;
+        }
+        return s;
+    }
+    
+    static String join(const std::vector<char>& array)
+    {
+        String s;
+        s.ensureCapacity(array.size());
+        for (auto it : array) {
             s += it;
         }
         return s;

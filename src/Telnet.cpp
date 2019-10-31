@@ -37,8 +37,49 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Telnet::Action Telnet::receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient)
+Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
 {
-    toClient = String(fromChannel, fromLength);
+    // TODO: With the input set to raw, do we need to handle any IAC commands from Telnet?
+    if (_state != State::Ready) {
+        if (_state == State::ReceivedIAC) {
+            switch(static_cast<Command>(fromChannel)) {
+                case Command::DO: _verb = Verb::DO; break;
+                case Command::DONT: _verb = Verb::DONT; break;
+                case Command::WILL: _verb = Verb::WILL; break;
+                case Command::WONT: _verb = Verb::WONT; break;
+                case Command::IAC:
+                    _line.push_back(fromChannel);
+                    _state = State::Ready;
+                    return Action::None;
+                default: _verb = Verb::None; break;
+            }
+            _state = State::ReceivedVerb;
+            return Action::None;
+        } else if (_state == State::ReceivedVerb) {
+            // TODO: Handle Verbs
+            _state = State::Ready;
+            return Action::None;
+        }
+    }
+    
+    switch(fromChannel) {
+        case '\xff': _state = State::ReceivedIAC; break;
+        case '\x03':
+            // ctl-c
+            toClient = fromChannel;
+            break;
+        case '\n':
+            break; // Ignore newline
+        case '\r':
+            // We have a complete line
+            toClient = String::join(_line);
+            _line.clear();
+            toChannel = "\r\n";
+            break;
+        default:
+            _line.push_back(fromChannel);
+            toChannel = fromChannel;
+            break;
+    }
     return Action::None;
 }

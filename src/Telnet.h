@@ -107,6 +107,7 @@ public:
         RFC     = 33,   // remote flow control
         LINE    = 34,   // linemode
         EV      = 36,   // environment variables
+        SLE     = 45,   // suppress local echo
     };
     
     template<typename T>
@@ -120,7 +121,15 @@ public:
     }
     
     // Return the init string to be sent to the Channel
-    String init() { String s; return adder(s, Command::IAC, Command::WILL, Command::SGA, Command::IAC, Command::WONT, Command::LINE); }
+    String init()
+    {
+        String s;
+        return adder(s,
+            Command::IAC, Command::WILL, Command::ECHO,
+            Command::IAC, Command::WILL, Command::SGA,
+            Command::IAC, Command::WONT, Command::LINE,
+            static_cast<Command>('\r'), static_cast<Command>('\n'));
+    }
     
     // This function:
     //
@@ -129,11 +138,17 @@ public:
     //  - Constructs string to send back to Channel (e.g., echo) if any
     //  - Constructs string to send to Client if any
     //  - Returns any command that resulted from the incoming data
-    Action receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient);
+    Action receive(char fromChannel, String& toChannel, String& toClient);
     
     String sendCommand(Action);
 
 private:
+    enum class State { Ready, ReceivedIAC, ReceivedVerb };
+    enum class Verb { None, DO, DONT, WILL, WONT };
+    
+    State _state = State::Ready;
+    Verb _verb = Verb::None;
+    
     std::vector<char> _line;
     int32_t _position = 0;
 };

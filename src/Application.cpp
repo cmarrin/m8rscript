@@ -66,7 +66,17 @@ public:
                 } else {
                     // Set the print function to send the printed string out the TCP channel
                     _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
-                        tcp->send(connectionId, s.c_str());
+                        // Break it up into lines. We need to insert '\r'
+                        std::vector<String> v = s.split("\n");
+                        for (int i = 0; i < v.size(); ++i) {
+                            if (!v[i].empty()) {
+                                tcp->send(connectionId, v[i].c_str(), v[i].size());
+                            }
+                            if (i == v.size() - 1) {
+                                break;
+                            }
+                            tcp->send(connectionId, "\r\n", 2);
+                        }
                     });
                     
                     tcp->send(connectionId, _shells[connectionId].telnet.init().c_str());
@@ -91,11 +101,21 @@ public:
                 if (_shells[connectionId].task) {
                     // Receiving characters. Pass them through Telnet
                     String toChannel, toClient;
-                    Telnet::Action action = _shells[connectionId].telnet.receive(data, length, toChannel, toClient);
-                    (void) action;
+                    for (int16_t i = 0; i < length; ++i) {
+                        if (!data[i]) {
+                            break;
+                        }
+                        Telnet::Action action = _shells[connectionId].telnet.receive(data[i], toChannel, toClient);
+                        (void) action;
                     
-                    // TODO: Handle action and toChannel
-                    _shells[connectionId].task->receivedData(toClient);
+                        // TODO: Handle action
+                        if (!toClient.empty()) {
+                            _shells[connectionId].task->receivedData(toClient);
+                        }
+                        if (!toChannel.empty()) {
+                            tcp->send(connectionId, toChannel.c_str(), toChannel.size());
+                        }
+                    }
                 }
                 break;
             case m8r::TCPDelegate::Event::SentData:
