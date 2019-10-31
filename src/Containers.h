@@ -134,6 +134,14 @@ public:
         other._capacity = 0;
     }
     
+    String(char c)
+    {
+        ensureCapacity(2);
+        _data[0] = c;
+        _data[1] = '\0';
+        _size = 2;
+    }
+    
     ~String() { delete [ ] _data; };
 
     String& operator=(const String& other)
@@ -362,9 +370,9 @@ private:
         _data = newData;
     };
 
-    size_t _size;
-    size_t _capacity;
-    char *_data;
+    size_t _size = 0;
+    size_t _capacity = 0;
+    char *_data = nullptr;
     bool _marked = true;
 };
 
