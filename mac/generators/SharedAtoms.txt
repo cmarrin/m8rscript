@@ -42,7 +42,6 @@ __typeName
 arguments
 call
 consoleListener
-consoleOutputFunction
 constructor
 currentTime
 decode

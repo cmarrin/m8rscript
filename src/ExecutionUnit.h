@@ -128,7 +128,9 @@ public:
 
     void receivedData(const char*, int16_t length);
 
-    void setConsoleOutputFunction(std::function<void(const String&)> f) { _program->setConsoleOutputFunction(this, f); }
+    void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
+    std::function<void(const String&)>& consolePrintFunction() { return _consolePrintFunction; }
+
     void startEventListening() { _numEventListeners++; }
     void stopEventListening() { _numEventListeners--; }
 
@@ -262,6 +264,8 @@ private:
     uint32_t _lineno = 0;
     
     UpValue* _openUpValues = nullptr;
+    
+    std::function<void(const String&)> _consolePrintFunction;
 };
 
 static inline Atom ATOM(Program* p, SA a) { return p ? p->internalAtom(a) : Atom(); }

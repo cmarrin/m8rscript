@@ -85,7 +85,7 @@ public:
     
     void receivedData(const char* data, int16_t length) { _eu.receivedData(data, length); }
 
-    void setConsoleOutputFunction(std::function<void(const String&)> f) { _eu.setConsoleOutputFunction(f); }
+    void setConsolePrintFunction(std::function<void(const String&)> f) { _eu.setConsolePrintFunction(f); }
 
     Error error() const { return _error; }
 

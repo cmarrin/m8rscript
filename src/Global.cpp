@@ -85,7 +85,6 @@ Global::Global(Program* program)
     //addProperty(program, SA::FS, system()->fileSystem());
     
     addProperty(program, SA::consoleListener, Value::NullValue());
-    addProperty(program, SA::consoleOutputFunction, Value::NullValue());
 }
 
 Global::~Global()
@@ -107,11 +106,10 @@ CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t npara
 
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Value 
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
-        if (_consoleOutputFunction) {
-            _consoleOutputFunction(s);
+        if (eu->consolePrintFunction()) {
+            eu->consolePrintFunction()(s);
         } else {
             system()->printf(s.c_str());
         }
@@ -128,8 +126,8 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
     if (s.empty()) {
         return CallReturnValue(CallReturnValue::Error::BadFormatString);
     }
-    if (_consoleOutputFunction) {
-        _consoleOutputFunction(s);
+    if (eu->consolePrintFunction()) {
+        eu->consolePrintFunction()(s);
     } else {
         system()->printf(s.c_str());
     }
@@ -140,14 +138,15 @@ CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t npa
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
-        if (_consoleOutputFunction) {
-            _consoleOutputFunction(s);
+        if (eu->consolePrintFunction()) {
+            eu->consolePrintFunction()(s);
+
         } else {
             system()->printf(s.c_str());
         }
     }
-    if (_consoleOutputFunction) {
-        _consoleOutputFunction("\n");
+    if (eu->consolePrintFunction()) {
+        eu->consolePrintFunction()("\n");
     } else {
         system()->printf("\n");
     }
@@ -260,9 +259,4 @@ CallReturnValue Global::importString(ExecutionUnit* eu, Value thisValue, uint32_
 CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
-}
-
-void Global::setConsoleOutputFunction(ExecutionUnit* eu, std::function<void(const String&)> f)
-{
-    nativeObject()->setProperty(ExecutionUnit *, ATOM(eu, SA::consoleOutputFunction, Value(f));
 }

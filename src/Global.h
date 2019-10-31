@@ -52,8 +52,6 @@ public:
     Global(Program*);
     virtual ~Global();
 
-    void setConsoleOutputFunction(ExecutionUnit*, std::function<void(const String&)>);
-
 private:
     MaterObject _object;
     MaterObject _array;

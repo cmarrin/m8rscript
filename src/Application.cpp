@@ -63,7 +63,7 @@ public:
                     _shells[connectionId] = nullptr;
                     tcp->disconnect(connectionId);
                 } else {
-                    _shells[connectionId]->setConsoleOutputFunction([](const String& s) {
+                    _shells[connectionId]->setConsolePrintFunction([tcp, connectionId](const String& s) {
                         tcp->send(connectionId, s.c_str());
                     });
                     _shells[connectionId]->run([tcp, connectionId, this](TaskBase*)

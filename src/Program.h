@@ -78,8 +78,6 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
-    void setConsoleOutputFunction(ExecutionUnit* eu, std::function<void(const String&)> f) { _global.setConsoleOutputFunction(eu, f); }
-
 private:    
     AtomTable _atomTable;
     
