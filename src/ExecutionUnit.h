@@ -128,6 +128,7 @@ public:
 
     void receivedData(const char*, int16_t length);
 
+    void setConsoleOutputFunction(std::function<void(const String&)> f) { _program->setConsoleOutputFunction(this, f); }
     void startEventListening() { _numEventListeners++; }
     void stopEventListening() { _numEventListeners--; }
 

@@ -64,7 +64,6 @@ public:
     // For debugging
     static void printAtomId(Program*, int id);
 
-    
     StringLiteral startStringLiteral() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }
     void endStringLiteral() { _stringLiteralTable.push_back('\0'); }
@@ -79,6 +78,8 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
+    void setConsoleOutputFunction(ExecutionUnit* eu, std::function<void(const String&)> f) { _global.setConsoleOutputFunction(eu, f); }
+
 private:    
     AtomTable _atomTable;
     

@@ -40,8 +40,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SystemInterface.h"
 #include "TaskManager.h"
 #include <cstdint>
+#include <functional>
 
 namespace m8r {
+
+class String;
 
 class TaskBase : public List<TaskBase, Time>::Item {
     friend class TaskManager;
@@ -59,7 +62,7 @@ public:
         _finishCB = cb;
         system()->taskManager()->yield(this, duration);
     }
-    
+
     void yield() { system()->taskManager()->yield(this); }
     void terminate() { system()->taskManager()->terminate(this); }
 
@@ -81,6 +84,8 @@ public:
     ~Task() { Object::removeEU(&_eu); }
     
     void receivedData(const char* data, int16_t length) { _eu.receivedData(data, length); }
+
+    void setConsoleOutputFunction(std::function<void(const String&)> f) { _eu.setConsoleOutputFunction(f); }
 
     Error error() const { return _error; }
 

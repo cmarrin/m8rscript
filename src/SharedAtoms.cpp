@@ -48,6 +48,7 @@ static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _call[] ROMSTR_ATTR = "call";
 static const char _consoleListener[] ROMSTR_ATTR = "consoleListener";
+static const char _consoleOutputFunction[] ROMSTR_ATTR = "consoleOutputFunction";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
 static const char _decode[] ROMSTR_ATTR = "decode";
@@ -131,6 +132,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _arguments,
     _call,
     _consoleListener,
+    _consoleOutputFunction,
     _constructor,
     _currentTime,
     _decode,
