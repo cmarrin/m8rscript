@@ -111,20 +111,21 @@ public:
     };
     
     template<typename T>
-    String adder(String& s, T v) {
-        return s + static_cast<char>(v);
+    String makeCommand(T v)
+    {
+        return String(static_cast<char>(v));
     }
 
     template<typename T, typename... Args>
-    String adder(String& s, T first, Args... args) {
-      return s + static_cast<char>(first) + adder(s, args...);
+    String makeCommand(T first, Args... args)
+    {
+        return String(static_cast<char>(first)) + makeCommand(args...);
     }
     
     // Return the init string to be sent to the Channel
     String init()
     {
-        String s;
-        return adder(s,
+        return makeCommand(
             Command::IAC, Command::WILL, Command::ECHO,
             Command::IAC, Command::WILL, Command::SGA,
             Command::IAC, Command::WONT, Command::LINE,

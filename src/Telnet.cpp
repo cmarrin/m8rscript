@@ -76,6 +76,12 @@ Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toCl
             _line.clear();
             toChannel = "\r\n";
             break;
+        case '\x7f': // backspace
+            if (!_line.empty()) {
+                _line.pop_back();
+                toChannel = "\x08 \x08";
+            }
+            break;
         default:
             _line.push_back(fromChannel);
             toChannel = fromChannel;
