@@ -70,10 +70,57 @@ namespace m8r {
 class Telnet {
 public:
     // Interrupt is control-c
-    enum class Command { None, UpArrow, DownArrow, RightArrow, LeftArrow, Delete, Backspace, Interrupt };
+    enum class Action { None, UpArrow, DownArrow, RightArrow, LeftArrow, Delete, Backspace, Interrupt };
+    
+    // Commands from the Telnet Channel. See https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
+    enum class Command : uint8_t {
+        SE      = 240,  // End of subnegotiation parameters.
+        NOP     = 241,  // No operation
+        DM      = 242,  // Data mark. Indicates the position of a Sync event within the data stream. This
+                        // should always be accompanied by a TCP urgent notification.
+        BRK     = 243,  // Break. Indicates that the "break" or "attention" key was hit.
+        IP      = 244,  // Suspend, interrupt or abort the process to which the NVT is connected.
+        AO      = 245,  // Abort output. Allows the current process to run to completion but do not send
+                        // its output to the user.
+        AYT     = 246,  // Are you there? Send back to the NVT some visible evidence that the AYT was received.
+        EC      = 247,  // Erase character. The receiver should delete the last preceding undeleted
+                        // character from the data stream.
+        EL      = 248,  // Erase line. Delete characters from the data stream back to but not including the previous CRLF.
+        GA      = 249,  // Go ahead. Used, under certain circumstances, to tell the other end that it can transmit.
+        SB      = 250,  // Subnegotiation of the indicated option follows.
+        WILL    = 251,  // Indicates the desire to begin performing, or confirmation that you are now performing,
+                        // the indicated option.
+        WONT    = 252,  // Indicates the refusal to perform, or continue performing, the indicated option.
+        DO      = 253,  // Indicates the request that the other party perform, or confirmation that you are
+                        // expecting the other party to perform, the indicated option.
+        DONT    = 254,  // Indicates the demand that the other party stop performing, or confirmation that you
+                        // are no longer expecting the other party to perform, the indicated option.
+        IAC     = 255,  // Interpret as command
+        
+        ECHO    = 1,    // echo
+        SGA     = 3,    // suppress go ahead
+        STAT    = 5,    // status
+        TM      = 6,    // timing mark
+        TT      = 24,   // terminal type
+        WS      = 31,   // window size
+        TS      = 32,   // terminal speed
+        RFC     = 33,   // remote flow control
+        LINE    = 34,   // linemode
+        EV      = 36,   // environment variables
+    };
+    
+    template<typename T>
+    String adder(String& s, T v) {
+        return s + static_cast<char>(v);
+    }
+
+    template<typename T, typename... Args>
+    String adder(String& s, T first, Args... args) {
+      return s + static_cast<char>(first) + adder(s, args...);
+    }
     
     // Return the init string to be sent to the Channel
-    String init();
+    String init() { String s; return adder(s, Command::IAC, Command::WILL, Command::SGA, Command::IAC, Command::WONT, Command::LINE); }
     
     // This function:
     //
@@ -82,9 +129,9 @@ public:
     //  - Constructs string to send back to Channel (e.g., echo) if any
     //  - Constructs string to send to Client if any
     //  - Returns any command that resulted from the incoming data
-    Command receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient);
+    Action receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient);
     
-    String sendCommand(Command);
+    String sendCommand(Action);
 
 private:
     std::vector<char> _line;

@@ -64,9 +64,14 @@ public:
                     _shells[connectionId].task = nullptr;
                     tcp->disconnect(connectionId);
                 } else {
+                    // Set the print function to send the printed string out the TCP channel
                     _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
                         tcp->send(connectionId, s.c_str());
                     });
+                    
+                    tcp->send(connectionId, _shells[connectionId].telnet.init().c_str());
+                    
+                    // Run the task
                     _shells[connectionId].task->run([tcp, connectionId, this](TaskBase*)
                     {
                         // On return from finished task, drop the connection
@@ -86,10 +91,10 @@ public:
                 if (_shells[connectionId].task) {
                     // Receiving characters. Pass them through Telnet
                     String toChannel, toClient;
-                    Telnet::Command command = _shells[connectionId].telnet.receive(data, length, toChannel, toClient);
-                    (void) command;
+                    Telnet::Action action = _shells[connectionId].telnet.receive(data, length, toChannel, toClient);
+                    (void) action;
                     
-                    // TODO: Handle command and toChannel
+                    // TODO: Handle action and toChannel
                     _shells[connectionId].task->receivedData(toClient);
                 }
                 break;

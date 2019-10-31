@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-Telnet::Command Telnet::receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient)
+Telnet::Action Telnet::receive(const char* fromChannel, int16_t fromLength, String& toChannel, String& toClient)
 {
     toClient = String(fromChannel, fromLength);
-    return Command::None;
+    return Action::None;
 }

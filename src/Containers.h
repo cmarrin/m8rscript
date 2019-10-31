@@ -215,6 +215,7 @@ public:
     
     friend String operator +(const String& s1 , const String& s2) { String s = s1; s += s2; return s; }
     friend String operator +(const String& s1 , const char* s2) { String s = s1; s += s2; return s; }
+    friend String operator +(const String& s1 , char c) { String s = s1; s += c; return s; }
     friend String operator +(const char* s1 , const String& s2) { String s = s1; s += s2; return s; }
     
     bool operator<(const String& other) const { return strcmp(c_str(), other.c_str()) < 0; }
