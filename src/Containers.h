@@ -124,6 +124,16 @@ public:
         *this = other;
     };
     
+    String(String&& other)
+    {
+        _data = other._data;
+        other._data = nullptr;
+        _size = other._size;
+        other._size = 0;
+        _capacity = other._capacity;
+        other._capacity = 0;
+    }
+    
     ~String() { delete [ ] _data; };
 
     String& operator=(const String& other)
@@ -146,6 +156,25 @@ public:
             _capacity = 0;
             _size = 1;
         }
+        return *this;
+    }
+    
+    String& operator=(String&& other)
+    {
+        if (this == &other) {
+            return *this;
+        }
+
+        delete[] _data;
+
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+
+        other._data = nullptr;
+        other._size = 0;
+        other._capacity = 0;
+
         return *this;
     }
     
