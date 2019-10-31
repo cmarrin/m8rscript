@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
+		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
@@ -196,6 +198,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../src/Telnet.cpp; sourceTree = "<group>"; };
+		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../src/Telnet.h; sourceTree = "<group>"; };
 		491ED38D235392FF00DE0C42 /* spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs.h; path = ../src/spiffs/src/spiffs.h; sourceTree = "<group>"; };
 		491ED38E235392FF00DE0C42 /* spiffs_cache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_cache.c; path = ../src/spiffs/src/spiffs_cache.c; sourceTree = "<group>"; };
 		491ED38F235392FF00DE0C42 /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs/src/spiffs_config.h; sourceTree = "<group>"; };
@@ -674,6 +678,8 @@
 				499AE8E4234A625100459451 /* Task.h */,
 				49AB794B1DC143B700DE6332 /* TaskManager.cpp */,
 				49AB794C1DC143B700DE6332 /* TaskManager.h */,
+				491E2F8D236A52160054725E /* Telnet.cpp */,
+				491E2F8E236A52160054725E /* Telnet.h */,
 				49E190781DB99E270030DC89 /* TCP.h */,
 				49D5FD331E2D9D89001AF5C8 /* TCP.cpp */,
 				49E190791DB99E270030DC89 /* UDP.h */,
@@ -967,6 +973,7 @@
 				49BF344D236811BF001E5508 /* spiffs_hydrogen.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
+				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
 				49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,
@@ -989,6 +996,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
+				491E2F8F236A52160054725E /* Telnet.cpp in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
