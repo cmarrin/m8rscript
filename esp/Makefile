@@ -57,6 +57,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/Task.cpp \
 		../src/TaskManager.cpp \
 		../src/TCP.cpp \
+		../src/Telnet.cpp \
 		../src/UDP.cpp \
 		../src/Value.cpp \
         ../src/Scanner.cpp \
