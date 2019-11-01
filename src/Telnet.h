@@ -74,40 +74,40 @@ public:
     
     // Commands from the Telnet Channel. See https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
     enum class Command : uint8_t {
-        SE      = 240,  // End of subnegotiation parameters.
-        NOP     = 241,  // No operation
-        DM      = 242,  // Data mark. Indicates the position of a Sync event within the data stream. This
-                        // should always be accompanied by a TCP urgent notification.
-        BRK     = 243,  // Break. Indicates that the "break" or "attention" key was hit.
-        IP      = 244,  // Suspend, interrupt or abort the process to which the NVT is connected.
-        AO      = 245,  // Abort output. Allows the current process to run to completion but do not send
-                        // its output to the user.
-        AYT     = 246,  // Are you there? Send back to the NVT some visible evidence that the AYT was received.
-        EC      = 247,  // Erase character. The receiver should delete the last preceding undeleted
-                        // character from the data stream.
-        EL      = 248,  // Erase line. Delete characters from the data stream back to but not including the previous CRLF.
-        GA      = 249,  // Go ahead. Used, under certain circumstances, to tell the other end that it can transmit.
-        SB      = 250,  // Subnegotiation of the indicated option follows.
-        WILL    = 251,  // Indicates the desire to begin performing, or confirmation that you are now performing,
-                        // the indicated option.
-        WONT    = 252,  // Indicates the refusal to perform, or continue performing, the indicated option.
-        DO      = 253,  // Indicates the request that the other party perform, or confirmation that you are
-                        // expecting the other party to perform, the indicated option.
-        DONT    = 254,  // Indicates the demand that the other party stop performing, or confirmation that you
-                        // are no longer expecting the other party to perform, the indicated option.
-        IAC     = 255,  // Interpret as command
+        SE      = 240,  // (0xf0) End of subnegotiation parameters.
+        NOP     = 241,  // (0xf1) No operation
+        DM      = 242,  // (0xf2) Data mark. Indicates the position of a Sync event within the data stream. This
+                        //        should always be accompanied by a TCP urgent notification.
+        BRK     = 243,  // (0xf3) Break. Indicates that the "break" or "attention" key was hit.
+        IP      = 244,  // (0xf4) Suspend, interrupt or abort the process to which the NVT is connected.
+        AO      = 245,  // (0xf5) Abort output. Allows the current process to run to completion but do not send
+                        //        its output to the user.
+        AYT     = 246,  // (0xf6) Are you there? Send back to the NVT some visible evidence that the AYT was received.
+        EC      = 247,  // (0xf7) Erase character. The receiver should delete the last preceding undeleted
+                        //        character from the data stream.
+        EL      = 248,  // (0xf8) Erase line. Delete characters from the data stream back to but not including the previous CRLF.
+        GA      = 249,  // (0xf9) Go ahead. Used, under certain circumstances, to tell the other end that it can transmit.
+        SB      = 250,  // (0xfa) Subnegotiation of the indicated option follows.
+        WILL    = 251,  // (0xfb) Indicates the desire to begin performing, or confirmation that you are now performing,
+                        //        the indicated option.
+        WONT    = 252,  // (0xfc) Indicates the refusal to perform, or continue performing, the indicated option.
+        DO      = 253,  // (0xfd) Indicates the request that the other party perform, or confirmation that you are
+                        //        expecting the other party to perform, the indicated option.
+        DONT    = 254,  // (0xfe) Indicates the demand that the other party stop performing, or confirmation that you
+                        //        are no longer expecting the other party to perform, the indicated option.
+        IAC     = 255,  // (0xff) Interpret as command
         
-        ECHO    = 1,    // echo
-        SGA     = 3,    // suppress go ahead
-        STAT    = 5,    // status
-        TM      = 6,    // timing mark
-        TT      = 24,   // terminal type
-        WS      = 31,   // window size
-        TS      = 32,   // terminal speed
-        RFC     = 33,   // remote flow control
-        LINE    = 34,   // linemode
-        EV      = 36,   // environment variables
-        SLE     = 45,   // suppress local echo
+        ECHO    = 1,    // (0x01) echo
+        SGA     = 3,    // (0x03) suppress go ahead
+        STAT    = 5,    // (0x05) status
+        TM      = 6,    // (0x06) timing mark
+        TT      = 24,   // (0x18) terminal type
+        WS      = 31,   // (0x1f) window size
+        TS      = 32,   // (0x20) terminal speed
+        RFC     = 33,   // (0x21) remote flow control
+        LINE    = 34,   // (0x22) linemode
+        EV      = 36,   // (0x24) environment variables
+        SLE     = 45,   // (0x2d) suppress local echo
     };
     
     template<typename T>
