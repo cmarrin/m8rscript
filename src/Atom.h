@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "Containers.h"
+#include "MString.h"
 #include "SharedAtoms.h"
 
 namespace m8r {
@@ -69,7 +70,7 @@ public:
     AtomTable();
 
     Atom atomizeString(const char*) const;
-    m8r::String stringFromAtom(const Atom atom) const
+    String stringFromAtom(const Atom atom) const
     {
         if (!atom) {
             return String();
@@ -83,7 +84,7 @@ public:
         }
         
         index -= ExternalAtomOffset;
-        return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
+        return String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
     Atom internalAtom(SA sa) const { return Atom(static_cast<Atom::value_type>(sa));

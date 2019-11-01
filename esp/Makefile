@@ -50,6 +50,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/JSON.cpp \
 		../src/Object.cpp \
 		../src/Mallocator.cpp \
+		../src/MString.cpp \
 		../src/Program.cpp \
 		../src/slre.cpp \
 		../src/SystemInterface.cpp \
