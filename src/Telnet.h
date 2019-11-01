@@ -144,7 +144,13 @@ public:
     String sendCommand(Action);
 
 private:
-    enum class State { Ready, ReceivedIAC, ReceivedVerb };
+    String makeInputLine();
+    
+    enum class State {
+        Ready,
+        ReceivedIAC, ReceivedVerb,
+        EscapeCSI, EscapeParam, EscapeFinal,
+    };
     enum class Verb { None, DO, DONT, WILL, WONT };
     
     State _state = State::Ready;
@@ -152,6 +158,7 @@ private:
     
     std::vector<char> _line;
     int32_t _position = 0;
+    char _escapeParam = 0;
 };
 
 }
