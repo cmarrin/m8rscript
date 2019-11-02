@@ -367,6 +367,43 @@ static inline bool valuesAreInt(const Value& a, const Value& b)
     return a.isInteger() && b.isInteger();
 }
 
+static inline int compareFloat(Float a, Float b)
+{
+    Float result = a - b;
+    return (result < Float(0)) ? -1 : ((result > Float(0)) ? 1 : 0);
+}
+
+int ExecutionUnit::compareValues(const Value& a, const Value& b)
+{
+    if ((a.isNull() || a.isNone()) && (b.isNull() || b.isNone())) {
+        return true;
+    }
+    
+    if (valuesAreInt(a, b)) {
+        return a.asIntValue() - b.asIntValue();
+    }
+    
+    // Optimization for equal string literals
+    if (a.isStringLiteral() && b.isStringLiteral()) {
+        if (a.asStringLiteralValue() == b.asStringLiteralValue()) {
+            return 0;
+        }
+        // Otherwise just fall through and test as strings
+    }
+    
+    if (a.isString() && b.isString()) {
+        return String::compare(a.toStringValue(this), b.toStringValue(this));
+    }
+    
+    if ((a.isNumber() || a.isString()) && (b.isNumber() || b.isString())) {
+        return compareFloat(a.toFloatValue(this), b.toFloatValue(this));
+    }
+    
+    // TODO: Handle converting Object to primitive value and comparing that.
+    // A primitive value is either a Number or a String
+    return -1;
+}
+
 CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
 {
     Parser parser(_program);
@@ -439,7 +476,6 @@ CallReturnValue ExecutionUnit::continueExecution()
     updateCodePointer();
     
     uint16_t checkCounter = 0;
-    m8r::String strValue;
     uint32_t uintValue;
     int32_t intValue;
     Float floatValue;
@@ -661,58 +697,22 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(inst.ra(), Value(leftIntValue));
         DISPATCH;
     L_EQ: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() == rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) == rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) == 0));
         DISPATCH;
     L_NE: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() != rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) != rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) != 0));
         DISPATCH;
     L_LT: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() < rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) < rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) < 0));
         DISPATCH;
     L_LE: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() <= rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) <= rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) <= 0));
         DISPATCH;
     L_GT: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() > rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) > rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) > 0));
         DISPATCH;
     L_GE: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
-        if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() >= rightValue.asIntValue()));
-        } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) >= rightValue.toFloatValue(this)));
-        }
+        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) >= 0));
         DISPATCH;
     L_SUB: 
         leftValue = regOrConst(inst.rb());

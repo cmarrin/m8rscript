@@ -190,6 +190,8 @@ private:
     
     bool isConstant(uint32_t r) { return r > MaxRegister; }
 
+    int compareValues(const Value& a, const Value& b);
+
     struct CallRecord {
         CallRecord() { }
         CallRecord(uint32_t pc, uint32_t frame, Object* func, Object* thisObj, uint32_t paramCount, uint32_t lineno)
