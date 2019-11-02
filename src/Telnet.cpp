@@ -13,6 +13,74 @@
 
 using namespace m8r;
 
+Telnet::Telnet()
+{
+    _stateMachine.addState(State::Ready, []() { }, 
+    {
+          { Input::Backspace, State::Backspace }
+        , { Input::Printable, State::AddChar }
+        , { Input::Interrupt, State::Interrupt }
+        , { Input::LF, State::Ready }
+        , { Input::CR, State::SendLine }
+        , { Input::CSI, State::CSI }
+        , { Input::IAC, State::IAC }
+    });
+    
+    _stateMachine.addState(State::Backspace, []() { handleBackspace(); }, State::Ready);
+    _stateMachine.addState(State::AddChar, []() { handleAddChar(); }, State::Ready);
+    _stateMachine.addState(State::Interrupt, []() { handleInterrupt(); }, State::Ready);
+    _stateMachine.addState(State::CR, []() { sendLine(); }, State::Ready);
+    _stateMachine.addState(State::LF, []() { }, State::Ready);
+
+    _stateMachine.addState(State::CSI, []() { }, 
+         { Input::Other, State::Ready }
+       , { Input::CSIOpenBracket, State::CSIParam }
+   });
+
+     _stateMachine.addState(State::IAC, []() { }, 
+          { Input::IAC, State::AddFF }
+        , { Input::Any, State::IACParam }
+    });
+
+}
+
+void Telnet::handleBackspace()
+{
+    if (!_line.empty() && _position > 0) {
+        _position--;
+        _line.erase(_line.begin() + _position);
+
+        if (_position == _line.size()) {
+            // At the end of line. Do the simple thing
+            toChannel = "\x08 \x08";
+        } else {
+            toChannel = makeInputLine();
+        }
+    }    
+}
+
+void Telnet::handleAddChar()
+{
+    if (_position == _line.size()) {
+        // At end of line, do the simple thing
+        _line.push_back(fromChannel);
+        _position++;
+        toChannel = fromChannel;
+    } else {
+        _line.insert(_line.begin() + _position, fromChannel);
+        _position++;
+        makeInputLine();
+    }
+}
+
+void Telnet::sendLine()
+{
+    toClient = String::join(_line);
+    _line.clear();
+    _position = 0;
+    toChannel = "\r\n";
+}
+
 Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
 {
     // TODO: With the input set to raw, do we need to handle any IAC commands from Telnet?

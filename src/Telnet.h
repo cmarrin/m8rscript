@@ -10,6 +10,7 @@
 #pragma once
 
 #include "MString.h"
+#include "StateMachine.h"
 #include <cstdint>
 
 namespace m8r {
@@ -84,6 +85,8 @@ public:
         SLE     = 45,   // (0x2d) suppress local echo
     };
     
+    Telnet();
+    
     template<typename T>
     String makeCommand(T v)
     {
@@ -119,20 +122,31 @@ public:
 
 private:
     String makeInputLine();
+    void handleBackspace();
+    void handleAddChar();
+    void handleInterrupt();
+    void sendLine();
     
     enum class State {
-        Ready,
-        ReceivedIAC, ReceivedVerb,
-        EscapeCSI, EscapeParam, EscapeFinal,
+        Ready, Interrupt, Backspace, AddChar, AddFF, SendLine, 
+        IAC, IACVerb, IACCommand, 
+        CSI, CSIParam, EscapeFinal,
     };
+    
+    enum class Input {
+        Printable, Backspace, Interrupt, Any, Other, 
+        CSI, CSIOpenBracket, CSIParam, CR, LF, IAC, IACParam, 
+    };
+    
     enum class Verb { None, DO, DONT, WILL, WONT };
     
-    State _state = State::Ready;
     Verb _verb = Verb::None;
     
     std::vector<char> _line;
     int32_t _position = 0;
     char _escapeParam = 0;
+    
+    m8r::StateMachine<State, Input> _stateMachine;
 };
 
 }

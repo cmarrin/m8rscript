@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <m8r.h>
 #include <vector>
 
 namespace m8r {
@@ -34,6 +33,12 @@ namespace m8r {
         
         struct StateEntry
         {
+            StateEntry(State state, Action action, NextStates nextStates)
+                : _state(state)
+                , _action(action)
+                , _nextStates(nextStates)
+            { }
+            
             StateEntry(State state, Action action, NextStates nextStates, const String& s)
                 : _state(state)
                 , _action(action)
