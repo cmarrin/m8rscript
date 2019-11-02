@@ -42,10 +42,37 @@ namespace m8r {
 //
 //--------------------------------------------------------------------------
 
+static constexpr uint32_t makeAction(uint32_t c0) 
+                          { return c0 << 24; }
+static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1) 
+                          { return makeAction(c0) | (c1 << 16); }
+static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1, uint32_t c2) 
+                          { return makeAction(c0, c1) | (c2 << 8); }
+static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1, uint32_t c2, uint32_t c3) 
+                          { return makeAction(c0, c1, c2) | c3; }
+
 class Telnet {
 public:
     // Interrupt is control-c
-    enum class Action { None, UpArrow, DownArrow, RightArrow, LeftArrow, Delete, Backspace, Interrupt };
+    // Actions have a 1-4 character code which m8rscript can compare against. For instance
+    // 
+    //      function handleAction(action)
+    //      {
+    //          if (action == "down") ...
+    //      }
+    //
+    // to make this work efficiently Action enumerants are uint32_t with the characters packed
+    // in. These are converted to StringLiteral Values and sent to the script.     
+    enum class Action : uint32_t {
+        None = 0,
+        UpArrow = makeAction('u', 'p'), 
+        DownArrow = makeAction('d', 'o', 'w', 'n'), 
+        RightArrow = makeAction('r', 't'), 
+        LeftArrow = makeAction('l', 't'), 
+        Delete = makeAction('d', 'e', 'l'), 
+        Backspace = makeAction('b', 's'), 
+        Interrupt = makeAction('i', 'n', 't', 'r'),
+    };
     
     // Commands from the Telnet Channel. See https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
     enum class Command : uint8_t {
