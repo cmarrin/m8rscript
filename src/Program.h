@@ -52,6 +52,24 @@ public:
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
+    StringLiteral stringLiteralFromString(const char* s)
+    {
+        const char* table = &_stringLiteralTable[0];
+        size_t size = _stringLiteralTable.size();
+        
+        for (size_t i = 0; i < size; ) {
+            // Find the next string
+            if (strcmp(s, table + i) == 0) {
+                return StringLiteral(static_cast<uint32_t>(i));
+            }
+            
+            i += strlen(table + i) + 1;
+        }
+        
+        // Not found, add it
+        return addStringLiteral(s);
+    }
+    
 private:    
     AtomTable _atomTable;
     
