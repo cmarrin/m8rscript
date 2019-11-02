@@ -143,7 +143,7 @@ CallReturnValue Global::toFloat(ExecutionUnit* eu, Value thisValue, uint32_t npa
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
     Float f;
-    if (Value::toFloat(f, s.c_str(), allowWhitespace)) {
+    if (String::toFloat(f, s.c_str(), allowWhitespace)) {
         eu->stack().push(Value(f));
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
@@ -165,7 +165,7 @@ CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t npara
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
     int32_t i;
-    if (Value::toInt(i, s.c_str(), allowWhitespace)) {
+    if (String::toInt(i, s.c_str(), allowWhitespace)) {
         eu->stack().push(Value(i));
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
@@ -187,7 +187,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
     uint32_t u;
-    if (Value::toUInt(u, s.c_str(), allowWhitespace)) {
+    if (String::toUInt(u, s.c_str(), allowWhitespace)) {
         eu->stack().push(Value(static_cast<int32_t>(u)));
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }

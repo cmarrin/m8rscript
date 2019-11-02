@@ -10,11 +10,8 @@
 #pragma once
 
 #include "Atom.h"
-#include "Containers.h"
 #include "Error.h"
-#include "Float.h"
 #include "SystemTime.h"
-#include <functional>
 
 namespace m8r {
 
@@ -204,12 +201,6 @@ public:
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
 
-    static m8r::String toString(Float value);
-    static m8r::String toString(int32_t value);
-    static bool toFloat(Float&, const char*, bool allowWhitespace = true);
-    static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
-    static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
-    
     static String format(ExecutionUnit*, Value format, uint32_t nparams);
     
     void gcMark();

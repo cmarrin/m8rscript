@@ -16,6 +16,7 @@
 #include <limits>
 #include <vector>
 #include "Defines.h"
+#include "Float.h"
 
 namespace m8r {
 
@@ -200,6 +201,12 @@ public:
     void setMarked(bool b) { _marked = b; }
     
     void reserve(size_t size) { ensureCapacity(size); }
+    
+    static String toString(Float value);
+    static String toString(int32_t value);
+    static bool toFloat(Float&, const char*, bool allowWhitespace = true);
+    static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
+    static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
 private:
     void doEnsureCapacity(size_t size);

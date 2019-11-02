@@ -10,193 +10,10 @@
 #include "Value.h"
 
 #include "ExecutionUnit.h"
-#include "MStream.h"
 #include "Object.h"
-#include "Program.h"
-#include "Scanner.h"
 #include "slre.h"
 
 using namespace m8r;
-
-inline static void reverse(char *str, int len)
-{
-    for (int32_t i = 0, j = len - 1; i < j; i++, j--) {
-        char tmp = str[i];
-        str[i] = str[j];
-        str[j] = tmp;
-    }
-}
-
-static int32_t intToString(Float::decompose_type x, char* str, int16_t dp)
-{
-    int32_t i = 0;
-    bool haveDP = false;
-    
-    while (x) {
-        str[i++] = (x % 10) + '0';
-        x /= 10;
-        if (--dp == 0) {
-            str[i++] = '.';
-            haveDP = true;
-        }
-    }
-    
-    if (dp > 0) {
-        while (dp--) {
-            str[i++] = '0';
-        }
-        str[i++] = '.';
-        haveDP = true;
-    }
-    assert(i > 0);
-    if (str[i-1] == '.') {
-        str[i++] = '0';
-    }
-    
-    reverse(str, i);
-    str[i] = '\0';
-
-    if (haveDP) {
-        i--;
-        while (str[i] == '0') {
-            str[i--] = '\0';
-        }
-        if (str[i] == '.') {
-            str[i--] = '\0';
-        }
-        i++;
-    }
-
-    return i;
-}
-
-static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
-{
-    if (value == 0) {
-        buf[0] = '0';
-        buf[1] = '\0';
-        exp = 0;
-        return true;
-    }
-    
-    if (!exp) {
-        intToString(value, buf, 0);
-        return true;
-    }
-
-    // See how many digits we have
-    Float::decompose_type v = value;
-    int digits = 0;
-    for ( ; v > 0; ++digits, v /= 10) ;
-    v = value;
-    int32_t dp;
-    if (exp + digits > Float::MaxDigits || -exp > Float::MaxDigits) {
-        // Scientific notation
-        dp = digits - 1;
-        exp += dp;
-    } else {
-        dp = -exp;
-        exp = 0;
-    }
-    
-    int32_t i = intToString(value, buf, dp);
-    if (exp) {
-        buf[i++] = 'e';
-        if (exp < 0) {
-            buf[i++] = '-';
-            exp = -exp;
-        }
-        intToString(exp, buf + i, 0);
-    }
-    
-    return true;
-}
-
-m8r::String Value::toString(Float value)
-{
-    //          sign    digits  dp      'e'     dp      exp     '\0'
-    char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
-    int16_t exp;
-    Float::decompose_type mantissa;
-    value.decompose(mantissa, exp);
-    if (mantissa < 0) {
-        buf[0] = '-';
-        mantissa = - mantissa;
-        ::toString(buf + 1, mantissa, exp);
-    } else {
-        ::toString(buf, mantissa, exp);
-    }
-    return m8r::String(buf);
-}
-
-m8r::String Value::toString(int32_t value)
-{
-    char buf[12];
-    int16_t exp = 0;
-    if (value < 0) {
-        buf[0] = '-';
-        value = -value;
-        ::toString(buf + 1, value, exp);
-    } else {
-        ::toString(buf, value, exp);
-    }
-    return m8r::String(buf);
-}
-
-bool Value::toFloat(Float& f, const char* s, bool allowWhitespace)
-{
-    StringStream stream(s);
-    Scanner scanner(&stream);
-    bool neg = false;
-    Scanner::TokenType type;
-  	Token token = scanner.getToken(type, allowWhitespace);
-    if (token == Token::Minus) {
-        neg = true;
-        token = scanner.getToken(type, allowWhitespace);
-    }
-    if (token == Token::Float || token == Token::Integer) {
-        f = (token == Token::Float) ? Float(type.number) : Float(type.integer, 0);
-        if (neg) {
-            f = -f;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool Value::toInt(int32_t& i, const char* s, bool allowWhitespace)
-{
-    StringStream stream(s);
-    Scanner scanner(&stream);
-    bool neg = false;
-    Scanner::TokenType type;
-  	Token token = scanner.getToken(type, allowWhitespace);
-    if (token == Token::Minus) {
-        neg = true;
-        token = scanner.getToken(type, allowWhitespace);
-    }
-    if (token == Token::Integer && type.integer <= std::numeric_limits<int32_t>::max()) {
-        i = type.integer;
-        if (neg) {
-            i = -i;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool Value::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
-{
-    StringStream stream(s);
-    Scanner scanner(&stream);
-    Scanner::TokenType type;
-  	Token token = scanner.getToken(type, allowWhitespace);
-    if (token == Token::Integer) {
-        u = type.integer;
-        return true;
-    }
-    return false;
-}
 
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {
@@ -207,8 +24,8 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
             Object* obj = asObject();
             return obj ? obj->toString(eu) : String("null");
         }
-        case Type::Float: return toString(asFloatValue());
-        case Type::Integer: return toString(asIntValue());
+        case Type::Float: return String::toString(asFloatValue());
+        case Type::Integer: return String::toString(asIntValue());
         case Type::String: {
             String* s = asString();
             return s ? *s : String("*BAD*");
@@ -229,7 +46,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
             Object* obj = asObject();
             Float f;
             if (obj) {
-                toFloat(f, obj->toString(eu).c_str());
+                String::toFloat(f, obj->toString(eu).c_str());
             }
             return f;
         }
@@ -241,13 +58,13 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
                 return Float();
             }
             Float f;
-            toFloat(f, s->c_str());
+            String::toFloat(f, s->c_str());
             return f;
         }
         case Type::StringLiteral: {
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
             Float f;
-            toFloat(f, s.c_str());
+            String::toFloat(f, s.c_str());
             return f;
         }
         case Type::Id:
@@ -335,7 +152,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
         uint32_t width = 0;
         bool zeroFill = false;
         if (caps[1].len) {
-            Value::toUInt(width, caps[1].ptr);
+            String::toUInt(width, caps[1].ptr);
             if (caps[1].ptr[0] == '0') {
                 zeroFill = true;
             }
@@ -379,7 +196,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
             case 'x':
             case 'X':
             case 'u': {
-                String format = String("%") + (zeroFill ? "0" : "") + (width ? Value::toString(width).c_str() : "");
+                String format = String("%") + (zeroFill ? "0" : "") + (width ? String::toString(width).c_str() : "");
                 char numberBuf[20] = "";
                 
                 switch(formatChar) {

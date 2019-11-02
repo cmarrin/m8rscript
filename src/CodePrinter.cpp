@@ -35,7 +35,7 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
             ++_nestingLevel;
         }
         s += "LINENO[";
-        s += Value::toString(_lineno);
+        s += String::toString(_lineno);
         s += "]\n";
     }
     
@@ -50,7 +50,7 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
         ++_nestingLevel;
     }
     s += "LABEL[";
-    s += Value::toString(uniqueID);
+    s += String::toString(uniqueID);
     s += "]\n";
     indentCode(s);
 }
@@ -63,13 +63,13 @@ m8r::String CodePrinter::generateCodeString(const Program* program) const
 String CodePrinter::regString(const Program* program, const Function* function, uint32_t reg, bool up) const
 {
     if (up) {
-        return String("U[") + Value::toString(reg) + "]";
+        return String("U[") + String::toString(reg) + "]";
     }
     if (reg <= MaxRegister) {
-        return String("R[") + Value::toString(reg) + "]";
+        return String("R[") + String::toString(reg) + "]";
     }
     
-    String s = String("K[") + Value::toString(reg - MaxRegister - 1) + "](";
+    String s = String("K[") + String::toString(reg - MaxRegister - 1) + "](";
     showConstant(program, s, function->constants()->at(ConstantId(reg - MaxRegister - 1).raw()), true);
     s += ")";
     return s;
@@ -114,19 +114,19 @@ void CodePrinter::generateRRR(const Program* program, const Function* function, 
 void CodePrinter::generateXN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, int32_t n) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + Value::toString(n) + "\n";
+    str += String(stringFromOp(op)) + " " + String::toString(n) + "\n";
 }
 
 void CodePrinter::generateRN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + Value::toString(n) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + String::toString(n) + "\n";
 }
 
 void CodePrinter::generateCall(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + Value::toString(nparams) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Program* program, const Object* func, const char* functionName, uint32_t nestingLevel) const
@@ -226,7 +226,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         for (uint8_t i = 1; i < function->constants()->size(); ++i) {
             Value constant = function->constants()->at(ConstantId(i).raw());
             indentCode(outputString);
-            outputString += "[" + Value::toString(i) + "] = ";
+            outputString += "[" + String::toString(i) + "] = ";
             showConstant(program, outputString, constant);
             outputString += "\n";
         }
@@ -241,12 +241,12 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
         for (uint8_t i = 0; i < function->upValueCount(); ++i) {
             indentCode(outputString);
-            outputString += "[" + Value::toString(i) + "] = ";
+            outputString += "[" + String::toString(i) + "] = ";
             uint32_t index;
             uint16_t frame;
             Atom name;
             function->upValue(i, index, frame, name);
-            outputString += String("UP('") + program->stringFromAtom(name).c_str() + "':index=" + Value::toString(index) + ", frame=" + Value::toString(frame) + ")\n";
+            outputString += String("UP('") + program->stringFromAtom(name).c_str() + "':index=" + String::toString(index) + ", frame=" + String::toString(frame) + ")\n";
         }
         _nestingLevel--;
         outputString += "\n";
@@ -392,8 +392,8 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
         case Value::Type::NativeObject: s += "NativeObject"; break;
         case Value::Type::None: s += "NONE"; break;
         case Value::Type::Null: s += "Null"; break;
-        case Value::Type::Float: s += "FLT(" + Value::toString(value.asFloatValue()) + ")"; break;
-        case Value::Type::Integer: s += "INT(" + Value::toString(value.asIntValue()) + ")"; break;
+        case Value::Type::Float: s += "FLT(" + String::toString(value.asFloatValue()) + ")"; break;
+        case Value::Type::Integer: s += "INT(" + String::toString(value.asIntValue()) + ")"; break;
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: {
             String lit = String(program->stringFromStringLiteral(value.asStringLiteralValue()));

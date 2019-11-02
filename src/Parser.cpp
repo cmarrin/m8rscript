@@ -69,7 +69,7 @@ void Parser::printError(const char* format, ...)
 void Parser::unknownError(Token token)
 {
     uint8_t c = static_cast<uint8_t>(token);
-    printError(ROMSTR("unknown token (%s)"), Value::toString(c).c_str());
+    printError(ROMSTR("unknown token (%s)"), String::toString(c).c_str());
 }
 
 void Parser::expectedError(Token token)

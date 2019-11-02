@@ -24,7 +24,7 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     
     for (uint32_t i = 0; i < 4; ++i) {
         uint32_t v;
-        if (!Value::toUInt(v, array[i].c_str(), false) || v > 255) {
+        if (!String::toUInt(v, array[i].c_str(), false) || v > 255) {
             return false;
         }
         ip[i] = static_cast<uint8_t>(v);
@@ -53,10 +53,10 @@ IPAddr::IPAddr(const String& ipString)
 
 String IPAddr::toString() const
 {
-    return Value::toString(_addr[0]) + "." +
-           Value::toString(_addr[1]) + "." +
-           Value::toString(_addr[2]) + "." +
-           Value::toString(_addr[3]);
+    return String::toString(_addr[0]) + "." +
+           String::toString(_addr[1]) + "." +
+           String::toString(_addr[2]) + "." +
+           String::toString(_addr[3]);
 }
 
 CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
