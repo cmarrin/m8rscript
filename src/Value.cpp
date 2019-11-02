@@ -253,9 +253,10 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Id:
         case Type::NativeObject:
         case Type::NativeFunction:
-        case Type::None:
         case Type::Null:
             return Float();
+        case Type::None:
+            return Float::nan();
     }
 }
 
