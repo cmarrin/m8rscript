@@ -178,7 +178,8 @@ private:
     
     String _toChannel;
     String _toClient;
-    char _currentChar;
+    char _currentChar = 0;
+    char _csiParam = 0;
 };
 
 }

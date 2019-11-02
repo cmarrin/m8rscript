@@ -62,7 +62,7 @@ namespace m8r {
         
         void addState(State state, Action action, const NextStates& nextStates)
         {
-            _states.emplace_back(state, action, nextStates, "");
+            _states.emplace_back(state, action, nextStates);
         }
         
         void addState(State state, const NextStates& nextStates)

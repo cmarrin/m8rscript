@@ -44,7 +44,7 @@ Telnet::Telnet()
         , { { '\x40', '\x7e' }, State::CSICommand }
     });
 
-    _stateMachine.addState(State::CSIParam,
+    _stateMachine.addState(State::CSIParam, [this]() { _csiParam = _currentChar; },
     {
            { { '\x40', '\x7e' }, State::CSICommand }
     });
@@ -93,7 +93,7 @@ void Telnet::handleAddChar()
     } else {
         _line.insert(_line.begin() + _position, _currentChar);
         _position++;
-        makeInputLine();
+        _toChannel = makeInputLine();
     }
 }
 
@@ -111,12 +111,27 @@ void Telnet::handleCSICommand()
 {
     // TODO: Handle Params, etc.
     switch(_currentChar) {
-        case 'D':
+        case 'D': // Cursor back
             if (_position > 0) {
                 _position--;
                 _toChannel = "\e[D";
             }
             break;
+        case 'C': // Cursor forward
+            if (_position < _line.size() - 1) {
+                _position++;
+                _toChannel = "\e[C";
+            }
+            break;
+        case '~':
+            switch(_csiParam) {
+                case '3': // Delete forward
+                    if (_position < _line.size() - 1) {
+                        _line.erase(_line.begin() + _position);
+                        _toChannel = makeInputLine();
+                    }
+                    break;
+            }
     }
 }
 
