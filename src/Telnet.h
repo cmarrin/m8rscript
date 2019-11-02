@@ -206,6 +206,7 @@ private:
     String _toChannel;
     String _toClient;
     char _currentChar = 0;
+    Action _currentAction = Action::None;
     char _csiParam = 0;
 };
 

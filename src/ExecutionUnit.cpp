@@ -228,13 +228,26 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     system()->unlock();
 }
 
-void ExecutionUnit::receivedData(const String& data)
+void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
 {
     // Get the consoleListener from Global and use that to fire an event
     Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
-    Value arg(Object::createString(data));
     if (listener && !listener.isNull()) {
-        fireEvent(listener, Value(), &arg, 1);
+        Value args[2];
+        args[0] = Value(Object::createString(data));
+
+        // Action is an enum, but it is always a 1-4 character string encoded as a uint32_t.
+        // Convert it to a StringLiteral
+        char a[5];
+        uint32_t actionInt = static_cast<uint32_t>(action);
+        a[0] = actionInt >> 24;
+        a[1] = actionInt >> 16;
+        a[2] = actionInt >> 8;
+        a[3] = actionInt;
+        a[4] = '\0';
+        args[1] = a[0] ? Value(_program->stringLiteralFromString(a)) : Value();
+        
+        fireEvent(listener, Value(), args, 2);
     }
 }
 

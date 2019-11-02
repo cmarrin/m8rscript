@@ -80,11 +80,9 @@ public:
                             break;
                         }
                         Telnet::Action action = _shells[connectionId].telnet.receive(data[i], toChannel, toClient);
-                        (void) action;
                     
-                        // TODO: Handle action
-                        if (!toClient.empty()) {
-                            _shells[connectionId].task->receivedData(toClient);
+                        if (!toClient.empty() || action != Telnet::Action::None) {
+                            _shells[connectionId].task->receivedData(toClient, action);
                         }
                         if (!toChannel.empty()) {
                             tcp->send(connectionId, toChannel.c_str(), toChannel.size());

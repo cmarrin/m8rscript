@@ -13,10 +13,11 @@
 printf("m8rscript shell v 1.0\n\n");
 
 var done = [ false ];
+var foo = 1.5;
 
-consoleListener = function(line)
+consoleListener = function(line, action)
 {
-    if (line[0] == 0x03) {
+    if (action == "intr") {
         printf("\nEXITING!!!\n");
         done[0] = true;
     } else {

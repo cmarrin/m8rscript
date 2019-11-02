@@ -57,7 +57,7 @@ public:
     
     ~Task() { Object::removeEU(&_eu); }
     
-    void receivedData(const String& data) { _eu.receivedData(data); }
+    void receivedData(const String& data, Telnet::Action action) { _eu.receivedData(data, action); }
 
     void setConsolePrintFunction(std::function<void(const String&)> f) { _eu.setConsolePrintFunction(f); }
 

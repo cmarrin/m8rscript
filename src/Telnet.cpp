@@ -104,7 +104,7 @@ void Telnet::handleAddFF()
 
 void Telnet::handleInterrupt()
 {
-    _toClient = '\x03';
+    _currentAction = Action::Interrupt;
 }
 
 void Telnet::handleCSICommand()
@@ -148,16 +148,6 @@ void Telnet::handleSendLine()
     _toChannel = "\r\n";
 }
 
-Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
-{
-    _currentChar = fromChannel;
-    _stateMachine.sendInput(_currentChar);
-    
-    std::swap(toChannel, _toChannel);
-    std::swap(toClient, _toClient);
-    return Action::None;
-}
-
 String Telnet::makeInputLine()
 {
     String s = "\e[1000D\e[0K";
@@ -171,4 +161,15 @@ String Telnet::makeInputLine()
         s += "C";
     }
     return s;
+}
+
+Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
+{
+    _currentAction = Action::None;
+    _currentChar = fromChannel;
+    _stateMachine.sendInput(_currentChar);
+    
+    std::swap(toChannel, _toChannel);
+    std::swap(toClient, _toClient);
+    return _currentAction;
 }
