@@ -12,20 +12,45 @@
 
 printf("m8rscript shell v 1.0\n\n");
 
+var env = { PATH : "/sys/bin" };
 var done = [ false ];
 var foo = 1.5;
+var lines = [ ];
 
 consoleListener = function(line, action)
 {
     if (action == "intr") {
-        printf("\nEXITING!!!\n");
+        printf("\n^C\n");
         done[0] = true;
     } else {
-        printf("*** received %s\n", line);
+        lines.push_back(line);
     }
 };
 
+function showPrompt()
+{
+    printf("[/:1] > ");
+}
+
+function processLine(line)
+{
+    var components = line.split(" ");
+    var command = components.front;
+    components.pop_front();
+    
+    printf("==> exec '%s': '%s' - env=%s\n", command, components.join(", "), env);
+    exec(command, env, components);
+}
+
+showPrompt();
+
 while (!done[0]) {
+    while (lines.length) {
+        var line = lines.front;
+        lines.pop_front();
+        processLine(line);
+        showPrompt();
+    }
     waitForEvent();
 }
 
