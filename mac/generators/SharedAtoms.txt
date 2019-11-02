@@ -1,3 +1,16 @@
+//-------------------------------------------------------------------------
+//  This source file is a part of m8rscript
+//  For the latest info, see http:www.marrin.org/
+//  Copyright (c) 2018-2019, Chris Marrin
+//  All rights reserved.
+//  Use of this source code is governed by the MIT license that can be
+//  found in the LICENSE file.
+//-------------------------------------------------------------------------
+
+// This list must be in strict alphabetical order (lower case after upper
+// case, words starting with '_' between) in order for binary search to
+// work.
+
 Array
 Base64
 BothEdges
@@ -40,6 +53,7 @@ __object
 __this
 __typeName
 arguments
+back
 call
 consoleListener
 constructor
@@ -52,19 +66,26 @@ disconnect
 done
 encode
 eof
+exec
 format
+front
 getValue
 import
 importString
 iterator
+join
 length
 lookupHostname
 next
 onInterrupt
 parse
+pop_back
+pop_front
 print
 printf
 println
+push_back
+push_front
 read
 send
 setPinMode

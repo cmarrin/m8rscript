@@ -46,6 +46,7 @@ static const char ___object[] ROMSTR_ATTR = "__object";
 static const char ___this[] ROMSTR_ATTR = "__this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
+static const char _back[] ROMSTR_ATTR = "back";
 static const char _call[] ROMSTR_ATTR = "call";
 static const char _consoleListener[] ROMSTR_ATTR = "consoleListener";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
@@ -58,19 +59,26 @@ static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _eof[] ROMSTR_ATTR = "eof";
+static const char _exec[] ROMSTR_ATTR = "exec";
 static const char _format[] ROMSTR_ATTR = "format";
+static const char _front[] ROMSTR_ATTR = "front";
 static const char _getValue[] ROMSTR_ATTR = "getValue";
 static const char _import[] ROMSTR_ATTR = "import";
 static const char _importString[] ROMSTR_ATTR = "importString";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
+static const char _join[] ROMSTR_ATTR = "join";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _parse[] ROMSTR_ATTR = "parse";
+static const char _pop_back[] ROMSTR_ATTR = "pop_back";
+static const char _pop_front[] ROMSTR_ATTR = "pop_front";
 static const char _print[] ROMSTR_ATTR = "print";
 static const char _printf[] ROMSTR_ATTR = "printf";
 static const char _println[] ROMSTR_ATTR = "println";
+static const char _push_back[] ROMSTR_ATTR = "push_back";
+static const char _push_front[] ROMSTR_ATTR = "push_front";
 static const char _read[] ROMSTR_ATTR = "read";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
@@ -129,6 +137,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     ___this,
     ___typeName,
     _arguments,
+    _back,
     _call,
     _consoleListener,
     _constructor,
@@ -141,19 +150,26 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _done,
     _encode,
     _eof,
+    _exec,
     _format,
+    _front,
     _getValue,
     _import,
     _importString,
     _iterator,
+    _join,
     _length,
     _lookupHostname,
     _next,
     _onInterrupt,
     _parse,
+    _pop_back,
+    _pop_front,
     _print,
     _printf,
     _println,
+    _push_back,
+    _push_front,
     _read,
     _send,
     _setPinMode,

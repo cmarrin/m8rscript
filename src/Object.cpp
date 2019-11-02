@@ -205,7 +205,13 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
         if (prop.value.isObject()) {
             s += Object::toString(eu);
         } else {
+            if (prop.value.isString()) {
+                s += "\"";
+            }
             s += prop.value.toStringValue(eu);
+            if (prop.value.isString()) {
+                s += "\"";
+            }
         }
     }
     s += " }";
@@ -273,6 +279,61 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 {
     Value callee = property(eu, prop);
     if (!callee) {
+        if (prop == ATOM(eu, SA::pop_back)) {
+            if (!_array.empty()) {
+                _array.pop_back();
+            }
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+
+        if (prop == ATOM(eu, SA::pop_front)) {
+            if (!_array.empty()) {
+                _array.erase(_array.begin());
+            }
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+
+        if (prop == ATOM(eu, SA::push_back)) {
+            // Push all the params
+            for (int32_t i = 1 - nparams; i <= 0; ++i) {
+                _array.push_back(eu->stack().top(i));
+            }
+
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+        
+        if (prop == ATOM(eu, SA::push_front)) {
+            // Push all the params, efficiently
+            if (nparams == 1) {
+                _array.insert(_array.begin(), eu->stack().top());
+            }
+            
+            std::vector<Value> vec;
+            for (int32_t i = 1 - nparams; i <= 0; ++i) {
+                vec.push_back(eu->stack().top(i));
+            }
+            _array.insert(_array.begin(), vec.begin(), vec.end());
+
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+        }
+
+        if (prop == ATOM(eu, SA::join)) {
+            String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String("");
+            String s;
+            bool first = true;
+            for (auto it : _array) {
+                if (!first) {
+                    s += separator;
+                } else {
+                    first = false;
+                }
+                s += it.toStringValue(eu);
+            }
+            
+            eu->stack().push(Value(eu->program()->createString(s)));
+            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+        }
+        
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
     return callee.call(eu, Value(this), nparams, false);
@@ -282,6 +343,14 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 {
     if (prop == ATOM(eu, SA::length)) {
         return Value(static_cast<int32_t>(_array.size()));
+    }
+    
+    if (prop == ATOM(eu, SA::front)) {
+        return _array.empty() ? Value() : _array[0];
+    }
+    
+    if (prop == ATOM(eu, SA::back)) {
+        return _array.empty() ? Value() : _array[_array.size() - 1];
     }
     
     if (prop == ATOM(eu, SA::iterator)) {
