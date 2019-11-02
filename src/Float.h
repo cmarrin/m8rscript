@@ -69,6 +69,15 @@ public:
     
     explicit _Float(int32_t i) { _value._raw = static_cast<RawType>(static_cast<int64_t>(i) << BinaryExponent); }
     
+    static _Float nan()
+    {
+        _Float f;
+        f._value._raw = -std::numeric_limits<value_type>::max();
+        return f;
+    }
+
+    bool isnan() const { return *this == nan(); }
+    
     _Float(RawType i, int32_t e)
     {
         if (i == 0) {
@@ -191,6 +200,28 @@ public:
 private:    
     Raw _value;
 };
+
+template<>
+inline _Float<float, int32_t> _Float<float, int32_t>::nan()
+{
+    _Float<float, int32_t> r;
+    r._value._raw = std::nanf("1");
+    return r; 
+}
+
+template<>
+inline _Float<double, int64_t> _Float<double, int64_t>::nan()
+{
+    _Float<double, int64_t> r;
+    r._value._raw = std::nanf("1");
+    return r; 
+}
+
+template<>
+inline bool _Float<float, int32_t>::isnan() const { return std::isnan(_value._raw); }
+
+template<>
+inline bool _Float<double, int64_t>::isnan() const { return std::isnan(_value._raw); }
 
 template<>
 inline _Float<float, int32_t>::_Float(value_type i, int32_t e)
