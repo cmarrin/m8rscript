@@ -79,6 +79,11 @@ int main()
             return -1;
         }
         
+        // Ignore lines starting with "//" to allow for comments
+        if (line[0] == '/' && line[1] == '/') {
+            continue;
+        }
+        
         strip(entry, line);
         
         if (strlen(entry) == 0) {
@@ -103,6 +108,11 @@ int main()
             }
             printf("getline failed:%d\n", errno);
             return -1;
+        }
+        
+        // Ignore lines starting with "//" to allow for comments
+        if (line[0] == '/' && line[1] == '/') {
+            continue;
         }
         
         strip(entry, line);
