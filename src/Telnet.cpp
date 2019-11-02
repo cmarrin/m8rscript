@@ -14,34 +14,58 @@
 using namespace m8r;
 
 Telnet::Telnet()
+    : _stateMachine({ { { '\x01', '\xff'}, State::Ready } })
 {
     _stateMachine.addState(State::Ready, []() { }, 
     {
-          { Input::Backspace, State::Backspace }
-        , { Input::Printable, State::AddChar }
-        , { Input::Interrupt, State::Interrupt }
-        , { Input::LF, State::Ready }
-        , { Input::CR, State::SendLine }
-        , { Input::CSI, State::CSI }
-        , { Input::IAC, State::IAC }
+          { '\x7f', State::Backspace }
+        , { { ' ', '\x7e' }, State::AddChar }
+        , { '\x03', State::Interrupt }
+        , { '\n', State::Ready }
+        , { '\r', State::SendLine }
+        , { '\e', State::CSI }
+        , { '\xff', State::IAC }
     });
     
-    _stateMachine.addState(State::Backspace, []() { handleBackspace(); }, State::Ready);
-    _stateMachine.addState(State::AddChar, []() { handleAddChar(); }, State::Ready);
-    _stateMachine.addState(State::Interrupt, []() { handleInterrupt(); }, State::Ready);
-    _stateMachine.addState(State::CR, []() { sendLine(); }, State::Ready);
-    _stateMachine.addState(State::LF, []() { }, State::Ready);
+    _stateMachine.addState(State::Backspace, [this]() { handleBackspace(); }, State::Ready);
+    _stateMachine.addState(State::AddChar, [this]() { handleAddChar(); }, State::Ready);
+    _stateMachine.addState(State::Interrupt, [this]() { handleInterrupt(); }, State::Ready);
+    _stateMachine.addState(State::SendLine, [this]() { handleSendLine(); }, State::Ready);
 
-    _stateMachine.addState(State::CSI, []() { }, 
-         { Input::Other, State::Ready }
-       , { Input::CSIOpenBracket, State::CSIParam }
-   });
-
-     _stateMachine.addState(State::IAC, []() { }, 
-          { Input::IAC, State::AddFF }
-        , { Input::Any, State::IACParam }
+    // CSI
+    _stateMachine.addState(State::CSI, []() { },
+    {
+         { '[', State::CSIBracket }
     });
 
+    _stateMachine.addState(State::CSIBracket, []() { },
+    {
+          { { '\x30', '\x3f' }, State::CSIParam }
+        , { { '\x40', '\x7e' }, State::CSICommand }
+    });
+
+    _stateMachine.addState(State::CSIParam, []() { },
+    {
+           { { '\x40', '\x7e' }, State::CSICommand }
+    });
+
+    _stateMachine.addState(State::CSICommand, [this]() { handleCSICommand(); }, State::Ready);
+
+    // IAC
+    _stateMachine.addState(State::IAC, []() { },
+    {
+         { { '\xf0', '\xfe' }, State::IACVerb }
+       , { '\xff', State::AddFF }
+    });
+
+    _stateMachine.addState(State::AddFF, [this]() { handleAddFF(); }, State::Ready);
+
+    _stateMachine.addState(State::IACVerb, []() { },
+    {
+          { { '\x01', '\x7e' }, State::IACCommand }
+    });
+
+    _stateMachine.addState(State::IACCommand, [this]() { handleIACCommand(); }, State::Ready);
 }
 
 void Telnet::handleBackspace()
@@ -52,9 +76,9 @@ void Telnet::handleBackspace()
 
         if (_position == _line.size()) {
             // At the end of line. Do the simple thing
-            toChannel = "\x08 \x08";
+            _toChannel = "\x08 \x08";
         } else {
-            toChannel = makeInputLine();
+            _toChannel = makeInputLine();
         }
     }    
 }
@@ -63,108 +87,59 @@ void Telnet::handleAddChar()
 {
     if (_position == _line.size()) {
         // At end of line, do the simple thing
-        _line.push_back(fromChannel);
+        _line.push_back(_currentChar);
         _position++;
-        toChannel = fromChannel;
+        _toChannel = _currentChar;
     } else {
-        _line.insert(_line.begin() + _position, fromChannel);
+        _line.insert(_line.begin() + _position, _currentChar);
         _position++;
         makeInputLine();
     }
 }
 
-void Telnet::sendLine()
+void Telnet::handleAddFF()
 {
-    toClient = String::join(_line);
+    _line.push_back('\xff');
+}
+
+void Telnet::handleInterrupt()
+{
+    _toClient = '\x03';
+}
+
+void Telnet::handleCSICommand()
+{
+    // TODO: Handle Params, etc.
+    switch(_currentChar) {
+        case 'D':
+            if (_position > 0) {
+                _position--;
+                _toChannel = "\e[D";
+            }
+            break;
+    }
+}
+
+void Telnet::handleIACCommand()
+{
+    // TODO: Implement whatever is needed
+}
+
+void Telnet::handleSendLine()
+{
+    _toClient = String::join(_line);
     _line.clear();
     _position = 0;
-    toChannel = "\r\n";
+    _toChannel = "\r\n";
 }
 
 Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
 {
-    // TODO: With the input set to raw, do we need to handle any IAC commands from Telnet?
-    if (_state == State::Ready) {
-        switch(fromChannel) {
-            case '\xff': _state = State::ReceivedIAC; break;
-            case '\e': _state = State::EscapeCSI; break;
-            case '\x03':
-                // ctl-c
-                toClient = fromChannel;
-                break;
-            case '\n':
-                break; // Ignore newline
-            case '\r':
-                // We have a complete line
-                toClient = String::join(_line);
-                _line.clear();
-                _position = 0;
-                toChannel = "\r\n";
-                break;
-            case '\x7f': // backspace
-                if (!_line.empty() && _position > 0) {
-                    _position--;
-                    _line.erase(_line.begin() + _position);
-
-                    if (_position == _line.size()) {
-                        // At the end of line. Do the simple thing
-                        toChannel = "\x08 \x08";
-                    } else {
-                        toChannel = makeInputLine();
-                    }
-                }
-                break;
-            default:
-                if (_position == _line.size()) {
-                    // At end of line, do the simple thing
-                    _line.push_back(fromChannel);
-                    _position++;
-                    toChannel = fromChannel;
-                } else {
-                    _line.insert(_line.begin() + _position, fromChannel);
-                    _position++;
-                    makeInputLine();
-                }
-                break;
-        }
-    } else if (_state == State::ReceivedIAC) {
-        switch(static_cast<Command>(fromChannel)) {
-            case Command::DO: _verb = Verb::DO; break;
-            case Command::DONT: _verb = Verb::DONT; break;
-            case Command::WILL: _verb = Verb::WILL; break;
-            case Command::WONT: _verb = Verb::WONT; break;
-            case Command::IAC:
-                _line.push_back(fromChannel);
-                _state = State::Ready;
-                return Action::None;
-            default: _verb = Verb::None; break;
-        }
-        _state = State::ReceivedVerb;
-        return Action::None;
-    } else if (_state == State::ReceivedVerb) {
-        // TODO: Handle Verbs
-        _state = State::Ready;
-        return Action::None;
-    } else if (_state == State::EscapeCSI) {
-        _state = (fromChannel == '[') ? State::EscapeParam : State::Ready;
-    } else if (_state == State::EscapeParam) {
-        if (fromChannel >= 0x20 && fromChannel <= 0x2f) {
-            _escapeParam = fromChannel;
-        } else {
-            switch(fromChannel) {
-                case 'D':
-                    if (_position > 0) {
-                        _position--;
-                        toChannel = "\e[D";
-                    }
-                    break;
-            }
-            _state = State::Ready;
-        }
-    } else {
-        _state = State::Ready;
-    }
+    _currentChar = fromChannel;
+    _stateMachine.sendInput(_currentChar);
     
+    std::swap(toChannel, _toChannel);
+    std::swap(toClient, _toClient);
     return Action::None;
 }
 

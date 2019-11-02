@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <functional>
 #include <vector>
 
 namespace m8r {
@@ -101,7 +103,7 @@ namespace m8r {
             if (it != _states.end()) {
                 _currentState = state;
                 
-                if (_showStringCallback && it->_string.length()) {
+                if (_showStringCallback && it->_string.size()) {
                     _showStringCallback(it->_string);
                 }
                 
@@ -129,6 +131,7 @@ namespace m8r {
 
             if (inputIt != it->_nextStates.end()) {
                 gotoState(inputIt->second);
+                return;
             }
 
             // Check the common next states
@@ -149,7 +152,7 @@ namespace m8r {
         }
         
         StateVector _states;
-        State _currentState;
+        State _currentState = static_cast<State>(0);
         ShowStringCallback _showStringCallback;
         NextStates _commonNextStates;
     };

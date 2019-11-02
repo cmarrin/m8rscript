@@ -122,22 +122,50 @@ public:
 
 private:
     String makeInputLine();
+    
     void handleBackspace();
     void handleAddChar();
+    void handleAddFF();
     void handleInterrupt();
-    void sendLine();
+    void handleCSICommand();
+    void handleIACCommand();
+    void handleSendLine();
     
     enum class State {
         Ready, Interrupt, Backspace, AddChar, AddFF, SendLine, 
         IAC, IACVerb, IACCommand, 
-        CSI, CSIParam, EscapeFinal,
+        CSI, CSIBracket, CSIParam, CSICommand,
     };
     
-    enum class Input {
-        Printable, Backspace, Interrupt, Any, Other, 
-        CSI, CSIOpenBracket, CSIParam, CR, LF, IAC, IACParam, 
-    };
+    struct Input {
+        Input(char a) : _a(a), _b(a) { }
+        Input(char a, char b)
+        {
+            if (a < b) {
+                _a = a;
+                _b = b;
+            } else {
+                _a = b;
+                _b = a;
+            }
+        }
     
+        bool operator==(const Input& other) const
+        {
+            // a----------b              a-------b
+            //      A----------B    A-------B
+            //
+            // a------------b       a------b
+            //    A------B      A--------------B
+            //
+            // a-------b                           a-------b
+            //           A-------B     A--------B
+            return !(_b < other._a || _a > other._b);
+        }
+
+        char _a, _b;
+    };
+
     enum class Verb { None, DO, DONT, WILL, WONT };
     
     Verb _verb = Verb::None;
@@ -147,6 +175,10 @@ private:
     char _escapeParam = 0;
     
     m8r::StateMachine<State, Input> _stateMachine;
+    
+    String _toChannel;
+    String _toClient;
+    char _currentChar;
 };
 
 }
