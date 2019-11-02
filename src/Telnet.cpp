@@ -16,7 +16,7 @@ using namespace m8r;
 Telnet::Telnet()
     : _stateMachine({ { { '\x01', '\xff'}, State::Ready } })
 {
-    _stateMachine.addState(State::Ready, []() { }, 
+    _stateMachine.addState(State::Ready,
     {
           { '\x7f', State::Backspace }
         , { { ' ', '\x7e' }, State::AddChar }
@@ -27,45 +27,45 @@ Telnet::Telnet()
         , { '\xff', State::IAC }
     });
     
-    _stateMachine.addState(State::Backspace, [this]() { handleBackspace(); }, State::Ready);
-    _stateMachine.addState(State::AddChar, [this]() { handleAddChar(); }, State::Ready);
-    _stateMachine.addState(State::Interrupt, [this]() { handleInterrupt(); }, State::Ready);
-    _stateMachine.addState(State::SendLine, [this]() { handleSendLine(); }, State::Ready);
+    _stateMachine.addState(State::Backspace, State::Ready, [this]() { handleBackspace(); });
+    _stateMachine.addState(State::AddChar, State::Ready, [this]() { handleAddChar(); });
+    _stateMachine.addState(State::Interrupt, State::Ready, [this]() { handleInterrupt(); });
+    _stateMachine.addState(State::SendLine, State::Ready, [this]() { handleSendLine(); });
 
     // CSI
-    _stateMachine.addState(State::CSI, []() { },
+    _stateMachine.addState(State::CSI,
     {
          { '[', State::CSIBracket }
     });
 
-    _stateMachine.addState(State::CSIBracket, []() { },
+    _stateMachine.addState(State::CSIBracket,
     {
           { { '\x30', '\x3f' }, State::CSIParam }
         , { { '\x40', '\x7e' }, State::CSICommand }
     });
 
-    _stateMachine.addState(State::CSIParam, []() { },
+    _stateMachine.addState(State::CSIParam,
     {
            { { '\x40', '\x7e' }, State::CSICommand }
     });
 
-    _stateMachine.addState(State::CSICommand, [this]() { handleCSICommand(); }, State::Ready);
+    _stateMachine.addState(State::CSICommand, State::Ready, [this]() { handleCSICommand(); });
 
     // IAC
-    _stateMachine.addState(State::IAC, []() { },
+    _stateMachine.addState(State::IAC,
     {
          { { '\xf0', '\xfe' }, State::IACVerb }
        , { '\xff', State::AddFF }
     });
 
-    _stateMachine.addState(State::AddFF, [this]() { handleAddFF(); }, State::Ready);
+    _stateMachine.addState(State::AddFF, State::Ready, [this]() { handleAddFF(); });
 
-    _stateMachine.addState(State::IACVerb, []() { },
+    _stateMachine.addState(State::IACVerb, 
     {
           { { '\x01', '\x7e' }, State::IACCommand }
     });
 
-    _stateMachine.addState(State::IACCommand, [this]() { handleIACCommand(); }, State::Ready);
+    _stateMachine.addState(State::IACCommand, State::Ready, [this]() { handleIACCommand(); });
 }
 
 void Telnet::handleBackspace()

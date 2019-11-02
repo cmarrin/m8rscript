@@ -31,7 +31,6 @@ namespace m8r {
     public:
         using Action = std::function<void()>;
         using NextStates = std::vector<std::pair<Input, State>>;
-        using ShowStringCallback = std::function<void(const String&)>;
         
         struct StateEntry
         {
@@ -41,60 +40,39 @@ namespace m8r {
                 , _nextStates(nextStates)
             { }
             
-            StateEntry(State state, Action action, NextStates nextStates, const String& s)
+            StateEntry(State state, NextStates nextStates)
                 : _state(state)
-                , _action(action)
                 , _nextStates(nextStates)
-                , _string(s)
             { }
             
-            StateEntry(State state, Action action, State jumpState, const String& s)
+            StateEntry(State state, State jumpState, Action action = nullptr)
                 : _state(state)
                 , _action(action)
                 , _jumpState(jumpState)
-                , _string(s)
             { }
             
             State _state;
             Action _action;
             NextStates _nextStates;
             State _jumpState;
-            String _string;
         };
         
         StateMachine() { }
-        StateMachine(ShowStringCallback cb) : _showStringCallback(cb) { }
         StateMachine(const NextStates& nextStates) : _commonNextStates(nextStates) { }
-        StateMachine(ShowStringCallback cb, const NextStates& nextStates) : _showStringCallback(cb) , _commonNextStates(nextStates) { }
         
         void addState(State state, Action action, const NextStates& nextStates)
         {
             _states.emplace_back(state, action, nextStates, "");
         }
         
-        void addState(State state, const String& s, const NextStates& nextStates)
+        void addState(State state, const NextStates& nextStates)
         {
-            _states.emplace_back(state, nullptr, nextStates, s);
+            _states.emplace_back(state, nextStates);
         }
         
-        void addState(State state, const String& s, Action action, const NextStates& nextStates)
+        void addState(State state, State jumpState, Action action = nullptr)
         {
-            _states.emplace_back(state, action, nextStates, s);
-        }
-        
-        void addState(State state, Action action, State jumpState)
-        {
-            _states.emplace_back(state, action, jumpState, "");
-        }
-        
-        void addState(State state, const String& s, State jumpState)
-        {
-            _states.emplace_back(state, nullptr, jumpState, s);
-        }
-        
-        void addState(State state, const String& s, Action action, State jumpState)
-        {
-            _states.emplace_back(state, action, jumpState, s);
+            _states.emplace_back(state, jumpState, action);
         }
         
         void gotoState(State state)
@@ -102,10 +80,6 @@ namespace m8r {
             auto it = findState(state);
             if (it != _states.end()) {
                 _currentState = state;
-                
-                if (_showStringCallback && it->_string.size()) {
-                    _showStringCallback(it->_string);
-                }
                 
                 if (it->_action) {
                     it->_action();
@@ -153,7 +127,6 @@ namespace m8r {
         
         StateVector _states;
         State _currentState = static_cast<State>(0);
-        ShowStringCallback _showStringCallback;
         NextStates _commonNextStates;
     };
 
