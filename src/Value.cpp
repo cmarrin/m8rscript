@@ -252,7 +252,7 @@ bool Value::isType(ExecutionUnit* eu, Atom atom)
 
 bool Value::isType(ExecutionUnit* eu, SA sa)
 {
-    return isType(eu, ATOM(eu, sa));
+    return isType(eu, Atom(sa));
 }
 
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
@@ -270,7 +270,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
-            if (prop == ATOM(eu, SA::length)) {
+            if (prop == Atom(SA::length)) {
                 return Value(static_cast<int32_t>(s.size()));
             }
             break;
@@ -353,17 +353,17 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
-            if (prop == ATOM(eu, SA::format)) {
+            if (prop == Atom(SA::format)) {
                 String s = Value::format(eu, eu->stack().top(1 - nparams), nparams - 1);
                 eu->stack().push(Value(s));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            if (prop == ATOM(eu, SA::trim)) {
+            if (prop == Atom(SA::trim)) {
                 s = s.trim();
                 eu->stack().push(Value(Object::createString(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            if (prop == ATOM(eu, SA::split)) {
+            if (prop == Atom(SA::split)) {
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 std::vector<String> array = s.split(separator, skipEmpty);

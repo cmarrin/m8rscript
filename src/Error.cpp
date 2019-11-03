@@ -15,7 +15,7 @@ using namespace m8r;
 
 void Error::showError(Code code)
 {
-    const char* codeString;
+    const char* codeString = "*** INVALID CODE ***";
     switch(code) {
         case Code::OK                       : codeString = ROMSTR("OK"); break;
         case Code::Unknown                  : codeString = ROMSTR("Unknown"); break;
@@ -25,7 +25,7 @@ void Error::showError(Code code)
         case Code::SerialType               : codeString = ROMSTR("Serial Type"); break;
         case Code::SerialVersion            : codeString = ROMSTR("Serial Version"); break;
         case Code::FileNotFound             : codeString = ROMSTR("File Not Found"); break;
-        case Code::FileClosed             : codeString = ROMSTR("File Closed"); break;
+        case Code::FileClosed               : codeString = ROMSTR("File Closed"); break;
         case Code::ParseError               : codeString = ROMSTR("Parse"); break;
         case Code::RuntimeError             : codeString = ROMSTR("Runtime"); break;
         case Code::Exists                   : codeString = ROMSTR("Exists"); break;
@@ -54,6 +54,12 @@ void Error::showError(Code code)
 
 void Error::printError(Code code, const char* format, ...)
 {
+    if (!format) {
+        showError(code);
+        system()->printf("\n");
+        return;
+    }
+    
     va_list args;
     va_start(args, format);
     vprintError(code, format, args);

@@ -112,7 +112,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     String filename = eu->stack().top(1 - nparams).toStringValue(eu);
     Task* task = new Task(filename.c_str());
-    obj->setProperty(eu, ATOM(eu, SA::__nativeObject), Value(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value(task), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

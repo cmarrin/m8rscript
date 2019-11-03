@@ -68,7 +68,7 @@ private:
     virtual CallReturnValue execute();
 
     ExecutionUnit* _eu = nullptr;
-    Error _error;
+    Error _error = Error::Code::OK;
 };
 
 class TaskProto : public ObjectFactory {

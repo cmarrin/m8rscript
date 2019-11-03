@@ -45,7 +45,7 @@ CallReturnValue FS::format(ExecutionUnit*, Value thisValue, uint32_t nparams)
 
 CallReturnValue FS::open(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = ObjectFactory::create(ATOM(eu, SA::File), eu, nparams);
+    Object* obj = ObjectFactory::create(Atom(SA::File), eu, nparams);
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::Error);
     }

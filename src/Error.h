@@ -60,8 +60,11 @@ public:
     
     operator bool () const { return _code == Code::OK; }
     Error& operator= (const Error::Code& code) { _code = code; return *this; }
-    bool operator==(const Error::Code& code) const { return _code == code; }
-    bool operator!=(const Error::Code& code) const { return _code != code; }
+    
+    friend bool operator==(const Error& a, Error::Code b) { return a._code == b; }
+    friend bool operator==(Error::Code b, const Error& a) { return a._code == b; }
+    friend bool operator!=(const Error& a, Error::Code b) { return a._code != b; }
+    friend bool operator!=(Error::Code b, const Error& a) { return a._code != b; }
 
     Code code() const { return _code; }
     

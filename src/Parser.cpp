@@ -263,6 +263,7 @@ void Parser::addNamedFunction(Function* func, const Atom& name)
     
     currentFunction()->addConstant(Value(func));
     func->setName(name);
+    //func->setProperty(<#ExecutionUnit *#>, <#const Atom &prop#>, <#const Value &v#>, <#Value::SetPropertyType type#>)
 }
 
 void Parser::pushThis()
@@ -329,7 +330,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
-    if (atom == ATOM(program(), SA::value)) {
+    if (atom == Atom(SA::value)) {
         _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, 0);
         _parseStack.setIsValue(true);
         return;
@@ -363,13 +364,13 @@ void Parser::emitMove()
                 // Currently TOS is a PropRef and TOS-1 is the source. We need to convert the
                 // PropRef into a simple register, then swap it back to its original position,
                 // then push a "setValue" atom, the swap again. Then we will have:
-                // TOS=>src, ATOM(setValue), dst. Now we need to generate the equivalent of:
+                // TOS=>src, Atom(setValue), dst. Now we need to generate the equivalent of:
                 //
                 //      dst.setValue(src
                 //
                 _parseStack.propRefToReg();
                 _parseStack.swap();
-                emitId(ATOM(program(), SA::setValue), IdType::NotLocal);
+                emitId(Atom(SA::setValue), IdType::NotLocal);
                 _parseStack.swap();
                 emitPush();
                 uint32_t objReg = emitDeref(DerefType::Prop);
@@ -760,12 +761,12 @@ uint32_t Parser::ParseStack::bake()
                 // Currently TOS is a PropRef and TOS-1 is the source. We need to convert the
                 // PropRef into a simple register, then swap it back to its original position,
                 // then push a "setValue" atom, the swap again. Then we will have:
-                // TOS=>src, ATOM(setValue), dst. Now we need to generate the equivalent of:
+                // TOS=>src, Atom(setValue), dst. Now we need to generate the equivalent of:
                 //
                 //      dst.setValue(src
                 //
                 propRefToReg();
-                _parser->emitId(ATOM(_parser->program(), SA::getValue), Parser::IdType::NotLocal);
+                _parser->emitId(Atom(SA::getValue), Parser::IdType::NotLocal);
                 uint32_t objectReg = _parser->emitDeref(Parser::DerefType::Prop);
                 _parser->emitCallRet(Op::CALL, objectReg, 0);
                 return _stack.top()._reg;
@@ -781,7 +782,7 @@ uint32_t Parser::ParseStack::bake()
             uint32_t r = pushRegister();
             if (entry._isValue) {
                 pushRegister();
-                _parser->emitId(ATOM(_parser->program(), SA::getValue), Parser::IdType::MightBeLocal);
+                _parser->emitId(Atom(SA::getValue), Parser::IdType::MightBeLocal);
                 _parser->emitMove();
                 _parser->emitCallRet(Op::CALL, -1, 0);
                 _parser->emitMove();

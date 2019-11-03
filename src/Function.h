@@ -15,7 +15,7 @@
 
 namespace m8r {
 
-class Function : public Object {
+class Function : public MaterObject {
 public:
     Function(Function* parent);
 

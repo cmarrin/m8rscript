@@ -26,12 +26,12 @@ Iterator::Iterator(Program* program, ObjectFactory* parent)
 
 static bool done(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
 {
-    obj = thisValue.property(eu, ATOM(eu, SA::__object)).asObject();
-    index = thisValue.property(eu, ATOM(eu, SA::__index)).asIntValue();
+    obj = thisValue.property(eu, Atom(SA::__object)).asObject();
+    index = thisValue.property(eu, Atom(SA::__index)).asIntValue();
     if (!obj) {
         return true;
     }
-    int32_t size = obj->property(eu, ATOM(eu, SA::length)).asIntValue();
+    int32_t size = obj->property(eu, Atom(SA::length)).asIntValue();
     return index >= size;
 }
 
@@ -46,8 +46,8 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
-    thisValue.setProperty(eu, ATOM(eu, SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
-    thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, Atom(SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, Atom(SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -66,7 +66,7 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
-        if (!thisValue.setProperty(eu, ATOM(eu, SA::__index), Value(index), Value::SetPropertyType::NeverAdd)) {
+        if (!thisValue.setProperty(eu, Atom(SA::__index), Value(index), Value::SetPropertyType::NeverAdd)) {
             return CallReturnValue(CallReturnValue::Error::InternalError);
         }
     }

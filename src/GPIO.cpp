@@ -26,8 +26,8 @@ GPIO::GPIO(Program* program, ObjectFactory* parent)
     addProperty(program, SA::digitalRead, digitalRead);
     addProperty(program, SA::onInterrupt, onInterrupt);
 
-    addProperty(ATOM(program, SA::PinMode), Value(_pinMode.nativeObject()));
-    addProperty(ATOM(program, SA::Trigger), Value(_trigger.nativeObject()));
+    addProperty(Atom(SA::PinMode), Value(_pinMode.nativeObject()));
+    addProperty(Atom(SA::Trigger), Value(_trigger.nativeObject()));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -61,20 +61,20 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 PinMode::PinMode(Program* program)
     : ObjectFactory(program, SA::PinMode)
 {
-    addProperty(ATOM(program, SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
-    addProperty(ATOM(program, SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
-    addProperty(ATOM(program, SA::Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
-    addProperty(ATOM(program, SA::InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
-    addProperty(ATOM(program, SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
+    addProperty(Atom(SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
+    addProperty(Atom(SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
+    addProperty(Atom(SA::Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
+    addProperty(Atom(SA::InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
+    addProperty(Atom(SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
 Trigger::Trigger(Program* program)
     : ObjectFactory(program, SA::Trigger)
 {
-    addProperty(ATOM(program, SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
-    addProperty(ATOM(program, SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
-    addProperty(ATOM(program, SA::FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
-    addProperty(ATOM(program, SA::BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
-    addProperty(ATOM(program, SA::Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
-    addProperty(ATOM(program, SA::High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
+    addProperty(Atom(SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
+    addProperty(Atom(SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
+    addProperty(Atom(SA::FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
+    addProperty(Atom(SA::BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
+    addProperty(Atom(SA::Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
+    addProperty(Atom(SA::High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
 }

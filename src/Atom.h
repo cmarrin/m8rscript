@@ -36,6 +36,14 @@ class Stream;
 //
 //************************************************************************
 
+class Atom : public Id<uint16_t>
+{
+    using Id::Id;
+
+public:
+    Atom(SA sa) : Id(static_cast<Atom::value_type>(sa)) { }
+};
+
 class AtomTable {
     friend class Program;
     
@@ -61,7 +69,7 @@ public:
         return String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    Atom internalAtom(SA sa) const { return Atom(static_cast<Atom::value_type>(sa));
+    static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa));
 }
 
 private:

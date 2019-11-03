@@ -135,7 +135,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return Value();
     }
     
-    if (atom == ATOM(this,SA:: __this)) {
+    if (atom == Atom(SA::__this)) {
         return Value(_this);
     }
 
@@ -231,7 +231,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
 void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
 {
     // Get the consoleListener from Global and use that to fire an event
-    Value listener = program()->global()->property(this, ATOM(this, SA::consoleListener));
+    Value listener = program()->global()->property(this, Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
         args[0] = Value(Object::createString(data));

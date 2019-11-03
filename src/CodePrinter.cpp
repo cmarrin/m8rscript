@@ -404,7 +404,7 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
             s += "STR(\"" + lit + "\")";
             break;
         }
-        case Value::Type::Id: s += "ATOM(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
+        case Value::Type::Id: s += "Atom(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
         case Value::Type::Function: {
             if (abbreviated) {
                 s += "FUNCTION";
