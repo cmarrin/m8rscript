@@ -51,7 +51,6 @@ function processLine(line)
     var command = components.front;
     components.pop_front();
     
-    println("*****");
     var file = findExecutable(command);
     if (file) {
         var task = new Task(file);
