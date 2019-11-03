@@ -261,9 +261,15 @@ void Parser::addNamedFunction(Function* func, const Atom& name)
 {
     if (_nerrors) return;
     
+    // Add code to make this look like 'var name = function(...) ...'
+    addVar(name);
+    emitId(name, IdType::MustBeLocal);
+    pushK(func);
+    emitMove();
+    discardResult();
+
     currentFunction()->addConstant(Value(func));
     func->setName(name);
-    //func->setProperty(<#ExecutionUnit *#>, <#const Atom &prop#>, <#const Value &v#>, <#Value::SetPropertyType type#>)
 }
 
 void Parser::pushThis()
