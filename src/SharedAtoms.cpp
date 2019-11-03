@@ -72,6 +72,7 @@ static const char _join[] ROMSTR_ATTR = "join";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _next[] ROMSTR_ATTR = "next";
+static const char _null[] ROMSTR_ATTR = "null";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _parse[] ROMSTR_ATTR = "parse";
 static const char _pop_back[] ROMSTR_ATTR = "pop_back";
@@ -166,6 +167,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _length,
     _lookupHostname,
     _next,
+    _null,
     _onInterrupt,
     _parse,
     _pop_back,
