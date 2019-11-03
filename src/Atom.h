@@ -41,6 +41,7 @@ class Atom : public Id<uint16_t>
     using Id::Id;
 
 public:
+    Atom() { }
     Atom(SA sa) : Id(static_cast<Atom::value_type>(sa)) { }
 };
 

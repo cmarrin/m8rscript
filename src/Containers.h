@@ -42,7 +42,7 @@ public:
     
     typedef RawType value_type;
     
-    Id() { }
+    Id() { _value = NoId; }
     Id(Raw raw) { _value._raw = raw._raw; }
     //Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
