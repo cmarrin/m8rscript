@@ -34,6 +34,7 @@ static const char _ReceivedData[] ROMSTR_ATTR = "ReceivedData";
 static const char _Reconnected[] ROMSTR_ATTR = "Reconnected";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
+static const char _Task[] ROMSTR_ATTR = "Task";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _TCPProto[] ROMSTR_ATTR = "TCPProto";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
@@ -59,6 +60,7 @@ static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _eof[] ROMSTR_ATTR = "eof";
+static const char _error[] ROMSTR_ATTR = "error";
 static const char _exec[] ROMSTR_ATTR = "exec";
 static const char _format[] ROMSTR_ATTR = "format";
 static const char _front[] ROMSTR_ATTR = "front";
@@ -80,6 +82,7 @@ static const char _println[] ROMSTR_ATTR = "println";
 static const char _push_back[] ROMSTR_ATTR = "push_back";
 static const char _push_front[] ROMSTR_ATTR = "push_front";
 static const char _read[] ROMSTR_ATTR = "read";
+static const char _run[] ROMSTR_ATTR = "run";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _setValue[] ROMSTR_ATTR = "setValue";
@@ -125,6 +128,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _Reconnected,
     _RisingEdge,
     _SentData,
+    _Task,
     _TCP,
     _TCPProto,
     _Trigger,
@@ -150,6 +154,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _done,
     _encode,
     _eof,
+    _error,
     _exec,
     _format,
     _front,
@@ -171,6 +176,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _push_back,
     _push_front,
     _read,
+    _run,
     _send,
     _setPinMode,
     _setValue,

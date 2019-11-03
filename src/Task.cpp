@@ -29,7 +29,8 @@ void TaskBase::finish()
 
 Task::Task(const char* filename)
 {
-    Object::addEU(&_eu);
+    _eu = new ExecutionUnit();
+    Object::addEU(_eu);
     
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
@@ -58,7 +59,65 @@ Task::Task(const char* filename)
             return;
         }
         
-        _eu.startExecution(parser.program());
+        _eu->startExecution(parser.program());
 #endif
     }
+}
+
+Task::~Task()
+{
+    Object::removeEU(_eu);
+    delete _eu;
+}
+
+void Task::receivedData(const String& data, Telnet::Action action)
+{
+    _eu->receivedData(data, action);
+}
+
+void Task::setConsolePrintFunction(std::function<void(const String&)> f)
+{
+    _eu->setConsolePrintFunction(f);
+}
+
+CallReturnValue Task::execute()
+{
+    return _eu->continueExecution();
+}
+
+TaskProto::TaskProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::Task, parent, constructor)
+{
+    addProperty(program, SA::run, run);
+
+    _obj->setArray(true);
+    _obj->resize(4);
+    (*_obj)[0] = Value(0);
+    (*_obj)[1] = Value(0);
+    (*_obj)[2] = Value(0);
+    (*_obj)[3] = Value(0);
+}
+
+CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // filename
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    Object* obj = thisValue.asObject();
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
+    }
+    
+    String filename = eu->stack().top(1 - nparams).toStringValue(eu);
+    Task* task = new Task(filename.c_str());
+    obj->setProperty(eu, ATOM(eu, SA::__nativeObject), Value(task), Value::SetPropertyType::AlwaysAdd);
+
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

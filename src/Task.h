@@ -10,14 +10,15 @@
 #pragma once
 
 #include "Containers.h"
-#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
+#include "Telnet.h"
 #include <cstdint>
 #include <functional>
 
 namespace m8r {
 
+class ExecutionUnit;
 class String;
 
 class TaskBase : public List<TaskBase, Time>::Item {
@@ -51,31 +52,32 @@ private:
     FinishCallback _finishCB;
 };
 
-class Task : public TaskBase {
+class Task : public TaskBase, public NativeObject {
 public:
     Task(const char* filename);
     
-    ~Task() { Object::removeEU(&_eu); }
+    ~Task();
     
-    void receivedData(const String& data, Telnet::Action action) { _eu.receivedData(data, action); }
+    void receivedData(const String& data, Telnet::Action action);
 
-    void setConsolePrintFunction(std::function<void(const String&)> f) { _eu.setConsolePrintFunction(f); }
+    void setConsolePrintFunction(std::function<void(const String&)> f);
 
     Error error() const { return _error; }
 
 private:
-    virtual CallReturnValue execute() { return _eu.continueExecution(); }
+    virtual CallReturnValue execute();
 
-    ExecutionUnit _eu;
+    ExecutionUnit* _eu = nullptr;
     Error _error;
 };
 
 class TaskProto : public ObjectFactory {
 public:
-    TaskProto(Program*);
+    TaskProto(Program*, ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue run(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 class NativeTask : public TaskBase {

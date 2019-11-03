@@ -41,6 +41,7 @@ ReceivedData
 Reconnected 
 RisingEdge
 SentData 
+Task
 TCP
 TCPProto
 Trigger
@@ -66,6 +67,7 @@ disconnect
 done
 encode
 eof
+error
 exec
 format
 front
@@ -87,6 +89,7 @@ println
 push_back
 push_front
 read
+run
 send
 setPinMode
 setValue

@@ -15,6 +15,7 @@
 #include "JSON.h"
 #include "Object.h"
 #include "SystemTime.h"
+#include "Task.h"
 #include "TCP.h"
 
 namespace m8r {
@@ -37,6 +38,7 @@ private:
     UDPProto _udp;
     IPAddrProto _ipAddr;
     Iterator _iterator;
+    TaskProto _task;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
