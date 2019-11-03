@@ -12,7 +12,7 @@
 
 printf("m8rscript shell v 1.0\n\n");
 
-var env = { PATH : "/sys/bin" };
+var env = { PATH : [ "/sys/bin" ], CWD : "/home" };
 var done = [ false ];
 var foo = 1.5;
 var lines = [ ];
@@ -27,9 +27,22 @@ consoleListener = function(line, action)
     }
 };
 
+
 function showPrompt()
 {
-    printf("[/:1] > ");
+    printf("[%s:1] > ", env.CWD);
+}
+
+function findExecutable(filename)
+{
+    for (var pathPrefix : env.PATH) {
+        var path = pathPrefix + "/" + filename;
+        var file = FS.open(path, "r");
+        if (file) {
+            return file;
+        }
+    }
+    return null;
 }
 
 function processLine(line)
@@ -38,8 +51,24 @@ function processLine(line)
     var command = components.front;
     components.pop_front();
     
-    printf("==> exec '%s': '%s' - env=%s\n", command, components.join(", "), env);
-    exec(command, env, components);
+    println("*****");
+    var file = findExecutable(command);
+    if (file) {
+        var task = new Task(file);
+        task.arguments = components;
+        task.env = env;
+        var taskStatus = { done : false, status : 0 };
+        task.run(function(exitCode) {
+            taskStatus.done = true;
+            taskStatus.status = exitCode;
+        });
+        
+        while (!taskStatus.done) {
+            waitForEvent();
+        }
+    } else {
+        printf("mrsh: %s: command not found\n", command);
+    }
 }
 
 showPrompt();
@@ -53,51 +82,3 @@ while (!done[0]) {
     }
     waitForEvent();
 }
-
-//printf("Hello world\n");
-//var b = function(x, y) { return x + y; };
-//printf("fake result=%d\n", b(3, 5));
-
-// Test import
-//var x = 5;
-//var y = 7;
-//var lib = importString("function f(a, b) { return a + b; }");
-//var r = lib.f(x, y);
-//println(r);
-
-//function a() {
-//    return x + y;
-//}
-//
-//printf("result=%d\n", a());
-
-//var a = new IPAddr("127.0.0.1");
-//println(a);
-//println(IPAddr);
-
-//var done = [ false ];
-//consoleListener =   function(c)
-//                    {
-//                        printf("GOT A CHAR!!! '%c'\n", c);
-//                        if (c == 0x06) {
-//                            printf("EXITING!!!\n");
-//                            done[0] = true;
-//                        }
-//                    };
-//while(!done[0]) {
-//    delay(1000);
-//    printf("currentTime is %f, done is %d\n", currentTime(), done);
-//}
-
-//var c = [ 2 ];
-//function a(b)
-//{
-//    var e = 1;
-//    return function(d) { return b + c[0] + d + e; };
-//    //                          3   2   4   1 => 10
-//}
-//
-//var g = a(3);
-//printf("result is %d\n", g(4));
-//c[0] = 5;
-//printf("result is %d\n", g(4));
