@@ -212,21 +212,6 @@ int main(int argc, char * argv[])
                     toFile->close();
                     if (success) {
                         printf("Uploaded '%s' to '%s'\n", uploadFilename, toPath.c_str());
-                        
-                        // Show file
-                        std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read);
-                        char buffer[1024];
-                        printf("Printing %s:\n", toPath.c_str());
-                        while (!file->eof()) {
-                            int32_t size = file->read(buffer, 1023);
-                            if (size < 0) {
-                                printf("****** error: %d\n", size);
-                                break;
-                            }
-                            buffer[size] = '\0';
-                            printf("%s", buffer);
-                        }
-                        printf("\nFinished printing\n");
                     }
                 }
             }
