@@ -11,9 +11,9 @@ static const char _Connected[] ROMSTR_ATTR = "Connected";
 static const char _Directory[] ROMSTR_ATTR = "Directory";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
 static const char _Error[] ROMSTR_ATTR = "Error";
+static const char _FS[] ROMSTR_ATTR = "FS";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
 static const char _File[] ROMSTR_ATTR = "File";
-static const char _FS[] ROMSTR_ATTR = "FS";
 static const char _Global[] ROMSTR_ATTR = "Global";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
 static const char _High[] ROMSTR_ATTR = "High";
@@ -61,6 +61,7 @@ static const char _done[] ROMSTR_ATTR = "done";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _eof[] ROMSTR_ATTR = "eof";
 static const char _error[] ROMSTR_ATTR = "error";
+static const char _errorString[] ROMSTR_ATTR = "errorString";
 static const char _exec[] ROMSTR_ATTR = "exec";
 static const char _format[] ROMSTR_ATTR = "format";
 static const char _front[] ROMSTR_ATTR = "front";
@@ -69,11 +70,17 @@ static const char _import[] ROMSTR_ATTR = "import";
 static const char _importString[] ROMSTR_ATTR = "importString";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _join[] ROMSTR_ATTR = "join";
+static const char _lastError[] ROMSTR_ATTR = "lastError";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
+static const char _makeDirectory[] ROMSTR_ATTR = "makeDirectory";
+static const char _mount[] ROMSTR_ATTR = "mount";
+static const char _mounted[] ROMSTR_ATTR = "mounted";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _null[] ROMSTR_ATTR = "null";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
+static const char _open[] ROMSTR_ATTR = "open";
+static const char _openDirectory[] ROMSTR_ATTR = "openDirectory";
 static const char _parse[] ROMSTR_ATTR = "parse";
 static const char _pop_back[] ROMSTR_ATTR = "pop_back";
 static const char _pop_front[] ROMSTR_ATTR = "pop_front";
@@ -83,17 +90,21 @@ static const char _println[] ROMSTR_ATTR = "println";
 static const char _push_back[] ROMSTR_ATTR = "push_back";
 static const char _push_front[] ROMSTR_ATTR = "push_front";
 static const char _read[] ROMSTR_ATTR = "read";
+static const char _remove[] ROMSTR_ATTR = "remove";
+static const char _rename[] ROMSTR_ATTR = "rename";
 static const char _run[] ROMSTR_ATTR = "run";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _setValue[] ROMSTR_ATTR = "setValue";
 static const char _split[] ROMSTR_ATTR = "split";
+static const char _stat[] ROMSTR_ATTR = "stat";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
 static const char _toFloat[] ROMSTR_ATTR = "toFloat";
 static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
+static const char _unmount[] ROMSTR_ATTR = "unmount";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
 static const char _write[] ROMSTR_ATTR = "write";
@@ -106,9 +117,9 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _Directory,
     _Disconnected,
     _Error,
+    _FS,
     _FallingEdge,
     _File,
-    _FS,
     _Global,
     _GPIO,
     _High,
@@ -156,6 +167,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _encode,
     _eof,
     _error,
+    _errorString,
     _exec,
     _format,
     _front,
@@ -164,11 +176,17 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _importString,
     _iterator,
     _join,
+    _lastError,
     _length,
     _lookupHostname,
+    _makeDirectory,
+    _mount,
+    _mounted,
     _next,
     _null,
     _onInterrupt,
+    _open,
+    _openDirectory,
     _parse,
     _pop_back,
     _pop_front,
@@ -178,17 +196,21 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _push_back,
     _push_front,
     _read,
+    _remove,
+    _rename,
     _run,
     _send,
     _setPinMode,
     _setValue,
     _split,
+    _stat,
     _stringify,
     _toFloat,
     _toInt,
     _toString,
     _toUInt,
     _trim,
+    _unmount,
     _value,
     _waitForEvent,
     _write,
