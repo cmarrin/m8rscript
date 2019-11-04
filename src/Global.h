@@ -41,6 +41,8 @@ private:
     Iterator _iterator;
     TaskProto _task;
     FSProto _fs;
+    FileProto _file;
+    DirectoryProto _directory;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);

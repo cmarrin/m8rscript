@@ -39,6 +39,8 @@ Global::Global(Program* program)
     , _iterator(program, this)
     , _task(program, this)
     , _fs(program, this)
+    , _file(program, this)
+    , _directory(program, this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());

@@ -197,6 +197,7 @@ public:
     const Object* nativeObject() const { return _obj; }
     
     static Object* create(Atom objectName, ExecutionUnit*, uint32_t nparams);
+    static Object* create(Object* proto, ExecutionUnit*, uint32_t nparams);
 
 protected:
     MaterObject* _obj = nullptr;

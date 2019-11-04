@@ -425,6 +425,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     auto it = _properties.find(Atom(SA::constructor));
     if (it != _properties.end()) {
         CallReturnValue retval = it->value.call(eu, objectValue, nparams, true);
+        // ctor should not return anything
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
             return retval;
         }
@@ -495,16 +496,22 @@ Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npara
         return nullptr;
     }
     
-    Object* object = objectValue.asObject();
-    if (!object) {
+    return create(objectValue.asObject(), eu, nparams);
+}
+
+Object* ObjectFactory::create(Object* proto, ExecutionUnit* eu, uint32_t nparams)
+{
+    if (!proto) {
         return nullptr;
     }
 
-    CallReturnValue r = object->call(eu, Value(), nparams, true);
+    CallReturnValue r = proto->call(eu, Value(), nparams, true);
     Value retValue;
     if (r.isReturnCount() && r.returnCount() > 0) {
         retValue = eu->stack().top(1 - r.returnCount());
         eu->stack().pop(r.returnCount());
-    }    
-    return retValue.asObject();
+        return retValue.asObject();
+    } else {
+        return nullptr;
+    }
 }
