@@ -20,6 +20,35 @@ namespace m8r {
 class File;
 class Directory;
 
+class FileProto : public ObjectFactory {
+public:
+    FileProto(Program*, ObjectFactory* parent);
+
+    private:        
+        static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};    
+
+class DirectoryProto : public ObjectFactory {
+public:
+    DirectoryProto(Program*, ObjectFactory* parent);
+
+    private:
+        static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+        static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};    
+
 class FSProto : public ObjectFactory {
 public:
     FSProto(Program*, ObjectFactory* parent);
@@ -38,34 +67,7 @@ private:
     static CallReturnValue stat(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};    
-
-class FileProto : public ObjectFactory {
-public:
-    FileProto(Program*, ObjectFactory* parent);
-
-    private:        
-        static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};    
-
-class DirectoryProto : public ObjectFactory {
-public:
-    DirectoryProto(Program*, ObjectFactory* parent);
-
-    private:
-        static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};    
+};
 
 class FS {
     friend class File;
