@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Base64.h"
+#include "FS.h"
 #include "GPIO.h"
 #include "Iterator.h"
 #include "JSON.h"
@@ -39,6 +40,7 @@ private:
     IPAddrProto _ipAddr;
     Iterator _iterator;
     TaskProto _task;
+    FSProto _fs;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);

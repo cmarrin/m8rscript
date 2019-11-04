@@ -15,81 +15,89 @@
 
 using namespace m8r;
 
-FS::FS()
+FSProto::FSProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::FS, parent)
 {
+    addProperty(program, SA::mount, mount);
+    addProperty(program, SA::mounted, mounted);
+    addProperty(program, SA::unmount, unmount);
+    addProperty(program, SA::format, format);
+    addProperty(program, SA::open, open);
+    addProperty(program, SA::openDirectory, openDirectory);
+    addProperty(program, SA::makeDirectory, makeDirectory);
+    addProperty(program, SA::remove, remove);
+    addProperty(program, SA::rename, rename);
+    addProperty(program, SA::stat, stat);
+    addProperty(program, SA::lastError, lastError);
+    addProperty(program, SA::errorString, errorString);
 }
 
-CallReturnValue FS::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     system()->fileSystem()->mount();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     eu->stack().push(Value(system()->fileSystem()->mounted()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue FS::unmount(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::unmount(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     system()->fileSystem()->unmount();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::format(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::format(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     system()->fileSystem()->format();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::open(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::open(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Object* obj = ObjectFactory::create(Atom(SA::File), eu, nparams);
     if (!obj) {
-        return CallReturnValue(CallReturnValue::Error::Error);
+        return CallReturnValue(CallReturnValue::Error::Unimplemented);
     }
     
     eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue FS::openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::remove(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::remove(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::rename(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::rename(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::totalSize(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::stat(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::totalUsed(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::lastError(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FS::lastError(ExecutionUnit*, Value thisValue, uint32_t nparams)
-{
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue FS::errorString(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::errorString(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

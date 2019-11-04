@@ -38,6 +38,7 @@ Global::Global(Program* program)
     , _ipAddr(program, this)
     , _iterator(program, this)
     , _task(program, this)
+    , _fs(program, this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
@@ -58,7 +59,6 @@ Global::Global(Program* program)
 
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
-    //addProperty(program, SA::FS, system()->fileSystem());
     
     addProperty(program, SA::consoleListener, Value::NullValue());
 }

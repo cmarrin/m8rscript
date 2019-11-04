@@ -20,6 +20,26 @@ namespace m8r {
 class File;
 class Directory;
 
+class FSProto : public ObjectFactory {
+public:
+    FSProto(Program*, ObjectFactory* parent);
+        
+private:
+    // m8rscript object methods
+    static CallReturnValue mount(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
+    static CallReturnValue unmount(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue open(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
+    static CallReturnValue openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue remove(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue rename(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue stat(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};    
+
 class FS {
     friend class File;
     
@@ -51,7 +71,7 @@ public:
         Create          = 6,
     };
     
-    FS();
+    FS() { }
     virtual ~FS() { }
 
     virtual bool mount() = 0;
@@ -76,22 +96,6 @@ public:
     
 protected:
     Error _error;
-    
-private:
-    // m8rscript object methods
-    static CallReturnValue mount(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
-    static CallReturnValue unmount(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue open(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
-    static CallReturnValue openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue remove(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue rename(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue totalSize(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue totalUsed(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 class Directory {
