@@ -165,7 +165,24 @@ public:
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
 
     m8r::String toStringValue(ExecutionUnit*) const;
-    bool toBoolValue(ExecutionUnit* eu) const { return (type() == Type::Integer) ? (int32FromValue() != 0) : (toIntValue(eu) != 0); }
+    bool toBoolValue(ExecutionUnit* eu) const
+    {
+        switch (type()) {
+            default:
+            case Type::Null:
+            case Type::None:              return false;
+            case Type::Object:
+            case Type::NativeObject:
+            case Type::Function:          return _value._ptr;
+            case Type::NativeFunction:    return _value._callable;
+            case Type::Integer:           return int32FromValue() != 0;
+            case Type::Float:
+            case Type::String:
+            case Type::StringLiteral:
+            case Type::Id:                return toIntValue(eu) != 0;
+        }
+    }
+    
     Float toFloatValue(ExecutionUnit* eu) const
     {
         return (type() == Type::Float) ? floatFromValue() : ((type() == Type::Integer) ? Float(int32FromValue()) : _toFloatValue(eu));
@@ -196,7 +213,9 @@ public:
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Function; }
+    bool isNativeObject() const { return type() == Type::NativeObject; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }
+    bool isPointer() const { return isObject() || isFunction() || isNativeObject(); }
     
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
@@ -245,7 +264,6 @@ private:
             union {
                 union {
                     void* _ptr;
-                    Object* _obj;
                     NativeFunction _callable;
                 };
                 int32_t _int;
