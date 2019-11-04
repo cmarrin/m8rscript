@@ -638,8 +638,27 @@ bool ParseEngine::expression(uint8_t minPrec)
             _parser->emitDup();
         }
     
-        expression(nextMinPrec);
-        _parser->emitBinOp(it->value.op);
+        // If the op is LAND or LOR we want to short circuit. Add logic
+        // here to jump over the next expression if TOS is false in the
+        // case of LAND or true in the case of LOR
+        if (it->value.op == Op::LAND || it->value.op == Op::LOR) {
+            _parser->emitDup();
+            Label passLabel = _parser->label();
+            Label skipLabel = _parser->label();
+            bool skipResult = it->value.op != Op::LAND;
+            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
+            expression(nextMinPrec);
+            _parser->emitBinOp(it->value.op);
+            _parser->addMatchedJump(Op::JMP, passLabel);
+            _parser->matchJump(skipLabel);
+            _parser->pushK(skipResult);
+            _parser->emitMove();
+            _parser->matchJump(passLabel);
+        } else {
+            expression(nextMinPrec);
+            _parser->emitBinOp(it->value.op);
+        }
+        
         if (it->value.sto == OpInfo::Store::Yes) {
             _parser->emitMove();
         }

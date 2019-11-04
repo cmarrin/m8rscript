@@ -429,6 +429,7 @@ void Parser::emitDup()
         case ParseStack::Type::PropRef:
         case ParseStack::Type::EltRef:
         case ParseStack::Type::RefK:
+        case ParseStack::Type::Constant:
             _parseStack.dup();
             _parseStack.bake();
             break;
