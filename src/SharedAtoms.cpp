@@ -49,6 +49,7 @@ static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _back[] ROMSTR_ATTR = "back";
 static const char _call[] ROMSTR_ATTR = "call";
+static const char _close[] ROMSTR_ATTR = "close";
 static const char _consoleListener[] ROMSTR_ATTR = "consoleListener";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
@@ -76,6 +77,7 @@ static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _makeDirectory[] ROMSTR_ATTR = "makeDirectory";
 static const char _mount[] ROMSTR_ATTR = "mount";
 static const char _mounted[] ROMSTR_ATTR = "mounted";
+static const char _name[] ROMSTR_ATTR = "name";
 static const char _next[] ROMSTR_ATTR = "next";
 static const char _null[] ROMSTR_ATTR = "null";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
@@ -93,9 +95,11 @@ static const char _read[] ROMSTR_ATTR = "read";
 static const char _remove[] ROMSTR_ATTR = "remove";
 static const char _rename[] ROMSTR_ATTR = "rename";
 static const char _run[] ROMSTR_ATTR = "run";
+static const char _seek[] ROMSTR_ATTR = "seek";
 static const char _send[] ROMSTR_ATTR = "send";
 static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _setValue[] ROMSTR_ATTR = "setValue";
+static const char _size[] ROMSTR_ATTR = "size";
 static const char _split[] ROMSTR_ATTR = "split";
 static const char _stat[] ROMSTR_ATTR = "stat";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
@@ -104,6 +108,7 @@ static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
+static const char _type[] ROMSTR_ATTR = "type";
 static const char _unmount[] ROMSTR_ATTR = "unmount";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
@@ -155,6 +160,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _arguments,
     _back,
     _call,
+    _close,
     _consoleListener,
     _constructor,
     _currentTime,
@@ -182,6 +188,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _makeDirectory,
     _mount,
     _mounted,
+    _name,
     _next,
     _null,
     _onInterrupt,
@@ -199,9 +206,11 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _remove,
     _rename,
     _run,
+    _seek,
     _send,
     _setPinMode,
     _setValue,
+    _size,
     _split,
     _stat,
     _stringify,
@@ -210,6 +219,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _toString,
     _toUInt,
     _trim,
+    _type,
     _unmount,
     _value,
     _waitForEvent,

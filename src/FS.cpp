@@ -101,3 +101,90 @@ CallReturnValue FSProto::errorString(ExecutionUnit*, Value thisValue, uint32_t n
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+
+FileProto::FileProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::File, parent)
+{
+    addProperty(program, SA::close, close);
+    addProperty(program, SA::read, read);
+    addProperty(program, SA::write, write);
+    addProperty(program, SA::seek, seek);
+    addProperty(program, SA::eof, eof);
+    addProperty(program, SA::error, error);
+    addProperty(program, SA::type, type);
+}
+
+CallReturnValue FileProto::close(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::read(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::write(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::seek(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::tell(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::eof(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::error(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::type(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+DirectoryProto::DirectoryProto(Program* program, ObjectFactory* parent)
+    : ObjectFactory(program, SA::Directory, parent)
+{
+    addProperty(program, SA::name, name);
+    addProperty(program, SA::size, size);
+    addProperty(program, SA::type, type);
+    addProperty(program, SA::error, error);
+    addProperty(program, SA::next, next);
+}
+
+CallReturnValue DirectoryProto::name(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::size(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::type(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::error(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::next(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}

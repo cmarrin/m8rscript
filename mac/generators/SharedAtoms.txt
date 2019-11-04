@@ -56,6 +56,7 @@ __typeName
 arguments
 back
 call
+close
 consoleListener
 constructor
 currentTime
@@ -83,6 +84,7 @@ lookupHostname
 makeDirectory
 mount
 mounted
+name
 next
 null
 onInterrupt
@@ -100,9 +102,11 @@ read
 remove
 rename
 run
+seek
 send
 setPinMode
 setValue
+size
 split
 stat
 stringify
@@ -111,6 +115,7 @@ toInt
 toString
 toUInt
 trim
+type
 unmount
 value
 waitForEvent
