@@ -17,37 +17,37 @@ ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
     if (!_opInfo.size()) {
-        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, false, Op::MOVE });
-        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, true, Op::ADD });
-        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, true, Op::SUB });
-        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, true, Op::MUL });
-        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::RightAssoc, true, Op::DIV });
-        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::RightAssoc, true, Op::MOD });
-        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::RightAssoc, true, Op::SHL });
-        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::RightAssoc, true, Op::SHR });
-        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::RightAssoc, true, Op::SAR });
-        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::RightAssoc, true, Op::AND });
-        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::RightAssoc, true, Op::OR });
-        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::RightAssoc, true, Op::XOR });
-        _opInfo.emplace(Token::LOR,         { 6, OpInfo::LeftAssoc, false, Op::LOR });
-        _opInfo.emplace(Token::LAND,        { 7, OpInfo::LeftAssoc, false, Op::LAND });
-        _opInfo.emplace(Token::OR,          { 8, OpInfo::LeftAssoc, false, Op::OR });
-        _opInfo.emplace(Token::XOR,         { 9, OpInfo::LeftAssoc, false, Op::XOR });
-        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::LeftAssoc, false, Op::AND });
-        _opInfo.emplace(Token::EQ,          { 11, OpInfo::LeftAssoc, false, Op::EQ });
-        _opInfo.emplace(Token::NE,          { 11, OpInfo::LeftAssoc, false, Op::NE });
-        _opInfo.emplace(Token::LT,          { 12, OpInfo::LeftAssoc, false, Op::LT });
-        _opInfo.emplace(Token::GT,          { 12, OpInfo::LeftAssoc, false, Op::GT });
-        _opInfo.emplace(Token::GE,          { 12, OpInfo::LeftAssoc, false, Op::GE });
-        _opInfo.emplace(Token::LE,          { 12, OpInfo::LeftAssoc, false, Op::LE });
-        _opInfo.emplace(Token::SHL,         { 13, OpInfo::LeftAssoc, false, Op::SHL });
-        _opInfo.emplace(Token::SHR,         { 13, OpInfo::LeftAssoc, false, Op::SHR });
-        _opInfo.emplace(Token::SAR,         { 13, OpInfo::LeftAssoc, false, Op::SAR });
-        _opInfo.emplace(Token::Plus,        { 14, OpInfo::LeftAssoc, false, Op::ADD });
-        _opInfo.emplace(Token::Minus,       { 14, OpInfo::LeftAssoc, false, Op::SUB });
-        _opInfo.emplace(Token::Star,        { 15, OpInfo::LeftAssoc, false, Op::MUL });
-        _opInfo.emplace(Token::Slash,       { 15, OpInfo::LeftAssoc, false, Op::DIV });
-        _opInfo.emplace(Token::Percent,     { 15, OpInfo::LeftAssoc, false, Op::MOD });
+        _opInfo.emplace(Token::STO,         { 1, OpInfo::Assoc::Right, OpInfo::Store::No, Op::MOVE });
+        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::ADD });
+        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::SUB });
+        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::MUL });
+        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::DIV });
+        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::MOD });
+        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::SHL });
+        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::SHR });
+        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::SAR });
+        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::AND });
+        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::OR });
+        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::Assoc::Right, OpInfo::Store::Yes, Op::XOR });
+        _opInfo.emplace(Token::LOR,         { 6, OpInfo::Assoc::Left, OpInfo::Store::No, Op::LOR });
+        _opInfo.emplace(Token::LAND,        { 7, OpInfo::Assoc::Left, OpInfo::Store::No, Op::LAND });
+        _opInfo.emplace(Token::OR,          { 8, OpInfo::Assoc::Left, OpInfo::Store::No, Op::OR });
+        _opInfo.emplace(Token::XOR,         { 9, OpInfo::Assoc::Left, OpInfo::Store::No, Op::XOR });
+        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::Assoc::Left, OpInfo::Store::No, Op::AND });
+        _opInfo.emplace(Token::EQ,          { 11, OpInfo::Assoc::Left, OpInfo::Store::No, Op::EQ });
+        _opInfo.emplace(Token::NE,          { 11, OpInfo::Assoc::Left, OpInfo::Store::No, Op::NE });
+        _opInfo.emplace(Token::LT,          { 12, OpInfo::Assoc::Left, OpInfo::Store::No, Op::LT });
+        _opInfo.emplace(Token::GT,          { 12, OpInfo::Assoc::Left, OpInfo::Store::No, Op::GT });
+        _opInfo.emplace(Token::GE,          { 12, OpInfo::Assoc::Left, OpInfo::Store::No, Op::GE });
+        _opInfo.emplace(Token::LE,          { 12, OpInfo::Assoc::Left, OpInfo::Store::No, Op::LE });
+        _opInfo.emplace(Token::SHL,         { 13, OpInfo::Assoc::Left, OpInfo::Store::No, Op::SHL });
+        _opInfo.emplace(Token::SHR,         { 13, OpInfo::Assoc::Left, OpInfo::Store::No, Op::SHR });
+        _opInfo.emplace(Token::SAR,         { 13, OpInfo::Assoc::Left, OpInfo::Store::No, Op::SAR });
+        _opInfo.emplace(Token::Plus,        { 14, OpInfo::Assoc::Left, OpInfo::Store::No, Op::ADD });
+        _opInfo.emplace(Token::Minus,       { 14, OpInfo::Assoc::Left, OpInfo::Store::No, Op::SUB });
+        _opInfo.emplace(Token::Star,        { 15, OpInfo::Assoc::Left, OpInfo::Store::No, Op::MUL });
+        _opInfo.emplace(Token::Slash,       { 15, OpInfo::Assoc::Left, OpInfo::Store::No, Op::DIV });
+        _opInfo.emplace(Token::Percent,     { 15, OpInfo::Assoc::Left, OpInfo::Store::No, Op::MOD });
     }
 }
 
@@ -632,15 +632,15 @@ bool ParseEngine::expression(uint8_t minPrec)
         if (it == _opInfo.end() || it->value.prec < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (it->value.assoc == OpInfo::LeftAssoc) ? (it->value.prec + 1) : it->value.prec;
+        uint8_t nextMinPrec = (it->value.assoc == OpInfo::Assoc::Left) ? (it->value.prec + 1) : it->value.prec;
         retireToken();
-        if (it->value.sto) {
+        if (it->value.sto == OpInfo::Store::Yes) {
             _parser->emitDup();
         }
     
         expression(nextMinPrec);
         _parser->emitBinOp(it->value.op);
-        if (it->value.sto) {
+        if (it->value.sto == OpInfo::Store::Yes) {
             _parser->emitMove();
         }
     }
