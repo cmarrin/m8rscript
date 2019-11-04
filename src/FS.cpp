@@ -110,6 +110,7 @@ FileProto::FileProto(Program* program, ObjectFactory* parent)
     addProperty(program, SA::write, write);
     addProperty(program, SA::seek, seek);
     addProperty(program, SA::eof, eof);
+    addProperty(program, SA::valid, valid);
     addProperty(program, SA::error, error);
     addProperty(program, SA::type, type);
 }
@@ -144,6 +145,11 @@ CallReturnValue FileProto::eof(ExecutionUnit*, Value thisValue, uint32_t nparams
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
+CallReturnValue FileProto::valid(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
 CallReturnValue FileProto::error(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -160,6 +166,7 @@ DirectoryProto::DirectoryProto(Program* program, ObjectFactory* parent)
     addProperty(program, SA::name, name);
     addProperty(program, SA::size, size);
     addProperty(program, SA::type, type);
+    addProperty(program, SA::valid, valid);
     addProperty(program, SA::error, error);
     addProperty(program, SA::next, next);
 }
@@ -175,6 +182,11 @@ CallReturnValue DirectoryProto::size(ExecutionUnit*, Value thisValue, uint32_t n
 }
 
 CallReturnValue DirectoryProto::type(ExecutionUnit*, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::valid(ExecutionUnit*, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

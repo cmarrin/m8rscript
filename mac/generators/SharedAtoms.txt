@@ -117,6 +117,7 @@ toUInt
 trim
 type
 unmount
+valid
 value
 waitForEvent
 write

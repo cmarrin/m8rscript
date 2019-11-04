@@ -110,6 +110,7 @@ static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
 static const char _type[] ROMSTR_ATTR = "type";
 static const char _unmount[] ROMSTR_ATTR = "unmount";
+static const char _valid[] ROMSTR_ATTR = "valid";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
 static const char _write[] ROMSTR_ATTR = "write";
@@ -221,6 +222,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _trim,
     _type,
     _unmount,
+    _valid,
     _value,
     _waitForEvent,
     _write,

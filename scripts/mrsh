@@ -38,7 +38,7 @@ function findExecutable(filename)
     for (var pathPrefix : env.PATH) {
         var path = pathPrefix + "/" + filename;
         var file = FS.open(path, "r");
-        if (file) {
+        if (file && file.valid()) {
             return file;
         }
     }
@@ -50,9 +50,9 @@ function processLine(line)
     var components = line.split(" ");
     var command = components.front;
     components.pop_front();
-    
+
     var file = findExecutable(command);
-    if (file) {
+    if (file && file.valid()) {
         var task = new Task(file);
         task.arguments = components;
         task.env = env;
@@ -61,7 +61,7 @@ function processLine(line)
             taskStatus.done = true;
             taskStatus.status = exitCode;
         });
-        
+
         while (!taskStatus.done) {
             waitForEvent();
         }
