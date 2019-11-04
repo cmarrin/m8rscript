@@ -44,13 +44,13 @@ CallReturnValue FSProto::mounted(ExecutionUnit* eu, Value thisValue, uint32_t np
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue FSProto::unmount(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::unmount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     system()->fileSystem()->unmount();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::format(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::format(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     system()->fileSystem()->format();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -67,43 +67,43 @@ CallReturnValue FSProto::open(ExecutionUnit* eu, Value thisValue, uint32_t npara
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue FSProto::openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::openDirectory(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::makeDirectory(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::remove(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::remove(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::rename(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::rename(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::stat(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::stat(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::lastError(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::lastError(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FSProto::errorString(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 FileProto::FileProto(Program* program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::File, parent)
+    : ObjectFactory(program, SA::File, parent, constructor)
 {
     addProperty(program, SA::close, close);
     addProperty(program, SA::read, read);
@@ -115,53 +115,151 @@ FileProto::FileProto(Program* program, ObjectFactory* parent)
     addProperty(program, SA::type, type);
 }
 
-CallReturnValue FileProto::close(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    // Params are a filename string and openmode string. If openmode is missing, defaults to "r"
+    Object* obj = thisValue.asObject();
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
+    }
+
+    if (nparams < 1) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    String filename = eu->stack().top(1 - nparams).toStringValue(eu);
+    if (filename.empty()) {
+        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+    }
+    
+    String modeString;
+    if (nparams > 1) {
+        modeString = eu->stack().top(2 - nparams).toStringValue(eu);
+    }
+    
+    FS::FileOpenMode mode;
+    if (modeString.empty() || modeString == "r") {
+        mode = FS::FileOpenMode::Read;
+    } else if (modeString == "r+") {
+        mode = FS::FileOpenMode::ReadUpdate;
+    } else if (modeString == "w") {
+        mode = FS::FileOpenMode::Write;
+    } else if (modeString == "w+") {
+        mode = FS::FileOpenMode::WriteUpdate;
+    } else if (modeString == "a") {
+        mode = FS::FileOpenMode::Append;
+    } else if (modeString == "a+") {
+        mode = FS::FileOpenMode::AppendUpdate;
+    } else if (modeString == "c") {
+        mode = FS::FileOpenMode::Create;
+    } else {
+        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+    }
+        
+    // TODO: How to we store shared_ptr in the Object?
+    std::shared_ptr<File> file = system()->fileSystem()->open(filename.c_str(), mode);
+    
+    // TODO: This certainly won't work
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value(file.get()), Value::SetPropertyType::AlwaysAdd);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+template<typename T>
+CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
+{
+    Object* obj = thisValue.asObject();
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
+    }
+    
+    nativeObj = reinterpret_cast<T*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
+    if (!nativeObj) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
+    }
+    return CallReturnValue(CallReturnValue::Error::Ok);
+}
+
+CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    File* file;
+    CallReturnValue ret = getNative(file, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
+    }
+    
+    file->close();
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    File* file;
+    CallReturnValue ret = getNative(file, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
+    }
+    
+    // Params: size ==> return String with data
+    // TODO: How do we do binary?
+    if (nparams != 1) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    int32_t size = eu->stack().top(1 - nparams).toIntValue(eu);
+    if (size <= 0) {
+        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+    }
+    
+    char* buf = new char[size];
+    file->read(buf, size);
+    eu->stack().push(Value(eu->program()->createString(buf, size)));
+    delete [ ] buf;
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
+CallReturnValue FileProto::write(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FileProto::read(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::seek(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FileProto::write(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::tell(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FileProto::seek(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::eof(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FileProto::tell(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::valid(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    File* file;
+    CallReturnValue ret = getNative(file, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
+    }
+    eu->stack().push(Value(file->valid()));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
+CallReturnValue FileProto::error(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue FileProto::eof(ExecutionUnit*, Value thisValue, uint32_t nparams)
-{
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue FileProto::valid(ExecutionUnit*, Value thisValue, uint32_t nparams)
-{
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue FileProto::error(ExecutionUnit*, Value thisValue, uint32_t nparams)
-{
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue FileProto::type(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 DirectoryProto::DirectoryProto(Program* program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Directory, parent)
+    : ObjectFactory(program, SA::Directory, parent, constructor)
 {
     addProperty(program, SA::name, name);
     addProperty(program, SA::size, size);
@@ -171,32 +269,37 @@ DirectoryProto::DirectoryProto(Program* program, ObjectFactory* parent)
     addProperty(program, SA::next, next);
 }
 
-CallReturnValue DirectoryProto::name(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue DirectoryProto::size(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::name(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue DirectoryProto::type(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::size(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue DirectoryProto::valid(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::type(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue DirectoryProto::error(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::valid(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-CallReturnValue DirectoryProto::next(ExecutionUnit*, Value thisValue, uint32_t nparams)
+CallReturnValue DirectoryProto::error(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+{
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+}
+
+CallReturnValue DirectoryProto::next(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

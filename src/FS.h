@@ -25,6 +25,7 @@ public:
     FileProto(Program*, ObjectFactory* parent);
 
     private:        
+        static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -41,6 +42,7 @@ public:
     DirectoryProto(Program*, ObjectFactory* parent);
 
     private:
+        static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
         static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -127,7 +129,7 @@ protected:
     Error _error;
 };
 
-class Directory {
+class Directory : public NativeObject {
     friend class FS;
     
 public:
@@ -148,7 +150,7 @@ protected:
     uint32_t _size = 0;
 };
 
-class File {
+class File : public NativeObject {
     friend class FS;
     
 public:

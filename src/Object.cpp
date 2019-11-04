@@ -376,7 +376,7 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
     }
     
     if (prop == Atom(SA::__nativeObject)) {
-        _nativeObject = v.asObject();
+        _nativeObject = v.asNativeObject();
         return true;
     }
     
