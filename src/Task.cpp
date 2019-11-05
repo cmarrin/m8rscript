@@ -119,5 +119,29 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
 
 CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
+    if (nparams > 1) {
+        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+    }
+    
+    Task* task;
+    CallReturnValue retval = getNative(task, eu, thisValue);
+    if (retval.error() != CallReturnValue::Error::Ok) {
+        return retval;
+    }
+    
+    Value func;
+    
+    if (nparams > 0) {
+        func = eu->stack().top(1 - nparams);
+    }
+
+    task->run([&func, eu, task](TaskBase*)
+    {
+        if (func) {
+            Value arg(static_cast<int32_t>(task->error().code()));
+            eu->fireEvent(func, Value(task), &arg, 1);
+        }
+    });
+
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
