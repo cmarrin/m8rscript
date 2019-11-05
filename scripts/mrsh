@@ -36,7 +36,7 @@ function showPrompt()
 function findExecutable(filename)
 {
     for (var pathPrefix : env.PATH) {
-        var path = pathPrefix + "/" + filename;
+        var path = pathPrefix.value + "/" + filename;
         var file = FS.open(path, "r");
         if (file && file.valid()) {
             return file;
