@@ -7,9 +7,7 @@
 //  found in the LICENSE file.
 //-------------------------------------------------------------------------
 
-// This list must be in strict alphabetical order (lower case after upper
-// case, words starting with '_' between) in order for binary search to
-// work.
+// Entries can be in any order. They are sorted in the generator
 
 Array
 Base64

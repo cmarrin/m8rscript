@@ -14,13 +14,13 @@ static const char _Error[] ROMSTR_ATTR = "Error";
 static const char _FS[] ROMSTR_ATTR = "FS";
 static const char _FallingEdge[] ROMSTR_ATTR = "FallingEdge";
 static const char _File[] ROMSTR_ATTR = "File";
-static const char _Global[] ROMSTR_ATTR = "Global";
 static const char _GPIO[] ROMSTR_ATTR = "GPIO";
+static const char _Global[] ROMSTR_ATTR = "Global";
 static const char _High[] ROMSTR_ATTR = "High";
+static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
 static const char _Input[] ROMSTR_ATTR = "Input";
 static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
-static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
 static const char _Iterator[] ROMSTR_ATTR = "Iterator";
 static const char _JSON[] ROMSTR_ATTR = "JSON";
 static const char _Low[] ROMSTR_ATTR = "Low";
@@ -34,9 +34,9 @@ static const char _ReceivedData[] ROMSTR_ATTR = "ReceivedData";
 static const char _Reconnected[] ROMSTR_ATTR = "Reconnected";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
-static const char _Task[] ROMSTR_ATTR = "Task";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _TCPProto[] ROMSTR_ATTR = "TCPProto";
+static const char _Task[] ROMSTR_ATTR = "Task";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _UDP[] ROMSTR_ATTR = "UDP";
 static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
@@ -126,13 +126,13 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _FS,
     _FallingEdge,
     _File,
-    _Global,
     _GPIO,
+    _Global,
     _High,
+    _IPAddr,
     _Input,
     _InputPulldown,
     _InputPullup,
-    _IPAddr,
     _Iterator,
     _JSON,
     _Low,
@@ -146,9 +146,9 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _Reconnected,
     _RisingEdge,
     _SentData,
-    _Task,
     _TCP,
     _TCPProto,
+    _Task,
     _Trigger,
     _UDP,
     _UDPProto,

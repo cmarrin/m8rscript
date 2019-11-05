@@ -13,11 +13,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <string>
+#include <vector>
 
 // read SharedAtoms.txt and use it to generate SharedAtoms.cpp/SharedAtoms.h
 
-static void strip(char* out, const char* in)
+static std::string strip(const char* in)
 {
+    std::string out;
+    
     // remove leading spaces
     while(1) {
         if (isspace(*in)) {
@@ -31,9 +35,9 @@ static void strip(char* out, const char* in)
         if (isspace(*in) || *in == '\n' || *in == '\0') {
             break;
         }
-        *out++ = *in++;
+        out += *in++;
     }
-    *out = '\0';
+    return out;
 }
 
 int main()
@@ -63,73 +67,61 @@ int main()
     fprintf(hfile, "// This file is generated. Do not edit\n\n#include <cstdint>\n\nenum class SA : uint16_t {\n");
     fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <cstdlib>\n\n");
     
-    // Write the .h entries and the first .cpp entries
-    char entry[128];
-    int32_t count = 0;
+    // Get the strings into a vector
+    std::vector<std::string> strings;
 
     while (1) {
-        char* line;
+        char* line = nullptr;
         size_t length;
         ssize_t size = getline(&line, &length, ifile);
         if (size < 0) {
             if (feof(ifile)) {
+                free(line);
                 break;
             }
             printf("getline failed:%d\n", errno);
+            free(line);
             return -1;
         }
         
         // Ignore lines starting with "//" to allow for comments
         if (line[0] == '/' && line[1] == '/') {
+            free(line);
             continue;
         }
         
-        strip(entry, line);
+        std::string entry = strip(line);
         
-        if (strlen(entry) == 0) {
+        if (!entry.size()) {
+            free(line);
             continue;
         }
         
-        fprintf(hfile, "    %s = %d,\n", entry, count);
-        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", entry, entry);
-        ++count;
+        strings.push_back(entry);
+        free(line);
+    }
+    
+    // Sort the vector
+    std::sort(strings.begin(), strings.end());
+
+    // Write the .h entries and the first .cpp entries
+    for (int32_t i = 0; i < strings.size(); ++i) {
+        fprintf(hfile, "    %s = %d,\n", strings[i].c_str(), i);
+        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", strings[i].c_str(), strings[i].c_str());
     }
     
     // Write the second .cpp entries
     fprintf(cppfile, "\nconst char* RODATA_ATTR _sharedAtoms[] = {\n");
-    rewind(ifile);
-    while (1) {
-        char* line;
-        size_t length;
-        ssize_t size = getline(&line, &length, ifile);
-        if (size < 0) {
-            if (feof(ifile)) {
-                break;
-            }
-            printf("getline failed:%d\n", errno);
-            return -1;
-        }
-        
-        // Ignore lines starting with "//" to allow for comments
-        if (line[0] == '/' && line[1] == '/') {
-            continue;
-        }
-        
-        strip(entry, line);
-
-        if (strlen(entry) == 0) {
-            continue;
-        }
-        
-        fprintf(cppfile, "    _%s,\n", entry);
+    for (int32_t i = 0; i < strings.size(); ++i) {
+        fprintf(cppfile, "    _%s,\n", strings[i].c_str());
     }
     
     // Round count to the nearest 100 to make it easier to compute byte offset into table.
-    count = ((count + 99) / 100) * 100;
+    size_t count = ((strings.size() + 99) / 100) * 100;
     
     // Write the postambles
     fprintf(hfile, "};\n\nconst char** sharedAtoms(uint16_t& nelts);\n");
-    fprintf(hfile, "static constexpr uint16_t ExternalAtomOffset = %d;\n", count);
+    fprintf(hfile, "static constexpr uint16_t ExternalAtomOffset = %zu;\n", count);
 
     fprintf(cppfile, "};\n\nconst char** sharedAtoms(uint16_t& nelts)\n{\n    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n    return _sharedAtoms;\n}\n");
     

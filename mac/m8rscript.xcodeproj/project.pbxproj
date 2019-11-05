@@ -86,7 +86,7 @@
 		49BF344E236811BF001E5508 /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED394235392FF00DE0C42 /* spiffs_nucleus.c */; };
 		49BF344F236811BF001E5508 /* spiffs_nucleus.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED392235392FF00DE0C42 /* spiffs_nucleus.h */; };
 		49BF3450236811BF001E5508 /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38D235392FF00DE0C42 /* spiffs.h */; };
-		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */; };
+		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
@@ -307,7 +307,7 @@
 		49BF34442368083B001E5508 /* LittleFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../src/LittleFS.h; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
-		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generateSharedAtoms.c; path = generators/generateSharedAtoms.c; sourceTree = "<group>"; };
+		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateSharedAtoms.cpp; path = generators/generateSharedAtoms.cpp; sourceTree = "<group>"; };
 		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = generators/SharedAtoms.txt; sourceTree = "<group>"; };
 		49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../src/SharedAtoms.cpp; sourceTree = "<group>"; };
 		49C406F11EB675B0001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../src/SharedAtoms.h; sourceTree = "<group>"; };
@@ -513,7 +513,7 @@
 			isa = PBXGroup;
 			children = (
 				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
-				49C406EA1EB65A39001E4DEC /* generateSharedAtoms.c */,
+				49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */,
 			);
 			name = generators;
 			sourceTree = "<group>";
@@ -526,11 +526,11 @@
 				49F463321E0DD05E004EF625 /* MGSFragaria.framework */,
 				49E5AB5B1D98BFED00C6988D /* FastSocket */,
 				49E5AB531D981A6300C6988D /* UI */,
-				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */,
 				4988DC741F0C296B009F7ED5 /* Device.mm */,
 				4988DC751F0C296B009F7ED5 /* Device.h */,
 				49562F691D1D7A75001AFAEE /* main.m */,
+				49562F6B1D1D7A9C001AFAEE /* AppDelegate.h */,
 				49D9B82A1D1C8C9000724911 /* Images */,
 				49D9B8211D1C854700724911 /* Assets.xcassets */,
 				49D9B8261D1C854700724911 /* Info.plist */,
@@ -1003,7 +1003,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.c in Sources */,
+				49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
