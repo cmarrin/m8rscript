@@ -40,12 +40,11 @@ public:
 
 private:
     struct OpInfo {
-        enum class Assoc : uint8_t { Right, Left };
-        enum class Store : uint8_t { No, Yes };
-        
+        static const uint8_t LeftAssoc = 0;
+        static const uint8_t RightAssoc = 1;
         uint8_t prec : 6;
-        Assoc assoc : 1;
-        Store sto : 1;
+        uint8_t assoc : 1;
+        uint8_t sto : 1;
         Op op;
     };
         
