@@ -413,7 +413,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     // be extracted into an Object
     Function* parent = new Function(nullptr);
     
-    Function* function = parser.parse(stream, Parser::Debug::None, parent);
+    Function* function = parser.parse(stream, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         

@@ -34,7 +34,7 @@ Task::Task(const char* filename)
     
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
-    Parser::Debug debug = Parser::Debug::None;
+    Parser::Debug debug = Parser::Debug::Full;
     
     if (filename) {
         FileStream m8rStream(system()->fileSystem(), filename);
