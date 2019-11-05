@@ -49,7 +49,7 @@ private:
     };
         
     bool expect(Token token);
-    bool expect(Token token, bool expected);
+    bool expect(Token token, bool expected, const char* = nullptr);
     
     Token getToken() { return _parser->getToken(); }
     const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }

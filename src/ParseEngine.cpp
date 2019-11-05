@@ -61,10 +61,10 @@ bool ParseEngine::expect(Token token)
     return true;
 }
 
-bool ParseEngine::expect(Token token, bool expected)
+bool ParseEngine::expect(Token token, bool expected, const char* s)
 {
     if (!expected) {
-        _parser->expectedError(token);
+        _parser->expectedError(token, s);
     }
     return expected;
 }
@@ -185,7 +185,7 @@ bool ParseEngine::classStatement()
 
     expect(Token::Identifier);
     
-    if (!expect(Token::Expr, classExpression())) {
+    if (!expect(Token::Expr, classExpression(), "class")) {
         return false;
     }
     _parser->emitMove();
@@ -552,7 +552,7 @@ bool ParseEngine::variableDeclaration()
     retireToken();
     _parser->emitId(name, Parser::IdType::MustBeLocal);
 
-    if (!expect(Token::Expr, expression())) {
+    if (!expect(Token::Expr, expression(), "variable")) {
         return false;
     }
 
@@ -647,7 +647,11 @@ bool ParseEngine::expression(uint8_t minPrec)
             Label skipLabel = _parser->label();
             bool skipResult = it->value.op != Op::LAND;
             _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
-            expression(nextMinPrec);
+            
+            if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
+                return false;
+            }
+            
             _parser->emitBinOp(it->value.op);
             _parser->addMatchedJump(Op::JMP, passLabel);
             _parser->matchJump(skipLabel);
@@ -655,7 +659,9 @@ bool ParseEngine::expression(uint8_t minPrec)
             _parser->emitMove();
             _parser->matchJump(passLabel);
         } else {
-            expression(nextMinPrec);
+            if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
+                return false;
+            }
             _parser->emitBinOp(it->value.op);
         }
         
@@ -762,7 +768,7 @@ bool ParseEngine::primaryExpression()
                 _parser->emitAppendElt();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Token::Expr, expression())) {
+                    if (!expect(Token::Expr, expression(), "array element")) {
                         break;
                     }
                     _parser->emitAppendElt();

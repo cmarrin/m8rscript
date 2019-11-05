@@ -72,7 +72,7 @@ void Parser::unknownError(Token token)
     printError(ROMSTR("unknown token (%s)"), String::toString(c).c_str());
 }
 
-void Parser::expectedError(Token token)
+void Parser::expectedError(Token token, const char* s)
 {
     char c = static_cast<char>(token);
     if (c >= 0x20 && c <= 0x7f) {
@@ -80,8 +80,8 @@ void Parser::expectedError(Token token)
     } else {
         switch(token) {
             case Token::DuplicateDefault: printError(ROMSTR("multiple default cases not allowed")); break;
-            case Token::Expr: printError(ROMSTR("expression")); break;
-            case Token::PropertyAssignment: printError(ROMSTR("property assignment")); break;
+            case Token::Expr: assert(s); printError(ROMSTR("expected %s%sexpression"), s ?: "", s ? " " : ""); break;
+            case Token::PropertyAssignment: printError(ROMSTR("expected object member")); break;
             case Token::Statement: printError(ROMSTR("statement expected")); break;
             case Token::Identifier: printError(ROMSTR("identifier")); break;
             case Token::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;

@@ -37,7 +37,7 @@ public:
     Function* parse(const m8r::Stream& stream, Debug, Function* parent = nullptr);
 
 	void printError(const char* format, ...);
-    void expectedError(Token token);
+    void expectedError(Token token, const char* = nullptr);
     void unknownError(Token token);
     
     ErrorList& syntaxErrors() { return _syntaxErrors; }

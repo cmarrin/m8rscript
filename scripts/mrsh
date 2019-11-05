@@ -83,4 +83,4 @@ while (!done[0]) {
 }
 
 //var t = new Task("/sys/bin/mem");
-//t->run(function() { println("TASK DONE"); });
+//t.run(function() { println("TASK DONE"); });
