@@ -163,21 +163,6 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-template<typename T>
-CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
-{
-    Object* obj = thisValue.asObject();
-    if (!obj) {
-        return CallReturnValue(CallReturnValue::Error::MissingThis);
-    }
-    
-    nativeObj = reinterpret_cast<T*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
-    if (!nativeObj) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
-    }
-    return CallReturnValue(CallReturnValue::Error::Ok);
-}
-
 CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     File* file;

@@ -182,6 +182,21 @@ public:
     virtual void gcMark() { }
 };
 
+template<typename T>
+CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
+{
+    Object* obj = thisValue.asObject();
+    if (!obj) {
+        return CallReturnValue(CallReturnValue::Error::MissingThis);
+    }
+    
+    nativeObj = static_cast<T*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
+    if (!nativeObj) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
+    }
+    return CallReturnValue(CallReturnValue::Error::Ok);
+}
+
 class ObjectFactory {
 public:
     ObjectFactory(Program*, SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
