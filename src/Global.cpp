@@ -57,7 +57,7 @@ Global::Global(Program* program)
     addProperty(program, SA::import, import);
     addProperty(program, SA::importString, importString);
     addProperty(program, SA::waitForEvent, waitForEvent);
-    addProperty(program, SA::meminfo, waitForEvent);
+    addProperty(program, SA::meminfo, meminfo);
 
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
