@@ -63,7 +63,6 @@ static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _eof[] ROMSTR_ATTR = "eof";
 static const char _error[] ROMSTR_ATTR = "error";
 static const char _errorString[] ROMSTR_ATTR = "errorString";
-static const char _exec[] ROMSTR_ATTR = "exec";
 static const char _format[] ROMSTR_ATTR = "format";
 static const char _front[] ROMSTR_ATTR = "front";
 static const char _getValue[] ROMSTR_ATTR = "getValue";
@@ -75,6 +74,7 @@ static const char _lastError[] ROMSTR_ATTR = "lastError";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
 static const char _makeDirectory[] ROMSTR_ATTR = "makeDirectory";
+static const char _meminfo[] ROMSTR_ATTR = "meminfo";
 static const char _mount[] ROMSTR_ATTR = "mount";
 static const char _mounted[] ROMSTR_ATTR = "mounted";
 static const char _name[] ROMSTR_ATTR = "name";
@@ -175,7 +175,6 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _eof,
     _error,
     _errorString,
-    _exec,
     _format,
     _front,
     _getValue,
@@ -187,6 +186,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _length,
     _lookupHostname,
     _makeDirectory,
+    _meminfo,
     _mount,
     _mounted,
     _name,

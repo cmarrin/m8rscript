@@ -57,7 +57,7 @@ Global::Global(Program* program)
     addProperty(program, SA::import, import);
     addProperty(program, SA::importString, importString);
     addProperty(program, SA::waitForEvent, waitForEvent);
-    addProperty(program, SA::exec, exec);
+    addProperty(program, SA::meminfo, waitForEvent);
 
     addProperty(program, SA::Array, &_array);
     addProperty(program, SA::Object, &_object);
@@ -239,15 +239,16 @@ CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-CallReturnValue Global::exec(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
+CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // Execute passed command.
-    // Params: command, array of args, env object, completion cb
-    //
-    // 1) Look for PATH in env.
-    // 2) Prepend command with each entry in PATH
-    // 3) If script with that name is found, create a task and execute
-    // 4) If no completion cb, wait for task to exit and return result
-    // 5) If completion cb, return immediately. When cb fires pass result
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    MemoryInfo info;
+    system()->memoryInfo(info);
+    Object* obj = new MaterObject();
+    obj->setProperty(eu, eu->program()->atomizeString("freeSize"),
+                     Value(static_cast<int32_t>(info.freeSize)), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
+                     Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
+    
+    eu->stack().push(Value(obj));
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
