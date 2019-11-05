@@ -70,6 +70,7 @@
 		49AD0A20209B534F00F86278 /* Simulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49AD0A1E209B534F00F86278 /* Simulator.mm */; };
 		49BDE19E236C711B00304BE8 /* MString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BDE19C236C711B00304BE8 /* MString.cpp */; };
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
+		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
 		49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CB92350DBA900BF6D9E /* SpiffsFS.cpp */; };
 		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
@@ -296,6 +297,7 @@
 		49AE34F11D8231BF00C4E680 /* FS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FS.h; path = ../src/FS.h; sourceTree = "<group>"; };
 		49BDE19C236C711B00304BE8 /* MString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MString.cpp; path = ../src/MString.cpp; sourceTree = "<group>"; };
 		49BDE19D236C711B00304BE8 /* MString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../src/MString.h; sourceTree = "<group>"; };
+		49BDE1A423714DC000304BE8 /* mem */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = mem; path = ../scripts/mem; sourceTree = "<group>"; };
 		49BE1CB82350DBA900BF6D9E /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
 		49BE1CB92350DBA900BF6D9E /* SpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpiffsFS.cpp; path = ../src/SpiffsFS.cpp; sourceTree = "<group>"; };
 		49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacSpiffsFS.cpp; sourceTree = "<group>"; };
@@ -437,6 +439,7 @@
 				49A39F232350A1A700F6A144 /* simple */,
 				49A39F242350A1A700F6A144 /* tests */,
 				49A39F222350A1A600F6A144 /* timing */,
+				49BDE1A423714DC000304BE8 /* mem */,
 				49A39F2123509E5200F6A144 /* mrsh */,
 			);
 			name = scripts;
@@ -903,6 +906,7 @@
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
 				4970FD131DB04DDD00521DF1 /* download.png in Resources */,
 				493C9ED91D218F100062152D /* play.png in Resources */,
+				49BDE1A523714DC000304BE8 /* mem in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
