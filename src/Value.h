@@ -99,7 +99,7 @@ public:
     bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
     Duration msDelay() const { assert(isMsDelay()); return Duration(-_value, Duration::Units::ms); }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
-    Error error() const { assert(_value >= ErrorValue); return static_cast<Error>(_value - ErrorValue); }
+    Error error() const { return isError() ? static_cast<Error>(_value - ErrorValue) : Error::Error; }
 
 private:
     int32_t _value = 0;
