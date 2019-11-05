@@ -118,12 +118,12 @@ private:
     enum class FindCreateMode { None, Directory, File };
     
     static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
-    static bool findNameInDirectory(const std::shared_ptr<File>&, const String& name, FileID&, File::Type&);
-    static void createEntry(const std::shared_ptr<File>&, const String& name, File::Type, FileID&);
+    static bool findNameInDirectory(File*, const String& name, FileID&, File::Type&);
+    static void createEntry(File*, const String& name, File::Type, FileID&);
 
     SpiffsDirectory();
     
-    std::shared_ptr<File> _dirFile;
+    File* _dirFile = nullptr;
     FileID _fileID;
 };
 
@@ -166,7 +166,7 @@ public:
     virtual void unmount() override;
     virtual bool format() override;
     
-    virtual std::shared_ptr<File> open(const char* name, FileOpenMode) override;
+    virtual File* open(const char* name, FileOpenMode) override;
     virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
     virtual bool makeDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
@@ -176,7 +176,7 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static std::shared_ptr<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
+    static SpiffsFile* rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
     
     static Error::Code mapSpiffsError(spiffs_file);
 

@@ -79,7 +79,7 @@ public:
     virtual void unmount() override;
     virtual bool format() override;
     
-    virtual std::shared_ptr<File> open(const char* name, FileOpenMode) override;
+    virtual File* open(const char* name, FileOpenMode) override;
     virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
     virtual bool makeDirectory(const char* name) override;
     virtual bool remove(const char* name) override;

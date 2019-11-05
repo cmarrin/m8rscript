@@ -45,6 +45,8 @@ public:
     {
         _file = fs->open(file, mode);
     }
+    
+    ~FileStream() { delete _file; }
 
     bool loaded()
     {
@@ -77,7 +79,7 @@ public:
     }
 	
 private:
-    std::shared_ptr<File> _file;
+    File* _file = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////////

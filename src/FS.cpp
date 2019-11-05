@@ -156,11 +156,10 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
         
-    // TODO: How to we store shared_ptr in the Object?
-    std::shared_ptr<File> file = system()->fileSystem()->open(filename.c_str(), mode);
+    File* file = system()->fileSystem()->open(filename.c_str(), mode);
     
     // TODO: This certainly won't work
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(file.get()), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value(file), Value::SetPropertyType::AlwaysAdd);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 

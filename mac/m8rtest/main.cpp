@@ -210,7 +210,7 @@ int main(int argc, char * argv[])
     m8r::system()->fileSystem()->format();
 
     // Open file in root directory tests
-    std::shared_ptr<m8r::File> file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::Read);
+    std::unique_ptr<m8r::File> file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::Read);
     testExpect("Open non-existant file in Read mode error return", m8r::Error::Code::FileNotFound, file->error().code());
 
     file = m8r::system()->fileSystem()->open(rootFilename.c_str(), m8r::FS::FileOpenMode::ReadUpdate);

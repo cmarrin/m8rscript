@@ -110,7 +110,7 @@ public:
     virtual void unmount() = 0;
     virtual bool format() = 0;
     
-    virtual std::shared_ptr<File> open(const char* name, FileOpenMode) = 0;
+    virtual File* open(const char* name, FileOpenMode) = 0;
     virtual std::shared_ptr<Directory> openDirectory(const char* name) = 0;
     virtual bool makeDirectory(const char* name) = 0;
     virtual bool remove(const char* name) = 0;

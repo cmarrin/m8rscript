@@ -104,9 +104,9 @@ bool SpiffsFS::format()
     return true;
 }
 
-std::shared_ptr<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
+SpiffsFile* SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
 {
-    std::shared_ptr<SpiffsFile> file = std::shared_ptr<SpiffsFile>(new SpiffsFile(fileID.str().c_str(), flags));
+    SpiffsFile* file = new SpiffsFile(fileID.str().c_str(), flags);
     if (!file->valid()) {
         file->_file = SPIFFS_ERR_FILE_CLOSED;
         return file;
@@ -122,7 +122,7 @@ struct FileModeEntry {
     spiffs_flags _flags;
 };
 
-std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
+File* SpiffsFS::open(const char* name, FileOpenMode mode)
 {
     // If our open mode allows file creation, tell find that it can create a file if it doesn't exist
     SpiffsDirectory::FindCreateMode createMode = SpiffsDirectory::FindCreateMode::File;
@@ -130,7 +130,7 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
         createMode = SpiffsDirectory::FindCreateMode::None;
     }
 
-    std::shared_ptr<File> file;
+    File* file = nullptr;
     SpiffsDirectory::FileID fileID;
     File::Type fileType;
     Error error;
@@ -171,7 +171,7 @@ std::shared_ptr<File> SpiffsFS::open(const char* name, FileOpenMode mode)
     if (!file) {
         assert(error != Error::Code::OK);
         file = SpiffsFS::rawOpen(SpiffsDirectory::FileID::bad(), 0, File::Type::File, mode);
-        reinterpret_cast<SpiffsFile*>(file.get())->_error = error;
+        reinterpret_cast<SpiffsFile*>(file)->_error = error;
     }
     
     return file;
@@ -303,7 +303,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     }
     
     // Split up the name and find each component
-    std::shared_ptr<File> file = SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
+    std::unique_ptr<File> file(SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
     if (!file || !file->valid()) {
         error = Error::Code::InternalError;
         return false;
@@ -321,11 +321,11 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         
         bool last = i == components.size() - 1;
         
-        if (!findNameInDirectory(file, components[i], fileID, type)) {
+        if (!findNameInDirectory(file.get(), components[i], fileID, type)) {
             if (!last && createMode == FindCreateMode::Directory) {
                 type = File::Type::Directory;
-                createEntry(file, components[i], File::Type::Directory, fileID);
-                file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
+                createEntry(file.get(), components[i], File::Type::Directory, fileID);
+                file.reset(SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
                 if (!file->valid()) {
                     // We should be able to create the new directory
                     error = Error::Code::InternalError;
@@ -340,9 +340,9 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                         return false;
                     }
                     type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
-                    createEntry(file, components[i], type, fileID);
+                    createEntry(file.get(), components[i], type, fileID);
                     if (type == File::Type::Directory) {
-                        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
+                        file.reset(SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate));
                         if (!file->valid()) {
                             error = Error::Code::InternalError;
                             return false;
@@ -364,7 +364,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
             return false;
         }
         
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
+        file.reset(SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate));
         if (!file->valid()) {
             error = Error::Code::InternalError;
             return false;
@@ -375,7 +375,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     return false;
 }
 
-bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, const String& name, FileID& fileID, File::Type& type)
+bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID& fileID, File::Type& type)
 {
     String s;
     
@@ -404,7 +404,7 @@ bool SpiffsDirectory::findNameInDirectory(const std::shared_ptr<File>& dir, cons
     return false;
 }
 
-void SpiffsDirectory::createEntry(const std::shared_ptr<File>& dir, const String& name, File::Type type, FileID& fileID)
+void SpiffsDirectory::createEntry(File* dir, const String& name, File::Type type, FileID& fileID)
 {
     fileID = FileID::random();
     EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;

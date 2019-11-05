@@ -81,9 +81,9 @@ bool LittleFS::format()
     return true;
 }
 
-std::shared_ptr<File> LittleFS::open(const char* name, FileOpenMode mode)
+File* LittleFS::open(const char* name, FileOpenMode mode)
 {
-    return std::shared_ptr<File>(new LittleFile(name, mode));
+    return new LittleFile(name, mode);
 }
 
 std::shared_ptr<Directory> LittleFS::openDirectory(const char* name)
