@@ -137,7 +137,7 @@ public:
 
     const String& name() const { return _name; }
     uint32_t size() const { return _size; }
-    bool valid() const { return _error; }
+    bool valid() const { return _error == Error::Code::OK; }
     Error error() const { return _error; }
 
     virtual bool next() = 0;
@@ -179,7 +179,7 @@ public:
     virtual int32_t size() const = 0;
     virtual bool eof() const = 0;
     
-    bool valid() const { return _error; }
+    bool valid() const { return _error == Error::Code::OK; }
     Error error() const { return _error; }
     Type type() const { return _type; }
 
