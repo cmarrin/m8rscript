@@ -68,11 +68,6 @@ bool ExecutionUnit::printError(CallReturnValue::Error error) const
     return printError(errorString);
 }
 
-void ExecutionUnit::objectError(const char* s) const
-{
-    printError(ROMSTR("Value must be Object for %s"), s);
-}
-
 void ExecutionUnit::gcMark()
 {
     if (!_program) {
@@ -604,9 +599,11 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_LOADPROP:
         leftValue = regOrConst(inst.rb());
         objectValue = leftValue.asObject();
-        leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
+        if (objectValue) {
+            leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
+        }
         if (!objectValue) {
-            objectError("LOADPROP");
+            printError(ROMSTR("Can't read property '%s' of a non-existant object"), regOrConst(inst.rc()).toStringValue(this).c_str());
         } else if (!leftValue) {
             printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
         } else {
@@ -621,7 +618,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_LOADELT:
         leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
         if (!leftValue) {
-            objectError("LOADELT");
+            printError(ROMSTR("Can't read element '%s' of a non-existant object"), regOrConst(inst.rc()).toStringValue(this).c_str());
         } else {
             setInFrame(inst.ra(), leftValue);
         }
@@ -659,7 +656,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_APPENDELT:
         if (!reg(inst.ra()).setElement(this, Value(), regOrConst(inst.rb()), true)) {
-            objectError("APPENDELT");
+            printError(ROMSTR("Can't append element '%s' to object"), regOrConst(inst.rb()).toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADTRUE:
