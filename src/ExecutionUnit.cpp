@@ -447,7 +447,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x08 */ OP(STOELT) OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE)
         /* 0x0C */ OP(LOADFALSE) OP(LOADNULL) OP(PUSH) OP(POP)
 
-        /* 0x10 */ OP(BINIOP) OP(BINIOP) OP(BINIOP) OP(BINIOP)
+        /* 0x10 */ OP(LOR) OP(LAND) OP(BINIOP) OP(BINIOP)
         /* 0x14 */ OP(BINIOP) OP(EQ) OP(NE) OP(LT)
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(BINIOP)
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
@@ -481,6 +481,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     Float floatValue;
     bool boolValue;
     Value leftValue, rightValue;
+    bool leftBoolValue, rightBoolValue;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Object* objectValue;
@@ -679,6 +680,12 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_POP:
         setInFrame(inst.ra(), _stack.top());
         _stack.pop();
+        DISPATCH;
+    L_LOR:
+    L_LAND:
+        leftBoolValue = regOrConst(inst.rb()).toBoolValue(this);
+        rightBoolValue = regOrConst(inst.rc()).toBoolValue(this);
+        setInFrame(inst.ra(), (inst.op() == Op::LOR) ? Value(leftBoolValue || rightBoolValue) : Value(leftBoolValue && rightBoolValue));
         DISPATCH;
     L_BINIOP:
         leftIntValue = regOrConst(inst.rb()).toIntValue(this);
