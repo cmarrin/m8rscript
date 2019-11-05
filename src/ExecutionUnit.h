@@ -138,7 +138,6 @@ private:
     bool printError(const char* s, ...) const;
     bool printError(CallReturnValue::Error) const;
     bool checkTooManyErrors() const;
-    void objectError(const char* s) const;
     
     Value* valueFromId(Atom, const Object*) const;
 
