@@ -122,12 +122,12 @@ m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get
 static void usage(const char* name)
 {
     fprintf(stderr,
-                "usage: %s [-p <port>] [-u <file>] [-l <path>] [-h] <dir>\n"
-                "    -p   : set shell port (log port +1, sim port +2)\n"
-                "    -u   : upload file (use file's basename as Spiffs name)\n"
-                "    -l   : path for uploaded file (default '/')\n"
-                "    -h   : print this message\n"
-                "    <dir>: root directory for simulation filesystem\n"
+                "usage: %s [-p <port>] [-f <filesystem file>] [-l <path>] [-h] <dir> <file> ...\n"
+                "    -p     : set shell port (log port +1, sim port +2)\n"
+                "    -f     : simulated filesystem path\n"
+                "    -l     : path for uploaded files (default '/')\n"
+                "    -h     : print this message\n"
+                "    <file> : file(s) to be uploaded\n"
             , name);
 }
 
@@ -135,14 +135,14 @@ int main(int argc, char * argv[])
 {
     int opt;
     uint16_t port = 23;
-    const char* uploadFilename = nullptr;
+    const char* fsFile = "m8rFSFile";
     const char* uploadPath = "/";
     
     while ((opt = getopt(argc, argv, "p:u:l:h")) != EOF) {
         switch(opt)
         {
             case 'p': port = atoi(optarg); break;
-            case 'u': uploadFilename = optarg; break;
+            case 'f': fsFile = optarg; break;
             case 'l': uploadPath = optarg; break;
             case 'h': usage(argv[0]); break;
             default : break;
@@ -152,13 +152,14 @@ int main(int argc, char * argv[])
     // Seed the random number generator
     srand(static_cast<uint32_t>(time(nullptr)));
     
-    const char* fsdir = (optind < argc) ? argv[optind] : "m8rFSFile";
-    _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsdir));
+    _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsFile));
     
     m8r::Application::mountFileSystem();
     
-    // Upload the file if present
-    if (uploadFilename) {
+    // Upload files if present
+    for (int i = optind; i < argc; ++i) {
+        const char* uploadFilename = argv[i];
+
         m8r::String toPath;
         FILE* fromFile = fopen(uploadFilename, "r");
         if (!fromFile) {

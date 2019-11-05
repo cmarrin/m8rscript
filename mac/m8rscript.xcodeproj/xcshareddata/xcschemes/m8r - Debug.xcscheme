@@ -74,7 +74,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "SpiffsFSFile"
+            argument = "scripts/mrsh scripts/mem"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
