@@ -521,8 +521,16 @@ CallReturnValue ExecutionUnit::continueExecution()
             Object::gc(true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
-            
-        if (inst.op() == Op::END) {
+
+        if (inst.op() == Op::END || (inst.op() == Op::RET && _callRecords.empty())) {
+            // If _callRecords is empty it means we're returning from the top-level program.
+            // TODO: How do we return this to the caller? What does the caller do with it.
+            // This is essentially the same as the exit code returned from main() in C
+            if (inst.op() == Op::RET) {
+                // Take care of the values on the return stack
+                returnedValue = (inst.nparams()) ? _stack.top(1 - inst.nparams()) : Value();
+                _stack.pop(inst.nparams());
+            }
             if (_program == _function) {
                 // We've hit the end of the program
                 
