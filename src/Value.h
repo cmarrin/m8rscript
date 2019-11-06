@@ -139,6 +139,12 @@ public:
     explicit Value(Atom value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::Id; }
     explicit Value(StringLiteral value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::StringLiteral; }
     
+    // Define these to make sure no implicit functions are being called
+    Value(const Value& other) { _value._raw = other._value._raw; }
+    Value(Value&& other) { _value._raw = other._value._raw; }
+    Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
+    Value& operator=(Value&& other) { _value._raw = other._value._raw; return *this; }
+    
     static Value NullValue() { Value value; value._value._raw = 0; value._value._type = Type::Null; return value; }
     
     bool operator==(const Value& other) { return _value._raw == other._value._raw; }
