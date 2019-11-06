@@ -100,7 +100,7 @@ TaskProto::TaskProto(Program* program, ObjectFactory* parent)
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // filename
+    // filename or File
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
@@ -110,9 +110,24 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    String filename = eu->stack().top(1 - nparams).toStringValue(eu);
+    Value param = eu->stack().top(1 - nparams);
+    String filename;
+    if (param.isString()) {
+        filename = param.toStringValue(eu);
+    } else {
+        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+    }
+    
     Task* task = new Task(filename.c_str());
+    
+    if (task->error() != Error::Code::OK) {
+        Error::printError(Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
+        return CallReturnValue(CallReturnValue::Error::Error);
+    }
     obj->setProperty(eu, Atom(SA::__nativeObject), Value(task), Value::SetPropertyType::AlwaysAdd);
+    
+    obj->setProperty(eu, Atom(SA::arguments), Value(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::env), Value(task), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
