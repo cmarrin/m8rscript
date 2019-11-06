@@ -216,13 +216,19 @@ public:
     bool isInteger() const { return type() == Type::Integer; }
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
+    bool isId() const { return type() == Type::Id; }
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
     bool isFunction() const { return type() == Type::Function; }
     bool isNativeObject() const { return type() == Type::NativeObject; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }
     bool isPointer() const { return isObject() || isFunction() || isNativeObject(); }
-    
+    bool isCallable() const
+    {
+        return !(isId() || isNativeObject() || isNativeFunction() ||
+               isNone() || isNull() || (isObject() && !asObject()));
+    }
+
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
 

@@ -606,16 +606,15 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_LOADPROP:
         leftValue = regOrConst(inst.rb());
-        objectValue = leftValue.asObject();
-        if (objectValue) {
-            leftValue = leftValue.property(this, regOrConst(inst.rc()).toIdValue(this));
-        }
-        if (!objectValue) {
-            printError(ROMSTR("Can't read property '%s' of a non-existant object"), regOrConst(inst.rc()).toStringValue(this).c_str());
-        } else if (!leftValue) {
-            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
+        if (!leftValue.isCallable()) {
+            printError(ROMSTR("Can't read property '%s' of a non-callable value"), regOrConst(inst.rc()).toStringValue(this).c_str());
         } else {
-            setInFrame(inst.ra(), leftValue);
+            leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
+            if (!leftValue) {
+                printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
+            } else {
+                setInFrame(inst.ra(), leftValue);
+            }
         }
         DISPATCH;
     L_STOPROP:
