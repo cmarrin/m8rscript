@@ -61,6 +61,7 @@ public:
     void receivedData(const String& data, Telnet::Action action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f);
+    void setConsoleListener(Value func);
 
     Error error() const { return _error; }
 

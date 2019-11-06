@@ -80,6 +80,11 @@ void Task::setConsolePrintFunction(std::function<void(const String&)> f)
     _eu->setConsolePrintFunction(f);
 }
 
+void Task::setConsoleListener(Value func)
+{
+    _eu->setConsoleListener(func);
+}
+
 CallReturnValue Task::execute()
 {
     return _eu->continueExecution();
@@ -100,7 +105,7 @@ TaskProto::TaskProto(Program* program, ObjectFactory* parent)
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // filename or File
+    // filename, consoleListener
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
@@ -118,6 +123,11 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
+    Value consoleListener;
+    if (nparams > 1) {
+        consoleListener = eu->stack().top(2 - nparams);
+    }
+    
     Task* task = new Task(filename.c_str());
     
     if (task->error() != Error::Code::OK) {
@@ -128,6 +138,10 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     obj->setProperty(eu, Atom(SA::arguments), Value(task), Value::SetPropertyType::AlwaysAdd);
     obj->setProperty(eu, Atom(SA::env), Value(task), Value::SetPropertyType::AlwaysAdd);
+    
+    // Set the console funcs
+    task->setConsoleListener(consoleListener);
+    task->setConsolePrintFunction(eu->consolePrintFunction());
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

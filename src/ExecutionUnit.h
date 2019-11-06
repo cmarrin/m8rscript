@@ -106,6 +106,11 @@ public:
     void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
     std::function<void(const String&)>& consolePrintFunction() { return _consolePrintFunction; }
 
+    void setConsoleListener(Value func)
+    {
+        _program->global()->setProperty(this, Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
+    }
+
     void startEventListening() { _numEventListeners++; }
     void stopEventListening() { _numEventListeners--; }
 
