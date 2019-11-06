@@ -109,11 +109,12 @@ enum class SA : uint16_t {
     toUInt = 103,
     trim = 104,
     type = 105,
-    unmount = 106,
-    valid = 107,
-    value = 108,
-    waitForEvent = 109,
-    write = 110,
+    undefined = 106,
+    unmount = 107,
+    valid = 108,
+    value = 109,
+    waitForEvent = 110,
+    write = 111,
 };
 
 const char** sharedAtoms(uint16_t& nelts);

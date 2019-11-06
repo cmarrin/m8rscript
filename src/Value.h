@@ -125,7 +125,7 @@ public:
         NativeFunction = 18,
     };
 
-    Value() { _value._float = 0; }
+    Value() { _value._raw = 0; _value._type = Type::None; }
     
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     

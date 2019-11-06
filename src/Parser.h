@@ -113,17 +113,12 @@ private:
     Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
         
     void classStart() { _classes.push_back(new MaterObject()); }
-    void classEnd() { pushK(_classes.back()); _classes.pop_back(); }
+    void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
     MaterObject* currentClass() const { assert(_classes.size()); return _classes.back(); }
         
     void pushK(StringLiteral::Raw value);
     void pushK(const char* value);
-    void pushK(uint32_t value);
-    void pushK(Float value);
-    void pushK(bool value);
-    void pushK();
-    void pushK(Function* function);
-    void pushK(MaterObject* obj);
+    void pushK(const Value& value);
     void pushThis();
 
     void addNamedFunction(Function*, const Atom&);

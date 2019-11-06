@@ -18,7 +18,7 @@ using namespace m8r;
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::None: return String("null");
+        case Type::None: return String("undefined");
         case Type::Function:
         case Type::Object: {
             Object* obj = asObject();

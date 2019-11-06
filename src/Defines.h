@@ -283,8 +283,9 @@ enum class Token : uint8_t {
     Switch = 0x11,
     This = 0x12,
     True = 0x13,
-    Var = 0x14,
-    While = 0x015,
+    Undefined = 0x14,
+    Var = 0x15,
+    While = 0x016,
     
     Bang = '!',
     Percent = '%',

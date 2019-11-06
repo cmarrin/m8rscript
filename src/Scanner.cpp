@@ -50,8 +50,9 @@ static const char keywordString[] ROMSTR_ATTR =
     "\x11" "switch"
     "\x12" "this"
     "\x13" "true"
-    "\x14" "var"
-    "\x15" "while"
+    "\x14" "undefined"
+    "\x15" "var"
+    "\x16" "while"
 ;
 
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN

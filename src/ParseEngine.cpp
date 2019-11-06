@@ -150,6 +150,7 @@ bool ParseEngine::classContentsStatement()
                 case Token::True: v = Value(true); retireToken(); break;
                 case Token::False: v = Value(false); retireToken(); break;
                 case Token::Null: v = Value::NullValue(); retireToken(); break;
+                case Token::Undefined: v = Value(); retireToken(); break;
                 default: expect(Token::ConstantValueRequired);
             }
         }
@@ -655,7 +656,7 @@ bool ParseEngine::expression(uint8_t minPrec)
             _parser->emitBinOp(it->value.op);
             _parser->addMatchedJump(Op::JMP, passLabel);
             _parser->matchJump(skipLabel);
-            _parser->pushK(skipResult);
+            _parser->pushK(Value(skipResult));
             _parser->emitMove();
             _parser->matchJump(passLabel);
         } else {
@@ -721,7 +722,7 @@ bool ParseEngine::memberExpression()
     if (getToken() == Token::Function) {
         retireToken();
         Function* f = functionExpression(false);
-        _parser->pushK(f);
+        _parser->pushK(Value(f));
         return true;
     }
     if (getToken() == Token::Class) {
@@ -755,12 +756,13 @@ bool ParseEngine::primaryExpression()
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::This: _parser->pushThis(); retireToken(); break;
-        case Token::Float: _parser->pushK(Float(getTokenValue().number)); retireToken(); break;
-        case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); break;
+        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); break;
+        case Token::Integer: _parser->pushK(Value(getTokenValue().integer)); retireToken(); break;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); break;
-        case Token::True: _parser->pushK(true); retireToken(); break;
-        case Token::False: _parser->pushK(false); retireToken(); break;
-        case Token::Null: _parser->pushK(); retireToken(); break;
+        case Token::True: _parser->pushK(Value(true)); retireToken(); break;
+        case Token::False: _parser->pushK(Value(false)); retireToken(); break;
+        case Token::Null: _parser->pushK(Value::NullValue()); retireToken(); break;
+        case Token::Undefined: _parser->pushK(Value()); retireToken(); break;
         case Token::LBracket:
             retireToken();
             _parser->emitLoadLit(true);
@@ -812,7 +814,7 @@ bool ParseEngine::propertyName()
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
-        case Token::Float: _parser->pushK(Float(getTokenValue().number)); retireToken(); return true;
+        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); return true;
         case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); return true;
         default: return false;
     }

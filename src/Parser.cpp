@@ -206,54 +206,11 @@ void Parser::pushK(const char* s)
     _parseStack.pushConstant(id.raw());
 }
 
-void Parser::pushK(uint32_t value)
+void Parser::pushK(const Value& value)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(Value(value));
-    _parseStack.pushConstant(id.raw());
-}
-
-void Parser::pushK(Float value)
-{
-    if (_nerrors) return;
-    
-    ConstantId id = currentFunction()->addConstant(Value(value));
-    _parseStack.pushConstant(id.raw());
-}
-
-void Parser::pushK(bool value)
-{
-    if (_nerrors) return;
-    
-    // FIXME: Support booleans as a first class type
-    ConstantId id = currentFunction()->addConstant(Value(value ? 1 : 0));
-    _parseStack.pushConstant(id.raw());
-}
-
-void Parser::pushK()
-{
-    if (_nerrors) return;
-    
-    ConstantId id = currentFunction()->addConstant(Value::NullValue());
-    _parseStack.pushConstant(id.raw());
-}
-
-void Parser::pushK(Function* function)
-{
-    if (_nerrors) return;
-    
-    assert(function);
-    ConstantId id = currentFunction()->addConstant(Value(function));
-    _parseStack.pushConstant(id.raw());
-}
-
-void Parser::pushK(MaterObject* obj)
-{
-    if (_nerrors) return;
-    
-    assert(obj);
-    ConstantId id = currentFunction()->addConstant(Value(obj));
+    ConstantId id = currentFunction()->addConstant(value);
     _parseStack.pushConstant(id.raw());
 }
 
@@ -264,7 +221,7 @@ void Parser::addNamedFunction(Function* func, const Atom& name)
     // Add code to make this look like 'var name = function(...) ...'
     addVar(name);
     emitId(name, IdType::MustBeLocal);
-    pushK(func);
+    pushK(Value(func));
     emitMove();
     discardResult();
 
