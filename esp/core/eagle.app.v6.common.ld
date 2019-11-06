@@ -146,6 +146,7 @@ SECTIONS
     . = ALIGN (8);
     _bss_end = ABSOLUTE(.);
     _heap_start = ABSOLUTE(.);
+    _heap_end = DATA_SEGMENT_END(.);
 /*    _stack_sentry = ALIGN(0x8); */
   } >dram0_0_seg :dram0_0_bss_phdr
 /* __stack = 0x3ffc8000; */

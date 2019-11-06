@@ -5,14 +5,9 @@
 #ifndef _UMM_MALLOC_CFG_H
 #define _UMM_MALLOC_CFG_H
 
-//#include <debug.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "c_types.h"
-#ifdef __cplusplus
-}
-#endif
+#include "Defines.h"
+#include "SystemInterface.h"
+
 /*
  * There are a number of defines you can set at compile time that affect how
  * the memory allocator will operate.
@@ -59,14 +54,13 @@ extern "C" {
  * ----------------------------------------------------------------------------
  */
 
- #define UMM_REDEFINE_MEM_FUNCTIONS
+#define UMM_REDEFINE_MEM_FUNCTIONS
 
- #define UMM_BEST_FIT
+#define UMM_BEST_FIT
 
 /* Start addresses and the size of the heap */
-extern char _heap_start;
-#define UMM_MALLOC_CFG__HEAP_ADDR   ((uint32_t)&_heap_start)
-#define UMM_MALLOC_CFG__HEAP_SIZE   ((size_t)(0x3fffc000 - UMM_MALLOC_CFG__HEAP_ADDR))
+#define UMM_MALLOC_CFG__HEAP_ADDR   reinterpret_cast<umm_block*>(HeapStart)
+#define UMM_MALLOC_CFG__HEAP_SIZE   HeapSize
 
 /* A couple of macros to make packing structures less compiler dependent */
 
@@ -83,8 +77,8 @@ extern char _heap_start;
  * called from within umm_malloc()
  */
 
-#define UMM_CRITICAL_ENTRY() ets_intr_lock()
-#define UMM_CRITICAL_EXIT()  ets_intr_unlock()
+#define UMM_CRITICAL_ENTRY() m8r::system()->lock()
+#define UMM_CRITICAL_EXIT()  m8r::system()->unlock()
 
 /*
  * -D UMM_INTEGRITY_CHECK :

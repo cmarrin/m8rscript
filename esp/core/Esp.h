@@ -161,3 +161,9 @@ namespace m8r {
 
 #define interrupts() xt_rsil(0)
 #define noInterrupts() xt_rsil(15)
+
+/* Start addresses and the size of the heap */
+extern char _heap_start;
+extern char _heap_end;
+#define HeapStart  &_heap_start
+#define HeapSize   (&_heap_end - &_heap_start)

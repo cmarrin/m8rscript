@@ -11,6 +11,9 @@
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
+		4923672723733EEC0009963A /* umm_malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4923672423733EEC0009963A /* umm_malloc.cpp */; };
+		4923672823733EEC0009963A /* umm_malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672523733EEC0009963A /* umm_malloc.h */; };
+		4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672623733EEC0009963A /* umm_malloc_cfg.h */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		49263ABD23611DF0005CB9F9 /* StreamProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49263ABB23611DF0005CB9F9 /* StreamProto.cpp */; };
@@ -214,6 +217,9 @@
 		491ED394235392FF00DE0C42 /* spiffs_nucleus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_nucleus.c; path = ../src/spiffs/src/spiffs_nucleus.c; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		491ED3A52353EFE600DE0C42 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4923672423733EEC0009963A /* umm_malloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = umm_malloc.cpp; path = ../src/umm/umm_malloc.cpp; sourceTree = "<group>"; };
+		4923672523733EEC0009963A /* umm_malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = umm_malloc.h; path = ../src/umm/umm_malloc.h; sourceTree = "<group>"; };
+		4923672623733EEC0009963A /* umm_malloc_cfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = umm_malloc_cfg.h; path = ../src/umm/umm_malloc_cfg.h; sourceTree = "<group>"; };
 		492396C51E711D12007AC0BF /* UDP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UDP.cpp; path = ../src/UDP.cpp; sourceTree = "<group>"; };
 		492396C91E711E47007AC0BF /* IPAddr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPAddr.h; path = ../src/IPAddr.h; sourceTree = "<group>"; };
 		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../src/GPIO.h; sourceTree = "<group>"; };
@@ -432,6 +438,16 @@
 			path = m8rtest;
 			sourceTree = "<group>";
 		};
+		4923672323733ECF0009963A /* umm */ = {
+			isa = PBXGroup;
+			children = (
+				4923672623733EEC0009963A /* umm_malloc_cfg.h */,
+				4923672423733EEC0009963A /* umm_malloc.cpp */,
+				4923672523733EEC0009963A /* umm_malloc.h */,
+			);
+			name = umm;
+			sourceTree = "<group>";
+		};
 		4942EA891D0C86BB00E02088 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
@@ -618,6 +634,7 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				4923672323733ECF0009963A /* umm */,
 				49EED9862357971500831598 /* littlefs */,
 				494BA1911D207AB700E72725 /* mac */,
 				491ED38C235392D400DE0C42 /* spiffs */,
@@ -740,6 +757,8 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
+				4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */,
+				4923672823733EEC0009963A /* umm_malloc.h in Headers */,
 				49BF3450236811BF001E5508 /* spiffs.h in Headers */,
 				49EED98D2357971500831598 /* lfs.h in Headers */,
 				49BF344F236811BF001E5508 /* spiffs_nucleus.h in Headers */,
@@ -990,6 +1009,7 @@
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
+				4923672723733EEC0009963A /* umm_malloc.cpp in Sources */,
 				49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,

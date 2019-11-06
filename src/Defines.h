@@ -17,6 +17,7 @@
     #define RODATA_ATTR
     #define ROMSTR_ATTR
     #define FLASH_ATTR
+    #define ICACHE_FLASH_ATTR
     static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
     #define ROMmemcpy memcpy
     #define ROMstrlen strlen
@@ -30,6 +31,9 @@
     #define debugf printf
     
     #define USE_LITTLEFS
+
+    #define HeapStart 0
+    #define HeapSize  50000
 
 #else
     #include "Esp.h"

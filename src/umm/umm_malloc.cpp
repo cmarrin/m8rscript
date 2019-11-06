@@ -1191,7 +1191,7 @@ static unsigned short int umm_assimilate_down( unsigned short int c, unsigned sh
 
 void umm_init( void ) {
   /* init heap pointer and size, and memset it to 0 */
-  umm_heap = (umm_block *)UMM_MALLOC_CFG__HEAP_ADDR;
+  umm_heap = UMM_MALLOC_CFG__HEAP_ADDR;
   umm_numblocks = (UMM_MALLOC_CFG__HEAP_SIZE / sizeof(umm_block));
   memset(umm_heap, 0x00, UMM_MALLOC_CFG__HEAP_SIZE);
 
