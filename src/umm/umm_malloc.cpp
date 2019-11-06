@@ -497,6 +497,8 @@
 
 #include "umm_malloc_cfg.h"   /* user-dependent */
 
+#include "SystemInterface.h"
+
 #ifndef UMM_FIRST_FIT
 #  ifndef UMM_BEST_FIT
 #    define UMM_BEST_FIT
@@ -1191,9 +1193,12 @@ static unsigned short int umm_assimilate_down( unsigned short int c, unsigned sh
 
 void umm_init( void ) {
   /* init heap pointer and size, and memset it to 0 */
-  umm_heap = UMM_MALLOC_CFG__HEAP_ADDR;
-  umm_numblocks = (UMM_MALLOC_CFG__HEAP_SIZE / sizeof(umm_block));
-  memset(umm_heap, 0x00, UMM_MALLOC_CFG__HEAP_SIZE);
+    void* heapStart;
+    uint32_t heapSize;
+    m8r::system()->heapInfo(heapStart, heapSize);
+  umm_heap = reinterpret_cast<umm_block*>(heapStart);
+  umm_numblocks = (heapSize / sizeof(umm_block));
+  memset(umm_heap, 0x00, heapSize);
 
   /* setup initial blank heap structure */
   {

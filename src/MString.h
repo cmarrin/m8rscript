@@ -73,7 +73,7 @@ public:
     String& operator=(const String& other)
     {
         if (_data) {
-            free(_data);
+            delete [ ] _data;
         }
         _size = other._size;
         _capacity = other._capacity;

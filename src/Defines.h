@@ -32,9 +32,10 @@
     
     #define USE_LITTLEFS
 
-    #define HeapStart 0
-    #define HeapSize  50000
+    #define m8r_malloc ::malloc
+    #define m8r_free ::free
 
+static constexpr uint32_t HeapSize = 50000;
 #else
     #include "Esp.h"
 #endif

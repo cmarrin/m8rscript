@@ -192,12 +192,12 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
 
 void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 {
-    return malloc(size);
+    return umm_malloc(size);
 }
 
 void m8r::SystemInterface::free(MemoryType, void* p)
 {
-    ::free(p);
+    umm_free(p);
 }
 
 void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
@@ -715,17 +715,17 @@ extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {
-	return malloc(size);
+	return umm_malloc(size);
 }
 
 void RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 {
-    free(ptr);
+    umm_free(ptr);
 }
 
 void* RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
-	void* m = malloc(size);
+	void* m = umm_malloc(size);
     memset(m, 0, size);
     return m;
 }
@@ -738,6 +738,12 @@ size_t xPortGetFreeHeapSize(void)
 size_t RAM_ATTR xPortWantedSizeAlign(size_t size)
 {
     return (size + 3) & ~((size_t) 3);
+}
+
+void SystemInterface::heapInfo(void*& start, uint32_t& size)
+{
+    start = &_heap_start;
+    size = _heap_end - _heap_start;
 }
 
 #ifndef NDEBUG
@@ -771,22 +777,22 @@ using __cxxabiv1::__guard;
 
 void *operator new(size_t size)
 {
-    return malloc(size);
+    return umm_malloc(size);
 }
 
 void *operator new[](size_t size)
 {
-    return malloc(size);
+    return umm_malloc(size);
 }
 
 void operator delete(void * ptr)
 {
-    free(ptr);
+    umm_free(ptr);
 }
 
 void operator delete[](void * ptr)
 {
-    free(ptr);
+    umm_free(ptr);
 }
 
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));

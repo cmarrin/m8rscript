@@ -100,14 +100,24 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
+void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
+{
+    static void* heap = nullptr;
+    if (!heap) {
+        heap = ::malloc(HeapSize);
+    }
+    start = heap;
+    size = HeapSize;
+}
+
 void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 {
-    return ::malloc(size);
+    return umm_malloc(size);
 }
 
 void m8r::SystemInterface::free(MemoryType, void* p)
 {
-    ::free(p);
+    umm_free(p);
 }
 
 void m8r::SystemInterface::memoryInfo(m8r::MemoryInfo& info)

@@ -6,7 +6,6 @@
 #define _UMM_MALLOC_CFG_H
 
 #include "Defines.h"
-#include "SystemInterface.h"
 
 /*
  * There are a number of defines you can set at compile time that affect how
@@ -54,13 +53,9 @@
  * ----------------------------------------------------------------------------
  */
 
-#define UMM_REDEFINE_MEM_FUNCTIONS
+//#define UMM_REDEFINE_MEM_FUNCTIONS
 
 #define UMM_BEST_FIT
-
-/* Start addresses and the size of the heap */
-#define UMM_MALLOC_CFG__HEAP_ADDR   reinterpret_cast<umm_block*>(HeapStart)
-#define UMM_MALLOC_CFG__HEAP_SIZE   HeapSize
 
 /* A couple of macros to make packing structures less compiler dependent */
 

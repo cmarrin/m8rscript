@@ -24,10 +24,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
-
-#ifndef LFS_NO_MALLOC
 #include <stdlib.h>
-#endif
+
+void *m8r_malloc( size_t size ) { return malloc(size); }
+void m8r_free( void *ptr ) { return free(ptr); }
+
 #ifndef LFS_NO_ASSERT
 #include <assert.h>
 #endif
@@ -205,7 +206,7 @@ uint32_t lfs_crc(uint32_t crc, const void *buffer, size_t size);
 // Note, memory must be 64-bit aligned
 static inline void *lfs_malloc(size_t size) {
 #ifndef LFS_NO_MALLOC
-    return malloc(size);
+    return m8r_malloc(size);
 #else
     (void)size;
     return NULL;
@@ -215,7 +216,7 @@ static inline void *lfs_malloc(size_t size) {
 // Deallocate memory, only used if buffers are not provided to littlefs
 static inline void lfs_free(void *p) {
 #ifndef LFS_NO_MALLOC
-    free(p);
+    m8r_free(p);
 #else
     (void)p;
 #endif

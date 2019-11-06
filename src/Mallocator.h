@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Defines.h"
 #include <cstdlib>
 #include <cstdint>
 
@@ -70,13 +71,13 @@ public:
     T* allocate(std::size_t n)
     {
         _count++;
-        return static_cast<T*>(std::malloc(n*sizeof(T)));
+        return static_cast<T*>(m8r_malloc(n*sizeof(T)));
     }
     
     void deallocate(T* p, std::size_t)
     {
         _count--;
-        std::free(p);
+        m8r_free(p);
     }
     
     template <typename U>  

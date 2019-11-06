@@ -92,6 +92,7 @@ public:
     virtual std::unique_ptr<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
     virtual std::unique_ptr<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
     
+    static void heapInfo(void*& start, uint32_t& size);
     static void* alloc(MemoryType, size_t);
     static void free(MemoryType, void*);
     
