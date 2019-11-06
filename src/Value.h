@@ -177,13 +177,13 @@ public:
             default:
             case Type::Null:
             case Type::None:              return false;
+            case Type::String:            return asString() && !asString()->empty();
             case Type::Object:
             case Type::NativeObject:
             case Type::Function:          return _value._ptr;
             case Type::NativeFunction:    return _value._callable;
             case Type::Integer:           return int32FromValue() != 0;
             case Type::Float:
-            case Type::String:
             case Type::StringLiteral:
             case Type::Id:                return toIntValue(eu) != 0;
         }
