@@ -149,9 +149,13 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     if (nparams > 0) {
         func = eu->stack().top(1 - nparams);
     }
+    
+    // Store func so it doesn't get gc'ed
+    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetPropertyType::AddIfNeeded);
 
-    task->run([&func, eu, task](TaskBase*)
+    task->run([eu, task, thisValue](TaskBase*)
     {
+        Value func = thisValue.property(eu, Atom(SA::__object));
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
             eu->fireEvent(func, Value(task), &arg, 1);
