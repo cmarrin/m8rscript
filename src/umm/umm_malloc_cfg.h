@@ -72,8 +72,9 @@
  * called from within umm_malloc()
  */
 
-#define UMM_CRITICAL_ENTRY() m8r::system()->lock()
-#define UMM_CRITICAL_EXIT()  m8r::system()->unlock()
+// TODO: We should have a geneal mutex here. On ESP just turn off and on interrupts
+#define UMM_CRITICAL_ENTRY() //m8r::system()->lock()
+#define UMM_CRITICAL_EXIT()  //m8r::system()->unlock()
 
 /*
  * -D UMM_INTEGRITY_CHECK :
@@ -128,5 +129,5 @@
 #define UMM_POISON_SIZE_AFTER  4
 #define UMM_POISONED_BLOCK_LEN_TYPE uint32_t
 
-#define UMM_HEAP_CORRUPTION_CB() panic()
+#define UMM_HEAP_CORRUPTION_CB() assert(0)
 #endif /* _UMM_MALLOC_CFG_H */
