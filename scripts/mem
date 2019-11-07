@@ -12,4 +12,21 @@
 
 var info = meminfo();
 printf("meminfo: freeSize = %d, numAllocations = %d\n", info.freeSize, info.numAllocations);
+for (var i = 0; i < info.numAllocationsByType.length; ++i) {
+    if (info.numAllocationsByType[i]) {
+        var typeString = "";
+        switch(i) {
+            case 0: typeString = "Unknowns";
+            case 1: typeString = "Objects";
+            case 2: typeString = "Strings";
+            case 3: typeString = "Instructions";
+            case 4: typeString = "CallRecords";
+            case 5: typeString = "EventValues";
+            case 6: typeString = "ConstantValues";
+            case 7: typeString = "FunctionEntries";
+        }
+
+        printf("         Allocated %3d %s\n", info.numAllocationsByType[i], typeString);
+    }
+}
 return 0;
