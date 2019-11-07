@@ -124,28 +124,31 @@ public:
         NativeObject = 16,
         NativeFunction = 18,
     };
+    
+    void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
+    void copy(const Value& other) { memcpy(_value._raw, other._value._raw, sizeof(_value._raw)); }
 
-    Value() { _value._raw = 0; _value._type = Type::None; }
+    Value() { init(); _value._type = Type::None; }
     
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     
-    explicit Value(Object* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Object; }
-    explicit Value(Function* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::Function; }
-    explicit Value(String* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::String; }
-    explicit Value(NativeObject* value) { assert(value); _value._raw = 0; _value._ptr = value; _value._type = Type::NativeObject; }
-    explicit Value(NativeFunction value) { assert(value); _value._raw = 0; _value._callable = value; _value._type = Type::NativeFunction; }
+    explicit Value(Object* value) { assert(value); init(); _value._ptr = value; _value._type = Type::Object; }
+    explicit Value(Function* value) { assert(value); init(); _value._ptr = value; _value._type = Type::Function; }
+    explicit Value(String* value) { assert(value); init(); _value._ptr = value; _value._type = Type::String; }
+    explicit Value(NativeObject* value) { assert(value); init(); _value._ptr = value; _value._type = Type::NativeObject; }
+    explicit Value(NativeFunction value) { assert(value); init(); _value._callable = value; _value._type = Type::NativeFunction; }
 
-    explicit Value(int32_t value) { _value._raw = 0; _value._int = value; _value._type = Type::Integer; }
-    explicit Value(Atom value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::Id; }
-    explicit Value(StringLiteral value) { _value._raw = 0; _value._int = value.raw(); _value._type = Type::StringLiteral; }
+    explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
+    explicit Value(Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
+    explicit Value(StringLiteral value) { init(); _value._int = value.raw(); _value._type = Type::StringLiteral; }
     
     // Define these to make sure no implicit functions are being called
-    Value(const Value& other) { _value._raw = other._value._raw; }
-    Value(Value&& other) { _value._raw = other._value._raw; }
-    Value& operator=(const Value& other) { _value._raw = other._value._raw; return *this; }
-    Value& operator=(Value&& other) { _value._raw = other._value._raw; return *this; }
+    Value(const Value& other) { copy(other); }
+    Value(Value&& other) { copy(other); }
+    Value& operator=(const Value& other) { copy(other); return *this; }
+    Value& operator=(Value&& other) { copy(other); return *this; }
     
-    static Value NullValue() { Value value; value._value._raw = 0; value._value._type = Type::Null; return value; }
+    static Value NullValue() { Value value; value.init(); value._value._type = Type::Null; return value; }
     
     bool operator==(const Value& other) { return _value._raw == other._value._raw; }
     bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
@@ -253,7 +256,7 @@ private:
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::value_type>(_value._float & ~1)); }
+    inline Float floatFromValue() const { return Float(static_cast<Float::decompose_type>(_value._float & ~1)); }
     inline int32_t int32FromValue() const { return _value._int; }
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
@@ -265,30 +268,25 @@ private:
     inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
 
     union {
-#ifdef __APPLE__
-        __uint128_t _raw;
-#else
-        uint64_t _raw;
-#endif
-        uint64_t _float;
+        uint8_t _raw[sizeof(void*) * 2];
+        Float::decompose_type _float;
         struct {
+            // TODO: type needs to be in the low order bytes of Value to make the
+            // trick of using the LSB and an indicator that this is a Float.
+            // That's only true for little endian platforms. Both Mac and ESP
+            // are little endian, but if it's ever ported big endian this needs
+            // to be fixed
             Type _type;
             union {
-                union {
-                    void* _ptr;
-                    NativeFunction _callable;
-                };
+                void* _ptr;
+                NativeFunction _callable;
                 int32_t _int;
             };
         };
     } _value;
     
     // In order to fit everything, we have some requirements
-#ifdef __APPLE__
-    static_assert(sizeof(_value) == 16, "Value on Mac must be 16 bytes");
-#else
-    static_assert(sizeof(_value) == 8, "Value on Esp must be 8 bytes");
-#endif
+    static_assert(sizeof(_value) == sizeof(void*) * 2, "Value must be the size of 2 pointers");
 };
 
 }
