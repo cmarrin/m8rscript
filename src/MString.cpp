@@ -11,8 +11,19 @@
 
 #include "MStream.h"
 #include "Scanner.h"
+#include "SystemInterface.h"
 
 using namespace m8r;
+
+void* String::operator new(size_t size)
+{
+    return SystemInterface::alloc(MemoryType::String, size);
+}
+
+void String::operator delete(void* p)
+{
+    SystemInterface::free(MemoryType::String, p);
+}
 
 inline static void reverse(char *str, int len)
 {

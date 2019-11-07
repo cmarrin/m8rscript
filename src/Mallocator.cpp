@@ -11,4 +11,5 @@
 
 using namespace m8r;
 
-MallocatorBase* MallocatorBase::_list = nullptr;
+MallocatorBase::Entry MallocatorBase::_list[static_cast<uint32_t>(MemoryType::NumTypes)] ;
+

@@ -70,6 +70,9 @@ public:
     
     ~String() { delete [ ] _data; };
 
+    void* operator new(size_t size);
+    void operator delete(void* p);
+
     String& operator=(const String& other)
     {
         if (_data) {

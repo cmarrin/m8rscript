@@ -26,8 +26,10 @@ void Object::memoryInfo(MemoryInfo& info)
 {
     SystemInterface::memoryInfo(info);
     info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::Object)] = Object::numObjectAllocations();
-    info.numAllocationsByType[static_cast<uint32_t>(MemoryType::String)] = Object::numStringAllocations();
+    
+    for (uint32_t i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
+        info.numAllocationsByType[i] = MallocatorBase::entry(static_cast<MemoryType>(i)).count;
+    }
 }
 
 void* Object::operator new(size_t size)

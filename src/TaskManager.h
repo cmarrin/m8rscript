@@ -12,7 +12,6 @@
 #include "SystemInterface.h"
 #include "SystemTime.h"
 #include <cstdint>
-#include <forward_list>
 
 namespace m8r {
 
