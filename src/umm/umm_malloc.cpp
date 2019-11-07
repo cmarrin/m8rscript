@@ -499,6 +499,8 @@
 
 #include "SystemInterface.h"
 
+#define printf m8r::system()->printf
+
 #ifndef UMM_FIRST_FIT
 #  ifndef UMM_BEST_FIT
 #    define UMM_BEST_FIT
