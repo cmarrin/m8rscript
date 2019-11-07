@@ -25,9 +25,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <stdlib.h>
-
-void *m8r_malloc( size_t size ) { return malloc(size); }
-void m8r_free( void *ptr ) { return free(ptr); }
+#include "Defines.h"
 
 #ifndef LFS_NO_ASSERT
 #include <assert.h>

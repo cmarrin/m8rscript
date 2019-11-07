@@ -11,6 +11,7 @@
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
+		4921CF9723739C3F004CB000 /* Defines.h in Headers */ = {isa = PBXBuildFile; fileRef = 4942EA8C1D0D950100E02088 /* Defines.h */; };
 		4923672723733EEC0009963A /* umm_malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4923672423733EEC0009963A /* umm_malloc.cpp */; };
 		4923672823733EEC0009963A /* umm_malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672523733EEC0009963A /* umm_malloc.h */; };
 		4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672623733EEC0009963A /* umm_malloc_cfg.h */; };
@@ -757,6 +758,7 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
+				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
 				4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */,
 				4923672823733EEC0009963A /* umm_malloc.h in Headers */,
 				49BF3450236811BF001E5508 /* spiffs.h in Headers */,

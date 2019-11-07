@@ -9,6 +9,23 @@
 
 #pragma once
 
+#ifdef __APPLE__
+//#define USE_UMM
+#endif
+
+#include "umm_malloc.h"
+
+// Do this so we can present defines for malloc/free for c files
+#ifndef __cplusplus
+#ifdef USE_UMM
+    #define m8r_malloc umm_malloc
+    #define m8r_free umm_free
+#else
+    #define m8r_malloc malloc
+    #define m8r_free free
+#endif
+
+#else
 #include <cstdint>
 #include <vector>
 #include <cassert>
@@ -26,14 +43,19 @@
     #define ROMsnprintf snprintf
     #define ROMvsnprintf vsnprintf
     #include <cstring>
-    static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
+static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
     #define ROMSTR(s) s
     #define debugf printf
     
     #define USE_LITTLEFS
 
-    #define m8r_malloc ::malloc
-    #define m8r_free ::free
+    #ifdef USE_UMM
+        #define m8r_malloc umm_malloc
+        #define m8r_free umm_free
+    #else
+        #define m8r_malloc ::malloc
+        #define m8r_free ::free
+    #endif
 
 static constexpr uint32_t HeapSize = 50000;
 #else
@@ -403,3 +425,5 @@ enum class ObjectDataType : uint8_t {
 };
 
 }
+
+#endif
