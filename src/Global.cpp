@@ -242,13 +242,21 @@ CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_
 CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     MemoryInfo info;
-    system()->memoryInfo(info);
+    Object::memoryInfo(info);
     Object* obj = new MaterObject();
     obj->setProperty(eu, eu->program()->atomizeString("freeSize"),
                      Value(static_cast<int32_t>(info.freeSize)), Value::SetPropertyType::AlwaysAdd);
     obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
+                     
+    Object* allocationsByType = new MaterObject(true);
+    for (auto it : info.numAllocationsByType) {
+        allocationsByType->setElement(eu, Value(0), Value(static_cast<int32_t>(it)), true);
+    }
     
+    obj->setProperty(eu, eu->program()->atomizeString("numAllocationsByType"),
+                     Value(allocationsByType), Value::SetPropertyType::AlwaysAdd);
+
     eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
