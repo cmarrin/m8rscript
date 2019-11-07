@@ -10,7 +10,7 @@
 #pragma once
 
 #ifdef __APPLE__
-//#define USE_UMM
+#define USE_UMM
 #endif
 
 #include "umm_malloc.h"

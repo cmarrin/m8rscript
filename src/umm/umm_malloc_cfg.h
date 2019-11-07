@@ -121,6 +121,9 @@
  * callback is called: `UMM_HEAP_CORRUPTION_CB()`
  */
 
+#define UMM_INTEGRITY_CHECK
+#define UMM_POISON
+
 #if defined(DEBUG_ESP_PORT) || defined(DEBUG_ESP_CORE)
 #define UMM_POISON
 #endif
