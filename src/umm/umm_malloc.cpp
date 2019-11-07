@@ -938,8 +938,8 @@ static void *get_unpoisoned( unsigned char *ptr ) {
 }
 
 #define CHECK_POISON_ALL_BLOCKS() check_poison_all_blocks()
-#define GET_POISONED(ptr, size)   get_poisoned(ptr, size)
-#define GET_UNPOISONED(ptr)       get_unpoisoned(ptr)
+#define GET_POISONED(ptr, size)   get_poisoned(reinterpret_cast<uint8_t*>(ptr), size)
+#define GET_UNPOISONED(ptr)       get_unpoisoned(reinterpret_cast<uint8_t*>(ptr))
 
 #else
 /*
