@@ -36,12 +36,6 @@ void m8r::SystemInterface::free(MemoryType, void* p)
     ::free(p);
 }
 
-void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
-{
-    // FIXME: info.freeSize = g_freeHeapSize;
-    // FIXME: info.numAllocations = g_allocCount;
-}
-
 class MyLogSocket : public m8r::TCPDelegate {
 public:
     MyLogSocket(uint16_t port)

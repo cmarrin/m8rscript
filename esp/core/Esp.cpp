@@ -199,12 +199,6 @@ void m8r::SystemInterface::free(MemoryType, void* p)
     umm_free(p);
 }
 
-void m8r::SystemInterface::memoryInfo(MemoryInfo& info)
-{
-    info.freeSize = umm_free_heap_size();
-    info.numAllocations = ummHeapInfo.usedEntries;
-}
-
 static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }

@@ -120,12 +120,6 @@ void m8r::SystemInterface::free(MemoryType, void* p)
     umm_free(p);
 }
 
-void m8r::SystemInterface::memoryInfo(m8r::MemoryInfo& info)
-{
-    // FIXME: info.freeSize = g_freeHeapSize;
-    // FIXME: info.numAllocations = g_allocCount;
-}
-
 static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get(); }
