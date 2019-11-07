@@ -9,7 +9,10 @@
 
 #pragma once
 
+// This allows umm to be turned off just for Mac. It should never be turned off for ESP
 #ifdef __APPLE__
+#define USE_UMM
+#else
 #define USE_UMM
 #endif
 
@@ -26,6 +29,14 @@
 #endif
 
 #else
+#ifdef USE_UMM
+    #define m8r_malloc umm_malloc
+    #define m8r_free umm_free
+#else
+    #define m8r_malloc ::malloc
+    #define m8r_free ::free
+#endif
+
 #include <cstdint>
 #include <vector>
 #include <cassert>
@@ -48,14 +59,6 @@ static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src)
     #define debugf printf
     
     #define USE_LITTLEFS
-
-    #ifdef USE_UMM
-        #define m8r_malloc umm_malloc
-        #define m8r_free umm_free
-    #else
-        #define m8r_malloc ::malloc
-        #define m8r_free ::free
-    #endif
 
 static constexpr uint32_t HeapSize = 50000;
 #else

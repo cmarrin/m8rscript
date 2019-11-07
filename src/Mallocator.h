@@ -71,7 +71,7 @@ public:
     T* allocate(std::size_t n)
     {
         _count++;
-        return static_cast<T*>(m8r_malloc(n*sizeof(T)));
+        return static_cast<T*>(m8r_malloc(n * sizeof(T)));
     }
     
     void deallocate(T* p, std::size_t)

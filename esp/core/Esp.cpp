@@ -22,7 +22,6 @@
 
 #include "EspGPIOInterface.h"
 #include "EspTaskManager.h"
-#include "EspTaskManager.h"
 #include "EspTCP.h"
 #include "EspUDP.h"
 #include "MDNSResponder.h"
@@ -740,7 +739,7 @@ size_t RAM_ATTR xPortWantedSizeAlign(size_t size)
     return (size + 3) & ~((size_t) 3);
 }
 
-void SystemInterface::heapInfo(void*& start, uint32_t& size)
+void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
 {
     start = &_heap_start;
     size = _heap_end - _heap_start;
