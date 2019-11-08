@@ -214,8 +214,8 @@ private:
     };
     
     using EventValue = Value;
-    using CallRecordVector = std::vector<CallRecord, Mallocator<CallRecord, MemoryType::CallRecord>>;
-    using EventValueVector = std::vector<EventValue, Mallocator<EventValue, MemoryType::EventValue>>;
+    using CallRecordVector = std::vector<CallRecord, Mallocator::Alloc<CallRecord, MemoryType::CallRecord>>;
+    using EventValueVector = std::vector<EventValue, Mallocator::Alloc<EventValue, MemoryType::EventValue>>;
 
     CallRecordVector _callRecords;
     ExecutionStack _stack;

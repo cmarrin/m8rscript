@@ -38,13 +38,3 @@ void SystemInterface::memoryInfo(MemoryInfo& info)
     info.numAllocations = 0;
 #endif
 }
-
-void* SystemInterface::alloc(MemoryType type, size_t size)
-{
-    return MallocatorBase::allocate(type, size);
-}
-
-void SystemInterface::free(MemoryType type, void* p)
-{
-    MallocatorBase::deallocate(type, p, 0);
-}

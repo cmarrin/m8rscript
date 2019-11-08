@@ -16,7 +16,7 @@
 
 namespace m8r {
 
-//////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 //
 //  Class: Mallocator
 //
@@ -40,7 +40,7 @@ namespace m8r {
 //
 //  The block id allows blocks to be on 4 byte boundaries, but blocks can be
 //  larger than that. Allocated blocks can be as large as available memory.
-
+//
 //  The free list uses the first 4 bytes of a block, 2 bytes for a block id
 //  of the next free block, and a 2 byte block size. Actually the size byte
 //  may contain some flags, so the maximum free block size may be smaller.
@@ -49,7 +49,7 @@ namespace m8r {
 //  we can limit the maximum allocated block size to 14 bits, 16K blocks or 
 //  64KB. That gives 2 bits of flags, if needed.
 //
-//////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 
 enum class MemoryType {
     Unknown,
@@ -62,65 +62,127 @@ enum class MemoryType {
     FunctionEntry,
     NumTypes
 };
-    
-class MallocatorBase
+
+class Mallocator
 {
 public:
+    template <class T, MemoryType Type = MemoryType::Unknown>
+    class Alloc {
+    public:
+        typedef T value_type;
+
+        T* allocate(std::size_t n)
+        {
+            return Mallocator::shared()->allocate<T>(Type, static_cast<uint32_t>(n));
+        }
+
+        void deallocate(T* p, std::size_t n)
+        {
+            Mallocator::shared()->deallocate<T>(Type, p, static_cast<uint32_t>(n));
+        }
+
+        template <typename U>
+        struct rebind {
+            typedef Alloc<U> other;
+        };
+    };
+
+    template<typename T>
+    T* allocate(MemoryType type, size_t count)
+    {
+        _list[static_cast<uint32_t>(type)].count++;
+        _list[static_cast<uint32_t>(type)].size += count * sizeof(T);
+
+        assert(static_cast<uint32_t>(count) * sizeof(T) <= 0xffff);
+        return reinterpret_cast<T*>(alloc(count * sizeof(T)));
+    }
+    
+    template<typename T>
+    void deallocate(MemoryType type, T* p, size_t count)
+    {
+        _list[static_cast<uint32_t>(type)].count--;
+        _list[static_cast<uint32_t>(type)].size -= count;
+
+        free(p, count * sizeof(T));
+    }
+    
     struct Entry
     {
         uint32_t size = 0;
         uint32_t count = 0;
     };
     
-    static const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
+    const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
     
-    static void* allocate(MemoryType which, size_t size)
+    static Mallocator* shared()
     {
-        _list[static_cast<uint32_t>(which)].count++;
-        _list[static_cast<uint32_t>(which)].size += size;
-        return m8r_malloc(size);
+        if (!_sharedMallocator) {
+            _sharedMallocator = new Mallocator();
+        }
+        return _sharedMallocator;
     }
-    
-    static void deallocate(MemoryType which, void* p, size_t size)
-    {
-        _list[static_cast<uint32_t>(which)].count--;
-        _list[static_cast<uint32_t>(which)].size -= size;
-        m8r_free(p);
-    }
-    
+
 protected:
-    static Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)] ;
-};
+    Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)];
 
-template <class T, MemoryType Type = MemoryType::Unknown>
-class Mallocator : public MallocatorBase {
-public:
-    typedef T value_type;
+private:
+    Mallocator();
+    
+    void* alloc(size_t size);
+    void free(void*, size_t size);
 
-    T* allocate(std::size_t n)
-    {
-        _list[static_cast<uint32_t>(Type)].count++;
-        _list[static_cast<uint32_t>(Type)].size += n * sizeof(T);
-        return static_cast<T*>(m8r_malloc(n * sizeof(T)));
-    }
+    using BlockId = uint16_t;
+    using SizeInBlocks = uint16_t;
     
-    void deallocate(T* p, std::size_t n)
+    static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
+
+    struct FreeHeader
     {
-        _list[static_cast<uint32_t>(Type)].count--;
-        _list[static_cast<uint32_t>(Type)].size -= n;
-        m8r_free(p);
-    }
-    
-    template <typename U>  
-    struct rebind {
-        typedef Mallocator<U> other;
+        BlockId nextBlock;
+        SizeInBlocks sizeInBlocks;
     };
+    
+    FreeHeader* block(BlockId b)
+    {
+        return reinterpret_cast<FreeHeader*>(_heapBase + (b * _blockSize));
+    }
+    
+    char* _heapBase = nullptr;
+    SizeInBlocks _heapBlockCount = 0;
+    uint16_t _blockSize = 4;
+    BlockId _firstFreeBlock = 0;
+    
+    static Mallocator* _sharedMallocator;
 };
 
-template <class T, class U>
-bool operator==(const Mallocator<T>&, const Mallocator<U>&) { return true; }
-
-template <class T, class U>
-bool operator!=(const Mallocator<T>&, const Mallocator<U>&) { return false; }
+//class MallocatorBase
+//{
+//public:
+//    struct Entry
+//    {
+//        uint32_t size = 0;
+//        uint32_t count = 0;
+//    };
+//
+//    static const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
+//
+//    static void* allocate(MemoryType which, size_t size)
+//    {
+//        _list[static_cast<uint32_t>(which)].count++;
+//        _list[static_cast<uint32_t>(which)].size += size;
+//        return m8r_malloc(size);
+//    }
+//
+//    static void deallocate(MemoryType which, void* p, size_t size)
+//    {
+//        _list[static_cast<uint32_t>(which)].count--;
+//        _list[static_cast<uint32_t>(which)].size -= size;
+//        m8r_free(p);
+//    }
+//
+//protected:
+//    static Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)] ;
+//};
+//
 
 }

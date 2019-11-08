@@ -23,8 +23,8 @@ class Program;
 class Stream;
 
 using ConstantValue = Value;
-using ConstantValueVector = std::vector<ConstantValue, Mallocator<ConstantValue, MemoryType::ConstantValue>>;
-using InstructionVector = std::vector<Instruction, Mallocator<Instruction, MemoryType::Instruction>>;
+using ConstantValueVector = std::vector<ConstantValue, Mallocator::Alloc<ConstantValue, MemoryType::ConstantValue>>;
+using InstructionVector = std::vector<Instruction, Mallocator::Alloc<Instruction, MemoryType::Instruction>>;
 
 class Object {    
 public:

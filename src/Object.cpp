@@ -28,20 +28,23 @@ void Object::memoryInfo(MemoryInfo& info)
     info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
     
     for (uint32_t i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
-        info.numAllocationsByType[i] = MallocatorBase::entry(static_cast<MemoryType>(i)).count;
+        //info.numAllocationsByType[i] = MallocatorBase::entry(static_cast<MemoryType>(i)).count;
     }
 }
 
 void* Object::operator new(size_t size)
 {
-    void* p = SystemInterface::alloc(MemoryType::Object, size);
-    _objectStore.push_back(reinterpret_cast<Object*>(p));
+    Object* p = Mallocator::shared()->allocate<Object>(MemoryType::Object, size);
+    if (!p) {
+        return nullptr;
+    }
+    _objectStore.push_back(p);
     return p;
 }
 
 void Object::operator delete(void* p)
 {
-    SystemInterface::free(MemoryType::Object, p);
+    Mallocator::shared()->deallocate<Object>(MemoryType::Object, reinterpret_cast<Object*>(p), 1);
 }
 
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };

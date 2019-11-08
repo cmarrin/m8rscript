@@ -9,7 +9,78 @@
 
 #include "Mallocator.h"
 
+#include "SystemInterface.h"
+
 using namespace m8r;
 
-MallocatorBase::Entry MallocatorBase::_list[static_cast<uint32_t>(MemoryType::NumTypes)] ;
+Mallocator* Mallocator::_sharedMallocator = nullptr;
 
+Mallocator::Mallocator()
+{
+    void* base;
+    uint32_t size;
+    system()->heapInfo(base, size);
+    
+    // Limit is one less block, to provide for a NoBlockId value
+    if (size < (1024 * 256 - 4)) {
+        _blockSize = 4;
+    } else if (size < (1024 * 512 - 8)) {
+        _blockSize = 8;
+    } else if (size < (1024 * 1024 - 16)) {
+        _blockSize = 16;
+    } else {
+        system()->printf(ROMSTR("Exceeded maximum heap size of 1MB\n"));
+        return;
+    }
+    
+    _heapBase = reinterpret_cast<char*>(base);
+    _heapBlockCount = static_cast<uint16_t>(size / _blockSize);
+    
+    block(0)->nextBlock = NoBlockId;
+    block(0)->sizeInBlocks = _heapBlockCount;
+    _firstFreeBlock = 0;
+}
+
+void* Mallocator::alloc(size_t size)
+{
+    if (!_heapBase) {
+        return nullptr;
+    }
+    
+    SizeInBlocks blockToAlloc = (size + _blockSize - 1) / _blockSize;
+    
+    BlockId freeBlock = _firstFreeBlock;
+    BlockId prevBlock = NoBlockId;
+    while (freeBlock != NoBlockId) {
+        FreeHeader* header = block(freeBlock);
+        if (header->sizeInBlocks >= blockToAlloc) {
+            if (blockToAlloc == header->sizeInBlocks) {
+                // Take the whole thing
+                if (prevBlock == NoBlockId) {
+                    _firstFreeBlock = header->nextBlock;
+                } else {
+                    block(prevBlock)->nextBlock = header->nextBlock;
+                }
+                return header;
+            } else {
+                // Take the tail end of the block and resize
+                header->sizeInBlocks -= blockToAlloc;
+                return block(freeBlock + blockToAlloc);
+            }
+        }
+        
+        prevBlock = freeBlock;
+        freeBlock = header->nextBlock;
+    }
+    
+    return nullptr;
+}
+
+void Mallocator::free(void* data, size_t size)
+{
+    if (!_heapBase) {
+        return;
+    }
+    
+    // TODO: Implement
+}

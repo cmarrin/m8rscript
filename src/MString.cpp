@@ -17,12 +17,12 @@ using namespace m8r;
 
 void* String::operator new(size_t size)
 {
-    return SystemInterface::alloc(MemoryType::String, size);
+    return Mallocator::shared()->allocate<String>(MemoryType::String, size);
 }
 
 void String::operator delete(void* p)
 {
-    SystemInterface::free(MemoryType::String, p);
+    Mallocator::shared()->deallocate<String>(MemoryType::String, reinterpret_cast<String*>(p), 1);
 }
 
 inline static void reverse(char *str, int len)

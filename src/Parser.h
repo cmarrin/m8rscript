@@ -242,7 +242,7 @@ private:
         bool _ctor = false;
     };
         
-    using FunctionEntryVector = std::vector<FunctionEntry, Mallocator<FunctionEntry, MemoryType::FunctionEntry>>;
+    using FunctionEntryVector = std::vector<FunctionEntry, Mallocator::Alloc<FunctionEntry, MemoryType::FunctionEntry>>;
 
     FunctionEntryVector _functions;
     
