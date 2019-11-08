@@ -212,7 +212,7 @@ uint32_t flashmem_write_internal( const void *from, uint32_t toaddr, uint32_t si
   const uint32_t blkmask = INTERNAL_FLASH_WRITE_UNIT_SIZE - 1;
   uint32_t *apbuf = NULL;
   if( ((uint32_t)from) & blkmask ){
-    apbuf = (uint32_t *)umm_malloc(size);
+    //apbuf = (uint32_t *)umm_malloc(size);
     if(!apbuf)
       return 0;
     memcpy(apbuf, from, size);

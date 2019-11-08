@@ -63,7 +63,6 @@ SRC ?=  ../src/Application.cpp \
 		../src/Value.cpp \
         ../src/Scanner.cpp \
         ../src/generated/SharedAtoms.cpp \
-        ../src/umm/umm_malloc.cpp \
         app/main.cpp
 
 ifeq ($(PARSER_SUPPORT), 1)

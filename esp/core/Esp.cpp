@@ -47,7 +47,6 @@ extern "C" {
 #include "user_interface.h"
 #include <espconn.h>
 #include <smartconfig.h>
-#include "umm_malloc.h"
 
 //#define NEED_HEXDUMP
 
@@ -698,24 +697,24 @@ extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {
-	return umm_malloc(size);
+	return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
 }
 
 void RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 {
-    umm_free(ptr);
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
 }
 
 void* RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
-	void* m = umm_malloc(size);
+	void* m = pvPortMalloc(size, file, line);
     memset(m, 0, size);
     return m;
 }
 
 size_t xPortGetFreeHeapSize(void)
 {
-	return umm_free_heap_size();
+	return 0;
 }
 
 size_t RAM_ATTR xPortWantedSizeAlign(size_t size)
@@ -760,22 +759,32 @@ using __cxxabiv1::__guard;
 
 void *operator new(size_t size)
 {
-    return umm_malloc(size);
+    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
 }
 
 void *operator new[](size_t size)
 {
-    return umm_malloc(size);
+    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
 }
 
 void operator delete(void * ptr)
 {
-    umm_free(ptr);
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
 }
 
 void operator delete[](void * ptr)
 {
-    umm_free(ptr);
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
+}
+
+void operator delete(void * ptr, std::size_t sz)
+{
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), sz);
+}
+
+void operator delete[](void * ptr, std::size_t sz)
+{
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), sz);
 }
 
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));

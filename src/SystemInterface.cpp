@@ -30,11 +30,6 @@ void SystemInterface::runLoop()
 
 void SystemInterface::memoryInfo(MemoryInfo& info)
 {
-#ifdef USE_UMM
-    info.freeSize = static_cast<uint32_t>(umm_free_heap_size());
-    info.numAllocations = ummHeapInfo.usedEntries;
-#else
     info.freeSize = 0;
     info.numAllocations = 0;
-#endif
 }

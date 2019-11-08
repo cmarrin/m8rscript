@@ -36,8 +36,8 @@ public:
     { }
     virtual ~Object() { }
 
-    void* operator new(size_t size);
-    void operator delete(void* p);
+    void* operator new(size_t size) throw();
+    void operator delete(void* p, std::size_t sz);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     

@@ -32,7 +32,7 @@ void Object::memoryInfo(MemoryInfo& info)
     }
 }
 
-void* Object::operator new(size_t size)
+void* Object::operator new(size_t size) throw()
 {
     Object* p = Mallocator::shared()->allocate<Object>(MemoryType::Object, size);
     if (!p) {
@@ -42,9 +42,9 @@ void* Object::operator new(size_t size)
     return p;
 }
 
-void Object::operator delete(void* p)
+void Object::operator delete(void* p, std::size_t sz)
 {
-    Mallocator::shared()->deallocate<Object>(MemoryType::Object, reinterpret_cast<Object*>(p), 1);
+    Mallocator::shared()->deallocate<Object>(MemoryType::Object, reinterpret_cast<Object*>(p), sz);
 }
 
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };

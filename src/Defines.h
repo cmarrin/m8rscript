@@ -16,26 +16,10 @@
 #define USE_UMM
 #endif
 
-#include "umm_malloc.h"
-
 // Do this so we can present defines for malloc/free for c files
 #ifndef __cplusplus
-#ifdef USE_UMM
-    #define m8r_malloc umm_malloc
-    #define m8r_free umm_free
-#else
-    #define m8r_malloc malloc
-    #define m8r_free free
-#endif
 
 #else
-#ifdef USE_UMM
-    #define m8r_malloc umm_malloc
-    #define m8r_free umm_free
-#else
-    #define m8r_malloc ::malloc
-    #define m8r_free ::free
-#endif
 
 #include <cstdint>
 #include <vector>

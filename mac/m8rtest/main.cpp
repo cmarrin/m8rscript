@@ -110,16 +110,6 @@ void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
     size = HeapSize;
 }
 
-void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
-{
-    return umm_malloc(size);
-}
-
-void m8r::SystemInterface::free(MemoryType, void* p)
-{
-    umm_free(p);
-}
-
 static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get(); }
