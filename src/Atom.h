@@ -70,8 +70,7 @@ public:
         return String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa));
-}
+    static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa)); }
 
 private:
     Atom findAtom(const char* s) const;

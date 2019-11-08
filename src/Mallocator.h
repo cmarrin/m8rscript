@@ -73,11 +73,13 @@ public:
 
         T* allocate(std::size_t n)
         {
+            n *= sizeof(T);
             return Mallocator::shared()->allocate<T>(Type, static_cast<uint32_t>(n));
         }
 
         void deallocate(T* p, std::size_t n)
         {
+            n *= sizeof(T);
             Mallocator::shared()->deallocate<T>(Type, p, static_cast<uint32_t>(n));
         }
 
@@ -88,22 +90,22 @@ public:
     };
 
     template<typename T>
-    T* allocate(MemoryType type, size_t count)
+    T* allocate(MemoryType type, size_t size)
     {
         _list[static_cast<uint32_t>(type)].count++;
-        _list[static_cast<uint32_t>(type)].size += count * sizeof(T);
+        _list[static_cast<uint32_t>(type)].size += size;
 
-        assert(static_cast<uint32_t>(count) * sizeof(T) <= 0xffff);
-        return reinterpret_cast<T*>(alloc(count * sizeof(T)));
+        assert(static_cast<uint32_t>(size) <= 0xffff);
+        return reinterpret_cast<T*>(alloc(size));
     }
     
     template<typename T>
-    void deallocate(MemoryType type, T* p, size_t count)
+    void deallocate(MemoryType type, T* p, size_t size)
     {
         _list[static_cast<uint32_t>(type)].count--;
-        _list[static_cast<uint32_t>(type)].size -= count;
+        _list[static_cast<uint32_t>(type)].size -= size;
 
-        free(p, count * sizeof(T));
+        free(p, size);
     }
     
     struct Entry
