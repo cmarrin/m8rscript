@@ -42,7 +42,7 @@ static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src)
     #define ROMSTR(s) s
     #define debugf printf
     
-    #define USE_LITTLEFS
+    //#define USE_LITTLEFS
 
 static constexpr uint32_t HeapSize = 50000;
 #else
