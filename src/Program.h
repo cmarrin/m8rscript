@@ -28,8 +28,8 @@ public:
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
-    const Object* global() const { return _global.nativeObject(); }
-    Object* global() { return _global.nativeObject(); }
+    const Mad<Object> global() const { return _global.nativeObject(); }
+    Mad<Object> global() { return _global.nativeObject(); }
         
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }

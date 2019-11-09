@@ -79,7 +79,7 @@ public:
 private:
     std::vector<UpValue*> _upValues;
 
-    Function* _func = nullptr;
+    Mad<Function> _func;
     Value _thisValue;
 };
 

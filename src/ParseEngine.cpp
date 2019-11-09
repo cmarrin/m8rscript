@@ -118,13 +118,13 @@ bool ParseEngine::classContentsStatement()
         retireToken();
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
-        Function* f = functionExpression(false);
+        Mad<Function> f = functionExpression(false);
         _parser->currentClass()->setProperty(name, Value(f));
         return true;
     }
     if (getToken() == Token::Constructor) {
         retireToken();
-        Function* f = functionExpression(true);
+        Mad<Function> f = functionExpression(true);
         if (!f) {
             return false;
         }
@@ -169,7 +169,7 @@ bool ParseEngine::functionStatement()
     retireToken();
     Atom name = _parser->atomizeString(getTokenValue().str);
     expect(Token::Identifier);
-    Function* f = functionExpression(false);
+    Mad<Function> f = functionExpression(false);
     _parser->addNamedFunction(f, name);
     return true;
 }
@@ -721,7 +721,7 @@ bool ParseEngine::memberExpression()
     
     if (getToken() == Token::Function) {
         retireToken();
-        Function* f = functionExpression(false);
+        Mad<Function> f = functionExpression(false);
         _parser->pushK(Value(f));
         return true;
     }
@@ -820,7 +820,7 @@ bool ParseEngine::propertyName()
     }
 }
 
-Function* ParseEngine::functionExpression(bool ctor)
+Mad<Function> ParseEngine::functionExpression(bool ctor)
 {
     expect(Token::LParen);
     _parser->functionStart(ctor);

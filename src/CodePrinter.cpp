@@ -55,12 +55,12 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
     indentCode(s);
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program) const
+m8r::String CodePrinter::generateCodeString(const Mad<Program> program) const
 {    
     return generateCodeString(program, program, "main", 0);
 }
 
-String CodePrinter::regString(const Program* program, const Function* function, uint32_t reg, bool up) const
+String CodePrinter::regString(const Mad<Program> program, const Mad<Function> function, uint32_t reg, bool up) const
 {
     if (up) {
         return String("U[") + String::toString(reg) + "]";
@@ -81,55 +81,55 @@ void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
     str += String(stringFromOp(op)) + "\n";
 }
 
-void CodePrinter::generateRXX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d) const
+void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + "\n";
 }
 
-void CodePrinter::generateRRX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRUX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s, true) + "\n";
 }
 
-void CodePrinter::generateURX(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateURX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d, true) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRRR(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
+void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
 }
 
-void CodePrinter::generateXN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, int32_t n) const
+void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int32_t n) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + String::toString(n) + "\n";
 }
 
-void CodePrinter::generateRN(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
+void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + String::toString(n) + "\n";
 }
 
-void CodePrinter::generateCall(const Program* program, const Function* function, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
+void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Program* program, const Object* func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Object> func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -169,7 +169,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     }
     
     assert(func->isFunction());
-    const Function* function = static_cast<const Function*>(func);
+    const Mad<Function> function = func;
     
     m8r::String outputString;
 
@@ -385,7 +385,7 @@ static String escapeString(const String& s)
     return String::join(array, "\\n");
 }
 
-void CodePrinter::showConstant(const Program* program, m8r::String& s, const Value& value, bool abbreviated) const
+void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const Value& value, bool abbreviated) const
 {
     switch(value.type()) {
         case Value::Type::NativeFunction: s += "NativeFunction"; break;
@@ -410,7 +410,7 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
                 s += "FUNCTION";
                 break;
             }
-            Function* func = value.asFunction();
+            Mad<Function> func = value.asFunction();
             if (func) {
                 _nestingLevel++;
                 s += "\n";
@@ -430,7 +430,7 @@ void CodePrinter::showConstant(const Program* program, m8r::String& s, const Val
             }
             
             // Make the assumption that this is a MaterObject
-            MaterObject* obj = static_cast<MaterObject*>(value.asObject());
+            Mad<MaterObject> obj = value.asObject();
             if (obj) {
                 _nestingLevel++;
                 s += "CLASS {\n";

@@ -173,12 +173,12 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     }
 }
 
-void ExecutionUnit::startExecution(Program* program)
+void ExecutionUnit::startExecution(Mad<Program> program)
 {
     if (!program) {
         _terminate = true;
-        _function = nullptr;
-        _this = nullptr;
+        _function.reset();
+        _this.reset();
         _constants = nullptr;
         _stack.clear();
         return;
@@ -328,12 +328,12 @@ UpValue* ExecutionUnit::newUpValue(uint32_t stackIndex)
     return upValue;
 }
 
-void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope)
+void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope)
 {
     assert(_program);
     assert(function);
     
-    Object* prevFunction = _function;
+    Mad<Object> prevFunction = _function;
     _function =  function;
     assert(_function->code() && _function->code()->size());
 
@@ -343,7 +343,7 @@ void ExecutionUnit::startFunction(Object* function, Object* thisObject, uint32_t
     _actualParamCount = nparams;
     _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
     
-    Object* prevThis = _this;
+    Mad<Object> prevThis = _this;
     _this = thisObject;
     if (!_this) {
         _this = _program;
@@ -408,7 +408,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     // be extracted into an Object
     Function* parent = new Function(nullptr);
     
-    Function* function = parser.parse(stream, Parser::Debug::Full, parent);
+    Mad<Function> function = parser.parse(stream, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         
@@ -421,7 +421,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
-        Function* func = it.asFunction();
+        Mad<Function> func = it.asFunction();
         if (func && func->name()) {
             obj->setProperty(this, func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
         }
@@ -483,7 +483,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
-    Object* prevThis;
+    Mad<Object> prevThis;
 
     Instruction inst;
     

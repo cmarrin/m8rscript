@@ -13,7 +13,7 @@
 
 using namespace m8r;
 
-Function::Function(Function* parent)
+Function::Function(Mad<Function> parent)
     : _parent(parent)
 {
     // Place a dummy constant at index 0 as an error return value

@@ -29,7 +29,7 @@ void TaskBase::finish()
 
 Task::Task(const char* filename)
 {
-    _eu = new ExecutionUnit();
+    _eu = Mad<ExecutionUnit>::create();
     Object::addEU(_eu);
     
     // FIXME: What do we do with these?
@@ -67,7 +67,7 @@ Task::Task(const char* filename)
 Task::~Task()
 {
     Object::removeEU(_eu);
-    delete _eu;
+    _eu.destroy();
 }
 
 void Task::receivedData(const String& data, Telnet::Action action)
@@ -110,7 +110,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }

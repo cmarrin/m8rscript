@@ -17,6 +17,7 @@
 #include <vector>
 #include "Defines.h"
 #include "Float.h"
+#include "Mallocator.h"
 
 namespace m8r {
 
@@ -70,7 +71,7 @@ public:
     
     ~String() { delete [ ] _data; };
 
-    void* operator new(size_t size);
+    void* operator new(size_t size) noexcept;
     void operator delete(void* p);
 
     String& operator=(const String& other)
@@ -227,5 +228,7 @@ private:
     char *_data = nullptr;
     bool _marked = true;
 };
+
+template<> inline MemoryType Mad<String>::type()        { return MemoryType::String; }
 
 }

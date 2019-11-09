@@ -17,7 +17,7 @@ namespace m8r {
 
 class Function : public MaterObject {
 public:
-    Function(Function* parent);
+    Function(Mad<Function> parent);
 
     virtual ~Function() { }
 
@@ -102,7 +102,7 @@ private:
     ConstantValueVector _constants;
     uint8_t _tempRegisterCount = 0;
     Atom _name;
-    Function* _parent = nullptr;
+    Mad<Function> _parent;
 };
     
 }

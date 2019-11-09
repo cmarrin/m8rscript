@@ -14,7 +14,7 @@
 using namespace m8r;
 
 Program::Program()
-    : Function(nullptr)
+    : Function(Mad<Function>())
     , _global(this)
 {
 }

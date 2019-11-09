@@ -49,6 +49,7 @@ static s32_t spiffsWrite(u32_t addr, u32_t size, u8_t *src)
         printf("******** MacSpiffsFS error writing sector %d (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
         return SPIFFS_ERR_NOT_WRITABLE;
     }
+    fflush(fsFile);
     return SPIFFS_OK;
 }
 
@@ -65,6 +66,7 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
         printf("******** MacSpiffsFS error erasing sector %d (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
         return SPIFFS_ERR_NOT_WRITABLE;
     }
+    fflush(fsFile);
     return SPIFFS_OK;
 }
 

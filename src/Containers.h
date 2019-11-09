@@ -40,7 +40,7 @@ public:
         RawType _raw;
     };
     
-    typedef RawType value_type;
+    using value_type = RawType;
     
     Id() { _value = NoId; }
     Id(Raw raw) { _value._raw = raw._raw; }
@@ -48,12 +48,11 @@ public:
     Id(const Id& other) { _value._raw = other._value._raw; }
     Id(Id&& other) { _value._raw = other._value._raw; }
 
-    RawType raw() const { return _value._raw; }
+    value_type raw() const { return _value._raw; }
 
     const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
     Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
     operator bool() const { return _value._raw != NoId; }
-    operator Raw() const { return _value; }
 
     int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
     bool operator==(const Id& other) const { return _value._raw == other._value._raw; }

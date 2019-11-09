@@ -17,7 +17,7 @@ Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValu
     : _thisValue(thisValue)
 {
     assert(function.isFunction());
-    _func = reinterpret_cast<Function*>(function.asObject());
+    _func = function.asObject();
     assert(_func);
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {

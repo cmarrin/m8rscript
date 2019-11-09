@@ -68,7 +68,7 @@ public:
 private:
     virtual CallReturnValue execute();
 
-    ExecutionUnit* _eu = nullptr;
+    Mad<ExecutionUnit> _eu;
     Error _error = Error::Code::OK;
 };
 

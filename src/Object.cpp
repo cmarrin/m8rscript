@@ -17,10 +17,10 @@
 
 using namespace m8r;
 
-std::vector<String*> Object::_stringStore;
-std::vector<Object*> Object::_objectStore;
-std::vector<Object*> Object::_staticObjects;
-std::vector<ExecutionUnit*> Object::_euStore;
+std::vector<Mad<String>> Object::_stringStore;
+std::vector<Mad<Object>> Object::_objectStore;
+std::vector<Mad<Object>> Object::_staticObjects;
+std::vector<Mad<ExecutionUnit>> Object::_euStore;
 
 void Object::memoryInfo(MemoryInfo& info)
 {
@@ -30,21 +30,6 @@ void Object::memoryInfo(MemoryInfo& info)
     for (uint32_t i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
         //info.numAllocationsByType[i] = MallocatorBase::entry(static_cast<MemoryType>(i)).count;
     }
-}
-
-void* Object::operator new(size_t size) throw()
-{
-    Object* p = Mallocator::shared()->allocate<Object>(MemoryType::Object, size);
-    if (!p) {
-        return nullptr;
-    }
-    _objectStore.push_back(p);
-    return p;
-}
-
-void Object::operator delete(void* p, std::size_t sz)
-{
-    Mallocator::shared()->deallocate<Object>(MemoryType::Object, reinterpret_cast<Object*>(p), sz);
 }
 
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };
@@ -100,8 +85,8 @@ void Object::gc(bool force)
             case GCState::SweepObj:
                 for (auto& it : _objectStore) {
                     if (it && !it->isMarked()) {
-                        delete it;
-                        it = nullptr;
+                        it.destroy();
+                        it.reset();
                     }
                 }
                 gcState = GCState::SweepStr;
@@ -109,18 +94,19 @@ void Object::gc(bool force)
             case GCState::SweepStr:
                 for (auto& it : _stringStore) {
                     if (it && !it->isMarked()) {
-                        delete it;
-                        it = nullptr;
+                        it.destroy();
+                        it.reset();
                     }
                 }
                 gcState = GCState::ClearNullObj;
                 break;
             case GCState::ClearNullObj:
-                _objectStore.erase(std::remove(_objectStore.begin(), _objectStore.end(), nullptr), _objectStore.end());
+                _objectStore.erase(
+                    std::remove(_objectStore.begin(), _objectStore.end(), Mad<Object>()), _objectStore.end());
                 gcState = GCState::ClearNullStr;
                 break;
             case GCState::ClearNullStr:
-                _stringStore.erase(std::remove(_stringStore.begin(), _stringStore.end(), nullptr), _stringStore.end());
+                _stringStore.erase(std::remove(_stringStore.begin(), _stringStore.end(), Mad<String>()), _stringStore.end());
 //    #ifndef NDEBUG
 //                debugf("--- after:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
 //    #endif
@@ -439,10 +425,10 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-ObjectFactory::ObjectFactory(Program* program, SA sa, ObjectFactory* parent, NativeFunction constructor)
+ObjectFactory::ObjectFactory(Mad<Program> program, SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
-    _obj = new MaterObject();
+    _obj = Mad<MaterObject>::create();
     
     if (!program) {
         return;
@@ -468,7 +454,7 @@ ObjectFactory::~ObjectFactory()
     //Object::removeObject(_obj);
 }
 
-void ObjectFactory::addProperty(Atom prop, Object* obj)
+void ObjectFactory::addProperty(Atom prop, Mad<Object> obj)
 {
     assert(obj);
     addProperty(prop, Value(obj));
@@ -479,22 +465,22 @@ void ObjectFactory::addProperty(Atom prop, const Value& value)
     _obj->setProperty(prop, value);
 }
 
-void ObjectFactory::addProperty(Program* program, SA sa, Object* obj)
+void ObjectFactory::addProperty(Mad<Program> program, SA sa, Mad<Object> obj)
 {
     addProperty(Atom(sa), obj);
 }
 
-void ObjectFactory::addProperty(Program* program, SA sa, const Value& value)
+void ObjectFactory::addProperty(Mad<Program> program, SA sa, const Value& value)
 {
     addProperty(Atom(sa), value);
 }
 
-void ObjectFactory::addProperty(Program* program, SA sa, NativeFunction f)
+void ObjectFactory::addProperty(Mad<Program> program, SA sa, NativeFunction f)
 {
     addProperty(Atom(sa), Value(f));    
 }
 
-Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
+Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
     Value objectValue = eu->program()->global()->property(eu, objectName);
     if (!objectValue) {
@@ -504,7 +490,7 @@ Object* ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t npara
     return create(objectValue.asObject(), eu, nparams);
 }
 
-Object* ObjectFactory::create(Object* proto, ExecutionUnit* eu, uint32_t nparams)
+Mad<Object> ObjectFactory::create(Mad<Object> proto, ExecutionUnit* eu, uint32_t nparams)
 {
     if (!proto) {
         return nullptr;

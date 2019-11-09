@@ -34,7 +34,7 @@ public:
     
     void gcMark();
 
-    void startExecution(Program*);
+    void startExecution(Mad<Program>);
     
     CallReturnValue continueExecution();
     
@@ -44,7 +44,7 @@ public:
 
     void requestTermination() { _terminate = true; }
     
-    const Program* program() const { return _program; }
+    const Mad<Program> program() const { return _program; }
     
     static uint8_t byteFromInt(uint64_t value, uint32_t index)
     {
@@ -117,7 +117,7 @@ public:
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
     UpValue* newUpValue(uint32_t stackIndex);
     
-    Object* currentFunction() const { return _function; }
+    Mad<Object> currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
 
@@ -137,7 +137,7 @@ private:
         return inst.op();
     }
 
-    void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);
+    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
     bool printError(const char* s, ...) const;
@@ -146,7 +146,7 @@ private:
     
     Value* valueFromId(Atom, const Object*) const;
 
-    m8r::String generateCodeString(const Program*, const Object*, const char* functionName, uint32_t nestingLevel) const;
+    m8r::String generateCodeString(const Mad<Program>, const Mad<Object>, const char* functionName, uint32_t nestingLevel) const;
 
     void updateCodePointer()
     {
@@ -196,7 +196,7 @@ private:
 
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Object* func, Object* thisObj, uint32_t paramCount, uint32_t lineno)
+        CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -208,22 +208,22 @@ private:
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
         uint32_t _frame;
-        Object* _func;
-        Object* _thisObj;
+        Mad<Object> _func;
+        Mad<Object> _thisObj;
         uint32_t _lineno;
     };
     
     using EventValue = Value;
-    using CallRecordVector = std::vector<CallRecord, Mallocator::Alloc<CallRecord, MemoryType::CallRecord>>;
-    using EventValueVector = std::vector<EventValue, Mallocator::Alloc<EventValue, MemoryType::EventValue>>;
+    using CallRecordVector = std::vector<CallRecord>;
+    using EventValueVector = std::vector<EventValue>;
 
     CallRecordVector _callRecords;
     ExecutionStack _stack;
     
     uint32_t _pc = 0;
-    Program* _program = nullptr;
-    Object* _function = nullptr;
-    Object* _this = nullptr;
+    Mad<Program> _program;
+    Mad<Object> _function;
+    Mad<Object> _this;
     const Value* _constants = nullptr;
     Value* _framePtr = nullptr;
     uint32_t _localOffset = 0;

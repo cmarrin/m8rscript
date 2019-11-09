@@ -24,7 +24,7 @@ Iterator::Iterator(Program* program, ObjectFactory* parent)
     addProperty(program, SA::setValue, setValue);
 }
 
-static bool done(ExecutionUnit* eu, Value thisValue, Object*& obj, int32_t& index)
+static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& index)
 {
     obj = thisValue.property(eu, Atom(SA::__object)).asObject();
     index = thisValue.property(eu, Atom(SA::__index)).asIntValue();
@@ -41,7 +41,7 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Object* obj = eu->stack().top(1 - nparams).asObject();
+    Mad<Object> obj = eu->stack().top(1 - nparams).asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
@@ -54,7 +54,7 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
 
 CallReturnValue Iterator::done(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj;
+    Mad<Object> obj;
     int32_t index;
     eu->stack().push(Value(::done(eu, thisValue, obj, index)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
@@ -62,7 +62,7 @@ CallReturnValue Iterator::done(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj;
+    Mad<Object> obj;
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
@@ -75,7 +75,7 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Iterator::getValue(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj;
+    Mad<Object> obj;
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         eu->stack().push(obj->element(eu, Value(index)));
@@ -89,7 +89,7 @@ CallReturnValue Iterator::setValue(ExecutionUnit* eu, Value thisValue, uint32_t 
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Object* obj;
+    Mad<Object> obj;
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         obj->setElement(eu, Value(index), eu->stack().top(1 - nparams), false);

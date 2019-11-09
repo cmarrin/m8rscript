@@ -200,7 +200,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* array = ObjectFactory::create(Atom(SA::Array), eu, 0);
+    Mad<Object> array = ObjectFactory::create(Atom(SA::Array), eu, 0);
     if (!array) {
         return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }

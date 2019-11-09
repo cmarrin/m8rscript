@@ -17,9 +17,9 @@ using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
-Parser::Parser(Program* program)
+Parser::Parser(Mad<Program> program)
     : _parseStack(this)
-    , _program(program ?: new Program())
+    , _program(program ?: Mad<Program>::create())
 {
     // While parsing the program is unprotected. It could get collected.
     // Register it to protect it during the compile
@@ -31,12 +31,15 @@ Parser::~Parser()
     Object::removeStaticObject(_program);
 }
 
-Function* Parser::parse(const m8r::Stream& stream, Debug debug, Function* parent)
+Mad<Function> Parser::parse(const m8r::Stream& stream, Debug debug, Mad<Function> parent)
 {
     _debug = debug;
     _scanner.setStream(&stream);
     ParseEngine p(this);
-    _functions.emplace_back(parent ?: _program, false);
+    if (!parent) {
+        parent = _program;
+    }
+    _functions.emplace_back(parent, false);
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;
@@ -214,7 +217,7 @@ void Parser::pushK(const Value& value)
     _parseStack.pushConstant(id.raw());
 }
 
-void Parser::addNamedFunction(Function* func, const Atom& name)
+void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
 {
     if (_nerrors) return;
     
@@ -254,8 +257,9 @@ void Parser::emitId(const Atom& atom, IdType type)
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
-        for (uint32_t i = 0; i < currentFunction()->constants()->size(); ++i) {
-            Object* func = currentFunction()->constants()->at(ConstantId(i).raw()).asObject();
+        Function* f = currentFunction().get();
+        for (uint32_t i = 0; i < f->constants()->size(); ++i) {
+            Mad<Object> func = f->constants()->at(ConstantId(i).raw()).asObject();
             if (func) {
                 if (func->name() == atom) {
                     _parseStack.pushConstant(i);
@@ -268,7 +272,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         bool local = true;
         uint16_t frame = 0;
         for (int32_t i = static_cast<int32_t>(_functions.size()) - 1; i >= 0; --i) {
-            Function* function = _functions[i]._function;
+            Mad<Function> function = _functions[i]._function;
             int32_t index = function->localIndex(atom);
             
             if (index >= 0) {
@@ -614,7 +618,7 @@ void Parser::functionParamsEnd()
     currentFunction()->markParamEnd();
 }
 
-Function* Parser::functionEnd()
+Mad<Function> Parser::functionEnd()
 {
     if (_nerrors) return nullptr;
     
@@ -627,7 +631,7 @@ Function* Parser::functionEnd()
     }
     
     emitEnd();
-    Function* function = currentFunction();
+    Mad<Function> function = currentFunction();
     uint8_t tempRegisterCount = 256 - _functions.back()._minReg;
     _functions.pop_back();
     
@@ -642,7 +646,7 @@ static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
     return (reg > numLocals && reg <= MaxRegister) ? (MaxRegister - reg + numLocals) : reg;
 }
 
-void Parser::reconcileRegisters(Function* function)
+void Parser::reconcileRegisters(Mad<Function> function)
 {
     assert(function->code());
     InstructionVector& code = *function->code();
@@ -770,8 +774,8 @@ uint32_t Parser::ParseStack::bake()
         case Type::Constant: {
             uint32_t r = entry._reg;
             Value v = _parser->currentFunction()->constants()->at(ConstantId(r - MaxRegister - 1).raw());
-            Object* obj = v.asObject();
-            Function* func = (obj && obj->isFunction()) ? reinterpret_cast<Function*>(obj) : nullptr;
+            Mad<Object> obj = v.asObject();
+            Mad<Function> func = (obj && obj->isFunction()) ? Mad<Function>(obj.raw()) : Mad<Function>();
             if (func) {
                 pop();
                 uint32_t dst = pushRegister();

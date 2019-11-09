@@ -132,11 +132,11 @@ public:
     
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     
-    explicit Value(Object* value) { assert(value); init(); _value._ptr = value; _value._type = Type::Object; }
-    explicit Value(Function* value) { assert(value); init(); _value._ptr = value; _value._type = Type::Function; }
-    explicit Value(String* value) { assert(value); init(); _value._ptr = value; _value._type = Type::String; }
-    explicit Value(NativeObject* value) { assert(value); init(); _value._ptr = value; _value._type = Type::NativeObject; }
-    explicit Value(NativeFunction value) { assert(value); init(); _value._callable = value; _value._type = Type::NativeFunction; }
+    explicit Value(Mad<Object> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<Function> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
+    explicit Value(Mad<String> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
+    explicit Value(NativeObject* value) { assert(value); init(); _value._nativeObject = value; _value._type = Type::NativeObject; }
+    explicit Value(NativeFunction value) { assert(value); init(); _value._nativeFunction = value; _value._type = Type::NativeFunction; }
 
     explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
     explicit Value(Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
@@ -163,9 +163,9 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Object* asObject() const { return (type() == Type::Object || type() == Type::Function) ? objectFromValue() : nullptr; }
-    Function* asFunction() const { return (type() == Type::Function) ? functionFromValue() : nullptr; }
-    String* asString() const { return (type() == Type::String) ? stringFromValue() : nullptr; }
+    Mad<Object> asObject() const { return (type() == Type::Object || type() == Type::Function) ? objectFromValue() : Mad<Object>(); }
+    Mad<Function> asFunction() const { return (type() == Type::Function) ? functionFromValue() : Mad<Function>(); }
+    Mad<String> asString() const { return (type() == Type::String) ? stringFromValue() : Mad<String>(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
@@ -179,16 +179,16 @@ public:
         switch (type()) {
             default:
             case Type::Null:
-            case Type::None:              return false;
-            case Type::String:            return asString() && !asString()->empty();
-            case Type::Object:
-            case Type::NativeObject:
-            case Type::Function:          return _value._ptr;
-            case Type::NativeFunction:    return _value._callable;
-            case Type::Integer:           return int32FromValue() != 0;
+            case Type::None:            return false;
+            case Type::String:          return asString() && !asString()->empty();
+            case Type::Object:          return asObject();  
+            case Type::Function:        return asFunction();
+            case Type::NativeObject:    return _value._nativeObject;
+            case Type::NativeFunction:  return _value._nativeFunction;
+            case Type::Integer:         return int32FromValue() != 0;
             case Type::Float:
             case Type::StringLiteral:
-            case Type::Id:                return toIntValue(eu) != 0;
+            case Type::Id:              return toIntValue(eu) != 0;
         }
     }
     
@@ -260,12 +260,12 @@ private:
     inline int32_t int32FromValue() const { return _value._int; }
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
-    inline String* stringFromValue() const { return reinterpret_cast<String*>(_value._ptr); }
+    inline Mad<String> stringFromValue() const { return Mad<String>::Raw(_value._rawMad); }
     inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._int)); }
-    inline NativeObject* nativeObjectFromValue() const { return reinterpret_cast<NativeObject*>(_value._ptr); }
-    inline NativeFunction nativeFunctionFromValue() { return _value._callable; }
-    inline Object* objectFromValue() const { return reinterpret_cast<Object*>(_value._ptr); }
-    inline Function* functionFromValue() const { return reinterpret_cast<Function*>(_value._ptr); }
+    inline NativeObject* nativeObjectFromValue() const { return _value._nativeObject; }
+    inline NativeFunction nativeFunctionFromValue() { return _value._nativeFunction; }
+    inline Mad<Object> objectFromValue() const { return Mad<Object>::Raw(_value._rawMad); }
+    inline Mad<Function> functionFromValue() const { return Mad<Function>::Raw(_value._rawMad); }
 
     union {
         uint8_t _raw[sizeof(void*) * 2];
@@ -278,8 +278,9 @@ private:
             // to be fixed
             Type _type;
             union {
-                void* _ptr;
-                NativeFunction _callable;
+                RawMad _rawMad;
+                NativeObject* _nativeObject;
+                NativeFunction _nativeFunction;
                 int32_t _int;
             };
         };

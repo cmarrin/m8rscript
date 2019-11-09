@@ -58,7 +58,7 @@ CallReturnValue FSProto::format(ExecutionUnit* eu, Value thisValue, uint32_t npa
 
 CallReturnValue FSProto::open(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = ObjectFactory::create(Atom(SA::File), eu, nparams);
+    Mad<Object> obj = ObjectFactory::create(Atom(SA::File), eu, nparams);
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::Unimplemented);
     }
@@ -118,7 +118,7 @@ FileProto::FileProto(Program* program, ObjectFactory* parent)
 CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // Params are a filename string and openmode string. If openmode is missing, defaults to "r"
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }

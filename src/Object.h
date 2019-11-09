@@ -23,8 +23,8 @@ class Program;
 class Stream;
 
 using ConstantValue = Value;
-using ConstantValueVector = std::vector<ConstantValue, Mallocator::Alloc<ConstantValue, MemoryType::ConstantValue>>;
-using InstructionVector = std::vector<Instruction, Mallocator::Alloc<Instruction, MemoryType::Instruction>>;
+using ConstantValueVector = std::vector<ConstantValue>;
+using InstructionVector = std::vector<Instruction>;
 
 class Object {    
 public:
@@ -35,9 +35,6 @@ public:
         , _hasSet(false)
     { }
     virtual ~Object() { }
-
-    void* operator new(size_t size) throw();
-    void operator delete(void* p, std::size_t sz);
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
@@ -76,25 +73,21 @@ public:
     virtual bool isFunction() const { return false; }
     virtual void setArray(bool b) { }
     
-    static void addStaticObject(Object* obj) { _staticObjects.push_back(obj); }
-    static void removeStaticObject(Object* obj)
+    static void addStaticObject(Mad<Object> obj) { _staticObjects.push_back(obj); }
+    static void removeStaticObject(Mad<Object> obj)
     {
-        for (auto it = _staticObjects.begin(); it != _staticObjects.end(); ++it) {
-            if (*it == obj) {
-                _staticObjects.erase(it);
-                return;
-            }
+        auto it = std::find(_staticObjects.begin(), _staticObjects.end(), obj);
+        if (it != _staticObjects.end()) {
+            _staticObjects.erase(it);
         }
     }
 
-    static void addEU(ExecutionUnit* eu) { _euStore.push_back(eu); }
-    static void removeEU(ExecutionUnit* eu)
+    static void addEU(Mad<ExecutionUnit> eu) { _euStore.push_back(eu); }
+    static void removeEU(Mad<ExecutionUnit> eu)
     {
-        for (auto it = _euStore.begin(); it != _euStore.end(); ++it) {
-            if (*it == eu) {
-                _euStore.erase(it);
-                return;
-            }
+        auto it = std::find(_euStore.begin(), _euStore.end(), eu);
+        if (it != _euStore.end()) {
+            _euStore.erase(it);
         }
     }
 
@@ -126,11 +119,14 @@ private:
     bool _hasGet : 1;
     bool _hasSet : 1;
 
-    static std::vector<String*> _stringStore;
-    static std::vector<Object*> _objectStore;
-    static std::vector<Object*> _staticObjects;
-    static std::vector<ExecutionUnit*> _euStore;
+    static std::vector<Mad<String>> _stringStore;
+    static std::vector<Mad<Object>> _objectStore;
+    static std::vector<Mad<Object>> _staticObjects;
+    static std::vector<Mad<ExecutionUnit>> _euStore;
 };
+
+template<> inline MemoryType Mad<Object>::type()        { return MemoryType::Object; }
+template<> inline MemoryType Mad<ConstantValue>::type() { return MemoryType::ConstantValue; }
 
 class MaterObject : public Object {
 public:
@@ -166,7 +162,7 @@ public:
 private:
     Value::Map _properties;
     std::vector<Value> _array;
-    Object* _iterator = nullptr;
+    Mad<Object> _iterator;
     NativeObject* _nativeObject = nullptr;
     bool _isArray = false;
     bool _arrayNeedsGC;
@@ -185,7 +181,7 @@ public:
 template<typename T>
 CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
 {
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
@@ -199,23 +195,23 @@ CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
 
 class ObjectFactory {
 public:
-    ObjectFactory(Program*, SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
+    ObjectFactory(Mad<Program>, SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
     ~ObjectFactory();
     
-    void addProperty(Atom prop, Object*);
+    void addProperty(Atom prop, Mad<Object>);
     void addProperty(Atom prop, const Value&);
-    void addProperty(Program*, SA, Object*);
-    void addProperty(Program*, SA, const Value&);
-    void addProperty(Program*, SA, NativeFunction);
+    void addProperty(Mad<Program>, SA, Mad<Object>);
+    void addProperty(Mad<Program>, SA, const Value&);
+    void addProperty(Mad<Program>, SA, NativeFunction);
 
-    Object* nativeObject() { return _obj; }
-    const Object* nativeObject() const { return _obj; }
+    Mad<Object> nativeObject() { return _obj; }
+    const Mad<const Object> nativeObject() const { return _obj; }
     
-    static Object* create(Atom objectName, ExecutionUnit*, uint32_t nparams);
-    static Object* create(Object* proto, ExecutionUnit*, uint32_t nparams);
+    static Mad<Object> create(Atom objectName, ExecutionUnit*, uint32_t nparams);
+    static Mad<Object> create(Mad<Object> proto, ExecutionUnit*, uint32_t nparams);
 
 protected:
-    MaterObject* _obj = nullptr;
+    Mad<MaterObject> _obj;
     NativeFunction _constructor;
 };
     

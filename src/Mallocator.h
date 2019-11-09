@@ -63,49 +63,58 @@ enum class MemoryType {
     NumTypes
 };
 
+using RawMad = uint16_t;
+
+template<typename T>
+class Mad : public Id<RawMad>
+{
+public:
+    using Id::Id;
+
+    Mad(T*);
+    
+    T* get() const;
+    T& operator*() const { return *get(); }
+    T* operator->() const { return get(); }
+    
+    template <typename U>
+    operator Mad<U>() const
+    {
+        // Verify that U and T are either the same class or T is a subclass of U
+        U* u = nullptr;
+        const T* t = static_cast<const T*>(u);
+        (void) t;
+
+        return Mad<U>(raw());
+    }
+    
+    void reset() { *this = Mad<T>(); }
+    
+    void destroy();
+    static Mad<T> create();
+    static MemoryType type() { return MemoryType::Unknown; }
+};    
+
 class Mallocator
 {
 public:
-    template <class T, MemoryType Type = MemoryType::Unknown>
-    class Alloc {
-    public:
-        typedef T value_type;
-
-        T* allocate(std::size_t n)
-        {
-            n *= sizeof(T);
-            return Mallocator::shared()->allocate<T>(Type, static_cast<uint32_t>(n));
-        }
-
-        void deallocate(T* p, std::size_t n)
-        {
-            n *= sizeof(T);
-            Mallocator::shared()->deallocate<T>(Type, p, static_cast<uint32_t>(n));
-        }
-
-        template <typename U>
-        struct rebind {
-            typedef Alloc<U> other;
-        };
-    };
-
     template<typename T>
-    T* allocate(MemoryType type, size_t size)
+    Mad<T> allocate(MemoryType type, size_t size)
     {
         _list[static_cast<uint32_t>(type)].count++;
         _list[static_cast<uint32_t>(type)].size += size;
 
         assert(static_cast<uint32_t>(size) <= 0xffff);
-        return reinterpret_cast<T*>(alloc(size));
+        return Mad<T>(alloc(size));
     }
     
     template<typename T>
-    void deallocate(MemoryType type, T* p, size_t size)
+    void deallocate(MemoryType type, Mad<T> p, size_t size)
     {
         _list[static_cast<uint32_t>(type)].count--;
         _list[static_cast<uint32_t>(type)].size -= size;
 
-        free(p, size);
+        free(p.raw(), size);
     }
     
     struct Entry
@@ -124,16 +133,33 @@ public:
         return _sharedMallocator;
     }
 
+    void* get(RawMad p) const { return (p < _heapBlockCount) ? (_heapBase + p * _blockSize) : nullptr; }
+    
+    RawMad blockIdFromAddr(void* addr)
+    {
+        // return NoId unless the address is in the heap range AND is divisible by _blockSize
+        if (addr < _heapBase || addr > (_heapBase + _heapBlockCount * _blockSize)) {
+            return Id<RawMad>();
+        }
+        
+        size_t offset = reinterpret_cast<char*>(addr) -_heapBase;
+        if ((offset % _blockSize) != 0) {
+            return Id<RawMad>();
+        }
+        
+        return static_cast<RawMad>(offset / _blockSize); 
+    }
+
 protected:
     Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)];
 
 private:
     Mallocator();
     
-    void* alloc(size_t size);
-    void free(void*, size_t size);
+    RawMad alloc(size_t size);
+    void free(RawMad, size_t size);
 
-    using BlockId = uint16_t;
+    using BlockId = RawMad;
     using SizeInBlocks = uint16_t;
     
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
@@ -156,6 +182,29 @@ private:
     
     static Mallocator* _sharedMallocator;
 };
+
+template<typename T>
+Mad<T>::Mad(T* addr) { *this = Mad(Mad::Raw(Mallocator::shared()->blockIdFromAddr(addr))); }
+
+template<typename T>
+inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()->get(raw())); }
+
+template<typename T>
+inline void Mad<T>::destroy()
+{
+    get()->~T();
+    Mallocator::shared()->deallocate(type(), *this, sizeof(T));
+}
+
+template<typename T>
+inline Mad<T> Mad<T>::create()
+{
+    Mad<T> obj = Mallocator::shared()->allocate<T>(type(), sizeof(T));
+    new(obj.get()) T();
+    return obj;
+}
+
+template<> inline MemoryType Mad<Instruction>::type()   { return MemoryType::Instruction; }
 
 //class MallocatorBase
 //{

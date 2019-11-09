@@ -11,6 +11,7 @@
 
 #include "Defines.h"
 #include "ExecutionUnit.h"
+#include "Mallocator.h"
 #include "Program.h"
 #include "SystemInterface.h"
 
@@ -52,7 +53,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     }
     
     IPAddr ipAddr;
-    Object* ipAddrObject = ipValue.asObject();
+    Mad<Object> ipAddrObject = ipValue.asObject();
     if (ipAddrObject) {
         ipAddr[0] = ipAddrObject->element(eu, Value(0)).toIntValue(eu);
         ipAddr[1] = ipAddrObject->element(eu, Value(1)).toIntValue(eu);
@@ -62,7 +63,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
 
     MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue);
     
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
@@ -92,7 +93,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
@@ -112,7 +113,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* obj = thisValue.asObject();
+    Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }

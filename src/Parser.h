@@ -28,13 +28,13 @@ class Parser  {
     friend class ParseStack;
     
 public:
-    Parser(Program* = nullptr);
+    Parser(Mad<Program> = Mad<Program>());
     
     ~Parser();
         
     enum class Debug { None, Full };
     
-    Function* parse(const m8r::Stream& stream, Debug, Function* parent = nullptr);
+    Mad<Function> parse(const m8r::Stream& stream, Debug, Mad<Function> parent = Mad<Function>());
 
 	void printError(const char* format, ...);
     void expectedError(Token token, const char* = nullptr);
@@ -43,7 +43,7 @@ public:
     ErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return _nerrors; }
-    Program* program() const { return _program; }
+    Mad<Program> program() const { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
@@ -109,8 +109,8 @@ private:
     void functionStart(bool ctor);
     void functionParamsEnd();
     bool functionIsCtor() const { return _functions.back()._ctor; }
-    Function* functionEnd();
-    Function* currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
+    Mad<Function> functionEnd();
+    Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
         
     void classStart() { _classes.push_back(new MaterObject()); }
     void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
@@ -121,7 +121,7 @@ private:
     void pushK(const Value& value);
     void pushThis();
 
-    void addNamedFunction(Function*, const Atom&);
+    void addNamedFunction(Mad<Function>, const Atom&);
     
     void pushTmp();
     
@@ -175,7 +175,7 @@ private:
     void emitCodeRSN(Op, uint32_t rn, int32_t n);
     void emitCodeCall(Op, uint32_t rcall, uint32_t rthis, uint32_t nparams);
     
-    void reconcileRegisters(Function*);
+    void reconcileRegisters(Mad<Function>);
 
     class ParseStack {
     public:
@@ -235,21 +235,21 @@ private:
     ParseStack _parseStack;
 
     struct FunctionEntry {
-        FunctionEntry(Function* function, bool ctor) : _function(function), _ctor(ctor) { }
-        Function* _function = nullptr;
+        FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
+        Mad<Function> _function;
         uint32_t _nextReg = 255;
         uint32_t _minReg = 256;
         bool _ctor = false;
     };
         
-    using FunctionEntryVector = std::vector<FunctionEntry, Mallocator::Alloc<FunctionEntry, MemoryType::FunctionEntry>>;
+    using FunctionEntryVector = std::vector<FunctionEntry>;
 
     FunctionEntryVector _functions;
     
     std::vector<MaterObject*> _classes;
 
     Scanner _scanner;
-    Program* _program;
+    Mad<Program> _program;
     uint32_t _nerrors = 0;
     std::vector<size_t> _deferredCodeBlocks;
     InstructionVector _deferredCode;

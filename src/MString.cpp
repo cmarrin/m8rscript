@@ -15,14 +15,15 @@
 
 using namespace m8r;
 
-void* String::operator new(size_t size)
+void* String::operator new(size_t size) noexcept
 {
-    return Mallocator::shared()->allocate<String>(MemoryType::String, size);
+    assert(0);
+    return nullptr;
 }
 
 void String::operator delete(void* p)
 {
-    Mallocator::shared()->deallocate<String>(MemoryType::String, reinterpret_cast<String*>(p), 1);
+    assert(0);
 }
 
 inline static void reverse(char *str, int len)

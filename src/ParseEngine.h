@@ -72,7 +72,7 @@ private:
     bool memberExpression();
     bool primaryExpression();
     
-    Function* functionExpression(bool ctor);
+    Mad<Function> functionExpression(bool ctor);
     bool classExpression();
     uint32_t argumentList();
     void forLoopCondAndIt();

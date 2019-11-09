@@ -81,7 +81,7 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Object* thisObject = thisValue.asObject();
+    Mad<Object> thisObject = thisValue.asObject();
     if (thisObject) {
         thisObject->setArray(true);
         thisObject->setElement(eu, Value(0), Value(ipAddr[0]), true);
@@ -124,10 +124,10 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
     }
     
     eu->startEventListening();
-    Object* thisObject = thisValue.asObject();
+    Mad<Object> thisObject = thisValue.asObject();
             
     IPAddr::lookupHostName(hostname.c_str(), [thisObject, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
-        Object* obj = ObjectFactory::create(Atom(SA::IPAddr), eu, 0);
+        Mad<Object> obj = ObjectFactory::create(Atom(SA::IPAddr), eu, 0);
         obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
         obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
         obj->setElement(eu, Value(2), Value(ipaddr[2]), true);

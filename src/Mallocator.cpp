@@ -41,10 +41,10 @@ Mallocator::Mallocator()
     _firstFreeBlock = 0;
 }
 
-void* Mallocator::alloc(size_t size)
+RawMad Mallocator::alloc(size_t size)
 {
     if (!_heapBase) {
-        return nullptr;
+        return Id<RawMad>().raw();
     }
     
     SizeInBlocks blockToAlloc = (size + _blockSize - 1) / _blockSize;
@@ -61,11 +61,11 @@ void* Mallocator::alloc(size_t size)
                 } else {
                     block(prevBlock)->nextBlock = header->nextBlock;
                 }
-                return header;
+                return freeBlock;
             } else {
                 // Take the tail end of the block and resize
                 header->sizeInBlocks -= blockToAlloc;
-                return block(freeBlock + blockToAlloc);
+                return freeBlock + header->sizeInBlocks;
             }
         }
         
@@ -73,10 +73,10 @@ void* Mallocator::alloc(size_t size)
         freeBlock = header->nextBlock;
     }
     
-    return nullptr;
+    return Id<RawMad>().raw();
 }
 
-void Mallocator::free(void* data, size_t size)
+void Mallocator::free(RawMad p, size_t size)
 {
     if (!_heapBase) {
         return;

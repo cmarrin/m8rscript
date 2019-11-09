@@ -33,7 +33,7 @@ public:
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
                 _shells[connectionId].task = new Task(Application::shellName());
-                if (_shells[connectionId].task->error() != Error::Code::OK) {
+                if (_shells[connectionId].task->error().code() != Error::Code::OK) {
                     Error::printError(_shells[connectionId].task->error().code());
                     _shells[connectionId].task = nullptr;
                     tcp->disconnect(connectionId);
