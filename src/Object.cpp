@@ -156,7 +156,7 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     Value callable = property(eu, Atom(SA::toString));
     
     if (callable) {
-        CallReturnValue retval = callable.call(eu, Value(const_cast<MaterObject*>(this)), 0, true);
+        CallReturnValue retval = callable.call(eu, Value(Mad<MaterObject>(this)), 0, true);
         if (!retval.isReturnCount()) {
             return "";
         }
@@ -327,7 +327,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
-    return callee.call(eu, Value(this), nparams, false);
+    return callee.call(eu, Value(Mad<Object>(this)), nparams, false);
 }
 
 const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
@@ -408,7 +408,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
     }
     
-    MaterObject* obj = new MaterObject();
+    Mad<MaterObject> obj = Mad<MaterObject>::create();
     Value objectValue(obj);
     obj->setProto(this);
     obj->_isArray = _isArray;
@@ -484,7 +484,7 @@ Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t n
 {
     Value objectValue = eu->program()->global()->property(eu, objectName);
     if (!objectValue) {
-        return nullptr;
+        return Mad<Object>();
     }
     
     return create(objectValue.asObject(), eu, nparams);
@@ -493,7 +493,7 @@ Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t n
 Mad<Object> ObjectFactory::create(Mad<Object> proto, ExecutionUnit* eu, uint32_t nparams)
 {
     if (!proto) {
-        return nullptr;
+        return Mad<Object>();
     }
 
     CallReturnValue r = proto->call(eu, Value(), nparams, true);
@@ -503,6 +503,6 @@ Mad<Object> ObjectFactory::create(Mad<Object> proto, ExecutionUnit* eu, uint32_t
         eu->stack().pop(r.returnCount());
         return retValue.asObject();
     } else {
-        return nullptr;
+        return Mad<Object>();
     }
 }

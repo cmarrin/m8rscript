@@ -44,12 +44,12 @@ Atom AtomTable::atomizeString(const char* romstr) const
         return Atom();
     }
 
-    char* s = new char[len + 1];
-    ROMCopyString(s, romstr);
+    Mad<char> s = Mallocator::shared()->allocate<char>(len + 1);
+    ROMCopyString(s.get(), romstr);
     
-    Atom atom = findAtom(s);
+    Atom atom = findAtom(s.get());
     if (atom) {
-        delete [ ] s;
+        s.destroy(len + 1);
         return atom;
     }
     
@@ -60,10 +60,10 @@ Atom AtomTable::atomizeString(const char* romstr) const
     Atom a(static_cast<Atom::value_type>(_table.size() - 1 + ExternalAtomOffset));
     _table[_table.size() - 1] = -static_cast<int8_t>(len);
     for (size_t i = 0; i < len; ++i) {
-        _table.push_back(s[i]);
+        _table.push_back(s.get()[i]);
     }
     _table.push_back('\0');
-    delete [ ] s;
+    s.destroy(len + 1);
     return a;
 }
 

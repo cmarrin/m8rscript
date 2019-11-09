@@ -66,7 +66,7 @@ private:
 
 class IPAddrProto : public ObjectFactory {
 public:
-    IPAddrProto(Program*, ObjectFactory* parent);
+    IPAddrProto(Mad<Program>, ObjectFactory* parent);
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);

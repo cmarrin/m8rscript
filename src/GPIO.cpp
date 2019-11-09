@@ -16,7 +16,7 @@
 
 using namespace m8r;
 
-GPIO::GPIO(Program* program, ObjectFactory* parent)
+GPIO::GPIO(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::GPIO, parent)
     , _pinMode(program)
     , _trigger(program)
@@ -58,7 +58,7 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Error::Unimplemented);
 }
 
-PinMode::PinMode(Program* program)
+PinMode::PinMode(Mad<Program> program)
     : ObjectFactory(program, SA::PinMode)
 {
     addProperty(Atom(SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
@@ -68,7 +68,7 @@ PinMode::PinMode(Program* program)
     addProperty(Atom(SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
-Trigger::Trigger(Program* program)
+Trigger::Trigger(Mad<Program> program)
     : ObjectFactory(program, SA::Trigger)
 {
     addProperty(Atom(SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));

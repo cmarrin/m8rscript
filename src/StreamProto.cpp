@@ -11,7 +11,7 @@
 
 using namespace m8r;
 
-StreamProto::StreamProto(Program* program, ObjectFactory* parent)
+StreamProto::StreamProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Iterator, parent, constructor)
 {
     addProperty(program, SA::eof, eof);

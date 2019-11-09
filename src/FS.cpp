@@ -15,7 +15,7 @@
 
 using namespace m8r;
 
-FSProto::FSProto(Program* program, ObjectFactory* parent)
+FSProto::FSProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::FS, parent)
 {
     addProperty(program, SA::mount, mount);
@@ -102,7 +102,7 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-FileProto::FileProto(Program* program, ObjectFactory* parent)
+FileProto::FileProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::File, parent, constructor)
 {
     addProperty(program, SA::close, close);
@@ -242,7 +242,7 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-DirectoryProto::DirectoryProto(Program* program, ObjectFactory* parent)
+DirectoryProto::DirectoryProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Directory, parent, constructor)
 {
     addProperty(program, SA::name, name);

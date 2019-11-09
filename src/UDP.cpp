@@ -16,7 +16,7 @@
 
 using namespace m8r;
 
-UDPProto::UDPProto(Program* program, ObjectFactory* parent)
+UDPProto::UDPProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::UDPProto, parent, constructor)
 {
     addProperty(program, SA::send, send);
@@ -110,7 +110,7 @@ void MyUDPDelegate::UDPevent(UDP* udp, Event event, const char* data, uint16_t l
     args[0] = Value(static_cast<int32_t>(event));
     
     if (data) {
-        String* dataString = Object::createString(data, length);
+        Mad<String> dataString = Object::createString(data, length);
         args[1] = Value(dataString);
     }
     _eu->fireEvent(_func, _parent, args, data ? 2 : 1);

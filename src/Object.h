@@ -94,9 +94,10 @@ public:
     static void gc(bool force = false);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
-    static String* createString() { String* string = new String(); _stringStore.push_back(string); return string; }
-    static String* createString(const char* s, int32_t length = -1)  { String* string = new String(s, length); _stringStore.push_back(string); return string; }
-    static String* createString(const String& s)  { String* string = new String(s); _stringStore.push_back(string); return string; }
+    static Mad<String> createString() { Mad<String> string = Mad<String>::create(); _stringStore.push_back(string); return string; }
+    static Mad<String> createString(const char* s, int32_t length = -1)  { Mad<String> string = Mad<String>::create(s, length); _stringStore.push_back(string); return string; }
+    static Mad<String> createString(const Mad<String>& s)  { Mad<String> string = Mad<String>::create(s->c_str()); _stringStore.push_back(string); return string; }
+    static Mad<String> createString(const String& s)  { Mad<String> string = Mad<String>::create(s.c_str()); _stringStore.push_back(string); return string; }
     static uint32_t numObjectAllocations() { return static_cast<uint32_t>(_objectStore.size()); }
     static uint32_t numStringAllocations() { return static_cast<uint32_t>(_stringStore.size()); }
     

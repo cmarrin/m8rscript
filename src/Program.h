@@ -35,7 +35,7 @@ public:
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
     
     // For debugging
-    static void printAtomId(Program*, int id);
+    static void printAtomId(Mad<Program>, int id);
 
     StringLiteral startStringLiteral() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }

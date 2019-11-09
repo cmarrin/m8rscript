@@ -27,7 +27,7 @@ using namespace m8r;
 //   "};\n"
 //);
 
-Global::Global(Program* program)
+Global::Global(Mad<Program> program)
     : ObjectFactory(program, SA::Global)
     , _array(true)
     , _base64(program, this)
@@ -59,8 +59,8 @@ Global::Global(Program* program)
     addProperty(program, SA::waitForEvent, waitForEvent);
     addProperty(program, SA::meminfo, meminfo);
 
-    addProperty(program, SA::Array, &_array);
-    addProperty(program, SA::Object, &_object);
+    addProperty(program, SA::Array, Mad<MaterObject>(&_array));
+    addProperty(program, SA::Object, Mad<MaterObject>(&_object));
     
     addProperty(program, SA::consoleListener, Value::NullValue());
 }
@@ -243,13 +243,14 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
 {
     MemoryInfo info;
     Object::memoryInfo(info);
-    Object* obj = new MaterObject();
+    Mad<Object> obj = Mad<MaterObject>::create();
     obj->setProperty(eu, eu->program()->atomizeString("freeSize"),
                      Value(static_cast<int32_t>(info.freeSize)), Value::SetPropertyType::AlwaysAdd);
     obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
-    Object* allocationsByType = new MaterObject(true);
+    Mad<Object> allocationsByType = Mad<MaterObject>::create();
+    allocationsByType->setArray(true);
     for (auto it : info.numAllocationsByType) {
         allocationsByType->setElement(eu, Value(0), Value(static_cast<int32_t>(it)), true);
     }

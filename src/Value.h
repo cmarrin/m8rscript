@@ -11,6 +11,7 @@
 
 #include "Atom.h"
 #include "Error.h"
+#include "Mallocator.h"
 #include "SystemTime.h"
 
 namespace m8r {
@@ -133,6 +134,8 @@ public:
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     
     explicit Value(Mad<Object> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<const MaterObject> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<MaterObject> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<Function> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
     explicit Value(Mad<String> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
     explicit Value(NativeObject* value) { assert(value); init(); _value._nativeObject = value; _value._type = Type::NativeObject; }

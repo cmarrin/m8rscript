@@ -17,7 +17,7 @@ namespace m8r {
 
 class Function : public MaterObject {
 public:
-    Function(Mad<Function> parent);
+    Function();
 
     virtual ~Function() { }
 
@@ -75,6 +75,8 @@ public:
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
 
     virtual bool hasUpValues() const override { return !_upValues.empty(); }
+    
+    void setParent(Mad<Function> parent) { _parent = parent; }
 
 private:
     struct UpValueEntry {

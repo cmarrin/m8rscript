@@ -13,10 +13,10 @@
 
 using namespace m8r;
 
-Closure::Closure(ExecutionUnit* eu, const Value& function, const Value& thisValue)
-    : _thisValue(thisValue)
+void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisValue)
 {
     assert(function.isFunction());
+    _thisValue = thisValue;
     _func = function.asObject();
     assert(_func);
 
@@ -62,7 +62,7 @@ CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t npara
     if (!thisValue) {
         thisValue = _thisValue;
     }
-    eu->startFunction(this, thisValue.asObject(), nparams, false);
+    eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams, false);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

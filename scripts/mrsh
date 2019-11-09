@@ -10,77 +10,75 @@
 // mrsh - m8rscript shell
 //
 
-//printf("m8rscript shell v 1.0\n\n");
-//
-//var env = { PATH : [ "/sys/bin" ], CWD : "/home" };
-//var done = [ false ];
-//var foo = 1.5;
-//var lines = [ ];
-//
-//consoleListener = function(line, action)
-//{
-//    if (action == "intr") {
-//        printf("\n^C\n");
-//        done[0] = true;
-//    } else {
-//        lines.push_back(line);
-//    }
-//};
-//
-//
-//function showPrompt()
-//{
-//    printf("[%s:1] > ", env.CWD);
-//}
-//
-//function findExecutable(filename)
-//{
-//    for (var pathPrefix : env.PATH) {
-//        var path = pathPrefix.value + "/" + filename;
-//        var file = FS.open(path, "r");
-//        if (file && file.valid()) {
-//            file.close();
-//            return path;
-//        }
-//    }
-//    return null;
-//}
-//
-//function processLine(line)
-//{
-//    var components = line.split(" ");
-//    var command = components.front;
-//    components.pop_front();
-//
-//    var filename = findExecutable(command);
-//    if (filename && filename.length) {
-//        var task = new Task(filename, consoleListener);
-//        task.arguments = components;
-//        task.env = env;
-//        var taskStatus = { done : false, status : 0 };
-//        task.run(function(exitCode) {
-//            taskStatus.done = true;
-//            taskStatus.status = exitCode;
-//        });
-//
-//        while (!taskStatus.done) {
-//            waitForEvent();
-//        }
-//    } else {
-//        printf("mrsh: %s: command not found\n", command);
-//    }
-//}
-//
-//showPrompt();
-//
-//while (!done[0]) {
-//    while (lines.length) {
-//        var line = lines.front;
-//        lines.pop_front();
-//        processLine(line);
-//        showPrompt();
-//    }
-//    waitForEvent();
-//}
+printf("m8rscript shell v 1.0\n\n");
 
-println("Hello World");
+var env = { PATH : [ "/sys/bin" ], CWD : "/home" };
+var done = [ false ];
+var foo = 1.5;
+var lines = [ ];
+
+consoleListener = function(line, action)
+{
+    if (action == "intr") {
+        printf("\n^C\n");
+        done[0] = true;
+    } else {
+        lines.push_back(line);
+    }
+};
+
+
+function showPrompt()
+{
+    printf("[%s:1] > ", env.CWD);
+}
+
+function findExecutable(filename)
+{
+    for (var pathPrefix : env.PATH) {
+        var path = pathPrefix.value + "/" + filename;
+        var file = FS.open(path, "r");
+        if (file && file.valid()) {
+            file.close();
+            return path;
+        }
+    }
+    return null;
+}
+
+function processLine(line)
+{
+    var components = line.split(" ");
+    var command = components.front;
+    components.pop_front();
+
+    var filename = findExecutable(command);
+    if (filename && filename.length) {
+        var task = new Task(filename, consoleListener);
+        task.arguments = components;
+        task.env = env;
+        var taskStatus = { done : false, status : 0 };
+        task.run(function(exitCode) {
+            taskStatus.done = true;
+            taskStatus.status = exitCode;
+        });
+
+        while (!taskStatus.done) {
+            waitForEvent();
+        }
+    } else {
+        printf("mrsh: %s: command not found\n", command);
+    }
+}
+
+showPrompt();
+
+while (!done[0]) {
+    while (lines.length) {
+        var line = lines.front;
+        lines.pop_front();
+        processLine(line);
+        showPrompt();
+    }
+    waitForEvent();
+}

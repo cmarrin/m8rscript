@@ -608,7 +608,9 @@ void Parser::functionStart(bool ctor)
 {
     if (_nerrors) return;
     
-    _functions.emplace_back(new Function(currentFunction()), ctor);
+    Mad<Function> func = Mad<Function>::create();
+    func->setParent(currentFunction());
+    _functions.emplace_back(func, ctor);
 }
 
 void Parser::functionParamsEnd()
@@ -620,7 +622,9 @@ void Parser::functionParamsEnd()
 
 Mad<Function> Parser::functionEnd()
 {
-    if (_nerrors) return nullptr;
+    if (_nerrors) {
+        return Mad<Function>();
+    }
     
     assert(_functions.size());
     

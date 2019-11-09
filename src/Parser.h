@@ -112,9 +112,9 @@ private:
     Mad<Function> functionEnd();
     Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
         
-    void classStart() { _classes.push_back(new MaterObject()); }
+    void classStart() { _classes.push_back(Mad<MaterObject>::create()); }
     void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
-    MaterObject* currentClass() const { assert(_classes.size()); return _classes.back(); }
+    Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
         
     void pushK(StringLiteral::Raw value);
     void pushK(const char* value);
@@ -246,7 +246,7 @@ private:
 
     FunctionEntryVector _functions;
     
-    std::vector<MaterObject*> _classes;
+    std::vector<Mad<MaterObject>> _classes;
 
     Scanner _scanner;
     Mad<Program> _program;

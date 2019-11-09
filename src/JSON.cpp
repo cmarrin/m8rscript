@@ -17,7 +17,7 @@
 
 using namespace m8r;
 
-JSON::JSON(Program* program, ObjectFactory* parent)
+JSON::JSON(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::JSON, parent)
 {
     addProperty(program, SA::parse, parseFunc);
@@ -45,7 +45,9 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         case Token::Null: v = Value::NullValue(); scanner.retireToken(); break;;
         case Token::LBracket: {
             scanner.retireToken();
-            v = Value(new MaterObject(true));
+            Mad<MaterObject> mo = Mad<MaterObject>::create();
+            mo->setArray(true);
+            v = Value(mo);
             Value elementValue = value(eu, scanner);
             if (elementValue) {
                 v.setElement(eu, Value(), elementValue, true);
@@ -68,7 +70,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         }
         case Token::LBrace: {
             scanner.retireToken();
-            v = Value(new MaterObject());
+            v = Value(Mad<MaterObject>::create());
 
             Value propertyKey;
             Value propertyValue;

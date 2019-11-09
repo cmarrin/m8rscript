@@ -14,8 +14,7 @@
 using namespace m8r;
 
 Program::Program()
-    : Function(Mad<Function>())
-    , _global(this)
+    : _global(Mad<Program>(this))
 {
 }
 
@@ -23,7 +22,7 @@ Program::~Program()
 {
 }
 
-void Program::printAtomId(Program* program, int id)
+void Program::printAtomId(Mad<Program> program, int id)
 {
     String s = program->stringFromAtom(Atom(id)).c_str();
     debugf("atom=\"%s\"\n", s.c_str());

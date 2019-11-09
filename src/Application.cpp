@@ -20,22 +20,26 @@ using namespace m8r;
 
 class MyShellSocket : public TCPDelegate {
 public:
-    MyShellSocket(Application* application, uint16_t port)
-        : _tcp(system()->createTCP(this, port))
-        , _application(application)
-    { }
+    MyShellSocket() { }
     
     virtual ~MyShellSocket() { }
 
+    void init(Application* application, uint16_t port)
+    {
+        _application = application;
+        _tcp = system()->createTCP(this, port);
+    }
+    
     // TCPDelegate
     virtual void TCPevent(m8r::TCP* tcp, m8r::TCPDelegate::Event event, int16_t connectionId, const char* data, int16_t length) override
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId].task = new Task(Application::shellName());
+                _shells[connectionId].task = Mad<Task>::create();
+                _shells[connectionId].task->setFilename(Application::shellName());
                 if (_shells[connectionId].task->error().code() != Error::Code::OK) {
                     Error::printError(_shells[connectionId].task->error().code());
-                    _shells[connectionId].task = nullptr;
+                    _shells[connectionId].task = Mad<Task>();
                     tcp->disconnect(connectionId);
                 } else {
                     // Set the print function to send the printed string out the TCP channel
@@ -60,15 +64,16 @@ public:
                     {
                         // On return from finished task, drop the connection
                         tcp->disconnect(connectionId);
-                        delete _shells[connectionId].task;
-                        _shells[connectionId].task = nullptr;
+                        _shells[connectionId].task.destroy();
+                        _shells[connectionId].task = Mad<Task>();
                     });
                 }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
                 if (_shells[connectionId].task) {
                     _shells[connectionId].task->terminate();
-                    _shells[connectionId].task = nullptr;
+                    _shells[connectionId].task.destroy();
+                    _shells[connectionId].task = Mad<Task>();
                 }
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
@@ -104,7 +109,7 @@ private:
     struct ShellEntry
     {
         ShellEntry() { }
-        Task* task = nullptr;
+        Mad<Task> task;
         Telnet telnet;
     };
     
@@ -113,12 +118,14 @@ private:
 
 Application::Application(uint16_t port)
 {
-    _shellSocket = new MyShellSocket(this, port);
+    Mad<MyShellSocket> socket = Mad<MyShellSocket>::create();
+    socket->init(this, port);
+    _shellSocket = socket;
 }
 
 Application::~Application()
 {
-    delete _shellSocket;
+    _shellSocket.destroy();
 }
 
 Application::NameValidationType Application::validateBonjourName(const char* name)
@@ -180,7 +187,8 @@ void Application::runLoop()
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {
-        _autostartTask = std::shared_ptr<Task>(new Task(filename.c_str()));
+        _autostartTask = Mad<Task>::create();
+        _autostartTask->setFilename(filename.c_str());
         _autostartTask->run();
         // FIXME: Create a task and run the autostart file
 //        m8r::Error error;

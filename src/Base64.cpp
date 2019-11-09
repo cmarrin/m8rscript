@@ -98,7 +98,7 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 	return io;
 }
 
-Base64::Base64(Program* program, ObjectFactory* parent)
+Base64::Base64(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Base64, parent)
 {
     addProperty(program, SA::encode, encodeFunc);
@@ -114,15 +114,15 @@ CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
         char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        String* string = Object::createString(outString, actualLength);
+        Mad<String> string = Object::createString(outString, actualLength);
         eu->stack().push(Value(string));
     } else {
-        char* outString = new char[outLength];
+        Mad<char> outString = Mallocator::shared()->allocate<char>(outLength);
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
-                                         BASE64_STACK_ALLOC_LIMIT, outString);
-        String* string = Object::createString(outString, actualLength);
+                                         BASE64_STACK_ALLOC_LIMIT, outString.get());
+        Mad<String> string = Object::createString(outString.get(), actualLength);
         eu->stack().push(Value(string));
-        delete [ ] outString;
+        outString.destroy(outLength);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
@@ -135,14 +135,14 @@ CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
+        Mad<String> string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(Value(string));
     } else {
-        unsigned char* outString = new unsigned char[outLength];
-        int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        String* string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
+        Mad<unsigned char> outString = Mallocator::shared()->allocate<unsigned char>(outLength);
+        int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString.get());
+        Mad<String> string = Object::createString(reinterpret_cast<char*>(outString.get()), actualLength);
         eu->stack().push(Value(string));
-        delete [ ] outString;
+        outString.destroy(outLength);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

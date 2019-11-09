@@ -17,7 +17,7 @@
 
 using namespace m8r;
 
-TCPProto::TCPProto(Program* program, ObjectFactory* parent)
+TCPProto::TCPProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::TCPProto, parent, constructor)
 {
     addProperty(program, SA::send, send);
@@ -133,7 +133,7 @@ void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const 
     args[2] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
-        String* dataString = Object::createString(data, length);
+        Mad<String> dataString = Object::createString(data, length);
         
         args[3] = Value(dataString);
         args[4] = Value(static_cast<int32_t>(length));

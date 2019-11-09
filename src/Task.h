@@ -54,9 +54,11 @@ private:
 
 class Task : public TaskBase, public NativeObject {
 public:
-    Task(const char* filename);
+    Task();
     
     ~Task();
+    
+    void setFilename(const char*);
     
     void receivedData(const String& data, Telnet::Action action);
 
@@ -74,7 +76,7 @@ private:
 
 class TaskProto : public ObjectFactory {
 public:
-    TaskProto(Program*, ObjectFactory* parent);
+    TaskProto(Mad<Program>, ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

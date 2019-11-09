@@ -41,10 +41,10 @@ public:
     static bool mountFileSystem();
 
 private:
-    TCPDelegate* _shellSocket;
+    Mad<TCPDelegate> _shellSocket;
     
     Heartbeat _heartbeat;
-    std::shared_ptr<Task> _autostartTask;
+    Mad<Task> _autostartTask;
 };
     
 }

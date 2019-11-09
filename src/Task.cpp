@@ -27,11 +27,14 @@ void TaskBase::finish()
     }
 }
 
-Task::Task(const char* filename)
+Task::Task()
 {
     _eu = Mad<ExecutionUnit>::create();
     Object::addEU(_eu);
-    
+}    
+
+void Task::setFilename(const char* filename)
+{
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
     Parser::Debug debug = Parser::Debug::Full;
@@ -90,7 +93,7 @@ CallReturnValue Task::execute()
     return _eu->continueExecution();
 }
 
-TaskProto::TaskProto(Program* program, ObjectFactory* parent)
+TaskProto::TaskProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Task, parent, constructor)
 {
     addProperty(program, SA::run, run);
@@ -128,7 +131,8 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         consoleListener = eu->stack().top(2 - nparams);
     }
     
-    Task* task = new Task(filename.c_str());
+    Task* task = new Task();
+    task->setFilename(filename.c_str());
     
     if (task->error() != Error::Code::OK) {
         Error::printError(Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;

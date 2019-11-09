@@ -41,8 +41,10 @@ private:
 
 class Closure : public Object {
 public:
-    Closure(ExecutionUnit* eu, const Value& function, const Value& thisValue);
+    Closure() { }
     virtual ~Closure() { }
+    
+    void init(ExecutionUnit* eu, const Value& function, const Value& thisValue);
     
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : Object::toString(eu, false); }
 

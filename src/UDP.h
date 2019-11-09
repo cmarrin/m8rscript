@@ -51,7 +51,7 @@ protected:
 
 class UDPProto : public ObjectFactory {
 public:
-    UDPProto(Program*, ObjectFactory* parent);
+    UDPProto(Mad<Program>, ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

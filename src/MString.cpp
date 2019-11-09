@@ -15,17 +15,6 @@
 
 using namespace m8r;
 
-void* String::operator new(size_t size) noexcept
-{
-    assert(0);
-    return nullptr;
-}
-
-void String::operator delete(void* p)
-{
-    assert(0);
-}
-
 inline static void reverse(char *str, int len)
 {
     for (int32_t i = 0, j = len - 1; i < j; i++, j--) {
@@ -43,7 +32,7 @@ String& String::erase(size_t pos, size_t len)
     if (pos + len >= _size) {
         len = _size - pos - 1;
     }
-    memmove(_data + pos, _data + pos + len, _size - pos - len);
+    memmove(_data.get() + pos, _data.get() + pos + len, _size - pos - len);
     _size -= len;
     return *this;
 }
@@ -63,7 +52,7 @@ String String::slice(int32_t start, int32_t end) const
     if (start >= end) {
         return String();
     }
-    return String(_data + start, end - start);
+    return String(_data.get() + start, end - start);
 }
 
 String String::trim() const
@@ -72,7 +61,7 @@ String String::trim() const
         return String();
     }
     size_t l = _size - 1;
-    char* s = _data;
+    char* s = _data.get();
     while (isspace(s[l - 1])) {
         --l;
     }
@@ -86,7 +75,7 @@ String String::trim() const
 std::vector<String> String::split(const String& separator, bool skipEmpty) const
 {
     std::vector<String> array;
-    char* p = _data;
+    char* p = _data.get();
     while (1) {
         char* n = strstr(p, separator.c_str());
         if (!n || n - p != 0 || !skipEmpty) {
@@ -126,20 +115,21 @@ String String::join(const std::vector<char>& array)
 }
 void String::doEnsureCapacity(size_t size)
 {
+    size_t oldCapacity = _capacity;
     _capacity = _capacity ? _capacity * 2 : 1;
     if (_capacity < size) {
         _capacity = size;
     }
-    char *newData = new char[_capacity];
+    Mad<char> newData = Mallocator::shared()->allocate<char>(_capacity);
     assert(newData);
     if (_data) {
         if (newData) {
-            memcpy(newData, _data, _size);
+            memcpy(newData.get(), _data.get(), _size);
         } else {
             _capacity = 0;
             _size = 1;
         }
-        delete _data;
+        _data.destroy(oldCapacity);
     }
     _data = newData;
 }

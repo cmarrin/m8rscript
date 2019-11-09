@@ -406,7 +406,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Contents of import are placed inside the parent Function and then they will
     // be extracted into an Object
-    Function* parent = new Function(nullptr);
+    Mad<Function> parent = Mad<Function>::create();
     
     Mad<Function> function = parser.parse(stream, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
@@ -417,7 +417,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     }
     
     // Get all the contents into a new object
-    Object* obj = new MaterObject();
+    Mad<Object> obj = Mad<MaterObject>::create();
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
@@ -479,7 +479,8 @@ CallReturnValue ExecutionUnit::continueExecution()
     bool leftBoolValue, rightBoolValue;
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
-    Object* objectValue;
+    Mad<Object> objectValue;
+    Mad<MaterObject> materObjectValue;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
@@ -650,9 +651,10 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_LOADLITA:
     L_LOADLITO:
         if (inst.op() == Op::LOADLITA) {
-            objectValue = new MaterObject(true);
+            materObjectValue = Mad<MaterObject>::create();
+            materObjectValue->setArray(true);
         } else {
-            objectValue = new MaterObject();
+            objectValue = Mad<MaterObject>::create();
         }
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
@@ -769,7 +771,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            String* string = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            Mad<String> string = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(string));
         }
         DISPATCH;
@@ -804,8 +806,9 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
     L_CLOSURE: {
-        Closure* closure = new Closure(this, regOrConst(inst.rb()), _this ? Value(_this) : Value());
-        setInFrame(inst.ra(), Value(closure));
+        Mad<Closure> closure = Mad<Closure>::create();
+        closure->init(this, regOrConst(inst.rb()), _this ? Value(_this) : Value());
+        setInFrame(inst.ra(), Value(static_cast<Mad<Object>>(closure)));
         DISPATCH;
     }
     L_NEW:

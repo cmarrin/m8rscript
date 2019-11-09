@@ -17,7 +17,7 @@ class Scanner;
 
 class JSON : public ObjectFactory {
 public:
-    JSON(Program*, ObjectFactory* parent);
+    JSON(Mad<Program>, ObjectFactory* parent);
     
     static Value parse(ExecutionUnit* eu, const String& json);
     static String stringify(ExecutionUnit* eu, const Value);

@@ -32,7 +32,7 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-IPAddrProto::IPAddrProto(Program* program, ObjectFactory* parent)
+IPAddrProto::IPAddrProto(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::IPAddr, parent, constructor)
 {
     addProperty(program, SA::toString, toString);
@@ -105,7 +105,7 @@ CallReturnValue IPAddrProto::toString(ExecutionUnit* eu, Value thisValue, uint32
     ipAddr[2] = thisValue.element(eu, Value(2)).toIntValue(eu);
     ipAddr[3] = thisValue.element(eu, Value(3)).toIntValue(eu);
     
-    String* string = Object::createString(ipAddr.toString());
+    Mad<String> string = Object::createString(ipAddr.toString());
     eu->stack().push(Value(string));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

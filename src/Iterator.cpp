@@ -15,7 +15,7 @@
 
 using namespace m8r;
 
-Iterator::Iterator(Program* program, ObjectFactory* parent)
+Iterator::Iterator(Mad<Program> program, ObjectFactory* parent)
     : ObjectFactory(program, SA::Iterator, parent, constructor)
 {
     addProperty(program, SA::done, done);

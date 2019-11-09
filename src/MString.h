@@ -40,10 +40,10 @@ public:
         }
         ensureCapacity(len + 1);
         if (len) {
-            memcpy(_data, s, len);
+            memcpy(_data.get(), s, len);
         }
         _size = len + 1;
-        _data[_size - 1] = '\0';
+        _data.get()[_size - 1] = '\0';
     }
     
     String(const String& other) : _data(nullptr)
@@ -54,7 +54,7 @@ public:
     String(String&& other)
     {
         _data = other._data;
-        other._data = nullptr;
+        other._data = Mad<char>();
         _size = other._size;
         other._size = 0;
         _capacity = other._capacity;
@@ -64,32 +64,30 @@ public:
     String(char c)
     {
         ensureCapacity(2);
-        _data[0] = c;
-        _data[1] = '\0';
+        char* s = _data.get();
+        s[0] = c;
+        s[1] = '\0';
         _size = 2;
     }
     
-    ~String() { delete [ ] _data; };
-
-    void* operator new(size_t size) noexcept;
-    void operator delete(void* p);
+    ~String() { _data.destroy(_capacity); };
 
     String& operator=(const String& other)
     {
         if (_data) {
-            delete [ ] _data;
+            _data.destroy(_capacity);
         }
         _size = other._size;
         _capacity = other._capacity;
         if (!other._data) {
-            _data = nullptr;
+            _data = Mad<char>();
             return *this;
         }
         
-        _data = new char[_capacity];
+        _data = Mallocator::shared()->allocate<char>(_capacity);
         assert(_data);
         if (_data) {
-            memcpy(_data, other._data, _size);
+            memcpy(_data.get(), other._data.get(), _size);
         } else {
             _capacity = 0;
             _size = 1;
@@ -103,13 +101,13 @@ public:
             return *this;
         }
 
-        delete[] _data;
+        _data.destroy(_capacity);
 
         _data = other._data;
         _size = other._size;
         _capacity = other._capacity;
 
-        other._data = nullptr;
+        other._data = Mad<char>();
         other._size = 0;
         other._capacity = 0;
 
@@ -119,32 +117,35 @@ public:
     String& operator=(char c)
     {
         ensureCapacity(2);
-        _data[0] = c;
-        _data[1] = '\0';
+        char* s = _data.get();
+        s[0] = c;
+        s[1] = '\0';
         _size = 2;
         return *this;
     }
 
     operator bool () { return !empty(); }
     
-    const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data[i]; };
-    char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data[i]; };
+    const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
     size_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
-    void clear() { _size = 1; if (_data) _data[0] = '\0'; }
+    void clear() { _size = 1; if (_data) _data.get()[0] = '\0'; }
     String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
-        _data[_size - 1] = c;
-        _data[_size++] = '\0';
+        char* s = _data.get();
+        s[_size - 1] = c;
+        s[_size++] = '\0';
         return *this;
     }
     
     String& operator+=(char c)
     {
         ensureCapacity(_size + 1);
-        _data[_size - 1] = c;
-        _data[_size] = '\0';
+        char* s = _data.get();
+        s[_size - 1] = c;
+        s[_size] = '\0';
         _size += 1;
         return *this;
     }
@@ -153,7 +154,7 @@ public:
     {
         size_t len = strlen(s);
         ensureCapacity(_size + len);
-        memcpy(_data + _size - 1, s, len + 1);
+        memcpy(_data.get() + _size - 1, s, len + 1);
         _size += len;
         return *this;
     }
@@ -177,7 +178,7 @@ public:
         return strcmp(a.c_str(), b.c_str());
     }
 
-    const char* c_str() const { return _data ? _data : ""; }
+    const char* c_str() const { return _data ? _data.get() : ""; }
     String& erase(size_t pos, size_t len);
 
     String& erase(size_t pos = 0)
@@ -225,10 +226,8 @@ private:
 
     size_t _size = 0;
     size_t _capacity = 0;
-    char *_data = nullptr;
+    Mad<char> _data;
     bool _marked = true;
 };
-
-template<> inline MemoryType Mad<String>::type()        { return MemoryType::String; }
 
 }
