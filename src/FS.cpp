@@ -158,7 +158,6 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         
     File* file = system()->fileSystem()->open(filename.c_str(), mode);
     
-    // TODO: This certainly won't work
     obj->setProperty(eu, Atom(SA::__nativeObject), Value(file), Value::SetPropertyType::AlwaysAdd);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
