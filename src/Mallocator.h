@@ -220,8 +220,10 @@ inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()
 template<typename T>
 inline void Mad<T>::destroy(size_t size)
 {
-    get()->~T();
-    Mallocator::shared()->deallocate(*this, sizeof(T) * size);
+    if (*this) {
+        get()->~T();
+        Mallocator::shared()->deallocate(*this, sizeof(T) * size);
+    }
 }
 
 template<typename T>
