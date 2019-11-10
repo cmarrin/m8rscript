@@ -374,7 +374,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                     (*arrayObject)[i] = Value(Object::createString(array[i]));
                 }
                 
-                eu->stack().push(Value(Mad<Object>(arrayObject)));
+                eu->stack().push(Value(Mad<Object>(static_cast<Mad<Object>>(arrayObject))));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);

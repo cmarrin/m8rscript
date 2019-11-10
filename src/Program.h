@@ -37,7 +37,7 @@ public:
     // For debugging
     static void printAtomId(Mad<Program>, int id);
 
-    StringLiteral startStringLiteral() { return StringLiteral(StringLiteral(static_cast<uint32_t>(_stringLiteralTable.size()))); }
+    StringLiteral startStringLiteral() { return StringLiteral(StringLiteral::Raw(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }
     void endStringLiteral() { _stringLiteralTable.push_back('\0'); }
     
@@ -47,7 +47,7 @@ public:
         size_t index = _stringLiteralTable.size();
         _stringLiteralTable.resize(index + length + 1);
         memcpy(&(_stringLiteralTable[index]), s, length + 1);
-        return StringLiteral(static_cast<uint32_t>(index));
+        return StringLiteral(StringLiteral::Raw(static_cast<uint32_t>(index)));
     }
     const char* stringFromStringLiteral(const StringLiteral& id) const { return &(_stringLiteralTable[id.raw()]); }
     
@@ -59,7 +59,7 @@ public:
         for (size_t i = 0; i < size; ) {
             // Find the next string
             if (strcmp(s, table + i) == 0) {
-                return StringLiteral(static_cast<uint32_t>(i));
+                return StringLiteral(StringLiteral::Raw(static_cast<uint32_t>(i)));
             }
             
             i += strlen(table + i) + 1;

@@ -264,11 +264,15 @@ private:
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
     inline Mad<String> stringFromValue() const { return Mad<String>::Raw(_value._rawMad); }
-    inline StringLiteral stringLiteralFromValue() const { return StringLiteral(static_cast<StringLiteral::value_type>(_value._int)); }
     inline NativeObject* nativeObjectFromValue() const { return _value._nativeObject; }
     inline NativeFunction nativeFunctionFromValue() { return _value._nativeFunction; }
     inline Mad<Object> objectFromValue() const { return Mad<Object>::Raw(_value._rawMad); }
     inline Mad<Function> functionFromValue() const { return Mad<Function>::Raw(_value._rawMad); }
+
+    inline StringLiteral stringLiteralFromValue() const
+    {
+        return StringLiteral(static_cast<StringLiteral::Raw>(_value._int));
+    }
 
     union {
         uint8_t _raw[sizeof(void*) * 2];

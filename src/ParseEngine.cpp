@@ -815,7 +815,10 @@ bool ParseEngine::propertyName()
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
         case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); return true;
-        case Token::Integer: _parser->pushK(getTokenValue().integer); retireToken(); return true;
+        case Token::Integer:
+            _parser->pushK(Value(getTokenValue().integer));
+            retireToken();
+            return true;
         default: return false;
     }
 }

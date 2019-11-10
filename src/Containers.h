@@ -33,7 +33,7 @@ public:
 
     public:
         Raw() : _raw(NoId) { }
-        Raw(RawType raw) : _raw(raw) { }
+        explicit Raw(RawType raw) : _raw(raw) { }
         RawType raw() const { return _raw; }
 
     private:
@@ -42,9 +42,9 @@ public:
     
     using value_type = RawType;
     
-    Id() { _value = NoId; }
-    Id(Raw raw) { _value._raw = raw._raw; }
-    //Id(RawType raw) { _value._raw = raw; }
+    Id() { _value = Raw(NoId); }
+    explicit Id(Raw raw) { _value._raw = raw._raw; }
+    Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
     Id(Id&& other) { _value._raw = other._value._raw; }
 

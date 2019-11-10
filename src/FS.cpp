@@ -193,10 +193,10 @@ CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t npa
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
-    char* buf = new char[size];
-    file->read(buf, size);
-    eu->stack().push(Value(eu->program()->createString(buf, size)));
-    delete [ ] buf;
+    Mad<char> buf = Mad<char>::create(size);
+    file->read(buf.get(), size);
+    eu->stack().push(Value(eu->program()->createString(buf.get(), size)));
+    buf.destroy(size);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 

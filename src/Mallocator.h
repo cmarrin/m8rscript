@@ -85,8 +85,16 @@ public:
         _ptr = get();
 #endif
     }
-
+    
     explicit Mad(const T*);
+    
+    Mad(const Mad& other)
+    {
+        *this = other;
+#ifndef NDEBUG
+        _ptr = get();
+#endif
+    }
     
     T* get() const;
     T& operator*() const { return *get(); }
@@ -100,14 +108,14 @@ public:
         const T* t = static_cast<const T*>(u);
         (void) t;
 
-        return Mad<U>(raw());
+        return Mad<U>(Raw(raw()));
     }
     
     void reset() { *this = Mad<T>(); }
     
     void destroy(size_t size = 1);
     
-    static Mad<T> create();
+    static Mad<T> create(uint32_t n = 1);
     static Mad<String> create(const char*, int32_t length = -1);
     static MemoryType type() { return MemoryType::Unknown; }
     
@@ -129,7 +137,7 @@ public:
         _list[index].size += size;
 
         assert(static_cast<uint32_t>(size) <= 0xffff);
-        return Mad<T>(alloc(size));
+        return Mad<T>(Id<RawMad>::Raw(alloc(size)));
     }
     
     template<typename T>
@@ -164,12 +172,12 @@ public:
     {
         // return NoId unless the address is in the heap range AND is divisible by _blockSize
         if (addr < _heapBase || addr > (_heapBase + _heapBlockCount * _blockSize)) {
-            return Id<RawMad>();
+            return Id<RawMad>().raw();
         }
         
         size_t offset = reinterpret_cast<char*>(addr) -_heapBase;
         if ((offset % _blockSize) != 0) {
-            return Id<RawMad>();
+            return Id<RawMad>().raw();
         }
         
         return static_cast<RawMad>(offset / _blockSize); 
@@ -227,9 +235,9 @@ inline void Mad<T>::destroy(size_t size)
 }
 
 template<typename T>
-inline Mad<T> Mad<T>::create()
+inline Mad<T> Mad<T>::create(uint32_t n)
 {
-    Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T));
+    Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T) * n);
     new(obj.get()) T();
     return obj;
 }
