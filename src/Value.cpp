@@ -117,8 +117,8 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
     size_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
-    char* formatRegex = new char[formatRegexSize];
-    ROMmemcpy(formatRegex, formatRegexROM, formatRegexSize);
+    Mad<char> formatRegex = Mallocator::shared()->allocate<char>(formatRegexSize);
+    ROMmemcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
     
     int32_t nextParam = 1 - nparams;
 
@@ -128,15 +128,15 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     while (true) {
         struct slre_cap caps[5];
         memset(caps, 0, sizeof(caps));
-        int next = slre_match(formatRegex, s, size - static_cast<int>(s - start), caps, 5, 0);
+        int next = slre_match(formatRegex.get(), s, size - static_cast<int>(s - start), caps, 5, 0);
         if (nextParam > 0 || next == SLRE_NO_MATCH) {
             // Print the remainder of the string
             resultString += s;
-            delete [ ] formatRegex;
+            formatRegex.destroy(formatRegexSize);
             return resultString;
         }
         if (next < 0) {
-            delete [ ] formatRegex;
+            formatRegex.destroy(formatRegexSize);
             return String();
         }
         
@@ -233,7 +233,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
                 break;
             }
             default:
-                delete [ ] formatRegex;
+                formatRegex.destroy(formatRegexSize);
                 return String();
         }
         
