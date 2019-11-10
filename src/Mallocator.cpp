@@ -13,7 +13,7 @@
 
 using namespace m8r;
 
-Mallocator* Mallocator::_sharedMallocator = nullptr;
+Mallocator Mallocator::_mallocator;
 
 Mallocator::Mallocator()
 {

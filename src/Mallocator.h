@@ -158,13 +158,7 @@ public:
     
     const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
     
-    static Mallocator* shared()
-    {
-        if (!_sharedMallocator) {
-            _sharedMallocator = new Mallocator();
-        }
-        return _sharedMallocator;
-    }
+    static Mallocator* shared() { return &_mallocator; }
 
     void* get(RawMad p) const { return (p < _heapBlockCount) ? (_heapBase + p * _blockSize) : nullptr; }
     
@@ -213,7 +207,7 @@ private:
     uint16_t _blockSize = 4;
     BlockId _firstFreeBlock = 0;
     
-    static Mallocator* _sharedMallocator;
+    static Mallocator _mallocator;
 };
 
 template<typename T>
