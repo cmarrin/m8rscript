@@ -15,15 +15,15 @@ namespace m8r {
 
 class UpValue {
 public:
-    UpValue(uint32_t index) : _value(static_cast<int32_t>(index)) { }
-    
-    UpValue* next() const { return _next; }
-    void setNext(UpValue* v) { _next = v; }
+    Mad<UpValue> next() const { return _next; }
+    void setNext(Mad<UpValue> v) { _next = v; }
     
     bool closed() const { return _closed; }
     void setClosed(bool v) { _closed = v; }
     bool marked() const { return _marked; }
     void setMarked(bool v) { _marked = v; }
+    
+    void setStackIndex(uint32_t index) { _value = Value(static_cast<int32_t>(index)); }
     
     Value& value() { return _value; }
     const Value& value() const { return _value; }
@@ -36,7 +36,7 @@ private:
     bool _closed = false;
     bool _marked = true;
     Value _value;
-    UpValue* _next = nullptr;
+    Mad<UpValue> _next;
 };
 
 class Closure : public Object {
@@ -79,7 +79,7 @@ public:
     virtual Atom name() const override { return _func->name(); }
 
 private:
-    std::vector<UpValue*> _upValues;
+    std::vector<Mad<UpValue>> _upValues;
 
     Mad<Function> _func;
     Value _thisValue;

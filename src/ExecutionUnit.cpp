@@ -154,17 +154,27 @@ Value ExecutionUnit::derefId(Atom atom)
 
 void ExecutionUnit::closeUpValues(uint32_t frame)
 {
-    UpValue* prev = nullptr;
-    for (UpValue* upValue = _openUpValues; upValue; upValue = upValue->next()) {
+    Mad<UpValue> prev;
+    for (Mad<UpValue> upValue = _openUpValues; upValue; upValue = upValue->next()) {
         if (upValue->closeIfNeeded(this, frame)) {
             if (prev) {
                 prev->setNext(upValue->next());
             } else {
                 _openUpValues = upValue->next();
             }
+            upValue.destroy();
         } else {
             prev = upValue;
         }
+    }
+}
+
+void ExecutionUnit::clearOpenUpValues()
+{
+    while (_openUpValues) {
+        Mad<UpValue> nextUpValue = _openUpValues->next();
+        _openUpValues.destroy();
+        _openUpValues = nextUpValue;
     }
 }
 
@@ -201,7 +211,7 @@ void ExecutionUnit::startExecution(Mad<Program> program)
     _numEventListeners = 0;
     _lineno = 0;
 
-    _openUpValues = nullptr;
+    _openUpValues = Mad<UpValue>();
 }
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
@@ -309,7 +319,7 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
     return stackIndex;
 }
 
-UpValue* ExecutionUnit::newUpValue(uint32_t stackIndex)
+Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
 {
     for (auto next = _openUpValues; next; next = next->next()) {
         assert(!next->closed());
@@ -317,7 +327,8 @@ UpValue* ExecutionUnit::newUpValue(uint32_t stackIndex)
             return next;
         }
     }
-    UpValue* upValue = new UpValue(stackIndex);
+    Mad<UpValue> upValue = Mad<UpValue>::create();
+    upValue->setStackIndex(stackIndex);
     upValue->setNext(_openUpValues);
     _openUpValues = upValue;
     return upValue;
@@ -514,6 +525,8 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_END:
         if (_terminate) {
             _stack.clear();
+            _callRecords.clear();
+            clearOpenUpValues();
             Object::gc(true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }

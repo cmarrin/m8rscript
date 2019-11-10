@@ -30,7 +30,7 @@ public:
     friend class Function;
     
     ExecutionUnit() : _stack(200) { }
-    ~ExecutionUnit() { }
+    ~ExecutionUnit() { clearOpenUpValues(); }
     
     void gcMark();
 
@@ -115,7 +115,7 @@ public:
     void stopEventListening() { _numEventListeners--; }
 
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
-    UpValue* newUpValue(uint32_t stackIndex);
+    Mad<UpValue> newUpValue(uint32_t stackIndex);
     
     Mad<Object> currentFunction() const { return _function; }
     
@@ -176,6 +176,7 @@ private:
     }
     
     void closeUpValues(uint32_t frame);
+    void clearOpenUpValues();
     
     Value& reg(uint32_t r)
     {
@@ -200,7 +201,7 @@ private:
     bool isConstant(uint32_t r) { return r > MaxRegister; }
 
     int compareValues(const Value& a, const Value& b);
-
+    
     struct CallRecord {
         CallRecord() { }
         CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
@@ -249,7 +250,7 @@ private:
     
     uint32_t _lineno = 0;
     
-    UpValue* _openUpValues = nullptr;
+    Mad<UpValue> _openUpValues;
     
     std::function<void(const String&)> _consolePrintFunction;
 };
