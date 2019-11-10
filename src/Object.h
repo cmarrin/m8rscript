@@ -164,7 +164,7 @@ private:
     Value::Map _properties;
     std::vector<Value> _array;
     Mad<Object> _iterator;
-    NativeObject* _nativeObject = nullptr;
+    Mad<NativeObject> _nativeObject;
     bool _isArray = false;
     bool _arrayNeedsGC;
 };
@@ -180,14 +180,14 @@ public:
 };
 
 template<typename T>
-CallReturnValue getNative(T*& nativeObj, ExecutionUnit* eu, Value thisValue)
+CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
 {
     Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    nativeObj = static_cast<T*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
+    nativeObj = obj->property(eu, Atom(SA::__nativeObject)).asNativeObject();
     if (!nativeObj) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }

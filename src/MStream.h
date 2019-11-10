@@ -46,7 +46,7 @@ public:
         _file = fs->open(file, mode);
     }
     
-    ~FileStream() { delete _file; }
+    ~FileStream() { _file.destroy(); }
 
     bool loaded()
     {
@@ -79,7 +79,7 @@ public:
     }
 	
 private:
-    File* _file = nullptr;
+    Mad<File> _file;
 };
 
 //////////////////////////////////////////////////////////////////////////////

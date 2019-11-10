@@ -66,8 +66,10 @@ private:
 
 class MyTCPDelegate : public NativeObject, public TCPDelegate {
 public:
-    MyTCPDelegate(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
+    MyTCPDelegate() { }
     virtual ~MyTCPDelegate();
+
+    void init(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
 
     virtual void gcMark() override
     {

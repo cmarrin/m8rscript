@@ -81,17 +81,18 @@ bool LittleFS::format()
     return true;
 }
 
-File* LittleFS::open(const char* name, FileOpenMode mode)
+Mad<File> LittleFS::open(const char* name, FileOpenMode mode)
 {
-    return new LittleFile(name, mode);
+    // TODO: Implement for the new Mad way
+    return Mad<File>(); //new LittleFile(name, mode);
 }
 
-std::shared_ptr<Directory> LittleFS::openDirectory(const char* name)
+Mad<Directory> LittleFS::openDirectory(const char* name)
 {
     if (!mounted()) {
-        return nullptr;
+        return Mad<Directory>();
     }
-    return std::shared_ptr<LittleDirectory>(new LittleDirectory(name));
+    return Mad<Directory>(); //std::shared_ptr<LittleDirectory>(new LittleDirectory(name));
 }
 
 bool LittleFS::makeDirectory(const char* name)

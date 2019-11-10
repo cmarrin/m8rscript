@@ -61,8 +61,10 @@ private:
 
 class MyUDPDelegate : public NativeObject, public UDPDelegate {
 public:
-    MyUDPDelegate(ExecutionUnit*, uint16_t port, const Value& func, const Value& parent);
+    MyUDPDelegate() { }
     virtual ~MyUDPDelegate() { }
+
+    void init(ExecutionUnit*, uint16_t port, const Value& func, const Value& parent);
 
     void send(IPAddr ip, uint16_t port, const char* data, uint16_t size)
     {
@@ -87,7 +89,7 @@ private:
     std::unique_ptr<UDP> _udp;
     Value _func;
     Value _parent;
-    ExecutionUnit* _eu;
+    ExecutionUnit* _eu = nullptr;
 };
 
 }

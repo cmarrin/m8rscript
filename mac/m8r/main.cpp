@@ -179,7 +179,7 @@ int main(int argc, char * argv[])
             } else {
                 toPath += baseName;
                 
-                std::unique_ptr<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
+                m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
                 if (!toFile->valid()) {
                     printf("Error: unable to open '%s' - ", toPath.c_str());
                     m8r::Error::showError(toFile->error());

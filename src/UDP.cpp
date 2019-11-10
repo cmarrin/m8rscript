@@ -40,22 +40,25 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         func = eu->stack().top(2 - nparams);
     }
 
-    MyUDPDelegate* delegate = new MyUDPDelegate(eu, port, func, thisValue);
+    Mad<MyUDPDelegate> delegate = Mad<MyUDPDelegate>::create();
+    delegate->init(eu, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
+    
+    Mad<NativeObject> nativeDelegate = static_cast<Mad<NativeObject>>(delegate);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value(nativeDelegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-MyUDPDelegate::MyUDPDelegate(ExecutionUnit* eu, uint16_t port, const Value& func, const Value& parent)
-    : _func(func)
-    , _parent(parent)
-    , _eu(eu)
+void MyUDPDelegate::init(ExecutionUnit* eu, uint16_t port, const Value& func, const Value& parent)
 {
+    _func = func;
+    _parent = parent;
+    _eu = eu;
     _udp = system()->createUDP(this, port);
 }
 
@@ -71,11 +74,12 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
-    if (!delegate) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
+    Mad<MyUDPDelegate> delegate;
+    CallReturnValue ret = getNative(delegate, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
     }
-    
+
     String ipString = eu->stack().top(1 - nparams).toStringValue(eu);
     IPAddr ip(ipString);
     
@@ -94,7 +98,11 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyUDPDelegate* delegate = reinterpret_cast<MyUDPDelegate*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
+    Mad<MyUDPDelegate> delegate;
+    CallReturnValue ret = getNative(delegate, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
+    }
     
     delegate->disconnect();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

@@ -131,17 +131,17 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         consoleListener = eu->stack().top(2 - nparams);
     }
     
-    Task* task = new Task();
+    Mad<Task> task = Mad<Task>::create();
     task->setFilename(filename.c_str());
     
     if (task->error() != Error::Code::OK) {
         Error::printError(Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
         return CallReturnValue(CallReturnValue::Error::Error);
     }
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
-    obj->setProperty(eu, Atom(SA::arguments), Value(task), Value::SetPropertyType::AlwaysAdd);
-    obj->setProperty(eu, Atom(SA::env), Value(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::env), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
     // Set the console funcs
     task->setConsoleListener(consoleListener);
@@ -156,7 +156,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Task* task;
+    Mad<Task> task;
     CallReturnValue retval = getNative(task, eu, thisValue);
     if (retval.error() != CallReturnValue::Error::Ok) {
         return retval;
@@ -176,7 +176,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
         Value func = thisValue.property(eu, Atom(SA::__object));
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
-            eu->fireEvent(func, Value(task), &arg, 1);
+            eu->fireEvent(func, Value::asValue(task), &arg, 1);
         }
     });
 

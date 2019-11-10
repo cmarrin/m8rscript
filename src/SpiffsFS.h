@@ -61,10 +61,12 @@ class SpiffsDirectory : public Directory {
     friend class SpiffsFS;
     
 public:
-    SpiffsDirectory(const char* name);
+    SpiffsDirectory() { }
     virtual ~SpiffsDirectory() { }
     
     virtual bool next() override;
+    
+    void setName(const char* name);
     
 private:
     static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
@@ -120,10 +122,8 @@ private:
     static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
     static bool findNameInDirectory(File*, const String& name, FileID&, File::Type&);
     static void createEntry(File*, const String& name, File::Type, FileID&);
-
-    SpiffsDirectory();
     
-    File* _dirFile = nullptr;
+    Mad<File> _dirFile;
     FileID _fileID;
 };
 
@@ -132,8 +132,10 @@ class SpiffsFile : public File {
     friend class SpiffsDirectory;
 
 public:
+    SpiffsFile() { }
     virtual ~SpiffsFile() { close(); }
   
+    void open(const char* name, spiffs_flags mode);
     virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
@@ -148,8 +150,6 @@ protected:
     void setError(Error error) { _error = error; }
     
 private:
-    SpiffsFile(const char* name, spiffs_flags mode);
-
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
@@ -166,8 +166,8 @@ public:
     virtual void unmount() override;
     virtual bool format() override;
     
-    virtual File* open(const char* name, FileOpenMode) override;
-    virtual std::shared_ptr<Directory> openDirectory(const char* name) override;
+    virtual Mad<File> open(const char* name, FileOpenMode) override;
+    virtual Mad<Directory> openDirectory(const char* name) override;
     virtual bool makeDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;
@@ -176,7 +176,7 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
-    static SpiffsFile* rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
+    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
     
     static Error::Code mapSpiffsError(spiffs_file);
 
@@ -192,7 +192,7 @@ private:
     spiffs_config _config;
 
     static spiffs _spiffsFileSystem;
-    uint8_t* _spiffsWorkBuf;
+    uint8_t _spiffsWorkBuf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
     uint8_t _spiffsFileDescriptors[sizeof(spiffs_fd) * 4];
 };
 

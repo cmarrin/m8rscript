@@ -61,22 +61,25 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         ipAddr[3] = ipAddrObject->element(eu, Value(3)).toIntValue(eu);
     }
 
-    MyTCPDelegate* delegate = new MyTCPDelegate(eu, ipAddr, port, func, thisValue);
+    Mad<MyTCPDelegate> delegate = Mad<MyTCPDelegate>::create();
+    delegate->init(eu, ipAddr, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
+
+    Mad<NativeObject> nativeDelegate = static_cast<Mad<NativeObject>>(delegate);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value(nativeDelegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-MyTCPDelegate::MyTCPDelegate(ExecutionUnit* eu, IPAddr ip, uint16_t port, const Value& func, const Value& parent)
-    : _func(func)
-    , _parent(parent)
-    , _eu(eu)
+void MyTCPDelegate::init(ExecutionUnit* eu, IPAddr ip, uint16_t port, const Value& func, const Value& parent)
 {
+    _func = func;
+    _parent = parent;
+    _eu = eu;
     _tcp = system()->createTCP(this, port, ip);
     _eu->startEventListening();
 }
@@ -98,11 +101,12 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
-    if (!delegate) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
+    Mad<MyTCPDelegate> delegate;
+    CallReturnValue ret = getNative(delegate, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
     }
-    
+
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
     for (int32_t i = 2 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
@@ -118,7 +122,11 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, Atom(SA::__nativeObject)).asNativeObject());
+    Mad<MyTCPDelegate> delegate;
+    CallReturnValue ret = getNative(delegate, eu, thisValue);
+    if (ret.error() != CallReturnValue::Error::Ok) {
+        return ret;
+    }
     
     int16_t connectionId = nparams ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     delegate->disconnect(connectionId);

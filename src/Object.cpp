@@ -138,9 +138,9 @@ Atom Object::typeName(ExecutionUnit* eu) const
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
-        NativeObject* obj = it.value.asNativeObject();
+        Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj) {
-            delete obj;
+            obj.destroy();
             it.value = Value();
         }
     }

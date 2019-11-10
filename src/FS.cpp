@@ -156,15 +156,15 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
         
-    File* file = system()->fileSystem()->open(filename.c_str(), mode);
+    Mad<File> file = system()->fileSystem()->open(filename.c_str(), mode);
     
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(file), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, Atom(SA::__nativeObject), Value::asValue(file), Value::SetPropertyType::AlwaysAdd);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    File* file;
+    Mad<File> file;
     CallReturnValue ret = getNative(file, eu, thisValue);
     if (ret.error() != CallReturnValue::Error::Ok) {
         return ret;
@@ -176,7 +176,7 @@ CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t np
 
 CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    File* file;
+    Mad<File> file;
     CallReturnValue ret = getNative(file, eu, thisValue);
     if (ret.error() != CallReturnValue::Error::Ok) {
         return ret;
@@ -222,7 +222,7 @@ CallReturnValue FileProto::eof(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue FileProto::valid(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    File* file;
+    Mad<File> file;
     CallReturnValue ret = getNative(file, eu, thisValue);
     if (ret.error() != CallReturnValue::Error::Ok) {
         return ret;
