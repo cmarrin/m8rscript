@@ -122,8 +122,15 @@ public:
     uint32_t lineno() const { return _lineno; }
 
 private:
+    static constexpr uint32_t MaxRunTimeErrrors = 30;
+    
     Op dispatchNextOp(Instruction& inst, uint16_t& checkCounter)
     {
+        if (_nerrors > MaxRunTimeErrrors) {
+            tooManyErrors();
+            _terminate = true;
+            return Op::END;
+        }
         if ((++checkCounter & 0xff) == 0) {
             if (_terminate) {
                 return Op::END;
@@ -140,9 +147,9 @@ private:
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
-    bool printError(const char* s, ...) const;
-    bool printError(CallReturnValue::Error) const;
-    bool checkTooManyErrors() const;
+    void printError(const char* s, ...) const;
+    void printError(CallReturnValue::Error) const;
+    void tooManyErrors() const;
     
     Value* valueFromId(Atom, const Object*) const;
 

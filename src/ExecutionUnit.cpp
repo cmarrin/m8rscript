@@ -20,31 +20,26 @@ using namespace m8r;
 
 static const Duration EvalDurationMax = 2_sec;
 
-bool ExecutionUnit::checkTooManyErrors() const
+void ExecutionUnit::tooManyErrors() const
 {
-    if (++_nerrors >= 10) {
-        system()->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
-        _terminate = true;
-        return false;
-    }
-    return true;
+    system()->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
 }
 
-bool ExecutionUnit::printError(const char* format, ...) const
+void ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
     system()->printf(ROMSTR("***** "));
 
     Error::vprintError(Error::Code::RuntimeError, _lineno, format, args);
-    return checkTooManyErrors();
+    ++_nerrors;
 }
 
-bool ExecutionUnit::printError(CallReturnValue::Error error) const
+void ExecutionUnit::printError(CallReturnValue::Error error) const
 {
     const char* errorString = ROMSTR("*UNKNOWN*");
     switch(error) {
-        case CallReturnValue::Error::Ok: return true;
+        case CallReturnValue::Error::Ok: return;
         case CallReturnValue::Error::WrongNumberOfParams: errorString = ROMSTR("wrong number of params"); break;
         case CallReturnValue::Error::ConstructorOnly: errorString = ROMSTR("only valid for new"); break;
         case CallReturnValue::Error::Unimplemented: errorString = ROMSTR("unimplemented function"); break;
@@ -65,7 +60,7 @@ bool ExecutionUnit::printError(CallReturnValue::Error error) const
         case CallReturnValue::Error::Error: errorString = ROMSTR("error"); break;
     }
     
-    return printError(errorString);
+    printError(errorString);
 }
 
 void ExecutionUnit::gcMark()
@@ -649,13 +644,12 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_LOADLITA:
+        materObjectValue = Mad<MaterObject>::create();
+        materObjectValue->setArray(true);
+        setInFrame(inst.ra(), Value(materObjectValue));
+        DISPATCH;
     L_LOADLITO:
-        if (inst.op() == Op::LOADLITA) {
-            materObjectValue = Mad<MaterObject>::create();
-            materObjectValue->setArray(true);
-        } else {
-            objectValue = Mad<MaterObject>::create();
-        }
+        objectValue = Mad<MaterObject>::create();
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
