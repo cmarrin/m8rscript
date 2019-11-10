@@ -337,6 +337,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                 // is None, just return the error. Otherwise create a file or directory
                 if (error == Error::Code::FileNotFound) {
                     if (createMode == FindCreateMode::None) {
+                        fileID = FileID();
                         return false;
                     }
                     type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
@@ -345,12 +346,14 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                         file.reset(SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate));
                         if (!file->valid()) {
                             error = Error::Code::InternalError;
+                            fileID = FileID();
                             return false;
                         }
                     }
                     error = Error::Code::OK;
                     return true;
                 }
+                fileID = FileID();
                 return false;
             }
         }
@@ -361,17 +364,20 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         
         if (type != File::Type::Directory) {
             error = Error::Code::DirectoryNotFound;
+            fileID = FileID();
             return false;
         }
         
         file.reset(SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate));
         if (!file->valid()) {
             error = Error::Code::InternalError;
+            fileID = FileID();
             return false;
         }
     }
 
     error = Error::Code::DirectoryNotFound;
+    fileID = FileID();
     return false;
 }
 
@@ -393,9 +399,11 @@ bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID&
                 s += c;
             }
             
-            dir->read(fileID.value(), sizeof(fileID));
+            FileID testFileID;
+            dir->read(testFileID.value(), sizeof(testFileID));
             if (s == name) {
                 type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
+                fileID = testFileID;
                 return true;
             }
         }
