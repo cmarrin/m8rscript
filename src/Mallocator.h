@@ -72,7 +72,19 @@ template<typename T>
 class Mad : public Id<RawMad>
 {
 public:
-    using Id::Id;
+    Mad() : Id()
+    {
+#ifndef NDEBUG
+        _ptr = nullptr;
+#endif
+    }
+    
+    Mad(Raw raw) : Id(raw)
+    {
+#ifndef NDEBUG
+        _ptr = get();
+#endif
+    }
 
     explicit Mad(const T*);
     
@@ -98,6 +110,12 @@ public:
     static Mad<T> create();
     static Mad<String> create(const char*, int32_t length = -1);
     static MemoryType type() { return MemoryType::Unknown; }
+    
+private:
+#ifndef NDEBUG
+    // Keep a pointer around for debugging
+    T* _ptr = nullptr;
+#endif
 };    
 
 class Mallocator
