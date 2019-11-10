@@ -71,8 +71,10 @@ static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block) {
     memset(buf, 0xff, size);
     if (fwrite(buf, 1, size, fsFile) != size) {
         printf("******** MacLittleFS error erasing sector %d (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
+        delete [ ] buf;
         return LFS_ERR_INVAL;
     }
+    delete [ ] buf;
     return LFS_ERR_OK;
 }
 
