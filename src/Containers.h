@@ -52,6 +52,8 @@ public:
 
     const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
     Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
+    const Id& operator=(const Raw& other) { _value._raw = other._raw; return *this; }
+    Id& operator=(Raw& other) { _value._raw = other._raw; return *this; }
     operator bool() const { return _value._raw != NoId; }
 
     int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }

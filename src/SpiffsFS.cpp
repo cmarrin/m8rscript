@@ -303,82 +303,86 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     }
     
     // Split up the name and find each component
-    Mad<File> file(SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
+    Mad<SpiffsFile> file(SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
     if (!file || !file->valid()) {
         error = Error::Code::InternalError;
-        return false;
-    }
-    std::vector<String> components = String(name).split("/");
-    
-    while (!components.empty() && components.back().empty()) {
-        components.pop_back();
-    }
-    
-    for (int i = 0; i < components.size(); ++i) {
-        if (components[i].empty()) {
-            continue;
+    } else {
+        std::vector<String> components = String(name).split("/");
+        
+        while (!components.empty() && components.back().empty()) {
+            components.pop_back();
         }
         
-        bool last = i == components.size() - 1;
-        
-        if (!findNameInDirectory(file.get(), components[i], fileID, type)) {
-            if (!last && createMode == FindCreateMode::Directory) {
-                type = File::Type::Directory;
-                createEntry(file.get(), components[i], File::Type::Directory, fileID);
-                file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
-                if (!file->valid()) {
-                    // We should be able to create the new directory
-                    error = Error::Code::InternalError;
-                }
-            } else {
-                error = last ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
-                
-                // If the error is FileNotFound, the baseName doesn't exist. If we are createMode
-                // is None, just return the error. Otherwise create a file or directory
-                if (error == Error::Code::FileNotFound) {
-                    if (createMode == FindCreateMode::None) {
-                        fileID = FileID();
-                        return false;
+        error = Error::Code::DirectoryNotFound;
+
+        for (int i = 0; i < components.size(); ++i) {
+            if (components[i].empty()) {
+                continue;
+            }
+            
+            bool last = i == components.size() - 1;
+            
+            if (!findNameInDirectory(file.get(), components[i], fileID, type)) {
+                if (!last && createMode == FindCreateMode::Directory) {
+                    type = File::Type::Directory;
+                    createEntry(file.get(), components[i], File::Type::Directory, fileID);
+                    file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
+                    if (!file->valid()) {
+                        // We should be able to create the new directory
+                        error = Error::Code::InternalError;
                     }
-                    type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
-                    createEntry(file.get(), components[i], type, fileID);
-                    if (type == File::Type::Directory) {
-                        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
-                        if (!file->valid()) {
-                            error = Error::Code::InternalError;
-                            fileID = FileID();
-                            return false;
+                } else {
+                    error = last ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
+                    
+                    // If the error is FileNotFound, the baseName doesn't exist. If we are createMode
+                    // is None, just return the error. Otherwise create a file or directory
+                    if (error == Error::Code::FileNotFound) {
+                        if (createMode == FindCreateMode::None) {
+                            break;
                         }
+                        
+                        type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
+                        createEntry(file.get(), components[i], type, fileID);
+                        if (type == File::Type::Directory) {
+                            file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
+                            if (!file->valid()) {
+                                error = Error::Code::InternalError;
+                                break;
+                            }
+                        }
+                        error = Error::Code::OK;
+                        break;
                     }
-                    error = Error::Code::OK;
-                    return true;
+                    break;
                 }
-                fileID = FileID();
-                return false;
+            } 
+            
+            if (last) {
+                error = Error::Code::OK;
+                break;
+            }
+            
+            if (type != File::Type::Directory) {
+                error = Error::Code::DirectoryNotFound;
+                break;
+            }
+            
+            file.destroy();
+            file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
+            if (!file->valid()) {
+                error = Error::Code::InternalError;
+                break;
             }
         }
-        
-        if (last) {
-            return true;
-        }
-        
-        if (type != File::Type::Directory) {
-            error = Error::Code::DirectoryNotFound;
-            fileID = FileID();
-            return false;
-        }
-        
-        file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
-        if (!file->valid()) {
-            error = Error::Code::InternalError;
-            fileID = FileID();
-            return false;
-        }
     }
-
-    error = Error::Code::DirectoryNotFound;
-    fileID = FileID();
-    return false;
+    
+    file.destroy();
+    if (error != Error::Code::OK) {
+        fileID = FileID();
+        return false;
+    }
+    
+    return true;
 }
 
 bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID& fileID, File::Type& type)
