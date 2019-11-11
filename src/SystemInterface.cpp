@@ -27,9 +27,3 @@ void SystemInterface::runLoop()
 {
     taskManager()->runLoop();
 }
-
-void SystemInterface::memoryInfo(MemoryInfo& info)
-{
-    info.freeSize = 0;
-    info.numAllocations = 0;
-}

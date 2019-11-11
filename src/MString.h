@@ -230,4 +230,6 @@ private:
     bool _marked = true;
 };
 
+template<> inline MemoryType Mad<String>::type() { return MemoryType::String; }
+
 }

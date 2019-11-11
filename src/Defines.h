@@ -21,6 +21,7 @@
 
 #else
 
+#include <array>
 #include <cstdint>
 #include <vector>
 #include <cassert>
@@ -66,10 +67,35 @@ static inline bool isspace(uint8_t c)       { return c == ' ' || c == '\n' || c 
 static inline uint8_t tolower(uint8_t c)    { return isUpper(c) ? (c - 'A' + 'a') : c; }
 static inline uint8_t toupper(uint8_t c)    { return isLower(c) ? (c - 'a' + 'A') : c; }
 
-struct MemoryInfo {
-    uint32_t freeSize = 0;
-    uint32_t numAllocations = 0;
-    std::vector<uint32_t> numAllocationsByType;
+enum class MemoryType {
+    Unknown,
+    String,
+    Character,
+    Object,
+    Instruction,
+    CallRecord,
+    EventValue,
+    ConstantValue,
+    FunctionEntry,
+    File,
+    Task,
+    ExecutionUnit,
+    Application,
+    NumTypes
+};
+
+struct MemoryInfo{
+    struct Entry
+    {
+        uint32_t sizeInBlocks = 0;
+        uint32_t count = 0;
+    };
+    
+    uint16_t heapSizeInBlocks = 0;
+    uint16_t freeSizeInBlocks = 0;
+    uint16_t blockSize = 4;
+    uint16_t numAllocations = 0;
+    std::array<Entry, static_cast<uint32_t>(MemoryType::NumTypes)> allocationsByType;
 };
 
 struct Label {

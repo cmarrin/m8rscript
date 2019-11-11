@@ -153,6 +153,8 @@ private:
     spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
 };
 
+template<> inline MemoryType Mad<SpiffsFile>::type()   { return MemoryType::File; }
+
 class SpiffsFS : public FS {
     friend SpiffsDirectory;
     friend SpiffsFile;

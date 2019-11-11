@@ -51,18 +51,6 @@ namespace m8r {
 //
 //---------------------------------------------------------------------------
 
-enum class MemoryType {
-    Unknown,
-    Object,
-    String,
-    Instruction,
-    CallRecord,
-    EventValue,
-    ConstantValue,
-    FunctionEntry,
-    NumTypes
-};
-
 class MaterObject;
 class String;
 
@@ -132,53 +120,59 @@ public:
     template<typename T>
     Mad<T> allocate(size_t size)
     {
-        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
-        _list[index].count++;
-        _list[index].size += size;
-
+        assert(Mad<T>::type() != MemoryType::Unknown);
         assert(static_cast<uint32_t>(size) <= 0xffff);
-        return Mad<T>(Id<RawMad>::Raw(alloc(size)));
+        
+        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
+        Mad<T> result = Mad<T>(Id<RawMad>::Raw(alloc(size)));
+        
+        if (result) {
+            uint32_t index = static_cast<uint32_t>(Mad<T>::type());
+            _memoryInfo.allocationsByType[index].count++;
+            _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
+        }
+        return result;
     }
     
     template<typename T>
     void deallocate(Mad<T> p, size_t size)
     {
-        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
-        _list[index].count--;
-        _list[index].size -= size;
-
+        assert(Mad<T>::type() != MemoryType::Unknown);
+//        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
         free(p.raw(), size);
+
+        // TODO: We're currently not freeing memory, so don't track it as freed
+//        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
+//        _memoryInfo.allocationsByType[index].count--;
+//        _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
     }
-    
-    struct Entry
-    {
-        uint32_t size = 0;
-        uint32_t count = 0;
-    };
-    
-    const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
     
     static Mallocator* shared() { return &_mallocator; }
 
-    void* get(RawMad p) const { return (p < _heapBlockCount) ? (_heapBase + p * _blockSize) : nullptr; }
+    void* get(RawMad p) const
+    {
+        return (p < _memoryInfo.heapSizeInBlocks) ? (_heapBase + p * _memoryInfo.blockSize) : nullptr;
+    }
     
     RawMad blockIdFromAddr(void* addr)
     {
         // return NoId unless the address is in the heap range AND is divisible by _blockSize
-        if (addr < _heapBase || addr > (_heapBase + _heapBlockCount * _blockSize)) {
+        if (addr < _heapBase || addr > (_heapBase + _memoryInfo.heapSizeInBlocks * _memoryInfo.blockSize)) {
             return Id<RawMad>().raw();
         }
         
         size_t offset = reinterpret_cast<char*>(addr) -_heapBase;
-        if ((offset % _blockSize) != 0) {
+        if ((offset % _memoryInfo.blockSize) != 0) {
             return Id<RawMad>().raw();
         }
         
-        return static_cast<RawMad>(offset / _blockSize); 
+        return static_cast<RawMad>(offset / _memoryInfo.blockSize);
     }
+    
+    const MemoryInfo& memoryInfo() const { return _memoryInfo; }
 
 protected:
-    Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)];
+    MemoryInfo _memoryInfo;
 
 private:
     Mallocator();
@@ -187,26 +181,23 @@ private:
     void free(RawMad, size_t size);
 
     using BlockId = RawMad;
-    using SizeInBlocks = uint16_t;
     
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
     struct FreeHeader
     {
         BlockId nextBlock;
-        SizeInBlocks sizeInBlocks;
+        uint16_t sizeInBlocks;
     };
     
     FreeHeader* block(BlockId b)
     {
-        return reinterpret_cast<FreeHeader*>(_heapBase + (b * _blockSize));
+        return reinterpret_cast<FreeHeader*>(_heapBase + (b * _memoryInfo.blockSize));
     }
     
     char* _heapBase = nullptr;
-    SizeInBlocks _heapBlockCount = 0;
-    uint16_t _blockSize = 4;
     BlockId _firstFreeBlock = 0;
-    
+
     static Mallocator _mallocator;
 };
 
@@ -239,7 +230,8 @@ inline Mad<T> Mad<T>::create(uint32_t n)
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length);
 
-template<> inline MemoryType Mad<Instruction>::type()   { return MemoryType::Instruction; }
+template<> inline MemoryType Mad<Instruction>::type() { return MemoryType::Instruction; }
+template<> inline MemoryType Mad<char>::type() { return MemoryType::Character; }
 
 //class MallocatorBase
 //{

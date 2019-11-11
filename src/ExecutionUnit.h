@@ -255,4 +255,6 @@ private:
     std::function<void(const String&)> _consolePrintFunction;
 };
 
+template<> inline MemoryType Mad<ExecutionUnit>::type() { return MemoryType::ExecutionUnit; }
+
 }

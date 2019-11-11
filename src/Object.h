@@ -101,8 +101,6 @@ public:
     static uint32_t numObjectAllocations() { return static_cast<uint32_t>(_objectStore.size()); }
     static uint32_t numStringAllocations() { return static_cast<uint32_t>(_stringStore.size()); }
     
-    static void memoryInfo(MemoryInfo&);
-    
     Atom typeName(ExecutionUnit*) const;
     
 protected:
@@ -216,4 +214,6 @@ protected:
     NativeFunction _constructor;
 };
     
+template<> inline MemoryType Mad<MaterObject>::type() { return MemoryType::Object; }
+
 }

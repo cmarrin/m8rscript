@@ -116,6 +116,8 @@ private:
     ShellEntry _shells[m8r::TCP::MaxConnections];
 };
 
+template<> inline MemoryType Mad<MyShellSocket>::type() { return MemoryType::Application; }
+
 Application::Application(uint16_t port)
 {
     Mad<MyShellSocket> socket = Mad<MyShellSocket>::create();

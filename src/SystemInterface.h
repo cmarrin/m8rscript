@@ -97,9 +97,7 @@ public:
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(const char*, va_list) const = 0;
-    
-    static void memoryInfo(MemoryInfo&);
-    
+        
     void lock();
     void unlock();
     

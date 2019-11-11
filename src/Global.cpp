@@ -241,22 +241,38 @@ CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_
 
 CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    MemoryInfo info;
-    Object::memoryInfo(info);
+    MemoryInfo info = Mallocator::shared()->memoryInfo();
     Mad<Object> obj = Mad<MaterObject>::create();
+    
+    uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
+    uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
     obj->setProperty(eu, eu->program()->atomizeString("freeSize"),
-                     Value(static_cast<int32_t>(info.freeSize)), Value::SetPropertyType::AlwaysAdd);
+                     Value(static_cast<int32_t>(freeSize)), Value::SetPropertyType::AlwaysAdd);
+                     
+    obj->setProperty(eu, eu->program()->atomizeString("allocatedSize"),
+                     Value(static_cast<int32_t>(allocatedSize)), Value::SetPropertyType::AlwaysAdd);
+                     
     obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
-    Mad<Object> allocationsByType = Mad<MaterObject>::create();
-    allocationsByType->setArray(true);
-    for (auto it : info.numAllocationsByType) {
-        allocationsByType->setElement(eu, Value(0), Value(static_cast<int32_t>(it)), true);
+    Mad<Object> numAllocationsByType = Mad<MaterObject>::create();
+    numAllocationsByType->setArray(true);
+    for (auto it : info.allocationsByType) {
+        numAllocationsByType->setElement(eu, Value(0), Value(static_cast<int32_t>(it.count)), true);
     }
     
     obj->setProperty(eu, eu->program()->atomizeString("numAllocationsByType"),
-                     Value(allocationsByType), Value::SetPropertyType::AlwaysAdd);
+                     Value(numAllocationsByType), Value::SetPropertyType::AlwaysAdd);
+
+    Mad<Object> sizeByType = Mad<MaterObject>::create();
+    sizeByType->setArray(true);
+    for (auto it : info.allocationsByType) {
+        uint32_t size = it.sizeInBlocks * info.blockSize;
+        sizeByType->setElement(eu, Value(0), Value(static_cast<int32_t>(size)), true);
+    }
+    
+    obj->setProperty(eu, eu->program()->atomizeString("sizeByType"),
+                     Value(sizeByType), Value::SetPropertyType::AlwaysAdd);
 
     eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);

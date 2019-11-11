@@ -22,16 +22,6 @@ std::vector<Mad<Object>> Object::_objectStore;
 std::vector<Mad<Object>> Object::_staticObjects;
 std::vector<Mad<ExecutionUnit>> Object::_euStore;
 
-void Object::memoryInfo(MemoryInfo& info)
-{
-    SystemInterface::memoryInfo(info);
-    info.numAllocationsByType.resize(static_cast<uint32_t>(MemoryType::NumTypes));
-    
-    for (uint32_t i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
-        //info.numAllocationsByType[i] = MallocatorBase::entry(static_cast<MemoryType>(i)).count;
-    }
-}
-
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };
 static GCState gcState = GCState::ClearMarkedObj;
 static uint32_t prevGCObjects = 0;

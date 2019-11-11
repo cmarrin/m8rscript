@@ -23,22 +23,23 @@ Mallocator::Mallocator()
     
     // Limit is one less block, to provide for a NoBlockId value
     if (size < (1024 * 256 - 4)) {
-        _blockSize = 4;
+        _memoryInfo.blockSize = 4;
     } else if (size < (1024 * 512 - 8)) {
-        _blockSize = 8;
+        _memoryInfo.blockSize = 8;
     } else if (size < (1024 * 1024 - 16)) {
-        _blockSize = 16;
+        _memoryInfo.blockSize = 16;
     } else {
         system()->printf(ROMSTR("Exceeded maximum heap size of 1MB\n"));
         return;
     }
     
     _heapBase = reinterpret_cast<char*>(base);
-    _heapBlockCount = static_cast<uint16_t>(size / _blockSize);
+    _memoryInfo.heapSizeInBlocks = static_cast<uint16_t>(size / _memoryInfo.blockSize);
     
     block(0)->nextBlock = NoBlockId;
-    block(0)->sizeInBlocks = _heapBlockCount;
+    block(0)->sizeInBlocks = _memoryInfo.heapSizeInBlocks;
     _firstFreeBlock = 0;
+    _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
 
 RawMad Mallocator::alloc(size_t size)
@@ -47,25 +48,26 @@ RawMad Mallocator::alloc(size_t size)
         return Id<RawMad>().raw();
     }
     
-    SizeInBlocks blockToAlloc = (size + _blockSize - 1) / _blockSize;
+    uint16_t blocksToAlloc = (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize;
     
     BlockId freeBlock = _firstFreeBlock;
     BlockId prevBlock = NoBlockId;
     while (freeBlock != NoBlockId) {
         FreeHeader* header = block(freeBlock);
-        if (header->sizeInBlocks >= blockToAlloc) {
-            if (blockToAlloc == header->sizeInBlocks) {
+        if (header->sizeInBlocks >= blocksToAlloc) {
+            if (blocksToAlloc == header->sizeInBlocks) {
                 // Take the whole thing
                 if (prevBlock == NoBlockId) {
                     _firstFreeBlock = header->nextBlock;
                 } else {
                     block(prevBlock)->nextBlock = header->nextBlock;
                 }
-                return freeBlock;
+                break;
             } else {
                 // Take the tail end of the block and resize
-                header->sizeInBlocks -= blockToAlloc;
-                return freeBlock + header->sizeInBlocks;
+                header->sizeInBlocks -= blocksToAlloc;
+                freeBlock += header->sizeInBlocks;
+                break;
             }
         }
         
@@ -73,7 +75,14 @@ RawMad Mallocator::alloc(size_t size)
         freeBlock = header->nextBlock;
     }
     
-    return Id<RawMad>().raw();
+    if (freeBlock == NoBlockId) {
+        return Id<RawMad>().raw();
+    }
+    
+    assert(_memoryInfo.numAllocations < std::numeric_limits<uint16_t>::max());
+    ++_memoryInfo.numAllocations;
+    _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
+    return freeBlock;
 }
 
 void Mallocator::free(RawMad p, size_t size)
@@ -84,6 +93,19 @@ void Mallocator::free(RawMad p, size_t size)
     
     // TODO: Implement
 }
+
+//const MemoryInfo& Mallocator::memoryInfo() 
+//{
+//    info.heapSize = _heapBlockCount * _blockSize;
+//    info.freeSize = _freeBlockCount;
+//    info.numAllocations = _numAllocations;
+//    
+//    info.numAllocationsByType.clear();
+//    Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)];
+//    for (int i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
+//        ingo.numAllocationsByType.push_back(_list[i]);
+//    }
+//}
 
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)

@@ -77,4 +77,6 @@ private:
     Global _global;
 };
 
+template<> inline MemoryType Mad<Program>::type() { return MemoryType::Object; }
+
 }

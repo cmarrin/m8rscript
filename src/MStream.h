@@ -82,6 +82,8 @@ private:
     Mad<File> _file;
 };
 
+template<> inline MemoryType Mad<File>::type()   { return MemoryType::File; }
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: StringStream
