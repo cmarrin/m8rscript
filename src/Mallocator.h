@@ -138,13 +138,12 @@ public:
     void deallocate(Mad<T> p, size_t size)
     {
         assert(Mad<T>::type() != MemoryType::Unknown);
-//        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
+        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
         free(p.raw(), size);
 
-        // TODO: We're currently not freeing memory, so don't track it as freed
-//        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
-//        _memoryInfo.allocationsByType[index].count--;
-//        _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
+        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
+        _memoryInfo.allocationsByType[index].count--;
+        _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
     }
     
     static Mallocator* shared() { return &_mallocator; }
@@ -177,10 +176,14 @@ protected:
 private:
     Mallocator();
     
+    using BlockId = RawMad;
+
     RawMad alloc(size_t size);
     void free(RawMad, size_t size);
+    
+    void coalesce(BlockId prev, BlockId next);
 
-    using BlockId = RawMad;
+    uint16_t blockSizeFromByteSize(size_t size) { return (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize; }
     
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 

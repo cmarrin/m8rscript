@@ -48,7 +48,7 @@ RawMad Mallocator::alloc(size_t size)
         return Id<RawMad>().raw();
     }
     
-    uint16_t blocksToAlloc = (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize;
+    uint16_t blocksToAlloc = blockSizeFromByteSize(size);
     
     BlockId freeBlock = _firstFreeBlock;
     BlockId prevBlock = NoBlockId;
@@ -85,13 +85,80 @@ RawMad Mallocator::alloc(size_t size)
     return freeBlock;
 }
 
+void Mallocator::coalesce(BlockId prev, BlockId next)
+{
+    FreeHeader* header = block(prev);
+    assert(prev + header->sizeInBlocks <= next);
+    if (prev + header->sizeInBlocks == next) {
+        // Coalesce
+        assert(header->nextBlock == next);
+        header->nextBlock = block(next)->nextBlock;
+        header->sizeInBlocks += block(next)->sizeInBlocks;
+    }
+}
+
 void Mallocator::free(RawMad p, size_t size)
 {
     if (!_heapBase) {
         return;
     }
     
-    // TODO: Implement
+    BlockId newBlock = p;
+    FreeHeader* header = block(newBlock);
+    header->nextBlock = NoBlockId;
+    header->sizeInBlocks = blockSizeFromByteSize(size);
+    
+    // Insert in free list
+    BlockId freeBlock = _firstFreeBlock;
+    BlockId prevBlock = NoBlockId;
+    while (freeBlock != NoBlockId) {
+        if (newBlock < freeBlock) {
+            if (prevBlock == NoBlockId) {
+                // Insert at the head
+                header->nextBlock = _firstFreeBlock;
+                _firstFreeBlock = newBlock;
+            } else {
+                header->nextBlock = prevBlock;
+                block(prevBlock)->nextBlock = newBlock;
+            }
+            break;
+        }
+        prevBlock = freeBlock;
+        freeBlock = header->nextBlock;
+    }
+    
+    if (freeBlock == NoBlockId) {
+        // newBlock is beyond end of list. Add it to the tail
+        block(prevBlock)->nextBlock = newBlock;
+    }
+    
+    // If this is the only block (super unlikely), no coalescing is needed
+    if (block(_firstFreeBlock)->nextBlock == NoBlockId) {
+        return;
+    }
+    
+    // 3 cases:
+    //
+    //      1) prevBlock is NoBlockId:
+    //          newBlock is linked into free list at the head
+    //          freeBlock is the block after newBlock
+    //
+    //      2) freeBlock is NoBlockId:
+    //          newBlock is linked to the end of the free list
+    //          prevBlock is the block before newBlock
+    //
+    //      3) newBlock is linked to the middle of the free list:
+    //          prevBlock is the block before
+    //          freeBlock is the block after
+    
+    if (prevBlock == NoBlockId) {
+        coalesce(newBlock, freeBlock);
+    } else if (freeBlock == NoBlockId) {
+        coalesce(prevBlock, newBlock);
+    } else {
+        coalesce(newBlock, freeBlock);
+        coalesce(prevBlock, newBlock);
+    }
 }
 
 //const MemoryInfo& Mallocator::memoryInfo() 
