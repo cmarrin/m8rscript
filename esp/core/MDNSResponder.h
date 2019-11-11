@@ -133,9 +133,9 @@ private:
     void sendAnswer(QuestionType, int32_t service);
 
     String _hostname;
-    std::vector<ServiceRecord> _services;
+    Vector<ServiceRecord> _services;
     uint32_t _ttl = 0;
-    std::vector<uint8_t> _replyBuffer;
+    Vector<uint8_t> _replyBuffer;
     
     // UDPDelegate
     virtual void UDPevent(UDP*, Event event, const char* data = nullptr, uint16_t length = 0) override

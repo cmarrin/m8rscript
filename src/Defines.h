@@ -67,6 +67,55 @@ static inline bool isspace(uint8_t c)       { return c == ' ' || c == '\n' || c 
 static inline uint8_t tolower(uint8_t c)    { return isUpper(c) ? (c - 'A' + 'a') : c; }
 static inline uint8_t toupper(uint8_t c)    { return isLower(c) ? (c - 'a' + 'A') : c; }
 
+//  Class: Id/RawId template
+//
+//  Generic Id class
+
+template <typename RawType>
+class Id
+{
+public:
+    class Raw
+    {
+        friend class Id;
+
+    public:
+        Raw() : _raw(NoId) { }
+        explicit Raw(RawType raw) : _raw(raw) { }
+        RawType raw() const { return _raw; }
+
+    private:
+        RawType _raw;
+    };
+    
+    using value_type = RawType;
+    
+    Id() { _value = Raw(NoId); }
+    explicit Id(Raw raw) { _value._raw = raw._raw; }
+    Id(RawType raw) { _value._raw = raw; }
+    Id(const Id& other) { _value._raw = other._value._raw; }
+    Id(Id&& other) { _value._raw = other._value._raw; }
+
+    value_type raw() const { return _value._raw; }
+
+    const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
+    Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
+    const Id& operator=(const Raw& other) { _value._raw = other._raw; return *this; }
+    Id& operator=(Raw& other) { _value._raw = other._raw; return *this; }
+    operator bool() const { return _value._raw != NoId; }
+
+    int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
+    bool operator==(const Id& other) const { return _value._raw == other._value._raw; }
+
+private:
+    static constexpr RawType NoId = std::numeric_limits<RawType>::max();
+
+    Raw _value;
+};
+
+class StringLiteral : public Id<uint32_t> { using Id::Id; };
+class ConstantId : public Id<uint8_t> { using Id::Id; };
+
 enum class MemoryType {
     Unknown,
     String,

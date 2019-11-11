@@ -56,7 +56,7 @@ void MDNSResponder::addService(uint16_t port, const char* instance, const char* 
     sendAnswer(QuestionType::PTR, serviceIndex);
 }
 
-const char* decodeNameStrings(const char* data, uint32_t dataLen, std::vector<String>& names, const char* p)
+const char* decodeNameStrings(const char* data, uint32_t dataLen, Vector<String>& names, const char* p)
 {
     names.clear();
     
@@ -117,7 +117,7 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
 
     int qcount = data[5]; // purposely ignore qcount > 255
     const char* p = data+12;
-    std::vector<String> names;
+    Vector<String> names;
     
     while(qcount-- > 0) {
         p = decodeNameStrings(data, length, names, p);

@@ -197,7 +197,7 @@ private:
     
     Verb _verb = Verb::None;
     
-    std::vector<char> _line;
+    Vector<char> _line;
     int32_t _position = 0;
     char _escapeParam = 0;
     

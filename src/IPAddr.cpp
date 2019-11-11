@@ -17,7 +17,7 @@ using namespace m8r;
 
 static bool toIPAddr(const String& ipString, IPAddr& ip)
 {
-    std::vector<String> array = ipString.split(".");
+    Vector<String> array = ipString.split(".");
     if (array.size() != 4) {
         return false;
     }

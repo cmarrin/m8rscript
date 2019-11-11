@@ -159,7 +159,7 @@ int main(int argc, char * argv[])
         if (!fromFile) {
             fprintf(stderr, "Unable to open '%s' for upload, skipping\n", uploadFilename);
         } else {
-            std::vector<m8r::String> parts = m8r::String(uploadFilename).split("/");
+            m8r::Vector<m8r::String> parts = m8r::String(uploadFilename).split("/");
             m8r::String baseName = parts[parts.size() - 1];
             
             if (uploadPath[0] != '/') {

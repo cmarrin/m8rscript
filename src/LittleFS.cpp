@@ -100,7 +100,7 @@ bool LittleFS::makeDirectory(const char* name)
     // TODO: For now assume the filename is in the root directory, whether it starts with '/' or not
     _error = Error::Code::OK;
     
-    std::vector<String> components = String(name).split("/");
+    Vector<String> components = String(name).split("/");
     String path = "/";
     for (auto it : components) {
         if (!it.empty()) {

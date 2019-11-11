@@ -45,7 +45,7 @@ public:
                     // Set the print function to send the printed string out the TCP channel
                     _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
                         // Break it up into lines. We need to insert '\r'
-                        std::vector<String> v = s.split("\n");
+                        Vector<String> v = s.split("\n");
                         for (int i = 0; i < v.size(); ++i) {
                             if (!v[i].empty()) {
                                 tcp->send(connectionId, v[i].c_str(), v[i].size());

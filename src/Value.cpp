@@ -366,7 +366,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
             if (prop == Atom(SA::split)) {
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
-                std::vector<String> array = s.split(separator, skipEmpty);
+                Vector<String> array = s.split(separator, skipEmpty);
                 Mad<MaterObject> arrayObject = Mad<MaterObject>::create();
                 arrayObject->setArray(true);
                 arrayObject->resize(array.size());

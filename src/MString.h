@@ -15,6 +15,7 @@
 #include <cstring>
 #include <limits>
 #include <vector>
+#include "Containers.h"
 #include "Defines.h"
 #include "Float.h"
 #include "Mallocator.h"
@@ -196,11 +197,11 @@ public:
     String trim() const;
     
     // If skipEmpty is true, substrings of zero length are not added to the array
-    std::vector<String> split(const String& separator, bool skipEmpty = false) const;
+    Vector<String> split(const String& separator, bool skipEmpty = false) const;
     
-    static String join(const std::vector<String>& array, const String& separator);
+    static String join(const Vector<String>& array, const String& separator);
     
-    static String join(const std::vector<char>& array);
+    static String join(const Vector<char>& array);
     
     bool isMarked() const { return _marked; }
     void setMarked(bool b) { _marked = b; }

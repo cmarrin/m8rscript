@@ -72,9 +72,9 @@ String String::trim() const
     return String(s, static_cast<int32_t>(l));
 }
 
-std::vector<String> String::split(const String& separator, bool skipEmpty) const
+Vector<String> String::split(const String& separator, bool skipEmpty) const
 {
-    std::vector<String> array;
+    Vector<String> array;
     char* p = _data.get();
     while (1) {
         char* n = strstr(p, separator.c_str());
@@ -89,7 +89,7 @@ std::vector<String> String::split(const String& separator, bool skipEmpty) const
     return array;
 }
 
-String String::join(const std::vector<String>& array, const String& separator)
+String String::join(const Vector<String>& array, const String& separator)
 {
     String s;
     bool first = true;
@@ -104,7 +104,7 @@ String String::join(const std::vector<String>& array, const String& separator)
     return s;
 }
 
-String String::join(const std::vector<char>& array)
+String String::join(const Vector<char>& array)
 {
     String s;
     s.ensureCapacity(array.size());

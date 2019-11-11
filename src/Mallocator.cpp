@@ -54,6 +54,8 @@ RawMad Mallocator::alloc(size_t size)
     BlockId prevBlock = NoBlockId;
     while (freeBlock != NoBlockId) {
         FreeHeader* header = block(freeBlock);
+        assert(header->nextBlock != freeBlock);
+        
         if (header->sizeInBlocks >= blocksToAlloc) {
             if (blocksToAlloc == header->sizeInBlocks) {
                 // Take the whole thing

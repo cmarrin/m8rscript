@@ -307,7 +307,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     if (!file || !file->valid()) {
         error = Error::Code::InternalError;
     } else {
-        std::vector<String> components = String(name).split("/");
+        Vector<String> components = String(name).split("/");
         
         while (!components.empty() && components.back().empty()) {
             components.pop_back();

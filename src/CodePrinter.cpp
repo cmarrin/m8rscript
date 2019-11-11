@@ -381,7 +381,7 @@ void CodePrinter::indentCode(m8r::String& s) const
 
 static String escapeString(const String& s)
 {
-    std::vector<String> array = s.split("\n");
+    Vector<String> array = s.split("\n");
     return String::join(array, "\\n");
 }
 

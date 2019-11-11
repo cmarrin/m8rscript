@@ -16,57 +16,9 @@
 #include <limits>
 #include <vector>
 #include "Defines.h"
+#include "Mallocator.h"
 
 namespace m8r {
-
-//  Class: Id/RawId template
-//
-//  Generic Id class
-
-template <typename RawType>
-class Id
-{
-public:
-    class Raw
-    {
-        friend class Id;
-
-    public:
-        Raw() : _raw(NoId) { }
-        explicit Raw(RawType raw) : _raw(raw) { }
-        RawType raw() const { return _raw; }
-
-    private:
-        RawType _raw;
-    };
-    
-    using value_type = RawType;
-    
-    Id() { _value = Raw(NoId); }
-    explicit Id(Raw raw) { _value._raw = raw._raw; }
-    Id(RawType raw) { _value._raw = raw; }
-    Id(const Id& other) { _value._raw = other._value._raw; }
-    Id(Id&& other) { _value._raw = other._value._raw; }
-
-    value_type raw() const { return _value._raw; }
-
-    const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
-    Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
-    const Id& operator=(const Raw& other) { _value._raw = other._raw; return *this; }
-    Id& operator=(Raw& other) { _value._raw = other._raw; return *this; }
-    operator bool() const { return _value._raw != NoId; }
-
-    int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
-    bool operator==(const Id& other) const { return _value._raw == other._value._raw; }
-
-private:
-    static constexpr RawType NoId = std::numeric_limits<RawType>::max();
-
-    Raw _value;
-};
-
-class StringLiteral : public Id<uint32_t> { using Id::Id; };
-class ConstantId : public Id<uint8_t> { using Id::Id; };
 
 //
 //  Class: Map
@@ -396,6 +348,95 @@ public:
 
 private:
     T* _head = nullptr;
+};
+
+//
+//  Class: Vector
+//
+//  Vector class that works with the Mad allocator
+//
+
+template<typename T>
+class Vector {
+public:
+    Vector() { }
+    Vector(Vector const &other)
+    {
+        *this = other;
+    };
+    
+    ~Vector() { _data.destroy(_capacity * sizeof(T)); };
+    
+    T* begin() { return _size ? _data.get() : nullptr; }
+    const T* begin() const { return _size ? _data.get() : nullptr; }
+    T* end() { return nullptr; }
+    const T* end() const { return nullptr; }
+
+    Vector &operator=(Vector const &other)
+    {
+        _data.destroy(_capacity * sizeof(T));
+
+        _size = other._size;
+        _capacity = other._size;
+        _data = Mad<T>::create(_capacity * sizeof(T));
+        memcpy(_data.get(), other._data.get(), _size * sizeof(T));
+        return *this;
+    };
+
+    void push_back(T const &x)
+    {
+        ensureCapacity(_size + 1);
+        _data.get()[_size++] = x;
+    };
+    
+    void pop_back() { _size--; }
+    
+    bool empty() const { return _size; }
+    size_t size() const { return _size; };
+    const T& operator[](uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    T& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    
+    T& back() { return _data.get()[_size - 1]; }
+    const T& back() const { return _data.get()[_size - 1]; }
+    
+    // TODO: Make this more robust and destroy erased element
+    T* erase(T* pos)
+    {
+        memcpy(pos, pos + 1, _size - (pos - _data.get() - 1) * sizeof(T));
+        _size--;
+        return pos;
+    }
+    
+    T* insert(T* pos, const T& value)
+    {
+        ensureCapacity(_size + 1);
+        memcpy(pos + 1, pos, _size - (pos - _data.get()) * sizeof(T));
+        *pos = value;
+        return pos;
+    }
+    
+    // TODO: Destroy erased elements
+    void clear() { _size = 0; }
+    
+private:
+    void ensureCapacity(uint16_t size)
+    {
+        uint16_t oldCapacity = _capacity;
+        
+        _capacity = _capacity ? _capacity * 2 : 1;
+        if (_capacity < size) {
+            _capacity = size;
+        }
+
+        Mad<T> newData = Mad<T>::create(_capacity * sizeof(T));
+        memcpy(newData.get(), _data.get(), _size * sizeof(T));
+        _data.destroy(oldCapacity);
+        _data = newData;
+    };
+
+    uint16_t _size = 0;
+    uint16_t _capacity = 0;
+    Mad<T> _data;
 };
 
 }
