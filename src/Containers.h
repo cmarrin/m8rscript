@@ -449,7 +449,9 @@ private:
         }
 
         Mad<T> newData = Mad<T>::create(_capacity);
-        memcpy(newData.get(), _data.get(), _size * sizeof(T));
+        for (int i = 0; i < _size; ++i) {
+            newData.get()[i] = _data.get()[i];
+        }
         _data.destroy(oldCapacity);
         _data = newData;
     };
