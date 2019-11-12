@@ -365,16 +365,16 @@ public:
         *this = other;
     };
     
-    ~Vector() { _data.destroy(_capacity * sizeof(T)); };
+    ~Vector() { _data.destroy(_capacity); };
     
     T* begin() { return _size ? _data.get() : nullptr; }
     const T* begin() const { return _size ? _data.get() : nullptr; }
-    T* end() { return nullptr; }
-    const T* end() const { return nullptr; }
+    T* end() { return _data.get() + _size; }
+    const T* end() const { return _data.get() + _size; }
 
     Vector &operator=(Vector const &other)
     {
-        _data.destroy(_capacity * sizeof(T));
+        _data.destroy(_capacity);
         
         _data = Mad<T>();
         _size = 0;
@@ -402,7 +402,7 @@ public:
         _size--;
     }
     
-    bool empty() const { return _size; }
+    bool empty() const { return _size == 0; }
     size_t size() const { return _size; };
     const T& operator[](uint16_t i) const { assert(i < _size); return _data.get()[i]; };
     T& operator[](uint16_t i) { assert(i < _size); return _data.get()[i]; };
@@ -415,8 +415,8 @@ public:
     {
         if (pos) {
             pos->~T();
-            memcpy(pos, pos + 1, _size - (pos - _data.get() - 1) * sizeof(T));
             _size--;
+            memmove(pos, pos + 1, _size - (pos - _data.get()) * sizeof(T));
         }
         return pos;
     }
@@ -424,13 +424,19 @@ public:
     T* insert(T* pos, const T& value)
     {
         ensureCapacity(_size + 1);
-        memcpy(pos + 1, pos, _size - (pos - _data.get()) * sizeof(T));
+        memmove(pos + 1, pos, _size - (pos - _data.get()) * sizeof(T));
+        new(pos) T();
         *pos = value;
         return pos;
     }
     
-    // TODO: Destroy erased elements
-    void clear() { _size = 0; }
+        void clear()
+        {
+            for (int i = 0; i < _size; ++i) {
+                _data.get()[i].~T();
+            }
+            _size = 0;
+        }
     
 private:
     void ensureCapacity(uint16_t size)
@@ -442,7 +448,7 @@ private:
             _capacity = size;
         }
 
-        Mad<T> newData = Mad<T>::create(_capacity * sizeof(T));
+        Mad<T> newData = Mad<T>::create(_capacity);
         memcpy(newData.get(), _data.get(), _size * sizeof(T));
         _data.destroy(oldCapacity);
         _data = newData;

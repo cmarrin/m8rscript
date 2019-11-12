@@ -216,8 +216,16 @@ inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()
 template<typename T>
 inline void Mad<T>::destroy(size_t size)
 {
+    if (size == 0) {
+        return;
+    }
+    
     if (*this) {
-        get()->~T();
+        // Only call the destructor if this isn't an array of objects.
+        // Arrays call their desctructors themselves
+        if (size == 1) {
+            get()->~T();
+        }
         Mallocator::shared()->deallocate(*this, sizeof(T) * size);
     }
 }
@@ -226,7 +234,12 @@ template<typename T>
 inline Mad<T> Mad<T>::create(uint32_t n)
 {
     Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T) * n);
-    new(obj.get()) T();
+    
+    // Only call the constructor if this isn't an array of objects.
+    // Arrays call their consctructors themselves
+    if (n == 1) {
+        new(obj.get()) T();
+    }
     return obj;
 }
 
