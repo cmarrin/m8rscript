@@ -164,19 +164,6 @@ void Mallocator::free(RawMad p, size_t size)
     }
 }
 
-//const MemoryInfo& Mallocator::memoryInfo() 
-//{
-//    info.heapSize = _heapBlockCount * _blockSize;
-//    info.freeSize = _freeBlockCount;
-//    info.numAllocations = _numAllocations;
-//    
-//    info.numAllocationsByType.clear();
-//    Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)];
-//    for (int i = 0; i < static_cast<uint32_t>(MemoryType::NumTypes); ++i) {
-//        ingo.numAllocationsByType.push_back(_list[i]);
-//    }
-//}
-
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)
 {
