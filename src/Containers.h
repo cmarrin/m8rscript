@@ -375,26 +375,37 @@ public:
     Vector &operator=(Vector const &other)
     {
         _data.destroy(_capacity * sizeof(T));
-
+        
+        _data = Mad<T>();
+        _size = 0;
+        _capacity = 0;
+        
+        ensureCapacity(other._size);
         _size = other._size;
-        _capacity = other._size;
-        _data = Mad<T>::create(_capacity * sizeof(T));
-        memcpy(_data.get(), other._data.get(), _size * sizeof(T));
+        
+        for (int i = 0; i < _size; ++i) {
+            _data.get()[i] = other._data.get()[i];
+        }
         return *this;
     };
 
     void push_back(T const &x)
     {
         ensureCapacity(_size + 1);
+        new (_data.get() + _size) T();
         _data.get()[_size++] = x;
     };
     
-    void pop_back() { _size--; }
+    void pop_back()
+    {
+        _data.get()[_size - 1].~T();
+        _size--;
+    }
     
     bool empty() const { return _size; }
     size_t size() const { return _size; };
-    const T& operator[](uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    T& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    const T& operator[](uint16_t i) const { assert(i < _size); return _data.get()[i]; };
+    T& operator[](uint16_t i) { assert(i < _size); return _data.get()[i]; };
     
     T& back() { return _data.get()[_size - 1]; }
     const T& back() const { return _data.get()[_size - 1]; }
@@ -402,8 +413,11 @@ public:
     // TODO: Make this more robust and destroy erased element
     T* erase(T* pos)
     {
-        memcpy(pos, pos + 1, _size - (pos - _data.get() - 1) * sizeof(T));
-        _size--;
+        if (pos) {
+            pos->~T();
+            memcpy(pos, pos + 1, _size - (pos - _data.get() - 1) * sizeof(T));
+            _size--;
+        }
         return pos;
     }
     

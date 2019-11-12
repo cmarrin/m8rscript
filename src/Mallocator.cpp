@@ -106,27 +106,28 @@ void Mallocator::free(RawMad p, size_t size)
     }
     
     BlockId newBlock = p;
-    FreeHeader* header = block(newBlock);
-    header->nextBlock = NoBlockId;
-    header->sizeInBlocks = blockSizeFromByteSize(size);
+    FreeHeader* newBlockHeader = block(newBlock);
+    newBlockHeader->nextBlock = NoBlockId;
+    newBlockHeader->sizeInBlocks = blockSizeFromByteSize(size);
     
     // Insert in free list
     BlockId freeBlock = _firstFreeBlock;
     BlockId prevBlock = NoBlockId;
     while (freeBlock != NoBlockId) {
+        assert(newBlock != freeBlock);
         if (newBlock < freeBlock) {
             if (prevBlock == NoBlockId) {
                 // Insert at the head
-                header->nextBlock = _firstFreeBlock;
+                newBlockHeader->nextBlock = _firstFreeBlock;
                 _firstFreeBlock = newBlock;
             } else {
-                header->nextBlock = prevBlock;
+                newBlockHeader->nextBlock = freeBlock;
                 block(prevBlock)->nextBlock = newBlock;
             }
             break;
         }
         prevBlock = freeBlock;
-        freeBlock = header->nextBlock;
+        freeBlock = block(freeBlock)->nextBlock;
     }
     
     if (freeBlock == NoBlockId) {

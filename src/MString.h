@@ -30,8 +30,8 @@ namespace m8r {
 
 class String {
 public:
-    String() : _size(1), _capacity(0), _data(nullptr) { }
-    String(const char* s, int32_t len = -1) : _size(1), _capacity(0), _data(nullptr)
+    String() : _size(1), _capacity(0) { }
+    String(const char* s, int32_t len = -1) : _size(1), _capacity(0)
     {
         if (!s) {
             return;
@@ -47,7 +47,7 @@ public:
         _data.get()[_size - 1] = '\0';
     }
     
-    String(const String& other) : _data(nullptr)
+    String(const String& other)
     {
         *this = other;
     };
