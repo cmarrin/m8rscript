@@ -222,8 +222,8 @@ private:
     };
     
     using EventValue = Value;
-    using CallRecordVector = std::vector<CallRecord>;
-    using EventValueVector = std::vector<EventValue>;
+    using CallRecordVector = Vector<CallRecord>;
+    using EventValueVector = Vector<EventValue>;
 
     CallRecordVector _callRecords;
     ExecutionStack _stack;
