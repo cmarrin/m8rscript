@@ -118,16 +118,19 @@ class Mallocator
 {
 public:
     template<typename T>
-    Mad<T> allocate(size_t size)
+    Mad<T> allocate(size_t size, MemoryType type = MemoryType::Unknown)
     {
-        assert(Mad<T>::type() != MemoryType::Unknown);
+        if (type == MemoryType::Unknown) {
+            type = Mad<T>::type();
+        }
+        assert(type != MemoryType::Unknown);
         assert(static_cast<uint32_t>(size) <= 0xffff);
         
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
         Mad<T> result = Mad<T>(Id<RawMad>::Raw(alloc(size)));
         
         if (result) {
-            uint32_t index = static_cast<uint32_t>(Mad<T>::type());
+            uint32_t index = static_cast<uint32_t>(type);
             _memoryInfo.allocationsByType[index].count++;
             _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
         }
@@ -135,13 +138,16 @@ public:
     }
     
     template<typename T>
-    void deallocate(Mad<T> p, size_t size)
+    void deallocate(Mad<T> p, size_t size, MemoryType type = MemoryType::Unknown)
     {
-        assert(Mad<T>::type() != MemoryType::Unknown);
+        if (type == MemoryType::Unknown) {
+            type = Mad<T>::type();
+        }
+        assert(type != MemoryType::Unknown);
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
         free(p.raw(), size);
 
-        uint32_t index = static_cast<uint32_t>(Mad<T>::type());
+        uint32_t index = static_cast<uint32_t>(type);
         _memoryInfo.allocationsByType[index].count--;
         _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
     }
@@ -230,6 +236,26 @@ inline void Mad<T>::destroy(size_t size)
     }
 }
 
+template<>
+inline void Mad<char>::destroy(size_t size)
+{
+    if (size == 0) {
+        return;
+    }
+    
+    Mallocator::shared()->deallocate(*this, size, MemoryType::Character);
+}
+
+template<>
+inline void Mad<int8_t>::destroy(size_t size)
+{
+    if (size == 0) {
+        return;
+    }
+    
+    Mallocator::shared()->deallocate(*this, size, MemoryType::Character);
+}
+
 template<typename T>
 inline Mad<T> Mad<T>::create(uint32_t n)
 {
@@ -241,6 +267,18 @@ inline Mad<T> Mad<T>::create(uint32_t n)
         new(obj.get()) T();
     }
     return obj;
+}
+
+template<>
+inline Mad<char> Mad<char>::create(uint32_t n)
+{
+    return Mallocator::shared()->allocate<char>(n, MemoryType::Character);
+}
+
+template<>
+inline Mad<int8_t> Mad<int8_t>::create(uint32_t n)
+{
+    return Mallocator::shared()->allocate<int8_t>(n, MemoryType::Character);
 }
 
 template<>
