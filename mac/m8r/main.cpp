@@ -146,6 +146,9 @@ int main(int argc, char * argv[])
     // Seed the random number generator
     srand(static_cast<uint32_t>(time(nullptr)));
     
+    // TODO: The file system gets corrupted often. Let's recreate it every time until it is fixed
+    remove(fsFile);
+    
     _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsFile));
     
     m8r::Application::mountFileSystem();
