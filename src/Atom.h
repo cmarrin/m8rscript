@@ -78,7 +78,7 @@ private:
 
     static constexpr uint8_t MaxAtomSize = 127;
 
-    mutable std::vector<int8_t> _table;
+    mutable Vector<int8_t> _table;
 };
 
 }
