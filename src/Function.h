@@ -80,6 +80,7 @@ public:
 
 private:
     struct UpValueEntry {
+        UpValueEntry() { }
         UpValueEntry(uint32_t index, uint16_t frame, Atom name)
             : _index(index)
             , _frame(frame)
@@ -91,15 +92,15 @@ private:
             return _index == other._index && _frame == other._frame && _name == other._name;
         }
         
-        uint32_t _index;
-        uint16_t _frame;
+        uint32_t _index = 0;
+        uint16_t _frame = 0;
         Atom _name;
     };
     
-    std::vector<UpValueEntry> _upValues;
+    Vector<UpValueEntry> _upValues;
     
     InstructionVector _code;
-    std::vector<Atom> _locals;
+    Vector<Atom> _locals;
     uint32_t _formalParamCount = 0;
     ConstantValueVector _constants;
     uint8_t _tempRegisterCount = 0;
