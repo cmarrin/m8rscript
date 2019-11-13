@@ -144,8 +144,8 @@ public:
     using iterator = T*;
     using const_iterator = const T*;
     
-    iterator begin() { return _size ? _data.get() : nullptr; }
-    const_iterator begin() const { return _size ? _data.get() : nullptr; }
+    iterator begin() { return _size ? _data.get() : end(); }
+    const_iterator begin() const { return _size ? _data.get() : end(); }
     iterator end() { return _data.get() + _size; }
     const_iterator end() const { return _data.get() + _size; }
 
@@ -188,14 +188,32 @@ public:
     const T& back() const { return _data.get()[_size - 1]; }
     
     // TODO: Make this more robust and destroy erased element
-    T* erase(iterator pos)
+    iterator erase(iterator pos) { return erase(pos, pos + 1); }
+    
+    iterator erase(iterator first, iterator last)
     {
-        if (pos) {
-            pos->~T();
-            _size--;
-            memmove(pos, pos + 1, _size - (pos - _data.get()) * sizeof(T));
+        // end is one past the last element to erase
+        if (first && first != end() && first < last) {
+            if (last > end()) {
+                last = end();
+            }
+            
+            assert(_data.get() - first < _size);
+            
+            // destruct
+            for (T* it = first; it != last; ++it) {
+                it->~T();
+            }
+            
+            uint32_t numToDelete = static_cast<uint32_t>(last - first);
+            if (last < end()) {
+                // move
+                memmove(first, first + numToDelete, numToDelete * sizeof(T));
+            }
+            
+            _size -= numToDelete;
         }
-        return pos;
+        return first;
     }
     
     iterator insert(iterator pos, const T& value)
