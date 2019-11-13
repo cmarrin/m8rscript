@@ -24,7 +24,7 @@ inline static void reverse(char *str, int len)
     }
 }
 
-String& String::erase(size_t pos, size_t len)
+String& String::erase(uint16_t pos, uint16_t len)
 {
     if (pos >= _size - 1) {
         return *this;
@@ -60,7 +60,7 @@ String String::trim() const
     if (_size < 2 || !_data) {
         return String();
     }
-    size_t l = _size - 1;
+    uint16_t l = _size - 1;
     char* s = _data.get();
     while (isspace(s[l - 1])) {
         --l;
@@ -113,14 +113,14 @@ String String::join(const Vector<char>& array)
     }
     return s;
 }
-void String::doEnsureCapacity(size_t size)
+void String::doEnsureCapacity(uint16_t size)
 {
-    size_t oldCapacity = _capacity;
+    uint16_t oldCapacity = _capacity;
     _capacity = _capacity ? _capacity * 2 : 1;
     if (_capacity < size) {
         _capacity = size;
     }
-    Mad<char> newData = Mallocator::shared()->allocate<char>(_capacity);
+    Mad<char> newData = Mad<char>::create(_capacity);
     assert(newData);
     if (_data) {
         if (newData) {

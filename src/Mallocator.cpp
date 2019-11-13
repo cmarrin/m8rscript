@@ -167,7 +167,7 @@ void Mallocator::free(RawMad p, size_t size)
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)
 {
-    Mad<String> obj = Mallocator::shared()->allocate<String>(sizeof(String));
+    Mad<String> obj = Mallocator::shared()->allocate<String>(sizeof(String), MemoryType::String);
     new(obj.get()) String(s, length);
     return obj;
 }

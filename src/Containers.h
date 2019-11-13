@@ -452,11 +452,11 @@ private:
             _capacity = size;
         }
 
-        Mad<T> newData = Mad<T>::create(_capacity);
+        Mad<T> newData = Mad<T>::create(_capacity, MemoryType::Vector);
         for (int i = 0; i < _size; ++i) {
             newData.get()[i] = _data.get()[i];
         }
-        _data.destroy(oldCapacity);
+        _data.destroy(oldCapacity, MemoryType::Vector);
         _data = newData;
     };
 

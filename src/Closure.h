@@ -79,7 +79,7 @@ public:
     virtual Atom name() const override { return _func->name(); }
 
 private:
-    std::vector<Mad<UpValue>> _upValues;
+    Vector<Mad<UpValue>> _upValues;
 
     Mad<Function> _func;
     Value _thisValue;

@@ -85,7 +85,7 @@ public:
             return *this;
         }
         
-        _data = Mallocator::shared()->allocate<char>(_capacity);
+        _data = Mad<char>::create(_capacity);
         assert(_data);
         if (_data) {
             memcpy(_data.get(), other._data.get(), _size);
@@ -127,9 +127,9 @@ public:
 
     operator bool () { return !empty(); }
     
-    const char& operator[](size_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    char& operator[](size_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    size_t size() const { return _size ? (_size - 1) : 0; }
+    const char& operator[](uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    char& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    uint16_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
     void clear() { _size = 1; if (_data) _data.get()[0] = '\0'; }
     String& operator+=(uint8_t c)
@@ -153,7 +153,7 @@ public:
     
     String& operator+=(const char* s)
     {
-        size_t len = strlen(s);
+        uint16_t len = strlen(s);
         ensureCapacity(_size + len);
         memcpy(_data.get() + _size - 1, s, len + 1);
         _size += len;
@@ -180,9 +180,9 @@ public:
     }
 
     const char* c_str() const { return _data ? _data.get() : ""; }
-    String& erase(size_t pos, size_t len);
+    String& erase(uint16_t pos, uint16_t len);
 
-    String& erase(size_t pos = 0)
+    String& erase(uint16_t pos = 0)
     {
         return erase(pos, _size - pos);
     }
@@ -206,7 +206,7 @@ public:
     bool isMarked() const { return _marked; }
     void setMarked(bool b) { _marked = b; }
     
-    void reserve(size_t size) { ensureCapacity(size); }
+    void reserve(uint16_t size) { ensureCapacity(size); }
     
     static String toString(Float value);
     static String toString(int32_t value);
@@ -215,9 +215,9 @@ public:
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
 private:
-    void doEnsureCapacity(size_t size);
+    void doEnsureCapacity(uint16_t size);
     
-    void ensureCapacity(size_t size)
+    void ensureCapacity(uint16_t size)
     {
         if (_capacity >= size) {
             return;
@@ -225,8 +225,8 @@ private:
         doEnsureCapacity(size);
     }
 
-    size_t _size = 0;
-    size_t _capacity = 0;
+    uint16_t _size = 0;
+    uint16_t _capacity = 0;
     Mad<char> _data;
     bool _marked = true;
 };

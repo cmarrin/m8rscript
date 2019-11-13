@@ -116,8 +116,8 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     
     static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
-    size_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
-    Mad<char> formatRegex = Mallocator::shared()->allocate<char>(formatRegexSize);
+    uint16_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
+    Mad<char> formatRegex = Mad<char>::create(formatRegexSize);
     ROMmemcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
     
     int32_t nextParam = 1 - nparams;
@@ -370,7 +370,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 Mad<MaterObject> arrayObject = Mad<MaterObject>::create();
                 arrayObject->setArray(true);
                 arrayObject->resize(array.size());
-                for (size_t i = 0; i < array.size(); ++i) {
+                for (uint16_t i = 0; i < array.size(); ++i) {
                     (*arrayObject)[i] = Value(Object::createString(array[i]));
                 }
                 

@@ -101,9 +101,9 @@ public:
     
     void reset() { *this = Mad<T>(); }
     
-    void destroy(size_t size = 1);
+    void destroy(size_t size = 1, MemoryType type = MemoryType::Unknown);
     
-    static Mad<T> create(uint32_t n = 1);
+    static Mad<T> create(uint32_t n = 1, MemoryType type = MemoryType::Unknown);
     static Mad<String> create(const char*, int32_t length = -1);
     static MemoryType type() { return MemoryType::Unknown; }
     
@@ -118,7 +118,7 @@ class Mallocator
 {
 public:
     template<typename T>
-    Mad<T> allocate(size_t size, MemoryType type = MemoryType::Unknown)
+    Mad<T> allocate(size_t size, MemoryType type)
     {
         if (type == MemoryType::Unknown) {
             type = Mad<T>::type();
@@ -138,7 +138,7 @@ public:
     }
     
     template<typename T>
-    void deallocate(Mad<T> p, size_t size, MemoryType type = MemoryType::Unknown)
+    void deallocate(Mad<T> p, size_t size, MemoryType type)
     {
         if (type == MemoryType::Unknown) {
             type = Mad<T>::type();
@@ -220,7 +220,7 @@ template<typename T>
 inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()->get(raw())); }
 
 template<typename T>
-inline void Mad<T>::destroy(size_t size)
+inline void Mad<T>::destroy(size_t size, MemoryType type)
 {
     if (size == 0) {
         return;
@@ -232,12 +232,12 @@ inline void Mad<T>::destroy(size_t size)
         if (size == 1) {
             get()->~T();
         }
-        Mallocator::shared()->deallocate(*this, sizeof(T) * size);
+        Mallocator::shared()->deallocate(*this, sizeof(T) * size, type);
     }
 }
 
 template<>
-inline void Mad<char>::destroy(size_t size)
+inline void Mad<char>::destroy(size_t size, MemoryType)
 {
     if (size == 0) {
         return;
@@ -247,7 +247,7 @@ inline void Mad<char>::destroy(size_t size)
 }
 
 template<>
-inline void Mad<int8_t>::destroy(size_t size)
+inline void Mad<int8_t>::destroy(size_t size, MemoryType)
 {
     if (size == 0) {
         return;
@@ -257,9 +257,9 @@ inline void Mad<int8_t>::destroy(size_t size)
 }
 
 template<typename T>
-inline Mad<T> Mad<T>::create(uint32_t n)
+inline Mad<T> Mad<T>::create(uint32_t n, MemoryType type)
 {
-    Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T) * n);
+    Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T) * n, type);
     
     // Only call the constructor if this isn't an array of objects.
     // Arrays call their consctructors themselves
@@ -270,13 +270,13 @@ inline Mad<T> Mad<T>::create(uint32_t n)
 }
 
 template<>
-inline Mad<char> Mad<char>::create(uint32_t n)
+inline Mad<char> Mad<char>::create(uint32_t n, MemoryType)
 {
     return Mallocator::shared()->allocate<char>(n, MemoryType::Character);
 }
 
 template<>
-inline Mad<int8_t> Mad<int8_t>::create(uint32_t n)
+inline Mad<int8_t> Mad<int8_t>::create(uint32_t n, MemoryType)
 {
     return Mallocator::shared()->allocate<int8_t>(n, MemoryType::Character);
 }

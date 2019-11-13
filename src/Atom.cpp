@@ -39,12 +39,12 @@ AtomTable::AtomTable()
 
 Atom AtomTable::atomizeString(const char* romstr) const
 {
-    size_t len = ROMstrlen(romstr);
+    uint16_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
 
-    Mad<char> s = Mallocator::shared()->allocate<char>(len + 1);
+    Mad<char> s = Mad<char>::create(len + 1);
     ROMCopyString(s.get(), romstr);
     
     Atom atom = findAtom(s.get());
@@ -59,7 +59,7 @@ Atom AtomTable::atomizeString(const char* romstr) const
     
     Atom a(static_cast<Atom::value_type>(_table.size() - 1 + ExternalAtomOffset));
     _table[_table.size() - 1] = -static_cast<int8_t>(len);
-    for (size_t i = 0; i < len; ++i) {
+    for (uint16_t i = 0; i < len; ++i) {
         _table.push_back(s.get()[i]);
     }
     _table.push_back('\0');

@@ -17,8 +17,8 @@ class Base64 : public ObjectFactory {
 public:
     Base64(Mad<Program>, ObjectFactory* parent);
 
-    static int encode(size_t in_len, const unsigned char *in, size_t out_len, char *out);
-    static int decode(size_t in_len, const char *in, size_t out_len, unsigned char *out);
+    static int encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, char *out);
+    static int decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out);
 
 private:
     static CallReturnValue encodeFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);

@@ -130,6 +130,7 @@ enum class MemoryType {
     Task,
     ExecutionUnit,
     Application,
+    Vector,
     NumTypes
 };
 

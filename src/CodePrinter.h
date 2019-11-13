@@ -51,7 +51,7 @@ private:
         uint32_t addr;
         uint32_t uniqueID;
     };
-    using Annotations = std::vector<Annotation>;
+    using Annotations = Vector<Annotation>;
 
     uint32_t findAnnotation(uint32_t addr) const;
     void preamble(m8r::String& s, uint32_t addr) const;

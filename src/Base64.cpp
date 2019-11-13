@@ -39,7 +39,7 @@ static const uint8_t RODATA_ATTR base64dec_tab[256]= {
 };
 
 /* decode a base64 string in one shot */
-int Base64::decode(size_t in_len, const char *in, size_t out_len, unsigned char *out)
+int Base64::decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out)
 {
 	unsigned ii, io;
 	uint_least32_t v;
@@ -67,7 +67,7 @@ int Base64::decode(size_t in_len, const char *in, size_t out_len, unsigned char 
 	return io;
 }
 
-int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char *out)
+int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, char *out)
 {
 	unsigned ii, io;
 	uint_least32_t v;
@@ -108,8 +108,8 @@ Base64::Base64(Mad<Program> program, ObjectFactory* parent)
 CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
-    size_t inLength = inString.size();
-    size_t outLength = (inLength * 4 + 2) / 3 + 1;
+    uint16_t inLength = inString.size();
+    uint16_t outLength = (inLength * 4 + 2) / 3 + 1;
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
@@ -117,7 +117,7 @@ CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
         Mad<String> string = Object::createString(outString, actualLength);
         eu->stack().push(Value(string));
     } else {
-        Mad<char> outString = Mallocator::shared()->allocate<char>(outLength);
+        Mad<char> outString = Mad<char>::create(outLength);
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                          BASE64_STACK_ALLOC_LIMIT, outString.get());
         Mad<String> string = Object::createString(outString.get(), actualLength);
@@ -130,15 +130,15 @@ CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
 CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     String inString = eu->stack().top().toStringValue(eu);
-    size_t inLength = inString.size();
-    size_t outLength = (inLength * 3 + 3) / 4 + 1;
+    uint16_t inLength = inString.size();
+    uint16_t outLength = (inLength * 3 + 3) / 4 + 1;
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
         Mad<String> string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(Value(string));
     } else {
-        Mad<unsigned char> outString = Mallocator::shared()->allocate<unsigned char>(outLength);
+        Mad<unsigned char> outString = Mad<uint8_t>::create(outLength);
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString.get());
         Mad<String> string = Object::createString(reinterpret_cast<char*>(outString.get()), actualLength);
         eu->stack().push(Value(string));
