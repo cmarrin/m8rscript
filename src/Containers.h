@@ -106,85 +106,6 @@ private:
 };
 
 //
-//  Class: Stack
-//
-//  Wrapper around Vector to give stack semantics
-//
-
-template<typename type>
-class Stack : std::vector<type> {
-    typedef std::vector<type> super;
-    
-public:
-    using std::vector<type>::begin;
-    using std::vector<type>::end;
-    
-    Stack() { }
-    Stack(size_t reserveCount) { super::reserve(reserveCount); }
-    
-    void clear() { super::clear(); }
-    size_t size() const { return super::size(); }
-    void push(const type& value) { super::push_back(value); }
-    void pop(size_t n = 1) { super::resize(size() - n); }
-    void pop(type& value) { std::swap(value, top()); pop(); }
-
-    type& top(int32_t relative = 0)
-    {
-        assert(static_cast<int32_t>(super::size()) + relative > 0);
-        return super::at(static_cast<int32_t>(super::size()) + relative - 1);
-    }
-    
-    const type& top(int32_t relative = 0) const
-    {
-        assert(static_cast<int32_t>(super::size()) + relative > 0);
-        return super::at(static_cast<int32_t>(super::size()) + relative - 1);
-    }
-    
-    void remove(int32_t relative)
-    {
-        super::erase(super::begin() + super::size() + relative - 1);
-    }
-    
-    uint32_t setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
-    {
-        uint32_t oldFrame = _frame;
-        _frame = static_cast<uint32_t>(size()) - actualParams;
-        uint32_t temps = localSize - formalParams;
-        uint32_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
-        super::resize(size() + temps + extraParams);
-        return oldFrame;
-    }
-    void restoreFrame(uint32_t frame, uint32_t localsToPop)
-    {
-        assert(frame <= size() && frame <= _frame);
-        pop(localsToPop);
-        _frame = frame;
-    }
-    
-    // Ensure that current frame equals passed frame and the the stack has localSize values on it
-    bool validateFrame(size_t frame, size_t localSize)
-    {
-        return frame == _frame && size() == localSize;
-    }
-    
-    type& inFrame(int32_t index) { return super::at(_frame + index); }
-    const type& inFrame(int32_t index) const { return super::at(_frame + index); }
-    void setInFrame(int32_t index, const type& value) { super::at(_frame + index) = value; }
-    void setTop(const type& value) { super::back() = value; }
-    bool empty() const { return super::empty(); }
-
-    const type* framePtr() const { return &super::at(_frame); }
-    type* framePtr() { return (_frame < size()) ? &super::at(_frame) : nullptr; }
-    uint32_t frame() const { return _frame; }
-    
-    const type& at(size_t i) const { return super::at(i); }
-    type& at(size_t i) { return super::at(i); }
-
-private:
-    uint32_t _frame = 0;
-};
-
-//
 //  Class: Pool
 //
 //  Object pool which stores values in multiple fixed size segments
@@ -365,7 +286,7 @@ public:
         *this = other;
     };
     
-    ~Vector() { _data.destroy(_capacity); };
+    ~Vector() { _data.destroy(_capacity, MemoryType::Vector); };
     
     T* begin() { return _size ? _data.get() : nullptr; }
     const T* begin() const { return _size ? _data.get() : nullptr; }
@@ -430,13 +351,30 @@ public:
         return pos;
     }
     
-        void clear()
-        {
-            for (int i = 0; i < _size; ++i) {
-                _data.get()[i].~T();
-            }
-            _size = 0;
+    void resize(uint16_t size)
+    {
+        if (size == _size) {
+            return;
         }
+        
+        if (size > _size) {
+            ensureCapacity(size);
+            for (int i = _size; i < size; ++i) {
+                new(_data.get() + i) T();
+            }
+            _size = size;
+            return;
+        }
+
+        for (int i = size; i < _size; ++i) {
+            _data.get()[i].~T();
+        }
+        _size = size;
+    }
+    
+    void clear() { resize(0); }
+    
+    void reserve(uint16_t size) { ensureCapacity(size); }
     
 private:
     void ensureCapacity(uint16_t size)
@@ -463,6 +401,87 @@ private:
     uint16_t _size = 0;
     uint16_t _capacity = 0;
     Mad<T> _data;
+};
+
+//
+//  Class: Stack
+//
+//  Wrapper around Vector to give stack semantics
+//
+
+template<typename T>
+class Stack {
+public:
+    Stack() { }
+    Stack(size_t reserveCount) { _stack.reserve(reserveCount); }
+    
+    void clear() { _stack.clear(); }
+    size_t size() const { return _stack.size(); }
+    void push(const T& value) { _stack.push_back(value); }
+    void pop(size_t n = 1) { _stack.resize(size() - n); }
+    void pop(T& value) { std::swap(value, top()); pop(); }
+
+    T& top(int32_t relative = 0)
+    {
+        assert(static_cast<int32_t>(size()) + relative > 0);
+        return at(static_cast<int32_t>(size()) + relative - 1);
+    }
+    
+    const T& top(int32_t relative = 0) const
+    {
+        assert(static_cast<int32_t>(size()) + relative > 0);
+        return at(static_cast<int32_t>(size()) + relative - 1);
+    }
+    
+    void remove(int32_t relative)
+    {
+        _stack.erase(begin() + size() + relative - 1);
+    }
+    
+    uint32_t setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
+    {
+        uint32_t oldFrame = _frame;
+        _frame = static_cast<uint32_t>(size()) - actualParams;
+        uint32_t temps = localSize - formalParams;
+        uint32_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
+        _stack.resize(size() + temps + extraParams);
+        return oldFrame;
+    }
+    void restoreFrame(uint32_t frame, uint32_t localsToPop)
+    {
+        assert(frame <= size() && frame <= _frame);
+        pop(localsToPop);
+        _frame = frame;
+    }
+    
+    // Ensure that current frame equals passed frame and the the stack has localSize values on it
+    bool validateFrame(size_t frame, size_t localSize)
+    {
+        return frame == _frame && size() == localSize;
+    }
+    
+    T& inFrame(int32_t index) { return _stack[_frame + index]; }
+    const T& inFrame(int32_t index) const { return _stack[_frame + index]; }
+    void setInFrame(int32_t index, const T& value) { _stack[_frame + index] = value; }
+    void setTop(const T& value) { _stack.back() = value; }
+    bool empty() const { return _stack.empty(); }
+
+    const T* framePtr() const { return &at(_frame); }
+    T* framePtr() { return (_frame < size()) ? &at(_frame) : nullptr; }
+    uint32_t frame() const { return _frame; }
+    
+    const T& at(size_t i) const { return _stack[i]; }
+    T& at(size_t i) { return _stack[i]; }
+    
+    T* begin() { return _stack.begin(); }
+    const T* begin() const { return _stack.begin(); }
+    
+    T* end() { return _stack.end(); }
+    const T* end() const { return _stack.end(); }
+
+private:
+    Vector<T> _stack;
+    uint32_t _frame = 0;
 };
 
 }
