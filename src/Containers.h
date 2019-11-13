@@ -441,6 +441,10 @@ public:
 private:
     void ensureCapacity(uint16_t size)
     {
+        if (size <= _capacity) {
+            return;
+        }
+        
         uint16_t oldCapacity = _capacity;
         
         _capacity = _capacity ? _capacity * 2 : 1;
