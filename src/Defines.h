@@ -45,7 +45,7 @@ static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src)
     
     //#define USE_LITTLEFS
 
-static constexpr uint32_t HeapSize = 50000;
+static constexpr uint32_t HeapSize = 200000;
 #else
     #include "Esp.h"
 #endif

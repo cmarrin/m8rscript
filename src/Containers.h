@@ -21,153 +21,6 @@
 namespace m8r {
 
 //
-//  Class: Map
-//
-//  Wrapper Map class that works on both Mac and ESP
-//  Simle ordered array. Done this way to minimize space
-//
-
-template<class T>
-struct CompareKeys
-{
-    int operator()(const T& lhs, const T& rhs) const { return static_cast<int>(lhs - rhs); }
-};
-
-template<typename Key, typename Value, typename Compare=CompareKeys<Key>>
-class Map {
-public:
-    struct Pair
-    {
-        bool operator==(const Pair& other) const { return key == other.key; }
-        Key key;
-        Value value;
-    };
-    
-    typedef std::vector<Pair> List;
-    typedef typename List::iterator iterator;
-    typedef typename List::const_iterator const_iterator;
-
-    const_iterator find(const Key& key) const
-    {
-        int result = search(0, static_cast<int>(_list.size()) - 1, key);
-        if (result < 0) {
-            return _list.cend();
-        }
-        return _list.cbegin() + result;
-    }
-    
-    iterator find(const Key& key)
-    {
-        int result = search(0, static_cast<int>(_list.size()) - 1, key);
-        if (result < 0) {
-            return _list.end();
-        }
-        return _list.begin() + result;
-    }
-    
-    std::pair<iterator, bool> emplace(const Key& key, const Value& value)
-    {
-        int result = search(0, static_cast<int>(_list.size()) - 1, key);
-        bool placed = false;
-        if (result < 0) {
-            _list.resize(_list.size() + 1);
-            int sizeToMove = static_cast<int>(_list.size()) + result;
-            if (sizeToMove) {
-                memmove(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
-            }
-            result = -result - 1;
-            _list[result] = { key, value };
-            placed = true;
-        }
-        return { begin() + result, placed };
-    }
-    
-    iterator begin() { return _list.begin(); }
-    const_iterator begin() const { return _list.begin(); }
-    iterator end() { return _list.end(); }
-    const_iterator end() const { return _list.end(); }
-    
-    bool empty() const { return _list.empty(); }
-    size_t size() const { return _list.size(); }
-
-private:
-    int search(int first, int last, const Key& key) const
-    {
-        if (first <= last) {
-            int mid = (first + last) / 2;
-            int result = _compare(key, _list[mid].key);
-            return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
-        }
-        return -(first + 1);    // failed to find key
-    }
-    
-    List _list;
-    Compare _compare;
-};
-
-//
-//  Class: Pool
-//
-//  Object pool which stores values in multiple fixed size segments
-//
-
-template<typename type, uint32_t numPerSegment>
-class Pool {
-public:
-    type* alloc()
-    {
-        if (!_freeList) {
-            allocSegment();
-        }
-        Entry* entry = _freeList;
-        _freeList = _freeList->next();
-        return entry->value();
-    }
-            
-    void free(type* value)
-    {
-        Entry* entry = reinterpret_cast<Entry*>(value);
-        entry->setNext(_freeList);
-        _freeList = entry;
-    }
-
-private:
-    void allocSegment()
-    {
-        assert(!_freeList);
-        _segments.resize(_segments.size() + 1);
-        Entry prev = nullptr;
-        for (auto it : _segments.back()) {
-            if (!_freeList) {
-                _freeList = it;
-            } else {
-                assert(prev);
-                prev->setNext(it);
-            }
-            it->setNext(nullptr);
-            prev = it;
-        }
-    }
-    
-    class Entry {
-    public:
-        const type* value() const { return reinterpret_cast<type*>(_value); }
-        type* value() { return reinterpret_cast<type*>(_value); }
-        Entry* next() const { return reinterpret_cast<Entry*>(_value); }
-        void setNext(Entry* next) { reinterpret_cast<Entry*>(_value) = next; }
-        
-    private:
-        static constexpr uint32_t size = std::max(sizeof(type), sizeof(void*));
-        uint8_t _value[size];
-    };
-    
-    typedef Entry Segment[numPerSegment];
-    
-    std::vector<Segment> _segments;
-    Entry* _freeList = nullptr;
-};
-
-//
 //  Class: List
 //
 //  Singly linked list of ListItems
@@ -288,10 +141,13 @@ public:
     
     ~Vector() { _data.destroy(_capacity, MemoryType::Vector); };
     
-    T* begin() { return _size ? _data.get() : nullptr; }
-    const T* begin() const { return _size ? _data.get() : nullptr; }
-    T* end() { return _data.get() + _size; }
-    const T* end() const { return _data.get() + _size; }
+    using iterator = T*;
+    using const_iterator = const T*;
+    
+    iterator begin() { return _size ? _data.get() : nullptr; }
+    const_iterator begin() const { return _size ? _data.get() : nullptr; }
+    iterator end() { return _data.get() + _size; }
+    const_iterator end() const { return _data.get() + _size; }
 
     Vector &operator=(Vector const &other)
     {
@@ -332,7 +188,7 @@ public:
     const T& back() const { return _data.get()[_size - 1]; }
     
     // TODO: Make this more robust and destroy erased element
-    T* erase(T* pos)
+    T* erase(iterator pos)
     {
         if (pos) {
             pos->~T();
@@ -342,7 +198,7 @@ public:
         return pos;
     }
     
-    T* insert(T* pos, const T& value)
+    iterator insert(iterator pos, const T& value)
     {
         ensureCapacity(_size + 1);
         memmove(pos + 1, pos, _size - (pos - _data.get()) * sizeof(T));
@@ -482,6 +338,153 @@ public:
 private:
     Vector<T> _stack;
     uint32_t _frame = 0;
+};
+
+//
+//  Class: Map
+//
+//  Wrapper Map class that works on both Mac and ESP
+//  Simle ordered array. Done this way to minimize space
+//
+
+template<class T>
+struct CompareKeys
+{
+    int operator()(const T& lhs, const T& rhs) const { return static_cast<int>(lhs - rhs); }
+};
+
+template<typename Key, typename Value, typename Compare=CompareKeys<Key>>
+class Map {
+public:
+    struct Pair
+    {
+        bool operator==(const Pair& other) const { return key == other.key; }
+        Key key;
+        Value value;
+    };
+    
+    using MapList = Vector<Pair>;
+    using iterator = typename MapList::iterator;
+    using const_iterator = typename MapList::const_iterator;
+
+    const_iterator find(const Key& key) const
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        if (result < 0) {
+            return _list.end();
+        }
+        return _list.begin() + result;
+    }
+    
+    iterator find(const Key& key)
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        if (result < 0) {
+            return _list.end();
+        }
+        return _list.begin() + result;
+    }
+    
+    std::pair<iterator, bool> emplace(const Key& key, const Value& value)
+    {
+        int result = search(0, static_cast<int>(_list.size()) - 1, key);
+        bool placed = false;
+        if (result < 0) {
+            _list.resize(_list.size() + 1);
+            int sizeToMove = static_cast<int>(_list.size()) + result;
+            if (sizeToMove) {
+                memmove(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
+            }
+            result = -result - 1;
+            _list[result] = { key, value };
+            placed = true;
+        }
+        return { begin() + result, placed };
+    }
+    
+    iterator begin() { return _list.begin(); }
+    const_iterator begin() const { return _list.begin(); }
+    iterator end() { return _list.end(); }
+    const_iterator end() const { return _list.end(); }
+    
+    bool empty() const { return _list.empty(); }
+    size_t size() const { return _list.size(); }
+
+private:
+    int search(int first, int last, const Key& key) const
+    {
+        if (first <= last) {
+            int mid = (first + last) / 2;
+            int result = _compare(key, _list[mid].key);
+            return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
+        }
+        return -(first + 1);    // failed to find key
+    }
+    
+    MapList _list;
+    Compare _compare;
+};
+
+//
+//  Class: Pool
+//
+//  Object pool which stores values in multiple fixed size segments
+//
+
+template<typename type, uint32_t numPerSegment>
+class Pool {
+public:
+    type* alloc()
+    {
+        if (!_freeList) {
+            allocSegment();
+        }
+        Entry* entry = _freeList;
+        _freeList = _freeList->next();
+        return entry->value();
+    }
+            
+    void free(type* value)
+    {
+        Entry* entry = reinterpret_cast<Entry*>(value);
+        entry->setNext(_freeList);
+        _freeList = entry;
+    }
+
+private:
+    void allocSegment()
+    {
+        assert(!_freeList);
+        _segments.resize(_segments.size() + 1);
+        Entry prev = nullptr;
+        for (auto it : _segments.back()) {
+            if (!_freeList) {
+                _freeList = it;
+            } else {
+                assert(prev);
+                prev->setNext(it);
+            }
+            it->setNext(nullptr);
+            prev = it;
+        }
+    }
+    
+    class Entry {
+    public:
+        const type* value() const { return reinterpret_cast<type*>(_value); }
+        type* value() { return reinterpret_cast<type*>(_value); }
+        Entry* next() const { return reinterpret_cast<Entry*>(_value); }
+        void setNext(Entry* next) { reinterpret_cast<Entry*>(_value) = next; }
+        
+    private:
+        static constexpr uint32_t size = std::max(sizeof(type), sizeof(void*));
+        uint8_t _value[size];
+    };
+    
+    typedef Entry Segment[numPerSegment];
+    
+    Vector<Segment> _segments;
+    Entry* _freeList = nullptr;
 };
 
 }
