@@ -134,6 +134,9 @@ template<typename T>
 class Vector {
 public:
     Vector() { }
+    
+    Vector(std::initializer_list<T> list) { insert(begin(), list.begin(), list.end()); }
+    
     Vector(const Vector& other)
     {
         *this = other;
@@ -144,7 +147,7 @@ public:
         *this = other;
     }
     
-    ~Vector() { _data.destroy(_capacity, MemoryType::Vector); };
+    ~Vector() { _data.destroy(_capacity, MemoryType::Vector); }
     
     using iterator = T*;
     using const_iterator = const T*;
@@ -249,13 +252,31 @@ public:
     
     iterator insert(iterator pos, const T& value)
     {
-        ensureCapacity(_size + 1);
-        memmove(pos + 1, pos, _size - (pos - _data.get()) * sizeof(T));
-        new(pos) T();
-        *pos = value;
-        return pos;
+        return insert(pos, &value, (&value) + 1);
     }
     
+    iterator insert(iterator pos, const_iterator from, const_iterator to)
+    {
+        uint16_t numToInsert = to - from;
+        
+        ensureCapacity(_size + numToInsert);
+        if (_size) {
+            memmove(pos + numToInsert, pos, _size - (pos - _data.get()) * sizeof(T));
+        } else {
+            // If _size == 0, set pos to the start of the vector
+            pos = begin();
+        }
+        
+        for (int i = 0; i < numToInsert; ++i) {
+            new(pos + i) T();
+            *(pos + i) = *(from + i);
+        }
+        
+        _size += numToInsert;
+
+        return pos;
+    }
+     
     void resize(uint16_t size)
     {
         if (size == _size) {
@@ -301,7 +322,7 @@ private:
         }
         _data.destroy(oldCapacity, MemoryType::Vector);
         _data = newData;
-    };
+    }
 
     uint16_t _size = 0;
     uint16_t _capacity = 0;
