@@ -72,7 +72,7 @@ public:
 private:    
     AtomTable _atomTable;
     
-    std::vector<char> _stringLiteralTable;
+    Vector<char> _stringLiteralTable;
 
     Global _global;
 };

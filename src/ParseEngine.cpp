@@ -246,7 +246,7 @@ bool ParseEngine::switchStatement()
 
     typedef struct { Label toStatement; Label fromStatement; int32_t statementAddr; } CaseEntry;
 
-    std::vector<CaseEntry> cases;
+    Vector<CaseEntry> cases;
     
     // This pushes a deferral block onto the deferred stack.
     // We use resumeDeferred()/endDeferred() for each statement block

@@ -85,8 +85,8 @@ private:
     Token _currentToken = Token::None;
     Scanner::TokenType _currentTokenValue;
     
-    std::vector<std::vector<Label>> _breakStack;
-    std::vector<std::vector<Label>> _continueStack;
+    Vector<Vector<Label>> _breakStack;
+    Vector<Vector<Label>> _continueStack;
 
     struct CompareTokens
     {

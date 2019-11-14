@@ -270,6 +270,7 @@ private:
     ParseStack _parseStack;
 
     struct FunctionEntry {
+        FunctionEntry() { }
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
         Mad<Function> _function;
         uint32_t _nextReg = 255;
@@ -277,16 +278,16 @@ private:
         bool _ctor = false;
     };
         
-    using FunctionEntryVector = std::vector<FunctionEntry>;
+    using FunctionEntryVector = Vector<FunctionEntry>;
 
     FunctionEntryVector _functions;
     
-    std::vector<Mad<MaterObject>> _classes;
+    Vector<Mad<MaterObject>> _classes;
 
     Scanner _scanner;
     Mad<Program> _program;
     uint32_t _nerrors = 0;
-    std::vector<size_t> _deferredCodeBlocks;
+    Vector<size_t> _deferredCodeBlocks;
     InstructionVector _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
