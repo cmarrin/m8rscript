@@ -215,12 +215,18 @@ public:
     
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; };
-    const T& operator[](uint16_t i) const { assert(i < _size); return _data.get()[i]; };
-    T& operator[](uint16_t i) { assert(i < _size); return _data.get()[i]; };
+    const T& operator[](uint16_t i) const { return at(i); };
+    T& operator[](uint16_t i) { return at(i); };
     
+    T& at(uint16_t i) { assert(i < _size); return _data.get()[i]; }
+    const T& at(uint16_t i) const { assert(i < _size); return _data.get()[i]; }
+
     T& back() { return _data.get()[_size - 1]; }
     const T& back() const { return _data.get()[_size - 1]; }
     
+    T& front() { return at(0); }
+    const T& front() const { return at(0); }
+
     // TODO: Make this more robust and destroy erased element
     iterator erase(iterator pos) { return erase(pos, pos + 1); }
     
