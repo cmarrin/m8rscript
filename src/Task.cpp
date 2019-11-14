@@ -33,6 +33,12 @@ Task::Task()
     Object::addEU(_eu);
 }    
 
+Task::~Task()
+{
+    Object::removeEU(_eu);
+    _eu.destroy();
+}
+
 void Task::setFilename(const char* filename)
 {
     // FIXME: What do we do with these?
@@ -65,12 +71,6 @@ void Task::setFilename(const char* filename)
         _eu->startExecution(parser.program());
 #endif
     }
-}
-
-Task::~Task()
-{
-    Object::removeEU(_eu);
-    _eu.destroy();
 }
 
 void Task::receivedData(const String& data, Telnet::Action action)

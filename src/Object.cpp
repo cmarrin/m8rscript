@@ -17,10 +17,10 @@
 
 using namespace m8r;
 
-std::vector<Mad<String>> Object::_stringStore;
-std::vector<Mad<Object>> Object::_objectStore;
-std::vector<Mad<Object>> Object::_staticObjects;
-std::vector<Mad<ExecutionUnit>> Object::_euStore;
+Vector<Mad<String>> Object::_stringStore;
+Vector<Mad<Object>> Object::_objectStore;
+Vector<Mad<Object>> Object::_staticObjects;
+Vector<Mad<ExecutionUnit>> Object::_euStore;
 
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };
 static GCState gcState = GCState::ClearMarkedObj;

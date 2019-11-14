@@ -120,10 +120,10 @@ private:
     bool _hasGet : 1;
     bool _hasSet : 1;
 
-    static std::vector<Mad<String>> _stringStore;
-    static std::vector<Mad<Object>> _objectStore;
-    static std::vector<Mad<Object>> _staticObjects;
-    static std::vector<Mad<ExecutionUnit>> _euStore;
+    static Vector<Mad<String>> _stringStore;
+    static Vector<Mad<Object>> _objectStore;
+    static Vector<Mad<Object>> _staticObjects;
+    static Vector<Mad<ExecutionUnit>> _euStore;
 };
 
 class MaterObject : public Object {
