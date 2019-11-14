@@ -179,6 +179,19 @@ public:
         _size--;
     }
     
+    template<class... Args>
+    void emplace_back(Args&&... args)
+    {
+        push_back(T(args...));
+    }
+    
+    void swap(Vector& other)
+    {
+        std::swap(_size, other._size);
+        std::swap(_capacity, other._capacity);
+        std::swap(_data, other._data);
+    }
+    
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; };
     const T& operator[](uint16_t i) const { assert(i < _size); return _data.get()[i]; };
