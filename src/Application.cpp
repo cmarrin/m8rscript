@@ -35,7 +35,7 @@ public:
     {
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
-                _shells[connectionId].task = Mad<Task>::create();
+                _shells[connectionId].task = Mad<Task>::create(MemoryType::Native);
                 _shells[connectionId].task->setFilename(Application::shellName());
                 if (_shells[connectionId].task->error().code() != Error::Code::OK) {
                     Error::printError(_shells[connectionId].task->error().code());
@@ -64,7 +64,7 @@ public:
                     {
                         // On return from finished task, drop the connection
                         tcp->disconnect(connectionId);
-                        _shells[connectionId].task.destroy();
+                        _shells[connectionId].task.destroy(MemoryType::Native);
                         _shells[connectionId].task = Mad<Task>();
                     });
                 }
@@ -72,7 +72,7 @@ public:
             case m8r::TCPDelegate::Event::Disconnected:
                 if (_shells[connectionId].task) {
                     _shells[connectionId].task->terminate();
-                    _shells[connectionId].task.destroy();
+                    _shells[connectionId].task.destroy(MemoryType::Native);
                     _shells[connectionId].task = Mad<Task>();
                 }
                 break;
@@ -116,18 +116,16 @@ private:
     ShellEntry _shells[m8r::TCP::MaxConnections];
 };
 
-template<> inline MemoryType Mad<MyShellSocket>::type() { return MemoryType::Application; }
-
 Application::Application(uint16_t port)
 {
-    Mad<MyShellSocket> socket = Mad<MyShellSocket>::create();
+    Mad<MyShellSocket> socket = Mad<MyShellSocket>::create(MemoryType::Native);
     socket->init(this, port);
     _shellSocket = socket;
 }
 
 Application::~Application()
 {
-    _shellSocket.destroy();
+    _shellSocket.destroy(MemoryType::Native);
 }
 
 Application::NameValidationType Application::validateBonjourName(const char* name)
@@ -189,7 +187,7 @@ void Application::runLoop()
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {
-        _autostartTask = Mad<Task>::create();
+        _autostartTask = Mad<Task>::create(MemoryType::Native);
         _autostartTask->setFilename(filename.c_str());
         _autostartTask->run();
         // FIXME: Create a task and run the autostart file

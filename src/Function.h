@@ -108,6 +108,4 @@ private:
     Mad<Function> _parent;
 };
 
-template<> inline MemoryType Mad<Function>::type() { return MemoryType::Object; }
-
 }

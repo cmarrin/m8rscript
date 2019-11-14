@@ -129,8 +129,9 @@ enum class MemoryType {
     File,
     Task,
     ExecutionUnit,
-    Application,
+    Native,
     Vector,
+    Other,
     NumTypes
 };
 

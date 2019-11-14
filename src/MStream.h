@@ -46,7 +46,7 @@ public:
         _file = fs->open(file, mode);
     }
     
-    ~FileStream() { _file.destroy(); }
+    ~FileStream() { _file.destroy(MemoryType::File); }
 
     bool loaded()
     {
@@ -81,8 +81,6 @@ public:
 private:
     Mad<File> _file;
 };
-
-template<> inline MemoryType Mad<File>::type()   { return MemoryType::File; }
 
 //////////////////////////////////////////////////////////////////////////////
 //

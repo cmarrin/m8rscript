@@ -367,7 +367,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 Vector<String> array = s.split(separator, skipEmpty);
-                Mad<MaterObject> arrayObject = Mad<MaterObject>::create();
+                Mad<MaterObject> arrayObject = Mad<MaterObject>::create(MemoryType::Object);
                 arrayObject->setArray(true);
                 arrayObject->resize(array.size());
                 for (uint16_t i = 0; i < array.size(); ++i) {

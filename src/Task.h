@@ -97,6 +97,4 @@ private:
     Function _f;
 };
 
-template<> inline MemoryType Mad<Task>::type() { return MemoryType::Task; }
-
 }

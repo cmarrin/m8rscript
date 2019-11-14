@@ -94,7 +94,7 @@ public:
     static void gc(bool force = false);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
-    static Mad<String> createString() { Mad<String> string = Mad<String>::create(); _stringStore.push_back(string); return string; }
+    static Mad<String> createString() { Mad<String> string = Mad<String>::create(""); _stringStore.push_back(string); return string; }
     static Mad<String> createString(const char* s, int32_t length = -1)  { Mad<String> string = Mad<String>::create(s, length); _stringStore.push_back(string); return string; }
     static Mad<String> createString(const Mad<String>& s)  { Mad<String> string = Mad<String>::create(s->c_str()); _stringStore.push_back(string); return string; }
     static Mad<String> createString(const String& s)  { Mad<String> string = Mad<String>::create(s.c_str()); _stringStore.push_back(string); return string; }
@@ -123,9 +123,6 @@ private:
     static std::vector<Mad<Object>> _staticObjects;
     static std::vector<Mad<ExecutionUnit>> _euStore;
 };
-
-template<> inline MemoryType Mad<Object>::type()        { return MemoryType::Object; }
-template<> inline MemoryType Mad<ConstantValue>::type() { return MemoryType::ConstantValue; }
 
 class MaterObject : public Object {
 public:
@@ -214,6 +211,4 @@ protected:
     NativeFunction _constructor;
 };
     
-template<> inline MemoryType Mad<MaterObject>::type() { return MemoryType::Object; }
-
 }

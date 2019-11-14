@@ -45,7 +45,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         case Token::Null: v = Value::NullValue(); scanner.retireToken(); break;;
         case Token::LBracket: {
             scanner.retireToken();
-            Mad<MaterObject> mo = Mad<MaterObject>::create();
+            Mad<MaterObject> mo = Mad<MaterObject>::create(MemoryType::Object);
             mo->setArray(true);
             v = Value(mo);
             Value elementValue = value(eu, scanner);
@@ -70,7 +70,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         }
         case Token::LBrace: {
             scanner.retireToken();
-            v = Value(Mad<MaterObject>::create());
+            v = Value(Mad<MaterObject>::create(MemoryType::Object));
 
             Value propertyKey;
             Value propertyValue;

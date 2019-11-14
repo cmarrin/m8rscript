@@ -85,7 +85,4 @@ private:
     Value _thisValue;
 };
 
-template<> inline MemoryType Mad<Closure>::type() { return MemoryType::Object; }
-template<> inline MemoryType Mad<UpValue>::type() { return MemoryType::Object; }
-
 }

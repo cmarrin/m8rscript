@@ -101,11 +101,12 @@ public:
     
     void reset() { *this = Mad<T>(); }
     
-    void destroy(size_t size = 1, MemoryType type = MemoryType::Unknown);
-    
-    static Mad<T> create(uint32_t n = 1, MemoryType type = MemoryType::Unknown);
+    void destroy(MemoryType type, uint32_t n = 1);
+    void destroy(uint32_t n) { destroy(MemoryType::Unknown, 1); }
+
+    static Mad<T> create(MemoryType, uint32_t n = 1);
+    static Mad<T> create(uint32_t n) { return create(MemoryType::Unknown, n); }
     static Mad<String> create(const char*, int32_t length = -1);
-    static MemoryType type() { return MemoryType::Unknown; }
     
 private:
 #ifndef NDEBUG
@@ -118,11 +119,8 @@ class Mallocator
 {
 public:
     template<typename T>
-    Mad<T> allocate(size_t size, MemoryType type)
+    Mad<T> allocate(MemoryType type, size_t size)
     {
-        if (type == MemoryType::Unknown) {
-            type = Mad<T>::type();
-        }
         assert(type != MemoryType::Unknown);
         assert(static_cast<uint32_t>(size) <= 0xffff);
         
@@ -138,11 +136,8 @@ public:
     }
     
     template<typename T>
-    void deallocate(Mad<T> p, size_t size, MemoryType type)
+    void deallocate(MemoryType type, Mad<T> p, size_t size)
     {
-        if (type == MemoryType::Unknown) {
-            type = Mad<T>::type();
-        }
         assert(type != MemoryType::Unknown);
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
         free(p.raw(), size);
@@ -220,7 +215,7 @@ template<typename T>
 inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()->get(raw())); }
 
 template<typename T>
-inline void Mad<T>::destroy(size_t size, MemoryType type)
+inline void Mad<T>::destroy(MemoryType type, uint32_t size)
 {
     if (size == 0) {
         return;
@@ -232,34 +227,34 @@ inline void Mad<T>::destroy(size_t size, MemoryType type)
         if (size == 1) {
             get()->~T();
         }
-        Mallocator::shared()->deallocate(*this, sizeof(T) * size, type);
+        Mallocator::shared()->deallocate(type, *this, sizeof(T) * size);
     }
 }
 
 template<>
-inline void Mad<char>::destroy(size_t size, MemoryType)
+inline void Mad<char>::destroy(uint32_t size)
 {
     if (size == 0) {
         return;
     }
     
-    Mallocator::shared()->deallocate(*this, size, MemoryType::Character);
+    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
 }
 
 template<>
-inline void Mad<int8_t>::destroy(size_t size, MemoryType)
+inline void Mad<int8_t>::destroy(uint32_t size)
 {
     if (size == 0) {
         return;
     }
     
-    Mallocator::shared()->deallocate(*this, size, MemoryType::Character);
+    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
 }
 
 template<typename T>
-inline Mad<T> Mad<T>::create(uint32_t n, MemoryType type)
+inline Mad<T> Mad<T>::create(MemoryType type, uint32_t n)
 {
-    Mad<T> obj = Mallocator::shared()->allocate<T>(sizeof(T) * n, type);
+    Mad<T> obj = Mallocator::shared()->allocate<T>(type, sizeof(T) * n);
     
     // Only call the constructor if this isn't an array of objects.
     // Arrays call their consctructors themselves
@@ -270,22 +265,19 @@ inline Mad<T> Mad<T>::create(uint32_t n, MemoryType type)
 }
 
 template<>
-inline Mad<char> Mad<char>::create(uint32_t n, MemoryType)
+inline Mad<char> Mad<char>::create(uint32_t n)
 {
-    return Mallocator::shared()->allocate<char>(n, MemoryType::Character);
+    return Mallocator::shared()->allocate<char>(MemoryType::Character, n);
 }
 
 template<>
-inline Mad<int8_t> Mad<int8_t>::create(uint32_t n, MemoryType)
+inline Mad<int8_t> Mad<int8_t>::create(uint32_t n)
 {
-    return Mallocator::shared()->allocate<int8_t>(n, MemoryType::Character);
+    return Mallocator::shared()->allocate<int8_t>(MemoryType::Character, n);
 }
 
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length);
-
-template<> inline MemoryType Mad<Instruction>::type() { return MemoryType::Instruction; }
-template<> inline MemoryType Mad<char>::type() { return MemoryType::Character; }
 
 //class MallocatorBase
 //{

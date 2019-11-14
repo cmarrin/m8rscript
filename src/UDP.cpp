@@ -40,7 +40,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         func = eu->stack().top(2 - nparams);
     }
 
-    Mad<MyUDPDelegate> delegate = Mad<MyUDPDelegate>::create();
+    Mad<MyUDPDelegate> delegate = Mad<MyUDPDelegate>::create(MemoryType::Native);
     delegate->init(eu, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
