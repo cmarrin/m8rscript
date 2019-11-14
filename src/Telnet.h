@@ -165,6 +165,7 @@ private:
     };
     
     struct Input {
+        Input() { }
         Input(char a) : _a(a), _b(a) { }
         Input(char a, char b)
         {
@@ -190,7 +191,8 @@ private:
             return !(_b < other._a || _a > other._b);
         }
 
-        char _a, _b;
+        char _a = 0;
+        char _b = 0;
     };
 
     enum class Verb { None, DO, DONT, WILL, WONT };
