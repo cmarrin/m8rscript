@@ -15,6 +15,41 @@
 
 namespace m8r {
 
+struct ErrorEntry {
+    ErrorEntry() { }
+    ErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
+        : _lineno(lineno)
+        , _charno(charno)
+        , _length(length)
+    {
+        size_t size = strlen(description);
+        _description = new char[size + 1];
+        memcpy(_description, description, size + 1);
+    }
+    
+    ErrorEntry(const ErrorEntry& other)
+        : _lineno(other._lineno)
+        , _charno(other._charno)
+        , _length(other._length)
+    {
+        size_t size = strlen(other._description);
+        _description = new char[size + 1];
+        memcpy(_description, other._description, size + 1);
+    }
+    
+    ~ErrorEntry()
+    {
+        delete [ ] _description;
+    }
+    
+    char* _description;
+    uint32_t _lineno = 0;
+    uint16_t _charno = 0;
+    uint16_t _length = 0;
+};
+
+using ErrorList = Vector<ErrorEntry>;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Parser
