@@ -23,8 +23,8 @@ class Program;
 class Stream;
 
 using ConstantValue = Value;
-using ConstantValueVector = std::vector<ConstantValue>;
-using InstructionVector = std::vector<Instruction>;
+using ConstantValueVector = Vector<ConstantValue>;
+using InstructionVector = Vector<Instruction>;
 
 class Object {    
 public:
@@ -159,7 +159,7 @@ public:
 
 private:
     Value::Map _properties;
-    std::vector<Value> _array;
+    Vector<Value> _array;
     Mad<Object> _iterator;
     Mad<NativeObject> _nativeObject;
     bool _isArray = false;
