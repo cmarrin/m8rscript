@@ -30,7 +30,7 @@ namespace m8r {
     {
     public:
         using Action = std::function<void()>;
-        using NextStates = std::vector<std::pair<Input, State>>;
+        using NextStates = Vector<std::pair<Input, State>>;
         
         struct StateEntry
         {
@@ -118,7 +118,7 @@ namespace m8r {
         }
         
     private:
-        using StateVector = std::vector<StateEntry>;
+        using StateVector = Vector<StateEntry>;
         
         typename StateVector::const_iterator findState(State state)
         {
