@@ -243,16 +243,6 @@ inline void Mad<char>::destroy(uint32_t size)
     Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
 }
 
-template<>
-inline void Mad<int8_t>::destroy(uint32_t size)
-{
-    if (size == 0) {
-        return;
-    }
-    
-    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
-}
-
 template<typename T>
 inline Mad<T> Mad<T>::create(MemoryType type, uint32_t n)
 {
@@ -270,12 +260,6 @@ template<>
 inline Mad<char> Mad<char>::create(uint32_t n)
 {
     return Mallocator::shared()->allocate<char>(MemoryType::Character, n);
-}
-
-template<>
-inline Mad<int8_t> Mad<int8_t>::create(uint32_t n)
-{
-    return Mallocator::shared()->allocate<int8_t>(MemoryType::Character, n);
 }
 
 template<>

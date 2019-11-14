@@ -162,7 +162,7 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
             } else {
                 _openUpValues = upValue->next();
             }
-            upValue.destroy(MemoryType::Other);
+            upValue.destroy(MemoryType::UpValue);
         } else {
             prev = upValue;
         }
@@ -173,7 +173,7 @@ void ExecutionUnit::clearOpenUpValues()
 {
     while (_openUpValues) {
         Mad<UpValue> nextUpValue = _openUpValues->next();
-        _openUpValues.destroy(MemoryType::Other);
+        _openUpValues.destroy(MemoryType::UpValue);
         _openUpValues = nextUpValue;
     }
 }
@@ -327,7 +327,7 @@ Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
             return next;
         }
     }
-    Mad<UpValue> upValue = Mad<UpValue>::create(MemoryType::Other);
+    Mad<UpValue> upValue = Mad<UpValue>::create(MemoryType::UpValue);
     upValue->setStackIndex(stackIndex);
     upValue->setNext(_openUpValues);
     _openUpValues = upValue;

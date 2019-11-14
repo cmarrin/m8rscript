@@ -121,17 +121,12 @@ enum class MemoryType {
     String,
     Character,
     Object,
-    Instruction,
-    CallRecord,
-    EventValue,
-    ConstantValue,
-    FunctionEntry,
     File,
     Task,
     ExecutionUnit,
     Native,
     Vector,
-    Other,
+    UpValue,
     NumTypes
 };
 
