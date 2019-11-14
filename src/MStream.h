@@ -136,7 +136,7 @@ private:
 class VectorStream : public m8r::Stream {
 public:
 	VectorStream() : _index(0) { }
-	VectorStream(const std::vector<uint8_t>& vector) : _vector(vector), _index(0) { }
+	VectorStream(const Vector<uint8_t>& vector) : _vector(vector), _index(0) { }
     
     virtual ~VectorStream() { }
 	
@@ -160,10 +160,10 @@ public:
         return c;
     }
     
-    void swap(std::vector<uint8_t>& vector) { std::swap(vector, _vector); }
+    void swap(Vector<uint8_t>& vector) { std::swap(vector, _vector); }
 	
 private:
-    std::vector<uint8_t> _vector;
+    Vector<uint8_t> _vector;
     mutable uint32_t _index;
 };
 
