@@ -17,7 +17,6 @@
 
 using namespace m8r;
 
-Vector<Mad<String>> Object::_stringStore;
 Vector<Mad<Object>> Object::_objectStore;
 Vector<Mad<Object>> Object::_staticObjects;
 Vector<Mad<ExecutionUnit>> Object::_euStore;
@@ -25,11 +24,11 @@ Vector<Mad<ExecutionUnit>> Object::_euStore;
 enum class GCState { ClearMarkedObj, ClearMarkedStr, MarkActive, MarkStatic, SweepObj, SweepStr, ClearNullObj, ClearNullStr };
 static GCState gcState = GCState::ClearMarkedObj;
 static uint32_t prevGCObjects = 0;
-static uint32_t prevGCStrings = 0;
-static uint8_t countSinceLastGC = 0;
-static constexpr int32_t MaxGCObjectDiff = 10;
-static constexpr int32_t MaxGCStringDiff = 10;
-static constexpr int32_t MaxCountSinceLastGC = 50;
+//static uint32_t prevGCStrings = 0;
+//static uint8_t countSinceLastGC = 0;
+//static constexpr int32_t MaxGCObjectDiff = 10;
+//static constexpr int32_t MaxGCStringDiff = 10;
+//static constexpr int32_t MaxCountSinceLastGC = 50;
 
 void Object::gc(bool force)
 {
@@ -38,10 +37,10 @@ void Object::gc(bool force)
     while (1) {
         switch(gcState) {
             case GCState::ClearMarkedObj:
-                if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
-                    system()->unlock();
-                    return;
-                }
+//                if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
+//                    system()->unlock();
+//                    return;
+//                }
 //    #ifndef NDEBUG
 //                debugf("+++ before:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
 //    #endif
@@ -53,11 +52,11 @@ void Object::gc(bool force)
                 gcState = GCState::ClearMarkedStr;
                 break;
             case GCState::ClearMarkedStr:
-                for (auto it : _stringStore) {
-                    if (it) {
-                        it->setMarked(false);
-                    }
-                }
+//                for (auto it : _stringStore) {
+//                    if (it) {
+//                        it->setMarked(false);
+//                    }
+//                }
                 gcState = GCState::MarkActive;
                 break;
             case GCState::MarkActive:
@@ -82,12 +81,12 @@ void Object::gc(bool force)
                 gcState = GCState::SweepStr;
                 break;
             case GCState::SweepStr:
-                for (auto& it : _stringStore) {
-                    if (it && !it->isMarked()) {
-                        it.destroy();
-                        it.reset();
-                    }
-                }
+//                for (auto& it : _stringStore) {
+//                    if (it && !it->isMarked()) {
+//                        it.destroy();
+//                        it.reset();
+//                    }
+//                }
                 gcState = GCState::ClearNullObj;
                 break;
             case GCState::ClearNullObj:
@@ -96,12 +95,12 @@ void Object::gc(bool force)
                 gcState = GCState::ClearNullStr;
                 break;
             case GCState::ClearNullStr:
-                _stringStore.erase(std::remove(_stringStore.begin(), _stringStore.end(), Mad<String>()), _stringStore.end());
+//                _stringStore.erase(std::remove(_stringStore.begin(), _stringStore.end(), Mad<String>()), _stringStore.end());
 //    #ifndef NDEBUG
 //                debugf("--- after:%lu object, %lu strings\n", _objectStore.size(), _stringStore.size());
 //    #endif
                 prevGCObjects = static_cast<uint32_t>(_objectStore.size());
-                prevGCStrings = static_cast<uint32_t>(_stringStore.size());
+//                prevGCStrings = static_cast<uint32_t>(_stringStore.size());
                 gcState = GCState::ClearMarkedObj;
                 
                 if (!force || didFullCycle) {
@@ -311,7 +310,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
                 s += it.toStringValue(eu);
             }
             
-            eu->stack().push(Value(eu->program()->createString(s)));
+            eu->stack().push(Value(Mad<String>::create(s)));
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         

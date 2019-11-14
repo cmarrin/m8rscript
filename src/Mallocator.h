@@ -108,8 +108,10 @@ public:
     static Mad<T> create(MemoryType, uint32_t n = 1);
     static Mad<T> create(uint32_t n) { return create(MemoryType::Unknown, n); }
     static Mad<T> create() { return create(T::memoryType(), 1); }
+    static Mad<String> create(const String& s);
+    static Mad<String> create(String&& s);
     static Mad<String> create(const char*, int32_t length = -1);
-    
+
 private:
 #ifndef NDEBUG
     // Keep a pointer around for debugging
@@ -265,34 +267,10 @@ inline Mad<char> Mad<char>::create(uint32_t n)
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length);
 
-//class MallocatorBase
-//{
-//public:
-//    struct Entry
-//    {
-//        uint32_t size = 0;
-//        uint32_t count = 0;
-//    };
-//
-//    static const Entry& entry(MemoryType which) { return _list[static_cast<uint32_t>(which)]; }
-//
-//    static void* allocate(MemoryType which, size_t size)
-//    {
-//        _list[static_cast<uint32_t>(which)].count++;
-//        _list[static_cast<uint32_t>(which)].size += size;
-//        return m8r_malloc(size);
-//    }
-//
-//    static void deallocate(MemoryType which, void* p, size_t size)
-//    {
-//        _list[static_cast<uint32_t>(which)].count--;
-//        _list[static_cast<uint32_t>(which)].size -= size;
-//        m8r_free(p);
-//    }
-//
-//protected:
-//    static Entry _list[static_cast<uint32_t>(MemoryType::NumTypes)] ;
-//};
-//
+template<>
+Mad<String> Mad<String>::create(const String& s);
+
+template<>
+Mad<String> Mad<String>::create(String&& s);
 
 }

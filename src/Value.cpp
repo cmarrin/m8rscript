@@ -360,7 +360,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
             }
             if (prop == Atom(SA::trim)) {
                 s = s.trim();
-                eu->stack().push(Value(Object::createString(s)));
+                eu->stack().push(Value(Mad<String>::create(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             if (prop == Atom(SA::split)) {
@@ -371,7 +371,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 arrayObject->setArray(true);
                 arrayObject->resize(array.size());
                 for (uint16_t i = 0; i < array.size(); ++i) {
-                    (*arrayObject)[i] = Value(Object::createString(array[i]));
+                    (*arrayObject)[i] = Value(Mad<String>::create(array[i]));
                 }
                 
                 eu->stack().push(Value(Mad<Object>(static_cast<Mad<Object>>(arrayObject))));

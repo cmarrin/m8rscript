@@ -114,13 +114,13 @@ CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
         char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
                                          BASE64_STACK_ALLOC_LIMIT, outString);
-        Mad<String> string = Object::createString(outString, actualLength);
+        Mad<String> string = Mad<String>::create(outString, actualLength);
         eu->stack().push(Value(string));
     } else {
         Mad<char> outString = Mad<char>::create(outLength);
         int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
                                          BASE64_STACK_ALLOC_LIMIT, outString.get());
-        Mad<String> string = Object::createString(outString.get(), actualLength);
+        Mad<String> string = Mad<String>::create(outString.get(), actualLength);
         eu->stack().push(Value(string));
         outString.destroy(outLength);
     }
@@ -135,12 +135,12 @@ CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
     if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
         unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        Mad<String> string = Object::createString(reinterpret_cast<char*>(outString), actualLength);
+        Mad<String> string = Mad<String>::create(reinterpret_cast<char*>(outString), actualLength);
         eu->stack().push(Value(string));
     } else {
         Mad<unsigned char> outString = Mad<uint8_t>::create(outLength);
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString.get());
-        Mad<String> string = Object::createString(reinterpret_cast<char*>(outString.get()), actualLength);
+        Mad<String> string = Mad<String>::create(reinterpret_cast<char*>(outString.get()), actualLength);
         eu->stack().push(Value(string));
         outString.destroy(outLength);
     }

@@ -234,7 +234,7 @@ void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
     Value listener = program()->global()->property(this, Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
-        args[0] = Value(Object::createString(data));
+        args[0] = Value(Mad<String>::create(data));
 
         // Action is an enum, but it is always a 1-4 character string encoded as a uint32_t.
         // Convert it to a StringLiteral
@@ -778,7 +778,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            Mad<String> string = Object::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            Mad<String> string = Mad<String>::create(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(string));
         }
         DISPATCH;

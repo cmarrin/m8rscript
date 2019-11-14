@@ -171,3 +171,17 @@ Mad<String> Mad<String>::create(const char* s, int32_t length)
     new(obj.get()) String(s, length);
     return obj;
 }
+
+template<>
+Mad<String> Mad<String>::create(const String& s)
+{
+    return create(s.c_str());
+}
+
+template<>
+Mad<String> Mad<String>::create(String&& s)
+{
+    Mad<String> str = Mad<String>::create();
+    *(str.get()) = s;
+    return str;
+}
