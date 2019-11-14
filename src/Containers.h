@@ -134,10 +134,15 @@ template<typename T>
 class Vector {
 public:
     Vector() { }
-    Vector(Vector const &other)
+    Vector(const Vector& other)
     {
         *this = other;
     };
+    
+    Vector(Vector&& other)
+    {
+        *this = other;
+    }
     
     ~Vector() { _data.destroy(_capacity, MemoryType::Vector); };
     
@@ -149,7 +154,7 @@ public:
     iterator end() { return _data.get() + _size; }
     const_iterator end() const { return _data.get() + _size; }
 
-    Vector &operator=(Vector const &other)
+    Vector& operator=(const Vector& other)
     {
         _data.destroy(_capacity);
         
@@ -163,6 +168,19 @@ public:
         for (int i = 0; i < _size; ++i) {
             _data.get()[i] = other._data.get()[i];
         }
+        return *this;
+    };
+
+    Vector& operator=(Vector&& other)
+    {
+        _data.destroy(_capacity);
+
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+        other._data = Mad<T>();
+        other._size = 0;
+        other._capacity = 0;
         return *this;
     };
 
