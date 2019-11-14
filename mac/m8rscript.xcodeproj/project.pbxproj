@@ -54,6 +54,8 @@
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
+		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
+		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
 		49884F07236CB25100C292EA /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49884F06236CB25100C292EA /* StateMachine.h */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
@@ -270,6 +272,8 @@
 		4979C6711DDB790D00180BC2 /* gdbstub */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdbstub; path = ../esp/gdbstub; sourceTree = "<group>"; };
 		497B449E1D469B3200BC1B57 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../esp/app; sourceTree = "<group>"; };
 		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
+		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
+		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
 		4984E8301D1370A500D0ABA6 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../src/Global.cpp; sourceTree = "<group>"; };
 		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../src/Global.h; sourceTree = "<group>"; };
 		4984E8331D1492ED00D0ABA6 /* MStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MStream.h; path = ../src/MStream.h; sourceTree = "<group>"; };
@@ -661,6 +665,8 @@
 				49AE34F11D8231BF00C4E680 /* FS.h */,
 				4942EA871D0AF26300E02088 /* Function.cpp */,
 				4942EA811D07043C00E02088 /* Function.h */,
+				497CAFC5237DF219000495B2 /* GC.cpp */,
+				497CAFC6237DF219000495B2 /* GC.h */,
 				4984E8301D1370A500D0ABA6 /* Global.cpp */,
 				4984E8311D1370A500D0ABA6 /* Global.h */,
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
@@ -739,6 +745,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				497CAFC8237DF219000495B2 /* GC.h in Headers */,
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				49BF344B236811BF001E5508 /* spiffs_config.h in Headers */,
 				49EED98C2357971500831598 /* lfs_util.h in Headers */,
@@ -1004,6 +1011,7 @@
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
 				49BF344C236811BF001E5508 /* spiffs_gc.c in Sources */,
 				49EED98E2357971500831598 /* lfs_util.c in Sources */,
+				497CAFC7237DF219000495B2 /* GC.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				49EED98B2357971500831598 /* lfs.c in Sources */,
 				49BF344A236811BF001E5508 /* spiffs_check.c in Sources */,

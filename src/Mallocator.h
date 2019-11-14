@@ -9,8 +9,8 @@
 
 #pragma once
 
-//#include "Containers.h"
 #include "Defines.h"
+#include "GC.h"
 #include <cstdlib>
 #include <cstdint>
 
@@ -51,10 +51,8 @@ namespace m8r {
 //
 //---------------------------------------------------------------------------
 
-class MaterObject;
+class Object;
 class String;
-
-using RawMad = uint16_t;
 
 template<typename T>
 class Mad : public Id<RawMad>
@@ -132,6 +130,12 @@ public:
         Mad<T> result = Mad<T>(Id<RawMad>::Raw(alloc(size)));
         
         if (result) {
+            if (type == MemoryType::Object) {
+                GC<MemoryType::Object>::addToStore(result);
+            } else if (type == MemoryType::String) {
+                GC<MemoryType::String>::addToStore(result);
+            }
+            
             uint32_t index = static_cast<uint32_t>(type);
             _memoryInfo.allocationsByType[index].count++;
             _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
@@ -144,6 +148,13 @@ public:
     {
         assert(type != MemoryType::Unknown);
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
+
+        if (type == MemoryType::Object) {
+            GC<MemoryType::Object>::removeFromStore(p);
+        } else if (type == MemoryType::String) {
+            GC<MemoryType::String>::removeFromStore(p);
+        }
+        
         free(p.raw(), size);
 
         uint32_t index = static_cast<uint32_t>(type);
@@ -180,7 +191,7 @@ protected:
 
 private:
     Mallocator();
-    
+
     using BlockId = RawMad;
 
     RawMad alloc(size_t size);
@@ -205,7 +216,7 @@ private:
     
     char* _heapBase = nullptr;
     BlockId _firstFreeBlock = 0;
-
+    
     static Mallocator _mallocator;
 };
 
@@ -263,14 +274,5 @@ inline Mad<char> Mad<char>::create(uint32_t n)
 {
     return Mallocator::shared()->allocate<char>(MemoryType::Character, n);
 }
-
-template<>
-Mad<String> Mad<String>::create(const char* s, int32_t length);
-
-template<>
-Mad<String> Mad<String>::create(const String& s);
-
-template<>
-Mad<String> Mad<String>::create(String&& s);
 
 }

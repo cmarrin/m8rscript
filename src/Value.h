@@ -17,6 +17,7 @@
 namespace m8r {
 
 class NativeObject;
+class MaterObject;
 class Object;
 class Function;
 class ExecutionUnit;

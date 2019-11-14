@@ -116,6 +116,8 @@ private:
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
+using RawMad = uint16_t;
+
 enum class MemoryType {
     Unknown,
     String,
