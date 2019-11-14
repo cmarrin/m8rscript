@@ -161,7 +161,7 @@ private:
     {
         assert(_function->code());
         _codeSize = _function->code()->size();
-        _code = &(_function->code()->at(0));
+        _code = &(_function->code()->front());
     }
     
     Value derefId(Atom);
