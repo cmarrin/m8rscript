@@ -34,6 +34,8 @@ namespace m8r {
         
         struct StateEntry
         {
+            StateEntry() { }
+            
             StateEntry(State state, Action action, NextStates nextStates)
                 : _state(state)
                 , _action(action)
@@ -51,10 +53,10 @@ namespace m8r {
                 , _jumpState(jumpState)
             { }
             
-            State _state;
-            Action _action;
+            State _state = State();
+            Action _action = Action();
             NextStates _nextStates;
-            State _jumpState;
+            State _jumpState = State();
         };
         
         StateMachine() { }
