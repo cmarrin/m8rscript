@@ -242,7 +242,7 @@ CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_
 CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     MemoryInfo info = Mallocator::shared()->memoryInfo();
-    Mad<Object> obj = Mad<MaterObject>::create(MemoryType::Object);
+    Mad<Object> obj = Mad<MaterObject>::create();
     
     uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
     uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
@@ -255,7 +255,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
-    Mad<Object> numAllocationsByType = Mad<MaterObject>::create(MemoryType::Object);
+    Mad<Object> numAllocationsByType = Mad<MaterObject>::create();
     numAllocationsByType->setArray(true);
     for (auto it : info.allocationsByType) {
         numAllocationsByType->setElement(eu, Value(0), Value(static_cast<int32_t>(it.count)), true);
@@ -264,7 +264,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     obj->setProperty(eu, eu->program()->atomizeString("numAllocationsByType"),
                      Value(numAllocationsByType), Value::SetPropertyType::AlwaysAdd);
 
-    Mad<Object> sizeByType = Mad<MaterObject>::create(MemoryType::Object);
+    Mad<Object> sizeByType = Mad<MaterObject>::create();
     sizeByType->setArray(true);
     for (auto it : info.allocationsByType) {
         uint32_t size = it.sizeInBlocks * info.blockSize;

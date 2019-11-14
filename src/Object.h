@@ -28,6 +28,8 @@ using InstructionVector = std::vector<Instruction>;
 
 class Object {    
 public:
+    static MemoryType memoryType() { return MemoryType::Object; }
+    
     Object()
         :  _marked(true)
         , _hasIterator(false)
@@ -168,6 +170,8 @@ class ObjectFactory;
 
 class NativeObject {
 public:
+    static MemoryType memoryType() { return MemoryType::Native; }
+
     NativeObject() { }
     virtual ~NativeObject() { }
 

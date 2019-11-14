@@ -29,6 +29,8 @@ public:
     friend class Closure;
     friend class Function;
     
+    static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
+
     ExecutionUnit() : _stack(200) { }
     ~ExecutionUnit() { clearOpenUpValues(); }
     

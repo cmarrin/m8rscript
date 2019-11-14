@@ -22,7 +22,7 @@ class TCP;
 
 // Native
 
-class TCPDelegate {
+class TCPDelegate : public NativeObject {
 public:
     virtual ~TCPDelegate() { }
     
@@ -64,7 +64,7 @@ private:
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
-class MyTCPDelegate : public NativeObject, public TCPDelegate {
+class MyTCPDelegate : public TCPDelegate {
 public:
     MyTCPDelegate() { }
     virtual ~MyTCPDelegate();

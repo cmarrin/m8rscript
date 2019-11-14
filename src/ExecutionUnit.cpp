@@ -412,7 +412,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Contents of import are placed inside the parent Function and then they will
     // be extracted into an Object
-    Mad<Function> parent = Mad<Function>::create(MemoryType::Object);
+    Mad<Function> parent = Mad<Function>::create();
     
     Mad<Function> function = parser.parse(stream, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
@@ -423,7 +423,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     }
     
     // Get all the contents into a new object
-    Mad<Object> obj = Mad<MaterObject>::create(MemoryType::Object);
+    Mad<Object> obj = Mad<MaterObject>::create();
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
@@ -657,12 +657,12 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_LOADLITA:
-        materObjectValue = Mad<MaterObject>::create(MemoryType::Object);
+        materObjectValue = Mad<MaterObject>::create();
         materObjectValue->setArray(true);
         setInFrame(inst.ra(), Value(materObjectValue));
         DISPATCH;
     L_LOADLITO:
-        objectValue = Mad<MaterObject>::create(MemoryType::Object);
+        objectValue = Mad<MaterObject>::create();
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
@@ -813,7 +813,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
     L_CLOSURE: {
-        Mad<Closure> closure = Mad<Closure>::create(MemoryType::Object);
+        Mad<Closure> closure = Mad<Closure>::create();
         closure->init(this, regOrConst(inst.rb()), _this ? Value(_this) : Value());
         setInFrame(inst.ra(), Value(static_cast<Mad<Object>>(closure)));
         DISPATCH;

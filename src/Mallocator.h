@@ -103,9 +103,11 @@ public:
     
     void destroy(MemoryType type, uint32_t n = 1);
     void destroy(uint32_t n) { destroy(MemoryType::Unknown, 1); }
+    void destroy() { destroy(T::memoryType(), 1); }
 
     static Mad<T> create(MemoryType, uint32_t n = 1);
     static Mad<T> create(uint32_t n) { return create(MemoryType::Unknown, n); }
+    static Mad<T> create() { return create(T::memoryType(), 1); }
     static Mad<String> create(const char*, int32_t length = -1);
     
 private:

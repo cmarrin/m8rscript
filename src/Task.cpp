@@ -29,7 +29,7 @@ void TaskBase::finish()
 
 Task::Task()
 {
-    _eu = Mad<ExecutionUnit>::create(MemoryType::ExecutionUnit);
+    _eu = Mad<ExecutionUnit>::create();
     Object::addEU(_eu);
 }    
 
@@ -70,7 +70,7 @@ void Task::setFilename(const char* filename)
 Task::~Task()
 {
     Object::removeEU(_eu);
-    _eu.destroy(MemoryType::ExecutionUnit);
+    _eu.destroy();
 }
 
 void Task::receivedData(const String& data, Telnet::Action action)
@@ -131,7 +131,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         consoleListener = eu->stack().top(2 - nparams);
     }
     
-    Mad<Task> task = Mad<Task>::create(MemoryType::Native);
+    Mad<Task> task = Mad<Task>::create();
     task->setFilename(filename.c_str());
     
     if (task->error() != Error::Code::OK) {

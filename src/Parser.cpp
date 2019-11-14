@@ -19,7 +19,7 @@ uint32_t Parser::_nextLabelId = 1;
 
 Parser::Parser(Mad<Program> program)
     : _parseStack(this)
-    , _program(program ?: Mad<Program>::create(MemoryType::Object))
+    , _program(program ?: Mad<Program>::create())
 {
     // While parsing the program is unprotected. It could get collected.
     // Register it to protect it during the compile
@@ -608,7 +608,7 @@ void Parser::functionStart(bool ctor)
 {
     if (_nerrors) return;
     
-    Mad<Function> func = Mad<Function>::create(MemoryType::Object);
+    Mad<Function> func = Mad<Function>::create();
     func->setParent(currentFunction());
     _functions.emplace_back(func, ctor);
 }

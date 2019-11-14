@@ -75,7 +75,7 @@ void Object::gc(bool force)
             case GCState::SweepObj:
                 for (auto& it : _objectStore) {
                     if (it && !it->isMarked()) {
-                        it.destroy(MemoryType::Object);
+                        it.destroy();
                         it.reset();
                     }
                 }
@@ -84,7 +84,7 @@ void Object::gc(bool force)
             case GCState::SweepStr:
                 for (auto& it : _stringStore) {
                     if (it && !it->isMarked()) {
-                        it.destroy(MemoryType::String);
+                        it.destroy();
                         it.reset();
                     }
                 }
@@ -130,7 +130,7 @@ MaterObject::~MaterObject()
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj) {
-            obj.destroy(MemoryType::Native);
+            obj.destroy();
             it.value = Value();
         }
     }
@@ -398,7 +398,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
     }
     
-    Mad<MaterObject> obj = Mad<MaterObject>::create(MemoryType::Object);
+    Mad<MaterObject> obj = Mad<MaterObject>::create();
     Value objectValue(obj);
     obj->setProto(this);
     obj->_isArray = _isArray;
@@ -418,7 +418,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 ObjectFactory::ObjectFactory(Mad<Program> program, SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
-    _obj = Mad<MaterObject>::create(MemoryType::Object);
+    _obj = Mad<MaterObject>::create();
     
     if (!program) {
         return;

@@ -61,7 +61,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         ipAddr[3] = ipAddrObject->element(eu, Value(3)).toIntValue(eu);
     }
 
-    Mad<MyTCPDelegate> delegate = Mad<MyTCPDelegate>::create(MemoryType::Native);
+    Mad<MyTCPDelegate> delegate = Mad<MyTCPDelegate>::create();
     delegate->init(eu, ipAddr, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
