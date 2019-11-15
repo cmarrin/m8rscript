@@ -131,9 +131,9 @@ public:
         
         if (result) {
             if (type == MemoryType::Object) {
-                GC<MemoryType::Object>::addToStore(result);
+                GC::addToStore<MemoryType::Object>(result);
             } else if (type == MemoryType::String) {
-                GC<MemoryType::String>::addToStore(result);
+                GC::addToStore<MemoryType::String>(result);
             }
             
             uint32_t index = static_cast<uint32_t>(type);
@@ -150,9 +150,9 @@ public:
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
 
         if (type == MemoryType::Object) {
-            GC<MemoryType::Object>::removeFromStore(p);
+            GC::removeFromStore<MemoryType::Object>(p);
         } else if (type == MemoryType::String) {
-            GC<MemoryType::String>::removeFromStore(p);
+            GC::removeFromStore<MemoryType::String>(p);
         }
         
         free(p.raw(), size);

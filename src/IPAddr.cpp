@@ -120,7 +120,7 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
     String hostname = hostnameValue.toStringValue(eu);
     Value funcValue = eu->stack().top(2 - nparams);
     if (funcValue.asObject()) {
-        Object::addStaticObject(funcValue.asObject());
+        GC::addStaticObject(funcValue.asObject());
     }
     
     eu->startEventListening();
@@ -139,7 +139,7 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
         
         eu->fireEvent(funcValue, Value(thisObject), args, 2);
         if (funcValue.asObject()) {
-            Object::removeStaticObject(funcValue.asObject());
+            GC::removeStaticObject(funcValue.asObject());
         }
         eu->stopEventListening();
     });

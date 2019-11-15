@@ -75,25 +75,6 @@ public:
     virtual bool isFunction() const { return false; }
     virtual void setArray(bool b) { }
     
-    static void addStaticObject(Mad<Object> obj) { _staticObjects.push_back(obj); }
-    static void removeStaticObject(Mad<Object> obj)
-    {
-        auto it = std::find(_staticObjects.begin(), _staticObjects.end(), obj);
-        if (it != _staticObjects.end()) {
-            _staticObjects.erase(it);
-        }
-    }
-
-    static void addEU(Mad<ExecutionUnit> eu) { _euStore.push_back(eu); }
-    static void removeEU(Mad<ExecutionUnit> eu)
-    {
-        auto it = std::find(_euStore.begin(), _euStore.end(), eu);
-        if (it != _euStore.end()) {
-            _euStore.erase(it);
-        }
-    }
-
-    static void gc(bool force = false);
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     Atom typeName(ExecutionUnit*) const;
@@ -112,10 +93,6 @@ private:
     bool _hasIterator : 1;
     bool _hasGet : 1;
     bool _hasSet : 1;
-
-    static Vector<Mad<Object>> _objectStore;
-    static Vector<Mad<Object>> _staticObjects;
-    static Vector<Mad<ExecutionUnit>> _euStore;
 };
 
 class MaterObject : public Object {

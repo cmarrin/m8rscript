@@ -23,12 +23,12 @@ Parser::Parser(Mad<Program> program)
 {
     // While parsing the program is unprotected. It could get collected.
     // Register it to protect it during the compile
-    Object::addStaticObject(_program);
+    GC::addStaticObject(_program);
 }
 
 Parser::~Parser()
 {
-    Object::removeStaticObject(_program);
+    GC::removeStaticObject(_program);
 }
 
 Mad<Function> Parser::parse(const m8r::Stream& stream, Debug debug, Mad<Function> parent)

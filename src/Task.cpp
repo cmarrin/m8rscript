@@ -30,12 +30,12 @@ void TaskBase::finish()
 Task::Task()
 {
     _eu = Mad<ExecutionUnit>::create();
-    Object::addEU(_eu);
+    GC::addEU(_eu);
 }    
 
 Task::~Task()
 {
-    Object::removeEU(_eu);
+    GC::removeEU(_eu);
     _eu.destroy();
 }
 

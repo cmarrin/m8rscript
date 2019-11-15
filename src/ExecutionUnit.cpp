@@ -472,7 +472,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 
-    Object::gc();
+    GC::gc();
 
     updateCodePointer();
     
@@ -513,7 +513,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 printError(callReturnValue.error());
                 _terminate = true; 
                 _stack.clear();
-                Object::gc(true);
+                GC::gc(true);
                 return CallReturnValue(CallReturnValue::Type::Terminated);
             }
             return callReturnValue;
@@ -527,7 +527,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             _stack.clear();
             _callRecords.clear();
             clearOpenUpValues();
-            Object::gc(true);
+            GC::gc(true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
@@ -547,11 +547,11 @@ CallReturnValue ExecutionUnit::continueExecution()
                     printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
                     _terminate = true;
                     _stack.clear();
-                    Object::gc(true);
+                    GC::gc(true);
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
-                Object::gc(true);
+                GC::gc(true);
                 return CallReturnValue(CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
