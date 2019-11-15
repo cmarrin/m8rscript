@@ -70,14 +70,14 @@ public:
                 }
                 break;
             case m8r::TCPDelegate::Event::Disconnected:
-                if (_shells[connectionId].task) {
+                if (_shells[connectionId].task.valid()) {
                     _shells[connectionId].task->terminate();
                     _shells[connectionId].task.destroy();
                     _shells[connectionId].task = Mad<Task>();
                 }
                 break;
             case m8r::TCPDelegate::Event::ReceivedData:
-                if (_shells[connectionId].task) {
+                if (_shells[connectionId].task.valid()) {
                     // Receiving characters. Pass them through Telnet
                     String toChannel, toClient;
                     for (int16_t i = 0; i < length; ++i) {
