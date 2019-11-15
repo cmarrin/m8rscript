@@ -38,13 +38,15 @@ void GC::gc(bool force)
                     return;
                 }
                 for (RawMad& it : _objectStore) {
-                    it &= 0x7fff;
+                    Mad<Object> obj = Mad<Object>(it);
+                    obj->gcMark();
                 }
                 gcState = GCState::ClearMarkedStr;
                 break;
             case GCState::ClearMarkedStr:
                 for (RawMad& it : _stringStore) {
-                    it &= 0x7fff;
+                    Mad<String> str = Mad<String>(it);
+                    str->setMarked(true);
                 }
                 gcState = GCState::MarkActive;
                 break;
@@ -57,12 +59,16 @@ void GC::gc(bool force)
                 break;
             case GCState::MarkStatic:
                 for (RawMad& it : _staticObjects) {
-                    it &= 0x7fff;
+                    Mad<Object> obj = Mad<Object>(it);
+                    obj->gcMark();
                 }
                 gcState = GCState::SweepObj;
                 break;
             case GCState::SweepObj: {
-                auto it = std::remove_if(_objectStore.begin(), _objectStore.end(), [](RawMad m) { return (m & 0x8000) == 0; });
+                auto it = std::remove_if(_objectStore.begin(), _objectStore.end(), [](RawMad m) {
+                    Mad<Object> obj = Mad<Object>(m);
+                    return !obj->isMarked();
+                });
                 std::for_each(it, _objectStore.end(), [](RawMad m) {
                     Mad<Object> obj = Mad<Object>(m);
                     obj.destroy();
@@ -72,7 +78,10 @@ void GC::gc(bool force)
                 break;
             }
             case GCState::SweepStr: {
-                auto it = std::remove_if(_stringStore.begin(), _stringStore.end(), [](RawMad m) { return (m & 0x8000) == 0; });
+                auto it = std::remove_if(_stringStore.begin(), _stringStore.end(), [](RawMad m) {
+                    Mad<String> str = Mad<String>(m);
+                    return !str->isMarked();
+                });
                 std::for_each(it, _stringStore.end(), [](RawMad m) {
                     Mad<String> str = Mad<String>(m);
                     str.destroy();
