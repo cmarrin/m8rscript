@@ -92,7 +92,7 @@ public:
     
     Id() { _value = Raw(NoId); }
     explicit Id(Raw raw) { _value._raw = raw._raw; }
-    Id(RawType raw) { _value._raw = raw; }
+    explicit Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
     Id(Id&& other) { _value._raw = other._value._raw; }
 
@@ -116,7 +116,7 @@ private:
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
-using RawMad = uint16_t;
+struct RawMad { uint16_t value = std::numeric_limits<uint16_t>::max(); };
 
 enum class MemoryType {
     Unknown,
