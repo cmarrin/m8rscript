@@ -266,11 +266,11 @@ private:
     inline int32_t int32FromValue() const { return _value._int; }
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
-    inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
-    inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
+    inline Mad<String> stringFromValue() const { return Mad<String>::Raw(_value._rawMad); }
+    inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>::Raw(_value._rawMad); }
     inline NativeFunction nativeFunctionFromValue() { return _value._nativeFunction; }
-    inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
-    inline Mad<Function> functionFromValue() const { return Mad<Function>(_value._rawMad); }
+    inline Mad<Object> objectFromValue() const { return Mad<Object>::Raw(_value._rawMad); }
+    inline Mad<Function> functionFromValue() const { return Mad<Function>::Raw(_value._rawMad); }
 
     inline StringLiteral stringLiteralFromValue() const
     {

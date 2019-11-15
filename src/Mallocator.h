@@ -65,7 +65,7 @@ public:
 #endif
     }
     
-    Mad(RawMad raw) : Id(Id::Raw(raw))
+    Mad(Raw raw) : Id(raw)
     {
 #ifndef NDEBUG
         _ptr = get();
@@ -94,7 +94,7 @@ public:
         const T* t = static_cast<const T*>(u);
         (void) t;
 
-        return Mad<U>(raw());
+        return Mad<U>(Raw(raw()));
     }
     
     void reset() { *this = Mad<T>(); }
@@ -127,7 +127,7 @@ public:
         assert(static_cast<uint32_t>(size) <= 0xffff);
         
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
-        Mad<T> result = Mad<T>(Id<RawMad>(alloc(size)));
+        Mad<T> result = Mad<T>(Id<RawMad>::Raw(alloc(size)));
         
         if (result) {
             if (type == MemoryType::Object) {
@@ -223,7 +223,7 @@ private:
 template<typename T>
 Mad<T>::Mad(const T* addr)
 {
-    *this = Mad(Mallocator::shared()->blockIdFromAddr(const_cast<T*>(addr)));
+    *this = Mad(Mad::Raw(Mallocator::shared()->blockIdFromAddr(const_cast<T*>(addr))));
 }
 
 template<typename T>
