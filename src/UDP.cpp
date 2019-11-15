@@ -44,7 +44,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     delegate->init(eu, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
@@ -70,7 +70,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
@@ -94,7 +94,7 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     

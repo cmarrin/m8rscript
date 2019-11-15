@@ -77,19 +77,19 @@ public:
 
     String& operator=(const String& other)
     {
-        if (_data) {
+        if (_data.valid()) {
             _data.destroy(_capacity);
         }
         _size = other._size;
         _capacity = other._capacity;
-        if (!other._data) {
+        if (!other._data.valid()) {
             _data = Mad<char>();
             return *this;
         }
         
         _data = Mad<char>::create(_capacity);
-        assert(_data);
-        if (_data) {
+        assert(_data.valid());
+        if (_data.valid()) {
             memcpy(_data.get(), other._data.get(), _size);
         } else {
             _capacity = 0;
@@ -133,7 +133,7 @@ public:
     char& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
     uint16_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
-    void clear() { _size = 1; if (_data) _data.get()[0] = '\0'; }
+    void clear() { _size = 1; if (_data.valid()) _data.get()[0] = '\0'; }
     String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
@@ -181,7 +181,7 @@ public:
         return strcmp(a.c_str(), b.c_str());
     }
 
-    const char* c_str() const { return _data ? _data.get() : ""; }
+    const char* c_str() const { return _data.valid() ? _data.get() : ""; }
     String& erase(uint16_t pos, uint16_t len);
 
     String& erase(uint16_t pos = 0)

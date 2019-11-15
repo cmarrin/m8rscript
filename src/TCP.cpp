@@ -54,7 +54,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     
     IPAddr ipAddr;
     Mad<Object> ipAddrObject = ipValue.asObject();
-    if (ipAddrObject) {
+    if (ipAddrObject.valid()) {
         ipAddr[0] = ipAddrObject->element(eu, Value(0)).toIntValue(eu);
         ipAddr[1] = ipAddrObject->element(eu, Value(1)).toIntValue(eu);
         ipAddr[2] = ipAddrObject->element(eu, Value(2)).toIntValue(eu);
@@ -65,7 +65,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     delegate->init(eu, ipAddr, port, func, thisValue);
     
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
 
@@ -97,7 +97,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
@@ -118,7 +118,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
 CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     

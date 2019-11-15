@@ -55,17 +55,17 @@ class Object;
 class String;
 
 template<typename T>
-class Mad : public Id<RawMad>
+class Mad
 {
 public:
-    Mad() : Id()
+    Mad()
     {
 #ifndef NDEBUG
         _ptr = nullptr;
 #endif
     }
     
-    Mad(Raw raw) : Id(raw)
+    explicit Mad(RawMad raw) : _raw(raw)
     {
 #ifndef NDEBUG
         _ptr = get();
@@ -82,9 +82,15 @@ public:
 #endif
     }
     
+    RawMad raw() const { return _raw; }
+
     T* get() const;
     T& operator*() const { return *get(); }
     T* operator->() const { return get(); }
+
+    bool operator==(const Mad& other) const { return _raw == other._raw; }
+
+    bool valid() const { return _raw != Mad<T>().raw(); }
     
     template <typename U>
     operator Mad<U>() const
@@ -94,7 +100,7 @@ public:
         const T* t = static_cast<const T*>(u);
         (void) t;
 
-        return Mad<U>(Raw(raw()));
+        return Mad<U>(raw());
     }
     
     void reset() { *this = Mad<T>(); }
@@ -111,6 +117,8 @@ public:
     static Mad<String> create(const char*, int32_t length = -1);
 
 private:
+    RawMad _raw = NoRawMad;
+    
 #ifndef NDEBUG
     // Keep a pointer around for debugging
     T* _ptr = nullptr;
@@ -127,13 +135,13 @@ public:
         assert(static_cast<uint32_t>(size) <= 0xffff);
         
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
-        Mad<T> result = Mad<T>(Id<RawMad>::Raw(alloc(size)));
+        Mad<T> result = Mad<T>(alloc(size));
         
-        if (result) {
+        if (result.valid()) {
             if (type == MemoryType::Object) {
-                GC::addToStore<MemoryType::Object>(result);
+                GC::addToStore<MemoryType::Object>(result.raw());
             } else if (type == MemoryType::String) {
-                GC::addToStore<MemoryType::String>(result);
+                GC::addToStore<MemoryType::String>(result.raw());
             }
             
             uint32_t index = static_cast<uint32_t>(type);
@@ -150,9 +158,9 @@ public:
         uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
 
         if (type == MemoryType::Object) {
-            GC::removeFromStore<MemoryType::Object>(p);
+            GC::removeFromStore<MemoryType::Object>(p.raw());
         } else if (type == MemoryType::String) {
-            GC::removeFromStore<MemoryType::String>(p);
+            GC::removeFromStore<MemoryType::String>(p.raw());
         }
         
         free(p.raw(), size);
@@ -173,12 +181,12 @@ public:
     {
         // return NoId unless the address is in the heap range AND is divisible by _blockSize
         if (addr < _heapBase || addr > (_heapBase + _memoryInfo.heapSizeInBlocks * _memoryInfo.blockSize)) {
-            return Id<RawMad>().raw();
+            return NoRawMad;
         }
         
         size_t offset = reinterpret_cast<char*>(addr) -_heapBase;
         if ((offset % _memoryInfo.blockSize) != 0) {
-            return Id<RawMad>().raw();
+            return NoRawMad;
         }
         
         return static_cast<RawMad>(offset / _memoryInfo.blockSize);
@@ -223,7 +231,7 @@ private:
 template<typename T>
 Mad<T>::Mad(const T* addr)
 {
-    *this = Mad(Mad::Raw(Mallocator::shared()->blockIdFromAddr(const_cast<T*>(addr))));
+    *this = Mad(Mallocator::shared()->blockIdFromAddr(const_cast<T*>(addr)));
 }
 
 template<typename T>
@@ -236,7 +244,7 @@ inline void Mad<T>::destroy(MemoryType type, uint32_t size)
         return;
     }
     
-    if (*this) {
+    if (this->valid()) {
         // Only call the destructor if this isn't an array of objects.
         // Arrays call their desctructors themselves
         if (size == 1) {

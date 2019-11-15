@@ -65,7 +65,7 @@ void ExecutionUnit::printError(CallReturnValue::Error error) const
 
 void ExecutionUnit::gcMark()
 {
-    if (!_program) {
+    if (!_program.valid()) {
         return;
     }
     
@@ -94,7 +94,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     }
     
     // If property exists in this, store it there
-    if (_this) {
+    if (_this.valid()) {
         Value oldValue = _this->property(this, atom);
         if (oldValue) {
             if (!_this->setProperty(this, atom, value, Value::SetPropertyType::AddIfNeeded)) {
@@ -131,7 +131,7 @@ Value ExecutionUnit::derefId(Atom atom)
 
     // Look in this then program then global
     Value value;
-    if (_this) {
+    if (_this.valid()) {
         value = _this->property(this, atom);
         if (value) {
             return value;
@@ -155,9 +155,9 @@ Value ExecutionUnit::derefId(Atom atom)
 void ExecutionUnit::closeUpValues(uint32_t frame)
 {
     Mad<UpValue> prev;
-    for (Mad<UpValue> upValue = _openUpValues; upValue; upValue = upValue->next()) {
+    for (Mad<UpValue> upValue = _openUpValues; upValue.valid(); upValue = upValue->next()) {
         if (upValue->closeIfNeeded(this, frame)) {
-            if (prev) {
+            if (prev.valid()) {
                 prev->setNext(upValue->next());
             } else {
                 _openUpValues = upValue->next();
@@ -171,7 +171,7 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
 
 void ExecutionUnit::clearOpenUpValues()
 {
-    while (_openUpValues) {
+    while (_openUpValues.valid()) {
         Mad<UpValue> nextUpValue = _openUpValues->next();
         _openUpValues.destroy(MemoryType::UpValue);
         _openUpValues = nextUpValue;
@@ -180,7 +180,7 @@ void ExecutionUnit::clearOpenUpValues()
 
 void ExecutionUnit::startExecution(Mad<Program> program)
 {
-    if (!program) {
+    if (!program.valid()) {
         _terminate = true;
         _function.reset();
         _this.reset();
@@ -321,7 +321,7 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 
 Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
 {
-    for (auto next = _openUpValues; next; next = next->next()) {
+    for (auto next = _openUpValues; next.valid(); next = next->next()) {
         assert(!next->closed());
         if (next->stackIndex() == stackIndex) {
             return next;
@@ -336,8 +336,8 @@ Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
 
 void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope)
 {
-    assert(_program);
-    assert(function);
+    assert(_program.valid());
+    assert(function.valid());
     
     Mad<Object> prevFunction = _function;
     _function =  function;
@@ -351,7 +351,7 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
     
     Mad<Object> prevThis = _this;
     _this = thisObject;
-    if (!_this) {
+    if (!_this.valid()) {
         _this = _program;
     }
     
@@ -428,7 +428,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     // Get any constant functions
     for (auto it : *(function->constants())) {
         Mad<Function> func = it.asFunction();
-        if (func && func->name()) {
+        if (func.valid() && func->name()) {
             obj->setProperty(this, func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
         }
     }
@@ -468,7 +468,7 @@ CallReturnValue ExecutionUnit::continueExecution()
 
     #define DISPATCH goto *dispatchTable[static_cast<uint8_t>(dispatchNextOp(inst, checkCounter))]
     
-    if (!_program) {
+    if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 
@@ -577,7 +577,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             
             _actualParamCount = callRecord._paramCount;
             _this = callRecord._thisObj;
-            assert(_this);
+            assert(_this.valid());
             _stack.restoreFrame(callRecord._frame, localsToPop);
             _framePtr =_stack.framePtr();
             
@@ -814,7 +814,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_CLOSURE: {
         Mad<Closure> closure = Mad<Closure>::create();
-        closure->init(this, regOrConst(inst.rb()), _this ? Value(_this) : Value());
+        closure->init(this, regOrConst(inst.rb()), _this.valid() ? Value(_this) : Value());
         setInFrame(inst.ra(), Value(static_cast<Mad<Object>>(closure)));
         DISPATCH;
     }

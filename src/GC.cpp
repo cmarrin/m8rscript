@@ -50,7 +50,7 @@ void GC::gc(bool force)
                 break;
             case GCState::MarkActive:
                 for (RawMad& it : _euStore) {
-                    Mad<ExecutionUnit> eu = Mad<ExecutionUnit>::Raw(it);
+                    Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(it);
                     eu->gcMark();
                 }
                 gcState = GCState::MarkStatic;
@@ -64,7 +64,7 @@ void GC::gc(bool force)
             case GCState::SweepObj: {
                 auto it = std::remove_if(_objectStore.begin(), _objectStore.end(), [](RawMad m) { return (m & 0x8000) == 0; });
                 std::for_each(it, _objectStore.end(), [](RawMad m) {
-                    Mad<Object> obj = Mad<Object>::Raw(m);
+                    Mad<Object> obj = Mad<Object>(m);
                     obj.destroy();
                 });
                 _objectStore.erase(it, _objectStore.end());
@@ -74,7 +74,7 @@ void GC::gc(bool force)
             case GCState::SweepStr: {
                 auto it = std::remove_if(_stringStore.begin(), _stringStore.end(), [](RawMad m) { return (m & 0x8000) == 0; });
                 std::for_each(it, _stringStore.end(), [](RawMad m) {
-                    Mad<String> str = Mad<String>::Raw(m);
+                    Mad<String> str = Mad<String>(m);
                     str.destroy();
                 });
                 _stringStore.erase(it, _stringStore.end());

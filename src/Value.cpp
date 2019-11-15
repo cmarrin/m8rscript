@@ -22,13 +22,13 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj ? obj->toString(eu) : String("null");
+            return obj.valid() ? obj->toString(eu) : String("null");
         }
         case Type::Float: return String::toString(asFloatValue());
         case Type::Integer: return String::toString(asIntValue());
         case Type::String: {
             Mad<String> s = asString();
-            return s ? *s : String("*BAD*");
+            return s.valid() ? *s : String("*BAD*");
         }
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
         case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
@@ -45,7 +45,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Object: {
             Mad<Object> obj = asObject();
             Float f;
-            if (obj) {
+            if (obj.valid()) {
                 String::toFloat(f, obj->toString(eu).c_str());
             }
             return f;
@@ -54,7 +54,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Integer: return Float(int32FromValue(), 0);
         case Type::String: {
             const Mad<String> s = asString();
-            if (!s) {
+            if (!s.valid()) {
                 return Float();
             }
             Float f;
@@ -83,13 +83,13 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
+            return obj.valid() ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
         }
         case Type::Integer:
         case Type::Float: return eu->program()->atomizeString(toStringValue(eu).c_str());
         case Type::String: {
             const Mad<String> s = asString();
-            return s ? eu->program()->atomizeString(s->c_str()) : Atom();
+            return s.valid() ? eu->program()->atomizeString(s->c_str()) : Atom();
         }
         case Type::StringLiteral: {
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
@@ -261,7 +261,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj ? obj->property(eu, prop) : Value();
+            return obj.valid() ? obj->property(eu, prop) : Value();
         }
         case Type::Integer:
         case Type::Float: 
@@ -289,7 +289,7 @@ bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value,
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();
-    return obj ? obj->setProperty(eu, prop, value, type) : false;
+    return obj.valid() ? obj->setProperty(eu, prop, value, type) : false;
 }
 
 const Value Value::element(ExecutionUnit* eu, const Value& elt) const
@@ -298,7 +298,7 @@ const Value Value::element(ExecutionUnit* eu, const Value& elt) const
         // This means String or StringLiteral
         int32_t index = elt.toIntValue(eu);
         const Mad<String> s = asString();
-        if (s) {
+        if (s.valid()) {
             if (s->size() > index && index >= 0) {
                 return Value(static_cast<int32_t>((*s)[index]));
             }
@@ -314,7 +314,7 @@ const Value Value::element(ExecutionUnit* eu, const Value& elt) const
         }
     } else {
         Mad<Object> obj = asObject();
-        if (obj) {
+        if (obj.valid()) {
             return obj->element(eu, elt);
         }
     }
@@ -325,7 +325,7 @@ bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, 
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();
-    return obj ? obj->setElement(eu, elt, value, append) : false;
+    return obj.valid() ? obj->setElement(eu, elt, value, append) : false;
 }
 
 CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
@@ -335,7 +335,7 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
         return asNativeFunction()(eu, thisValue, nparams);
     }
     Mad<Object> obj = asObject();
-    return obj ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Error::CannotCall);
+    return obj.valid() ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Error::CannotCall);
 }
 
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -344,7 +344,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
+            return obj.valid() ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
         }
         case Type::Integer:
         case Type::Float: 
@@ -391,13 +391,13 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
 void Value::gcMark()
 {
     Mad<String> string = asString();
-    if (string) {
+    if (string.valid()) {
         string->setMarked(true);
         return;
     }
     
     Mad<Object> obj = asObject();
-    if (obj) {
+    if (obj.valid()) {
         obj->gcMark();
     }
 }

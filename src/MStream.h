@@ -50,15 +50,15 @@ public:
 
     bool loaded()
     {
-        return _file && _file->valid();
+        return _file.valid() && _file->valid();
     }
 	virtual bool eof() const override
     {
-        return !_file || _file->eof();
+        return !_file.valid() || _file->eof();
     }
     virtual int read() const override
     {
-        if (!_file) {
+        if (!_file.valid()) {
             return -1;
         }
         char c;
@@ -69,7 +69,7 @@ public:
     }
     virtual int write(uint8_t c) override
     {
-        if (!_file) {
+        if (!_file.valid()) {
             return -1;
         }
         if (_file->write(reinterpret_cast<char*>(&c), 1) != 1) {

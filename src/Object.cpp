@@ -27,7 +27,7 @@ MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
-        if (obj) {
+        if (obj.valid()) {
             obj.destroy();
             it.value = Value();
         }
@@ -106,10 +106,10 @@ void MaterObject::gcMark()
     for (auto entry : _properties) {
         entry.value.gcMark();
     }
-    if (_iterator) {
+    if (_iterator.valid()) {
         _iterator->gcMark();
     }
-    if (_nativeObject) {
+    if (_nativeObject.valid()) {
         _nativeObject->gcMark();
     }
     if (_arrayNeedsGC) {
@@ -233,11 +233,11 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     }
     
     if (prop == Atom(SA::iterator)) {
-        return Value(_iterator ?: eu->program()->global()->property(eu, Atom(SA::Iterator)).asObject());
+        return Value(_iterator.valid() ? _iterator: eu->program()->global()->property(eu, Atom(SA::Iterator)).asObject());
     }
 
     if (prop == Atom(SA::__nativeObject)) {
-        return _nativeObject ? Value(_nativeObject) : Value();
+        return _nativeObject.valid() ? Value(_nativeObject) : Value();
     }
 
     auto it = _properties.find(prop);
@@ -318,7 +318,7 @@ ObjectFactory::ObjectFactory(Mad<Program> program, SA sa, ObjectFactory* parent,
 {
     _obj = Mad<MaterObject>::create();
     
-    if (!program) {
+    if (!program.valid()) {
         return;
     }
     
@@ -344,7 +344,7 @@ ObjectFactory::~ObjectFactory()
 
 void ObjectFactory::addProperty(Atom prop, Mad<Object> obj)
 {
-    assert(obj);
+    assert(obj.valid());
     addProperty(prop, Value(obj));
 }
 
@@ -380,7 +380,7 @@ Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t n
 
 Mad<Object> ObjectFactory::create(Mad<Object> proto, ExecutionUnit* eu, uint32_t nparams)
 {
-    if (!proto) {
+    if (!proto.valid()) {
         return Mad<Object>();
     }
 

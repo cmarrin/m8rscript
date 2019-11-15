@@ -166,7 +166,7 @@ Mad<File> SpiffsFS::open(const char* name, FileOpenMode mode)
     // cases we're open read/write
     
     // If file is null, open a dummy file and put 'error' in it.
-    if (!file) {
+    if (!file.valid()) {
         assert(error != Error::Code::OK);
         file = SpiffsFS::rawOpen(SpiffsDirectory::FileID::bad(), 0, File::Type::File, mode);
         file->_error = error;
@@ -259,7 +259,7 @@ void SpiffsDirectory::setName(const char* name)
     }
     
     _dirFile = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDONLY, fileType);
-    if (!_dirFile) {
+    if (!_dirFile.valid()) {
         _error = Error::Code::InternalError;
         return;
     }
@@ -304,7 +304,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     
     // Split up the name and find each component
     Mad<SpiffsFile> file(SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
-    if (!file || !file->valid()) {
+    if (!file.valid() || !file->valid()) {
         error = Error::Code::InternalError;
     } else {
         Vector<String> components = String(name).split("/");

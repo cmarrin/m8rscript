@@ -134,12 +134,12 @@ public:
     
     explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
     
-    explicit Value(Mad<Object> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<const MaterObject> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<MaterObject> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<Function> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
-    explicit Value(Mad<String> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
-    explicit Value(Mad<NativeObject> value) { assert(value); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }
+    explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<const MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
+    explicit Value(Mad<String> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
+    explicit Value(Mad<NativeObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }
     explicit Value(NativeFunction value) { assert(value); init(); _value._nativeFunction = value; _value._type = Type::NativeFunction; }
 
     explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
@@ -186,10 +186,10 @@ public:
             default:
             case Type::Null:
             case Type::None:            return false;
-            case Type::String:          return asString() && !asString()->empty();
-            case Type::Object:          return asObject();  
-            case Type::Function:        return asFunction();
-            case Type::NativeObject:    return asNativeObject();
+            case Type::String:          return asString().valid() && !asString()->empty();
+            case Type::Object:          return asObject().valid();  
+            case Type::Function:        return asFunction().valid();
+            case Type::NativeObject:    return asNativeObject().valid();
             case Type::NativeFunction:  return _value._nativeFunction;
             case Type::Integer:         return int32FromValue() != 0;
             case Type::Float:
@@ -235,7 +235,7 @@ public:
     bool isCallable() const
     {
         return !(isId() || isNativeObject() || isNativeFunction() ||
-               isNone() || isNull() || (isObject() && !asObject()));
+               isNone() || isNull() || (isObject() && !asObject().valid()));
     }
 
     bool isType(ExecutionUnit*, Atom);
@@ -266,11 +266,11 @@ private:
     inline int32_t int32FromValue() const { return _value._int; }
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
-    inline Mad<String> stringFromValue() const { return Mad<String>::Raw(_value._rawMad); }
-    inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>::Raw(_value._rawMad); }
+    inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
+    inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
     inline NativeFunction nativeFunctionFromValue() { return _value._nativeFunction; }
-    inline Mad<Object> objectFromValue() const { return Mad<Object>::Raw(_value._rawMad); }
-    inline Mad<Function> functionFromValue() const { return Mad<Function>::Raw(_value._rawMad); }
+    inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
+    inline Mad<Function> functionFromValue() const { return Mad<Function>(_value._rawMad); }
 
     inline StringLiteral stringLiteralFromValue() const
     {

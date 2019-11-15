@@ -18,7 +18,7 @@ void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisVa
     assert(function.isFunction());
     _thisValue = thisValue;
     _func = function.asObject();
-    assert(_func);
+    assert(_func.valid());
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
         _upValues.push_back(eu->newUpValue(_func->upValueStackIndex(eu, i)));

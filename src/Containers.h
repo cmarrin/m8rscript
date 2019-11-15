@@ -326,6 +326,7 @@ private:
         for (int i = 0; i < _size; ++i) {
             newData.get()[i] = _data.get()[i];
         }
+        assert(_data.raw() != 1 && newData.raw() != 1);
         _data.destroy(MemoryType::Vector, oldCapacity);
         _data = newData;
     }

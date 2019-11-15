@@ -164,7 +164,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
-    if (!func) {
+    if (!func.valid()) {
         return String();
     }
     
@@ -411,7 +411,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
                 break;
             }
             Mad<Function> func = value.asFunction();
-            if (func) {
+            if (func.valid()) {
                 _nestingLevel++;
                 s += "\n";
                 String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
@@ -431,7 +431,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
             
             // Make the assumption that this is a MaterObject
             Mad<MaterObject> obj = value.asObject();
-            if (obj) {
+            if (obj.valid()) {
                 _nestingLevel++;
                 s += "CLASS {\n";
                 uint32_t count = obj->numProperties();

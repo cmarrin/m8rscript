@@ -28,7 +28,7 @@ static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& 
 {
     obj = thisValue.property(eu, Atom(SA::__object)).asObject();
     index = thisValue.property(eu, Atom(SA::__index)).asIntValue();
-    if (!obj) {
+    if (!obj.valid()) {
         return true;
     }
     int32_t size = obj->property(eu, Atom(SA::length)).asIntValue();
@@ -42,7 +42,7 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
     }
     
     Mad<Object> obj = eu->stack().top(1 - nparams).asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     

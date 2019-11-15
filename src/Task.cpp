@@ -30,12 +30,12 @@ void TaskBase::finish()
 Task::Task()
 {
     _eu = Mad<ExecutionUnit>::create();
-    GC::addEU(_eu);
+    GC::addEU(_eu.raw());
 }    
 
 Task::~Task()
 {
-    GC::removeEU(_eu);
+    GC::removeEU(_eu.raw());
     _eu.destroy();
 }
 
@@ -114,7 +114,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     }
     
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     

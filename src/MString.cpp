@@ -57,7 +57,7 @@ String String::slice(int32_t start, int32_t end) const
 
 String String::trim() const
 {
-    if (_size < 2 || !_data) {
+    if (_size < 2 || !_data.valid()) {
         return String();
     }
     uint16_t l = _size - 1;
@@ -121,9 +121,9 @@ void String::doEnsureCapacity(uint16_t size)
         _capacity = size;
     }
     Mad<char> newData = Mad<char>::create(_capacity);
-    assert(newData);
-    if (_data) {
-        if (newData) {
+    assert(newData.valid());
+    if (_data.valid()) {
+        if (newData.valid()) {
             memcpy(newData.get(), _data.get(), _size);
         } else {
             _capacity = 0;

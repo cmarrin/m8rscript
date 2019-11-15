@@ -45,7 +45,7 @@ Mallocator::Mallocator()
 RawMad Mallocator::alloc(size_t size)
 {
     if (!_heapBase) {
-        return Id<RawMad>().raw();
+        return NoRawMad;
     }
     
     uint16_t blocksToAlloc = blockSizeFromByteSize(size);
@@ -78,7 +78,7 @@ RawMad Mallocator::alloc(size_t size)
     }
     
     if (freeBlock == NoBlockId) {
-        return Id<RawMad>().raw();
+        return NoRawMad;
     }
     
     assert(_memoryInfo.numAllocations < std::numeric_limits<uint16_t>::max());

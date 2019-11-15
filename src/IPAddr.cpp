@@ -82,7 +82,7 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
     }
     
     Mad<Object> thisObject = thisValue.asObject();
-    if (thisObject) {
+    if (thisObject.valid()) {
         thisObject->setArray(true);
         thisObject->setElement(eu, Value(0), Value(ipAddr[0]), true);
         thisObject->setElement(eu, Value(1), Value(ipAddr[1]), true);
@@ -119,8 +119,8 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
     Value hostnameValue = eu->stack().top(1 - nparams);
     String hostname = hostnameValue.toStringValue(eu);
     Value funcValue = eu->stack().top(2 - nparams);
-    if (funcValue.asObject()) {
-        GC::addStaticObject(funcValue.asObject());
+    if (funcValue.asObject().valid()) {
+        GC::addStaticObject(funcValue.asObject().raw());
     }
     
     eu->startEventListening();
@@ -138,8 +138,8 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
         args[1] = Value(obj);
         
         eu->fireEvent(funcValue, Value(thisObject), args, 2);
-        if (funcValue.asObject()) {
-            GC::removeStaticObject(funcValue.asObject());
+        if (funcValue.asObject().valid()) {
+            GC::removeStaticObject(funcValue.asObject().raw());
         }
         eu->stopEventListening();
     });

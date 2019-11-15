@@ -19,16 +19,16 @@ uint32_t Parser::_nextLabelId = 1;
 
 Parser::Parser(Mad<Program> program)
     : _parseStack(this)
-    , _program(program ?: Mad<Program>::create())
+    , _program(program.valid() ? program : Mad<Program>::create())
 {
     // While parsing the program is unprotected. It could get collected.
     // Register it to protect it during the compile
-    GC::addStaticObject(_program);
+    GC::addStaticObject(_program.raw());
 }
 
 Parser::~Parser()
 {
-    GC::removeStaticObject(_program);
+    GC::removeStaticObject(_program.raw());
 }
 
 Mad<Function> Parser::parse(const m8r::Stream& stream, Debug debug, Mad<Function> parent)
@@ -36,7 +36,7 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, Debug debug, Mad<Function
     _debug = debug;
     _scanner.setStream(&stream);
     ParseEngine p(this);
-    if (!parent) {
+    if (!parent.valid()) {
         parent = _program;
     }
     _functions.emplace_back(parent, false);
@@ -260,7 +260,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         Function* f = currentFunction().get();
         for (uint32_t i = 0; i < f->constants()->size(); ++i) {
             Mad<Object> func = f->constants()->at(ConstantId(i).raw()).asObject();
-            if (func) {
+            if (func.valid()) {
                 if (func->name() == atom) {
                     _parseStack.pushConstant(i);
                     return;
@@ -779,8 +779,8 @@ uint32_t Parser::ParseStack::bake()
             uint32_t r = entry._reg;
             Value v = _parser->currentFunction()->constants()->at(ConstantId(r - MaxRegister - 1).raw());
             Mad<Object> obj = v.asObject();
-            Mad<Function> func = (obj && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
-            if (func) {
+            Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
+            if (func.valid()) {
                 pop();
                 uint32_t dst = pushRegister();
                 _parser->emitCodeRRR(Op::CLOSURE, dst, r);

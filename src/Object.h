@@ -35,8 +35,9 @@ public:
         , _hasIterator(false)
         , _hasGet(false)
         , _hasSet(false)
+        , _isDestroyed(false)
     { }
-    virtual ~Object() { }
+    virtual ~Object() { _isDestroyed = true; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
@@ -93,6 +94,7 @@ private:
     bool _hasIterator : 1;
     bool _hasGet : 1;
     bool _hasSet : 1;
+    bool _isDestroyed : 1;
 };
 
 class MaterObject : public Object {
@@ -151,12 +153,12 @@ template<typename T>
 CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
 {
     Mad<Object> obj = thisValue.asObject();
-    if (!obj) {
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
     nativeObj = obj->property(eu, Atom(SA::__nativeObject)).asNativeObject();
-    if (!nativeObj) {
+    if (!nativeObj.valid()) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
     return CallReturnValue(CallReturnValue::Error::Ok);
