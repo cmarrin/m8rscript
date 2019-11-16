@@ -106,7 +106,16 @@ public:
     void receivedData(const String&, Telnet::Action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
-    std::function<void(const String&)>& consolePrintFunction() { return _consolePrintFunction; }
+    const std::function<void(const String&)>& consolePrintFunction() const { return _consolePrintFunction; }
+    
+    void vprintf(const char*, va_list) const;
+
+    void printf(const char* fmt, ...) const
+    {
+        va_list args;
+        va_start(args, fmt);
+        vprintf(fmt, args);
+    }
 
     void setConsoleListener(Value func)
     {

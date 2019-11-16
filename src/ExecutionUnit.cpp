@@ -305,6 +305,33 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
+void ExecutionUnit::vprintf(const char* format, va_list args) const
+{
+    String s = String::format(format, [&args](String::FormatType type) {
+        switch(type) {
+            case String::FormatType::Int:
+                return Value(static_cast<int32_t>(va_arg(args, int)));
+            case String::FormatType::String:
+                return Value(Mad<String>::create(va_arg(args, const char*)));
+            case String::FormatType::Float:
+                // TODO: Implement
+                va_arg(args, double);
+                return Value(Float());
+            case String::FormatType::Ptr: {
+                // TODO: Implement
+                va_arg(args, void*);
+                return Value();
+            }
+        }
+    });
+
+    if (consolePrintFunction()) {
+        consolePrintFunction()(s);
+    } else {
+        system()->printf(s.c_str());
+    }
+}
+
 uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 {
     assert(frame > 0);
