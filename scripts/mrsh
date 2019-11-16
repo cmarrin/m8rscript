@@ -55,6 +55,10 @@ function processLine(line)
     var filename = findExecutable(command);
     if (filename && filename.length) {
         var task = new Task(filename, consoleListener);
+        if (task == null) {
+            return;
+        }
+        
         task.arguments = components;
         task.env = env;
         var taskStatus = { done : false, status : 0 };
