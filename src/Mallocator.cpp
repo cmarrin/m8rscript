@@ -164,6 +164,22 @@ void Mallocator::free(RawMad p, size_t size)
     }
 }
 
+const char* Mallocator::stringFromMemoryType(MemoryType type)
+{
+    switch(type) {
+        case MemoryType::String:        return ROMSTR("String");
+        case MemoryType::Character:     return ROMSTR("Char");
+        case MemoryType::Object:        return ROMSTR("Object");
+        case MemoryType::File:          return ROMSTR("File");
+        case MemoryType::Task:          return ROMSTR("Task");
+        case MemoryType::ExecutionUnit: return ROMSTR("ExecutionUnit");
+        case MemoryType::Native:        return ROMSTR("Native");
+        case MemoryType::Vector:        return ROMSTR("Vector");
+        case MemoryType::UpValue:       return ROMSTR("UpValue");
+        default:                        return ROMSTR("Unknown");
+    }
+}
+
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)
 {

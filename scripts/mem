@@ -13,28 +13,10 @@
 var info = meminfo();
 printf("meminfo: freeSize = %d, allocatedSize = %d, numAllocations = %d\n",
     info.freeSize, info.allocatedSize, info.numAllocations);
-    
-for (var i = 0; i < info.numAllocationsByType.length; ++i) {
-    if (info.numAllocationsByType[i]) {
-        var typeString = "";
-        switch(i) {
-            case 0: typeString = "Unknowns";
-            case 1: typeString = "String";
-            case 2: typeString = "String Buffer";
-            case 3: typeString = "Object";
-            case 4: typeString = "Instruction";
-            case 5: typeString = "CallRecord";
-            case 6: typeString = "EventValue";
-            case 7: typeString = "ConstantValue";
-            case 8: typeString = "FunctionEntry";
-            case 9: typeString = "File";
-            case 10: typeString = "Task";
-            case 11: typeString = "ExecutionUnit";
-            case 12: typeString = "Application";
-        }
 
-        printf("         Allocated %3d %s items, total size = %d\n",
-            info.numAllocationsByType[i], typeString, info.sizeByType[i]);
-    }
+for (var i = 0; i < info.allocationsByType.length; ++i) {
+    printf("         Allocated %3d %s items, total size = %d\n",
+        info.allocationsByType[i].count, info.allocationsByType[i].type, info.allocationsByType[i].size);
 }
+
 return 0;
