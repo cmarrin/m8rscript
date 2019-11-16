@@ -162,7 +162,6 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
             } else {
                 _openUpValues = upValue->next();
             }
-            upValue.destroy(MemoryType::UpValue);
         } else {
             prev = upValue;
         }
