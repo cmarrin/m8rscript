@@ -376,7 +376,7 @@ static inline int compareFloat(Float a, Float b)
 int ExecutionUnit::compareValues(const Value& a, const Value& b)
 {
     if ((a.isNull() || a.isNone()) && (b.isNull() || b.isNone())) {
-        return true;
+        return 0;
     }
     
     if (valuesAreInt(a, b)) {
