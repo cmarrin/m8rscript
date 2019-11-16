@@ -324,6 +324,7 @@ private:
 
         Mad<T> newData = Mad<T>::create(MemoryType::Vector, _capacity);
         for (int i = 0; i < _size; ++i) {
+            new(&(newData.get()[i])) T();
             newData.get()[i] = _data.get()[i];
         }
         assert(_data.raw() != 1 && newData.raw() != 1);
