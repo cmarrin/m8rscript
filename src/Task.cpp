@@ -71,12 +71,14 @@ void Task::setFilename(const char* filename)
             _error = Error::Code::ParseError;
             return;
         } else {
+#ifdef PRINT_CODE
             CodePrinter codePrinter;
             m8r::String codeString = codePrinter.generateCodeString(parser.program());
             
             system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
             system()->printf("%s", codeString.c_str());
             system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+#endif
         }
         
         _eu->startExecution(parser.program());
