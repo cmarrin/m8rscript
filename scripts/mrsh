@@ -19,15 +19,11 @@ var lines = [ ];
 
 consoleListener = function(line, action)
 {
-    println("*** 7");
     if (action == "intr") {
         printf("\n^C\n");
         done[0] = true;
-        printf("******** consoleListener: done = %s", done);
     } else {
-        println("*** 8");
         lines.push_back(line);
-        println("*** 9");
     }
 };
 
@@ -52,7 +48,6 @@ function findExecutable(filename)
 
 function processLine(line)
 {
-    println("*** 1");
     var components = line.split(" ");
     var command = components.front;
     components.pop_front();
@@ -74,26 +69,18 @@ function processLine(line)
     } else {
         printf("mrsh: %s: command not found\n", command);
     }
-    println("*** 2");
 }
 
 showPrompt();
 
 while (!done[0]) {
     while (lines.length) {
-        println("*** 3");
         var line = lines.front;
         lines.pop_front();
-        println("*** 4");
         processLine(line);
-        println("*** 5");
         showPrompt();
-        println("*** 6");
     }
-    println("*** 10");
     waitForEvent();
-    println("*** 11");
-    printf("******** main: done = %s", done);
 }
 
 //var lines = [ ];
