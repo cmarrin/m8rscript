@@ -13,7 +13,7 @@
 
 namespace m8r {
 
-class SystemInterface;
+class ExecutionUnit;
 
 class Error
 {
@@ -69,12 +69,14 @@ public:
     Code code() const { return _code; }
     
     static void showError(Error error) { showError(error.code()); }
-    static void showError(Code);
-    
-    static void printError(Code code, const char* format = nullptr, ...);
-    static void printError(Code, int32_t lineno, const char* format = nullptr, ...);
-    static void vprintError(Code, const char* format, va_list);
-    static void vprintError(Code, int32_t lineno, const char* format, va_list);
+    static void showError(Code code) { showError(nullptr, code); }
+    static void showError(const ExecutionUnit* eu, Error error) { showError(eu, error.code()); }
+    static void showError(const ExecutionUnit*, Code);
+
+    static void printError(const ExecutionUnit*, Code code, const char* format = nullptr, ...);
+    static void printError(const ExecutionUnit*, Code, int32_t lineno, const char* format = nullptr, ...);
+    static void vprintError(const ExecutionUnit*, Code, const char* format, va_list);
+    static void vprintError(const ExecutionUnit*, Code, int32_t lineno, const char* format, va_list);
 
 private:
     Code _code = Code::OK;

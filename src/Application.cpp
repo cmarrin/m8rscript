@@ -36,27 +36,28 @@ public:
         switch(event) {
             case m8r::TCPDelegate::Event::Connected:
                 _shells[connectionId].task = Mad<Task>::create();
+                
+                // Set the print function to send the printed string out the TCP channel
+                _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
+                    // Break it up into lines. We need to insert '\r'
+                    Vector<String> v = s.split("\n");
+                    for (int i = 0; i < v.size(); ++i) {
+                        if (!v[i].empty()) {
+                            tcp->send(connectionId, v[i].c_str(), v[i].size());
+                        }
+                        if (i == v.size() - 1) {
+                            break;
+                        }
+                        tcp->send(connectionId, "\r\n", 2);
+                    }
+                });
+                
                 _shells[connectionId].task->setFilename(Application::shellName());
                 if (_shells[connectionId].task->error().code() != Error::Code::OK) {
-                    Error::printError(_shells[connectionId].task->error().code());
+                    Error::printError(_shells[connectionId].task->eu(), _shells[connectionId].task->error().code());
                     _shells[connectionId].task = Mad<Task>();
                     tcp->disconnect(connectionId);
                 } else {
-                    // Set the print function to send the printed string out the TCP channel
-                    _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
-                        // Break it up into lines. We need to insert '\r'
-                        Vector<String> v = s.split("\n");
-                        for (int i = 0; i < v.size(); ++i) {
-                            if (!v[i].empty()) {
-                                tcp->send(connectionId, v[i].c_str(), v[i].size());
-                            }
-                            if (i == v.size() - 1) {
-                                break;
-                            }
-                            tcp->send(connectionId, "\r\n", 2);
-                        }
-                    });
-                    
                     tcp->send(connectionId, _shells[connectionId].telnet.init().c_str());
                     
                     // Run the task
@@ -163,7 +164,9 @@ bool Application::mountFileSystem()
             m8r::system()->printf(ROMSTR("Filessytem not present, formatting...\n"));
         } else {
             system()->printf(ROMSTR("ERROR: Filesystem mount failed: "));
+            
             Error::showError(system()->fileSystem()->lastError().code());
+            
             system()->printf(ROMSTR("\n"));
             return false;
         }

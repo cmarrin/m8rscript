@@ -22,16 +22,16 @@ static const Duration EvalDurationMax = 2_sec;
 
 void ExecutionUnit::tooManyErrors() const
 {
-    system()->printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
+    printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
 }
 
 void ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    system()->printf(ROMSTR("***** "));
+    printf(ROMSTR("***** "));
 
-    Error::vprintError(Error::Code::RuntimeError, _lineno, format, args);
+    Error::vprintError(this, Error::Code::RuntimeError, _lineno, format, args);
     ++_nerrors;
 }
 
@@ -440,7 +440,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     // be extracted into an Object
     Mad<Function> parent = Mad<Function>::create();
     
-    Mad<Function> function = parser.parse(stream, Parser::Debug::Full, parent);
+    Mad<Function> function = parser.parse(stream, this, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         

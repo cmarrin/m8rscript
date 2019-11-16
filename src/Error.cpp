@@ -9,11 +9,11 @@
 
 #include "Error.h"
 
-#include "SystemInterface.h"
+#include "ExecutionUnit.h"
 
 using namespace m8r;
 
-void Error::showError(Code code)
+void Error::showError(const ExecutionUnit* eu, Code code)
 {
     const char* codeString = "*** INVALID CODE ***";
     switch(code) {
@@ -49,46 +49,51 @@ void Error::showError(Code code)
         case Code::OutOfMemory              : codeString = ROMSTR("Out of Memory"); break;
         case Code::InternalError            : codeString = ROMSTR("Internal Error"); break;
     }
-    system()->printf(codeString);
+    
+    if (eu) {
+        eu->printf(codeString);
+    } else {
+        system()->printf(codeString);
+    }
 }
 
-void Error::printError(Code code, const char* format, ...)
+void Error::printError(const ExecutionUnit* eu, Code code, const char* format, ...)
 {
     if (!format) {
-        showError(code);
-        system()->printf("\n");
+        showError(eu, code);
+        eu->printf("\n");
         return;
     }
     
     va_list args;
     va_start(args, format);
-    vprintError(code, format, args);
+    vprintError(eu, code, format, args);
 }
 
-void Error::printError(Code code, int32_t lineno, const char* format, ...)
+void Error::printError(const ExecutionUnit* eu, Code code, int32_t lineno, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    vprintError(code, lineno, format, args);
+    vprintError(eu, code, lineno, format, args);
 }
 
-void Error::vprintError(Code code, const char* format, va_list args)
+void Error::vprintError(const ExecutionUnit* eu, Code code, const char* format, va_list args)
 {
-    vprintError(code, 0, format, args);
+    vprintError(eu, code, 0, format, args);
 }
 
-void Error::vprintError(Code code, int32_t lineno, const char* format, va_list args)
+void Error::vprintError(const ExecutionUnit* eu, Code code, int32_t lineno, const char* format, va_list args)
 {
-    showError(code);
-    system()->printf(ROMSTR(" Error"));
+    showError(eu, code);
+    eu->printf(ROMSTR(" Error"));
     if (!format) {
         return;
     }
-    system()->printf(ROMSTR(": "));
-    system()->vprintf(format, args);
+    eu->printf(ROMSTR(": "));
+    eu->vprintf(format, args);
     if (lineno > 0) {
-        system()->printf(ROMSTR(" on line %d"), lineno);
+        eu->printf(ROMSTR(" on line %d"), lineno);
     }
-    system()->printf(ROMSTR("\n"));
+    eu->printf(ROMSTR("\n"));
 }
 

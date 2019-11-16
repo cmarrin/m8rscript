@@ -31,8 +31,10 @@ Parser::~Parser()
     GC::removeStaticObject(_program.raw());
 }
 
-Mad<Function> Parser::parse(const m8r::Stream& stream, Debug debug, Mad<Function> parent)
+Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug debug, Mad<Function> parent)
 {
+    assert(eu);
+    _eu = eu;
     _debug = debug;
     _scanner.setStream(&stream);
     ParseEngine p(this);
@@ -58,8 +60,8 @@ void Parser::printError(const char* format, ...)
 
     va_list args;
     va_start(args, format);
-    system()->printf(ROMSTR("***** "));
-    Error::vprintError(Error::Code::ParseError, _scanner.lineno(), format, args);
+    _eu->printf(ROMSTR("***** "));
+    Error::vprintError(_eu, Error::Code::ParseError, _scanner.lineno(), format, args);
     va_end(args);
     
     char s[80];

@@ -60,13 +60,12 @@ void Task::setFilename(const char* filename)
         return;
 #else
         // See if we can parse it
-        system()->printf(ROMSTR("Parsing...\n"));
         system()->lock();
         Parser parser;
-        parser.parse(m8rStream, debug);
+        parser.parse(m8rStream, _eu.get(), debug);
         system()->unlock();
-        system()->printf(ROMSTR("Finished parsing %s. %d error%s\n\n"), filename, parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         if (parser.nerrors()) {
+            _eu->printf(ROMSTR("***** %d error%s parsing %s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s", filename);
             syntaxErrors.swap(parser.syntaxErrors());
             _error = Error::Code::ParseError;
             return;
@@ -145,10 +144,11 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     }
     
     Mad<Task> task = Mad<Task>::create();
+    task->setConsolePrintFunction(eu->consolePrintFunction());
     task->setFilename(filename.c_str());
     
     if (task->error() != Error::Code::OK) {
-        Error::printError(Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
+        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     obj->setProperty(eu, Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
@@ -156,9 +156,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     obj->setProperty(eu, Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     obj->setProperty(eu, Atom(SA::env), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
-    // Set the console funcs
     task->setConsoleListener(consoleListener);
-    task->setConsolePrintFunction(eu->consolePrintFunction());
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

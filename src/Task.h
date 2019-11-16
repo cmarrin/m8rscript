@@ -67,6 +67,8 @@ public:
 
     Error error() const { return _error; }
 
+    const ExecutionUnit* eu() const { return _eu.get(); }
+    
 private:
     virtual CallReturnValue execute();
 
