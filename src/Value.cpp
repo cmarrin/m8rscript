@@ -11,7 +11,6 @@
 
 #include "ExecutionUnit.h"
 #include "Object.h"
-#include "slre.h"
 
 using namespace m8r;
 
@@ -112,133 +111,39 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
         return String();
     }
     
-    String resultString;
-    
-    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
-        
-    uint16_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
-    Mad<char> formatRegex = Mad<char>::create(formatRegexSize);
-    ROMmemcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
-    
     int32_t nextParam = 1 - nparams;
-
-    int size = static_cast<int>(format.size());
-    const char* start = format.c_str();
-    const char* s = start;
-    while (true) {
-        struct slre_cap caps[5];
-        memset(caps, 0, sizeof(caps));
-        int next = slre_match(formatRegex.get(), s, size - static_cast<int>(s - start), caps, 5, 0);
-        if (nextParam > 0 || next == SLRE_NO_MATCH) {
-            // Print the remainder of the string
-            resultString += s;
-            formatRegex.destroy(formatRegexSize);
-            return resultString;
-        }
-        if (next < 0) {
-            formatRegex.destroy(formatRegexSize);
-            return String();
-        }
-        
-        // Output anything from s to the '%'
-        assert(caps[0].len == 1);
-        if (s != caps[0].ptr) {
-            resultString += String(s, static_cast<int32_t>(caps[0].ptr - s));
-        }
-        
-        // FIXME: handle the leading number(s) in the format
-        assert(caps[4].len == 1);
-        
-        uint32_t width = 0;
-        bool zeroFill = false;
-        if (caps[1].len) {
-            String::toUInt(width, caps[1].ptr);
-            if (caps[1].ptr[0] == '0') {
-                zeroFill = true;
-            }
-        }
-        
-        Value value = eu->stack().top(nextParam++);
-        char formatChar = *(caps[4].ptr);
-        
-        switch (formatChar) {
-            case 'c': {
-                uint8_t uc = static_cast<char>(value.toIntValue(eu));
-                char escapeChar = '\0';
-                switch(uc) {
-                    case 0x07: escapeChar = 'a'; break;
-                    case 0x08: escapeChar = 'b'; break;
-                    case 0x09: escapeChar = 't'; break;
-                    case 0x0a: escapeChar = 'n'; break;
-                    case 0x0b: escapeChar = 'v'; break;
-                    case 0x0c: escapeChar = 'f'; break;
-                    case 0x0d: escapeChar = 'r'; break;
-                    case 0x1b: escapeChar = 'e'; break;
-                }
-                if (escapeChar) {
-                    resultString += '\\';
-                    resultString += escapeChar;
-                } else if (uc < ' ') {
-                    char buf[4] = "";
-                    ::snprintf(buf, 3, "%02x", uc);
-                    resultString += "\\x";
-                    resultString += buf;
-                } else {
-                    resultString += static_cast<char>(uc);
-                }
-                break;
-            }
-            case 's':
-                resultString += value.toStringValue(eu);
-                break;
-            case 'd':
-            case 'i':
-            case 'x':
-            case 'X':
-            case 'u': {
-                String format = String("%") + (zeroFill ? "0" : "") + (width ? String::toString(width).c_str() : "");
-                char numberBuf[20] = "";
-                
-                switch(formatChar) {
-                    case 'd':
-                    case 'i':
-                        format += "d";
-                        ::snprintf(numberBuf, 20, format.c_str(), value.toIntValue(eu));
-                        break;
-                    case 'x':
-                    case 'X':
-                        format += (formatChar == 'x') ? "x" : "X";
-                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
-                        break;
-                    case 'u':
-                        format += "u";
-                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(value.toIntValue(eu)));
-                        break;
+    Value value;
+    
+    return String::format(format.c_str(), [eu, &nextParam](String::FormatType type) {
+        switch(type) {
+            case String::FormatType::Int:
+                return Value(eu->stack().top(nextParam++).toIntValue(eu));
+            case String::FormatType::String:
+                return Value(Mad<String>::create(eu->stack().top(nextParam++).toStringValue(eu)));
+            case String::FormatType::Float:
+                return Value(eu->stack().top(nextParam++).toFloatValue(eu));
+            case String::FormatType::Ptr: {
+                // return a string showing <type>(value)
+                Value val = eu->stack().top(nextParam++);
+                Mad<String> s = Mad<String>::create();
+                switch(val.type()) {
+                    case Type::None:            *s = "UND()"; break;
+                    case Type::Float:           *s = "FLT()"; break;
+                    case Type::Object:          *s = "OBJ()"; break;
+                    case Type::Function:        *s = "FUN()"; break;
+                    case Type::Integer:         *s = "INT()"; break;
+                    case Type::String:          *s = "STR()"; break;
+                    case Type::StringLiteral:   *s = "LIT()"; break;
+                    case Type::Id:              *s = "ID()";  break;
+                    case Type::Null:            *s = "NUL()"; break;
+                    case Type::NativeObject:    *s = "NOB()"; break;
+                    case Type::NativeFunction:  *s = "NFU()"; break;
                 }
                 
-                resultString += numberBuf;
-                break;
+                return Value(s);
             }
-            case 'f':
-            case 'e':
-            case 'E':
-            case 'g':
-            case 'G':
-                resultString += value.toStringValue(eu);
-                break;
-            case 'p': {
-                char pointerBuf[20] = "";
-                snprintf(pointerBuf, 20, "%p", *(reinterpret_cast<void**>(&value)));
-                resultString += pointerBuf;
-                break;
-            }
-            default:
-                formatRegex.destroy(formatRegexSize);
-                return String();
         }
-        
-        s += next;
-    }
+    });
 }
 
 bool Value::isType(ExecutionUnit* eu, Atom atom)

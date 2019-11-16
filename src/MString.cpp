@@ -12,6 +12,7 @@
 #include "MStream.h"
 #include "Scanner.h"
 #include "SystemInterface.h"
+#include "slre.h"
 
 using namespace m8r;
 
@@ -304,3 +305,134 @@ bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
     }
     return false;
 }
+
+String String::format(const char* fmt, std::function<Value(FormatType)> func)
+{
+    if (!fmt || fmt[0] == '\0') {
+        return String();
+    }
+    
+    String resultString;
+    
+    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
+        
+    uint16_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
+    Mad<char> formatRegex = Mad<char>::create(formatRegexSize);
+    ROMmemcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
+    
+    int size = static_cast<int>(strlen(fmt));
+    const char* start = fmt;
+    const char* s = start;
+    while (true) {
+        struct slre_cap caps[5];
+        memset(caps, 0, sizeof(caps));
+        int next = slre_match(formatRegex.get(), s, size - static_cast<int>(s - start), caps, 5, 0);
+        if (next == SLRE_NO_MATCH) {
+            // Print the remainder of the string
+            resultString += s;
+            formatRegex.destroy(formatRegexSize);
+            return resultString;
+        }
+        if (next < 0) {
+            formatRegex.destroy(formatRegexSize);
+            return String();
+        }
+        
+        // Output anything from s to the '%'
+        assert(caps[0].len == 1);
+        if (s != caps[0].ptr) {
+            resultString += String(s, static_cast<int32_t>(caps[0].ptr - s));
+        }
+        
+        // FIXME: handle the leading number(s) in the format
+        assert(caps[4].len == 1);
+        
+        uint32_t width = 0;
+        bool zeroFill = false;
+        if (caps[1].len) {
+            String::toUInt(width, caps[1].ptr);
+            if (caps[1].ptr[0] == '0') {
+                zeroFill = true;
+            }
+        }
+        
+        char formatChar = *(caps[4].ptr);
+        
+        switch (formatChar) {
+            case 'c': {
+                uint8_t uc = static_cast<char>(func(FormatType::Int).asIntValue());
+                char escapeChar = '\0';
+                switch(uc) {
+                    case 0x07: escapeChar = 'a'; break;
+                    case 0x08: escapeChar = 'b'; break;
+                    case 0x09: escapeChar = 't'; break;
+                    case 0x0a: escapeChar = 'n'; break;
+                    case 0x0b: escapeChar = 'v'; break;
+                    case 0x0c: escapeChar = 'f'; break;
+                    case 0x0d: escapeChar = 'r'; break;
+                    case 0x1b: escapeChar = 'e'; break;
+                }
+                if (escapeChar) {
+                    resultString += '\\';
+                    resultString += escapeChar;
+                } else if (uc < ' ') {
+                    char buf[4] = "";
+                    ::snprintf(buf, 3, "%02x", uc);
+                    resultString += "\\x";
+                    resultString += buf;
+                } else {
+                    resultString += static_cast<char>(uc);
+                }
+                break;
+            }
+            case 's':
+                resultString += func(FormatType::String).asString().get()->c_str();
+                break;
+            case 'd':
+            case 'i':
+            case 'x':
+            case 'X':
+            case 'u': {
+                String format = String("%") + (zeroFill ? "0" : "") + (width ? String::toString(width).c_str() : "");
+                char numberBuf[20] = "";
+                
+                switch(formatChar) {
+                    case 'd':
+                    case 'i':
+                        format += "d";
+                        ::snprintf(numberBuf, 20, format.c_str(), func(FormatType::Int).asIntValue());
+                        break;
+                    case 'x':
+                    case 'X':
+                        format += (formatChar == 'x') ? "x" : "X";
+                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
+                        break;
+                    case 'u':
+                        format += "u";
+                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
+                        break;
+                }
+                
+                resultString += numberBuf;
+                break;
+            }
+            case 'f':
+            case 'e':
+            case 'E':
+            case 'g':
+            case 'G':
+                resultString += toString(func(FormatType::Float).asFloatValue());
+                break;
+            case 'p': {
+                resultString += func(FormatType::Ptr).asString().get()->c_str();
+                break;
+            }
+            default:
+                formatRegex.destroy(formatRegexSize);
+                return String();
+        }
+        
+        s += next;
+    }
+}
+

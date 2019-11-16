@@ -22,6 +22,8 @@
 
 namespace m8r {
 
+class Value;
+
 //
 //  Class: String
 //
@@ -215,6 +217,9 @@ public:
     static bool toFloat(Float&, const char*, bool allowWhitespace = true);
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
+    
+    enum class FormatType { Int, String, Float, Ptr };
+    static String format(const char* fmt, std::function<Value(FormatType)>);
     
 private:
     void doEnsureCapacity(uint16_t size);
