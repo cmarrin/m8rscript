@@ -16,6 +16,10 @@
 #include "Parser.h"
 #endif
 
+#ifdef PRINT_CODE
+#include "CodePrinter.h"
+#endif
+
 #include <cassert>
 
 using namespace m8r;
@@ -66,6 +70,13 @@ void Task::setFilename(const char* filename)
             syntaxErrors.swap(parser.syntaxErrors());
             _error = Error::Code::ParseError;
             return;
+        } else {
+            CodePrinter codePrinter;
+            m8r::String codeString = codePrinter.generateCodeString(parser.program());
+            
+            system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+            system()->printf("%s", codeString.c_str());
+            system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
         }
         
         _eu->startExecution(parser.program());
