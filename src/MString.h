@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <functional>
 #include <vector>
 #include "Containers.h"
 #include "Defines.h"

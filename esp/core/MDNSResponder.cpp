@@ -24,7 +24,7 @@ using namespace m8r;
 
 static os_timer_t bc_timer;
 
-MDNSResponder::MDNSResponder(const char* name, uint32_t broadcastInterval, uint32_t ttl)
+void MDNSResponder::init(const char* name, uint32_t broadcastInterval, uint32_t ttl)
 {
 	_ttl = ttl;
     _hostname = name;

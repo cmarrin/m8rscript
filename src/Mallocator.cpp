@@ -180,6 +180,9 @@ const char* Mallocator::stringFromMemoryType(MemoryType type)
     }
 }
 
+// GCC requires the specializations to be in an explicit namespace
+namespace m8r {
+
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)
 {
@@ -200,4 +203,6 @@ Mad<String> Mad<String>::create(String&& s)
     Mad<String> str = Mad<String>::create();
     *(str.get()) = s;
     return str;
+}
+
 }

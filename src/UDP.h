@@ -41,7 +41,11 @@ public:
     virtual void disconnect() = 0;
 
 protected:
-    UDP(UDPDelegate* delegate, uint16_t port) : _delegate(delegate), _port(port) { }
+    void init(UDPDelegate* delegate, uint16_t port)
+    {
+        _delegate = delegate;
+        _port = port;  
+    }
 
     UDPDelegate* _delegate;
     uint16_t _port;
@@ -68,7 +72,7 @@ public:
 
     void send(IPAddr ip, uint16_t port, const char* data, uint16_t size)
     {
-        if (!_udp) {
+        if (!_udp.valid()) {
             return;
         }
         _udp->send(ip, port, data, size);
@@ -76,7 +80,7 @@ public:
     
     void disconnect()
     {
-        if (!_udp) {
+        if (!_udp.valid()) {
             return;
         }
         _udp->disconnect();
@@ -86,7 +90,7 @@ public:
     virtual void UDPevent(UDP* udp, Event, const char* data, uint16_t length) override;
 
 private:
-    std::unique_ptr<UDP> _udp;
+    Mad<UDP> _udp;
     Value _func;
     Value _parent;
     ExecutionUnit* _eu = nullptr;

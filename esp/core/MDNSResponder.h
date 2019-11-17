@@ -19,7 +19,7 @@ class MDNSResponder : public UDPDelegate {
 public:
     enum class ServiceProtocol { TCP, UDP };
     
-    MDNSResponder(const char* name, uint32_t broadcastInterval = 30, uint32_t ttl = 120);
+    void init(const char* name, uint32_t broadcastInterval = 30, uint32_t ttl = 120);
     ~MDNSResponder();
 
     void addService(uint16_t port, const char* instance, const char* serviceType, 
@@ -60,6 +60,7 @@ private:
     } __attribute__((__packed__));
 
     struct ServiceRecord {
+        ServiceRecord() { }
         ServiceRecord(uint16_t port, const char* instance, const char* serviceType, ServiceProtocol protocol, const char* text)
             : _port(port)
             , _instance(String(instance))
@@ -69,10 +70,10 @@ private:
         {
         }
         
-        uint16_t _port;
+        uint16_t _port = 0;
         String _instance;
         String _serviceType;
-        ServiceProtocol _protocol;
+        ServiceProtocol _protocol = ServiceProtocol::TCP;
         String _text;
     };
     
@@ -145,7 +146,7 @@ private:
         }
     }
     
-    std::unique_ptr<UDP> _udp;
+    Mad<UDP> _udp;
 };
 
 }

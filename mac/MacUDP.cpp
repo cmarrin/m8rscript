@@ -59,9 +59,10 @@ void UDP::leaveMulticastGroup(IPAddr addr)
 //	espconn_igmp_leave(&any, &mDNSmulticast);
 }
 
-MacUDP::MacUDP(UDPDelegate* delegate, uint16_t port)
-    : UDP(delegate, port)
+void MacUDP::init(UDPDelegate* delegate, uint16_t port)
 {
+    UDP::init(delegate, port);
+    
     _socketFD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (_socketFD == -1) {
         printf("Error opening TCP socket\n");

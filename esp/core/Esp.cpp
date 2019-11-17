@@ -92,9 +92,11 @@ m8r::IPAddr m8r::IPAddr::myIPAddr()
 }
 
 struct LookupHostNameWrapper {
-    LookupHostNameWrapper(const char* name, std::function<void (const char* name, m8r::IPAddr)> func)
-        : _func(func)
+    LookupHostNameWrapper() { }
+
+    void init(const char* name, std::function<void (const char* name, m8r::IPAddr)> func)
     {
+        _func = func;
         _espconn.reverse = this;
         espconn_gethostbyname(&_espconn, name, &_ipaddr, callback);
     }
@@ -114,12 +116,14 @@ struct LookupHostNameWrapper {
     espconn _espconn;
 };
 
+LookupHostNameWrapper _lookupHostNameWrapper;
+
 void m8r::IPAddr::lookupHostName(const char* name, std::function<void (const char* name, m8r::IPAddr)> func)
 {
-    // Create a LookupHostNameWrapper to hold all the pieces that need to be passed to espconn_gethostbyname. 
+    // Init the LookupHostNameWrapper to hold all the pieces that need to be passed to espconn_gethostbyname. 
     // LookupHostNameWrapper holds the espconn and ip_addr_t and then the espconn sets its reserved field to
     // point at the LookupHostNameWrapper
-    new LookupHostNameWrapper(name, func);
+    _lookupHostNameWrapper.init(name, func);
 }
 
 void initmdns();
@@ -129,7 +133,7 @@ extern "C" {
     int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
-static std::unique_ptr<m8r::TCP> _logTCP;
+static m8r::Mad<m8r::TCP> _logTCP;
 
 void setDeviceName(const char*);
 
@@ -145,14 +149,18 @@ public:
     virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
     virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
     
-    virtual std::unique_ptr<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    virtual m8r::Mad<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
     {
-        return std::unique_ptr<m8r::TCP>(new m8r::EspTCP(delegate, port, ip));
+        m8r::Mad<m8r::EspTCP> tcp = m8r::Mad<m8r::EspTCP>::create(m8r::MemoryType::Network);
+        tcp->init(delegate, port, ip);
+        return tcp;
     }
     
-    virtual std::unique_ptr<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
+    virtual m8r::Mad<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
     {
-        return std::unique_ptr<m8r::UDP>(new m8r::EspUDP(delegate, port));
+        m8r::Mad<m8r::EspUDP> udp = m8r::Mad<m8r::EspUDP>::create(m8r::MemoryType::Network);
+        udp->init(delegate, port);
+        return udp;
     }
 
 private:
@@ -168,17 +176,17 @@ private:
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const
 {
     size_t fmtlen = ROMstrlen(fmt);
-    char* buf = new char[fmtlen + 100];
-    ROMvsnprintf(buf, fmtlen + 99, fmt, args);
+    m8r::Mad<char> buf = m8r::Mad<char>::create(fmtlen + 100);
+    ROMvsnprintf(buf.get(), fmtlen + 99, fmt, args);
     
-    if (_logTCP) {
+    if (_logTCP.valid()) {
         for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
-            _logTCP->send(connection, buf);
+            _logTCP->send(connection, buf.get());
         }
     }
     
-    os_printf_plus(buf);
-    delete [ ] buf;
+    os_printf_plus(buf.get());
+    buf.destroy(fmtlen + 100);
 }
 
 uint64_t m8r::SystemInterface::currentMicroseconds()
@@ -320,10 +328,10 @@ int ROMsnprintf (char* s, size_t n, const char* format, ...)
 int ROMvsnprintf (char* s, size_t n, const char* format, va_list args)
 {
     size_t fmtlen = ROMstrlen(format);
-    char* fmtbuf = new char[fmtlen + 1];
-    ROMCopyString(fmtbuf, format);
-    int result = ets_vsnprintf(s, n, fmtbuf, args);
-    delete [ ] fmtbuf;
+    m8r::Mad<char> fmtbuf = m8r::Mad<char>::create(fmtlen + 1);
+    ROMCopyString(fmtbuf.get(), format);
+    int result = ets_vsnprintf(s, n, fmtbuf.get(), args);
+    fmtbuf.destroy(fmtlen + 1);
     return result;
 }
 
@@ -370,16 +378,16 @@ void writeUserData()
     _gUserData.magic[1] = '8';
     _gUserData.magic[2] = 'r';
     _gUserData.magic[3] = 's';
-    m8r::File* file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Write);
+    m8r::Mad<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Write);
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
-    delete file;
+    file.destroy(m8r::MemoryType::File);
 }
 
 void getUserData()
 {
-    m8r::File* file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Read);
+    m8r::Mad<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Read);
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
-    delete file;
+    file.destroy(m8r::MemoryType::File);
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
         _gUserData.magic[2] != 'r' || _gUserData.magic[3] != 's') {
@@ -480,12 +488,13 @@ void smartConfig()
     smartconfig_start(smartconfigDone);
 }
 
-m8r::MDNSResponder* _responder = nullptr;
+m8r::Mad<m8r::MDNSResponder> _responder;
 
 void initmdns()
 {
-    if (_responder) {
-        delete _responder;
+    if (_responder.valid()) {
+        _responder.destroy(m8r::MemoryType::Network);
+        _responder.reset();
     }
 
     const char* name = _gUserData.name;
@@ -493,7 +502,8 @@ void initmdns()
         name = "m8rscript";
     }
 
-    _responder = new m8r::MDNSResponder(name);
+    _responder = m8r::Mad<m8r::MDNSResponder>::create(m8r::MemoryType::Network);
+    _responder->init(name);
     _responder->addService(22, "m8r IoT", "m8rscript_shell");
 }
 
@@ -697,19 +707,19 @@ extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {
-	return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
+	return 0; // m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
 }
 
 void RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 {
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
+    //m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
 }
 
 void* RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
-	void* m = pvPortMalloc(size, file, line);
-    memset(m, 0, size);
-    return m;
+	//void* m = pvPortMalloc(size, file, line);
+    //memset(m, 0, size);
+    return 0; //m;
 }
 
 size_t xPortGetFreeHeapSize(void)
@@ -756,36 +766,6 @@ extern void gdb_do_break();
 } // extern "C"
 
 using __cxxabiv1::__guard;
-
-void *operator new(size_t size)
-{
-    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
-}
-
-void *operator new[](size_t size)
-{
-    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
-}
-
-void operator delete(void * ptr)
-{
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
-}
-
-void operator delete[](void * ptr)
-{
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
-}
-
-void operator delete(void * ptr, std::size_t sz)
-{
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), sz);
-}
-
-void operator delete[](void * ptr, std::size_t sz)
-{
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), sz);
-}
 
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));
 extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));

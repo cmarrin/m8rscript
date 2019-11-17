@@ -26,7 +26,7 @@ public:
     virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) override;
     virtual void disconnect(int16_t connectionId) override;
     
-    MacTCP(TCPDelegate*, uint16_t, IPAddr);
+    void init(TCPDelegate*, uint16_t, IPAddr);
 
 private:
     int _socketFD = -1;

@@ -13,9 +13,9 @@
 
 using namespace m8r;
 
-EspTCP::EspTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
-    : TCP(delegate, port, ip)
+void EspTCP::init(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 {
+    TCP::init(delegate, port, ip);
     _listenpcb = tcp_new();
     tcp_arg(_listenpcb, this);
     

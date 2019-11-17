@@ -45,7 +45,12 @@ public:
     virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
-    TCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) : _delegate(delegate), _ip(ip), _port(port) { }
+    void init(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr())
+    {
+        _delegate = delegate;
+        _ip = ip;
+        _port = port; 
+    }
 
     TCPDelegate* _delegate;
     IPAddr _ip;
@@ -79,7 +84,7 @@ public:
 
     void send(int16_t connectionId, const char* data, uint16_t size)
     {
-        if (!_tcp) {
+        if (!_tcp.valid()) {
             return;
         }
         _tcp->send(connectionId, data, size);
@@ -87,7 +92,7 @@ public:
 
     void disconnect(int16_t connectionId)
     {
-        if (!_tcp) {
+        if (!_tcp.valid()) {
             return;
         }
         _tcp->disconnect(connectionId);
@@ -97,7 +102,7 @@ public:
     virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, int16_t length) override;
 
 private:
-    std::unique_ptr<TCP> _tcp;
+    Mad<TCP> _tcp;
     Value _func;
     Value _parent;
     ExecutionUnit* _eu;

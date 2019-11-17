@@ -39,14 +39,18 @@ public:
     virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
     virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
     
-    virtual std::unique_ptr<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    virtual m8r::Mad<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
     {
-        return std::unique_ptr<m8r::TCP>(new m8r::MacTCP(delegate, port, ip));
+        m8r::Mad<m8r::MacTCP> tcp = m8r::Mad<m8r::MacTCP>::create(m8r::MemoryType::Network);
+        tcp->init(delegate, port, ip);
+        return tcp;
     }
     
-    virtual std::unique_ptr<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
+    virtual m8r::Mad<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
     {
-        return std::unique_ptr<m8r::UDP>(new m8r::MacUDP(delegate, port));
+        m8r::Mad<m8r::MacUDP> udp = m8r::Mad<m8r::MacUDP>::create(m8r::MemoryType::Network);
+        udp->init(delegate, port);
+        return udp;
     }
 
 private:

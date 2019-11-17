@@ -39,7 +39,9 @@ extern u32_t _SPIFFS_block;
 
 #define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
 #define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
-#define SPIFFS_PHYS_PAGE ((uint32_t) &_SPIFFS_page)
+
+// SpiffsFS needs this to be constant. Since the loader file specifies this as 0x100 we're safe for now
+#define SPIFFS_PHYS_PAGE 0x100 // ((uint32_t) &_SPIFFS_page)
 #define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
 
 #else

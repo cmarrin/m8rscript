@@ -20,10 +20,11 @@
 
 using namespace m8r;
 
-MacTCP::MacTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip)
-    : TCP(delegate, port, ip)
-    , _dispatchSemaphore(nullptr)
+void MacTCP::init(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 {
+    _dispatchSemaphore = nullptr;
+    
+    TCP::init(delegate, port, ip);
     _server = !ip;
     
     _socketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);

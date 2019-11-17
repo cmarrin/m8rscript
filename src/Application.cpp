@@ -38,7 +38,7 @@ public:
                 _shells[connectionId].task = Mad<Task>::create();
                 
                 // Set the print function to send the printed string out the TCP channel
-                _shells[connectionId].task->setConsolePrintFunction([this, tcp, connectionId](const String& s) {
+                _shells[connectionId].task->setConsolePrintFunction([&](const String& s) {
                     // Break it up into lines. We need to insert '\r'
                     Vector<String> v = s.split("\n");
                     for (int i = 0; i < v.size(); ++i) {
@@ -104,7 +104,7 @@ public:
     }
 
 private:
-    std::unique_ptr<m8r::TCP> _tcp;
+    m8r::Mad<m8r::TCP> _tcp;
     Application* _application;
     
     struct ShellEntry

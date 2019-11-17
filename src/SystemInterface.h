@@ -55,8 +55,8 @@ public:
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
     virtual TaskManager* taskManager() = 0;
-    virtual std::unique_ptr<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
-    virtual std::unique_ptr<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
+    virtual Mad<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
+    virtual Mad<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
     
     static void heapInfo(void*& start, uint32_t& size);
     

@@ -14,11 +14,11 @@
 using namespace m8r;
 
 Heartbeat::Heartbeat()
-    : _task([this]() {
-        system()->gpio()->digitalWrite(system()->gpio()->builtinLED(), !_upbeat);
-        _upbeat = !_upbeat;
-        return CallReturnValue(CallReturnValue::Type::MsDelay, _upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
-    })
+//    : _task([this]() {
+//        system()->gpio()->digitalWrite(system()->gpio()->builtinLED(), !_upbeat);
+//        _upbeat = !_upbeat;
+//        return CallReturnValue(CallReturnValue::Type::MsDelay, _upbeat ? (HeartrateMs - DownbeatMs) : DownbeatMs);
+//    })
 {
     system()->gpio()->setPinMode(system()->gpio()->builtinLED(), GPIOInterface::PinMode::Output);
 }

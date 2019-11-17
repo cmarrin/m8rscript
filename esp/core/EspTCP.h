@@ -40,7 +40,7 @@ public:
         _delegate->TCPevent(this, TCPDelegate::Event::SentData, connectionId);
     }
     
-    EspTCP(TCPDelegate*, uint16_t, IPAddr);
+    void init(TCPDelegate*, uint16_t, IPAddr);
 
 private:
     static err_t _clientConnected(void* arg, tcp_pcb *pcb, err_t err) { return reinterpret_cast<EspTCP*>(arg)->clientConnected(pcb, err); }

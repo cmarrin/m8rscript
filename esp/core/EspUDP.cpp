@@ -38,9 +38,9 @@ void UDP::leaveMulticastGroup(IPAddr addr)
     igmp_leavegroup(&ifaddr, &multicastAddr);
 }
 
-EspUDP::EspUDP(UDPDelegate* delegate, uint16_t port)
-    : UDP(delegate, port)
+void EspUDP::init(UDPDelegate* delegate, uint16_t port)
 {
+    UDP::init(delegate, port);
     _pcb = udp_new();
     if (port) {
         udp_recv(_pcb, _recv, this);

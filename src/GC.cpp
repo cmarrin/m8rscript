@@ -105,6 +105,8 @@ void GC::gc(bool force)
     system()->unlock();
 }
 
+namespace m8r {
+
 template<>
 void GC::addToStore<MemoryType::Object>(RawMad v)
 {
@@ -133,6 +135,8 @@ void GC::removeFromStore<MemoryType::String>(RawMad v)
     if (it != _stringStore.end()) {
         _stringStore.erase(it);
     }
+}
+
 }
 
 void GC::addStaticObject(RawMad obj)

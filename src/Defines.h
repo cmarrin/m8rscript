@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <vector>
 #include <cassert>
+#include <limits>
 
 #ifdef __APPLE__
     #define RODATA_ATTR
@@ -130,6 +131,7 @@ enum class MemoryType {
     Native,
     Vector,
     UpValue,
+    Network,
     NumTypes
 };
 

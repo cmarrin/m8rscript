@@ -42,6 +42,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/ExecutionUnit.cpp \
 		../src/FS.cpp \
 		../src/Function.cpp \
+		../src/GC.cpp \
 		../src/Global.cpp \
 		../src/GPIO.cpp \
 		../src/Heartbeat.cpp \
