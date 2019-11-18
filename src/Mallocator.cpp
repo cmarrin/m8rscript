@@ -13,6 +13,16 @@
 
 using namespace m8r;
 
+void* operator new(size_t size)
+{
+    return malloc(size);
+}
+
+void operator delete(void* p) noexcept
+{
+    free(p);
+}
+
 Mallocator Mallocator::_mallocator;
 
 Mallocator::Mallocator()
