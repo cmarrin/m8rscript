@@ -176,7 +176,10 @@ const char* Mallocator::stringFromMemoryType(MemoryType type)
         case MemoryType::Native:        return ROMSTR("Native");
         case MemoryType::Vector:        return ROMSTR("Vector");
         case MemoryType::UpValue:       return ROMSTR("UpValue");
-        default:                        return ROMSTR("Unknown");
+        case MemoryType::Network:       return ROMSTR("Network");
+        case MemoryType::Fixed:         return ROMSTR("Fixed");
+        case MemoryType::NumTypes:
+        case MemoryType::Unknown:       return ROMSTR("Unknown");
     }
 }
 

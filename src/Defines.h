@@ -132,6 +132,7 @@ enum class MemoryType {
     Vector,
     UpValue,
     Network,
+    Fixed, // Memory that is allocated malloc and needs storage for its size
     NumTypes
 };
 
