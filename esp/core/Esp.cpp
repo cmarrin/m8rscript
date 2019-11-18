@@ -707,19 +707,19 @@ extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
 {
-	return 0; // m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Unknown, size);
+	return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
 }
 
 void RAM_ATTR vPortFree(void *ptr, const char* file, int line)
 {
-    //m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Unknown, reinterpret_cast<char*>(ptr), 0);
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(ptr)), 0);
 }
 
 void* RAM_ATTR pvPortZalloc(size_t size, const char* file, int line)
 {
-	//void* m = pvPortMalloc(size, file, line);
-    //memset(m, 0, size);
-    return 0; //m;
+	void* m = pvPortMalloc(size, file, line);
+    memset(m, 0, size);
+    return m;
 }
 
 size_t xPortGetFreeHeapSize(void)

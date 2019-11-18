@@ -15,12 +15,12 @@ using namespace m8r;
 
 void* operator new(size_t size)
 {
-    return malloc(size);
+    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
 }
 
 void operator delete(void* p) noexcept
 {
-    free(p);
+    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(p)), 0);
 }
 
 Mallocator Mallocator::_mallocator;
