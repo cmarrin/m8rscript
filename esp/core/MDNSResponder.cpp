@@ -190,16 +190,16 @@ void MDNSResponder::receivedData(const char* data, uint16_t length)
 #ifdef MDNSRESP_DEBUG
         if (haveService) {
             if (haveHostname) {
-                os_printf ("Got one of our instances: %s.%s.%s.%s",
+                system()->printf ("Got one of our instances: %s.%s.%s.%s",
                             names[0].c_str(), names[1].c_str(), names[2].c_str(), names[3].c_str());
             } else {
-                os_printf ("Got one of our services: %s.%s.%s", 
+                system()->printf ("Got one of our services: %s.%s.%s",
                             names[0].c_str(), names[1].c_str(), names[2].c_str());
             }
         } else {
-            os_printf ("Got our hostname: %s.%s", names[0].c_str(), names[1].c_str());
+            system()->printf ("Got our hostname: %s.%s", names[0].c_str(), names[1].c_str());
         }
-        os_printf (" - qtype=%d qclass=%d\n", qtype, qclass);
+        system()->printf (" - qtype=%d qclass=%d\n", qtype, qclass);
 #endif
 
         sendAnswer(qtype, serviceIndex);

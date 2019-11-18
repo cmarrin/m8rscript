@@ -25,6 +25,7 @@
 #include "EspTCP.h"
 #include "EspUDP.h"
 #include "MDNSResponder.h"
+#include "MString.h"
 #include "SystemInterface.h"
 #include "TCP.h"
 #include <cstdlib>
@@ -52,7 +53,6 @@ extern "C" {
 
 size_t strspn(const char *str1, const char *str2) { return 0; }
 size_t strcspn ( const char * str1, const char * str2 ) { return 0; }
-int printf ( const char * format, ... ) { return 0; }
 
 // Needed by lwip
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
@@ -130,7 +130,6 @@ void initmdns();
 
 extern "C" {
     int ets_putc(int);
-    int ets_vprintf(int (*print_function)(int), const char * format, va_list arg) __attribute__ ((format (printf, 2, 0)));
 }
 
 static m8r::Mad<m8r::TCP> _logTCP;
@@ -173,18 +172,15 @@ private:
 
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const
 {
-    size_t fmtlen = ROMstrlen(fmt);
-    m8r::Mad<char> buf = m8r::Mad<char>::create(fmtlen + 100);
-    ROMvsnprintf(buf.get(), fmtlen + 99, fmt, args);
+    m8r::String s = m8r::String::vformat(fmt, args);
     
     if (_logTCP.valid()) {
         for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
-            _logTCP->send(connection, buf.get());
+            _logTCP->send(connection, s.c_str());
         }
     }
     
-    os_printf_plus(buf.get());
-    buf.destroy(fmtlen + 100);
+    os_printf_plus(s.c_str());
 }
 
 uint64_t m8r::SystemInterface::currentMicroseconds()
@@ -312,25 +308,6 @@ const char* ROMstrstr(const char* s1, const char* s2)
             }
         }
     }
-}
-
-int ROMsnprintf (char* s, size_t n, const char* format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    int result = ROMvsnprintf(s, n, format, args);
-    va_end(args);
-    return result;
-}
-
-int ROMvsnprintf (char* s, size_t n, const char* format, va_list args)
-{
-    size_t fmtlen = ROMstrlen(format);
-    m8r::Mad<char> fmtbuf = m8r::Mad<char>::create(fmtlen + 1);
-    ROMCopyString(fmtbuf.get(), format);
-    int result = ets_vsnprintf(s, n, fmtbuf.get(), args);
-    fmtbuf.destroy(fmtlen + 1);
-    return result;
 }
 
 void micros_overflow_tick(void* arg) {
@@ -750,13 +727,13 @@ extern void gdb_do_break();
 }
 
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
-    os_printf("ASSERT:(%s) at %s:%d\n", what, func, line);
+    m8r::system()->printf("ASSERT:(%s) at %s:%d\n", what, func, line);
     gdb_do_break();
     abort();
 }
 
 [[noreturn]] void __panic_func(const char *file, int line, const char *func, const char *what) {
-    os_printf("PANIC:(%s) at %s:%d\n", what, func, line);
+    m8r::system()->printf("PANIC:(%s) at %s:%d\n", what, func, line);
     gdb_do_break();
     abort();
 }

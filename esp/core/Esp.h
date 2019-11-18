@@ -46,9 +46,6 @@ int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 
 void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
 void ets_timer_disarm(ETSTimer *a);
 void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
-int ets_sprintf(char *str, const char *format, ...)  __attribute__ ((format (printf, 2, 3)));
-int ets_vsprintf(char *str, const char *format, va_list arg)  __attribute__ ((format (printf, 2, 0)));
-int ets_vsnprintf(char * s, size_t n, const char * format, va_list arg)  __attribute__ ((format (printf, 3, 0)));
 int ets_putc(int);
 void ets_delay_us(uint32_t);
 void hexdump (const char *desc, uint8_t* addr, size_t len);
@@ -129,9 +126,6 @@ char* ROMCopyString(char* dst, const char* src);
 size_t ROMstrlen(const char* s);
 int ROMstrcmp(const char* s1, const char* s2);
 const char* ROMstrstr(const char* s1, const char* s2);
-
-int ROMsnprintf (char * s, size_t n, const char * format, ...);
-int ROMvsnprintf (char * s, size_t n, const char * format, va_list arg);
 
 #ifdef __cplusplus
 namespace m8r {

@@ -64,10 +64,9 @@ void Parser::printError(const char* format, ...)
     Error::vprintError(_eu, Error::Code::ParseError, _scanner.lineno(), format, args);
     va_end(args);
     
-    char s[80];
     va_start(args, format);
-    ROMvsnprintf(s, 79, format, args);
-    _syntaxErrors.emplace_back(s, _scanner.lineno(), 1, 1);
+    String s = String::vformat(format, args);
+    _syntaxErrors.emplace_back(s.c_str(), _scanner.lineno(), 1, 1);
     va_end(args);
 }
 
