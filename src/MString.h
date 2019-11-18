@@ -52,6 +52,11 @@ public:
         _data.get()[_size - 1] = '\0';
     }
     
+    String(ROMString s)
+    {
+        *this = s;
+    }
+    
     String(const String& other)
     {
         *this = other;
@@ -77,6 +82,28 @@ public:
     }
     
     ~String() { _data.destroy(_capacity); };
+
+    String& operator=(ROMString other)
+    {
+        uint16_t romSize = static_cast<uint16_t>(ROMstrlen(other.value));
+        
+        if (_data.valid()) {
+            _size = 0;
+            if (_capacity < romSize) {
+                _data.destroy(_capacity);
+                _data = Mad<char>();
+                _capacity = 0;
+            }
+        }
+        
+        ensureCapacity(romSize + 1);
+        _size = romSize + 1;
+        if (romSize > 0) {
+            ROMmemcpy(_data.get(), other.value, romSize);
+        }
+        _data.get()[romSize] = '\0';
+        return *this;
+    }
 
     String& operator=(const String& other)
     {
@@ -223,6 +250,7 @@ public:
     
     static String fformat(const char* fmt, std::function<Value(FormatType)>);
     static String vformat(const char*, va_list);
+    static String vformat(ROMString, va_list);
     static String format(const char* fmt, ...)
     {
         va_list args;

@@ -34,6 +34,12 @@ public:
         ::vprintf(s, args);
     }
     
+    virtual void vprintf(m8r::ROMString s, va_list args) const override
+    {
+        m8r::String ss(s);
+        ::vprintf(ss.c_str(), args);
+    }
+    
     virtual void setDeviceName(const char*) override { }
     virtual m8r::FS* fileSystem() override { return &_fileSystem; }
     virtual m8r::GPIOInterface* gpio() override { return &_gpio; }

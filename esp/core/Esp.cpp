@@ -140,6 +140,7 @@ class EspSystemInterface : public m8r::SystemInterface
 {
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
+    virtual void vprintf(m8r::ROMString fmt, va_list) const override;
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
     
     virtual m8r::FS* fileSystem() override { return &_fileSystem; }
@@ -171,6 +172,19 @@ private:
 };
 
 void EspSystemInterface::vprintf(const char* fmt, va_list args) const
+{
+    m8r::String s = m8r::String::vformat(fmt, args);
+    
+    if (_logTCP.valid()) {
+        for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
+            _logTCP->send(connection, s.c_str());
+        }
+    }
+    
+    os_printf_plus(s.c_str());
+}
+
+void EspSystemInterface::vprintf(m8r::ROMString fmt, va_list args) const
 {
     m8r::String s = m8r::String::vformat(fmt, args);
     

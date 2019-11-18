@@ -30,7 +30,7 @@ SpiffsFS::~SpiffsFS()
 
 bool SpiffsFS::mount()
 {
-    system()->printf(ROMSTR("Mounting SPIFFS...\n"));
+    system()->printf(ROMString(ROMSTR("Mounting SPIFFS...\n")));
     int32_t result = internalMount();
     if (result != SPIFFS_OK) {
         if (result == SPIFFS_ERR_NOT_A_FS) {

@@ -52,6 +52,13 @@ public:
         vprintf(fmt, args);
     }
     
+    void printf(ROMString fmt, ...) const
+    {
+        va_list args;
+        va_start(args, fmt);
+        vprintf(fmt, args);
+    }
+    
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
     virtual TaskManager* taskManager() = 0;
@@ -63,7 +70,8 @@ public:
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(const char*, va_list) const = 0;
-        
+    virtual void vprintf(ROMString, va_list) const = 0;
+
     void lock();
     void unlock();
     

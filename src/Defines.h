@@ -157,7 +157,7 @@ struct Label {
 struct ROMString
 {
     ROMString() { }
-    ROMString(const char* s) : value(s) { }
+    explicit ROMString(const char* s) : value(s) { }
     const char* value;
 };
 
