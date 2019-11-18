@@ -158,7 +158,7 @@ class SpiffsFS : public FS {
     friend SpiffsFile;
     
 public:
-    SpiffsFS(const char* name);
+    void init(const char* name);
     virtual ~SpiffsFS();
     
     virtual bool mount() override;

@@ -140,8 +140,6 @@ void setDeviceName(const char*);
 class EspSystemInterface : public m8r::SystemInterface
 {
 public:
-    EspSystemInterface() : _fileSystem("") { }
-    
     virtual void vprintf(const char* fmt, va_list) const override;
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
     

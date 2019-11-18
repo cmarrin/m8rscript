@@ -17,7 +17,7 @@ using namespace m8r;
 spiffs SpiffsFS::_spiffsFileSystem;
 
 
-SpiffsFS::SpiffsFS(const char* name)
+void SpiffsFS::init(const char* name)
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));    
     setConfig(_config, name);

@@ -28,7 +28,7 @@
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface(const char* fsFile) : _fileSystem(fsFile) { }
+    void init(const char* fsFile) : _fileSystem(fsFile) { }
     
     virtual void vprintf(const char* s, va_list args) const override
     {

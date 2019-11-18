@@ -27,7 +27,7 @@
 class MySystemInterface : public m8r::SystemInterface
 {
 public:
-    MySystemInterface(const char* fsFile) : _fileSystem(fsFile) { }
+    void init(const char* fsFile) { _fileSystem.init(fsFile); }
     
     virtual void vprintf(const char* s, va_list args) const override
     {
@@ -113,9 +113,9 @@ void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
     size = HeapSize;
 }
 
-static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
+static MySystemInterface _gSystemInterface;
 
-m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get(); }
+m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
 
 static void usage(const char* name)
 {
@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
     // TODO: The file system gets corrupted often. Let's recreate it every time until it is fixed
     remove(fsFile);
     
-    _gSystemInterface =  std::unique_ptr<m8r::SystemInterface>(new MySystemInterface(fsFile));
+    _gSystemInterface.init(fsFile);
     
     m8r::Application::mountFileSystem();
     
