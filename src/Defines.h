@@ -154,6 +154,13 @@ struct Label {
     int32_t matchedAddr : 20;
 };
 
+struct ROMString
+{
+    ROMString() { }
+    ROMString(const char* s) : value(s) { }
+    const char* value;
+};
+
 /*
     Here is the new design of Opcodes:
 
