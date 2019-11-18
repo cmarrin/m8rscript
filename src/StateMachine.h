@@ -38,7 +38,7 @@ namespace m8r {
             
             StateEntry(State state, Action action, NextStates nextStates)
                 : _state(state)
-                , _action(std::ref(action))
+                , _action(action)
                 , _nextStates(nextStates)
             { }
             
@@ -49,7 +49,7 @@ namespace m8r {
             
             StateEntry(State state, State jumpState, Action action = nullptr)
                 : _state(state)
-                , _action(std::ref(action))
+                , _action(action)
                 , _jumpState(jumpState)
             { }
             
@@ -64,7 +64,7 @@ namespace m8r {
         
         void addState(State state, Action action, const NextStates& nextStates)
         {
-            _states.emplace_back(state, std::ref(action), nextStates);
+            _states.emplace_back(state, action, nextStates);
         }
         
         void addState(State state, const NextStates& nextStates)
@@ -74,7 +74,7 @@ namespace m8r {
         
         void addState(State state, State jumpState, Action action = nullptr)
         {
-            _states.emplace_back(state, jumpState, std::ref(action));
+            _states.emplace_back(state, jumpState, action);
         }
         
         void gotoState(State state)
