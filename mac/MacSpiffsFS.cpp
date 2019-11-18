@@ -60,14 +60,12 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
         return SPIFFS_ERR_NOT_WRITABLE;
     }
     
-    char* buf = new char[size];
+    static char buf[SPIFFS_CFG_PHYS_ERASE_SZ()];
     memset(buf, 0xff, size);
     if (fwrite(buf, 1, size, fsFile) != size) {
         printf("******** MacSpiffsFS error erasing sector %d (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));
-        delete [ ] buf;
         return SPIFFS_ERR_NOT_WRITABLE;
     }
-    delete [ ] buf;
     fflush(fsFile);
     return SPIFFS_OK;
 }
