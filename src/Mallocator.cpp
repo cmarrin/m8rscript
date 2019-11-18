@@ -52,12 +52,17 @@ Mallocator::Mallocator()
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
 
-RawMad Mallocator::alloc(size_t size)
+RawMad Mallocator::alloc(size_t size, MemoryType type)
 {
     if (!_heapBase) {
         return NoRawMad;
     }
     
+    assert(type != MemoryType::Unknown);
+    assert(static_cast<uint32_t>(size) <= 0xffff);
+    
+    uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
+
     uint16_t blocksToAlloc = blockSizeFromByteSize(size);
     
     BlockId freeBlock = _firstFreeBlock;
@@ -91,10 +96,25 @@ RawMad Mallocator::alloc(size_t size)
         return NoRawMad;
     }
     
+    RawMad allocatedBlock = freeBlock;
+    
     assert(_memoryInfo.numAllocations < std::numeric_limits<uint16_t>::max());
     ++_memoryInfo.numAllocations;
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
-    return freeBlock;
+
+    if (allocatedBlock != NoBlockId) {
+        if (type == MemoryType::Object) {
+            GC::addToStore<MemoryType::Object>(allocatedBlock);
+        } else if (type == MemoryType::String) {
+            GC::addToStore<MemoryType::String>(allocatedBlock);
+        }
+        
+        uint32_t index = static_cast<uint32_t>(type);
+        _memoryInfo.allocationsByType[index].count++;
+        _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
+    }
+
+    return allocatedBlock;
 }
 
 void Mallocator::coalesce(BlockId prev, BlockId next)
@@ -109,10 +129,19 @@ void Mallocator::coalesce(BlockId prev, BlockId next)
     }
 }
 
-void Mallocator::free(RawMad p, size_t size)
+void Mallocator::free(RawMad p, size_t size, MemoryType type)
 {
     if (!_heapBase) {
         return;
+    }
+    
+    assert(type != MemoryType::Unknown);
+    uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
+
+    if (type == MemoryType::Object) {
+        GC::removeFromStore<MemoryType::Object>(p);
+    } else if (type == MemoryType::String) {
+        GC::removeFromStore<MemoryType::String>(p);
     }
     
     BlockId newBlock = p;
@@ -146,32 +175,34 @@ void Mallocator::free(RawMad p, size_t size)
     }
     
     // If this is the only block (super unlikely), no coalescing is needed
-    if (block(_firstFreeBlock)->nextBlock == NoBlockId) {
-        return;
+    if (block(_firstFreeBlock)->nextBlock != NoBlockId) {
+        // 3 cases:
+        //
+        //      1) prevBlock is NoBlockId:
+        //          newBlock is linked into free list at the head
+        //          freeBlock is the block after newBlock
+        //
+        //      2) freeBlock is NoBlockId:
+        //          newBlock is linked to the end of the free list
+        //          prevBlock is the block before newBlock
+        //
+        //      3) newBlock is linked to the middle of the free list:
+        //          prevBlock is the block before
+        //          freeBlock is the block after
+        
+        if (prevBlock == NoBlockId) {
+            coalesce(newBlock, freeBlock);
+        } else if (freeBlock == NoBlockId) {
+            coalesce(prevBlock, newBlock);
+        } else {
+            coalesce(newBlock, freeBlock);
+            coalesce(prevBlock, newBlock);
+        }
     }
-    
-    // 3 cases:
-    //
-    //      1) prevBlock is NoBlockId:
-    //          newBlock is linked into free list at the head
-    //          freeBlock is the block after newBlock
-    //
-    //      2) freeBlock is NoBlockId:
-    //          newBlock is linked to the end of the free list
-    //          prevBlock is the block before newBlock
-    //
-    //      3) newBlock is linked to the middle of the free list:
-    //          prevBlock is the block before
-    //          freeBlock is the block after
-    
-    if (prevBlock == NoBlockId) {
-        coalesce(newBlock, freeBlock);
-    } else if (freeBlock == NoBlockId) {
-        coalesce(prevBlock, newBlock);
-    } else {
-        coalesce(newBlock, freeBlock);
-        coalesce(prevBlock, newBlock);
-    }
+
+    uint32_t index = static_cast<uint32_t>(type);
+    _memoryInfo.allocationsByType[index].count--;
+    _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
 }
 
 const char* Mallocator::stringFromMemoryType(MemoryType type)

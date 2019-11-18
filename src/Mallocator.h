@@ -49,6 +49,12 @@ namespace m8r {
 //  we can limit the maximum allocated block size to 14 bits, 16K blocks or 
 //  64KB. That gives 2 bits of flags, if needed.
 //
+//  If MemoryType is Fixed it means this block is being allocated by a
+//  traditional malloc style call. The corresponding free() call will
+//  not pass the size, so we need to store it in a header. We will make
+//  space in this header for a BlockId size value so we can make a linked
+//  list of these block for when we want to find them for compaction
+//
 //---------------------------------------------------------------------------
 
 class Object;
@@ -131,43 +137,13 @@ public:
     template<typename T>
     Mad<T> allocate(MemoryType type, size_t size)
     {
-        assert(type != MemoryType::Unknown);
-        assert(static_cast<uint32_t>(size) <= 0xffff);
-        
-        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
-        Mad<T> result = Mad<T>(alloc(size));
-        
-        if (result.valid()) {
-            if (type == MemoryType::Object) {
-                GC::addToStore<MemoryType::Object>(result.raw());
-            } else if (type == MemoryType::String) {
-                GC::addToStore<MemoryType::String>(result.raw());
-            }
-            
-            uint32_t index = static_cast<uint32_t>(type);
-            _memoryInfo.allocationsByType[index].count++;
-            _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
-        }
-        return result;
+        return Mad<T>(alloc(size, type));
     }
     
     template<typename T>
     void deallocate(MemoryType type, Mad<T> p, size_t size)
     {
-        assert(type != MemoryType::Unknown);
-        uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
-
-        if (type == MemoryType::Object) {
-            GC::removeFromStore<MemoryType::Object>(p.raw());
-        } else if (type == MemoryType::String) {
-            GC::removeFromStore<MemoryType::String>(p.raw());
-        }
-        
-        free(p.raw(), size);
-
-        uint32_t index = static_cast<uint32_t>(type);
-        _memoryInfo.allocationsByType[index].count--;
-        _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
+        free(p.raw(), size, type);
     }
     
     static Mallocator* shared() { return &_mallocator; }
@@ -204,8 +180,8 @@ private:
 
     using BlockId = RawMad;
 
-    RawMad alloc(size_t size);
-    void free(RawMad, size_t size);
+    RawMad alloc(size_t size, MemoryType type);
+    void free(RawMad, size_t size, MemoryType type);
     
     void coalesce(BlockId prev, BlockId next);
 
