@@ -306,7 +306,7 @@ bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
     return false;
 }
 
-String String::format(const char* fmt, std::function<Value(FormatType)> func)
+String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
 {
     if (!fmt || fmt[0] == '\0') {
         return String();
@@ -436,3 +436,24 @@ String String::format(const char* fmt, std::function<Value(FormatType)> func)
     }
 }
 
+String String::vformat(const char* fmt, va_list args)
+{
+    String s = fformat(fmt, [&args](String::FormatType type) {
+        switch(type) {
+            case String::FormatType::Int:
+                return Value(static_cast<int32_t>(va_arg(args, int)));
+            case String::FormatType::String:
+                return Value(Mad<String>::create(va_arg(args, const char*)));
+            case String::FormatType::Float:
+                // TODO: Implement
+                va_arg(args, double);
+                return Value(Float());
+            case String::FormatType::Ptr: {
+                // TODO: Implement
+                va_arg(args, void*);
+                return Value();
+            }
+        }
+    });
+    return s;
+}

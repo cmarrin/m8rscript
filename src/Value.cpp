@@ -114,7 +114,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     int32_t nextParam = 1 - nparams;
     Value value;
     
-    return String::format(format.c_str(), [eu, &nextParam](String::FormatType type) {
+    return String::fformat(format.c_str(), [eu, &nextParam](String::FormatType type) {
         switch(type) {
             case String::FormatType::Int:
                 return Value(eu->stack().top(nextParam++).toIntValue(eu));

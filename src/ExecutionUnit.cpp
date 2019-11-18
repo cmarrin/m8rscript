@@ -307,23 +307,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
 
 void ExecutionUnit::vprintf(const char* format, va_list args) const
 {
-    String s = String::format(format, [&args](String::FormatType type) {
-        switch(type) {
-            case String::FormatType::Int:
-                return Value(static_cast<int32_t>(va_arg(args, int)));
-            case String::FormatType::String:
-                return Value(Mad<String>::create(va_arg(args, const char*)));
-            case String::FormatType::Float:
-                // TODO: Implement
-                va_arg(args, double);
-                return Value(Float());
-            case String::FormatType::Ptr: {
-                // TODO: Implement
-                va_arg(args, void*);
-                return Value();
-            }
-        }
-    });
+    String s = String::vformat(format, args);
 
     if (consolePrintFunction()) {
         consolePrintFunction()(s);
