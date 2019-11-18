@@ -17,7 +17,7 @@ using namespace m8r;
 
 MacTaskManager::MacTaskManager()
 {
-    _eventThread = new std::thread([this]{
+    std::thread thread([this]{
         while (true) {
             Time now = Time::now();
             {
@@ -48,14 +48,14 @@ MacTaskManager::MacTaskManager()
             }
         }
     });
+    _eventThread.swap(thread);
 }
 
 MacTaskManager::~MacTaskManager()
 {
     _terminating = true;
     readyToExecuteNextTask();
-    _eventThread->join();
-    delete _eventThread;
+    _eventThread.join();
 }
 
 void MacTaskManager::readyToExecuteNextTask()

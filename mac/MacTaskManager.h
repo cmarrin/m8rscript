@@ -28,7 +28,7 @@ private:
     
     virtual void readyToExecuteNextTask() override;
     
-    std::thread* _eventThread = nullptr;
+    std::thread _eventThread;
     std::condition_variable _eventCondition;
     std::mutex _eventMutex;
     std::mutex _lockMutex;
