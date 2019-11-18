@@ -134,6 +134,8 @@ private:
 class Mallocator
 {
 public:
+    void init();
+    
     template<typename T>
     Mad<T> allocate(MemoryType type, size_t size)
     {
@@ -176,7 +178,7 @@ protected:
     MemoryInfo _memoryInfo;
 
 private:
-    Mallocator();
+    Mallocator() { init(); }
 
     using BlockId = RawMad;
 
@@ -189,15 +191,15 @@ private:
     
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
-    struct FreeHeader
+    struct Header
     {
         BlockId nextBlock;
         uint16_t sizeInBlocks;
     };
     
-    FreeHeader* block(BlockId b)
+    Header* asHeader(BlockId b)
     {
-        return reinterpret_cast<FreeHeader*>(_heapBase + (b * _memoryInfo.blockSize));
+        return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize));
     }
     
     char* _heapBase = nullptr;

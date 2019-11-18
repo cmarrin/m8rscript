@@ -15,18 +15,23 @@ using namespace m8r;
 
 void* operator new(size_t size)
 {
-    return m8r::Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
+    Mallocator::shared()->init();
+    return Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
 }
 
 void operator delete(void* p) noexcept
 {
-    m8r::Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(p)), 0);
+    Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(p)), 0);
 }
 
 Mallocator Mallocator::_mallocator;
 
-Mallocator::Mallocator()
+void Mallocator::init()
 {
+    if (_heapBase) {
+        return;
+    }
+    
     void* base;
     uint32_t size;
     system()->heapInfo(base, size);
@@ -46,8 +51,8 @@ Mallocator::Mallocator()
     _heapBase = reinterpret_cast<char*>(base);
     _memoryInfo.heapSizeInBlocks = static_cast<uint16_t>(size / _memoryInfo.blockSize);
     
-    block(0)->nextBlock = NoBlockId;
-    block(0)->sizeInBlocks = _memoryInfo.heapSizeInBlocks;
+    asHeader(0)->nextBlock = NoBlockId;
+    asHeader(0)->sizeInBlocks = _memoryInfo.heapSizeInBlocks;
     _firstFreeBlock = 0;
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
@@ -62,13 +67,17 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     assert(static_cast<uint32_t>(size) <= 0xffff);
     
     uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
-
     uint16_t blocksToAlloc = blockSizeFromByteSize(size);
+
+    // If this is a fixed block we need to remember the size in a 1 block header
+    if (type == MemoryType::Fixed) {
+        blocksToAlloc++;
+    }
     
     BlockId freeBlock = _firstFreeBlock;
     BlockId prevBlock = NoBlockId;
     while (freeBlock != NoBlockId) {
-        FreeHeader* header = block(freeBlock);
+        Header* header = asHeader(freeBlock);
         assert(header->nextBlock != freeBlock);
         
         if (header->sizeInBlocks >= blocksToAlloc) {
@@ -77,7 +86,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
                 if (prevBlock == NoBlockId) {
                     _firstFreeBlock = header->nextBlock;
                 } else {
-                    block(prevBlock)->nextBlock = header->nextBlock;
+                    asHeader(prevBlock)->nextBlock = header->nextBlock;
                 }
                 break;
             } else {
@@ -110,8 +119,16 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         }
         
         uint32_t index = static_cast<uint32_t>(type);
+        uint16_t size = sizeBefore - _memoryInfo.freeSizeInBlocks;
+        
         _memoryInfo.allocationsByType[index].count++;
-        _memoryInfo.allocationsByType[index].sizeInBlocks += sizeBefore - _memoryInfo.freeSizeInBlocks;
+        _memoryInfo.allocationsByType[index].sizeInBlocks += size;
+        
+        if (type == MemoryType::Fixed) {
+            asHeader(allocatedBlock)->nextBlock = NoBlockId;
+            asHeader(allocatedBlock)->sizeInBlocks = size;
+            allocatedBlock++;
+        }
     }
 
     return allocatedBlock;
@@ -119,13 +136,13 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
 
 void Mallocator::coalesce(BlockId prev, BlockId next)
 {
-    FreeHeader* header = block(prev);
+    Header* header = asHeader(prev);
     assert(prev + header->sizeInBlocks <= next);
     if (prev + header->sizeInBlocks == next) {
         // Coalesce
         assert(header->nextBlock == next);
-        header->nextBlock = block(next)->nextBlock;
-        header->sizeInBlocks += block(next)->sizeInBlocks;
+        header->nextBlock = asHeader(next)->nextBlock;
+        header->sizeInBlocks += asHeader(next)->sizeInBlocks;
     }
 }
 
@@ -144,8 +161,14 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         GC::removeFromStore<MemoryType::String>(p);
     }
     
+    // If this is a fixed block there is a 1 block header
+    if (type == MemoryType::Fixed) {
+        assert(size == 0);
+        size = asHeader(--p)->sizeInBlocks * _memoryInfo.blockSize;
+    }
+
     BlockId newBlock = p;
-    FreeHeader* newBlockHeader = block(newBlock);
+    Header* newBlockHeader = asHeader(newBlock);
     newBlockHeader->nextBlock = NoBlockId;
     newBlockHeader->sizeInBlocks = blockSizeFromByteSize(size);
     
@@ -161,21 +184,21 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
                 _firstFreeBlock = newBlock;
             } else {
                 newBlockHeader->nextBlock = freeBlock;
-                block(prevBlock)->nextBlock = newBlock;
+                asHeader(prevBlock)->nextBlock = newBlock;
             }
             break;
         }
         prevBlock = freeBlock;
-        freeBlock = block(freeBlock)->nextBlock;
+        freeBlock = asHeader(freeBlock)->nextBlock;
     }
     
     if (freeBlock == NoBlockId) {
         // newBlock is beyond end of list. Add it to the tail
-        block(prevBlock)->nextBlock = newBlock;
+        asHeader(prevBlock)->nextBlock = newBlock;
     }
     
     // If this is the only block (super unlikely), no coalescing is needed
-    if (block(_firstFreeBlock)->nextBlock != NoBlockId) {
+    if (asHeader(_firstFreeBlock)->nextBlock != NoBlockId) {
         // 3 cases:
         //
         //      1) prevBlock is NoBlockId:
