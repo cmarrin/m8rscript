@@ -290,6 +290,23 @@ m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
     }
 }
 
+int ROMstrcmp(m8r::ROMString s1, const char* s2)
+{
+    uint8_t c1;
+    uint8_t c2;
+    for (int32_t i = 0; ; i++) {
+        c1 = readRomByte(s1+i);
+        c2 = s2[i];
+        if (c1 != c2) {
+            break;
+        }
+        if (c1 == '\0') {
+            return 0;
+        }
+    }
+    return c1 - c2;
+}
+
 void micros_overflow_tick(void* arg) {
     uint32_t m = system_get_time();
     if(m < micros_at_last_overflow_tick) {

@@ -60,6 +60,7 @@ namespace m8r {
     static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy(dst, src.value(), len); }
     static inline size_t ROMstrlen(m8r::ROMString s) { return strlen(s.value()); }
     static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2) { return m8r::ROMString(strstr(s1.value(), s2)); }
+    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp(s1.value(), s2); }
 
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
     #define ROMSTR(s) m8r::ROMString(s)
@@ -80,6 +81,7 @@ static constexpr uint32_t HeapSize = 200000;
     void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len);
     char* ROMCopyString(char* dst, m8r::ROMString src);
     m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
+    int ROMstrcmp(m8r::ROMString s1, const char* s2);
 
 //    static inline m8r::ROMString ROMSTR(const char* s)
 //    {
