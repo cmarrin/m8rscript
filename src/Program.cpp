@@ -21,9 +21,3 @@ Program::Program()
 Program::~Program()
 {
 }
-
-void Program::printAtomId(Mad<Program> program, int id)
-{
-    String s = program->stringFromAtom(Atom(id)).c_str();
-    debugf("atom=\"%s\"\n", s.c_str());
-}
