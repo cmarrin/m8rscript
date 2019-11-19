@@ -33,7 +33,8 @@ public:
         
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
-    
+    Atom atomizeString(ROMString s) const { return _atomTable.atomizeString(s); }
+
     // For debugging
     static void printAtomId(Mad<Program>, int id);
 

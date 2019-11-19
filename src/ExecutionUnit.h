@@ -108,14 +108,16 @@ public:
     void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
     const std::function<void(const String&)>& consolePrintFunction() const { return _consolePrintFunction; }
     
-    void vprintf(const char*, va_list) const;
+    void vprintf(ROMString, va_list) const;
 
-    void printf(const char* fmt, ...) const
+    void printf(ROMString fmt, ...) const
     {
         va_list args;
         va_start(args, fmt);
         vprintf(fmt, args);
     }
+    
+    void print(const char* s) const { printf(ROMSTR("%s"), s); }
 
     void setConsoleListener(Value func)
     {
@@ -158,7 +160,7 @@ private:
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();
 
-    void printError(const char* s, ...) const;
+    void printError(ROMString s, ...) const;
     void printError(CallReturnValue::Error) const;
     void tooManyErrors() const;
     

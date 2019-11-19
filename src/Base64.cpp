@@ -17,9 +17,10 @@ using namespace m8r;
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
-static const uint8_t RODATA_ATTR base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char RODATA_ATTR _base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static ROMString base64enc_tab(_base64enc_tab);
 
-static const uint8_t RODATA_ATTR base64dec_tab[256]= {
+static const uint8_t RODATA_ATTR _base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,
@@ -37,6 +38,8 @@ static const uint8_t RODATA_ATTR base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 };
+static const ROMString base64dec_tab(reinterpret_cast<const char*>(_base64dec_tab));
+
 
 /* decode a base64 string in one shot */
 int Base64::decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out)
@@ -45,11 +48,11 @@ int Base64::decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned c
 	uint_least32_t v;
 	unsigned rem;
 
-	for(io=0,ii=0,v=0,rem=0;ii<in_len;ii++) {
+	for(io = 0, ii = 0, v = 0, rem = 0; ii < in_len; ii++) {
 		unsigned char ch;
 		if(isspace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
-		ch=readRomByte(&(base64dec_tab[(unsigned)in[ii]]));
+		ch = readRomByte(base64dec_tab + static_cast<unsigned>(in[ii]));
 		if(ch==255) break; /* stop at a parse error */
 		v=(v<<6)|ch;
 		rem+=6;
@@ -81,13 +84,13 @@ int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, c
 		while(rem>=6) {
 			rem-=6;
 			if(io>=out_len) return -1; /* truncation is failure */
-			out[io++]=readRomByte(&(base64enc_tab[(v>>rem)&63]));
+			out[io++] = readRomByte(base64enc_tab + ((v >> rem) & 63));
 		}
 	}
 	if(rem) {
 		v<<=(6-rem);
 		if(io>=out_len) return -1; /* truncation is failure */
-		out[io++]=readRomByte(&(base64enc_tab[v&63]));
+		out[io++]=readRomByte(base64enc_tab + (v & 63));
 	}
 	while(io&3) {
 		if(io>=out_len) return -1; /* truncation is failure */

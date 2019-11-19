@@ -30,7 +30,7 @@ struct Keyword
 	Token token;
 };
 
-static const char keywordString[] ROMSTR_ATTR =
+static const char _keywordString[] ROMSTR_ATTR =
     "\x01" "break"
     "\x02" "case"
     "\x03" "class"
@@ -55,18 +55,18 @@ static const char keywordString[] ROMSTR_ATTR =
     "\x16" "while"
 ;
 
+static ROMString keywordString(_keywordString);
+
 // If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
 Token Scanner::scanKeyword(const char* s)
 {
-    size_t len = strlen(s);
-    const char* result = ROMstrstr(keywordString, s);
-    if (!result ||
-            readRomByte(reinterpret_cast<const uint8_t*>(result + len)) >= 0x20 ||
-            readRomByte(reinterpret_cast<const uint8_t*>(result - 1)) >= 0x20) {
+    int32_t len = static_cast<int32_t>(strlen(s));
+    ROMString result = ROMstrstr(keywordString, s);
+    if (!result.valid() || readRomByte(result + len) >= 0x20 || readRomByte(result - 1) >= 0x20) {
         return Token::Unknown;
     }
     
-    return static_cast<Token>(readRomByte(reinterpret_cast<const uint8_t*>(result - 1)));
+    return static_cast<Token>(readRomByte(result - 1));
 }
 
 Token Scanner::scanString(char terminal)

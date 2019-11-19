@@ -37,7 +37,7 @@ AtomTable::AtomTable()
 {
 }
 
-Atom AtomTable::atomizeString(const char* romstr) const
+Atom AtomTable::atomizeString(ROMString romstr) const
 {
     uint16_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
@@ -46,10 +46,15 @@ Atom AtomTable::atomizeString(const char* romstr) const
 
     Mad<char> s = Mad<char>::create(len + 1);
     ROMCopyString(s.get(), romstr);
-    
-    Atom atom = findAtom(s.get());
+    Atom atom = atomizeString(s.get());
+    s.destroy(len + 1);
+    return atom;
+}
+
+    Atom AtomTable::atomizeString(const char* str) const
+{
+    Atom atom = findAtom(str);
     if (atom) {
-        s.destroy(len + 1);
         return atom;
     }
     
@@ -57,13 +62,14 @@ Atom AtomTable::atomizeString(const char* romstr) const
         _table.push_back('\0');
     }
     
+    uint16_t len = strlen(str);
+    
     Atom a(static_cast<Atom::value_type>(_table.size() - 1 + ExternalAtomOffset));
     _table[_table.size() - 1] = -static_cast<int8_t>(len);
     for (uint16_t i = 0; i < len; ++i) {
-        _table.push_back(s.get()[i]);
+        _table.push_back(str[i]);
     }
     _table.push_back('\0');
-    s.destroy(len + 1);
     return a;
 }
 

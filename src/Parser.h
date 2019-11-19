@@ -64,7 +64,7 @@ public:
     
     Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, Mad<Function> parent = Mad<Function>());
 
-	void printError(const char* format, ...);
+	void printError(ROMString format, ...);
     void expectedError(Token token, const char* = nullptr);
     void unknownError(Token token);
     

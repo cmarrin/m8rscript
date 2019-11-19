@@ -15,7 +15,7 @@ using namespace m8r;
 
 void Error::showError(const ExecutionUnit* eu, Code code)
 {
-    const char* codeString = "*** INVALID CODE ***";
+    ROMString codeString = ROMSTR("*** INVALID CODE ***");
     switch(code) {
         case Code::OK                       : codeString = ROMSTR("OK"); break;
         case Code::Unknown                  : codeString = ROMSTR("Unknown"); break;
@@ -57,11 +57,11 @@ void Error::showError(const ExecutionUnit* eu, Code code)
     }
 }
 
-void Error::printError(const ExecutionUnit* eu, Code code, const char* format, ...)
+void Error::printError(const ExecutionUnit* eu, Code code, ROMString format, ...)
 {
-    if (!format) {
+    if (!format.valid()) {
         showError(eu, code);
-        eu->printf("\n");
+        eu->printf(ROMSTR("\n"));
         return;
     }
     
@@ -70,23 +70,23 @@ void Error::printError(const ExecutionUnit* eu, Code code, const char* format, .
     vprintError(eu, code, format, args);
 }
 
-void Error::printError(const ExecutionUnit* eu, Code code, int32_t lineno, const char* format, ...)
+void Error::printError(const ExecutionUnit* eu, Code code, int32_t lineno, ROMString format, ...)
 {
     va_list args;
     va_start(args, format);
     vprintError(eu, code, lineno, format, args);
 }
 
-void Error::vprintError(const ExecutionUnit* eu, Code code, const char* format, va_list args)
+void Error::vprintError(const ExecutionUnit* eu, Code code, ROMString format, va_list args)
 {
     vprintError(eu, code, 0, format, args);
 }
 
-void Error::vprintError(const ExecutionUnit* eu, Code code, int32_t lineno, const char* format, va_list args)
+void Error::vprintError(const ExecutionUnit* eu, Code code, int32_t lineno, ROMString format, va_list args)
 {
     showError(eu, code);
     eu->printf(ROMSTR(" Error"));
-    if (!format) {
+    if (!format.valid()) {
         return;
     }
     eu->printf(ROMSTR(": "));

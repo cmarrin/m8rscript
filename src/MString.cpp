@@ -314,7 +314,7 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
     
     String resultString;
     
-    static const char* formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
+    static ROMString formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
     uint16_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
     Mad<char> formatRegex = Mad<char>::create(formatRegexSize);

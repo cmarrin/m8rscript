@@ -54,7 +54,7 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
     return functionEnd();
 }
 
-void Parser::printError(const char* format, ...)
+void Parser::printError(ROMString format, ...)
 {
     ++_nerrors;
 
@@ -292,7 +292,7 @@ void Parser::emitId(const Atom& atom, IdType type)
                 String s = "nonexistent variable '";
                 s += _program->stringFromAtom(atom);
                 s += "'";
-                printError(s.c_str());
+                printError(ROMSTR("%s"), s.c_str());
                 return;
             }
         }
@@ -601,7 +601,7 @@ void Parser::functionAddParam(const Atom& atom)
         m8r::String s = "param '";
         s += _program->stringFromAtom(atom);
         s += "' already exists";
-        printError(s.c_str());
+        printError(ROMSTR("%s"), s.c_str());
     }
 }
 

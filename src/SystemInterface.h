@@ -45,13 +45,6 @@ public:
 	SystemInterface() { }
     virtual ~SystemInterface() { }
 
-    void printf(const char* fmt, ...) const
-    {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-    }
-    
     void printf(ROMString fmt, ...) const
     {
         va_list args;
@@ -69,7 +62,6 @@ public:
     
     virtual void setDeviceName(const char*) = 0;
     
-    virtual void vprintf(const char*, va_list) const = 0;
     virtual void vprintf(ROMString, va_list) const = 0;
 
     void lock();

@@ -12,9 +12,6 @@
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		4921CF9723739C3F004CB000 /* Defines.h in Headers */ = {isa = PBXBuildFile; fileRef = 4942EA8C1D0D950100E02088 /* Defines.h */; };
-		4923672723733EEC0009963A /* umm_malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4923672423733EEC0009963A /* umm_malloc.cpp */; };
-		4923672823733EEC0009963A /* umm_malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672523733EEC0009963A /* umm_malloc.h */; };
-		4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4923672623733EEC0009963A /* umm_malloc_cfg.h */; };
 		492396C71E711D12007AC0BF /* UDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492396C51E711D12007AC0BF /* UDP.cpp */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
 		49263ABD23611DF0005CB9F9 /* StreamProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49263ABB23611DF0005CB9F9 /* StreamProto.cpp */; };
@@ -766,8 +763,6 @@
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */,
 				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
-				4923672923733EEC0009963A /* umm_malloc_cfg.h in Headers */,
-				4923672823733EEC0009963A /* umm_malloc.h in Headers */,
 				49BF3450236811BF001E5508 /* spiffs.h in Headers */,
 				49EED98D2357971500831598 /* lfs.h in Headers */,
 				49BF344F236811BF001E5508 /* spiffs_nucleus.h in Headers */,
@@ -1019,7 +1014,6 @@
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
-				4923672723733EEC0009963A /* umm_malloc.cpp in Sources */,
 				49BE1CBB2350DCE400BF6D9E /* SpiffsFS.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,

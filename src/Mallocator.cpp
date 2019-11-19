@@ -228,7 +228,7 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
 }
 
-const char* Mallocator::stringFromMemoryType(MemoryType type)
+ROMString Mallocator::stringFromMemoryType(MemoryType type)
 {
     switch(type) {
         case MemoryType::String:        return ROMSTR("String");

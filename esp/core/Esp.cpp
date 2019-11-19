@@ -246,9 +246,9 @@ int snprintf ( char * s, size_t n, const char * format, ... )
     return ets_vsnprintf(s, n, format, args);
 }
 
-void* ROMmemcpy(void* dst, const void* src, size_t len)
+void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len)
 {
-    uint8_t* s = (uint8_t*) src;
+    uint8_t* s = (uint8_t*) (src.value);
     uint8_t* d = (uint8_t*) dst;
     while (len--) {
         *d++ = readRomByte(s++);
@@ -256,9 +256,9 @@ void* ROMmemcpy(void* dst, const void* src, size_t len)
     return dst;
 }
 
-char* ROMCopyString(char* dst, const char* src)
+char* ROMCopyString(char* dst, m8r::ROMString src)
 {
-    uint8_t* s = (uint8_t*) src;
+    uint8_t* s = (uint8_t*) (src.value);
     char c;
     while ((c = (char) readRomByte(s++))) {
         *dst++ = c;
@@ -267,53 +267,33 @@ char* ROMCopyString(char* dst, const char* src)
     return dst;
 }
 
-size_t ROMstrlen(const char* s)
+size_t ROMstrlen(m8r::ROMString s)
 {
     const char* p;
-    for (p = s; readRomByte(reinterpret_cast<const uint8_t*>(p)) != '\0'; p++) ;
+    for (p = s; readRomByte(p.value()) != '\0'; p++) ;
     return (size_t) (p - s);
 }
 
-int ROMstrcmp(const char* s1, const char* s2)
-{
-    const uint8_t* p1 = reinterpret_cast<const uint8_t*>(s1);
-    const uint8_t* p2 = reinterpret_cast<const uint8_t*>(s2);
-    
-    uint8_t c1;
-    uint8_t c2;
-    while (true) {
-        c1 = readRomByte(p1++);
-        c2 = readRomByte(p2++);
-        if (c1 != c2) {
-            break;
-        }
-        if (c1 == '\0') {
-            return 0;
-        }
-    }
-    return c1 - c2;
-}
-
-const char* ROMstrstr(const char* s1, const char* s2)
+ROMString ROMstrstr(ROMString s1, const char* s2)
 {
     int i, j;
 
     if ((s1 == nullptr || s2 == nullptr)) {
-        return nullptr;
+        return ROMString();
     }
 
     for( i = 0; ; i++) {
         char c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + i));
         if (c1 == '\0') {
-            return nullptr;
+            return ROMString();
         }
         
-        char c2 = readRomByte(reinterpret_cast<const uint8_t*>(s2));
+        char c2 = *s2;
         if (c1 == c2) {
             for (j = i; ; j++) {
-                c2 = readRomByte(reinterpret_cast<const uint8_t*>(s2 + (j - i)));
+                c2 = *(s2 + (j - i));
                 if (c2 == '\0') {
-                    return s1 + i;
+                    return ROMString(s1 + i);
                 }
                 c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + j));
                 if (c1 != c2) {

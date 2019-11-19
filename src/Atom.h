@@ -54,6 +54,8 @@ public:
     AtomTable();
 
     Atom atomizeString(const char*) const;
+    Atom atomizeString(ROMString) const;
+
     String stringFromAtom(const Atom atom) const
     {
         if (!atom) {

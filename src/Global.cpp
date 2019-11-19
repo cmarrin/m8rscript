@@ -86,7 +86,7 @@ CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t npara
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
-        eu->printf(s.c_str());
+        eu->print(s.c_str());
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -100,7 +100,7 @@ CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t npar
     if (s.empty()) {
         return CallReturnValue(CallReturnValue::Error::BadFormatString);
     }
-    eu->printf(s.c_str());
+    eu->print(s.c_str());
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
@@ -108,9 +108,9 @@ CallReturnValue Global::println(ExecutionUnit* eu, Value thisValue, uint32_t npa
 {
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
-        eu->printf(s.c_str());
+        eu->print(s.c_str());
     }
-    eu->printf("\n");
+    eu->print("\n");
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -229,13 +229,13 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     
     uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
     uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
-    obj->setProperty(eu, eu->program()->atomizeString("freeSize"),
+    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("freeSize")),
                      Value(static_cast<int32_t>(freeSize)), Value::SetPropertyType::AlwaysAdd);
                      
-    obj->setProperty(eu, eu->program()->atomizeString("allocatedSize"),
+    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("allocatedSize")),
                      Value(static_cast<int32_t>(allocatedSize)), Value::SetPropertyType::AlwaysAdd);
                      
-    obj->setProperty(eu, eu->program()->atomizeString("numAllocations"),
+    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("numAllocations")),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
     Mad<Object> allocationsByType = Mad<MaterObject>::create();
@@ -243,18 +243,18 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     for (int i = 0; i < info.allocationsByType.size(); ++i) {
         Mad<Object> allocation = Mad<MaterObject>::create();
         uint32_t size = info.allocationsByType[i].sizeInBlocks * info.blockSize;
-        const char* type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
-        allocation->setProperty(eu, eu->program()->atomizeString("count"),
+        ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
+        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("count")),
                          Value(static_cast<int32_t>(info.allocationsByType[i].count)), Value::SetPropertyType::AlwaysAdd);
-        allocation->setProperty(eu, eu->program()->atomizeString("size"),
+        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("size")),
                          Value(static_cast<int32_t>(size)), Value::SetPropertyType::AlwaysAdd);
-        allocation->setProperty(eu, eu->program()->atomizeString("type"),
+        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("type")),
                          Value(Mad<String>::create(type)), Value::SetPropertyType::AlwaysAdd);
 
         allocationsByType->setElement(eu, Value(0), Value(allocation), true);
     }
     
-    obj->setProperty(eu, eu->program()->atomizeString("allocationsByType"),
+    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("allocationsByType")),
                      Value(allocationsByType), Value::SetPropertyType::AlwaysAdd);
 
     eu->stack().push(Value(obj));

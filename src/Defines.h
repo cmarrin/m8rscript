@@ -26,20 +26,39 @@
 #include <vector>
 #include <cassert>
 #include <limits>
+#include <cstring>
+
+namespace m8r {
+    class ROMString
+    {
+    public:
+        ROMString() { }
+        explicit ROMString(const char* s) : _value(s) { }
+        
+        bool valid() const { return _value; }
+        
+        ROMString operator+(int32_t i) const { return ROMString(_value + i);  }
+        ROMString operator-(int32_t i) const { return ROMString(_value - i);  }
+        
+        const char* value() const { return _value; }
+
+    private:
+        const char* _value = nullptr;
+    };
+}
 
 #ifdef __APPLE__
     #define RODATA_ATTR
     #define ROMSTR_ATTR
     #define FLASH_ATTR
     #define ICACHE_FLASH_ATTR
-    static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr) { return *addr; }
-    #define ROMmemcpy memcpy
-    #define ROMstrlen strlen
-    #define ROMstrcmp strcmp
-    #define ROMstrstr strstr
-    #include <cstring>
-static inline char* ROMCopyString(char* dst, const char* src) { strcpy(dst, src); return dst + strlen(src); }
-    #define ROMSTR(s) s
+    static inline uint8_t readRomByte(m8r::ROMString addr) { return *(addr.value()); }
+    static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy(dst, src.value(), len); }
+    static inline size_t ROMstrlen(m8r::ROMString s) { return strlen(s.value()); }
+    static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2) { return m8r::ROMString(strstr(s1.value(), s2)); }
+
+    static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
+    #define ROMSTR(s) m8r::ROMString(s)
     #define debugf printf
     
     //#define USE_LITTLEFS
@@ -152,13 +171,6 @@ struct Label {
     int32_t label : 20;
     uint32_t uniqueID : 12;
     int32_t matchedAddr : 20;
-};
-
-struct ROMString
-{
-    ROMString() { }
-    explicit ROMString(const char* s) : value(s) { }
-    const char* value;
 };
 
 /*

@@ -172,7 +172,7 @@ public:
     
     const MemoryInfo& memoryInfo() const { return _memoryInfo; }
 
-    static const char* stringFromMemoryType(MemoryType);
+    static ROMString stringFromMemoryType(MemoryType);
     
 protected:
     MemoryInfo _memoryInfo;

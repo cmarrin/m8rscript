@@ -25,7 +25,7 @@ void ExecutionUnit::tooManyErrors() const
     printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
 }
 
-void ExecutionUnit::printError(const char* format, ...) const
+void ExecutionUnit::printError(ROMString format, ...) const
 {
     va_list args;
     va_start(args, format);
@@ -37,7 +37,7 @@ void ExecutionUnit::printError(const char* format, ...) const
 
 void ExecutionUnit::printError(CallReturnValue::Error error) const
 {
-    const char* errorString = ROMSTR("*UNKNOWN*");
+    ROMString errorString = ROMSTR("*UNKNOWN*");
     switch(error) {
         case CallReturnValue::Error::Ok: return;
         case CallReturnValue::Error::WrongNumberOfParams: errorString = ROMSTR("wrong number of params"); break;
@@ -305,14 +305,14 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-void ExecutionUnit::vprintf(const char* format, va_list args) const
+void ExecutionUnit::vprintf(ROMString format, va_list args) const
 {
     String s = String::vformat(format, args);
 
     if (consolePrintFunction()) {
         consolePrintFunction()(s);
     } else {
-        system()->printf(s.c_str());
+        system()->printf(ROMSTR("%s"), s.c_str());
     }
 }
 
@@ -852,7 +852,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 name = regOrConst(inst.rthis()).asIdValue();
                 callReturnValue = leftValue.callProperty(this, name, uintValue);
                 if (callReturnValue.isError()) {
-                    printError("'%s'", _program->stringFromAtom(name).c_str());
+                    printError(ROMSTR("'%s'"), _program->stringFromAtom(name).c_str());
                 }
                 break;
         }

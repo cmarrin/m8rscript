@@ -108,24 +108,23 @@ void timer1_write(uint32_t ticks); //maximum ticks 8388607
 #define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
 #define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
 
-static inline uint8_t FLASH_ATTR readRomByte(const uint8_t* addr)
+static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
 {
     uint32_t bytes;
-    bytes = *(uint32_t*)((uint32_t)addr & ~3);
-    return ((uint8_t*)&bytes)[(uint32_t)addr & 3];
+    bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
+    return ((uint8_t*)&bytes)[(uint32_t)(addr.value()) & 3];
 }
 
-#define ROMSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
+#define ROMSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); m8r::ROMString((&__c[0]);}))
 
 // Returns dst, just like memcpy
-void* ROMmemcpy(void* dst, const void* src, size_t len);
+void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len);
 
 // Returns dst + strlen(src) to allow strings to be chained
-char* ROMCopyString(char* dst, const char* src);
+char* ROMCopyString(char* dst, m8r::ROMString src);
 
-size_t ROMstrlen(const char* s);
-int ROMstrcmp(const char* s1, const char* s2);
-const char* ROMstrstr(const char* s1, const char* s2);
+size_t ROMstrlen(m8r::ROMString s);
+const char* ROMstrstr(m8r::ROMString s1, const char* s2);
 
 #ifdef __cplusplus
 namespace m8r {

@@ -73,10 +73,10 @@ public:
     static void showError(const ExecutionUnit* eu, Error error) { showError(eu, error.code()); }
     static void showError(const ExecutionUnit*, Code);
 
-    static void printError(const ExecutionUnit*, Code code, const char* format = nullptr, ...);
-    static void printError(const ExecutionUnit*, Code, int32_t lineno, const char* format = nullptr, ...);
-    static void vprintError(const ExecutionUnit*, Code, const char* format, va_list);
-    static void vprintError(const ExecutionUnit*, Code, int32_t lineno, const char* format, va_list);
+    static void printError(const ExecutionUnit*, Code code, ROMString format = ROMString(), ...);
+    static void printError(const ExecutionUnit*, Code, int32_t lineno, ROMString format = ROMString(), ...);
+    static void vprintError(const ExecutionUnit*, Code, ROMString format, va_list);
+    static void vprintError(const ExecutionUnit*, Code, int32_t lineno, ROMString format, va_list);
 
 private:
     Code _code = Code::OK;
