@@ -22,6 +22,7 @@
 #else
 
 #include <array>
+#include <cstdarg>
 #include <cstdint>
 #include <vector>
 #include <cassert>
@@ -34,11 +35,14 @@ namespace m8r {
     public:
         ROMString() { }
         explicit ROMString(const char* s) : _value(s) { }
+        explicit ROMString(const uint8_t* s) : _value(reinterpret_cast<const char*>(s)) { }
         
         bool valid() const { return _value; }
         
         ROMString operator+(int32_t i) const { return ROMString(_value + i);  }
         ROMString operator-(int32_t i) const { return ROMString(_value - i);  }
+        ROMString operator+=(int32_t i) { _value += i; return *this; }
+        ROMString operator-=(int32_t i) { _value += i; return *this; }
         
         const char* value() const { return _value; }
 
@@ -64,7 +68,34 @@ namespace m8r {
 
 static constexpr uint32_t HeapSize = 200000;
 #else
-    #include "Esp.h"
+    #ifndef __STRINGIFY
+    #define __STRINGIFY(a) #a
+    #endif
+    #define FLASH_ATTR   __attribute__((section(".irom0.text")))
+    #define RAM_ATTR     __attribute__((section(".iram.text")))
+    #define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
+    #define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
+
+    size_t ROMstrlen(m8r::ROMString s);
+    void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len);
+    char* ROMCopyString(char* dst, m8r::ROMString src);
+    m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
+
+    static inline m8r::ROMString ROMSTR(const char* s)
+    {
+        static const char v[] ROMSTR_ATTR = "abc";
+        return m8r::ROMString(v);
+    }
+
+    // #define ROMSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); m8r::ROMString((&__c[0]);}))
+
+    static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
+    {
+        uint32_t bytes;
+        bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
+        return ((uint8_t*)&bytes)[(uint32_t)(addr.value()) & 3];
+    }
+
 #endif
 
 namespace m8r {

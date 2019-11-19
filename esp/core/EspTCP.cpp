@@ -127,7 +127,7 @@ void EspTCP::Client::send(const char* data, uint16_t length)
     }
     int8_t result = tcp_write(_pcb, data, length, 0);
     if (result != 0) {
-        system()->printf("TCP ERROR(%d): failed to send %d bytes to port %d\n", result, length, _pcb->local_port);
+        system()->printf(ROMSTR("TCP ERROR(%d): failed to send %d bytes to port %d\n"), result, length, _pcb->local_port);
     }
 }
 

@@ -82,7 +82,7 @@ void EspUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     err_t result = udp_sendto(_pcb, buf, &ip, port);
     pbuf_free(buf);
     if (result != 0) {
-        m8r::system()->printf("UDP ERROR: failed to send %d bytes to port %d\n", length, port);
+        m8r::system()->printf(ROMSTR("UDP ERROR: failed to send %d bytes to port %d\n"), length, port);
     }
 }
 

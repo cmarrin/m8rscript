@@ -139,7 +139,6 @@ void setDeviceName(const char*);
 class EspSystemInterface : public m8r::SystemInterface
 {
 public:
-    virtual void vprintf(const char* fmt, va_list) const override;
     virtual void vprintf(m8r::ROMString fmt, va_list) const override;
     virtual void setDeviceName(const char* name) { ::setDeviceName(name); }
     
@@ -170,19 +169,6 @@ private:
 #endif
     m8r::EspTaskManager _taskManager;
 };
-
-void EspSystemInterface::vprintf(const char* fmt, va_list args) const
-{
-    m8r::String s = m8r::String::vformat(fmt, args);
-    
-    if (_logTCP.valid()) {
-        for (uint16_t connection = 0; connection < m8r::TCP::MaxConnections; ++connection) {
-            _logTCP->send(connection, s.c_str());
-        }
-    }
-    
-    os_printf_plus(s.c_str());
-}
 
 void EspSystemInterface::vprintf(m8r::ROMString fmt, va_list args) const
 {
@@ -248,20 +234,20 @@ int snprintf ( char * s, size_t n, const char * format, ... )
 
 void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len)
 {
-    uint8_t* s = (uint8_t*) (src.value);
     uint8_t* d = (uint8_t*) dst;
     while (len--) {
-        *d++ = readRomByte(s++);
+        *d++ = readRomByte(src);
+        src += 1;
     }
     return dst;
 }
 
 char* ROMCopyString(char* dst, m8r::ROMString src)
 {
-    uint8_t* s = (uint8_t*) (src.value);
     char c;
-    while ((c = (char) readRomByte(s++))) {
+    while ((c = (char) readRomByte(src))) {
         *dst++ = c;
+        src += 1;
     }
     *dst = '\0';
     return dst;
@@ -269,23 +255,23 @@ char* ROMCopyString(char* dst, m8r::ROMString src)
 
 size_t ROMstrlen(m8r::ROMString s)
 {
-    const char* p;
-    for (p = s; readRomByte(p.value()) != '\0'; p++) ;
-    return (size_t) (p - s);
+    m8r::ROMString p = s;
+    for ( ; readRomByte(p) != '\0'; p += 1) ;
+    return (size_t) (p.value() - s.value());
 }
 
-ROMString ROMstrstr(ROMString s1, const char* s2)
+m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
 {
     int i, j;
 
-    if ((s1 == nullptr || s2 == nullptr)) {
-        return ROMString();
+    if (!s1.valid() || s2 == nullptr) {
+        return m8r::ROMString();
     }
 
     for( i = 0; ; i++) {
-        char c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + i));
+        char c1 = readRomByte(s1 + i);
         if (c1 == '\0') {
-            return ROMString();
+            return m8r::ROMString();
         }
         
         char c2 = *s2;
@@ -293,9 +279,9 @@ ROMString ROMstrstr(ROMString s1, const char* s2)
             for (j = i; ; j++) {
                 c2 = *(s2 + (j - i));
                 if (c2 == '\0') {
-                    return ROMString(s1 + i);
+                    return m8r::ROMString(s1 + i);
                 }
-                c1 = readRomByte(reinterpret_cast<const uint8_t*>(s1 + j));
+                c1 = readRomByte(s1 + j);
                 if (c1 != c2) {
                     break;
                 }
@@ -721,13 +707,13 @@ extern void gdb_do_break();
 }
 
 [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *what) {
-    m8r::system()->printf("ASSERT:(%s) at %s:%d\n", what, func, line);
+    m8r::system()->printf(ROMSTR("ASSERT:(%s) at %s:%d\n"), what, func, line);
     gdb_do_break();
     abort();
 }
 
 [[noreturn]] void __panic_func(const char *file, int line, const char *func, const char *what) {
-    m8r::system()->printf("PANIC:(%s) at %s:%d\n", what, func, line);
+    m8r::system()->printf(ROMSTR("PANIC:(%s) at %s:%d\n"), what, func, line);
     gdb_do_break();
     abort();
 }
