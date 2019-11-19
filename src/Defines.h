@@ -91,8 +91,7 @@ static constexpr uint32_t HeapSize = 200000;
 
     static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
     {
-        uint32_t bytes;
-        bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
+        uint32_t bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
         return ((uint8_t*)&bytes)[(uint32_t)(addr.value()) & 3];
     }
 
