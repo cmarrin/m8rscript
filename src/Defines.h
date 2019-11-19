@@ -59,7 +59,6 @@ namespace m8r {
 
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
     #define ROMSTR(s) m8r::ROMString(s)
-    #define debugf printf
     
     //#define USE_LITTLEFS
 

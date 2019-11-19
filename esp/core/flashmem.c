@@ -1,6 +1,5 @@
 #include "flashmem.h"
 #include "Esp.h"
-#include <stdlib.h>
 
 // Based on NodeMCU platform_flash
 // https://github.com/nodemcu/nodemcu-firmware
@@ -248,7 +247,7 @@ uint32_t flashmem_get_first_free_block_address()
 {
   if (_SPIFFS_start == 0)
   {
-	  debugf("_SPIFFS_start:%08x\n", (uint32_t)_SPIFFS_start);
+	  os_printf_plus("_SPIFFS_start:%08x\n", (uint32_t)_SPIFFS_start);
 	  return 0;
   }
 

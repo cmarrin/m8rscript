@@ -38,8 +38,6 @@ extern "C" {
 int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 2)));
 
 #define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
-
-#define debugf os_printf_plus
     
 #define ipv4_addr_t ip_addr_t
 
