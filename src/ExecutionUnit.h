@@ -117,7 +117,7 @@ public:
         vprintf(fmt, args);
     }
     
-    void print(const char* s) const { printf(ROMSTR("%s"), s); }
+    void print(const char* s) const;
 
     void setConsoleListener(Value func)
     {

@@ -316,6 +316,12 @@ void ExecutionUnit::vprintf(ROMString format, va_list args) const
     }
 }
 
+void ExecutionUnit::print(const char* s) const
+{
+    printf(ROMSTR("%s"), s);
+}
+
+
 uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 {
     assert(frame > 0);

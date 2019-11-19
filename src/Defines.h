@@ -81,13 +81,13 @@ static constexpr uint32_t HeapSize = 200000;
     char* ROMCopyString(char* dst, m8r::ROMString src);
     m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
 
-    static inline m8r::ROMString ROMSTR(const char* s)
-    {
-        static const char v[] ROMSTR_ATTR = "abc";
-        return m8r::ROMString(v);
-    }
+//    static inline m8r::ROMString ROMSTR(const char* s)
+//    {
+//        static const char v[] ROMSTR_ATTR = "abc";
+//        return m8r::ROMString(v);
+//    }
 
-    // #define ROMSTR(s) (__extension__({static const char __c[] ROMSTR_ATTR = (s); m8r::ROMString((&__c[0]);}))
+    #define ROMSTR(s) m8r::ROMString(__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
 
     static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
     {
