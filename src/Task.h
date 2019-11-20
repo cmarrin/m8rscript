@@ -54,6 +54,8 @@ private:
 
 class Task : public TaskBase, public NativeObject {
 public:
+    static MemoryType memoryType() { return MemoryType::Task; }
+
     Task();
     
     ~Task();
