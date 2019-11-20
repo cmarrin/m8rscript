@@ -66,7 +66,6 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     assert(type != MemoryType::Unknown);
     assert(static_cast<uint32_t>(size) <= 0xffff);
     
-    uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
     uint16_t blocksToAlloc = blockSizeFromByteSize(size);
 
     // If this is a fixed block we need to remember the size in a 1 block header
@@ -119,14 +118,13 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         }
         
         uint32_t index = static_cast<uint32_t>(type);
-        uint16_t size = sizeBefore - _memoryInfo.freeSizeInBlocks;
         
         _memoryInfo.allocationsByType[index].count++;
-        _memoryInfo.allocationsByType[index].sizeInBlocks += size;
+        _memoryInfo.allocationsByType[index].sizeInBlocks += blocksToAlloc;
         
         if (type == MemoryType::Fixed) {
             asHeader(allocatedBlock)->nextBlock = NoBlockId;
-            asHeader(allocatedBlock)->sizeInBlocks = size;
+            asHeader(allocatedBlock)->sizeInBlocks = blocksToAlloc;
             allocatedBlock++;
         }
     }
@@ -222,6 +220,9 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
             coalesce(prevBlock, newBlock);
         }
     }
+
+    --_memoryInfo.numAllocations;
+    _memoryInfo.freeSizeInBlocks += _memoryInfo.freeSizeInBlocks - sizeBefore;
 
     uint32_t index = static_cast<uint32_t>(type);
     _memoryInfo.allocationsByType[index].count--;
