@@ -83,12 +83,6 @@ static constexpr uint32_t HeapSize = 200000;
     m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
     int ROMstrcmp(m8r::ROMString s1, const char* s2);
 
-//    static inline m8r::ROMString ROMSTR(const char* s)
-//    {
-//        static const char v[] ROMSTR_ATTR = "abc";
-//        return m8r::ROMString(v);
-//    }
-
     #define ROMSTR(s) m8r::ROMString(__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
 
     static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
