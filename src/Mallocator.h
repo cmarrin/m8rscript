@@ -60,20 +60,24 @@ namespace m8r {
 class Object;
 class String;
 
+#ifndef NDEBUG
+#define MEMORY_PTR
+#endif
+
 template<typename T>
 class Mad
 {
 public:
     Mad()
     {
-#ifndef NDEBUG
+#ifdef MEMORY_PTR
         _ptr = nullptr;
 #endif
     }
     
     explicit Mad(RawMad raw) : _raw(raw)
     {
-#ifndef NDEBUG
+#ifdef MEMORY_PTR
         _ptr = get();
 #endif
     }
@@ -83,7 +87,7 @@ public:
     Mad(const Mad& other)
     {
         *this = other;
-#ifndef NDEBUG
+#ifdef MEMORY_PTR
         _ptr = get();
 #endif
     }
@@ -125,7 +129,7 @@ public:
 private:
     RawMad _raw = NoRawMad;
     
-#ifndef NDEBUG
+#ifdef MEMORY_PTR
     // Keep a pointer around for debugging
     T* _ptr = nullptr;
 #endif
