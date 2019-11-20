@@ -19,7 +19,6 @@ MacTaskManager::MacTaskManager()
 {
     std::thread thread([this]{
         while (true) {
-            Time now = Time::now();
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
                 if (empty()) {
@@ -30,7 +29,7 @@ MacTaskManager::MacTaskManager()
                 }
             }
             
-            Duration durationToNextEvent = nextTimeToFire() - now;
+            Duration durationToNextEvent = nextTimeToFire() - Time::now();
             if (durationToNextEvent <= Duration()) {
                 executeNextTask();
             } else {
@@ -68,6 +67,6 @@ void MacTaskManager::runLoop()
 {
     // The mac main thread has to keep running
     while(1) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
