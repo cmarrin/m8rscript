@@ -238,7 +238,7 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     if (!value) {
         // If this is 'iterator' and one was not found, use the default
         if (prop == Atom(SA::iterator)) {
-            value = eu->defaultIterator();
+            value = eu->program()->global()->property(eu, Atom(SA::Iterator));
         }
 
 

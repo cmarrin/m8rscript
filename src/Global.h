@@ -12,6 +12,7 @@
 #include "Base64.h"
 #include "FS.h"
 #include "GPIO.h"
+#include "Iterator.h"
 #include "JSON.h"
 #include "Object.h"
 #include "SystemTime.h"
@@ -26,8 +27,6 @@ class Global : public ObjectFactory {
 public:
     Global(Mad<Program>);
     virtual ~Global();
-    
-    Value defaultIterator();
 
 private:
     MaterObject _object;
@@ -39,6 +38,7 @@ private:
     TCPProto _tcp;
     UDPProto _udp;
     IPAddrProto _ipAddr;
+    Iterator _iterator;
     TaskProto _task;
     FSProto _fs;
     FileProto _file;

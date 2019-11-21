@@ -25,6 +25,7 @@ High
 Input
 InputPulldown
 InputPullup
+Iterator
 IPAddr
 JSON
 Low
@@ -44,6 +45,7 @@ TCPProto
 Trigger
 UDP
 UDPProto
+__index
 __nativeObject
 __object
 __typeName

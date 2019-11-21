@@ -92,6 +92,7 @@
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
+		49CDE69A2386633900159439 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
 		49D9B8201D1C854700724911 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B81E1D1C854700724911 /* Document.xib */; };
 		49D9B8221D1C854700724911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49D9B8211D1C854700724911 /* Assets.xcassets */; };
@@ -994,6 +995,7 @@
 				49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */,
 				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
+				49CDE69A2386633900159439 /* Iterator.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,

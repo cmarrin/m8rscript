@@ -24,6 +24,7 @@ Global::Global(Mad<Program> program)
     , _tcp(program, this)
     , _udp(program, this)
     , _ipAddr(program, this)
+    , _iterator(program, this)
     , _task(program, this)
     , _fs(program, this)
     , _file(program, this)
@@ -50,8 +51,6 @@ Global::Global(Mad<Program> program)
     addProperty(program, SA::Object, Mad<MaterObject>(&_object));
     
     addProperty(program, SA::consoleListener, Value::NullValue());
-    
-    
 }
 
 Global::~Global()

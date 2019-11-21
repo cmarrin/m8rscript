@@ -47,6 +47,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/GPIO.cpp \
 		../src/Heartbeat.cpp \
 		../src/IPAddr.cpp \
+		../src/Iterator.cpp \
 		../src/JSON.cpp \
 		../src/Object.cpp \
 		../src/Mallocator.cpp \

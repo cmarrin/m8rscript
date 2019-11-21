@@ -18,19 +18,6 @@
 
 using namespace m8r;
 
-static const char _iteratorString[] ROMSTR_ATTR =
-   "class Iterator {\n"
-   "    var _obj;\n"
-   "    var _index;\n"
-   "    constructor(obj) { _obj = obj; _index = 0; }\n"
-   "    function done() { return _index >= _obj.length; }\n"
-   "    function next() { if (!done()) ++_index; }\n"
-   "    function getValue() { return done() ? null : _obj[_index]; }\n"
-   "    function setValue(v) { if (!done()) _obj[_index] = v; }\n"
-   "};\n";
-
-static ROMString iteratorString(_iteratorString);
-
 static const Duration EvalDurationMax = 2_sec;
 
 void ExecutionUnit::tooManyErrors() const
@@ -460,22 +447,6 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
 
     stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-Value ExecutionUnit::defaultIterator()
-{
-    if (!_defaultIterator) {
-        String s(iteratorString);
-        StringStream ss(s);
-        CallReturnValue retValue = import(ss, Value());
-        if (retValue.isReturnCount()) {
-            if (retValue.returnCount() == 1) {
-                _defaultIterator = stack().top();
-            }
-            _stack.pop(retValue.returnCount());
-        }
-    }
-    return _defaultIterator;
 }
 
 CallReturnValue ExecutionUnit::continueExecution()
