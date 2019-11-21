@@ -626,16 +626,17 @@ CallReturnValue ExecutionUnit::continueExecution()
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADPROP:
-        leftValue = regOrConst(inst.rb());
-        if (!leftValue.isCallable()) {
-            printError(ROMSTR("Can't read property '%s' of a non-callable value"), regOrConst(inst.rc()).toStringValue(this).c_str());
+        leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
+    
+        // TODO: Distinguish between Values that can't have properties and those that can
+        //
+        // We don't distinguish between Values that can't have properties (like Id and NativeFunction) and
+        // Those that just don't happen to have a property with the given name. Maybe have an error Value
+        // returned that will tell us that?
+        if (!leftValue) {
+            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
         } else {
-            leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
-            if (!leftValue) {
-                printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
-            } else {
-                setInFrame(inst.ra(), leftValue);
-            }
+            setInFrame(inst.ra(), leftValue);
         }
         DISPATCH;
     L_STOPROP:
