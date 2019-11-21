@@ -39,14 +39,14 @@ void GC::gc(bool force)
                 }
                 for (RawMad& it : _objectStore) {
                     Mad<Object> obj = Mad<Object>(it);
-                    obj->gcMark();
+                    obj->setMarked(false);
                 }
                 gcState = GCState::ClearMarkedStr;
                 break;
             case GCState::ClearMarkedStr:
                 for (RawMad& it : _stringStore) {
                     Mad<String> str = Mad<String>(it);
-                    str->setMarked(true);
+                    str->setMarked(false);
                 }
                 gcState = GCState::MarkActive;
                 break;
@@ -67,11 +67,11 @@ void GC::gc(bool force)
             case GCState::SweepObj: {
                 auto it = std::remove_if(_objectStore.begin(), _objectStore.end(), [](RawMad m) {
                     Mad<Object> obj = Mad<Object>(m);
-                    return !obj->isMarked();
-                });
-                std::for_each(it, _objectStore.end(), [](RawMad m) {
-                    Mad<Object> obj = Mad<Object>(m);
-                    obj.destroy();
+                    if (!obj->isMarked()) {
+                        obj.destroy();
+                        return true;
+                    }
+                    return false;
                 });
                 _objectStore.erase(it, _objectStore.end());
                 gcState = GCState::SweepStr;
@@ -80,11 +80,11 @@ void GC::gc(bool force)
             case GCState::SweepStr: {
                 auto it = std::remove_if(_stringStore.begin(), _stringStore.end(), [](RawMad m) {
                     Mad<String> str = Mad<String>(m);
-                    return !str->isMarked();
-                });
-                std::for_each(it, _stringStore.end(), [](RawMad m) {
-                    Mad<String> str = Mad<String>(m);
-                    str.destroy();
+                    if (!str->isMarked()) {
+                        str.destroy();
+                        return true;
+                    }
+                    return false;
                 });
                 _stringStore.erase(it, _stringStore.end());
                 gcState = GCState::ClearMarkedObj;
