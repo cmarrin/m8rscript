@@ -193,6 +193,8 @@ private:
 
     uint16_t blockSizeFromByteSize(size_t size) { return (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize; }
     
+    void checkConsistency();
+    
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
     struct Header
