@@ -81,7 +81,7 @@ public:
         _size = 2;
     }
     
-    ~String() { _data.destroy(_capacity); };
+    ~String() { _destroyed = true; _data.destroy(_capacity); };
 
     String& operator=(ROMString other)
     {
@@ -273,6 +273,7 @@ private:
     uint16_t _capacity = 0;
     Mad<char> _data;
     bool _marked = true;
+    bool _destroyed = false;
 };
 
 }
