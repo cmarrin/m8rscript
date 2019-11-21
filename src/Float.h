@@ -415,8 +415,8 @@ inline _Float<int64_t, int64_t, 30, 7> _Float<int64_t, int64_t, 30, 7>::operator
 typedef _Float<int32_t, int32_t, 10, 2> Float32;
 
 // Range is +/- 8e9 with a precision of 1e-9. When used as a Value
-// the LSB is the type, so we lose a bit. That leaves us with 5e-8
-// precision. That safely gives us 8 decimal digits of precision.
+// the 2 LSB is the type, so we lose 2 bits. That leaves us with 1e-8
+// precision. That safely gives us 7 decimal digits of precision.
 typedef _Float<int64_t, int64_t, 30, 7> Float64;
 typedef _Float<float, int32_t> FloatFloat;
 typedef _Float<double, int64_t> FloatDouble;

@@ -116,15 +116,15 @@ public:
     enum class Type : uint32_t {
         None = 0,
         Float = 1,
-        Object = 2,
-        Function = 4,
-        Integer = 6,
-        String = 8,
-        StringLiteral = 10,
-        Id = 12,
-        Null = 14,
-        NativeObject = 16,
-        NativeFunction = 18,
+        NativeFunction = 2,
+        Object = 4,
+        Function = 8,
+        Integer = 12,
+        String = 16,
+        StringLiteral = 20,
+        Id = 24,
+        Null = 28,
+        NativeObject = 32,
     };
     
     void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
@@ -132,15 +132,24 @@ public:
 
     Value() { init(); _value._type = Type::None; }
     
-    explicit Value(Float value) { _value._float = value.raw(); _value._float |= 0x01; }
+    explicit Value(Float value) {
+        _value._float = value.raw() & ~0x03;
+        _value._float |= static_cast<Float::decompose_type>(Type::Float);
+    }
     
+    explicit Value(NativeFunction value)
+    {
+        assert(value);
+        assert((reinterpret_cast<intptr_t>(value) & 0x03) == 0);
+        _value._nativeFunction = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::NativeFunction);
+    }
+
     explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<const MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
     explicit Value(Mad<String> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
     explicit Value(Mad<NativeObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }
-    explicit Value(NativeFunction value) { assert(value); init(); _value._nativeFunction = value; _value._type = Type::NativeFunction; }
 
     explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
     explicit Value(Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
@@ -161,7 +170,7 @@ public:
 
     ~Value() { }
     
-    Type type() const { return ((_value._float & 0x01) == 0) ? _value._type : Type::Float; }
+    Type type() const { return ((_value._float & 0x03) == 0) ? _value._type : static_cast<Type>(_value._float & 0x03); }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -190,7 +199,7 @@ public:
             case Type::Object:          return asObject().valid();  
             case Type::Function:        return asFunction().valid();
             case Type::NativeObject:    return asNativeObject().valid();
-            case Type::NativeFunction:  return _value._nativeFunction;
+            case Type::NativeFunction:  return _value._nativeFunction != 0;
             case Type::Integer:         return int32FromValue() != 0;
             case Type::Float:
             case Type::StringLiteral:
@@ -267,7 +276,7 @@ private:
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
     inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
     inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
-    inline NativeFunction nativeFunctionFromValue() { return _value._nativeFunction; }
+    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._nativeFunction & ~0x03); }
     inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
     inline Mad<Function> functionFromValue() const { return Mad<Function>(_value._rawMad); }
 
@@ -276,26 +285,34 @@ private:
         return StringLiteral(static_cast<StringLiteral::Raw>(_value._int));
     }
 
+    // A value is the size of a pointer. This can contain a Float (which can be up to 64 bits),
+    // a NativeFunction pointer or a structure containing a type and either an int32_t or
+    // a RawMad.
+    //
+    // The Type field is used for all types except NativeFunction and Float. For these the
+    // lowest 2 bits are used for type. For pointers, they are 4 byte aligned on ESP and
+    // 8 byte aligned on Mac. So using the lowest 2 bits is safe. For float, using the
+    // lowest 2 bits means you lose 2 bits of precision.
     union {
-        uint8_t _raw[sizeof(void*) * 2];
+        uint8_t _raw[8];
         Float::decompose_type _float;
+        intptr_t _nativeFunction;
         struct {
-            // TODO: type needs to be in the low order bytes of Value to make the
-            // trick of using the LSB and an indicator that this is a Float.
-            // That's only true for little endian platforms. Both Mac and ESP
-            // are little endian, but if it's ever ported big endian this needs
-            // to be fixed
+            // TODO: type needs to be in the low order bytes of Value
+            // This makes the trick of using the 2 LSB as the type forFloat and
+            // NativeFunction. That's only true for little endian platforms. Both
+            // Mac and ESP are little endian, but if it's ever ported big endian this
+            // needs to be fixed
             Type _type;
             union {
                 RawMad _rawMad;
-                NativeFunction _nativeFunction;
                 int32_t _int;
             };
         };
     } _value;
     
     // In order to fit everything, we have some requirements
-    static_assert(sizeof(_value) == sizeof(void*) * 2, "Value must be the size of 2 pointers");
+    static_assert(sizeof(_value) == 8, "Value must be 8 bytes");
 };
 
 }
