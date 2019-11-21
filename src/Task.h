@@ -32,7 +32,7 @@ public:
         system()->taskManager()->terminate(this);
     }
     
-    void run(FinishCallback cb = nullptr, Duration duration = 0_sec)
+    void run(const FinishCallback& cb = nullptr, Duration duration = 0_sec)
     {
         _finishCB = cb;
         system()->taskManager()->yield(this, duration);
@@ -41,9 +41,13 @@ public:
     void yield() { system()->taskManager()->yield(this); }
     void terminate() { system()->taskManager()->terminate(this); }
 
+    Error error() const { return _error; }
+
 protected:
     TaskBase() { }
     
+    Error _error = Error::Code::OK;
+
 private:
     void finish();
     
@@ -67,15 +71,12 @@ public:
     void setConsolePrintFunction(std::function<void(const String&)> f);
     void setConsoleListener(Value func);
 
-    Error error() const { return _error; }
-
     const ExecutionUnit* eu() const { return _eu.get(); }
     
 private:
     virtual CallReturnValue execute();
 
     Mad<ExecutionUnit> _eu;
-    Error _error = Error::Code::OK;
 };
 
 class TaskProto : public ObjectFactory {
