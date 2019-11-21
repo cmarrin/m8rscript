@@ -63,6 +63,8 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         return NoRawMad;
     }
     
+    checkConsistency();
+
     assert(type != MemoryType::Unknown);
     assert(static_cast<uint32_t>(size) <= 0xffff);
     
@@ -108,6 +110,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     
     assert(_memoryInfo.numAllocations < std::numeric_limits<uint16_t>::max());
     ++_memoryInfo.numAllocations;
+    assert(_memoryInfo.freeSizeInBlocks >= blocksToAlloc);
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
 
     if (allocatedBlock != NoBlockId) {
@@ -129,6 +132,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         }
     }
 
+    checkConsistency();
     return allocatedBlock;
 }
 
@@ -150,6 +154,11 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         return;
     }
     
+    if (p == 29272) {
+        int i = 0;
+        (void) i;
+    }
+    checkConsistency();
     assert(type != MemoryType::Unknown);
 
     if (type == MemoryType::Object) {
@@ -213,21 +222,29 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         //          freeBlock is the block after
         
         if (prevBlock == NoBlockId) {
+            assert(asHeader(newBlock)->nextBlock == freeBlock);
             coalesce(newBlock, freeBlock);
         } else if (freeBlock == NoBlockId) {
+            assert(asHeader(prevBlock)->nextBlock == newBlock);
             coalesce(prevBlock, newBlock);
         } else {
+            assert(asHeader(newBlock)->nextBlock == freeBlock);
+            assert(asHeader(prevBlock)->nextBlock == newBlock);
             coalesce(newBlock, freeBlock);
             coalesce(prevBlock, newBlock);
         }
     }
 
+    assert(_memoryInfo.numAllocations > 0);
     --_memoryInfo.numAllocations;
     _memoryInfo.freeSizeInBlocks += blocksToFree;
 
     uint32_t index = static_cast<uint32_t>(type);
+    assert(_memoryInfo.allocationsByType[index].count > 0);
     _memoryInfo.allocationsByType[index].count--;
+    assert(_memoryInfo.allocationsByType[index].sizeInBlocks >= blocksToFree);
     _memoryInfo.allocationsByType[index].sizeInBlocks -= blocksToFree;
+    checkConsistency();
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)
@@ -246,6 +263,14 @@ ROMString Mallocator::stringFromMemoryType(MemoryType type)
         case MemoryType::Fixed:         return ROMSTR("Fixed");
         case MemoryType::NumTypes:
         case MemoryType::Unknown:       return ROMSTR("Unknown");
+    }
+}
+
+void Mallocator::checkConsistency()
+{
+    for (BlockId block = _firstFreeBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
+        Header* header = asHeader(block);
+        assert(header && (header->nextBlock == NoBlockId || block + header->sizeInBlocks < header->nextBlock));
     }
 }
 
