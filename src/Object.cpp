@@ -106,9 +106,6 @@ void MaterObject::gcMark()
     for (auto entry : _properties) {
         entry.value.gcMark();
     }
-    if (_nativeObject.valid()) {
-        _nativeObject->gcMark();
-    }
     if (_arrayNeedsGC) {
         _arrayNeedsGC = false;
         for (auto entry : _array) {
@@ -229,10 +226,6 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
         return _array.empty() ? Value() : _array[_array.size() - 1];
     }
     
-    if (prop == Atom(SA::__nativeObject)) {
-        return _nativeObject.valid() ? Value(_nativeObject) : Value();
-    }
-
     auto it = _properties.find(prop);
     Value value = (it == _properties.end()) ? (proto() ? proto()->property(eu, prop) : Value()) : it->value;
     if (!value) {
@@ -248,11 +241,6 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
 
 bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
-    if (prop == Atom(SA::__nativeObject)) {
-        _nativeObject = v.asNativeObject();
-        return true;
-    }
-    
     Value oldValue = property(eu, prop);
     
     if (oldValue && type == Value::SetPropertyType::AlwaysAdd) {
@@ -268,6 +256,12 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
     }
 
     return setProperty(prop, v);
+}
+
+Value MaterObject::property(const Atom& prop)
+{
+    auto it = _properties.find(prop);
+    return (it == _properties.end()) ? it->value : Value();
 }
 
 bool MaterObject::setProperty(const Atom& prop, const Value& v)

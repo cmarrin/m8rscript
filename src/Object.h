@@ -115,6 +115,7 @@ public:
     uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
     Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
     
+    Value property(const Atom& prop);
     bool setProperty(const Atom& prop, const Value& v);
 
     const Value& operator[](size_t i) const { assert(i >= 0 && i < _array.size()); return _array[i]; };
@@ -127,7 +128,6 @@ public:
 private:
     Value::Map _properties;
     Vector<Value> _array;
-    Mad<NativeObject> _nativeObject;
     bool _isArray = false;
     bool _arrayNeedsGC;
 };
