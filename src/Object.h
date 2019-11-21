@@ -32,7 +32,6 @@ public:
     
     Object()
         :  _marked(true)
-        , _hasIterator(false)
         , _hasGet(false)
         , _hasSet(false)
         , _isDestroyed(false)
@@ -60,7 +59,6 @@ public:
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
 
-    bool hasIterator() const { return _hasIterator; }
     bool hasGet() const { return _hasGet; }
     bool hasSet() const { return _hasSet; }
     
@@ -84,14 +82,12 @@ protected:
     void setProto(Object* obj) { _proto = obj; }
     Object* proto() const { return _proto; }
     
-    void setHasIterator(bool b) { _hasIterator = b; }
     void setHasGet(bool b) { _hasGet = b; }
     void setHasSet(bool b) { _hasSet = b; }
     
 private:
     Object* _proto = nullptr;
     bool _marked : 1;
-    bool _hasIterator : 1;
     bool _hasGet : 1;
     bool _hasSet : 1;
     bool _isDestroyed : 1;
@@ -131,7 +127,6 @@ public:
 private:
     Value::Map _properties;
     Vector<Value> _array;
-    Mad<Object> _iterator;
     Mad<NativeObject> _nativeObject;
     bool _isArray = false;
     bool _arrayNeedsGC;

@@ -106,9 +106,6 @@ void MaterObject::gcMark()
     for (auto entry : _properties) {
         entry.value.gcMark();
     }
-    if (_iterator.valid()) {
-        _iterator->gcMark();
-    }
     if (_nativeObject.valid()) {
         _nativeObject->gcMark();
     }
@@ -232,28 +229,25 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
         return _array.empty() ? Value() : _array[_array.size() - 1];
     }
     
-    if (prop == Atom(SA::iterator)) {
-        return Value(_iterator.valid() ? _iterator: eu->program()->global()->property(eu, Atom(SA::Iterator)).asObject());
-    }
-
     if (prop == Atom(SA::__nativeObject)) {
         return _nativeObject.valid() ? Value(_nativeObject) : Value();
     }
 
     auto it = _properties.find(prop);
-    if (it == _properties.end()) {
-        return proto() ? proto()->property(eu, prop) : Value();
+    Value value = (it == _properties.end()) ? (proto() ? proto()->property(eu, prop) : Value()) : it->value;
+    if (!value) {
+        // If this is 'iterator' and one was not found, use the default
+        if (prop == Atom(SA::iterator)) {
+            value = eu->defaultIterator();
+        }
+
+
     }
-    return it->value;
+    return value;
 }
 
 bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
-    if (prop == Atom(SA::iterator)) {
-        _iterator = v.asObject();
-        return true;
-    }
-    
     if (prop == Atom(SA::__nativeObject)) {
         _nativeObject = v.asNativeObject();
         return true;

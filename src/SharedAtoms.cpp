@@ -21,7 +21,6 @@ static const char _IPAddr[] ROMSTR_ATTR = "IPAddr";
 static const char _Input[] ROMSTR_ATTR = "Input";
 static const char _InputPulldown[] ROMSTR_ATTR = "InputPulldown";
 static const char _InputPullup[] ROMSTR_ATTR = "InputPullup";
-static const char _Iterator[] ROMSTR_ATTR = "Iterator";
 static const char _JSON[] ROMSTR_ATTR = "JSON";
 static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
@@ -40,11 +39,8 @@ static const char _Task[] ROMSTR_ATTR = "Task";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _UDP[] ROMSTR_ATTR = "UDP";
 static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
-static const char ___count__[] ROMSTR_ATTR = "__count__";
-static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
-static const char ___this[] ROMSTR_ATTR = "__this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _back[] ROMSTR_ATTR = "back";
@@ -135,7 +131,6 @@ m8r::ROMString RODATA_ATTR _sharedAtoms[] = {
     m8r::ROMString(_Input),
     m8r::ROMString(_InputPulldown),
     m8r::ROMString(_InputPullup),
-    m8r::ROMString(_Iterator),
     m8r::ROMString(_JSON),
     m8r::ROMString(_Low),
     m8r::ROMString(_MaxConnections),
@@ -154,11 +149,8 @@ m8r::ROMString RODATA_ATTR _sharedAtoms[] = {
     m8r::ROMString(_Trigger),
     m8r::ROMString(_UDP),
     m8r::ROMString(_UDPProto),
-    m8r::ROMString(___count__),
-    m8r::ROMString(___index),
     m8r::ROMString(___nativeObject),
     m8r::ROMString(___object),
-    m8r::ROMString(___this),
     m8r::ROMString(___typeName),
     m8r::ROMString(_arguments),
     m8r::ROMString(_back),

@@ -124,7 +124,6 @@
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
 		49F463361E0DD545004EF625 /* MGSFragaria.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
 		49F4633E1E1873D6004EF625 /* Iterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F4633C1E1873D6004EF625 /* Iterator.h */; };
 /* End PBXBuildFile section */
 
@@ -997,7 +996,6 @@
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
-				49F4633D1E1873D6004EF625 /* Iterator.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,

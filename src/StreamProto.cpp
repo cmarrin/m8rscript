@@ -12,7 +12,7 @@
 using namespace m8r;
 
 StreamProto::StreamProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Iterator, parent, constructor)
+    : ObjectFactory(program, SA::Array, parent, constructor)
 {
     addProperty(program, SA::eof, eof);
     addProperty(program, SA::read, read);

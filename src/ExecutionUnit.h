@@ -133,6 +133,8 @@ public:
     Mad<Object> currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
+    
+    Value defaultIterator();
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
@@ -264,6 +266,8 @@ private:
     uint32_t _lineno = 0;
     
     Mad<UpValue> _openUpValues;
+    
+    Value _defaultIterator;
     
     std::function<void(const String&)> _consolePrintFunction;
 };

@@ -26,7 +26,6 @@ Input
 InputPulldown
 InputPullup
 IPAddr
-Iterator
 JSON
 Low
 MaxConnections
@@ -45,11 +44,8 @@ TCPProto
 Trigger
 UDP
 UDPProto
-__count__
-__index
 __nativeObject
 __object
-__this
 __typeName
 arguments
 back

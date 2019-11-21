@@ -15,18 +15,6 @@
 
 using namespace m8r;
 
-//static const char* IteratorString = ROMSTR(
-//   "class Iterator {\n"
-//   "    var _obj;\n"
-//   "    var _index;\n"
-//   "    constructor(obj) { _obj = obj; _index = 0; }\n"
-//   "    function done() { return _index >= _obj.length; }\n"
-//   "    function next() { if (!done()) ++_index; }\n"
-//   "    function getValue() { return done() ? null : _obj[_index]; }\n"
-//   "    function setValue(v) { if (!done()) _obj[_index] = v; }\n"
-//   "};\n"
-//);
-
 Global::Global(Mad<Program> program)
     : ObjectFactory(program, SA::Global)
     , _array(true)
@@ -36,7 +24,6 @@ Global::Global(Mad<Program> program)
     , _tcp(program, this)
     , _udp(program, this)
     , _ipAddr(program, this)
-    , _iterator(program, this)
     , _task(program, this)
     , _fs(program, this)
     , _file(program, this)
@@ -63,6 +50,8 @@ Global::Global(Mad<Program> program)
     addProperty(program, SA::Object, Mad<MaterObject>(&_object));
     
     addProperty(program, SA::consoleListener, Value::NullValue());
+    
+    
 }
 
 Global::~Global()
