@@ -151,7 +151,6 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     }
     
     assert(type != MemoryType::Unknown);
-    uint16_t sizeBefore = _memoryInfo.freeSizeInBlocks;
 
     if (type == MemoryType::Object) {
         GC::removeFromStore<MemoryType::Object>(p);
@@ -164,11 +163,13 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         assert(size == 0);
         size = asHeader(--p)->sizeInBlocks * _memoryInfo.blockSize;
     }
+    
+    uint16_t blocksToFree = blockSizeFromByteSize(size);
 
     BlockId newBlock = p;
     Header* newBlockHeader = asHeader(newBlock);
     newBlockHeader->nextBlock = NoBlockId;
-    newBlockHeader->sizeInBlocks = blockSizeFromByteSize(size);
+    newBlockHeader->sizeInBlocks = blocksToFree;
     
     // Insert in free list
     BlockId freeBlock = _firstFreeBlock;
@@ -222,11 +223,11 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     }
 
     --_memoryInfo.numAllocations;
-    _memoryInfo.freeSizeInBlocks += _memoryInfo.freeSizeInBlocks - sizeBefore;
+    _memoryInfo.freeSizeInBlocks += blocksToFree;
 
     uint32_t index = static_cast<uint32_t>(type);
     _memoryInfo.allocationsByType[index].count--;
-    _memoryInfo.allocationsByType[index].sizeInBlocks -= _memoryInfo.freeSizeInBlocks - sizeBefore;
+    _memoryInfo.allocationsByType[index].sizeInBlocks -= blocksToFree;
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)
