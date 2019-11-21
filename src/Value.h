@@ -234,8 +234,7 @@ public:
     bool isPointer() const { return isObject() || isFunction() || isNativeObject(); }
     bool isCallable() const
     {
-        return !(isId() || isNativeObject() || isNativeFunction() ||
-               isNone() || isNull() || (isObject() && !asObject().valid()));
+        return (((isObject() || isFunction()) && !asObject().valid())) || isNativeFunction();
     }
 
     bool isType(ExecutionUnit*, Atom);
