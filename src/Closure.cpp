@@ -13,6 +13,13 @@
 
 using namespace m8r;
 
+Closure::~Closure()
+{
+    for (auto it : _upValues) {
+        it.destroy(MemoryType::UpValue);
+    }
+}
+
 void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisValue)
 {
     assert(function.isFunction());
