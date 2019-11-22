@@ -15,6 +15,8 @@ namespace m8r {
 
 class UpValue {
 public:
+    ~UpValue() { _destroyed = true; }
+    
     Mad<UpValue> next() const { return _next; }
     void setNext(Mad<UpValue> v) { _next = v; }
     
@@ -35,6 +37,7 @@ public:
 private:
     bool _closed = false;
     bool _marked = true;
+    bool _destroyed = false;
     Value _value;
     Mad<UpValue> _next;
 };
@@ -42,7 +45,7 @@ private:
 class Closure : public Object {
 public:
     Closure() { }
-    virtual ~Closure() { }
+    virtual ~Closure();
     
     void init(ExecutionUnit* eu, const Value& function, const Value& thisValue);
     
