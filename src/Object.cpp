@@ -17,6 +17,18 @@
 
 using namespace m8r;
 
+void NativeObject::operator delete(void* p, std::size_t sz)
+{
+    Mad<NativeObject> mad(reinterpret_cast<NativeObject*>(p));
+    mad.destroy(static_cast<uint16_t>(sz));
+}
+
+void Object::operator delete(void* p, std::size_t sz)
+{
+    Mad<Object> mad(reinterpret_cast<Object*>(p));
+    mad.destroy(static_cast<uint16_t>(sz));
+}
+
 Atom Object::typeName() const
 {
     Value nameValue = property(Atom(SA::__typeName));
@@ -28,8 +40,7 @@ MaterObject::~MaterObject()
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj.valid()) {
-            uint16_t sz = obj->memorySize();
-            obj.destroy(MemoryType::Native, sz);
+            delete obj.get();
             it.value = Value();
         }
     }

@@ -37,6 +37,11 @@ public:
         , _isDestroyed(false)
     { }
     virtual ~Object() { _isDestroyed = true; }
+    
+//    void operator delete(void* p) { assert(false); }
+//    void operator delete [ ](void* p) { assert(false); }
+    void operator delete(void* p, std::size_t sz);
+//    void operator delete [ ](void* p, std::size_t sz) { assert(false); }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
@@ -135,7 +140,7 @@ class NativeObject {
 public:
     static MemoryType memoryType() { return MemoryType::Native; }
 
-    virtual uint16_t memorySize() const { return sizeof(NativeObject); }
+    void operator delete(void* p, std::size_t sz);
     
     NativeObject() { }
     virtual ~NativeObject() { }

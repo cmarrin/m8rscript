@@ -133,8 +133,6 @@ class Directory : public NativeObject {
     friend class FS;
     
 public:
-    virtual uint16_t memorySize() const override { return sizeof(Directory); }
-
     virtual  ~Directory() { }
 
     const String& name() const { return _name; }
@@ -156,8 +154,6 @@ class File : public NativeObject {
     friend class FS;
     
 public:
-    virtual uint16_t memorySize() const override { return sizeof(File); }
-
     enum class SeekWhence { Set, Cur, End };
     enum class Type { File, Directory, Unknown };
     

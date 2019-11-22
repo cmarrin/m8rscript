@@ -56,10 +56,8 @@ private:
     FinishCallback _finishCB;
 };
 
-class Task : public TaskBase, public NativeObject {
+class Task : public NativeObject, public TaskBase {
 public:
-    virtual uint16_t memorySize() const override { return sizeof(Task); }
-
     Task();
     
     virtual ~Task();
