@@ -75,7 +75,6 @@ void GC::gc(bool force)
                 auto it = std::remove_if(_objectStore.begin(), _objectStore.end(), [](RawMad m) {
                     Mad<Object> obj = Mad<Object>(m);
                     if (!obj->isMarked()) {
-                        //obj.destroy();
                         delete obj.get();
                         return true;
                     }
