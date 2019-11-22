@@ -38,6 +38,7 @@ private:
     static uint32_t prevGCObjects;
     static uint32_t prevGCStrings;
     static uint8_t countSinceLastGC;
+    static bool inGC;
 };
     
 }

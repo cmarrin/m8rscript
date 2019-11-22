@@ -27,7 +27,7 @@ class TaskBase : public List<TaskBase, Time>::Item {
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
-    virtual ~TaskBase()
+    ~TaskBase()
     {
         system()->taskManager()->terminate(this);
     }
@@ -62,7 +62,7 @@ public:
 
     Task();
     
-    ~Task();
+    virtual ~Task();
     
     void setFilename(const char*);
     

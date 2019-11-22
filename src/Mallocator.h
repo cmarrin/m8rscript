@@ -233,7 +233,7 @@ inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()
 template<typename T>
 inline void Mad<T>::destroyHelper(MemoryType type, uint16_t size, bool destruct)
 {
-    if (size == 0) {
+    if (!valid() || size == 0) {
         return;
     }
     

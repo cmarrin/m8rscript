@@ -28,7 +28,8 @@ MaterObject::~MaterObject()
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj.valid()) {
-            obj.destroy(MemoryType::Native, obj->memorySize());
+            uint16_t sz = obj->memorySize();
+            obj.destroy(MemoryType::Native, sz);
             it.value = Value();
         }
     }

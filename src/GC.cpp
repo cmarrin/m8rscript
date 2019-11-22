@@ -25,15 +25,22 @@ GC::GCState GC::gcState = GCState::ClearMarkedObj;
 uint32_t GC::prevGCObjects = 0;
 uint32_t GC::prevGCStrings = 0;
 uint8_t GC::countSinceLastGC = 0;
+bool GC::inGC = false;
 
 void GC::gc(bool force)
 {
+    if (inGC) {
+        return;
+    }
+    
+    inGC = true;
     system()->lock();
     bool didFullCycle = gcState == GCState::ClearMarkedObj;
     while (1) {
         switch(gcState) {
             case GCState::ClearMarkedObj:
                 if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
+                    inGC = false;
                     system()->unlock();
                     return;
                 }
@@ -90,6 +97,7 @@ void GC::gc(bool force)
                 gcState = GCState::ClearMarkedObj;
                 
                 if (!force || didFullCycle) {
+                    inGC = false;
                     system()->unlock();
                     return;
                 }
@@ -102,6 +110,7 @@ void GC::gc(bool force)
             break;
         }
     }
+    inGC = false;
     system()->unlock();
 }
 
