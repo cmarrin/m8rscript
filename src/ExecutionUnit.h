@@ -121,7 +121,7 @@ public:
 
     void setConsoleListener(Value func)
     {
-        _program->global()->setProperty(this, Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
+        _program->global()->setProperty(Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
     }
 
     void startEventListening() { _numEventListeners++; }
@@ -133,6 +133,8 @@ public:
     Mad<Object> currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
+
+    String debugString(uint16_t index);
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;

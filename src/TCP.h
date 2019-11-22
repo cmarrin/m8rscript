@@ -24,6 +24,8 @@ class TCP;
 
 class TCPDelegate : public NativeObject {
 public:
+    virtual uint16_t memorySize() const override { return sizeof(TCPDelegate); }
+
     virtual ~TCPDelegate() { }
     
     enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };

@@ -115,9 +115,14 @@ public:
     
     void reset() { *this = Mad<T>(); }
     
-    void destroy(MemoryType type, uint32_t n = 1);
-    void destroy(uint32_t n) { destroy(MemoryType::Unknown, 1); }
-    void destroy() { destroy(T::memoryType(), 1); }
+    template<typename X>
+    struct assert_false : std::false_type { };
+    void destroy(uint32_t n) { static_assert(assert_false<T>::value, "Must specialize this function"); }
+    
+    void destroyVector(uint32_t n) { destroyHelper(MemoryType::Vector, n * sizeof(T), false); }
+    void destroy(MemoryType type) { destroyHelper(type, sizeof(T), true); }
+    void destroy(MemoryType type, uint16_t size) { destroyHelper(type, size, true); }
+    void destroy() { destroyHelper(T::memoryType(), sizeof(T), true); }
 
     static Mad<T> create(MemoryType, uint32_t n = 1);
     static Mad<T> create(uint32_t n) { return create(MemoryType::Unknown, n); }
@@ -128,6 +133,8 @@ public:
 
 private:
     RawMad _raw = NoRawMad;
+    
+    void destroyHelper(MemoryType, uint16_t size, bool destruct);
     
 #ifdef MEMORY_PTR
     // Keep a pointer around for debugging
@@ -224,7 +231,7 @@ template<typename T>
 inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()->get(raw())); }
 
 template<typename T>
-inline void Mad<T>::destroy(MemoryType type, uint32_t size)
+inline void Mad<T>::destroyHelper(MemoryType type, uint16_t size, bool destruct)
 {
     if (size == 0) {
         return;
@@ -233,15 +240,25 @@ inline void Mad<T>::destroy(MemoryType type, uint32_t size)
     if (this->valid()) {
         // Only call the destructor if this isn't an array of objects.
         // Arrays call their desctructors themselves
-        if (size == 1) {
+        if (destruct) {
             get()->~T();
         }
-        Mallocator::shared()->deallocate(type, *this, sizeof(T) * size);
+        Mallocator::shared()->deallocate(type, *this, size);
     }
 }
 
 template<>
 inline void Mad<char>::destroy(uint32_t size)
+{
+    if (size == 0) {
+        return;
+    }
+    
+    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
+}
+
+template<>
+inline void Mad<uint8_t>::destroy(uint32_t size)
 {
     if (size == 0) {
         return;
@@ -267,6 +284,12 @@ template<>
 inline Mad<char> Mad<char>::create(uint32_t n)
 {
     return Mallocator::shared()->allocate<char>(MemoryType::Character, n);
+}
+
+template<>
+inline Mad<uint8_t> Mad<uint8_t>::create(uint32_t n)
+{
+    return Mallocator::shared()->allocate<uint8_t>(MemoryType::Character, n);
 }
 
 }

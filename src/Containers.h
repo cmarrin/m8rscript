@@ -147,7 +147,7 @@ public:
         *this = other;
     }
     
-    ~Vector() { _data.destroy(MemoryType::Vector, _capacity); }
+    ~Vector() { _data.destroyVector(_capacity); }
     
     using iterator = T*;
     using const_iterator = const T*;
@@ -159,7 +159,7 @@ public:
 
     Vector& operator=(const Vector& other)
     {
-        _data.destroy(MemoryType::Vector, _capacity);
+        _data.destroyVector(_capacity);
         
         _data = Mad<T>();
         _size = 0;
@@ -176,7 +176,7 @@ public:
 
     Vector& operator=(Vector&& other)
     {
-        _data.destroy(MemoryType::Vector, _capacity);
+        _data.destroyVector(_capacity);
 
         _data = other._data;
         _size = other._size;
@@ -328,7 +328,7 @@ private:
             newData.get()[i] = _data.get()[i];
         }
         assert(_data.raw() != 1 && newData.raw() != 1);
-        _data.destroy(MemoryType::Vector, oldCapacity);
+        _data.destroyVector(oldCapacity);
         _data = newData;
     }
 

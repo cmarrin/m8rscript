@@ -58,7 +58,7 @@ private:
 
 class Task : public TaskBase, public NativeObject {
 public:
-    static MemoryType memoryType() { return MemoryType::Task; }
+    virtual uint16_t memorySize() const override { return sizeof(Task); }
 
     Task();
     
@@ -74,7 +74,7 @@ public:
     const ExecutionUnit* eu() const { return _eu.get(); }
     
 private:
-    virtual CallReturnValue execute();
+    virtual CallReturnValue execute() override;
 
     Mad<ExecutionUnit> _eu;
 };

@@ -217,13 +217,13 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     
     uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
     uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
-    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("freeSize")),
+    obj->setProperty(eu->program()->atomizeString(ROMSTR("freeSize")),
                      Value(static_cast<int32_t>(freeSize)), Value::SetPropertyType::AlwaysAdd);
                      
-    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("allocatedSize")),
+    obj->setProperty(eu->program()->atomizeString(ROMSTR("allocatedSize")),
                      Value(static_cast<int32_t>(allocatedSize)), Value::SetPropertyType::AlwaysAdd);
                      
-    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("numAllocations")),
+    obj->setProperty(eu->program()->atomizeString(ROMSTR("numAllocations")),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
     Mad<Object> allocationsByType = Mad<MaterObject>::create();
@@ -232,17 +232,17 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
         Mad<Object> allocation = Mad<MaterObject>::create();
         uint32_t size = info.allocationsByType[i].sizeInBlocks * info.blockSize;
         ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
-        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("count")),
+        allocation->setProperty(eu->program()->atomizeString(ROMSTR("count")),
                          Value(static_cast<int32_t>(info.allocationsByType[i].count)), Value::SetPropertyType::AlwaysAdd);
-        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("size")),
+        allocation->setProperty(eu->program()->atomizeString(ROMSTR("size")),
                          Value(static_cast<int32_t>(size)), Value::SetPropertyType::AlwaysAdd);
-        allocation->setProperty(eu, eu->program()->atomizeString(ROMSTR("type")),
+        allocation->setProperty(eu->program()->atomizeString(ROMSTR("type")),
                          Value(Mad<String>::create(type)), Value::SetPropertyType::AlwaysAdd);
 
         allocationsByType->setElement(eu, Value(0), Value(allocation), true);
     }
     
-    obj->setProperty(eu, eu->program()->atomizeString(ROMSTR("allocationsByType")),
+    obj->setProperty(eu->program()->atomizeString(ROMSTR("allocationsByType")),
                      Value(allocationsByType), Value::SetPropertyType::AlwaysAdd);
 
     eu->stack().push(Value(obj));

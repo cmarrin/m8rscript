@@ -46,7 +46,7 @@ public:
         _file = fs->open(file, mode);
     }
     
-    ~FileStream() { _file.destroy(MemoryType::File); }
+    ~FileStream() { _file.destroy(MemoryType::Native); }
 
     bool loaded()
     {

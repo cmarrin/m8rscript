@@ -102,7 +102,7 @@ bool SpiffsFS::format()
 
 Mad<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
 {
-    Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::File);
+    Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::Native);
     file->open(fileID.str().c_str(), flags);
     
     if (!file->valid()) {
@@ -180,7 +180,7 @@ Mad<Directory> SpiffsFS::openDirectory(const char* name)
     if (!mounted()) {
         return Mad<Directory>();
     }
-    Mad<SpiffsDirectory> dir = Mad<SpiffsDirectory>::create(MemoryType::File);
+    Mad<SpiffsDirectory> dir = Mad<SpiffsDirectory>::create(MemoryType::Native);
     dir->setName(name);
     return dir;
 }
@@ -367,7 +367,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                 break;
             }
             
-            file.destroy(MemoryType::File);
+            file.destroy(MemoryType::Native);
             file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
             if (!file->valid()) {
                 error = Error::Code::InternalError;
@@ -376,7 +376,7 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
         }
     }
     
-    file.destroy(MemoryType::File);
+    file.destroy(MemoryType::Native);
     if (error != Error::Code::OK) {
         fileID = FileID();
         return false;

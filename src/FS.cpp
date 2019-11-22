@@ -158,7 +158,7 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         
     Mad<File> file = system()->fileSystem()->open(filename.c_str(), mode);
     
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value::asValue(file), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(file), Value::SetPropertyType::AlwaysAdd);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 

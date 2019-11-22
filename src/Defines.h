@@ -167,8 +167,6 @@ enum class MemoryType {
     String,
     Character,
     Object,
-    File,
-    Task,
     ExecutionUnit,
     Native,
     Vector,

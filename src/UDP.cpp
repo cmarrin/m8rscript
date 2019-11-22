@@ -49,7 +49,7 @@ CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     }
     
     Mad<NativeObject> nativeDelegate = static_cast<Mad<NativeObject>>(delegate);
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value(nativeDelegate), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::__nativeObject), Value(nativeDelegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

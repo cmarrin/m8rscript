@@ -31,7 +31,7 @@ static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& 
     if (!obj.valid()) {
         return true;
     }
-    int32_t size = obj->property(eu, Atom(SA::length)).asIntValue();
+    int32_t size = obj->property(Atom(SA::length)).asIntValue();
     return index >= size;
 }
 

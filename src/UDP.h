@@ -65,6 +65,8 @@ private:
 
 class MyUDPDelegate : public NativeObject, public UDPDelegate {
 public:
+    virtual uint16_t memorySize() const override { return sizeof(MyUDPDelegate); }
+
     MyUDPDelegate() { }
     virtual ~MyUDPDelegate() { }
 

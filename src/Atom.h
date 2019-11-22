@@ -74,7 +74,7 @@ public:
     }
     
     static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa)); }
-
+    
 private:
     Atom findAtom(const char* s) const;
 

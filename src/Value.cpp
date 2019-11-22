@@ -151,7 +151,7 @@ bool Value::isType(ExecutionUnit* eu, Atom atom)
     if (!isObject()) {
         return false;
     }
-    Atom typeAtom = asObject()->typeName(eu);
+    Atom typeAtom = asObject()->typeName();
     return typeAtom == atom;
 }
 
@@ -166,7 +166,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj.valid() ? obj->property(eu, prop) : Value();
+            return obj.valid() ? obj->property(prop) : Value();
         }
         case Type::Integer:
         case Type::Float: 
@@ -194,7 +194,7 @@ bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value,
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();
-    return obj.valid() ? obj->setProperty(eu, prop, value, type) : false;
+    return obj.valid() ? obj->setProperty(prop, value, type) : false;
 }
 
 const Value Value::element(ExecutionUnit* eu, const Value& elt) const

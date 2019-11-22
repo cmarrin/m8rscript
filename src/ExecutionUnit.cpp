@@ -95,9 +95,9 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     
     // If property exists in this, store it there
     if (_this.valid()) {
-        Value oldValue = _this->property(this, atom);
+        Value oldValue = _this->property(atom);
         if (oldValue) {
-            if (!_this->setProperty(this, atom, value, Value::SetPropertyType::AddIfNeeded)) {
+            if (!_this->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
                 printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
             }
             return;
@@ -105,9 +105,9 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     }
 
     // See if it's in global
-    Value oldValue = _program->global()->property(this, atom);
+    Value oldValue = _program->global()->property(atom);
     if (oldValue) {
-        if (!_program->global()->setProperty(this, atom, value, Value::SetPropertyType::AddIfNeeded)) {
+        if (!_program->global()->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
             printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
         }
         return;
@@ -128,18 +128,18 @@ Value ExecutionUnit::derefId(Atom atom)
     // Look in this then program then global
     Value value;
     if (_this.valid()) {
-        value = _this->property(this, atom);
+        value = _this->property(atom);
         if (value) {
             return value;
         }
     }
 
-    value = _program->property(this, atom);
+    value = _program->property(atom);
     if (value) {
         return value;
     }
     
-    value = _program->global()->property(this, atom);
+    value = _program->global()->property(atom);
     if (value) {
         return value;
     }
@@ -226,7 +226,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
 void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
 {
     // Get the consoleListener from Global and use that to fire an event
-    Value listener = program()->global()->property(this, Atom(SA::consoleListener));
+    Value listener = program()->global()->property(Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
         args[0] = Value(Mad<String>::create(data));
@@ -441,7 +441,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     for (auto it : *(function->constants())) {
         Mad<Function> func = it.asFunction();
         if (func.valid() && func->name()) {
-            obj->setProperty(this, func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
+            obj->setProperty(func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
         }
     }
 
@@ -483,6 +483,8 @@ CallReturnValue ExecutionUnit::continueExecution()
     if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
+    
+    String sss = debugString(32);
 
     GC::gc();
 
@@ -503,6 +505,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
     Mad<Object> prevThis;
+    Atom prop;
 
     Instruction inst;
     
@@ -626,18 +629,25 @@ CallReturnValue ExecutionUnit::continueExecution()
         stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
         DISPATCH;
     L_LOADPROP:
-        leftValue = regOrConst(inst.rb()).property(this, regOrConst(inst.rc()).toIdValue(this));
-    
+        prop = regOrConst(inst.rc()).toIdValue(this);
+        
+        leftValue = regOrConst(inst.rb()).property(this, prop);
         // TODO: Distinguish between Values that can't have properties and those that can
         //
         // We don't distinguish between Values that can't have properties (like Id and NativeFunction) and
         // Those that just don't happen to have a property with the given name. Maybe have an error Value
         // returned that will tell us that?
         if (!leftValue) {
-            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
-        } else {
-            setInFrame(inst.ra(), leftValue);
+            // We need to handle 'iterator' here because if the value is undefined and the property
+            // is 'iterator' we need to supply the default iterator
+            if (prop == Atom(SA::iterator)) {
+                leftValue = program()->global()->property(Atom(SA::Iterator));
+            } else {
+                printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
+                DISPATCH;
+            }
         }
+        setInFrame(inst.ra(), leftValue);
         DISPATCH;
     L_STOPROP:
         if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::NeverAdd)) {
@@ -903,3 +913,9 @@ CallReturnValue ExecutionUnit::continueExecution()
         _pc += intValue - 1;
         DISPATCH;
 }
+
+String ExecutionUnit::debugString(uint16_t index)
+{
+    return _program->stringFromAtom(Atom(index));
+}
+

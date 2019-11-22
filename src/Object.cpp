@@ -17,9 +17,9 @@
 
 using namespace m8r;
 
-Atom Object::typeName(ExecutionUnit* eu) const
+Atom Object::typeName() const
 {
-    Value nameValue = property(eu, Atom(SA::__typeName));
+    Value nameValue = property(Atom(SA::__typeName));
     return nameValue.asIdValue();
 }
 
@@ -28,7 +28,7 @@ MaterObject::~MaterObject()
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj.valid()) {
-            obj.destroy();
+            obj.destroy(MemoryType::Native, obj->memorySize());
             it.value = Value();
         }
     }
@@ -37,11 +37,11 @@ MaterObject::~MaterObject()
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {
-        String typeName = eu->program()->stringFromAtom(property(eu, Atom(SA::__typeName)).asIdValue());
+        String typeName = eu->program()->stringFromAtom(property(Atom(SA::__typeName)).asIdValue());
         return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
     }
     
-    Value callable = property(eu, Atom(SA::toString));
+    Value callable = property(Atom(SA::toString));
     
     if (callable) {
         CallReturnValue retval = callable.call(eu, Value(Mad<MaterObject>(this)), 0, true);
@@ -121,7 +121,7 @@ const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
 {
     if (elt.isString() || !_isArray) {
         Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-        return property(eu, prop);
+        return property(prop);
     }
     int32_t index = elt.toIntValue(eu);
     return (index >= 0 && index < _array.size()) ? _array[index] : Value();
@@ -136,7 +136,7 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
     
     if (elt.isString() || !_isArray) {
         Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-        return setProperty(eu, prop, value, Value::SetPropertyType::NeverAdd);
+        return setProperty(prop, value, Value::SetPropertyType::NeverAdd);
     }
     
     int32_t index = elt.toIntValue(eu);
@@ -150,7 +150,7 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
 
 CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    Value callee = property(eu, prop);
+    Value callee = property(prop);
     if (!callee) {
         if (prop == Atom(SA::pop_back)) {
             if (!_array.empty()) {
@@ -212,7 +212,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
     return callee.call(eu, Value(Mad<Object>(this)), nparams, false);
 }
 
-const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
+const Value MaterObject::property(const Atom& prop) const
 {
     if (prop == Atom(SA::length)) {
         return Value(static_cast<int32_t>(_array.size()));
@@ -227,21 +227,12 @@ const Value MaterObject::property(ExecutionUnit* eu, const Atom& prop) const
     }
     
     auto it = _properties.find(prop);
-    Value value = (it == _properties.end()) ? (proto() ? proto()->property(eu, prop) : Value()) : it->value;
-    if (!value) {
-        // If this is 'iterator' and one was not found, use the default
-        if (prop == Atom(SA::iterator)) {
-            value = eu->program()->global()->property(eu, Atom(SA::Iterator));
-        }
-
-
-    }
-    return value;
+    return (it == _properties.end()) ? (proto() ? proto()->property(prop) : Value()) : it->value;
 }
 
-bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& v, Value::SetPropertyType type)
+bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
 {
-    Value oldValue = property(eu, prop);
+    Value oldValue = property(prop);
     
     if (oldValue && type == Value::SetPropertyType::AlwaysAdd) {
         return false;
@@ -255,17 +246,6 @@ bool MaterObject::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& 
         return true;
     }
 
-    return setProperty(prop, v);
-}
-
-Value MaterObject::property(const Atom& prop)
-{
-    auto it = _properties.find(prop);
-    return (it == _properties.end()) ? it->value : Value();
-}
-
-bool MaterObject::setProperty(const Atom& prop, const Value& v)
-{
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
@@ -358,7 +338,7 @@ void ObjectFactory::addProperty(Mad<Program> program, SA sa, NativeFunction f)
 
 Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
-    Value objectValue = eu->program()->global()->property(eu, objectName);
+    Value objectValue = eu->program()->global()->property(objectName);
     if (!objectValue) {
         return Mad<Object>();
     }

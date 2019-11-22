@@ -352,14 +352,14 @@ void writeUserData()
     _gUserData.magic[3] = 's';
     m8r::Mad<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Write);
     int32_t count = file->write(reinterpret_cast<const char*>(&_gUserData), sizeof(UserSaveData));
-    file.destroy(m8r::MemoryType::File);
+    file.destroy(m8r::MemoryType::Native);
 }
 
 void getUserData()
 {
     m8r::Mad<m8r::File> file = m8r::system()->fileSystem()->open(UserDataFilename, m8r::FS::FileOpenMode::Read);
     int32_t count = file->read(reinterpret_cast<char*>(&_gUserData), sizeof(UserSaveData));
-    file.destroy(m8r::MemoryType::File);
+    file.destroy(m8r::MemoryType::Native);
 
     if (_gUserData.magic[0] != 'm' || _gUserData.magic[1] != '8' || 
         _gUserData.magic[2] != 'r' || _gUserData.magic[3] != 's') {

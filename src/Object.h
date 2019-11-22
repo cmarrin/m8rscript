@@ -42,15 +42,15 @@ public:
     
     virtual void gcMark() { gcMark(this); gcMark(_proto);; }
     
-    virtual const Value property(ExecutionUnit*, const Atom&) const { return Value(); }
+    virtual const Value property(const Atom&) const { return Value(); }
     
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetPropertyType) { return false; }
+    virtual bool setProperty(const Atom& prop, const Value& value, Value::SetPropertyType = Value::SetPropertyType::AddIfNeeded) { return false; }
     
-    virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(eu, elt.toIdValue(eu)); }
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
     
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
     {
-        return setProperty(eu, elt.toIdValue(eu), value, append ? Value::SetPropertyType::AlwaysAdd : Value::SetPropertyType::NeverAdd);
+        return setProperty(elt.toIdValue(eu), value, append ? Value::SetPropertyType::AlwaysAdd : Value::SetPropertyType::NeverAdd);
     }
 
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
@@ -76,7 +76,7 @@ public:
     
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
-    Atom typeName(ExecutionUnit*) const;
+    Atom typeName() const;
     
 protected:
     void setProto(Object* obj) { _proto = obj; }
@@ -106,8 +106,8 @@ public:
     virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
 
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
-    virtual const Value property(ExecutionUnit* eu, const Atom& prop) const override;
-    virtual bool setProperty(ExecutionUnit*, const Atom& prop, const Value& v, Value::SetPropertyType type) override;
+    virtual const Value property(const Atom& prop) const override;
+    virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
     virtual void setArray(bool b) override { _isArray = b; }
@@ -115,9 +115,6 @@ public:
     uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
     Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
     
-    Value property(const Atom& prop);
-    bool setProperty(const Atom& prop, const Value& v);
-
     const Value& operator[](size_t i) const { assert(i >= 0 && i < _array.size()); return _array[i]; };
     Value& operator[](size_t i) { assert(i >= 0 && i < _array.size()); return _array[i]; };
 	size_t size() const { return _array.size(); }
@@ -138,6 +135,8 @@ class NativeObject {
 public:
     static MemoryType memoryType() { return MemoryType::Native; }
 
+    virtual uint16_t memorySize() const { return sizeof(NativeObject); }
+    
     NativeObject() { }
     virtual ~NativeObject() { }
 
@@ -152,7 +151,7 @@ CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    nativeObj = obj->property(eu, Atom(SA::__nativeObject)).asNativeObject();
+    nativeObj = obj->property(Atom(SA::__nativeObject)).asNativeObject();
     if (!nativeObj.valid()) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }

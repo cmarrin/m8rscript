@@ -151,10 +151,10 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
         return CallReturnValue(CallReturnValue::Error::Error);
     }
-    obj->setProperty(eu, Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
-    obj->setProperty(eu, Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
-    obj->setProperty(eu, Atom(SA::env), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::env), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
     task->setConsoleListener(consoleListener);
 

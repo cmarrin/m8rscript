@@ -439,7 +439,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
                 for (int32_t i = 0; i < count; ++i) {
                     Atom name = obj->propertyKeyforIndex(i);
                     if (name) {
-                        Value v = obj->property(nullptr, name);
+                        Value v = obj->property(name);
                         indentCode(s);
                         s += program->stringFromAtom(name) + " : ";
                         showConstant(program, s, v);

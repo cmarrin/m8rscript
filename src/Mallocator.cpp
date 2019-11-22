@@ -120,6 +120,10 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
             GC::addToStore<MemoryType::String>(allocatedBlock);
         }
         
+        if (type == MemoryType::Native) {
+            int i = 0;
+            (void) i;
+        }
         uint32_t index = static_cast<uint32_t>(type);
         
         _memoryInfo.allocationsByType[index].count++;
@@ -154,10 +158,6 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         return;
     }
     
-    if (p == 29272) {
-        int i = 0;
-        (void) i;
-    }
     checkConsistency();
     assert(type != MemoryType::Unknown);
 
@@ -239,6 +239,10 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     --_memoryInfo.numAllocations;
     _memoryInfo.freeSizeInBlocks += blocksToFree;
 
+if (type == MemoryType::Native) {
+    int i = 0;
+    (void) i;
+}
     uint32_t index = static_cast<uint32_t>(type);
     assert(_memoryInfo.allocationsByType[index].count > 0);
     _memoryInfo.allocationsByType[index].count--;
@@ -253,8 +257,6 @@ ROMString Mallocator::stringFromMemoryType(MemoryType type)
         case MemoryType::String:        return ROMSTR("String");
         case MemoryType::Character:     return ROMSTR("Char");
         case MemoryType::Object:        return ROMSTR("Object");
-        case MemoryType::File:          return ROMSTR("File");
-        case MemoryType::Task:          return ROMSTR("Task");
         case MemoryType::ExecutionUnit: return ROMSTR("ExecutionUnit");
         case MemoryType::Native:        return ROMSTR("Native");
         case MemoryType::Vector:        return ROMSTR("Vector");
