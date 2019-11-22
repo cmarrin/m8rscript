@@ -32,7 +32,7 @@ public:
     static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
 
     ExecutionUnit() : _stack(200) { }
-    ~ExecutionUnit() { clearOpenUpValues(); }
+    ~ExecutionUnit() { }
     
     void gcMark();
 
@@ -191,7 +191,6 @@ private:
     }
     
     void closeUpValues(uint32_t frame);
-    void clearOpenUpValues();
     
     Value& reg(uint32_t r)
     {

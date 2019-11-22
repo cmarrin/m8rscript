@@ -164,15 +164,6 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     }
 }
 
-void ExecutionUnit::clearOpenUpValues()
-{
-    while (_openUpValues.valid()) {
-        Mad<UpValue> nextUpValue = _openUpValues->next();
-        _openUpValues.destroy(MemoryType::UpValue);
-        _openUpValues = nextUpValue;
-    }
-}
-
 void ExecutionUnit::startExecution(Mad<Program> program)
 {
     if (!program.valid()) {
@@ -541,7 +532,6 @@ CallReturnValue ExecutionUnit::continueExecution()
         if (_terminate) {
             _stack.clear();
             _callRecords.clear();
-            clearOpenUpValues();
             GC::gc(true);
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
