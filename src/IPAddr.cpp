@@ -32,11 +32,11 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-IPAddrProto::IPAddrProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::IPAddr, parent, constructor)
+IPAddrProto::IPAddrProto(ObjectFactory* parent)
+    : ObjectFactory(SA::IPAddr, parent, constructor)
 {
-    addProperty(program, SA::toString, toString);
-    addProperty(program, SA::lookupHostname, lookupHostname);
+    addProperty(SA::toString, toString);
+    addProperty(SA::lookupHostname, lookupHostname);
 
     _obj->setArray(true);
     _obj->resize(4);

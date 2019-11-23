@@ -16,11 +16,11 @@
 
 using namespace m8r;
 
-UDPProto::UDPProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::UDPProto, parent, constructor)
+UDPProto::UDPProto(ObjectFactory* parent)
+    : ObjectFactory(SA::UDPProto, parent, constructor)
 {
-    addProperty(program, SA::send, send);
-    addProperty(program, SA::disconnect, disconnect);
+    addProperty(SA::send, send);
+    addProperty(SA::disconnect, disconnect);
     
     addProperty(Atom(SA::ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
     addProperty(Atom(SA::SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));

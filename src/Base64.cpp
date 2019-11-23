@@ -101,11 +101,11 @@ int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, c
 	return io;
 }
 
-Base64::Base64(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Base64, parent)
+Base64::Base64(ObjectFactory* parent)
+    : ObjectFactory(SA::Base64, parent)
 {
-    addProperty(program, SA::encode, encodeFunc);
-    addProperty(program, SA::decode, decodeFunc);
+    addProperty(SA::encode, encodeFunc);
+    addProperty(SA::decode, decodeFunc);
 }
 
 CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

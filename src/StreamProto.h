@@ -15,7 +15,7 @@ namespace m8r {
 
 class StreamProto : public ObjectFactory {
 public:
-    StreamProto(Mad<Program>, ObjectFactory* parent);
+    StreamProto(ObjectFactory* parent);
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);

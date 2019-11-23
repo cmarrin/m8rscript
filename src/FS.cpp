@@ -15,21 +15,21 @@
 
 using namespace m8r;
 
-FSProto::FSProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::FS, parent)
+FSProto::FSProto(ObjectFactory* parent)
+    : ObjectFactory(SA::FS, parent)
 {
-    addProperty(program, SA::mount, mount);
-    addProperty(program, SA::mounted, mounted);
-    addProperty(program, SA::unmount, unmount);
-    addProperty(program, SA::format, format);
-    addProperty(program, SA::open, open);
-    addProperty(program, SA::openDirectory, openDirectory);
-    addProperty(program, SA::makeDirectory, makeDirectory);
-    addProperty(program, SA::remove, remove);
-    addProperty(program, SA::rename, rename);
-    addProperty(program, SA::stat, stat);
-    addProperty(program, SA::lastError, lastError);
-    addProperty(program, SA::errorString, errorString);
+    addProperty(SA::mount, mount);
+    addProperty(SA::mounted, mounted);
+    addProperty(SA::unmount, unmount);
+    addProperty(SA::format, format);
+    addProperty(SA::open, open);
+    addProperty(SA::openDirectory, openDirectory);
+    addProperty(SA::makeDirectory, makeDirectory);
+    addProperty(SA::remove, remove);
+    addProperty(SA::rename, rename);
+    addProperty(SA::stat, stat);
+    addProperty(SA::lastError, lastError);
+    addProperty(SA::errorString, errorString);
 }
 
 CallReturnValue FSProto::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -102,17 +102,17 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-FileProto::FileProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::File, parent, constructor)
+FileProto::FileProto(ObjectFactory* parent)
+    : ObjectFactory(SA::File, parent, constructor)
 {
-    addProperty(program, SA::close, close);
-    addProperty(program, SA::read, read);
-    addProperty(program, SA::write, write);
-    addProperty(program, SA::seek, seek);
-    addProperty(program, SA::eof, eof);
-    addProperty(program, SA::valid, valid);
-    addProperty(program, SA::error, error);
-    addProperty(program, SA::type, type);
+    addProperty(SA::close, close);
+    addProperty(SA::read, read);
+    addProperty(SA::write, write);
+    addProperty(SA::seek, seek);
+    addProperty(SA::eof, eof);
+    addProperty(SA::valid, valid);
+    addProperty(SA::error, error);
+    addProperty(SA::type, type);
 }
 
 CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -241,15 +241,15 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-DirectoryProto::DirectoryProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Directory, parent, constructor)
+DirectoryProto::DirectoryProto(ObjectFactory* parent)
+    : ObjectFactory(SA::Directory, parent, constructor)
 {
-    addProperty(program, SA::name, name);
-    addProperty(program, SA::size, size);
-    addProperty(program, SA::type, type);
-    addProperty(program, SA::valid, valid);
-    addProperty(program, SA::error, error);
-    addProperty(program, SA::next, next);
+    addProperty(SA::name, name);
+    addProperty(SA::size, size);
+    addProperty(SA::type, type);
+    addProperty(SA::valid, valid);
+    addProperty(SA::error, error);
+    addProperty(SA::next, next);
 }
 
 CallReturnValue DirectoryProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

@@ -15,42 +15,42 @@
 
 using namespace m8r;
 
-Global::Global(Mad<Program> program)
-    : ObjectFactory(program, SA::Global)
+Global::Global()
+    : ObjectFactory(SA::Global)
     , _array(true)
-    , _base64(program, this)
-    , _gpio(program, this)
-    , _json(program, this)
-    , _tcp(program, this)
-    , _udp(program, this)
-    , _ipAddr(program, this)
-    , _iterator(program, this)
-    , _task(program, this)
-    , _fs(program, this)
-    , _file(program, this)
-    , _directory(program, this)
+    , _base64(this)
+    , _gpio(this)
+    , _json(this)
+    , _tcp(this)
+    , _udp(this)
+    , _ipAddr(this)
+    , _iterator(this)
+    , _task(this)
+    , _fs(this)
+    , _file(this)
+    , _directory(this)
 {
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
-    addProperty(program, SA::currentTime, currentTime);
-    addProperty(program, SA::delay, delay);
-    addProperty(program, SA::print, print);
-    addProperty(program, SA::printf, printf);
-    addProperty(program, SA::println, println);
-    addProperty(program, SA::toFloat, toFloat);
-    addProperty(program, SA::toInt, toInt);
-    addProperty(program, SA::toUInt, toUInt);
-    addProperty(program, SA::arguments, arguments);
-    addProperty(program, SA::import, import);
-    addProperty(program, SA::importString, importString);
-    addProperty(program, SA::waitForEvent, waitForEvent);
-    addProperty(program, SA::meminfo, meminfo);
+    addProperty(SA::currentTime, currentTime);
+    addProperty(SA::delay, delay);
+    addProperty(SA::print, print);
+    addProperty(SA::printf, printf);
+    addProperty(SA::println, println);
+    addProperty(SA::toFloat, toFloat);
+    addProperty(SA::toInt, toInt);
+    addProperty(SA::toUInt, toUInt);
+    addProperty(SA::arguments, arguments);
+    addProperty(SA::import, import);
+    addProperty(SA::importString, importString);
+    addProperty(SA::waitForEvent, waitForEvent);
+    addProperty(SA::meminfo, meminfo);
 
-    addProperty(program, SA::Array, Mad<MaterObject>(&_array));
-    addProperty(program, SA::Object, Mad<MaterObject>(&_object));
+    addProperty(SA::Array, Mad<MaterObject>(&_array));
+    addProperty(SA::Object, Mad<MaterObject>(&_object));
     
-    addProperty(program, SA::consoleListener, Value::NullValue());
+    addProperty(SA::consoleListener, Value::NullValue());
 }
 
 Global::~Global()

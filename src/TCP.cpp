@@ -17,11 +17,11 @@
 
 using namespace m8r;
 
-TCPProto::TCPProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::TCPProto, parent, constructor)
+TCPProto::TCPProto(ObjectFactory* parent)
+    : ObjectFactory(SA::TCPProto, parent, constructor)
 {
-    addProperty(program, SA::send, send);
-    addProperty(program, SA::disconnect, disconnect);
+    addProperty(SA::send, send);
+    addProperty(SA::disconnect, disconnect);
 
     addProperty(Atom(SA::Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
     addProperty(Atom(SA::Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));

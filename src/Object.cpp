@@ -293,14 +293,10 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-ObjectFactory::ObjectFactory(Mad<Program> program, SA sa, ObjectFactory* parent, NativeFunction constructor)
+ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
     _obj = Mad<MaterObject>::create();
-    
-    if (!program.valid()) {
-        return;
-    }
     
     Atom name = Atom(sa);
     if (name) {
@@ -311,7 +307,7 @@ ObjectFactory::ObjectFactory(Mad<Program> program, SA sa, ObjectFactory* parent,
         }
     }
     if (constructor && name) {
-        addProperty(program, SA::constructor, _constructor);
+        addProperty(SA::constructor, _constructor);
     }
 }
 
@@ -333,17 +329,17 @@ void ObjectFactory::addProperty(Atom prop, const Value& value)
     _obj->setProperty(prop, value);
 }
 
-void ObjectFactory::addProperty(Mad<Program> program, SA sa, Mad<Object> obj)
+void ObjectFactory::addProperty(SA sa, Mad<Object> obj)
 {
     addProperty(Atom(sa), obj);
 }
 
-void ObjectFactory::addProperty(Mad<Program> program, SA sa, const Value& value)
+void ObjectFactory::addProperty(SA sa, const Value& value)
 {
     addProperty(Atom(sa), value);
 }
 
-void ObjectFactory::addProperty(Mad<Program> program, SA sa, NativeFunction f)
+void ObjectFactory::addProperty(SA sa, NativeFunction f)
 {
     addProperty(Atom(sa), Value(f));    
 }

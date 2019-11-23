@@ -105,10 +105,10 @@ CallReturnValue Task::execute()
     return _eu->continueExecution();
 }
 
-TaskProto::TaskProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Task, parent, constructor)
+TaskProto::TaskProto(ObjectFactory* parent)
+    : ObjectFactory(SA::Task, parent, constructor)
 {
-    addProperty(program, SA::run, run);
+    addProperty(SA::run, run);
 
     _obj->setArray(true);
     _obj->resize(4);

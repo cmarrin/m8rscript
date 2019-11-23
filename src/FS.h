@@ -22,7 +22,7 @@ class Directory;
 
 class FileProto : public ObjectFactory {
 public:
-    FileProto(Mad<Program>, ObjectFactory* parent);
+    FileProto(ObjectFactory* parent);
 
     private:        
         static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -39,7 +39,7 @@ public:
 
 class DirectoryProto : public ObjectFactory {
 public:
-    DirectoryProto(Mad<Program>, ObjectFactory* parent);
+    DirectoryProto(ObjectFactory* parent);
 
     private:
         static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -53,7 +53,7 @@ public:
 
 class FSProto : public ObjectFactory {
 public:
-    FSProto(Mad<Program>, ObjectFactory* parent);
+    FSProto(ObjectFactory* parent);
         
 private:
     // m8rscript object methods

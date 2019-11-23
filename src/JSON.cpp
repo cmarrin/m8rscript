@@ -17,11 +17,11 @@
 
 using namespace m8r;
 
-JSON::JSON(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::JSON, parent)
+JSON::JSON(ObjectFactory* parent)
+    : ObjectFactory(SA::JSON, parent)
 {
-    addProperty(program, SA::parse, parseFunc);
-    addProperty(program, SA::stringify, stringifyFunc);
+    addProperty(SA::parse, parseFunc);
+    addProperty(SA::stringify, stringifyFunc);
 }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)

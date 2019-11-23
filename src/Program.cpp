@@ -14,7 +14,6 @@
 using namespace m8r;
 
 Program::Program()
-    : _global(Mad<Program>(this))
 {
 }
 

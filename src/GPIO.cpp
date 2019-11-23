@@ -16,15 +16,13 @@
 
 using namespace m8r;
 
-GPIO::GPIO(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::GPIO, parent)
-    , _pinMode(program)
-    , _trigger(program)
+GPIO::GPIO(ObjectFactory* parent)
+    : ObjectFactory(SA::GPIO, parent)
 {
-    addProperty(program, SA::setPinMode, setPinMode);
-    addProperty(program, SA::digitalWrite, digitalWrite);
-    addProperty(program, SA::digitalRead, digitalRead);
-    addProperty(program, SA::onInterrupt, onInterrupt);
+    addProperty(SA::setPinMode, setPinMode);
+    addProperty(SA::digitalWrite, digitalWrite);
+    addProperty(SA::digitalRead, digitalRead);
+    addProperty(SA::onInterrupt, onInterrupt);
 
     addProperty(Atom(SA::PinMode), Value(_pinMode.nativeObject()));
     addProperty(Atom(SA::Trigger), Value(_trigger.nativeObject()));
@@ -58,8 +56,8 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Error::Unimplemented);
 }
 
-PinMode::PinMode(Mad<Program> program)
-    : ObjectFactory(program, SA::PinMode)
+PinMode::PinMode()
+    : ObjectFactory(SA::PinMode)
 {
     addProperty(Atom(SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
     addProperty(Atom(SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
@@ -68,8 +66,8 @@ PinMode::PinMode(Mad<Program> program)
     addProperty(Atom(SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
-Trigger::Trigger(Mad<Program> program)
-    : ObjectFactory(program, SA::Trigger)
+Trigger::Trigger()
+    : ObjectFactory(SA::Trigger)
 {
     addProperty(Atom(SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
     addProperty(Atom(SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));

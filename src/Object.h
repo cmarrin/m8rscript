@@ -19,7 +19,6 @@ namespace m8r {
 class Error;
 class ExecutionUnit;
 class Object;
-class Program;
 class Stream;
 
 using ConstantValue = Value;
@@ -165,14 +164,14 @@ CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
 
 class ObjectFactory {
 public:
-    ObjectFactory(Mad<Program>, SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
+    ObjectFactory(SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
     ~ObjectFactory();
     
     void addProperty(Atom prop, Mad<Object>);
     void addProperty(Atom prop, const Value&);
-    void addProperty(Mad<Program>, SA, Mad<Object>);
-    void addProperty(Mad<Program>, SA, const Value&);
-    void addProperty(Mad<Program>, SA, NativeFunction);
+    void addProperty(SA, Mad<Object>);
+    void addProperty(SA, const Value&);
+    void addProperty(SA, NativeFunction);
 
     Mad<Object> nativeObject() { return _obj; }
     const Mad<const Object> nativeObject() const { return _obj; }

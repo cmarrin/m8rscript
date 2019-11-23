@@ -25,7 +25,7 @@ class Function;
 
 class Global : public ObjectFactory {
 public:
-    Global(Mad<Program>);
+    Global();
     virtual ~Global();
 
 private:

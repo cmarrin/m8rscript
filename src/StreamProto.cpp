@@ -11,12 +11,12 @@
 
 using namespace m8r;
 
-StreamProto::StreamProto(Mad<Program> program, ObjectFactory* parent)
-    : ObjectFactory(program, SA::Array, parent, constructor)
+StreamProto::StreamProto(ObjectFactory* parent)
+    : ObjectFactory(SA::Array, parent, constructor)
 {
-    addProperty(program, SA::eof, eof);
-    addProperty(program, SA::read, read);
-    addProperty(program, SA::write, write);
+    addProperty(SA::eof, eof);
+    addProperty(SA::read, read);
+    addProperty(SA::write, write);
 }
 
 CallReturnValue StreamProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

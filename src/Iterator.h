@@ -15,7 +15,7 @@ namespace m8r {
 
 class Iterator : public ObjectFactory {
 public:
-    Iterator(Mad<Program>, ObjectFactory* parent);
+    Iterator(ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

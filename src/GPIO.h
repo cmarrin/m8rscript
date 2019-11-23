@@ -17,17 +17,17 @@ namespace m8r {
 
 class PinMode : public ObjectFactory {
 public:
-    PinMode(Mad<Program>);
+    PinMode();
 };
 
 class Trigger : public ObjectFactory {
 public:
-    Trigger(Mad<Program>);
+    Trigger();
 };
 
 class GPIO : public ObjectFactory {
 public:
-    GPIO(Mad<Program>, ObjectFactory* parent);
+    GPIO(ObjectFactory* parent);
     
 private:
     PinMode _pinMode;

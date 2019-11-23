@@ -79,7 +79,7 @@ private:
 
 class TaskProto : public ObjectFactory {
 public:
-    TaskProto(Mad<Program>, ObjectFactory* parent);
+    TaskProto(ObjectFactory* parent);
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
