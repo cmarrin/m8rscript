@@ -154,7 +154,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return shellName();
+    return "";
 }
 
 bool Application::mountFileSystem()
@@ -193,19 +193,6 @@ void Application::runLoop()
         _autostartTask = Mad<Task>::create();
         _autostartTask->setFilename(filename.c_str());
         _autostartTask->run();
-        // FIXME: Create a task and run the autostart file
-//        m8r::Error error;
-//        if (!load(error, false)) {
-//            error.showError();
-//        } else if (!program()) {
-//            system()->printf(ROMSTR("Error:failed to compile application"));
-//        } else {
-//            run([this]{
-//                m8r::MemoryInfo info;
-//                m8r::Object::memoryInfo(info);
-//                system()->printf(ROMSTR("***** finished - free ram:%d, num allocations:%d\n"), info.freeSize, info.numAllocations);
-//            });
-//        }
     }
     
     system()->runLoop();
