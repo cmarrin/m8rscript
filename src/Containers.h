@@ -147,7 +147,11 @@ public:
         *this = other;
     }
     
-    ~Vector() { _data.destroyVector(_capacity); }
+    ~Vector()
+    {
+        clear();
+        _data.destroyVector(_capacity);
+    }
     
     using iterator = T*;
     using const_iterator = const T*;
@@ -159,6 +163,7 @@ public:
 
     Vector& operator=(const Vector& other)
     {
+        clear();
         _data.destroyVector(_capacity);
         
         _data = Mad<T>();
@@ -176,6 +181,7 @@ public:
 
     Vector& operator=(Vector&& other)
     {
+        clear();
         _data.destroyVector(_capacity);
 
         _data = other._data;
@@ -326,6 +332,7 @@ private:
         for (int i = 0; i < _size; ++i) {
             new(&(newData.get()[i])) T();
             newData.get()[i] = _data.get()[i];
+            _data.get()[i].~T();
         }
         assert(_data.raw() != 1 && newData.raw() != 1);
         _data.destroyVector(oldCapacity);
