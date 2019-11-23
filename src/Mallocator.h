@@ -65,6 +65,23 @@ class String;
 #define MEMORY_PTR
 #endif
 
+// Memory header for all memory blocks.
+//
+// Headers are 4 uint16_t:
+//
+//      magic: the value 0xbeef to verify memory has not be stomped on
+//      type: allocated or free
+//      next: used only for free blocks at this point
+//      size: size in blocks
+//
+// This piggybacks on the header used for free blocks and Fixed allocations. It
+// add magic and type and is put at the head of all allocated objects in addition
+// to free and fixed blocks.
+
+#ifndef NDEBUG
+#define MEMORY_HEADER
+#endif
+
 template<typename T>
 class Mad
 {
@@ -207,6 +224,12 @@ private:
 
     struct Header
     {
+#ifdef MEMORY_HEADER
+        static constexpr uint16_t MAGIC = 0xBEEF;
+        enum class Type : uint16_t { Free, Allocated };
+        uint16_t magic;
+        Type type;
+#endif
         BlockId nextBlock;
         uint16_t sizeInBlocks;
     };

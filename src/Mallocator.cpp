@@ -53,6 +53,10 @@ void Mallocator::init()
     
     asHeader(0)->nextBlock = NoBlockId;
     asHeader(0)->sizeInBlocks = _memoryInfo.heapSizeInBlocks;
+#ifdef MEMORY_HEADER
+    asHeader(0)->magic = Header::MAGIC;
+    asHeader(0)->type = Header::Type::Free;
+#endif
     _firstFreeBlock = 0;
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
@@ -71,8 +75,13 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     uint16_t blocksToAlloc = blockSizeFromByteSize(size);
 
     // If this is a fixed block we need to remember the size in a 1 block header
-    if (type == MemoryType::Fixed) {
-        blocksToAlloc++;
+    bool addHeader = type == MemoryType::Fixed;
+#ifdef MEMORY_HEADER
+    addHeader = true;
+#endif
+    
+    if (addHeader) {
+        blocksToAlloc += blockSizeFromByteSize(sizeof(Header));
     }
     
     BlockId freeBlock = _firstFreeBlock;
@@ -80,7 +89,12 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     while (freeBlock != NoBlockId) {
         Header* header = asHeader(freeBlock);
         assert(header->nextBlock != freeBlock);
-        
+
+#ifdef MEMORY_HEADER
+        assert(header->magic == Header::MAGIC);
+        assert(header->type == Header::Type::Free);
+#endif
+
         if (header->sizeInBlocks >= blocksToAlloc) {
             if (blocksToAlloc == header->sizeInBlocks) {
                 // Take the whole thing
@@ -113,30 +127,34 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     assert(_memoryInfo.freeSizeInBlocks >= blocksToAlloc);
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
 
-    if (allocatedBlock != NoBlockId) {
-        if (type == MemoryType::Object) {
-            GC::addToStore<MemoryType::Object>(allocatedBlock);
-        } else if (type == MemoryType::String) {
-            GC::addToStore<MemoryType::String>(allocatedBlock);
-        }
-        
-        if (type == MemoryType::Native) {
-            int i = 0;
-            (void) i;
-        }
-        uint32_t index = static_cast<uint32_t>(type);
-        
-        _memoryInfo.allocationsByType[index].count++;
-        _memoryInfo.allocationsByType[index].sizeInBlocks += blocksToAlloc;
-        
-        if (type == MemoryType::Fixed) {
-            asHeader(allocatedBlock)->nextBlock = NoBlockId;
-            asHeader(allocatedBlock)->sizeInBlocks = blocksToAlloc;
-            allocatedBlock++;
-        }
+    if (allocatedBlock == NoBlockId) {
+        return NoBlockId;
+    }
+    
+    if (addHeader) {
+        Header* header = asHeader(allocatedBlock);
+        header->nextBlock = NoBlockId;
+        header->sizeInBlocks = blocksToAlloc;
+#ifdef MEMORY_HEADER
+        header->magic = Header::MAGIC;
+        header->type = Header::Type::Allocated;
+#endif
+        allocatedBlock += blockSizeFromByteSize(sizeof(Header));
     }
 
+    if (type == MemoryType::Object) {
+        GC::addToStore<MemoryType::Object>(allocatedBlock);
+    } else if (type == MemoryType::String) {
+        GC::addToStore<MemoryType::String>(allocatedBlock);
+    }
+    
+    uint32_t index = static_cast<uint32_t>(type);
+    
+    _memoryInfo.allocationsByType[index].count++;
+    _memoryInfo.allocationsByType[index].sizeInBlocks += blocksToAlloc;
+    
     checkConsistency();
+    
     return allocatedBlock;
 }
 
@@ -167,19 +185,39 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         GC::removeFromStore<MemoryType::String>(p);
     }
     
-    // If this is a fixed block there is a 1 block header
-    if (type == MemoryType::Fixed) {
-        assert(size == 0);
-        size = asHeader(--p)->sizeInBlocks * _memoryInfo.blockSize;
+    // If this is a fixed block there is a header
+    bool addHeader = type == MemoryType::Fixed;
+#ifdef MEMORY_HEADER
+    addHeader = true;
+#endif
+    
+    if (addHeader) {
+        p -= blockSizeFromByteSize(sizeof(Header));
     }
     
+    if (type == MemoryType::Fixed) {
+        assert(size == 0);
+        size = asHeader(p)->sizeInBlocks * _memoryInfo.blockSize;
+    } else if (addHeader) {
+        size += sizeof(Header);
+    }
+        
     uint16_t blocksToFree = blockSizeFromByteSize(size);
 
+#ifdef MEMORY_HEADER
+    // Check to make sure this is a valid block
+    Header* header = asHeader(p);
+    assert(header->magic == Header::MAGIC);
+    assert(header->type == Header::Type::Allocated);
+    assert(header->sizeInBlocks == blocksToFree);
+    header->type = Header::Type::Free;
+#endif
+    
     BlockId newBlock = p;
     Header* newBlockHeader = asHeader(newBlock);
     newBlockHeader->nextBlock = NoBlockId;
     newBlockHeader->sizeInBlocks = blocksToFree;
-    
+
     // Insert in free list
     BlockId freeBlock = _firstFreeBlock;
     BlockId prevBlock = NoBlockId;
@@ -238,11 +276,8 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     assert(_memoryInfo.numAllocations > 0);
     --_memoryInfo.numAllocations;
     _memoryInfo.freeSizeInBlocks += blocksToFree;
+    assert(_memoryInfo.freeSizeInBlocks <= _memoryInfo.heapSizeInBlocks);
 
-if (type == MemoryType::Native) {
-    int i = 0;
-    (void) i;
-}
     uint32_t index = static_cast<uint32_t>(type);
     assert(_memoryInfo.allocationsByType[index].count > 0);
     _memoryInfo.allocationsByType[index].count--;
@@ -272,7 +307,15 @@ void Mallocator::checkConsistency()
 {
     for (BlockId block = _firstFreeBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
         Header* header = asHeader(block);
+        assert(header && (header->nextBlock > block || header->nextBlock == NoBlockId));
         assert(header && (header->nextBlock == NoBlockId || block + header->sizeInBlocks < header->nextBlock));
+
+#ifdef MEMORY_HEADER
+        // Check to make sure this is a valid block
+        assert(header->magic == Header::MAGIC);
+        assert(header->type == Header::Type::Free);
+#endif
+
     }
 }
 
