@@ -475,8 +475,6 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
     
-    String sss = debugString(32);
-
     GC::gc();
 
     updateCodePointer();
