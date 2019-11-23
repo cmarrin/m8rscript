@@ -271,14 +271,39 @@ inline void Mad<T>::destroyHelper(MemoryType type, uint16_t size, bool destruct)
     }
 }
 
+template<typename T>
+inline Mad<T> Mad<T>::create(MemoryType type, uint16_t n)
+{
+    Mad<T> obj = Mallocator::shared()->allocate<T>(type, sizeof(T) * n);
+    
+    // Only call the constructor if this isn't an array of objects.
+    // Arrays call their consctructors themselves
+    if (n == 1) {
+        new(obj.get()) T();
+    }
+    return obj;
+}
+
+template<>
+inline Mad<char> Mad<char>::create(uint16_t n)
+{
+    Mad<char> p = Mallocator::shared()->allocate<char>(MemoryType::Character, n);
+    return p;
+}
+
 template<>
 inline void Mad<char>::destroy(uint16_t size)
 {
     if (size == 0) {
         return;
     }
-    
     Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
+}
+
+template<>
+inline Mad<uint8_t> Mad<uint8_t>::create(uint16_t n)
+{
+    return Mallocator::shared()->allocate<uint8_t>(MemoryType::Character, n);
 }
 
 template<>
@@ -301,31 +326,6 @@ template<>
 inline void Mad<NativeObject>::destroy(uint16_t size)
 {
     Mallocator::shared()->deallocate(MemoryType::Native, *this, size);
-}
-
-template<typename T>
-inline Mad<T> Mad<T>::create(MemoryType type, uint16_t n)
-{
-    Mad<T> obj = Mallocator::shared()->allocate<T>(type, sizeof(T) * n);
-    
-    // Only call the constructor if this isn't an array of objects.
-    // Arrays call their consctructors themselves
-    if (n == 1) {
-        new(obj.get()) T();
-    }
-    return obj;
-}
-
-template<>
-inline Mad<char> Mad<char>::create(uint16_t n)
-{
-    return Mallocator::shared()->allocate<char>(MemoryType::Character, n);
-}
-
-template<>
-inline Mad<uint8_t> Mad<uint8_t>::create(uint16_t n)
-{
-    return Mallocator::shared()->allocate<uint8_t>(MemoryType::Character, n);
 }
 
 }
