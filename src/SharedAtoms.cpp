@@ -43,7 +43,6 @@ static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
 static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
-static const char ___typeName[] ROMSTR_ATTR = "__typeName";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _back[] ROMSTR_ATTR = "back";
 static const char _call[] ROMSTR_ATTR = "call";
@@ -155,7 +154,6 @@ m8r::ROMString RODATA_ATTR _sharedAtoms[] = {
     m8r::ROMString(___index),
     m8r::ROMString(___nativeObject),
     m8r::ROMString(___object),
-    m8r::ROMString(___typeName),
     m8r::ROMString(_arguments),
     m8r::ROMString(_back),
     m8r::ROMString(_call),

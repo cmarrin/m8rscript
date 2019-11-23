@@ -29,12 +29,6 @@ void Object::operator delete(void* p, std::size_t sz)
     mad.destroy(static_cast<uint16_t>(sz));
 }
 
-Atom Object::typeName() const
-{
-    Value nameValue = property(Atom(SA::__typeName));
-    return nameValue.asIdValue();
-}
-
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
@@ -49,8 +43,8 @@ MaterObject::~MaterObject()
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {
-        String typeName = eu->program()->stringFromAtom(property(Atom(SA::__typeName)).asIdValue());
-        return typeName.empty() ? (_isArray ? String("Array") : String("Object")) : typeName;
+        String name = eu->program()->stringFromAtom(typeName());
+        return name.empty() ? (_isArray ? String("Array") : String("Object")) : name;
     }
     
     Value callable = property(Atom(SA::toString));
@@ -300,7 +294,7 @@ ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constr
     
     Atom name = Atom(sa);
     if (name) {
-        _obj->setProperty(Atom(SA::__typeName), Value(name));
+        _obj->setTypeName(name);
         
         if (parent) {
             parent->addProperty(name, nativeObject());

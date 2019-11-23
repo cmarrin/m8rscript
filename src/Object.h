@@ -80,7 +80,8 @@ public:
     
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
-    Atom typeName() const;
+    Atom typeName() const { return _typeName; }
+    void setTypeName(Atom name) { _typeName = name; }
     
 protected:
     void setProto(Object* obj) { _proto = obj; }
@@ -95,6 +96,7 @@ private:
     bool _hasGet : 1;
     bool _hasSet : 1;
     bool _isDestroyed : 1;
+    Atom _typeName;
 };
 
 class MaterObject : public Object {

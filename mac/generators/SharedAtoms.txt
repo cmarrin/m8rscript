@@ -48,7 +48,6 @@ UDPProto
 __index
 __nativeObject
 __object
-__typeName
 arguments
 back
 call
