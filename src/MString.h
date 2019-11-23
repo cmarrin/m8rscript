@@ -64,6 +64,7 @@ public:
     
     String(String&& other)
     {
+        _data.destroy(_capacity);
         _data = other._data;
         other._data = Mad<char>();
         _size = other._size;
@@ -107,9 +108,7 @@ public:
 
     String& operator=(const String& other)
     {
-        if (_data.valid()) {
-            _data.destroy(_capacity);
-        }
+        _data.destroy(_capacity);
         _size = other._size;
         _capacity = other._capacity;
         if (!other._data.valid()) {
