@@ -81,7 +81,7 @@ public:
         _size = 2;
     }
     
-    ~String() { _destroyed = true; _data.destroy(_capacity); };
+    ~String() { _data.destroy(_capacity); _destroyed = true; };
 
     String& operator=(ROMString other)
     {
