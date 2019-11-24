@@ -67,8 +67,9 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         return NoRawMad;
     }
     
+#ifdef CHECK_CONSISTENCY
     checkConsistency();
-
+#endif
     assert(type != MemoryType::Unknown);
     assert(static_cast<uint32_t>(size) <= 0xffff);
     
@@ -153,8 +154,10 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     _memoryInfo.allocationsByType[index].count++;
     _memoryInfo.allocationsByType[index].sizeInBlocks += blocksToAlloc;
     
+#ifdef CHECK_CONSISTENCY
     checkConsistency();
-    
+#endif
+
     return allocatedBlock;
 }
 
@@ -176,7 +179,9 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         return;
     }
     
+#ifdef CHECK_CONSISTENCY
     checkConsistency();
+#endif
     assert(type != MemoryType::Unknown);
 
     if (type == MemoryType::Object) {
@@ -283,7 +288,9 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
     _memoryInfo.allocationsByType[index].count--;
     assert(_memoryInfo.allocationsByType[index].sizeInBlocks >= blocksToFree);
     _memoryInfo.allocationsByType[index].sizeInBlocks -= blocksToFree;
+#ifdef CHECK_CONSISTENCY
     checkConsistency();
+#endif
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)
@@ -303,6 +310,7 @@ ROMString Mallocator::stringFromMemoryType(MemoryType type)
     }
 }
 
+#ifdef CHECK_CONSISTENCY
 void Mallocator::checkConsistency()
 {
     for (BlockId block = _firstFreeBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
@@ -318,6 +326,7 @@ void Mallocator::checkConsistency()
 
     }
 }
+#endif
 
 // GCC requires the specializations to be in an explicit namespace
 namespace m8r {

@@ -65,6 +65,10 @@ class String;
 #define MEMORY_PTR
 #endif
 
+#ifndef NDEBUG
+#define CHECK_CONSISTENCY
+#endif
+
 // Memory header for all memory blocks.
 //
 // Headers are 4 uint16_t:
@@ -218,8 +222,10 @@ private:
 
     uint16_t blockSizeFromByteSize(size_t size) { return (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize; }
     
+#ifdef CHECK_CONSISTENCY
     void checkConsistency();
-    
+#endif
+
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
     struct Header
