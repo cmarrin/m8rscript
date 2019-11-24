@@ -17,12 +17,16 @@
 
 using namespace m8r;
 
+static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+{
+    { SA::parse, Value(JSON::parseFunc) },
+    { SA::stringify, Value(JSON::stringifyFunc) },
+};
+
 JSON::JSON()
-    : StaticObject({
-        { SA::parse, Value(parseFunc) },
-        { SA::stringify, Value(stringifyFunc) },
-    })
-{ }
+{
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
 {

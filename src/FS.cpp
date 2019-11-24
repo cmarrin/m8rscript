@@ -15,22 +15,26 @@
 
 using namespace m8r;
 
+static StaticObject::StaticProperty RODATA2_ATTR _propsFS[] =
+{
+    { SA::mount, Value(FSProto::mount) },
+    { SA::mounted, Value(FSProto::mounted) },
+    { SA::unmount, Value(FSProto::unmount) },
+    { SA::format, Value(FSProto::format) },
+    { SA::open, Value(FSProto::open) },
+    { SA::openDirectory, Value(FSProto::openDirectory) },
+    { SA::makeDirectory, Value(FSProto::makeDirectory) },
+    { SA::remove, Value(FSProto::remove) },
+    { SA::rename, Value(FSProto::rename) },
+    { SA::stat, Value(FSProto::stat) },
+    { SA::lastError, Value(FSProto::lastError) },
+    { SA::errorString, Value(FSProto::errorString) },
+};
+
 FSProto::FSProto()
-    : StaticObject({
-        { SA::mount, Value(mount) },
-        { SA::mounted, Value(mounted) },
-        { SA::unmount, Value(unmount) },
-        { SA::format, Value(format) },
-        { SA::open, Value(open) },
-        { SA::openDirectory, Value(openDirectory) },
-        { SA::makeDirectory, Value(makeDirectory) },
-        { SA::remove, Value(remove) },
-        { SA::rename, Value(rename) },
-        { SA::stat, Value(stat) },
-        { SA::lastError, Value(lastError) },
-        { SA::errorString, Value(errorString) },
-    })
-{ }
+{
+    setProperties(_propsFS, sizeof(_propsFS) / sizeof(StaticProperty));
+}
 
 CallReturnValue FSProto::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
@@ -102,19 +106,23 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
+static StaticObject::StaticProperty RODATA2_ATTR _propsFile[] =
+{
+    { SA::constructor, Value(FileProto::constructor) },
+    { SA::close, Value(FileProto::close) },
+    { SA::read, Value(FileProto::read) },
+    { SA::write, Value(FileProto::write) },
+    { SA::seek, Value(FileProto::seek) },
+    { SA::eof, Value(FileProto::eof) },
+    { SA::valid, Value(FileProto::valid) },
+    { SA::error, Value(FileProto::error) },
+    { SA::type, Value(FileProto::type) },
+};
+
 FileProto::FileProto()
-    : StaticObject({
-        { SA::constructor, Value(constructor) },
-        { SA::close, Value(close) },
-        { SA::read, Value(read) },
-        { SA::write, Value(write) },
-        { SA::seek, Value(seek) },
-        { SA::eof, Value(eof) },
-        { SA::valid, Value(valid) },
-        { SA::error, Value(error) },
-        { SA::type, Value(type) },
-    })
-{ }
+{
+    setProperties(_propsFile, sizeof(_propsFile) / sizeof(StaticProperty));
+}
 
 CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
@@ -242,17 +250,21 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
+static StaticObject::StaticProperty RODATA2_ATTR _propsDirectory[] =
+{
+    { SA::constructor, Value(DirectoryProto::constructor) },
+    { SA::name, Value(DirectoryProto::name) },
+    { SA::size, Value(DirectoryProto::size) },
+    { SA::type, Value(DirectoryProto::type) },
+    { SA::valid, Value(DirectoryProto::valid) },
+    { SA::error, Value(DirectoryProto::error) },
+    { SA::next, Value(DirectoryProto::next) },
+};
+
 DirectoryProto::DirectoryProto()
-    : StaticObject({
-        { SA::constructor, Value(constructor) },
-        { SA::name, Value(name) },
-        { SA::size, Value(size) },
-        { SA::type, Value(type) },
-        { SA::valid, Value(valid) },
-        { SA::error, Value(error) },
-        { SA::next, Value(next) },
-    })
-{ }
+{
+    setProperties(_propsDirectory, sizeof(_propsDirectory) / sizeof(StaticProperty));
+}
 
 CallReturnValue DirectoryProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

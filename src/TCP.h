@@ -63,7 +63,6 @@ class TCPProto : public StaticObject {
 public:
     TCPProto();
 
-private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);

@@ -24,39 +24,35 @@ class FileProto : public StaticObject {
 public:
     FileProto();
 
-    private:        
-        static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
 class DirectoryProto : public StaticObject {
 public:
     DirectoryProto();
 
-    private:
-        static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-        static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
 class FSProto : public StaticObject {
 public:
     FSProto();
         
-private:
-    // m8rscript object methods
     static CallReturnValue mount(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
     static CallReturnValue unmount(ExecutionUnit*, Value thisValue, uint32_t nparams);

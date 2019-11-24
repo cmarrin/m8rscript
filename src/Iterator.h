@@ -17,7 +17,6 @@ class Iterator : public StaticObject {
 public:
     Iterator();
 
-private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue done(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);

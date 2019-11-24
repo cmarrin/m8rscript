@@ -716,6 +716,8 @@ extern void gdb_do_break();
 #define gdb_do_break()
 #endif
 
+int atexit(void (*function)(void)) { }
+
 [[noreturn]] void abort()
 {
     do {

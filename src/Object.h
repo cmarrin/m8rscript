@@ -196,37 +196,27 @@ public:
     
     StaticObject() { }
     
-    StaticObject(std::initializer_list<StaticProperty> props)
-        : _properties(props)
-    { }
-
-    StaticObject(std::initializer_list<StaticProperty> props, SA sa, ObjectFactory* parent = nullptr)
-        : _properties(props)
-    {
-        if (parent) {
-            parent->addProperty(Atom(sa), Value(this));
-        }
-    }
-    
     const Value property(const Atom& name) const
     {
-        auto it = std::find(_properties.begin(), _properties.end(), name);
-        return (it == _properties.end()) ? Value() : it->value;
+        auto it = std::find(_properties, _properties + _propertiesCount, name);
+        return (it == _properties + _propertiesCount) ? Value() : it->value;
     }
 
     Value property(const Atom& name)
     {
-        auto it = std::find(_properties.begin(), _properties.end(), name);
-        return (it == _properties.end()) ? Value() : it->value;
+        auto it = std::find(_properties, _properties + _propertiesCount, name);
+        return (it == _properties + _propertiesCount) ? Value() : it->value;
     }
     
     void setProperties(StaticProperty* props, size_t count)
     {
-        _properties.assign(props, props + count);
+        _properties = props;
+        _propertiesCount = count;
     }
 
 protected:
-    Vector<StaticProperty> _properties;
+    const StaticProperty* _properties = nullptr;
+    uint16_t _propertiesCount = 0;
 };
 
 }

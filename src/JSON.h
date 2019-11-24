@@ -22,7 +22,6 @@ public:
     static Value parse(ExecutionUnit* eu, const String& json);
     static String stringify(ExecutionUnit* eu, const Value);
 
-private:
     static Value value(ExecutionUnit* eu, Scanner& scanner);
     static bool propertyAssignment(ExecutionUnit* eu, Scanner&, Value& key, Value& value);
 

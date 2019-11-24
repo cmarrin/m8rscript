@@ -16,7 +16,9 @@
 using namespace m8r;
 
 Global::Global()
-    : StaticObject({
+{
+    static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+    {
         { SA::Base64, Value(&_base64) },
         { SA::GPIO, Value(&_gpio) },
         { SA::JSON, Value(&_json) },
@@ -42,8 +44,9 @@ Global::Global()
         { SA::importString, Value(importString) },
         { SA::waitForEvent, Value(waitForEvent) },
         { SA::meminfo, Value(meminfo) },
-    })
-{ }
+    };
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

@@ -16,14 +16,18 @@
 
 using namespace m8r;
 
-UDPProto::UDPProto()
-: StaticObject({
-    { SA::send, Value(send) },
-    { SA::disconnect, Value(disconnect) },
+static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+{
+    { SA::send, Value(UDPProto::send) },
+    { SA::disconnect, Value(UDPProto::disconnect) },
     { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
     { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
-})
-{ }
+};
+
+UDPProto::UDPProto()
+{
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

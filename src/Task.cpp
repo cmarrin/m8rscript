@@ -105,12 +105,16 @@ CallReturnValue Task::execute()
     return _eu->continueExecution();
 }
 
+static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+{
+    { SA::constructor, Value(TaskProto::constructor) },
+    { SA::run, Value(TaskProto::run) },
+};
+
 TaskProto::TaskProto()
-: StaticObject({
-    { SA::constructor, Value(constructor) },
-    { SA::run, Value(run) },
-})
-{ }
+{
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

@@ -27,7 +27,6 @@ class Global : public StaticObject {
 public:
     Global();
 
-private:
     Base64 _base64;
     GPIO _gpio;
     JSON _json;

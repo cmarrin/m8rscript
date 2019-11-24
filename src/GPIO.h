@@ -29,7 +29,6 @@ class GPIO : public StaticObject {
 public:
     GPIO();
     
-private:
     static PinMode _pinMode;
     static Trigger _trigger;
     

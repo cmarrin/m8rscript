@@ -15,15 +15,19 @@
 
 using namespace m8r;
 
+static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+{
+    { SA::constructor, Value(Iterator::constructor) },
+    { SA::done, Value(Iterator::done) },
+    { SA::next, Value(Iterator::next) },
+    { SA::getValue, Value(Iterator::getValue) },
+    { SA::setValue, Value(Iterator::setValue) },
+};
+
 Iterator::Iterator()
-: StaticObject({
-    { SA::constructor, Value(constructor) },
-    { SA::done, Value(done) },
-    { SA::next, Value(next) },
-    { SA::getValue, Value(getValue) },
-    { SA::setValue, Value(setValue) },
-})
-{ }
+{
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& index)
 {
