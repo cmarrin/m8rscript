@@ -15,7 +15,7 @@
 
 using namespace m8r;
 
-static StaticObject::StaticProperty FLASH_ATTR _props[] =
+static StaticObject::StaticProperty RODATA2_ATTR _props[] =
 {
     { SA::encode, Value(Base64::encodeFunc) },
     { SA::decode, Value(Base64::decodeFunc) },

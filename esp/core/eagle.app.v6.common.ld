@@ -186,7 +186,7 @@ SECTIONS
     *libwpa.a:(.literal.* .text.*)
     *libwpa2.a:(.literal.* .text.*)
     *libwps.a:(.literal.* .text.*)
-    *(.irom0.literal .irom.literal .irom.text.romstr .irom.text.literal .irom0.text .irom.text .irom.text.*)
+    *(.irom0.literal .irom.literal .irom.text.romstr .irom.text.literal .irom0.text .irom.text .irom2.text .irom.text.*)
     _irom0_text_end = ABSOLUTE(.);
     _flash_code_end = ABSOLUTE(.);
   } >irom0_0_seg :irom0_0_phdr

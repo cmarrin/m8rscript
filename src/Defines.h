@@ -53,6 +53,7 @@ namespace m8r {
 
 #ifdef __APPLE__
     #define RODATA_ATTR
+    #define RODATA2_ATTR
     #define ROMSTR_ATTR
     #define FLASH_ATTR
     #define ICACHE_FLASH_ATTR
@@ -75,6 +76,7 @@ static constexpr uint32_t HeapSize = 200000;
     #define FLASH_ATTR   __attribute__((section(".irom0.text")))
     #define RAM_ATTR     __attribute__((section(".iram.text")))
     #define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
+    #define RODATA2_ATTR  __attribute__((section(".irom2.text"))) __attribute__((aligned(4)))
     #define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
 
     size_t ROMstrlen(m8r::ROMString s);
