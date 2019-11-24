@@ -42,14 +42,14 @@ namespace m8r {
 //
 //--------------------------------------------------------------------------
 
-static constexpr uint32_t makeAction(uint32_t c0) 
-                          { return c0 << 24; }
-static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1) 
-                          { return makeAction(c0) | (c1 << 16); }
-static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1, uint32_t c2) 
-                          { return makeAction(c0, c1) | (c2 << 8); }
-static constexpr uint32_t makeAction(uint32_t c0, uint32_t c1, uint32_t c2, uint32_t c3) 
-                          { return makeAction(c0, c1, c2) | c3; }
+static constexpr uint32_t makeAction(const char* s)
+{
+    return
+        (static_cast<uint32_t>(s[0]) << 24) |
+        (static_cast<uint32_t>(s[1]) << 16) |
+        (static_cast<uint32_t>(s[2]) << 8) |
+        static_cast<uint32_t>(s[3]);
+}
 
 class Telnet {
 public:
@@ -65,13 +65,14 @@ public:
     // in. These are converted to StringLiteral Values and sent to the script.     
     enum class Action : uint32_t {
         None = 0,
-        UpArrow = makeAction('u', 'p'), 
-        DownArrow = makeAction('d', 'o', 'w', 'n'), 
-        RightArrow = makeAction('r', 't'), 
-        LeftArrow = makeAction('l', 't'), 
-        Delete = makeAction('d', 'e', 'l'), 
-        Backspace = makeAction('b', 's'), 
-        Interrupt = makeAction('i', 'n', 't', 'r'),
+        UpArrow = makeAction("up  "),
+        DownArrow = makeAction("down"),
+        RightArrow = makeAction("rt  "),
+        LeftArrow = makeAction("lt  "),
+        Delete = makeAction("del "),
+        Backspace = makeAction("bs  "),
+        Interrupt = makeAction("intr"),
+        NewLine = makeAction("newl"),
     };
     
     // Commands from the Telnet Channel. See https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
