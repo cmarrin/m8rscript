@@ -192,6 +192,14 @@ public:
         other._capacity = 0;
         return *this;
     };
+    
+    void assign(const_iterator first, const_iterator last)
+    {
+        clear();
+        reserve(last - first);
+        std::copy(first, last, begin());
+        _size = last - first;
+    }
 
     void push_back(T const &x)
     {
