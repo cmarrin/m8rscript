@@ -178,7 +178,6 @@ public:
     const Mad<const Object> nativeObject() const { return _obj; }
     
     static Mad<Object> create(Atom objectName, ExecutionUnit*, uint32_t nparams);
-    static Mad<Object> create(Mad<Object> proto, ExecutionUnit*, uint32_t nparams);
 
 protected:
     Mad<MaterObject> _obj;

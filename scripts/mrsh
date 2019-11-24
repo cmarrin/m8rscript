@@ -10,100 +10,82 @@
 // mrsh - m8rscript shell
 //
 
-var PATH = [ "/sys/bin", "foo/bar" ]; 
-for (var pathPrefix : PATH) {
-    println(pathPrefix.value);
+printf("m8rscript shell v 1.0\n\n");
+
+var env = { PATH : [ "/sys/bin" ], CWD : "/home" };
+var done = [ false ];
+var foo = 1.5;
+var lines = [ ];
+
+consoleListener = function(line, action)
+{
+    if (action == "intr") {
+        printf("\n^C\n");
+        done[0] = true;
+    } else {
+        lines.push_back(line);
+    }
+};
+
+
+function showPrompt()
+{
+    printf("[%s:1] > ", env.CWD);
 }
 
-//printf("m8rscript shell v 1.0\n\n");
-//
-//var env = { PATH : [ "/sys/bin" ], CWD : "/home" };
-//var done = [ false ];
-//var foo = 1.5;
-//var lines = [ ];
-//
-//consoleListener = function(line, action)
-//{
-//    println("***** 1.1");
-//    if (action == "intr") {
-//        printf("\n^C\n");
-//        done[0] = true;
-//    } else {
-//        println("***** 1.2");
-//        lines.push_back(line);
-//        println("***** 1.3");
-//    }
-//};
-//
-//
-//function showPrompt()
-//{
-//    printf("[%s:1] > ", env.CWD);
-//}
-//
-//function findExecutable(filename)
-//{
-//    for (var pathPrefix : env.PATH) {
-//        var path = pathPrefix.value + "/" + filename;
-//        var file = FS.open(path, "r");
-//        if (file && file.valid()) {
-//            file.close();
-//            return path;
-//        }
-//    }
-//    return null;
-//}
-//
-//function processLine(line)
-//{
-//    println("***** 1");
-//    var components = line.split(" ");
-//    var command = components.front;
-//    components.pop_front();
-//    println("***** 2");
-//
-//    var filename = findExecutable(command);
-//    println("***** 3");
-//    if (filename && filename.length) {
-//    println("***** before new Task");
-//        var task = new Task(filename, consoleListener);
-//        println("***** after new Task");
-//        if (task == null) {
-//            return;
-//        }
-//        
-//        task.arguments = components;
-//        task.env = env;
-//        var taskStatus = { done : false, status : 0 };
-//        task.run(function(exitCode) {
-//            taskStatus.done = true;
-//            taskStatus.status = exitCode;
-//        });
-//
-//        while (!taskStatus.done) {
-//            waitForEvent();
-//        }
-//    } else {
-//        printf("mrsh: %s: command not found\n", command);
-//    }
-//}
-//
-//showPrompt();
-//
-//while (!done[0]) {
-//    while (lines.length) {
-//        println("***** 4");
-//        var line = lines.front;
-//        println("***** 5");
-//        lines.pop_front();
-//        println("***** 6");
-//        processLine(line);
-//        println("***** 7");
-//        showPrompt();
-//        println("***** 8");
-//    }
-//    waitForEvent();
-//}
+function findExecutable(filename)
+{
+    for (var pathPrefix : env.PATH) {
+        var path = pathPrefix.value + "/" + filename;
+        var file = FS.open(path, "r");
+        if (file && file.valid()) {
+            file.close();
+            return path;
+        }
+    }
+    return null;
+}
+
+function processLine(line)
+{
+    var components = line.split(" ");
+    var command = components.front;
+    components.pop_front();
+
+    var filename = findExecutable(command);
+    if (filename && filename.length) {
+        var task = new Task(filename, consoleListener);
+        if (task == null) {
+            return;
+        }
+        
+        task.arguments = components;
+        task.env = env;
+        var taskStatus = { done : false, status : 0 };
+        task.run(function(exitCode) {
+            taskStatus.done = true;
+            taskStatus.status = exitCode;
+        });
+
+        while (!taskStatus.done) {
+            waitForEvent();
+        }
+    } else {
+        printf("mrsh: %s: command not found\n", command);
+    }
+}
+
+showPrompt();
+
+while (!done[0]) {
+    while (lines.length) {
+        var line = lines.front;
+        lines.pop_front();
+        processLine(line);
+        showPrompt();
+    }
+    waitForEvent();
+}
 
 //var lines = [ ];
 //var done = [ false ];

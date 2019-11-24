@@ -344,26 +344,13 @@ void ObjectFactory::addProperty(SA sa, NativeFunction f)
 
 Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
-    Value objectValue = eu->program()->global()->property(objectName);
-    if (!objectValue) {
-        return Mad<Object>();
-    }
+    Value protoValue = eu->program()->global()->property(objectName);
+    CallReturnValue ret = protoValue.call(eu, Value(), nparams, true);
     
-    return create(objectValue.asObject(), eu, nparams);
-}
-
-Mad<Object> ObjectFactory::create(Mad<Object> proto, ExecutionUnit* eu, uint32_t nparams)
-{
-    if (!proto.valid()) {
-        return Mad<Object>();
-    }
-
-    CallReturnValue r = proto->call(eu, Value(), nparams, true);
-    Value retValue;
-    if (r.isReturnCount() && r.returnCount() > 0) {
-        retValue = eu->stack().top(1 - r.returnCount());
-        eu->stack().pop(r.returnCount());
-        return retValue.asObject();
+    if (ret.isReturnCount() && ret.returnCount() > 0) {
+        Value value = eu->stack().top(1 - ret.returnCount());
+        eu->stack().pop(ret.returnCount());
+        return value.asObject();
     } else {
         return Mad<Object>();
     }
