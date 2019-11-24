@@ -15,12 +15,16 @@
 
 using namespace m8r;
 
+static StaticObject::StaticProperty FLASH_ATTR _props[] =
+{
+    { SA::encode, Value(Base64::encodeFunc) },
+    { SA::decode, Value(Base64::decodeFunc) },
+};
+
 Base64::Base64()
-    : StaticObject({
-        { SA::encode, Value(encodeFunc) },
-        { SA::decode, Value(decodeFunc) },
-    })
-{ }
+{
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+}
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 

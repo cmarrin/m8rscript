@@ -194,6 +194,8 @@ public:
         Value value;
     };
     
+    StaticObject() { }
+    
     StaticObject(std::initializer_list<StaticProperty> props)
         : _properties(props)
     { }
@@ -216,6 +218,11 @@ public:
     {
         auto it = std::find(_properties.begin(), _properties.end(), name);
         return (it == _properties.end()) ? Value() : it->value;
+    }
+    
+    void setProperties(StaticProperty* props, size_t count)
+    {
+        _properties.assign(props, props + count);
     }
 
 protected:

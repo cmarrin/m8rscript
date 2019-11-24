@@ -20,7 +20,6 @@ public:
     static int encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, char *out);
     static int decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out);
 
-private:
     static CallReturnValue encodeFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue decodeFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
