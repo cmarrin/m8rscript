@@ -81,7 +81,9 @@ while (!done[0]) {
     while (lines.length) {
         var line = lines.front;
         lines.pop_front();
-        processLine(line);
+        if (line.length) {
+            processLine(line);
+        }
         showPrompt();
     }
     waitForEvent();

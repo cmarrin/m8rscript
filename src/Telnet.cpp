@@ -146,6 +146,7 @@ void Telnet::handleSendLine()
     _line.clear();
     _position = 0;
     _toChannel = "\r\n";
+    _currentAction = Action::NewLine;
 }
 
 String Telnet::makeInputLine()
