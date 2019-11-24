@@ -105,18 +105,12 @@ CallReturnValue Task::execute()
     return _eu->continueExecution();
 }
 
-TaskProto::TaskProto(ObjectFactory* parent)
-    : ObjectFactory(SA::Task, parent, constructor)
-{
-    addProperty(SA::run, run);
-
-    _obj->setArray(true);
-    _obj->resize(4);
-    (*_obj)[0] = Value(0);
-    (*_obj)[1] = Value(0);
-    (*_obj)[2] = Value(0);
-    (*_obj)[3] = Value(0);
-}
+TaskProto::TaskProto()
+: StaticObject({
+    { SA::constructor, Value(constructor) },
+    { SA::run, Value(run) },
+})
+{ }
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

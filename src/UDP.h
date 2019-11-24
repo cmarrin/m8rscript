@@ -53,9 +53,9 @@ protected:
 
 // Object
 
-class UDPProto : public ObjectFactory {
+class UDPProto : public StaticObject {
 public:
-    UDPProto(ObjectFactory* parent);
+    UDPProto();
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

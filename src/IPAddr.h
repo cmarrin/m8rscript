@@ -64,15 +64,13 @@ private:
 
 // Object
 
-class IPAddrProto : public ObjectFactory {
+class IPAddrProto : public StaticObject {
 public:
-    IPAddrProto(ObjectFactory* parent);
+    IPAddrProto();
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-    void setIPAddr(IPAddr);
 };
 
 }

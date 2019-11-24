@@ -104,16 +104,15 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
         }
     }
 
-    // See if it's in global
-    Value oldValue = _program->global()->property(atom);
+    // See if it's in Program
+    Value oldValue = _program->property(atom);
     if (oldValue) {
-        if (!_program->global()->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
+        if (!_program->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
             printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
         }
         return;
     }
 
-    // FIXME: Do we ever want to set a property in program or global object?
     printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom).c_str());
     return;
 }
@@ -216,8 +215,8 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
 
 void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
 {
-    // Get the consoleListener from Global and use that to fire an event
-    Value listener = program()->global()->property(Atom(SA::consoleListener));
+    // Get the consoleListener from Program and use that to fire an event
+    Value listener = program()->property(Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
         args[0] = Value(Mad<String>::create(data));

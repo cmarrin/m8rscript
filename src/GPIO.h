@@ -15,24 +15,24 @@
 
 namespace m8r {
 
-class PinMode : public ObjectFactory {
+class PinMode : public StaticObject {
 public:
     PinMode();
 };
 
-class Trigger : public ObjectFactory {
+class Trigger : public StaticObject {
 public:
     Trigger();
 };
 
-class GPIO : public ObjectFactory {
+class GPIO : public StaticObject {
 public:
-    GPIO(ObjectFactory* parent);
+    GPIO();
     
 private:
-    PinMode _pinMode;
-    Trigger _trigger;
-
+    static PinMode _pinMode;
+    static Trigger _trigger;
+    
     static CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);

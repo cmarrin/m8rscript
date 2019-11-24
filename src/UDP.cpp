@@ -16,15 +16,14 @@
 
 using namespace m8r;
 
-UDPProto::UDPProto(ObjectFactory* parent)
-    : ObjectFactory(SA::UDPProto, parent, constructor)
-{
-    addProperty(SA::send, send);
-    addProperty(SA::disconnect, disconnect);
-    
-    addProperty(Atom(SA::ReceivedData), Value(static_cast<int32_t>(UDPDelegate::Event::ReceivedData)));
-    addProperty(Atom(SA::SentData), Value(static_cast<int32_t>(UDPDelegate::Event::SentData)));
-}
+UDPProto::UDPProto()
+: StaticObject({
+    { SA::send, Value(send) },
+    { SA::disconnect, Value(disconnect) },
+    { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
+    { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
+})
+{ }
 
 CallReturnValue UDPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

@@ -59,9 +59,9 @@ protected:
 
 // Object
 
-class TCPProto : public ObjectFactory {
+class TCPProto : public StaticObject {
 public:
-    TCPProto(ObjectFactory* parent);
+    TCPProto();
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

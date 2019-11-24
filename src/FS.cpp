@@ -15,22 +15,22 @@
 
 using namespace m8r;
 
-FSProto::FSProto(ObjectFactory* parent)
-    : ObjectFactory(SA::FS, parent)
-{
-    addProperty(SA::mount, mount);
-    addProperty(SA::mounted, mounted);
-    addProperty(SA::unmount, unmount);
-    addProperty(SA::format, format);
-    addProperty(SA::open, open);
-    addProperty(SA::openDirectory, openDirectory);
-    addProperty(SA::makeDirectory, makeDirectory);
-    addProperty(SA::remove, remove);
-    addProperty(SA::rename, rename);
-    addProperty(SA::stat, stat);
-    addProperty(SA::lastError, lastError);
-    addProperty(SA::errorString, errorString);
-}
+FSProto::FSProto()
+    : StaticObject({
+        { SA::mount, Value(mount) },
+        { SA::mounted, Value(mounted) },
+        { SA::unmount, Value(unmount) },
+        { SA::format, Value(format) },
+        { SA::open, Value(open) },
+        { SA::openDirectory, Value(openDirectory) },
+        { SA::makeDirectory, Value(makeDirectory) },
+        { SA::remove, Value(remove) },
+        { SA::rename, Value(rename) },
+        { SA::stat, Value(stat) },
+        { SA::lastError, Value(lastError) },
+        { SA::errorString, Value(errorString) },
+    })
+{ }
 
 CallReturnValue FSProto::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
@@ -102,18 +102,19 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-FileProto::FileProto(ObjectFactory* parent)
-    : ObjectFactory(SA::File, parent, constructor)
-{
-    addProperty(SA::close, close);
-    addProperty(SA::read, read);
-    addProperty(SA::write, write);
-    addProperty(SA::seek, seek);
-    addProperty(SA::eof, eof);
-    addProperty(SA::valid, valid);
-    addProperty(SA::error, error);
-    addProperty(SA::type, type);
-}
+FileProto::FileProto()
+    : StaticObject({
+        { SA::constructor, Value(constructor) },
+        { SA::close, Value(close) },
+        { SA::read, Value(read) },
+        { SA::write, Value(write) },
+        { SA::seek, Value(seek) },
+        { SA::eof, Value(eof) },
+        { SA::valid, Value(valid) },
+        { SA::error, Value(error) },
+        { SA::type, Value(type) },
+    })
+{ }
 
 CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
@@ -241,16 +242,17 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-DirectoryProto::DirectoryProto(ObjectFactory* parent)
-    : ObjectFactory(SA::Directory, parent, constructor)
-{
-    addProperty(SA::name, name);
-    addProperty(SA::size, size);
-    addProperty(SA::type, type);
-    addProperty(SA::valid, valid);
-    addProperty(SA::error, error);
-    addProperty(SA::next, next);
-}
+DirectoryProto::DirectoryProto()
+    : StaticObject({
+        { SA::constructor, Value(constructor) },
+        { SA::name, Value(name) },
+        { SA::size, Value(size) },
+        { SA::type, Value(type) },
+        { SA::valid, Value(valid) },
+        { SA::error, Value(error) },
+        { SA::next, Value(next) },
+    })
+{ }
 
 CallReturnValue DirectoryProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

@@ -15,14 +15,15 @@
 
 using namespace m8r;
 
-Iterator::Iterator(ObjectFactory* parent)
-    : ObjectFactory(SA::Iterator, parent, constructor)
-{
-    addProperty(SA::done, done);
-    addProperty(SA::next, next);
-    addProperty(SA::getValue, getValue);
-    addProperty(SA::setValue, setValue);
-}
+Iterator::Iterator()
+: StaticObject({
+    { SA::constructor, Value(constructor) },
+    { SA::done, Value(done) },
+    { SA::next, Value(next) },
+    { SA::getValue, Value(getValue) },
+    { SA::setValue, Value(setValue) },
+})
+{ }
 
 static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& index)
 {

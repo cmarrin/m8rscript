@@ -13,9 +13,9 @@
 
 namespace m8r {
 
-class Iterator : public ObjectFactory {
+class Iterator : public StaticObject {
 public:
-    Iterator(ObjectFactory* parent);
+    Iterator();
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

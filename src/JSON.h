@@ -15,9 +15,9 @@ namespace m8r {
 
 class Scanner;
 
-class JSON : public ObjectFactory {
+class JSON : public StaticObject {
 public:
-    JSON(ObjectFactory* parent);
+    JSON();
     
     static Value parse(ExecutionUnit* eu, const String& json);
     static String stringify(ExecutionUnit* eu, const Value);

@@ -16,16 +16,19 @@
 
 using namespace m8r;
 
-GPIO::GPIO(ObjectFactory* parent)
-    : ObjectFactory(SA::GPIO, parent)
-{
-    addProperty(SA::setPinMode, setPinMode);
-    addProperty(SA::digitalWrite, digitalWrite);
-    addProperty(SA::digitalRead, digitalRead);
-    addProperty(SA::onInterrupt, onInterrupt);
+PinMode GPIO::_pinMode;
+Trigger GPIO::_trigger;
 
-    addProperty(Atom(SA::PinMode), Value(_pinMode.nativeObject()));
-    addProperty(Atom(SA::Trigger), Value(_trigger.nativeObject()));
+GPIO::GPIO()
+    : StaticObject({
+        { SA::setPinMode, Value(GPIO::setPinMode) },
+        { SA::digitalWrite, Value(GPIO::digitalWrite) },
+        { SA::digitalRead, Value(GPIO::digitalRead) },
+        { SA::onInterrupt, Value(GPIO::onInterrupt) },
+        { SA::PinMode, Value(&_pinMode) },
+        { SA::Trigger, Value(&_trigger) },
+    })
+{
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -57,22 +60,22 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 }
 
 PinMode::PinMode()
-    : ObjectFactory(SA::PinMode)
-{
-    addProperty(Atom(SA::Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
-    addProperty(Atom(SA::OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
-    addProperty(Atom(SA::Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
-    addProperty(Atom(SA::InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
-    addProperty(Atom(SA::InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
-}
+    : StaticObject({
+        { SA::Output, Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)) },
+        { SA::OutputOpenDrain, Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)) },
+        { SA::Input, Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)) },
+        { SA::InputPullup, Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)) },
+        { SA::InputPulldown, Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)) },
+    })
+{ }
 
 Trigger::Trigger()
-    : ObjectFactory(SA::Trigger)
-{
-    addProperty(Atom(SA::None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
-    addProperty(Atom(SA::RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
-    addProperty(Atom(SA::FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
-    addProperty(Atom(SA::BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
-    addProperty(Atom(SA::Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
-    addProperty(Atom(SA::High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
-}
+    : StaticObject({
+        { SA::None, Value(static_cast<int32_t>(GPIOInterface::Trigger::None)) },
+        { SA::RisingEdge, Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)) },
+        { SA::FallingEdge, Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)) },
+        { SA::BothEdges, Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)) },
+        { SA::Low, Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)) },
+        { SA::High, Value(static_cast<int32_t>(GPIOInterface::Trigger::High)) },
+    })
+{ }

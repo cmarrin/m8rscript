@@ -15,6 +15,13 @@
 
 using namespace m8r;
 
+Base64::Base64()
+    : StaticObject({
+        { SA::encode, Value(encodeFunc) },
+        { SA::decode, Value(decodeFunc) },
+    })
+{ }
+
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 static const char RODATA_ATTR _base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -39,7 +46,6 @@ static const uint8_t RODATA_ATTR _base64dec_tab[256]= {
 	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 };
 static const ROMString base64dec_tab(reinterpret_cast<const char*>(_base64dec_tab));
-
 
 /* decode a base64 string in one shot */
 int Base64::decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out)
@@ -99,13 +105,6 @@ int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, c
 	if(io>=out_len) return -1; /* no room for null terminator */
 	out[io]=0;
 	return io;
-}
-
-Base64::Base64(ObjectFactory* parent)
-    : ObjectFactory(SA::Base64, parent)
-{
-    addProperty(SA::encode, encodeFunc);
-    addProperty(SA::decode, decodeFunc);
 }
 
 CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

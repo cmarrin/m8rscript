@@ -37,14 +37,11 @@ public:
     { }
     virtual ~Object() { _isDestroyed = true; }
     
-//    void operator delete(void* p) { assert(false); }
-//    void operator delete [ ](void* p) { assert(false); }
     void operator delete(void* p, std::size_t sz);
-//    void operator delete [ ](void* p, std::size_t sz) { assert(false); }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
-    virtual void gcMark() { gcMark(this); gcMark(_proto);; }
+    virtual void gcMark() { gcMark(this); _proto.gcMark(); }
     
     virtual const Value property(const Atom&) const { return Value(); }
     
@@ -83,15 +80,17 @@ public:
     Atom typeName() const { return _typeName; }
     void setTypeName(Atom name) { _typeName = name; }
     
+    static CallReturnValue construct(const Value& proto, ExecutionUnit*, uint32_t nparams);
+
 protected:
-    void setProto(Object* obj) { _proto = obj; }
-    Object* proto() const { return _proto; }
+    void setProto(const Value& val) { _proto = val; }
+    Value proto() const { return _proto; }
     
     void setHasGet(bool b) { _hasGet = b; }
     void setHasSet(bool b) { _hasSet = b; }
     
 private:
-    Object* _proto = nullptr;
+    Value _proto;
     bool _marked : 1;
     bool _hasGet : 1;
     bool _hasSet : 1;
@@ -165,7 +164,7 @@ CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
 }
 
 class ObjectFactory {
-public:
+public:    
     ObjectFactory(SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
     ~ObjectFactory();
     
@@ -185,5 +184,43 @@ protected:
     Mad<MaterObject> _obj;
     NativeFunction _constructor;
 };
+
+class StaticObject
+{
+public:
+    struct StaticProperty
+    {
+        bool operator==(const Atom& atom) const { return name == atom; }
+        Atom name;
+        Value value;
+    };
     
+    StaticObject(std::initializer_list<StaticProperty> props)
+        : _properties(props)
+    { }
+
+    StaticObject(std::initializer_list<StaticProperty> props, SA sa, ObjectFactory* parent = nullptr)
+        : _properties(props)
+    {
+        if (parent) {
+            parent->addProperty(Atom(sa), Value(this));
+        }
+    }
+    
+    const Value property(const Atom& name) const
+    {
+        auto it = std::find(_properties.begin(), _properties.end(), name);
+        return (it == _properties.end()) ? Value() : it->value;
+    }
+
+    Value property(const Atom& name)
+    {
+        auto it = std::find(_properties.begin(), _properties.end(), name);
+        return (it == _properties.end()) ? Value() : it->value;
+    }
+
+protected:
+    Vector<StaticProperty> _properties;
+};
+
 }

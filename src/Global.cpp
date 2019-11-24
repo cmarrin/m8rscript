@@ -16,46 +16,34 @@
 using namespace m8r;
 
 Global::Global()
-    : ObjectFactory(SA::Global)
-    , _array(true)
-    , _base64(this)
-    , _gpio(this)
-    , _json(this)
-    , _tcp(this)
-    , _udp(this)
-    , _ipAddr(this)
-    , _iterator(this)
-    , _task(this)
-    , _fs(this)
-    , _file(this)
-    , _directory(this)
-{
-    // The proto for IPAddr contains the local IP address
-    _ipAddr.setIPAddr(IPAddr::myIPAddr());
-    
-    addProperty(SA::currentTime, currentTime);
-    addProperty(SA::delay, delay);
-    addProperty(SA::print, print);
-    addProperty(SA::printf, printf);
-    addProperty(SA::println, println);
-    addProperty(SA::toFloat, toFloat);
-    addProperty(SA::toInt, toInt);
-    addProperty(SA::toUInt, toUInt);
-    addProperty(SA::arguments, arguments);
-    addProperty(SA::import, import);
-    addProperty(SA::importString, importString);
-    addProperty(SA::waitForEvent, waitForEvent);
-    addProperty(SA::meminfo, meminfo);
-
-    addProperty(SA::Array, Mad<MaterObject>(&_array));
-    addProperty(SA::Object, Mad<MaterObject>(&_object));
-    
-    addProperty(SA::consoleListener, Value::NullValue());
-}
-
-Global::~Global()
-{
-}
+    : StaticObject({
+        { SA::Base64, Value(&_base64) },
+        { SA::GPIO, Value(&_gpio) },
+        { SA::JSON, Value(&_json) },
+        { SA::TCP, Value(&_tcp) },
+        { SA::UDP, Value(&_udp) },
+        { SA::IPAddr, Value(&_ipAddr) },
+        { SA::Iterator, Value(&_iterator) },
+        { SA::Task, Value(&_task) },
+        { SA::FS, Value(&_fs) },
+        { SA::File, Value(&_file) },
+        { SA::Directory, Value(&_directory) },
+        
+        { SA::currentTime, Value(currentTime) },
+        { SA::delay, Value(delay) },
+        { SA::print, Value(print) },
+        { SA::printf, Value(printf) },
+        { SA::println, Value(println) },
+        { SA::toFloat, Value(toFloat) },
+        { SA::toInt, Value(toInt) },
+        { SA::toUInt, Value(toUInt) },
+        { SA::arguments, Value(arguments) },
+        { SA::import, Value(import) },
+        { SA::importString, Value(importString) },
+        { SA::waitForEvent, Value(waitForEvent) },
+        { SA::meminfo, Value(meminfo) },
+    })
+{ }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

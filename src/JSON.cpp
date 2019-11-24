@@ -17,12 +17,12 @@
 
 using namespace m8r;
 
-JSON::JSON(ObjectFactory* parent)
-    : ObjectFactory(SA::JSON, parent)
-{
-    addProperty(SA::parse, parseFunc);
-    addProperty(SA::stringify, stringifyFunc);
-}
+JSON::JSON()
+    : StaticObject({
+        { SA::parse, Value(parseFunc) },
+        { SA::stringify, Value(stringifyFunc) },
+    })
+{ }
 
 Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
 {

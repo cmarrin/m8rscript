@@ -77,9 +77,9 @@ private:
     Mad<ExecutionUnit> _eu;
 };
 
-class TaskProto : public ObjectFactory {
+class TaskProto : public StaticObject {
 public:
-    TaskProto(ObjectFactory* parent);
+    TaskProto();
 
 private:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);

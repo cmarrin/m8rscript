@@ -15,6 +15,8 @@ using namespace m8r;
 
 Program::Program()
 {
+    // Set a dummy 'consoleListener' property so it can be overwritten
+    setProperty(Atom(SA::consoleListener), Value::NullValue());
 }
 
 Program::~Program()

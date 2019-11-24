@@ -17,20 +17,20 @@
 
 using namespace m8r;
 
-TCPProto::TCPProto(ObjectFactory* parent)
-    : ObjectFactory(SA::TCPProto, parent, constructor)
-{
-    addProperty(SA::send, send);
-    addProperty(SA::disconnect, disconnect);
-
-    addProperty(Atom(SA::Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
-    addProperty(Atom(SA::Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
-    addProperty(Atom(SA::Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
-    addProperty(Atom(SA::Error), Value(static_cast<int32_t>(TCPDelegate::Event::Error)));
-    addProperty(Atom(SA::ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
-    addProperty(Atom(SA::SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
-    addProperty(Atom(SA::MaxConnections), Value(static_cast<int32_t>(TCP::MaxConnections)));
-}
+TCPProto::TCPProto()
+    : StaticObject({
+        { SA::send, Value(send) },
+        { SA::disconnect, Value(disconnect) },
+        { SA::disconnect, Value(disconnect) },
+        { SA::Connected, Value(static_cast<int32_t>(TCPDelegate::Event::Connected)) },
+        { SA::Reconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)) },
+        { SA::Disconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)) },
+        { SA::Error, Value(static_cast<int32_t>(TCPDelegate::Event::Error)) },
+        { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
+        { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
+        { SA::MaxConnections, Value(static_cast<int32_t>(TCP::MaxConnections)) },
+    })
+{ }
 
 CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {

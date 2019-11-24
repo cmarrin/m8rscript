@@ -16,6 +16,7 @@
 
 namespace m8r {
 
+class StaticObject;
 class NativeObject;
 class MaterObject;
 class Object;
@@ -117,6 +118,7 @@ public:
         None = 0,
         Float = 1,
         NativeFunction = 2,
+        StaticObject = 3,
         Object = 4,
         Function = 8,
         Integer = 12,
@@ -141,7 +143,14 @@ public:
     {
         assert(value);
         assert((reinterpret_cast<intptr_t>(value) & 0x03) == 0);
-        _value._nativeFunction = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::NativeFunction);
+        _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::NativeFunction);
+    }
+
+    explicit Value(StaticObject* value)
+    {
+        assert(value);
+        assert((reinterpret_cast<intptr_t>(value) & 0x03) == 0);
+        _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::StaticObject);
     }
 
     explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
@@ -185,6 +194,8 @@ public:
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : Mad<NativeObject>(); }
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
+    StaticObject* asStaticObject() { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
+    const StaticObject* asStaticObject() const { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
 
     static Value asValue(Mad<NativeObject> obj) { return Value(static_cast<Mad<NativeObject>>(obj)); }
     
@@ -199,7 +210,8 @@ public:
             case Type::Object:          return asObject().valid();  
             case Type::Function:        return asFunction().valid();
             case Type::NativeObject:    return asNativeObject().valid();
-            case Type::NativeFunction:  return _value._nativeFunction != 0;
+            case Type::StaticObject:
+            case Type::NativeFunction:  return _value._intptr != 0;
             case Type::Integer:         return int32FromValue() != 0;
             case Type::Float:
             case Type::StringLiteral:
@@ -240,6 +252,7 @@ public:
     bool isFunction() const { return type() == Type::Function; }
     bool isNativeObject() const { return type() == Type::NativeObject; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }
+    bool isStaticObject() const { return type() == Type::StaticObject; }
     bool isPointer() const { return isObject() || isFunction() || isNativeObject(); }
     bool isCallable() const
     {
@@ -255,6 +268,7 @@ public:
     
     enum class SetPropertyType { AlwaysAdd, NeverAdd, AddIfNeeded };
 
+    const Value property(const Atom&) const;
     const Value property(ExecutionUnit*, const Atom&) const;
     bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetPropertyType);
     const Value element(ExecutionUnit* eu, const Value& elt) const;
@@ -276,7 +290,9 @@ private:
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
     inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
     inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
-    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._nativeFunction & ~0x03); }
+    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~0x03); }
+    inline StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
+    inline const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
     inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
     inline Mad<Function> functionFromValue() const { return Mad<Function>(_value._rawMad); }
 
@@ -285,9 +301,9 @@ private:
         return StringLiteral(static_cast<StringLiteral::Raw>(_value._int));
     }
 
-    // A value is the size of a pointer. This can contain a Float (which can be up to 64 bits),
-    // a NativeFunction pointer or a structure containing a type and either an int32_t or
-    // a RawMad.
+    // A value is the size of a pointer. This can contain a Float (which can be up to 
+    // 64 bits), a NativeFunction or StaticObject pointer, or a structure containing 
+    // a type and either an int32_t or a RawMad.
     //
     // The Type field is used for all types except NativeFunction and Float. For these the
     // lowest 2 bits are used for type. For pointers, they are 4 byte aligned on ESP and
@@ -296,7 +312,7 @@ private:
     union {
         uint8_t _raw[8];
         Float::decompose_type _float;
-        intptr_t _nativeFunction;
+        intptr_t _intptr;
         struct {
             // TODO: type needs to be in the low order bytes of Value
             // This makes the trick of using the 2 LSB as the type forFloat and

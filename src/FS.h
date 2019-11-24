@@ -20,9 +20,9 @@ namespace m8r {
 class File;
 class Directory;
 
-class FileProto : public ObjectFactory {
+class FileProto : public StaticObject {
 public:
-    FileProto(ObjectFactory* parent);
+    FileProto();
 
     private:        
         static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -37,9 +37,9 @@ public:
         static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
-class DirectoryProto : public ObjectFactory {
+class DirectoryProto : public StaticObject {
 public:
-    DirectoryProto(ObjectFactory* parent);
+    DirectoryProto();
 
     private:
         static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
@@ -51,9 +51,9 @@ public:
         static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
-class FSProto : public ObjectFactory {
+class FSProto : public StaticObject {
 public:
-    FSProto(ObjectFactory* parent);
+    FSProto();
         
 private:
     // m8rscript object methods

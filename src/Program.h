@@ -23,13 +23,12 @@ public:
     virtual void gcMark() override
     {
         Function::gcMark();
-        _global.nativeObject()->gcMark();
     }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
-    const Mad<Object> global() const { return _global.nativeObject(); }
-    Mad<Object> global() { return _global.nativeObject(); }
+    const StaticObject* global() const { return &_global; }
+    StaticObject* global() { return &_global; }
         
     String stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }

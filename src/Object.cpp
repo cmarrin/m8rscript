@@ -29,6 +29,24 @@ void Object::operator delete(void* p, std::size_t sz)
     mad.destroy(static_cast<uint16_t>(sz));
 }
 
+CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_t nparams)
+{
+    Mad<MaterObject> obj = Mad<MaterObject>::create();
+    Value objectValue(obj);
+    obj->setProto(proto);
+    
+    Value ctor = proto.property(eu, Atom(SA::constructor));
+    if (ctor) {
+        CallReturnValue retval = ctor.call(eu, objectValue, nparams, true);
+        // ctor should not return anything
+        if (!retval.isReturnCount() || retval.returnCount() > 0) {
+            return retval;
+        }
+    }
+    eu->stack().push(objectValue);
+    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+}
+
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
@@ -233,7 +251,7 @@ const Value MaterObject::property(const Atom& prop) const
     }
     
     auto it = _properties.find(prop);
-    return (it == _properties.end()) ? (proto() ? proto()->property(prop) : Value()) : it->value;
+    return (it == _properties.end()) ? (proto() ? proto().property(prop) : Value()) : it->value;
 }
 
 bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
@@ -270,21 +288,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
     }
     
-    Mad<MaterObject> obj = Mad<MaterObject>::create();
-    Value objectValue(obj);
-    obj->setProto(this);
-    obj->_isArray = _isArray;
-
-    auto it = _properties.find(Atom(SA::constructor));
-    if (it != _properties.end()) {
-        CallReturnValue retval = it->value.call(eu, objectValue, nparams, true);
-        // ctor should not return anything
-        if (!retval.isReturnCount() || retval.returnCount() > 0) {
-            return retval;
-        }
-    }
-    eu->stack().push(objectValue);
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    return Object::construct(Value(Mad<Object>(this)), eu, nparams);
 }
 
 ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constructor)

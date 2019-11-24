@@ -34,6 +34,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::Null: return String("null");
         case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
         case Type::NativeFunction: return String("Callable()"); // FIXME: Add formatted toString and show the address
+        case Type::StaticObject: return String("StaticObject()"); // FIXME: Add formatted toString and show the address
     }
 }
 
@@ -69,6 +70,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Id:
         case Type::NativeObject:
         case Type::NativeFunction:
+        case Type::StaticObject:
         case Type::Null:
             return Float();
         case Type::None:
@@ -97,6 +99,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::Id:
         case Type::NativeObject:
         case Type::NativeFunction:
+        case Type::StaticObject:
         case Type::None:
         case Type::Null:
             return Atom();
@@ -138,6 +141,8 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
                     case Type::Null:            *s = "NUL()"; break;
                     case Type::NativeObject:    *s = "NOB()"; break;
                     case Type::NativeFunction:  *s = "NFU()"; break;
+                    case Type::StaticObject:    *s = "STA()"; break;
+
                 }
                 
                 return Value(s);
@@ -160,7 +165,7 @@ bool Value::isType(ExecutionUnit* eu, SA sa)
     return isType(eu, Atom(sa));
 }
 
-const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
+const Value Value::property(const Atom& prop) const
 {
     switch(type()) {
         case Type::Function:
@@ -174,9 +179,12 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
             break;
         case Type::StringLiteral:
         case Type::String: {
-            String s = toStringValue(eu);
-            if (prop == Atom(SA::length)) {
-                return Value(static_cast<int32_t>(s.size()));
+            break;
+        }
+        case Type::StaticObject: {
+            const StaticObject* obj = asStaticObject();
+            if (obj) {
+                return obj->property(prop);
             }
             break;
         }
@@ -188,6 +196,16 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
             break;
     }
     return Value();
+}
+
+const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
+{
+    if (type() == Type::String || type() == Type::StringLiteral) {
+        if (prop == Atom(SA::length)) {
+            return Value(static_cast<int32_t>(toStringValue(eu).size()));
+        }
+    }
+    return property(prop);
 }
 
 bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
@@ -239,6 +257,14 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
     if (isNativeFunction()) {
         return asNativeFunction()(eu, thisValue, nparams);
     }
+
+    if (isStaticObject()) {
+        if (!ctor) {
+            return CallReturnValue(CallReturnValue::Error::CannotCall);
+        }
+        return Object::construct(*this, eu, nparams);
+    }
+
     Mad<Object> obj = asObject();
     return obj.valid() ? obj->call(eu, thisValue, nparams, ctor) : CallReturnValue(CallReturnValue::Error::CannotCall);
 }
@@ -283,6 +309,14 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+        }
+        case Type::StaticObject: {
+            StaticObject* obj = asStaticObject();
+            NativeFunction func = obj ? obj->property(prop).asNativeFunction() : nullptr;
+            if (!func) {
+                return CallReturnValue(CallReturnValue::Error::CannotCall);
+            }
+            return func(eu, Value(), nparams);
         }
         case Type::Id:
         case Type::NativeObject:

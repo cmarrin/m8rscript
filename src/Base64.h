@@ -13,9 +13,9 @@
 
 namespace m8r {
 
-class Base64 : public ObjectFactory {
+class Base64 : public StaticObject {
 public:
-    Base64(ObjectFactory* parent);
+    Base64();
 
     static int encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, char *out);
     static int decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned char *out);

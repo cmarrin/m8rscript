@@ -23,15 +23,11 @@ namespace m8r {
 
 class Function;
 
-class Global : public ObjectFactory {
+class Global : public StaticObject {
 public:
     Global();
-    virtual ~Global();
 
 private:
-    MaterObject _object;
-    MaterObject _array;
-    
     Base64 _base64;
     GPIO _gpio;
     JSON _json;

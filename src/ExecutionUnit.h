@@ -121,7 +121,7 @@ public:
 
     void setConsoleListener(Value func)
     {
-        _program->global()->setProperty(Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
+        _program->setProperty(Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
     }
 
     void startEventListening() { _numEventListeners++; }
@@ -267,6 +267,7 @@ private:
     Mad<UpValue> _openUpValues;
     
     std::function<void(const String&)> _consolePrintFunction;
+    Value _consoleListener;
 };
 
 }
