@@ -223,15 +223,25 @@ private:
     uint16_t blockSizeFromByteSize(size_t size) { return (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize; }
     
 #ifdef CHECK_CONSISTENCY
-    void checkConsistency();
+    void checkConsistency() { checkConsistencyHelper(); }
+    void checkConsistencyHelper();
+#else
+    void checkConsistency() { }
 #endif
 
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
+#ifdef MEMORY_HEADER
+#define MEMORY_HEADER_ASSERT(expr) assert(expr)
+#else
+#define MEMORY_HEADER_ASSERT(expr)
+#endif
+    
     struct Header
     {
 #ifdef MEMORY_HEADER
-        static constexpr uint16_t MAGIC = 0xBEEF;
+        static constexpr uint16_t FREEMAGIC = 0xDEAD;
+        static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
         enum class Type : uint16_t { Free, Allocated };
         uint16_t magic;
         Type type;
@@ -247,7 +257,11 @@ private:
     
     char* _heapBase = nullptr;
     BlockId _firstFreeBlock = 0;
-    
+
+#ifdef MEMORY_HEADER
+    BlockId _firstAllocatedBlock = 0;
+#endif
+
     static Mallocator _mallocator;
 };
 
