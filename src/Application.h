@@ -10,7 +10,6 @@
 #pragma once
 
 #include "ExecutionUnit.h"
-#include "GPIOInterface.h"
 #include "Heartbeat.h"
 #include "SystemInterface.h"
 #include "Task.h"

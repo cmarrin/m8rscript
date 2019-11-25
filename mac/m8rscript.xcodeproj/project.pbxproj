@@ -53,6 +53,8 @@
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
 		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
+		49846005238C60ED001F4FD4 /* Mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49846003238C60ED001F4FD4 /* Mac.cpp */; };
+		49846006238C60ED001F4FD4 /* Mac.h in Headers */ = {isa = PBXBuildFile; fileRef = 49846004238C60ED001F4FD4 /* Mac.h */; };
 		49884F07236CB25100C292EA /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49884F06236CB25100C292EA /* StateMachine.h */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
@@ -271,6 +273,8 @@
 		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
+		49846003238C60ED001F4FD4 /* Mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac.cpp; sourceTree = "<group>"; };
+		49846004238C60ED001F4FD4 /* Mac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mac.h; sourceTree = "<group>"; };
 		4984E8301D1370A500D0ABA6 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../src/Global.cpp; sourceTree = "<group>"; };
 		4984E8311D1370A500D0ABA6 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../src/Global.h; sourceTree = "<group>"; };
 		4984E8331D1492ED00D0ABA6 /* MStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MStream.h; path = ../src/MStream.h; sourceTree = "<group>"; };
@@ -491,6 +495,8 @@
 		494BA1911D207AB700E72725 /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				49846003238C60ED001F4FD4 /* Mac.cpp */,
+				49846004238C60ED001F4FD4 /* Mac.h */,
 				49BF344723680892001E5508 /* MacLittleFS.cpp */,
 				49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */,
 				49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */,
@@ -746,6 +752,7 @@
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				49BF344B236811BF001E5508 /* spiffs_config.h in Headers */,
 				49EED98C2357971500831598 /* lfs_util.h in Headers */,
+				49846006238C60ED001F4FD4 /* Mac.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49884F07236CB25100C292EA /* StateMachine.h in Headers */,
 				49BDE19F236C711B00304BE8 /* MString.h in Headers */,
@@ -1020,6 +1027,7 @@
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
 				49BF344E236811BF001E5508 /* spiffs_nucleus.c in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
+				49846005238C60ED001F4FD4 /* Mac.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
