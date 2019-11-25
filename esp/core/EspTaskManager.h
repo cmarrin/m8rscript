@@ -25,9 +25,6 @@ public:
     EspTaskManager();
     virtual ~EspTaskManager();
     
-    virtual void lock() override { noInterrupts(); }
-    virtual void unlock() override { interrupts(); }
-
 private:
     // The ESP handlles it's own runloop, we can just return here
     virtual void runLoop() { }

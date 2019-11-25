@@ -20,9 +20,6 @@ public:
     MacTaskManager();
     virtual ~MacTaskManager();
     
-    virtual void lock() override { _lockMutex.lock(); }
-    virtual void unlock() override { _lockMutex.unlock(); }
-
 private:
     virtual void runLoop() override;
     
@@ -31,7 +28,6 @@ private:
     std::thread _eventThread;
     std::condition_variable _eventCondition;
     std::mutex _eventMutex;
-    std::mutex _lockMutex;
     bool _terminating = false;
 };
 

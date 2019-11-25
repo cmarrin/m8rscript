@@ -64,9 +64,13 @@ public:
     
     virtual void vprintf(ROMString, va_list) const = 0;
 
-    void lock();
-    void unlock();
-    
+    static void gcLock();
+    static void gcUnlock();
+    static void mallocatorLock();
+    static void mallocatorUnlock();
+    static void eventLock();
+    static void eventUnlock();
+
     void runLoop();
 
 private:

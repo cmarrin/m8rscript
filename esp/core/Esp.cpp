@@ -190,6 +190,15 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return (c << 32) + m;
 }
 
+// What do we need to do here? ESP is a single threaded machine. The only issue is avoiding system
+// interrupts. But do we need to worry about them interrupting these tasks? For now let's ingore it
+void m8r::SystemInterface::gcLock() { /*noInterrupts();*/ }
+void m8r::SystemInterface::gcUnlock() { /*interrupts();*/ }
+void m8r::SystemInterface::mallocatorLock() { }
+void m8r::SystemInterface::mallocatorUnlock() { }
+void m8r::SystemInterface::eventLock() { }
+void m8r::SystemInterface::eventUnlock() { }
+
 static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }

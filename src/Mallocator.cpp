@@ -67,6 +67,8 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         return NoRawMad;
     }
     
+    system()->mallocatorLock();
+    
 #ifdef CHECK_CONSISTENCY
     checkConsistency();
 #endif
@@ -118,6 +120,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     }
     
     if (freeBlock == NoBlockId) {
+        system()->mallocatorUnlock();
         return NoRawMad;
     }
     
@@ -129,6 +132,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
 
     if (allocatedBlock == NoBlockId) {
+        system()->mallocatorUnlock();
         return NoBlockId;
     }
     
@@ -143,12 +147,6 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         allocatedBlock += blockSizeFromByteSize(sizeof(Header));
     }
 
-    if (type == MemoryType::Object) {
-        GC::addToStore<MemoryType::Object>(allocatedBlock);
-    } else if (type == MemoryType::String) {
-        GC::addToStore<MemoryType::String>(allocatedBlock);
-    }
-    
     uint32_t index = static_cast<uint32_t>(type);
     
     _memoryInfo.allocationsByType[index].count++;
@@ -158,6 +156,13 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     checkConsistency();
 #endif
 
+    system()->mallocatorUnlock();
+    if (type == MemoryType::Object) {
+        GC::addToStore<MemoryType::Object>(allocatedBlock);
+    } else if (type == MemoryType::String) {
+        GC::addToStore<MemoryType::String>(allocatedBlock);
+    }
+    
     return allocatedBlock;
 }
 
@@ -179,6 +184,8 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         return;
     }
     
+    system()->mallocatorLock();
+
 #ifdef CHECK_CONSISTENCY
     checkConsistency();
 #endif
@@ -241,6 +248,11 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
         }
         prevBlock = freeBlock;
         freeBlock = asHeader(freeBlock)->nextBlock;
+        assert(freeBlock > prevBlock || freeBlock == NoBlockId);
+        if (freeBlock < prevBlock && freeBlock != NoBlockId) {
+            system()->printf(ROMSTR("***** Internal Error: Freeblock loop detected\n"));
+            abort();
+        }
     }
     
     if (freeBlock == NoBlockId) {
@@ -291,6 +303,8 @@ void Mallocator::free(RawMad p, size_t size, MemoryType type)
 #ifdef CHECK_CONSISTENCY
     checkConsistency();
 #endif
+
+    system()->mallocatorUnlock();
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)

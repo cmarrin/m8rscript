@@ -10,18 +10,9 @@
 #include "SystemInterface.h"
 
 #include "TaskManager.h"
+#include <mutex>
 
 using namespace m8r;
-
-void SystemInterface::lock()
-{
-    taskManager()->lock();
-}
-
-void SystemInterface::unlock()
-{
-    taskManager()->unlock();
-}
 
 void SystemInterface::runLoop()
 {

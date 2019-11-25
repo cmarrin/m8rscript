@@ -41,9 +41,6 @@ protected:
 private:
     virtual void runLoop() = 0;
 
-    virtual void lock() = 0;
-    virtual void unlock() = 0;
-    
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     

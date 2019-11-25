@@ -60,10 +60,8 @@ void Task::setFilename(const char* filename)
         return;
 #else
         // See if we can parse it
-        system()->lock();
         Parser parser;
         parser.parse(m8rStream, _eu.get(), debug);
-        system()->unlock();
         if (parser.nerrors()) {
             _eu->printf(ROMSTR("***** %d error%s parsing %s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s", filename);
             syntaxErrors.swap(parser.syntaxErrors());
