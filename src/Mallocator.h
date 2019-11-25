@@ -83,7 +83,7 @@ class String;
 // to free and fixed blocks.
 
 #ifndef NDEBUG
-#define MEMORY_HEADER
+//#define MEMORY_HEADER
 #endif
 
 template<typename T>
@@ -207,6 +207,8 @@ public:
 
     static ROMString stringFromMemoryType(MemoryType);
     
+    void checkConsistency() { checkConsistencyHelper(); }
+
 protected:
     MemoryInfo _memoryInfo;
 
@@ -223,10 +225,9 @@ private:
     uint16_t blockSizeFromByteSize(size_t size) { return (size + _memoryInfo.blockSize - 1) / _memoryInfo.blockSize; }
     
 #ifdef CHECK_CONSISTENCY
-    void checkConsistency() { checkConsistencyHelper(); }
     void checkConsistencyHelper();
 #else
-    void checkConsistency() { }
+    void checkConsistencyHelper() { }
 #endif
 
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
@@ -243,7 +244,9 @@ private:
         static constexpr uint16_t FREEMAGIC = 0xDEAD;
         static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
         enum class Type : uint16_t { Free, Allocated };
-        uint16_t magic;
+        uint16_t magic1;
+        uint16_t magic2;
+        uint16_t magic3;
         Type type;
 #endif
         BlockId nextBlock;
