@@ -111,9 +111,7 @@ private:
 using NativeFunction = CallReturnValue(*)(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
 class Value {
-public:
-    typedef m8r::Map<Atom, Value> Map;
-    
+public:    
     enum class Type : uint32_t {
         None = 0,
         Float = 1,

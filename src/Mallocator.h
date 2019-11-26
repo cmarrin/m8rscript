@@ -13,6 +13,7 @@
 #include "GC.h"
 #include <cstdlib>
 #include <cstdint>
+#include <typeinfo>
 
 namespace m8r {
 
@@ -172,7 +173,7 @@ public:
     template<typename T>
     Mad<T> allocate(MemoryType type, size_t size)
     {
-        return Mad<T>(alloc(size, type));
+        return Mad<T>(alloc(size, type, typeid(T).name()));
     }
     
     template<typename T>
@@ -203,7 +204,7 @@ public:
         return static_cast<RawMad>(offset / _memoryInfo.blockSize);
     }
     
-    const MemoryInfo& memoryInfo() const { return _memoryInfo; }
+    const MemoryInfo& memoryInfo() const { showAllocationRecord(); return _memoryInfo; }
 
     static ROMString stringFromMemoryType(MemoryType);
     
@@ -217,7 +218,7 @@ private:
 
     using BlockId = RawMad;
 
-    RawMad alloc(size_t size, MemoryType type);
+    RawMad alloc(size_t size, MemoryType type, const char* valueType);
     void free(RawMad, size_t size, MemoryType type);
     
     void coalesce(BlockId prev, BlockId next);
@@ -233,8 +234,10 @@ private:
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
 #ifdef MEMORY_HEADER
+    void showAllocationRecord() const;
 #define MEMORY_HEADER_ASSERT(expr) assert(expr)
 #else
+    void showAllocationRecord() const { }
 #define MEMORY_HEADER_ASSERT(expr)
 #endif
     
@@ -244,18 +247,19 @@ private:
         static constexpr uint16_t FREEMAGIC = 0xDEAD;
         static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
         enum class Type : uint16_t { Free, Allocated };
+        
         uint16_t magic;
         Type type;
+        MemoryType memoryType;
+        const char* name;
 #endif
         BlockId nextBlock;
         uint16_t sizeInBlocks;
     };
     
-    Header* asHeader(BlockId b)
-    {
-        return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize));
-    }
-    
+    Header* asHeader(BlockId b) { return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
+    const Header* asHeader(BlockId b) const { return reinterpret_cast<const Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
+
     char* _heapBase = nullptr;
     BlockId _firstFreeBlock = 0;
 

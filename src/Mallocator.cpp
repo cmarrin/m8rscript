@@ -57,6 +57,7 @@ void Mallocator::init()
 #ifdef MEMORY_HEADER
     asHeader(0)->magic = Header::FREEMAGIC;
     asHeader(0)->type = Header::Type::Free;
+    asHeader(0)->memoryType = MemoryType::Unknown;
     _firstAllocatedBlock = NoBlockId;
 #endif
     
@@ -64,7 +65,7 @@ void Mallocator::init()
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
 
-RawMad Mallocator::alloc(size_t size, MemoryType type)
+RawMad Mallocator::alloc(size_t size, MemoryType type, const char* valueType)
 {
     if (!_heapBase) {
         return NoRawMad;
@@ -140,6 +141,8 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
 #ifdef MEMORY_HEADER
         header->magic = Header::ALLOCMAGIC;
         header->type = Header::Type::Allocated;
+        header->memoryType = type;
+        header->name = valueType;
         header->nextBlock = _firstAllocatedBlock;
         _firstAllocatedBlock = allocatedBlock;
 #endif
@@ -220,6 +223,7 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
 #ifdef MEMORY_HEADER
     asHeader(blockToFree)->magic = Header::FREEMAGIC;
     asHeader(blockToFree)->type = Header::Type::Free;
+    asHeader(blockToFree)->memoryType = MemoryType::Unknown;
 
     // Disconnect from allocated list
     BlockId prev = NoBlockId;
@@ -357,6 +361,21 @@ void Mallocator::checkConsistencyHelper()
         MEMORY_HEADER_ASSERT(header->type == Header::Type::Allocated);
     }
 #endif
+}
+#endif
+
+#ifdef MEMORY_HEADER
+void Mallocator::showAllocationRecord() const
+{
+    for (BlockId block = _firstAllocatedBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
+        const Header* header = asHeader(block);
+        system()->printf(ROMSTR("%s (%d) size=%08d of type %s\n"),
+                         stringFromMemoryType(header->memoryType).value(),
+                         static_cast<int32_t>(block),
+                         static_cast<int32_t>(header->sizeInBlocks * _memoryInfo.blockSize),
+                         header->name ?: "*** unknown ***");
+    }
+
 }
 #endif
 

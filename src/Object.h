@@ -24,6 +24,7 @@ class Stream;
 using ConstantValue = Value;
 using ConstantValueVector = Vector<ConstantValue>;
 using InstructionVector = Vector<Instruction>;
+using PropertyMap = Map<Atom, Value>;
 
 class Object {    
 public:
@@ -128,7 +129,7 @@ public:
     void resize(size_t size) { _array.resize(size); }
 
 private:
-    Value::Map _properties;
+    PropertyMap _properties;
     Vector<Value> _array;
     bool _isArray = false;
     bool _arrayNeedsGC;
