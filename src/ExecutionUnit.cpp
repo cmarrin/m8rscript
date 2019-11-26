@@ -70,13 +70,18 @@ void ExecutionUnit::gcMark()
     }
     
     for (auto entry : _stack) {
+        Mallocator::shared()->checkConsistency();
         entry.gcMark();
+        Mallocator::shared()->checkConsistency();
     }
     
     _program->gcMark();
+    Mallocator::shared()->checkConsistency();
 
     for (auto it : _eventQueue) {
+        Mallocator::shared()->checkConsistency();
         it.gcMark();
+        Mallocator::shared()->checkConsistency();
     }
 }
 
@@ -480,7 +485,13 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
     
+    ::printf("***** 1\n");
+    Mallocator::shared()->checkConsistency();
+    ::printf("***** 2\n");
     GC::gc();
+    ::printf("***** 3\n");
+    Mallocator::shared()->checkConsistency();
+    ::printf("***** 4\n");
 
     updateCodePointer();
     
@@ -523,10 +534,13 @@ CallReturnValue ExecutionUnit::continueExecution()
                 _terminate = true; 
                 _stack.clear();
                 GC::gc(true);
+                Mallocator::shared()->checkConsistency();
                 return CallReturnValue(CallReturnValue::Type::Terminated);
             }
+            Mallocator::shared()->checkConsistency();
             return callReturnValue;
         }
+        Mallocator::shared()->checkConsistency();
         return callReturnValue;
 
     L_RET:
@@ -536,6 +550,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             _stack.clear();
             _callRecords.clear();
             GC::gc(true);
+            Mallocator::shared()->checkConsistency();
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
@@ -556,10 +571,12 @@ CallReturnValue ExecutionUnit::continueExecution()
                     _terminate = true;
                     _stack.clear();
                     GC::gc(true);
+                    Mallocator::shared()->checkConsistency();
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
                 GC::gc(true);
+                Mallocator::shared()->checkConsistency();
                 return CallReturnValue(CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
