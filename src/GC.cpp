@@ -33,6 +33,8 @@ void GC::gc(bool force)
         return;
     }
     
+    force = true;
+    
     inGC = true;
     system()->gcLock();
     bool didFullCycle = gcState == GCState::ClearMarkedObj;

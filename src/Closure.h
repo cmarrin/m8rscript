@@ -15,7 +15,7 @@ namespace m8r {
 
 class UpValue {
 public:
-    ~UpValue() { _destroyed = true; }
+    ~UpValue() { assert(!_destroyed); _destroyed = true; }
     
     Mad<UpValue> next() const { return _next; }
     void setNext(Mad<UpValue> v) { _next = v; }
