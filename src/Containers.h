@@ -353,6 +353,65 @@ private:
 };
 
 //
+//  Class: FixedVector
+//
+//  Vector class whose size is set once and never changed
+//
+
+template<typename T>
+class FixedVector {
+public:
+    FixedVector() { }
+    
+    FixedVector(const FixedVector&) = delete;
+    FixedVector(FixedVector&&) = delete;
+    FixedVector& operator=(const FixedVector&) = delete;
+    FixedVector& operator=(FixedVector&&) = delete;
+
+    ~FixedVector()
+    {
+        for (int i = 0; i < _size; ++i) {
+            _data.get()[i].~T();
+        }
+        _data.destroyVector(_size);
+    }
+    
+    using const_iterator = const T*;
+    
+    const_iterator begin() const { return _size ? _data.get() : end(); }
+    const_iterator end() const { return _data.get() + _size; }
+
+    bool assign(const Vector<T>& other)
+    {
+        if (_size) {
+            return false;
+        }
+        
+        _size = other.size();
+        _data = Mad<T>::create(MemoryType::Vector, _size);
+        for (int i = 0; i < _size; ++i) {
+            new(&(_data.get()[i])) T();
+            _data.get()[i] = other[i];
+        }
+        return true;
+    }
+
+    bool empty() const { return _size == 0; }
+    size_t size() const { return _size; };
+    const T& operator[](uint16_t i) const { return at(i); };
+    
+    const T& at(uint16_t i) const { assert(i < _size); return _data.get()[i]; }
+
+    const T& back() const { return _data.get()[_size - 1]; }
+    
+    const T& front() const { return at(0); }
+
+private:
+    uint16_t _size = 0;
+    Mad<T> _data;
+};
+
+//
 //  Class: Stack
 //
 //  Wrapper around Vector to give stack semantics
