@@ -334,12 +334,6 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 
 Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
 {
-    for (auto next = _openUpValues; next.valid(); next = next->next()) {
-        assert(!next->closed());
-        if (next->stackIndex() == stackIndex) {
-            return next;
-        }
-    }
     Mad<UpValue> upValue = Mad<UpValue>::create(MemoryType::UpValue);
     upValue->setStackIndex(stackIndex);
     upValue->setNext(_openUpValues);
