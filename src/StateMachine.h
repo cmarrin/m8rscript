@@ -25,11 +25,11 @@ namespace m8r {
     // StateMachine class
     //
     // Store a state machine structure with the given States and traverse using the given Inputs.
-    template<typename State, typename Input>
+    template<typename T, typename State, typename Input>
     class StateMachine
     {
     public:
-        using Action = std::function<void()>;
+        using Action = void(*)(T*);
         using NextStates = Vector<std::pair<Input, State>>;
         
         struct StateEntry
@@ -53,14 +53,14 @@ namespace m8r {
                 , _jumpState(jumpState)
             { }
             
-            State _state = State();
             Action _action = Action();
             NextStates _nextStates;
             State _jumpState = State();
+            State _state = State();
         };
         
-        StateMachine() { }
-        StateMachine(const NextStates& nextStates) : _commonNextStates(nextStates) { }
+        StateMachine(T* owner) : _owner(owner) { }
+        StateMachine(T* owner, const NextStates& nextStates) : _owner(owner), _commonNextStates(nextStates) { }
         
         void addState(State state, Action action, const NextStates& nextStates)
         {
@@ -84,7 +84,7 @@ namespace m8r {
                 _currentState = state;
                 
                 if (it->_action) {
-                    it->_action();
+                    it->_action(_owner);
                 }
                 
                 if (it->_nextStates.empty()) {
@@ -127,9 +127,10 @@ namespace m8r {
             return std::find_if(_states.begin(), _states.end(), [state](const StateEntry& entry) { return entry._state == state; });
         }
         
+        T* _owner = nullptr;
         StateVector _states;
-        State _currentState = static_cast<State>(0);
         NextStates _commonNextStates;
+        State _currentState = static_cast<State>(0);
     };
 
 }

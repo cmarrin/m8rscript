@@ -159,7 +159,7 @@ private:
     void handleIACCommand();
     void handleSendLine();
     
-    enum class State {
+    enum class State : uint8_t {
         Ready, Interrupt, Backspace, AddChar, AddFF, SendLine, 
         IAC, IACVerb, IACCommand, 
         CSI, CSIBracket, CSIParam, CSICommand,
@@ -204,7 +204,7 @@ private:
     int32_t _position = 0;
     char _escapeParam = 0;
     
-    m8r::StateMachine<State, Input> _stateMachine;
+    m8r::StateMachine<Telnet, State, Input> _stateMachine;
     
     String _toChannel;
     String _toClient;
