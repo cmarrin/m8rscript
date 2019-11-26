@@ -65,11 +65,13 @@ void Mallocator::init()
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
 }
 
-RawMad Mallocator::alloc(size_t size, MemoryType type, const char* valueType)
+RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType type, const char* valueType)
 {
     if (!_heapBase) {
         return NoRawMad;
     }
+    
+    uint32_t size = nElements * elementSize;
     
     checkConsistency();
     assert(type != MemoryType::Unknown);
@@ -141,6 +143,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type, const char* valueType)
 #ifdef MEMORY_HEADER
         header->magic = Header::ALLOCMAGIC;
         header->type = Header::Type::Allocated;
+        header->nElements = nElements;
         header->memoryType = type;
         header->name = valueType;
         header->nextBlock = _firstAllocatedBlock;
@@ -369,10 +372,15 @@ void Mallocator::showAllocationRecord() const
 {
     for (BlockId block = _firstAllocatedBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
         const Header* header = asHeader(block);
-        system()->printf(ROMSTR("%s (%d) size=%08d of type %s\n"),
+        if (header->memoryType != MemoryType::Vector) {
+            continue;
+        }
+        int32_t size = static_cast<int32_t>(header->sizeInBlocks) * _memoryInfo.blockSize;
+        system()->printf(ROMSTR("%15s (%d) size=%8d bytes, %8d elements of type %s\n"),
                          stringFromMemoryType(header->memoryType).value(),
                          static_cast<int32_t>(block),
-                         static_cast<int32_t>(header->sizeInBlocks * _memoryInfo.blockSize),
+                         static_cast<int32_t>(size),
+                         static_cast<int32_t>(header->nElements),
                          header->name ?: "*** unknown ***");
     }
 
@@ -385,7 +393,7 @@ namespace m8r {
 template<>
 Mad<String> Mad<String>::create(const char* s, int32_t length)
 {
-    Mad<String> obj = Mallocator::shared()->allocate<String>(MemoryType::String, sizeof(String));
+    Mad<String> obj = Mallocator::shared()->allocate<String>(MemoryType::String, 1);
     new(obj.get()) String(s, length);
     return obj;
 }

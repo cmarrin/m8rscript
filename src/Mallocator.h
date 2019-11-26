@@ -148,7 +148,8 @@ public:
     void destroy() { destroyHelper(T::memoryType(), sizeof(T), true); }
 
     static Mad<T> create(MemoryType, uint16_t n = 1);
-    static Mad<T> create(uint16_t n) { return create(MemoryType::Unknown, n); }
+    
+    static Mad<T> create(uint16_t n) { static_assert(assert_false<T>::value, "Must specialize this function"); return Mad<T>(); }
     static Mad<T> create() { return create(T::memoryType(), 1); }
     static Mad<String> create(const String& s);
     static Mad<String> create(String&& s);
@@ -171,9 +172,9 @@ public:
     void init();
     
     template<typename T>
-    Mad<T> allocate(MemoryType type, size_t size)
+    Mad<T> allocate(MemoryType type, uint16_t nElements)
     {
-        return Mad<T>(alloc(size, type, typeid(T).name()));
+        return Mad<T>(alloc(nElements, sizeof(T), type, typeid(T).name()));
     }
     
     template<typename T>
@@ -218,7 +219,7 @@ private:
 
     using BlockId = RawMad;
 
-    RawMad alloc(size_t size, MemoryType type, const char* valueType);
+    RawMad alloc(uint16_t nElements, uint16_t elementSize, MemoryType type, const char* valueType);
     void free(RawMad, size_t size, MemoryType type);
     
     void coalesce(BlockId prev, BlockId next);
@@ -249,14 +250,15 @@ private:
         enum class Type : uint16_t { Free, Allocated };
         
         uint16_t magic;
-        Type type;
+        Type type : 1;
+        uint16_t nElements : 15;
         MemoryType memoryType;
         const char* name;
 #endif
         BlockId nextBlock;
         uint16_t sizeInBlocks;
     };
-    
+
     Header* asHeader(BlockId b) { return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
     const Header* asHeader(BlockId b) const { return reinterpret_cast<const Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
 
@@ -299,7 +301,7 @@ inline void Mad<T>::destroyHelper(MemoryType type, uint16_t size, bool destruct)
 template<typename T>
 inline Mad<T> Mad<T>::create(MemoryType type, uint16_t n)
 {
-    Mad<T> obj = Mallocator::shared()->allocate<T>(type, sizeof(T) * n);
+    Mad<T> obj = Mallocator::shared()->allocate<T>(type, n);
     
     // Only call the constructor if this isn't an array of objects.
     // Arrays call their consctructors themselves
