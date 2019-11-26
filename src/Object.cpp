@@ -155,6 +155,7 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
 {
     if (append) {
         _array.push_back(value);
+        _arrayNeedsGC |= value.needsGC();
         return true;
     }
     
