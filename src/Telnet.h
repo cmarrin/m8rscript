@@ -204,7 +204,8 @@ private:
     int32_t _position = 0;
     char _escapeParam = 0;
     
-    m8r::StateMachine<Telnet, State, Input> _stateMachine;
+    StateMachine<Telnet, State, Input> _stateMachine;
+    static StateTable<Telnet, State, Input> _stateTable;
     
     String _toChannel;
     String _toClient;

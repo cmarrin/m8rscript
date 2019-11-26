@@ -22,11 +22,12 @@
 
 namespace m8r {
 
-    // StateMachine class
+    // StateTable class
     //
-    // Store a state machine structure with the given States and traverse using the given Inputs.
+    // Stores the state transitions. The table is stateless. It is used by StateMachine below to do all the transitions
+    // so it can be shared among several state machines.
     template<typename T, typename State, typename Input>
-    class StateMachine
+    class StateTable
     {
     public:
         using Action = void(*)(T*);
@@ -59,8 +60,10 @@ namespace m8r {
             State _state = State();
         };
         
-        StateMachine(T* owner) : _owner(owner) { }
-        StateMachine(T* owner, const NextStates& nextStates) : _owner(owner), _commonNextStates(nextStates) { }
+        StateTable() { }
+        StateTable(const NextStates& nextStates) : _commonNextStates(nextStates) { }
+        
+        bool empty() const { return _states.empty(); }
         
         void addState(State state, Action action, const NextStates& nextStates)
         {
@@ -77,28 +80,28 @@ namespace m8r {
             _states.emplace_back(state, jumpState, action);
         }
         
-        void gotoState(State state)
+        void nextState(State state, State& next, T* owner)
         {
             auto it = findState(state);
             if (it != _states.end()) {
-                _currentState = state;
+                next = state;
                 
                 if (it->_action) {
-                    it->_action(_owner);
+                    it->_action(owner);
                 }
                 
                 if (it->_nextStates.empty()) {
-                    gotoState(it->_jumpState);
+                    next = it->_jumpState;
                 }
             }
         }
-        
-        void sendInput(Input input)
+
+        bool sendInput(Input input, State currentState, State& nextState)
         {
             // Check next states for currentState
-            auto it = findState(_currentState);
+            auto it = findState(currentState);
             if (it == _states.end()) {
-                return;
+                return false;
             }
 
             auto inputIt = std::find_if(it->_nextStates.begin(), it->_nextStates.end(), [input](const std::pair<Input, State>& entry) {
@@ -106,8 +109,8 @@ namespace m8r {
             });
 
             if (inputIt != it->_nextStates.end()) {
-                gotoState(inputIt->second);
-                return;
+                nextState = inputIt->second;
+                return true;
             }
 
             // Check the common next states
@@ -115,8 +118,10 @@ namespace m8r {
                 return entry.first == input;
             });
             if (commonIt != _commonNextStates.end()) {
-                gotoState(commonIt->second);
+                nextState = commonIt->second;
+                return true;
             }
+            return false;
         }
         
     private:
@@ -127,9 +132,33 @@ namespace m8r {
             return std::find_if(_states.begin(), _states.end(), [state](const StateEntry& entry) { return entry._state == state; });
         }
         
-        T* _owner = nullptr;
         StateVector _states;
         NextStates _commonNextStates;
+    };
+
+
+    // StateMachine class
+    //
+    // Store a state machine structure with the given States and traverse using the given Inputs.
+    template<typename T, typename State, typename Input>
+    class StateMachine
+    {
+    public:
+        StateMachine(T* owner, StateTable<T, State, Input>* table) : _owner(owner), _table(table) { }
+        
+        void gotoState(State state) { _table->nextState(state, _currentState, _owner); }
+        
+        void sendInput(Input input)
+        {
+            State nextState;
+            if (_table->sendInput(input, _currentState, nextState)) {
+                gotoState(nextState);
+            }
+        }
+        
+    private:
+        T* _owner = nullptr;
+        StateTable<T, State, Input>* _table = nullptr;
         State _currentState = static_cast<State>(0);
     };
 
