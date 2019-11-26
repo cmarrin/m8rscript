@@ -84,12 +84,16 @@ ifeq ($(ARDUINO_TOOLCHAIN), 1)
 
 # Arduino based tools
 ESP_ROOT ?= $(HOME)/Library/Arduino15/packages/esp8266
+
 TOOLS_ROOT ?= $(ESP_ROOT)/tools
-TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9/bin
-SDK_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk
-LIB_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk/lib/NONOSDK3V0
-LWIP_LIB_ROOT = $(ESP_ROOT)/hardware/esp8266/2.5.2/tools/sdk/lib
+BUILDCHAIN_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9/bin
+
+HW_TOOLS_ROOT ?= $(ESP_ROOT)/hardware/esp8266/2.5.2/tools
+SDK_ROOT = $(HW_TOOLS_ROOT)/sdk
+LIB_ROOT = $(SDK_ROOT)/lib/NONOSDK3V0
+LWIP_LIB_ROOT = $(SDK_ROOT)/lib
 LWIP_ROOT = $(SDK_ROOT)/lwip
+
 FLASH_LAYOUT ?= core/eagle.flash.$(FLASH_SIZE).ld
 
 else
@@ -97,7 +101,7 @@ else
 # ESP open SDK base tools
 ESP_ROOT ?= $(HOME)/esp-open-sdk
 TOOLS_ROOT = $(ESP_ROOT)
-TOOLS_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
+BUILDCHAIN_BIN = $(TOOLS_ROOT)/xtensa-lx106-elf/bin
 SDK_ROOT = $(TOOLS_ROOT)/sdk
 LWIP_ROOT = $(SDK_ROOT)/examples/lwip_open_src_template_proj
 FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
@@ -106,7 +110,7 @@ FLASH_LAYOUT ?= eagle.flash.$(FLASH_SIZE).ld
 endif
 
 ESP_TOOL_BIN = ./esptool
-ESP_TOOL_PY ?= ./esptool.py
+ESP_TOOL_PY ?= python $(HW_TOOLS_ROOT)/esptool/esptool.py
 
 # Output directory
 BUILD_BASE	= build
@@ -117,7 +121,7 @@ FLASH_MODE ?= dio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_PORT ?= /dev/tty.wchusbserial220
+UPLOAD_PORT ?= /dev/cu.wchusbserial2430
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= ck
 
@@ -150,11 +154,11 @@ OBJ_EXT = .o
 DEP_EXT = .d
 
 # Compiler definitions
-CC = $(TOOLS_BIN)/xtensa-lx106-elf-gcc
-CPP = $(TOOLS_BIN)/xtensa-lx106-elf-g++
+CC = $(BUILDCHAIN_BIN)/xtensa-lx106-elf-gcc
+CPP = $(BUILDCHAIN_BIN)/xtensa-lx106-elf-g++
 LD =  $(CC)
-AR = $(TOOLS_BIN)/xtensa-lx106-elf-ar
-OBJDUMP = $(TOOLS_BIN)/xtensa-lx106-elf-objdump
+AR = $(BUILDCHAIN_BIN)/xtensa-lx106-elf-ar
+OBJDUMP = $(BUILDCHAIN_BIN)/xtensa-lx106-elf-objdump
 
 LIBS = main net80211 wpa pp phy crypto smartconfig lwip_gcc gcc
 LIBS := $(addprefix -l,$(LIBS))
@@ -286,7 +290,7 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	$(CPP) $(C_DEFINES) $(C_INCLUDES) $(CPP_FLAGS) $(BUILD_INFO_CPP) -o $(BUILD_INFO_OBJ)
 	$(LD) $(LD_FLAGS) -Wl,--start-group $^ $(BUILD_INFO_OBJ) $(LD_STD_LIBS) -Wl,--end-group -L$(OBJ_DIR) -o $(MAIN_ELF)
 	$(ESP_TOOL_BIN) -eo $(CORE_DIR)/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
-	$(TOOLS_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
+	$(BUILDCHAIN_BIN)/xtensa-lx106-elf-size -A $(MAIN_ELF) | perl -e $(MEM_USAGE)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
 upload: all
