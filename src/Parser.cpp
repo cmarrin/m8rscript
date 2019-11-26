@@ -37,6 +37,7 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
     _eu = eu;
     _debug = debug;
     _scanner.setStream(&stream);
+    _currentCode.clear();
     ParseEngine p(this);
     if (!parent.valid()) {
         parent = _program;
@@ -132,14 +133,14 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
         return;
     }
     
-    Instruction inst = _deferred ? _deferredCode.at(matchAddr) : currentFunction()->code()->at(matchAddr);
+    Instruction inst = _deferred ? _deferredCode.at(matchAddr) : _currentCode.at(matchAddr);
     Op op = static_cast<Op>(inst.op());
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     uint32_t reg = inst.rn();
     if (_deferred) {
         _deferredCode.at(matchAddr) = Instruction(op, reg, jumpAddr);
     } else {
-        currentFunction()->code()->at(matchAddr) = Instruction(op, reg, jumpAddr);
+        _currentCode.at(matchAddr) = Instruction(op, reg, jumpAddr);
     }
 }
 
@@ -190,7 +191,7 @@ void Parser::addCode(Instruction inst)
         assert(_deferredCodeBlocks.size() > 0);
         _deferredCode.push_back(inst);
     } else {
-        currentFunction()->code()->push_back(inst);
+        _currentCode.push_back(inst);
     }
 }
 
@@ -586,7 +587,7 @@ int32_t Parser::emitDeferred()
     int32_t start = static_cast<int32_t>(currentFunction()->code()->size());
     
     for (size_t i = _deferredCodeBlocks.back(); i < _deferredCode.size(); ++i) {
-        currentFunction()->code()->push_back(_deferredCode[i]);
+        _currentCode.push_back(_deferredCode[i]);
     }
     _deferredCode.resize(_deferredCodeBlocks.back());
     _deferredCodeBlocks.pop_back();
@@ -643,6 +644,10 @@ Mad<Function> Parser::functionEnd()
     reconcileRegisters(function);
     function->setTempRegisterCount(tempRegisterCount);
     
+    // Place the current code in this function
+    function->setCode(_currentCode);
+    _currentCode.clear();
+    
     return function;
 }
 
@@ -654,33 +659,32 @@ static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
 void Parser::reconcileRegisters(Mad<Function> function)
 {
     assert(function->code());
-    InstructionVector& code = *function->code();
     uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
-    for (int i = 0; i < code.size(); ++i) {
-        Instruction inst = code[i];
+    for (int i = 0; i < _currentCode.size(); ++i) {
+        Instruction inst = _currentCode[i];
         Op op = static_cast<Op>(inst.op());
         
         if (op == Op::LINENO) {
             continue;
         }
         if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
-            code[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
+            _currentCode[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
         } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
             uint32_t rn = regFromTempReg(inst.rn(), numLocals);
-            code[i] = Instruction(op, rn, inst.sn());
+            _currentCode[i] = Instruction(op, rn, inst.sn());
         } else if (op == Op::PUSH) {
             uint32_t rn = regFromTempReg(inst.rn(), numLocals);
-            code[i] = Instruction(op, rn, inst.sn());
+            _currentCode[i] = Instruction(op, rn, inst.sn());
         } else if (op == Op::LOADUP) {
             uint32_t ra = regFromTempReg(inst.ra(), numLocals);
-            code[i] = Instruction(op, ra, inst.rb(), 0);
+            _currentCode[i] = Instruction(op, ra, inst.rb(), 0);
         } else if (op == Op::STOREUP) {
             uint32_t rb = regFromTempReg(inst.rb(), numLocals);
-            code[i] = Instruction(op, inst.ra(), rb, 0);
+            _currentCode[i] = Instruction(op, inst.ra(), rb, 0);
         } else {
             uint32_t ra = regFromTempReg(inst.ra(), numLocals);
-            code[i] = Instruction(op, ra, regFromTempReg(inst.rb(), numLocals), regFromTempReg(inst.rc(), numLocals));
+            _currentCode[i] = Instruction(op, ra, regFromTempReg(inst.rb(), numLocals), regFromTempReg(inst.rc(), numLocals));
         }
     }
 }

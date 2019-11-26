@@ -282,7 +282,8 @@ private:
     ExecutionUnit* _eu = nullptr;
     uint32_t _nerrors = 0;
     Vector<size_t> _deferredCodeBlocks;
-    InstructionVector _deferredCode;
+    Vector<Instruction> _deferredCode;
+    Vector<Instruction> _currentCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     Debug _debug;
