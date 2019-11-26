@@ -83,7 +83,7 @@ class String;
 // to free and fixed blocks.
 
 #ifndef NDEBUG
-//#define MEMORY_HEADER
+#define MEMORY_HEADER
 #endif
 
 template<typename T>
