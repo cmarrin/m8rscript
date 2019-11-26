@@ -722,6 +722,9 @@ bool ParseEngine::memberExpression()
     if (getToken() == Token::Function) {
         retireToken();
         Mad<Function> f = functionExpression(false);
+        if (!f.valid()) {
+            return false;
+        }
         _parser->pushK(Value(f));
         return true;
     }
