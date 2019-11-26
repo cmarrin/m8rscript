@@ -141,8 +141,6 @@ private:
     
     Op dispatchNextOp(Instruction& inst, uint16_t& checkCounter)
     {
-        Mallocator::shared()->checkConsistency();
-        
         if (_nerrors > MaxRunTimeErrrors) {
             tooManyErrors();
             _terminate = true;

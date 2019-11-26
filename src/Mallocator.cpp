@@ -55,9 +55,7 @@ void Mallocator::init()
     asHeader(0)->sizeInBlocks = _memoryInfo.heapSizeInBlocks;
 
 #ifdef MEMORY_HEADER
-    asHeader(0)->magic1 = Header::FREEMAGIC;
-    asHeader(0)->magic2 = Header::FREEMAGIC;
-    asHeader(0)->magic3 = Header::FREEMAGIC;
+    asHeader(0)->magic = Header::FREEMAGIC;
     asHeader(0)->type = Header::Type::Free;
     _firstAllocatedBlock = NoBlockId;
 #endif
@@ -94,9 +92,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         Header* header = asHeader(freeBlock);
         assert(header->nextBlock != freeBlock);
 
-        MEMORY_HEADER_ASSERT(header->magic1 == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic2 == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic3 == Header::FREEMAGIC);
+        MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
         MEMORY_HEADER_ASSERT(header->type == Header::Type::Free);
 
         if (header->sizeInBlocks >= blocksToAlloc) {
@@ -142,9 +138,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
         header->nextBlock = NoBlockId;
         header->sizeInBlocks = blocksToAlloc;
 #ifdef MEMORY_HEADER
-        header->magic1 = Header::ALLOCMAGIC;
-        header->magic2 = Header::ALLOCMAGIC;
-        header->magic3 = Header::ALLOCMAGIC;
+        header->magic = Header::ALLOCMAGIC;
         header->type = Header::Type::Allocated;
         header->nextBlock = _firstAllocatedBlock;
         _firstAllocatedBlock = allocatedBlock;
@@ -165,9 +159,7 @@ RawMad Mallocator::alloc(size_t size, MemoryType type)
     } else if (type == MemoryType::String) {
         GC::addToStore<MemoryType::String>(allocatedBlock);
     }
-    
-    printf("++++++++++ Mallocator::alloc %d: size=%zu, type=%s\n", allocatedBlock, size, stringFromMemoryType(type).value());
-    
+        
     return allocatedBlock;
 }
 
@@ -189,8 +181,6 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
         return;
     }
     
-    printf("---------- Mallocator::free %d: size=%zu, type=%s\n", ptr, size, stringFromMemoryType(type).value());
-
     system()->mallocatorLock();
     checkConsistency();
     assert(type != MemoryType::Unknown);
@@ -223,16 +213,12 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
     uint16_t blocksToFree = blockSizeFromByteSize(size);
 
     // Check to make sure this is a valid block
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic1 == Header::ALLOCMAGIC);
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic2 == Header::ALLOCMAGIC);
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic3 == Header::ALLOCMAGIC);
+    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic == Header::ALLOCMAGIC);
     MEMORY_HEADER_ASSERT(asHeader(blockToFree)->type == Header::Type::Allocated);
     MEMORY_HEADER_ASSERT(asHeader(blockToFree)->sizeInBlocks == blocksToFree);
 
 #ifdef MEMORY_HEADER
-    asHeader(blockToFree)->magic1 = Header::FREEMAGIC;
-    asHeader(blockToFree)->magic2 = Header::FREEMAGIC;
-    asHeader(blockToFree)->magic3 = Header::FREEMAGIC;
+    asHeader(blockToFree)->magic = Header::FREEMAGIC;
     asHeader(blockToFree)->type = Header::Type::Free;
 
     // Disconnect from allocated list
@@ -357,9 +343,7 @@ void Mallocator::checkConsistencyHelper()
         assert(header && (header->nextBlock == NoBlockId || block + header->sizeInBlocks < header->nextBlock));
 
         // Check to make sure this is a valid block
-        MEMORY_HEADER_ASSERT(header->magic1 == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic2 == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic3 == Header::FREEMAGIC);
+        MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
         MEMORY_HEADER_ASSERT(header->type == Header::Type::Free);
     }
     
@@ -369,9 +353,7 @@ void Mallocator::checkConsistencyHelper()
         Header* header = asHeader(block);
 
         // Check to make sure this is a valid block
-        MEMORY_HEADER_ASSERT(header->magic1 == Header::ALLOCMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic2 == Header::ALLOCMAGIC);
-        MEMORY_HEADER_ASSERT(header->magic3 == Header::ALLOCMAGIC);
+        MEMORY_HEADER_ASSERT(header->magic == Header::ALLOCMAGIC);
         MEMORY_HEADER_ASSERT(header->type == Header::Type::Allocated);
     }
 #endif

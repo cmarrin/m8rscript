@@ -244,9 +244,7 @@ private:
         static constexpr uint16_t FREEMAGIC = 0xDEAD;
         static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
         enum class Type : uint16_t { Free, Allocated };
-        uint16_t magic1;
-        uint16_t magic2;
-        uint16_t magic3;
+        uint16_t magic;
         Type type;
 #endif
         BlockId nextBlock;
