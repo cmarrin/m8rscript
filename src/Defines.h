@@ -164,7 +164,7 @@ class ConstantId : public Id<uint8_t> { using Id::Id; };
 using RawMad = uint16_t;
 static constexpr RawMad NoRawMad = std::numeric_limits<RawMad>::max();
 
-enum class MemoryType {
+enum class MemoryType : uint16_t {
     Unknown,
     String,
     Character,
