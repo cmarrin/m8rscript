@@ -96,7 +96,7 @@ private:
     void addMatchedJump(Op op, Label&);
     void matchJump(const Label& matchLabel)
     {
-        int32_t jumpAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentFunction()->code()->size()) - matchLabel.matchedAddr;
+        int32_t jumpAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size()) - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
 
@@ -139,6 +139,7 @@ private:
     bool functionIsCtor() const { return _functions.back()._ctor; }
     Mad<Function> functionEnd();
     Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
+    Vector<Instruction>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
         
     void classStart() { _classes.push_back(Mad<MaterObject>::create()); }
     void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
@@ -266,6 +267,7 @@ private:
         FunctionEntry() { }
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
         Mad<Function> _function;
+        Vector<Instruction> _code;
         uint32_t _nextReg = 255;
         uint32_t _minReg = 256;
         bool _ctor = false;
@@ -283,7 +285,6 @@ private:
     uint32_t _nerrors = 0;
     Vector<size_t> _deferredCodeBlocks;
     Vector<Instruction> _deferredCode;
-    Vector<Instruction> _currentCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     Debug _debug;
