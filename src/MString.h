@@ -160,6 +160,15 @@ public:
     
     const char& operator[](uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
     char& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    const char& at(uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    char& at(uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    
+    char& back() { return at(size() - 1); }
+    const char& back() const { return at(size() - 1); }
+
+    char& front() { return at(0); }
+    const char& front() const { return at(0); }
+
     uint16_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
     void clear() { _size = 1; if (_data.valid()) _data.get()[0] = '\0'; }

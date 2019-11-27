@@ -171,6 +171,7 @@ public:
     virtual bool makeDirectory(const char* name) override;
     virtual bool remove(const char* name) override;
     virtual bool rename(const char* src, const char* dst) override;
+    virtual bool exists(const char* name) const override;
 
     virtual uint32_t totalSize() const override;
     virtual uint32_t totalUsed() const override;

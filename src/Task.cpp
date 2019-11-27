@@ -166,11 +166,11 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     Mad<Object> env = envValue.asObject();
     
-    String path = FS::findPath(filename, env);
+    String path = FS::findPath(eu, filename, env);
     
     Mad<Task> task = Mad<Task>::create();
     task->setConsolePrintFunction(eu->consolePrintFunction());
-    task->setFilename(filename.c_str());
+    task->setFilename(path.c_str());
     
     if (task->error() != Error::Code::OK) {
         Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;

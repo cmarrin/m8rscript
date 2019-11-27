@@ -111,6 +111,7 @@ public:
     virtual bool makeDirectory(const char* name) = 0;
     virtual bool remove(const char* name) = 0;
     virtual bool rename(const char* src, const char* dst) = 0;
+    virtual bool exists(const char* name) const = 0;
     
     virtual uint32_t totalSize() const = 0;
     virtual uint32_t totalUsed() const = 0;
@@ -119,7 +120,7 @@ public:
     
     static const char* errorString(Error);
     
-    static String findPath(const String& filename, const Mad<Object>& env);
+    static String findPath(ExecutionUnit*, const String& filename, const Mad<Object>& env);
     
     // m8rscript object methods
     

@@ -206,6 +206,15 @@ bool SpiffsFS::rename(const char* src, const char* dst)
     return SPIFFS_rename(&_spiffsFileSystem, src, dst) == SPIFFS_OK;
 }
 
+bool SpiffsFS::exists(const char* name) const
+{
+    SpiffsDirectory::FileID fileID;
+    File::Type fileType;
+    Error error;
+    SpiffsDirectory::find(name, SpiffsDirectory::FindCreateMode::None, fileID, fileType, error);
+    return error == Error::Code::OK;
+}
+
 uint32_t SpiffsFS::totalSize() const
 {
     u32_t total, used;

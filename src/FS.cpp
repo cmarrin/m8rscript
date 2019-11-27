@@ -301,22 +301,52 @@ CallReturnValue DirectoryProto::next(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-String FS::findPath(const String& filename, const Mad<Object>& env)
+static bool makePathString(String& fullPath, const String& filename, const String& path, const String& home, const String& cwd)
 {
-    // FIXME: Implement
-//    String path;
-//    Mad<Object> paths = env->property(Atom::)
-//    for (const String* pathPrefix : env)
-//
-//
-//
-//    for (var pathPrefix : env.PATH) {
-//        var path = pathPrefix.value + "/" + filename;
-//        var file = FS.open(path, "r");
-//        if (file && file.valid()) {
-//            file.close();
-//            return path;
-//        }
-//    }
-    return "";
+    if (home.front() != '/' || cwd.front() != '/') {
+        return false;
+    }
+    
+    fullPath = path;
+
+    if (path.back() != '/') {
+        fullPath += '/';
+    }
+    fullPath += filename;
+    
+    if (fullPath.front() == '~') {
+        fullPath = fullPath.slice(1);
+        if (home.back() != '/') {
+            fullPath = home + "/" + fullPath;
+        } else {
+            fullPath = home + fullPath;
+        }
+    } else if (fullPath.front() == '.') {
+        fullPath = fullPath.slice(1);
+        if (cwd.back() != '/') {
+            fullPath = cwd + "/" + fullPath;
+        } else {
+            fullPath = cwd + fullPath;
+        }
+    }
+    return true;
+}
+
+String FS::findPath(ExecutionUnit* eu, const String& filename, const Mad<Object>& env)
+{
+    String fullPath;
+    Value paths = env->property(eu->program()->atomizeString("PATH"));
+    String home = env->property(eu->program()->atomizeString("HOME")).toStringValue(eu);
+    String cwd = env->property(eu->program()->atomizeString("CWD")).toStringValue(eu);
+    
+    int32_t size = paths.property(Atom(SA::length)).toIntValue(eu);
+    for (int32_t i = 0; i < size; ++i) {
+        String path = paths.element(eu, Value(i)).toStringValue(eu);
+        if (makePathString(fullPath, filename, path, home, cwd)) {
+            if (system()->fileSystem()->exists(fullPath.c_str())) {
+                return fullPath;
+            }
+        }
+    }
+    return String();
 }
