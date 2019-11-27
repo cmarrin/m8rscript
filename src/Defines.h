@@ -65,6 +65,9 @@ namespace m8r {
 
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
     #define ROMSTR(s) m8r::ROMString(s)
+
+    template <typename T>
+    static inline const char* typeName() { return typeid(T).name(); }
     
     //#define USE_LITTLEFS
 
@@ -92,6 +95,9 @@ static constexpr uint32_t HeapSize = 200000;
         uint32_t bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
         return ((uint8_t*)&bytes)[(uint32_t)(addr.value()) & 3];
     }
+
+    template <typename T>
+    static inline const char* typeName() { return ""; }
 
 #endif
 

@@ -174,7 +174,7 @@ public:
     template<typename T>
     Mad<T> allocate(MemoryType type, uint16_t nElements)
     {
-        return Mad<T>(alloc(nElements, sizeof(T), type, typeid(T).name()));
+        return Mad<T>(alloc(nElements, sizeof(T), type, typeName<T>()));
     }
     
     template<typename T>
