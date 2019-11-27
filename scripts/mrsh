@@ -88,25 +88,3 @@ while (!done[0]) {
     }
     waitForEvent();
 }
-
-//var lines = [ ];
-//var done = [ false ];
-//
-//consoleListener = function(line, action)
-//{
-//    println("xxx");
-//    if (action == "intr") {
-//        printf("\n^C\n");
-//        done[0] = true;
-//    } else {
-//        lines.push_back(line);
-//    }
-//};
-//
-//while (!done[0]) {
-//    if (lines.length) {
-//        printf("*** line '%s'\n", lines.front);
-//        lines.pop_front();
-//    }
-//    waitForEvent();
-//}
