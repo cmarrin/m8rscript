@@ -300,3 +300,23 @@ CallReturnValue DirectoryProto::next(ExecutionUnit* eu, Value thisValue, uint32_
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+
+String FS::findPath(const String& filename, const Mad<Object>& env)
+{
+    // FIXME: Implement
+//    String path;
+//    Mad<Object> paths = env->property(Atom::)
+//    for (const String* pathPrefix : env)
+//
+//
+//
+//    for (var pathPrefix : env.PATH) {
+//        var path = pathPrefix.value + "/" + filename;
+//        var file = FS.open(path, "r");
+//        if (file && file.valid()) {
+//            file.close();
+//            return path;
+//        }
+//    }
+    return "";
+}

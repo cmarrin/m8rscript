@@ -119,6 +119,8 @@ public:
     
     static const char* errorString(Error);
     
+    static String findPath(const String& filename, const Mad<Object>& env);
+    
     // m8rscript object methods
     
 protected:

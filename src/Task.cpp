@@ -116,7 +116,27 @@ TaskProto::TaskProto()
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // filename, consoleListener
+    // filename, consoleListener, <env>
+    //
+    // If env is present it is an object with:
+    //
+    //      CWD     - current working directory
+    //      PATH    - Array of path prefix strings
+    //      HOME    - Path to home directory
+    //
+    // If env is not passed, the filename is taken as an absolute path. If it doesn't start
+    // with '/' it will fail. If env is present then the following rules are applied:
+    //
+    // For each entry in PATH:
+    //
+    //      1) Prepend filename with the entry
+    //      2) If the leading character of the result is '.', replace it with CWD.
+    //      3) If the leading character of the resiult is '~', replace it with HOME.
+    //      4) Search for a file with that name.
+    //
+    //  Notes:  At each prepending step if the prefix does not end with '/', add one
+    //          CWD and HOME must be absolute paths or an error is returned
+    
     if (nparams < 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
@@ -138,6 +158,15 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     if (nparams > 1) {
         consoleListener = eu->stack().top(2 - nparams);
     }
+    
+    Value envValue;
+    if (nparams > 2) {
+        envValue = eu->stack().top(3 - nparams);
+    }
+    
+    Mad<Object> env = envValue.asObject();
+    
+    String path = FS::findPath(filename, env);
     
     Mad<Task> task = Mad<Task>::create();
     task->setConsolePrintFunction(eu->consolePrintFunction());
