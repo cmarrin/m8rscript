@@ -17,9 +17,6 @@ class UpValue {
 public:
     ~UpValue() { assert(!_destroyed); _destroyed = true; }
     
-    Mad<UpValue> next() const { return _next; }
-    void setNext(Mad<UpValue> v) { _next = v; }
-    
     bool closed() const { return _closed; }
     void setClosed(bool v) { _closed = v; }
     bool marked() const { return _marked; }
@@ -39,7 +36,6 @@ private:
     bool _marked = true;
     bool _destroyed = false;
     Value _value;
-    Mad<UpValue> _next;
 };
 
 class Closure : public Object {

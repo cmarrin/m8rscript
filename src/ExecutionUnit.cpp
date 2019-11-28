@@ -147,22 +147,6 @@ Value ExecutionUnit::derefId(Atom atom)
     return Value();
 }
 
-void ExecutionUnit::closeUpValues(uint32_t frame)
-{
-    Mad<UpValue> prev;
-    for (Mad<UpValue> upValue = _openUpValues; upValue.valid(); upValue = upValue->next()) {
-        if (upValue->closeIfNeeded(this, frame)) {
-            if (prev.valid()) {
-                prev->setNext(upValue->next());
-            } else {
-                _openUpValues = upValue->next();
-            }
-        } else {
-            prev = upValue;
-        }
-    }
-}
-
 void ExecutionUnit::startExecution(Mad<Program> program)
 {
     if (!program.valid()) {
@@ -196,7 +180,7 @@ void ExecutionUnit::startExecution(Mad<Program> program)
     _numEventListeners = 0;
     _lineno = 0;
 
-    _openUpValues = Mad<UpValue>();
+    _openUpValues.clear();
 }
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
@@ -327,13 +311,14 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
     return stackIndex;
 }
 
-Mad<UpValue> ExecutionUnit::newUpValue(uint32_t stackIndex)
+void ExecutionUnit::closeUpValues(uint32_t frame)
 {
-    Mad<UpValue> upValue = Mad<UpValue>::create(MemoryType::UpValue);
-    upValue->setStackIndex(stackIndex);
-    upValue->setNext(_openUpValues);
-    _openUpValues = upValue;
-    return upValue;
+    auto it = std::remove_if(_openUpValues.begin(), _openUpValues.end(), 
+        [this, frame](const Mad<UpValue>& upValue) {
+            return upValue->closeIfNeeded(this, frame);
+        });
+    
+    _openUpValues.erase(it, _openUpValues.end());
 }
 
 void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope)

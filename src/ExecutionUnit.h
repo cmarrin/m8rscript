@@ -128,7 +128,7 @@ public:
     void stopEventListening() { _numEventListeners--; }
 
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
-    Mad<UpValue> newUpValue(uint32_t stackIndex);
+    void addOpenUpValue(const Mad<UpValue> upValue) { _openUpValues.push_back(upValue); }
     
     Mad<Object> currentFunction() const { return _function; }
     
@@ -264,7 +264,7 @@ private:
     
     uint32_t _lineno = 0;
     
-    Mad<UpValue> _openUpValues;
+    Vector<Mad<UpValue>> _openUpValues;
     
     std::function<void(const String&)> _consolePrintFunction;
     Value _consoleListener;
