@@ -132,7 +132,7 @@ private:
     PropertyMap _properties;
     Vector<Value> _array;
     bool _isArray = false;
-    bool _arrayNeedsGC;
+    bool _arrayNeedsGC = false;
 };
 
 class ObjectFactory;
