@@ -99,8 +99,10 @@ void MacTCP::init(TCPDelegate* delegate, uint16_t port, IPAddr ip)
             
             int result = select(maxsd + 1, &readfds, NULL, NULL, NULL);
             if (result < 0 && errno != EINTR) {
-                _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "select failed");
-                break;
+                // Select failed, probably because we closed one of the sockets we
+                // were waiting on. Ignore it
+                //_delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "select failed");
+                continue;
             }
             
             if (_server) {
@@ -224,7 +226,8 @@ void MacTCP::disconnect(int16_t connectionId)
         return;
     }
     
-    close(_clientSockets[connectionId]);
+    int socket = _clientSockets[connectionId];
     _clientSockets[connectionId] = 0;
+    close(socket);
     _delegate->TCPevent(this, TCPDelegate::Event::Disconnected, connectionId);
 }
