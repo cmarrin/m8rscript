@@ -128,10 +128,6 @@ void m8r::IPAddr::lookupHostName(const char* name, std::function<void (const cha
 
 void initmdns();
 
-extern "C" {
-    int ets_putc(int);
-}
-
 static m8r::Mad<m8r::TCP> _logTCP;
 
 void setDeviceName(const char*);

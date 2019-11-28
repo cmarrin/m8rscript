@@ -207,6 +207,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		490C1BD92390709C0094A6B4 /* m8rscript.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = m8rscript.cpp; path = ../esp/m8rscript.cpp; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../src/Telnet.h; sourceTree = "<group>"; };
 		491ED38D235392FF00DE0C42 /* spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs.h; path = ../src/spiffs/src/spiffs.h; sourceTree = "<group>"; };
@@ -529,6 +530,7 @@
 				4945DD831D5ACE12006945BC /* core */,
 				497B449E1D469B3200BC1B57 /* app */,
 				497B449F1D469BB000BC1B57 /* Makefile */,
+				490C1BD92390709C0094A6B4 /* m8rscript.cpp */,
 			);
 			name = esp;
 			sourceTree = "<group>";

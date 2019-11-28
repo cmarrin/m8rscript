@@ -45,7 +45,6 @@ int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 
 void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
 void ets_timer_disarm(ETSTimer *a);
 void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
-int ets_putc(int);
 void ets_delay_us(uint32_t);
 void hexdump (const char *desc, uint8_t* addr, size_t len);
 void writeUserData();
@@ -122,7 +121,6 @@ namespace m8r {
 // level 15 will disable ALL interrupts,
 // level 0 will enable ALL interrupts,
 //
-#define xt_rsil(level) (__extension__({uint32_t state; __asm__ __volatile__("rsil %0," __STRINGIFY(level) : "=a" (state)); state;}))
 #define xt_wsr_ps(state)  __asm__ __volatile__("wsr %0,ps; isync" :: "a" (state) : "memory")
 
 #define interrupts() xt_rsil(0)
