@@ -72,7 +72,7 @@ CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t npara
     if (!thisValue) {
         thisValue = _thisValue;
     }
-    eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams, false);
+    eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

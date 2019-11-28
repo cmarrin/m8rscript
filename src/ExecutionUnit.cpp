@@ -321,7 +321,7 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     _openUpValues.erase(it, _openUpValues.end());
 }
 
-void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope)
+void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams)
 {
     assert(_program.valid());
     assert(function.valid());

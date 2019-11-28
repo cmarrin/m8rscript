@@ -610,7 +610,6 @@ void Parser::functionStart(bool ctor)
     if (_nerrors) return;
     
     Mad<Function> func = Mad<Function>::create();
-    func->setParent(currentFunction());
     _functions.emplace_back(func, ctor);
 }
 

@@ -159,7 +159,7 @@ private:
         return inst.op();
     }
 
-    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams, bool inScope);
+    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue runNextEvent();
 
     void printError(ROMString s, ...) const;

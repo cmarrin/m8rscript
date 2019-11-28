@@ -76,8 +76,6 @@ public:
 
     virtual bool hasUpValues() const override { return !_upValues.empty(); }
     
-    void setParent(Mad<Function> parent) { _parent = parent; }
-
 private:
     struct UpValueEntry {
         UpValueEntry() { }
@@ -105,7 +103,6 @@ private:
     ConstantValueVector _constants;
     uint8_t _tempRegisterCount = 0;
     Atom _name;
-    Mad<Function> _parent;
 };
 
 }
