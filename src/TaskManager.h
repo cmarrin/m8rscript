@@ -44,7 +44,7 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     
-    List<TaskBase, Time> _list;
+    OrderedList<TaskBase, Time> _list;
     bool _eventPosted = false;
 };
 

@@ -21,7 +21,7 @@ namespace m8r {
 class ExecutionUnit;
 class String;
 
-class TaskBase : public List<TaskBase, Time>::Item {
+class TaskBase : public OrderedList<TaskBase, Time>::Item {
     friend class TaskManager;
     
 public:

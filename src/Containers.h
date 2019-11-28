@@ -21,16 +21,16 @@
 namespace m8r {
 
 //
-//  Class: List
+//  Class: OrderedList
 //
-//  Singly linked list of ListItems
+//  Singly linked list of ListItems, ordered by Key
 //
 
 template<typename T, typename Key>
-class List {
+class OrderedList {
 public:
     class Item {
-        friend List;
+        friend OrderedList;
 
     public:
         const Key& key() const { return _key; }
@@ -53,8 +53,8 @@ public:
         IT* _value;
     };
     
-    using iterator = Iterator<List>;
-    using const_iterator = Iterator<const List>;
+    using iterator = Iterator<OrderedList>;
+    using const_iterator = Iterator<const OrderedList>;
     
     iterator begin() { return iterator(_head); }
     const_iterator begin() const { return const_iterator(_head); }
