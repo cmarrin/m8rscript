@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "FS.h"
+#include "MFS.h"
 
 #include "Containers.h"
 #include "spiffs.h"

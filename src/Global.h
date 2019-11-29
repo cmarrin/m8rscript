@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Base64.h"
-#include "FS.h"
+#include "MFS.h"
 #include "GPIO.h"
 #include "Iterator.h"
 #include "JSON.h"
