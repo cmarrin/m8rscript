@@ -141,7 +141,7 @@ MKESPARD_VERSION = 1.0.0
 
 START_TIME := $(shell perl -e "print time();")
 # Main output definitions
-MAIN_EXE = $(BUILD_BASE)/$(MAIN_NAME).bin
+MAIN_BIN = $(BUILD_BASE)/$(MAIN_NAME).bin
 MAIN_ELF = $(OBJ_DIR)/$(MAIN_NAME).elf
 SRC_GIT_VERSION = $(call git_description,$(dir .))
 
@@ -282,8 +282,8 @@ $(CORE_LIB): $(CORE_OBJ) $(SPIFFS_OBJ) $(GDB_OBJ)
 BUILD_DATE = $(call time_string,"%Y-%m-%d")
 BUILD_TIME = $(call time_string,"%H:%M:%S")
 
-$(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
-	echo Linking $(MAIN_EXE)
+$(MAIN_BIN): $(USER_OBJ) $(CORE_LIB)
+	echo Linking $(MAIN_BIN)
 	echo "  Versions: $(SRC_GIT_VERSION), $(ESP_GIT_VERSION)"
 	echo 	'#include "buildinfo.h"' >$(BUILD_INFO_CPP)
 	echo '_tBuildInfo _BuildInfo = {"$(BUILD_DATE)","$(BUILD_TIME)","$(SRC_GIT_VERSION)","$(ESP_GIT_VERSION)"};' >>$(BUILD_INFO_CPP)
@@ -294,7 +294,7 @@ $(MAIN_EXE): $(USER_OBJ) $(CORE_LIB)
 	perl -e 'print "Build complete. Elapsed time: ", time()-$(START_TIME),  " seconds\n\n"'
 
 upload: all
-	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_EXE)
+	$(ESP_TOOL_BIN) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $(MAIN_BIN)
     
 erase:
 	$(ESP_TOOL_PY) --port $(UPLOAD_PORT) erase_flash
@@ -310,7 +310,7 @@ bootterm:
 
 
 ota: all
-	$(OTA_TOOL) -i $(ESP_ADDR) -p $(ESP_PORT) -a $(ESP_PWD) -f $(MAIN_EXE)
+	$(OTA_TOOL) -i $(ESP_ADDR) -p $(ESP_PORT) -a $(ESP_PWD) -f $(MAIN_BIN)
 
 clean:
 	echo Removing all intermediate build files...
@@ -320,7 +320,7 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 .PHONY: all
-all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_EXE) $(MAIN_ELF)
+all: $(OBJ_DIR) $(BUILD_INFO_H) $(MAIN_BIN) $(MAIN_ELF)
 
 
 # Include all available dependencies
