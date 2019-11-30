@@ -141,7 +141,7 @@ private:
     Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
     Vector<Instruction>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
         
-    void classStart() { _classes.push_back(Mad<MaterObject>::create()); }
+    void classStart() { _classes.push_back(Object::create<MaterObject>()); }
     void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
     Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
         

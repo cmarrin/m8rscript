@@ -204,7 +204,7 @@ CallReturnValue Global::waitForEvent(ExecutionUnit* eu, Value thisValue, uint32_
 CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     MemoryInfo info = Mallocator::shared()->memoryInfo();
-    Mad<Object> obj = Mad<MaterObject>::create();
+    Mad<Object> obj = Object::create<MaterObject>();
     
     uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
     uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
@@ -217,10 +217,10 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     obj->setProperty(eu->program()->atomizeString(ROMSTR("numAllocations")),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
-    Mad<Object> allocationsByType = Mad<MaterObject>::create();
+    Mad<Object> allocationsByType = Object::create<MaterObject>();
     allocationsByType->setArray(true);
     for (int i = 0; i < info.allocationsByType.size(); ++i) {
-        Mad<Object> allocation = Mad<MaterObject>::create();
+        Mad<Object> allocation = Object::create<MaterObject>();
         uint32_t size = info.allocationsByType[i].sizeInBlocks * info.blockSize;
         ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("count")),
@@ -228,7 +228,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("size")),
                          Value(static_cast<int32_t>(size)), Value::SetPropertyType::AlwaysAdd);
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("type")),
-                         Value(Mad<String>::create(type)), Value::SetPropertyType::AlwaysAdd);
+                         Value(String::create(type)), Value::SetPropertyType::AlwaysAdd);
 
         allocationsByType->setElement(eu, Value(0), Value(allocation), true);
     }

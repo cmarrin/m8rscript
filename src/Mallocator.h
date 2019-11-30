@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Defines.h"
-#include "GC.h"
 #include <cstdlib>
 #include <cstdint>
 #include <typeinfo>
@@ -60,7 +59,6 @@ namespace m8r {
 
 class NativeObject;
 class Object;
-class String;
 
 #ifndef NDEBUG
 #define MEMORY_PTR
@@ -151,9 +149,6 @@ public:
     
     static Mad<T> create(uint16_t n) { static_assert(assert_false<T>::value, "Must specialize this function"); return Mad<T>(); }
     static Mad<T> create() { return create(T::memoryType(), 1); }
-    static Mad<String> create(const String& s);
-    static Mad<String> create(String&& s);
-    static Mad<String> create(const char*, int32_t length = -1);
 
 private:
     RawMad _raw = NoRawMad;
@@ -235,7 +230,7 @@ private:
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
 #ifdef MEMORY_HEADER
-    void showAllocationRecord() const;
+    void showAllocationRecord() const { }
 #define MEMORY_HEADER_ASSERT(expr) assert(expr)
 #else
     void showAllocationRecord() const { }

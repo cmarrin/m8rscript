@@ -10,6 +10,7 @@
 #include "Task.h"
 
 #include "Application.h"
+#include "GC.h"
 #include "MStream.h"
 
 #ifndef NO_PARSER_SUPPORT

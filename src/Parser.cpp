@@ -11,6 +11,7 @@
 
 #include "ParseEngine.h"
 #include "ExecutionUnit.h"
+#include "GC.h"
 #include <limits>
 
 using namespace m8r;
@@ -19,7 +20,7 @@ uint32_t Parser::_nextLabelId = 1;
 
 Parser::Parser(Mad<Program> program)
     : _parseStack(this)
-    , _program(program.valid() ? program : Mad<Program>::create())
+    , _program(program.valid() ? program : Object::create<Program>())
 {
     // While parsing the program is unprotected. It could get collected.
     // Register it to protect it during the compile
@@ -609,7 +610,7 @@ void Parser::functionStart(bool ctor)
 {
     if (_nerrors) return;
     
-    Mad<Function> func = Mad<Function>::create();
+    Mad<Function> func = Object::create<Function>();
     _functions.emplace_back(func, ctor);
 }
 

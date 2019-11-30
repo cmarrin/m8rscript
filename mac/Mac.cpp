@@ -103,7 +103,7 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
-void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
+void m8r::heapInfo(void*& start, uint32_t& size)
 {
     static void* heap = nullptr;
     if (!heap) {
@@ -111,40 +111,6 @@ void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
     }
     start = heap;
     size = HeapSize;
-}
-
-static std::mutex _gcLockMutex;
-static std::mutex _mallocatorLockMutex;
-static std::mutex _eventLockMutex;
-
-void SystemInterface::gcLock()
-{
-    _gcLockMutex.lock();
-}
-
-void SystemInterface::gcUnlock()
-{
-    _gcLockMutex.unlock();
-}
-
-void SystemInterface::mallocatorLock()
-{
-    _mallocatorLockMutex.lock();
-}
-
-void SystemInterface::mallocatorUnlock()
-{
-    _mallocatorLockMutex.unlock();
-}
-
-void SystemInterface::eventLock()
-{
-    _eventLockMutex.lock();
-}
-
-void SystemInterface::eventUnlock()
-{
-    _eventLockMutex.unlock();
 }
 
 static MacSystemInterface _gSystemInterface;

@@ -57,19 +57,10 @@ public:
     virtual TaskManager* taskManager() = 0;
     virtual Mad<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
     virtual Mad<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
-    
-    static void heapInfo(void*& start, uint32_t& size);
-    
+
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(ROMString, va_list) const = 0;
-
-    static void gcLock();
-    static void gcUnlock();
-    static void mallocatorLock();
-    static void mallocatorUnlock();
-    static void eventLock();
-    static void eventUnlock();
 
     void runLoop();
 

@@ -11,6 +11,7 @@
 
 #include "Closure.h"
 #include "Float.h"
+#include "GC.h"
 #include "MStream.h"
 #include "Parser.h"
 #include "SystemInterface.h"
@@ -185,7 +186,7 @@ void ExecutionUnit::startExecution(Mad<Program> program)
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
-    system()->eventLock();
+    eventLock();
     
     _eventQueue.push_back(func);
     _eventQueue.push_back(thisValue);
@@ -194,7 +195,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
         _eventQueue.push_back(args[i]);
     }
 
-    system()->eventUnlock();
+    eventUnlock();
 }
 
 void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
@@ -203,7 +204,7 @@ void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
     Value listener = program()->property(Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
-        args[0] = Value(Mad<String>::create(data));
+        args[0] = Value(String::create(data));
 
         // Action is an enum, but it is always a 4 character string encoded as a uint32_t.
         // It may have trailing spaces. Convert it to a StringLiteral
@@ -237,7 +238,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     int32_t nargs = 0;
     bool haveEvent = false;
     
-    system()->eventLock();
+    eventLock();
 
     if (!_eventQueue.empty()) {
         assert(_eventQueue.size() >= 3);
@@ -256,7 +257,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
     }
 
-    system()->eventUnlock();
+    eventUnlock();
     
     if (haveEvent) {
         CallReturnValue callReturnValue = func.call(this, Value(), nargs, false);
@@ -399,7 +400,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Contents of import are placed inside the parent Function and then they will
     // be extracted into an Object
-    Mad<Function> parent = Mad<Function>::create();
+    Mad<Function> parent = Object::create<Function>();
     
     Mad<Function> function = parser.parse(stream, this, Parser::Debug::Full, parent);
     if (parser.nerrors()) {
@@ -410,7 +411,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     }
     
     // Get all the contents into a new object
-    Mad<Object> obj = Mad<MaterObject>::create();
+    Mad<Object> obj = Object::create<MaterObject>();
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
@@ -652,12 +653,12 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_LOADLITA:
-        materObjectValue = Mad<MaterObject>::create();
+        materObjectValue = Object::create<MaterObject>();
         materObjectValue->setArray(true);
         setInFrame(inst.ra(), Value(materObjectValue));
         DISPATCH;
     L_LOADLITO:
-        objectValue = Mad<MaterObject>::create();
+        objectValue = Object::create<MaterObject>();
         setInFrame(inst.ra(), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
@@ -773,7 +774,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            Mad<String> string = Mad<String>::create(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            Mad<String> string = String::create(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(inst.ra(), Value(string));
         }
         DISPATCH;
@@ -808,7 +809,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
         DISPATCH;
     L_CLOSURE: {
-        Mad<Closure> closure = Mad<Closure>::create();
+        Mad<Closure> closure = Object::create<Closure>();
         closure->init(this, regOrConst(inst.rb()), _this.valid() ? Value(_this) : Value());
         setInFrame(inst.ra(), Value(static_cast<Mad<Object>>(closure)));
         DISPATCH;

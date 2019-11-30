@@ -100,7 +100,7 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
 }
 
-void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
+void m8r::heapInfo(void*& start, uint32_t& size)
 {
     static void* heap = nullptr;
     if (!heap) {

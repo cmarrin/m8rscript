@@ -9,12 +9,18 @@
 
 #include "MString.h"
 
+#include "GC.h"
 #include "MStream.h"
 #include "Scanner.h"
 #include "SystemInterface.h"
 #include "slre.h"
 
 using namespace m8r;
+
+void String::addToStringStore(RawMad p)
+{
+    GC::addToStore<MemoryType::String>(p);
+}
 
 inline static void reverse(char *str, int len)
 {
@@ -443,7 +449,7 @@ String String::vformat(const char* fmt, va_list args)
             case String::FormatType::Int:
                 return Value(static_cast<int32_t>(va_arg(args, int)));
             case String::FormatType::String:
-                return Value(Mad<String>::create(va_arg(args, const char*)));
+                return Value(String::create(va_arg(args, const char*)));
             case String::FormatType::Float:
                 // TODO: Implement
                 va_arg(args, double);
@@ -466,7 +472,7 @@ String String::vformat(ROMString romfmt, va_list args)
             case String::FormatType::Int:
                 return Value(static_cast<int32_t>(va_arg(args, int)));
             case String::FormatType::String:
-                return Value(Mad<String>::create(va_arg(args, const char*)));
+                return Value(String::create(va_arg(args, const char*)));
             case String::FormatType::Float:
                 // TODO: Implement
                 va_arg(args, double);

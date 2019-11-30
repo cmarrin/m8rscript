@@ -186,15 +186,6 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
     return (c << 32) + m;
 }
 
-// What do we need to do here? ESP is a single threaded machine. The only issue is avoiding system
-// interrupts. But do we need to worry about them interrupting these tasks? For now let's ingore it
-void m8r::SystemInterface::gcLock() { /*noInterrupts();*/ }
-void m8r::SystemInterface::gcUnlock() { /*interrupts();*/ }
-void m8r::SystemInterface::mallocatorLock() { }
-void m8r::SystemInterface::mallocatorUnlock() { }
-void m8r::SystemInterface::eventLock() { }
-void m8r::SystemInterface::eventUnlock() { }
-
 static EspSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
@@ -680,6 +671,12 @@ void m8r::LittleFS::setConfig(lfs_config& config, const char* name)
 
 #endif
 
+void m8r::heapInfo(void*& start, uint32_t& size)
+{
+    start = &_heap_start;
+    size = _heap_end - _heap_start;
+}
+
 extern "C" {
 
 void* RAM_ATTR pvPortMalloc(size_t size, const char* file, int line)
@@ -707,12 +704,6 @@ size_t xPortGetFreeHeapSize(void)
 size_t RAM_ATTR xPortWantedSizeAlign(size_t size)
 {
     return (size + 3) & ~((size_t) 3);
-}
-
-void m8r::SystemInterface::heapInfo(void*& start, uint32_t& size)
-{
-    start = &_heap_start;
-    size = _heap_end - _heap_start;
 }
 
 #ifndef NDEBUG

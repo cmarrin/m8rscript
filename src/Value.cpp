@@ -122,7 +122,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
             case String::FormatType::Int:
                 return Value(eu->stack().top(nextParam++).toIntValue(eu));
             case String::FormatType::String:
-                return Value(Mad<String>::create(eu->stack().top(nextParam++).toStringValue(eu)));
+                return Value(String::create(eu->stack().top(nextParam++).toStringValue(eu)));
             case String::FormatType::Float:
                 return Value(eu->stack().top(nextParam++).toFloatValue(eu));
             case String::FormatType::Ptr: {
@@ -291,18 +291,18 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
             }
             if (prop == Atom(SA::trim)) {
                 s = s.trim();
-                eu->stack().push(Value(Mad<String>::create(s)));
+                eu->stack().push(Value(String::create(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             if (prop == Atom(SA::split)) {
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 Vector<String> array = s.split(separator, skipEmpty);
-                Mad<MaterObject> arrayObject = Mad<MaterObject>::create();
+                Mad<MaterObject> arrayObject = Object::create<MaterObject>();
                 arrayObject->setArray(true);
                 arrayObject->resize(array.size());
                 for (uint16_t i = 0; i < array.size(); ++i) {
-                    (*arrayObject)[i] = Value(Mad<String>::create(array[i]));
+                    (*arrayObject)[i] = Value(String::create(array[i]));
                 }
                 
                 eu->stack().push(Value(Mad<Object>(static_cast<Mad<Object>>(arrayObject))));

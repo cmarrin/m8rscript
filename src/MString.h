@@ -83,6 +83,30 @@ public:
     }
     
     ~String() { _data.destroy(_capacity); _destroyed = true; };
+    
+    static Mad<String> create(const String& other)
+    {
+        Mad<String> s = Mad<String>::create(MemoryType::String);
+        *(s.get()) = other;
+        addToStringStore(s.raw());
+        return s;
+    }
+    
+    static Mad<String> create(String&& other)
+    {
+        Mad<String> s = Mad<String>::create(MemoryType::String);
+        *(s.get()) = other;
+        addToStringStore(s.raw());
+        return s;
+    }
+    
+    static Mad<String> create(const char* str, int32_t length = -1)
+    {
+        Mad<String> s = Mad<String>::create(MemoryType::String);
+        *(s.get()) = String(str, length);
+        addToStringStore(s.raw());
+        return s;
+    }
 
     String& operator=(ROMString other)
     {
@@ -155,6 +179,8 @@ public:
         _size = 2;
         return *this;
     }
+
+    String& operator=(const Mad<String>& other) { *this = *(other.get()); return *this; }
 
     operator bool () { return !empty(); }
     
@@ -277,6 +303,8 @@ private:
         doEnsureCapacity(size);
     }
 
+    static void addToStringStore(RawMad);
+    
     uint16_t _size = 0;
     uint16_t _capacity = 0;
     Mad<char> _data;

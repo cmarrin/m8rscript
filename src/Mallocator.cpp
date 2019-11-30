@@ -9,8 +9,6 @@
 
 #include "Mallocator.h"
 
-#include "SystemInterface.h"
-
 using namespace m8r;
 
 void* operator new(size_t size)
@@ -34,7 +32,7 @@ void Mallocator::init()
     
     void* base;
     uint32_t size;
-    system()->heapInfo(base, size);
+    heapInfo(base, size);
     
     // Limit is one less block, to provide for a NoBlockId value
     if (size < (1024 * 256 - 4)) {
@@ -44,7 +42,8 @@ void Mallocator::init()
     } else if (size < (1024 * 1024 - 16)) {
         _memoryInfo.blockSize = 16;
     } else {
-        system()->printf(ROMSTR("Exceeded maximum heap size of 1MB\n"));
+        // Exceeded maximum heap size of 1MB
+        assert(0);
         return;
     }
     
@@ -120,7 +119,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
     }
     
     if (freeBlock == NoBlockId) {
-        system()->mallocatorUnlock();
+        mallocatorUnlock();
         return NoRawMad;
     }
     
@@ -132,7 +131,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
 
     if (allocatedBlock == NoBlockId) {
-        system()->mallocatorUnlock();
+        mallocatorUnlock();
         return NoBlockId;
     }
     
@@ -159,13 +158,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
     
     checkConsistency();
 
-    system()->mallocatorUnlock();
-    if (type == MemoryType::Object) {
-        GC::addToStore<MemoryType::Object>(allocatedBlock);
-    } else if (type == MemoryType::String) {
-        GC::addToStore<MemoryType::String>(allocatedBlock);
-    }
-        
+    mallocatorUnlock();
     return allocatedBlock;
 }
 
@@ -187,16 +180,10 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
         return;
     }
     
-    system()->mallocatorLock();
+    mallocatorLock();
     checkConsistency();
     assert(type != MemoryType::Unknown);
 
-    if (type == MemoryType::Object) {
-        GC::removeFromStore<MemoryType::Object>(ptr);
-    } else if (type == MemoryType::String) {
-        GC::removeFromStore<MemoryType::String>(ptr);
-    }
-    
     // If this is a fixed block there is a header
     bool addHeader = type == MemoryType::Fixed;
 #ifdef MEMORY_HEADER
@@ -269,7 +256,7 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
         freeBlock = asHeader(freeBlock)->nextBlock;
         assert(freeBlock > prevBlock || freeBlock == NoBlockId);
         if (freeBlock < prevBlock && freeBlock != NoBlockId) {
-            system()->printf(ROMSTR("***** Internal Error: Freeblock loop detected\n"));
+            // Internal Error: Freeblock loop detected
             abort();
         }
     }
@@ -321,7 +308,7 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
     _memoryInfo.allocationsByType[index].sizeInBlocks -= blocksToFree;
     checkConsistency();
 
-    system()->mallocatorUnlock();
+    mallocatorUnlock();
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)
@@ -367,49 +354,7 @@ void Mallocator::checkConsistencyHelper()
 }
 #endif
 
-#ifdef MEMORY_HEADER
-void Mallocator::showAllocationRecord() const
-{
-    for (BlockId block = _firstAllocatedBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
-        const Header* header = asHeader(block);
-        if (header->memoryType != MemoryType::Vector) {
-            continue;
-        }
-        int32_t size = static_cast<int32_t>(header->sizeInBlocks) * _memoryInfo.blockSize;
-        system()->printf(ROMSTR("%15s (%d) size=%8d bytes, %8d elements of type %s\n"),
-                         stringFromMemoryType(header->memoryType).value(),
-                         static_cast<int32_t>(block),
-                         static_cast<int32_t>(size),
-                         static_cast<int32_t>(header->nElements),
-                         header->name ?: "*** unknown ***");
-    }
-
-}
-#endif
-
 // GCC requires the specializations to be in an explicit namespace
 namespace m8r {
-
-template<>
-Mad<String> Mad<String>::create(const char* s, int32_t length)
-{
-    Mad<String> obj = Mallocator::shared()->allocate<String>(MemoryType::String, 1);
-    new(obj.get()) String(s, length);
-    return obj;
-}
-
-template<>
-Mad<String> Mad<String>::create(const String& s)
-{
-    return create(s.c_str());
-}
-
-template<>
-Mad<String> Mad<String>::create(String&& s)
-{
-    Mad<String> str = Mad<String>::create();
-    *(str.get()) = s;
-    return str;
-}
 
 }

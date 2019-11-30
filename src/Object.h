@@ -28,8 +28,6 @@ using PropertyMap = Map<Atom, Value>;
 
 class Object {    
 public:
-    static MemoryType memoryType() { return MemoryType::Object; }
-    
     Object()
         :  _marked(true)
         , _hasGet(false)
@@ -39,6 +37,9 @@ public:
     virtual ~Object() { _isDestroyed = true; }
     
     void operator delete(void* p, std::size_t sz);
+    
+    template<typename T>
+    static Mad<T> create() { Mad<T> obj = Mad<T>::create(MemoryType::Object); addToObjectStore(obj.raw()); return obj; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
     
@@ -89,6 +90,8 @@ protected:
     
     void setHasGet(bool b) { _hasGet = b; }
     void setHasSet(bool b) { _hasSet = b; }
+    
+    static void addToObjectStore(RawMad);
     
 private:
     Value _proto;

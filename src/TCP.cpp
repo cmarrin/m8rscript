@@ -144,7 +144,7 @@ void MyTCPDelegate::TCPevent(TCP* tcp, Event event, int16_t connectionId, const 
     args[2] = Value(static_cast<int32_t>(connectionId));
     
     if (data) {
-        Mad<String> dataString = Mad<String>::create(data, length);
+        Mad<String> dataString = String::create(data, length);
         
         args[3] = Value(dataString);
         args[4] = Value(static_cast<int32_t>(length));

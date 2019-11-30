@@ -11,6 +11,7 @@
 
 #include "ExecutionUnit.h"
 #include "Function.h"
+#include "GC.h"
 #include "MStream.h"
 #include "Program.h"
 #include "SystemInterface.h"
@@ -29,9 +30,14 @@ void Object::operator delete(void* p, std::size_t sz)
     mad.destroy(static_cast<uint16_t>(sz));
 }
 
+void Object::addToObjectStore(RawMad obj)
+{
+    GC::addToStore<MemoryType::Object>(obj);
+}
+
 CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_t nparams)
 {
-    Mad<MaterObject> obj = Mad<MaterObject>::create();
+    Mad<MaterObject> obj = create<MaterObject>();
     Value objectValue(obj);
     obj->setProto(proto);
     
@@ -228,7 +234,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
                 s += it.toStringValue(eu);
             }
             
-            eu->stack().push(Value(Mad<String>::create(s)));
+            eu->stack().push(Value(String::create(s)));
             return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
         }
         
@@ -295,7 +301,7 @@ CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t n
 ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
-    _obj = Mad<MaterObject>::create();
+    _obj = Object::create<MaterObject>();
     
     Atom name = Atom(sa);
     if (name) {

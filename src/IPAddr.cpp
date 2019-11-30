@@ -11,6 +11,7 @@
 
 #include "Defines.h"
 #include "ExecutionUnit.h"
+#include "GC.h"
 #include "Program.h"
 
 using namespace m8r;
@@ -104,7 +105,7 @@ CallReturnValue IPAddrProto::toString(ExecutionUnit* eu, Value thisValue, uint32
     ipAddr[2] = thisValue.element(eu, Value(2)).toIntValue(eu);
     ipAddr[3] = thisValue.element(eu, Value(3)).toIntValue(eu);
     
-    Mad<String> string = Mad<String>::create(ipAddr.toString());
+    Mad<String> string = String::create(ipAddr.toString());
     eu->stack().push(Value(string));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
@@ -133,7 +134,7 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
         obj->setElement(eu, Value(3), Value(ipaddr[3]), true);
 
         Value args[2];
-        args[0] = Value(Mad<String>::create(name));
+        args[0] = Value(String::create(name));
         args[1] = Value(obj);
         
         eu->fireEvent(funcValue, Value(thisObject), args, 2);

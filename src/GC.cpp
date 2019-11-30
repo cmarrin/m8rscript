@@ -36,14 +36,14 @@ void GC::gc(bool force)
     force = true;
     
     inGC = true;
-    system()->gcLock();
+    gcLock();
     bool didFullCycle = gcState == GCState::ClearMarkedObj;
     while (1) {
         switch(gcState) {
             case GCState::ClearMarkedObj:
                 if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
                     inGC = false;
-                    system()->gcUnlock();
+                    gcUnlock();
                     return;
                 }
                 for (RawMad& it : _objectStore) {
@@ -100,7 +100,7 @@ void GC::gc(bool force)
                 
                 if (!force || didFullCycle) {
                     inGC = false;
-                    system()->gcUnlock();
+                    gcUnlock();
                     return;
                 }
                 didFullCycle = true;
@@ -113,7 +113,7 @@ void GC::gc(bool force)
         }
     }
     inGC = false;
-    system()->gcUnlock();
+    gcUnlock();
 }
 
 namespace m8r {

@@ -150,7 +150,6 @@ private:
             if (_terminate) {
                 return Op::END;
             }
-            GC::gc();
             if (checkCounter == 0) {
                 return Op::YIELD;
             }

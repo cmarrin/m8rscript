@@ -1197,7 +1197,7 @@ void umm_init( void ) {
   /* init heap pointer and size, and memset it to 0 */
     void* heapStart;
     uint32_t heapSize;
-    m8r::system()->heapInfo(heapStart, heapSize);
+    m8r::heapInfo(heapStart, heapSize);
   umm_heap = reinterpret_cast<umm_block*>(heapStart);
   umm_numblocks = (heapSize / sizeof(umm_block));
   memset(umm_heap, 0x00, heapSize);
