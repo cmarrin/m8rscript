@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-#include <osapi.h>
 #include <ets_sys.h>
 
 // Hardware random number generator
@@ -46,7 +45,6 @@ void ets_timer_arm_new(ETSTimer *a, int b, int c, int isMstimer);
 void ets_timer_disarm(ETSTimer *a);
 void ets_timer_setfn(ETSTimer *t, ETSTimerFunc *fn, void *parg);
 void ets_delay_us(uint32_t);
-void hexdump (const char *desc, uint8_t* addr, size_t len);
 void writeUserData();
 void setDeviceName(const char* name);
 
@@ -132,3 +130,6 @@ extern char _heap_start;
 extern char _heap_end;
 #define HeapStart  &_heap_start
 #define HeapSize   (&_heap_end - &_heap_start)
+
+void do_global_ctors(void);
+

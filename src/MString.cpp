@@ -312,6 +312,57 @@ bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
     return false;
 }
 
+static inline char nibbleToHexChar(uint8_t b, bool upperCase)
+{
+    char base = upperCase ? 'A' : 'a';
+    return (b >= 10) ? (b - 10 + base) : (b + '0');
+}
+
+static void toInteger(char* result, bool zeroFill, int32_t width, char type, uint32_t number)
+{
+    bool sign = false;
+    if (type == 'i' || type == 'd') {
+        int32_t signedNumber = static_cast<int32_t>(number);
+        if (signedNumber < 0) {
+            sign = true;
+            number = static_cast<uint32_t>(-signedNumber);
+        }
+    }
+    
+    bool hex = type == 'x' || type == 'X';
+    
+    char buf[20];
+    buf[19] = '\0';
+    char* p = buf + 19;
+    if (number == 0) {
+        *--p = '0';
+        --width;
+    } else {
+        while (number) {
+            if (hex) {
+                *--p = nibbleToHexChar(number & 0x0f, type == 'X');
+                number /= 16;
+            } else {
+                *--p = (number % 10) + '0';
+                number /= 10;
+            }
+            --width;
+        }
+    }
+    
+    while (width-- > 0) {
+        *--p = zeroFill ? '0' : ' ';
+        if (p == buf) {
+            break;
+        }
+    }
+    
+    if (sign) {
+        *--p = '-';
+    }
+    strcpy(result, p);
+}
+
 String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
 {
     if (!fmt || fmt[0] == '\0') {
@@ -353,10 +404,10 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
         // FIXME: handle the leading number(s) in the format
         assert(caps[4].len == 1);
         
-        uint32_t width = 0;
+        int32_t width = 0;
         bool zeroFill = false;
         if (caps[1].len) {
-            String::toUInt(width, caps[1].ptr);
+            String::toInt(width, caps[1].ptr);
             if (caps[1].ptr[0] == '0') {
                 zeroFill = true;
             }
@@ -382,10 +433,9 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
                     resultString += '\\';
                     resultString += escapeChar;
                 } else if (uc < ' ') {
-                    char buf[4] = "";
-                    ::snprintf(buf, 3, "%02x", uc);
                     resultString += "\\x";
-                    resultString += buf;
+                    resultString += nibbleToHexChar(uc >> 4, false);
+                    resultString += nibbleToHexChar(uc & 0x0f, false);
                 } else {
                     resultString += static_cast<char>(uc);
                 }
@@ -399,26 +449,8 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
             case 'x':
             case 'X':
             case 'u': {
-                String format = String("%") + (zeroFill ? "0" : "") + (width ? String::toString(width).c_str() : "");
-                char numberBuf[20] = "";
-                
-                switch(formatChar) {
-                    case 'd':
-                    case 'i':
-                        format += "d";
-                        ::snprintf(numberBuf, 20, format.c_str(), func(FormatType::Int).asIntValue());
-                        break;
-                    case 'x':
-                    case 'X':
-                        format += (formatChar == 'x') ? "x" : "X";
-                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
-                        break;
-                    case 'u':
-                        format += "u";
-                        ::snprintf(numberBuf, 20, format.c_str(), static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
-                        break;
-                }
-                
+                char numberBuf[20];
+                toInteger(numberBuf, zeroFill, width, formatChar, static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
                 resultString += numberBuf;
                 break;
             }
