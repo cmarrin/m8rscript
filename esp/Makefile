@@ -40,7 +40,6 @@ SRC ?=  ../src/Application.cpp \
 		../src/Containers.cpp \
 		../src/Error.cpp \
 		../src/ExecutionUnit.cpp \
-		../src/FS.cpp \
 		../src/Function.cpp \
 		../src/GC.cpp \
 		../src/Global.cpp \
@@ -50,6 +49,7 @@ SRC ?=  ../src/Application.cpp \
 		../src/Iterator.cpp \
 		../src/JSON.cpp \
 		../src/Object.cpp \
+		../src/MFS.cpp \
 		../src/Mallocator.cpp \
 		../src/MString.cpp \
 		../src/Program.cpp \
