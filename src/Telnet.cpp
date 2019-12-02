@@ -15,7 +15,7 @@ using namespace m8r;
 
 //StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable({ { { '\x01', '\xff'}, State::Ready } });
 
-StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry Telnet::_stateEntries[ ] = {
+StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry RODATA_ATTR Telnet::_stateEntries[ ] = {
     { State::Ready,
         {
               { '\x7f', State::Backspace }
