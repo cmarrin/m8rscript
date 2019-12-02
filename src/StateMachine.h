@@ -54,36 +54,21 @@ namespace m8r {
                 , _jumpState(jumpState)
             { }
             
+            State _state = State();
             Action _action = Action();
             NextStates _nextStates;
             State _jumpState = State();
-            State _state = State();
         };
         
-        StateTable() { }
-        StateTable(const NextStates& nextStates) : _commonNextStates(nextStates) { }
+        StateTable(StateEntry* states, uint32_t numStates) : _states(states), _numStates(numStates) { }
+        StateTable(StateEntry* states, uint32_t numStates, const NextStates& nextStates) : _states(states), _numStates(numStates), _commonNextStates(nextStates) { }
         
-        bool empty() const { return _states.empty(); }
-        
-        void addState(State state, Action action, const NextStates& nextStates)
-        {
-            _states.emplace_back(state, action, nextStates);
-        }
-        
-        void addState(State state, const NextStates& nextStates)
-        {
-            _states.emplace_back(state, nextStates);
-        }
-        
-        void addState(State state, State jumpState, Action action = nullptr)
-        {
-            _states.emplace_back(state, jumpState, action);
-        }
+        bool empty() const { return _numStates == 0; }
         
         void nextState(State state, State& next, T* owner)
         {
             auto it = findState(state);
-            if (it != _states.end()) {
+            if (it != _states + _numStates) {
                 next = state;
                 
                 if (it->_action) {
@@ -100,7 +85,7 @@ namespace m8r {
         {
             // Check next states for currentState
             auto it = findState(currentState);
-            if (it == _states.end()) {
+            if (it == _states + _numStates) {
                 return false;
             }
 
@@ -129,10 +114,11 @@ namespace m8r {
         
         typename StateVector::const_iterator findState(State state)
         {
-            return std::find_if(_states.begin(), _states.end(), [state](const StateEntry& entry) { return entry._state == state; });
+            return std::find_if(_states, _states + _numStates, [state](const StateEntry& entry) { return entry._state == state; });
         }
         
-        StateVector _states;
+        StateEntry* _states = nullptr;
+        uint32_t _numStates = 0;
         NextStates _commonNextStates;
     };
 
@@ -158,7 +144,7 @@ namespace m8r {
         
     private:
         T* _owner = nullptr;
-        StateTable<T, State, Input>* _table = nullptr;
+        StateTable<T, State, Input>* _table;
         State _currentState = static_cast<State>(0);
     };
 
