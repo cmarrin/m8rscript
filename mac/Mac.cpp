@@ -105,10 +105,7 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
 
 void m8r::heapInfo(void*& start, uint32_t& size)
 {
-    static void* heap = nullptr;
-    if (!heap) {
-        heap = ::malloc(HeapSize);
-    }
+    static char heap[HeapSize];
     start = heap;
     size = HeapSize;
 }
