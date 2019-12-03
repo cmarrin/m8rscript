@@ -140,7 +140,8 @@ private:
     Mad<Function> functionEnd();
     Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
     Vector<Instruction>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
-        
+    Vector<Value>& currentConstants() { assert(_functions.size()); return _functions.back()._constants; }
+
     void classStart() { _classes.push_back(Object::create<MaterObject>()); }
     void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
     Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
@@ -196,6 +197,8 @@ private:
     void retireToken() { _scanner.retireToken(); }
     
     void addCode(Instruction);
+    ConstantId addConstant(const Value& v);
+
     
     // Parse Stack manipulation and code generation
     
@@ -268,6 +271,7 @@ private:
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
         Mad<Function> _function;
         Vector<Instruction> _code;
+        Vector<Value> _constants;
         uint32_t _nextReg = 255;
         uint32_t _minReg = 256;
         bool _ctor = false;

@@ -15,8 +15,6 @@ using namespace m8r;
 
 Function::Function()
 {
-    // Place a dummy constant at index 0 as an error return value
-    _constants.push_back(Value());
 }
 
 CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -61,21 +59,6 @@ int32_t Function::localIndex(const Atom& name) const
         }
     }
     return -1;
-}
-
-ConstantId Function::addConstant(const Value& v)
-{
-    assert(_constants.size() < std::numeric_limits<uint8_t>::max());
-    
-    for (ConstantId::value_type id = 0; id < _constants.size(); ++id) {
-        if (_constants[id] == v) {
-            return ConstantId(id);
-        }
-    }
-    
-    ConstantId r(static_cast<ConstantId::value_type>(_constants.size()));
-    _constants.push_back(v);
-    return r;
 }
 
 uint32_t Function::addUpValue(uint32_t index, uint16_t frame, Atom name)

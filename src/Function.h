@@ -47,9 +47,9 @@ public:
     virtual uint32_t localSize() const override { return static_cast<uint32_t>(_locals.size()) + _tempRegisterCount; }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
-    
-    ConstantId addConstant(const Value&);
-        
+
+    void setConstants(const Vector<Value>& constants) { bool retval = _constants.assign(constants); (void) retval; assert(retval); }
+
     virtual const ConstantValueVector*  constants() const override { return &_constants; }
     
     void setName(const Atom s) { _name = s; }
