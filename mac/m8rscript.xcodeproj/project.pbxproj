@@ -206,7 +206,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		490C1BD92390709C0094A6B4 /* m8rscript.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = m8rscript.ino; path = ../../../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
+		490C1BD92390709C0094A6B4 /* m8rscript.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../src/LittleFS.cpp; sourceTree = "<group>"; };
 		490C1BDB239185CB0094A6B4 /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
 		490C1BDC239185CB0094A6B4 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../src/LittleFS.h; sourceTree = "<group>"; };
