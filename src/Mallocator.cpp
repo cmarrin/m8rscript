@@ -11,9 +11,33 @@
 
 using namespace m8r;
 
+void *malloc(size_t size)
+{
+    return Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
+}
+
+void free(void *ptr)
+{
+    Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(ptr)), 0);
+}
+
+void *calloc(size_t nmemb, size_t size)
+{
+    char* ptr = Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
+    memset(ptr, 0, size);
+    return ptr;
+}
+
+void *realloc(void *ptr, size_t size)
+{
+    char* newptr = Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
+    memcpy(newptr, ptr, size);
+    free(ptr);
+    return newptr;
+}
+
 void* operator new(size_t size)
 {
-    Mallocator::shared()->init();
     return Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
 }
 
