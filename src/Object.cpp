@@ -213,6 +213,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
             }
             
             Vector<Value> vec;
+            vec.reserve(nparams);
             for (int32_t i = 1 - nparams; i <= 0; ++i) {
                 vec.push_back(eu->stack().top(i));
             }
