@@ -13,13 +13,10 @@
 
 using namespace m8r;
 
-StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable({ { { '\x01', '\xff'}, State::Ready } });
+//StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable({ { { '\x01', '\xff'}, State::Ready } });
 
-Telnet::Telnet()
-    : _stateMachine(this, &_stateTable)
-{
-    if (_stateTable.empty()) {
-        _stateTable.addState(State::Ready,
+StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry RODATA_ATTR Telnet::_stateEntries[ ] = {
+    { State::Ready,
         {
               { '\x7f', State::Backspace }
             , { { ' ', '\x7e' }, State::AddChar }
@@ -28,48 +25,49 @@ Telnet::Telnet()
             , { '\r', State::SendLine }
             , { '\e', State::CSI }
             , { '\xff', State::IAC }
-        });
-        
-        _stateTable.addState(State::Backspace, State::Ready, [](Telnet* telnet) { telnet->handleBackspace(); });
-        _stateTable.addState(State::AddChar, State::Ready, [](Telnet* telnet) { telnet->handleAddChar(); });
-        _stateTable.addState(State::Interrupt, State::Ready, [](Telnet* telnet) { telnet->handleInterrupt(); });
-        _stateTable.addState(State::SendLine, State::Ready, [](Telnet* telnet) { telnet->handleSendLine(); });
-
-        // CSI
-        _stateTable.addState(State::CSI,
+        }
+    },
+    { State::Backspace, State::Ready, [](Telnet* telnet) { telnet->handleBackspace(); } },
+    { State::AddChar, State::Ready, [](Telnet* telnet) { telnet->handleAddChar(); } },
+    { State::Interrupt, State::Ready, [](Telnet* telnet) { telnet->handleInterrupt(); } },
+    { State::SendLine, State::Ready, [](Telnet* telnet) { telnet->handleSendLine(); } },
+    { State::CSI,
         {
-             { '[', State::CSIBracket }
-        });
-
-        _stateTable.addState(State::CSIBracket,
+            { '[', State::CSIBracket }
+        }
+    },
+    { State::CSIBracket,
         {
               { { '\x30', '\x3f' }, State::CSIParam }
             , { { '\x40', '\x7e' }, State::CSICommand }
-        });
-
-        _stateTable.addState(State::CSIParam, [](Telnet* telnet) { telnet->_csiParam = telnet->_currentChar; },
+        }
+    },
+    { State::CSIParam, [](Telnet* telnet) { telnet->_csiParam = telnet->_currentChar; },
         {
-               { { '\x40', '\x7e' }, State::CSICommand }
-        });
-
-        _stateTable.addState(State::CSICommand, State::Ready, [](Telnet* telnet) { telnet->handleCSICommand(); });
-
-        // IAC
-        _stateTable.addState(State::IAC,
+              { { '\x40', '\x7e' }, State::CSICommand }
+        }
+    },
+    { State::CSICommand, State::Ready, [](Telnet* telnet) { telnet->_csiParam = telnet->_currentChar; } },
+    { State::IAC,
         {
-             { { '\xf0', '\xfe' }, State::IACVerb }
-           , { '\xff', State::AddFF }
-        });
-
-        _stateTable.addState(State::AddFF, State::Ready, [](Telnet* telnet) { telnet->handleAddFF(); });
-
-        _stateTable.addState(State::IACVerb,
+                { { '\xf0', '\xfe' }, State::IACVerb }
+              , { '\xff', State::AddFF }
+        }
+    },
+    { State::AddFF, State::Ready, [](Telnet* telnet) { telnet->handleAddFF(); } },
+    { State::IACVerb,
         {
               { { '\x01', '\x7e' }, State::IACCommand }
-        });
+        }
+    },
+    { State::IACCommand, State::Ready, [](Telnet* telnet) { telnet->handleIACCommand(); } },
+};
 
-        _stateTable.addState(State::IACCommand, State::Ready, [](Telnet* telnet) { telnet->handleIACCommand(); });
-    }
+StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable(_stateEntries, sizeof(_stateEntries) / sizeof(StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry));
+
+Telnet::Telnet()
+    : _stateMachine(this, &_stateTable)
+{
 }
 
 void Telnet::handleBackspace()

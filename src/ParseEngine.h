@@ -42,12 +42,15 @@ private:
     struct OpInfo {
         static const uint8_t LeftAssoc = 0;
         static const uint8_t RightAssoc = 1;
+        
+        bool operator==(const Token& t) { return t == token; }
+        Token token;
         uint8_t prec : 6;
         uint8_t assoc : 1;
         uint8_t sto : 1;
         Op op;
     };
-        
+
     bool expect(Token token);
     bool expect(Token token, bool expected, const char* = nullptr);
     
@@ -93,7 +96,8 @@ private:
         int operator()(const Token& lhs, const Token& rhs) const { return static_cast<int>(lhs) - static_cast<int>(rhs); }
     };
 
-    static Map<Token, OpInfo, CompareTokens> _opInfo;
+    static OpInfo _opInfos[ ];
+
 };
 
 }

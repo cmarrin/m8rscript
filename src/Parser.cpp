@@ -43,6 +43,10 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
         parent = _program;
     }
     _functions.emplace_back(parent, false);
+    
+    // Place a dummy constant at index 0 as an error return value
+    currentConstants().push_back(Value());
+    
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;
@@ -195,11 +199,26 @@ void Parser::addCode(Instruction inst)
     }
 }
 
+ConstantId Parser::addConstant(const Value& v)
+{
+    assert(currentConstants().size() < std::numeric_limits<uint8_t>::max());
+    
+    for (ConstantId::value_type id = 0; id < currentConstants().size(); ++id) {
+        if (currentConstants()[id] == v) {
+            return ConstantId(id);
+        }
+    }
+    
+    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size()));
+    currentConstants().push_back(v);
+    return r;
+}
+
 void Parser::pushK(StringLiteral::Raw s)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(Value(StringLiteral(s)));
+    ConstantId id = addConstant(Value(StringLiteral(s)));
     _parseStack.pushConstant(id.raw());
 }
 
@@ -207,7 +226,7 @@ void Parser::pushK(const char* s)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(Value(_program->addStringLiteral(s)));
+    ConstantId id = addConstant(Value(_program->addStringLiteral(s)));
     _parseStack.pushConstant(id.raw());
 }
 
@@ -215,7 +234,7 @@ void Parser::pushK(const Value& value)
 {
     if (_nerrors) return;
     
-    ConstantId id = currentFunction()->addConstant(value);
+    ConstantId id = addConstant(value);
     _parseStack.pushConstant(id.raw());
 }
 
@@ -230,7 +249,7 @@ void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
     emitMove();
     discardResult();
 
-    currentFunction()->addConstant(Value(func));
+    addConstant(Value(func));
     func->setName(name);
 }
 
@@ -259,9 +278,8 @@ void Parser::emitId(const Atom& atom, IdType type)
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
-        Function* f = currentFunction().get();
-        for (uint32_t i = 0; i < f->constants()->size(); ++i) {
-            Mad<Object> func = f->constants()->at(ConstantId(i).raw()).asObject();
+        for (uint32_t i = 0; i < currentConstants().size(); ++i) {
+            Mad<Object> func = currentConstants().at(ConstantId(i).raw()).asObject();
             if (func.valid()) {
                 if (func->name() == atom) {
                     _parseStack.pushConstant(i);
@@ -305,7 +323,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         return;
     }
     
-    ConstantId id = currentFunction()->addConstant(Value(atom));
+    ConstantId id = addConstant(Value(atom));
     _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw());
 }
 
@@ -612,6 +630,9 @@ void Parser::functionStart(bool ctor)
     
     Mad<Function> func = Object::create<Function>();
     _functions.emplace_back(func, ctor);
+    
+    // Place a dummy constant at index 0 as an error return value
+    currentConstants().push_back(Value());
 }
 
 void Parser::functionParamsEnd()
@@ -642,8 +663,9 @@ Mad<Function> Parser::functionEnd()
     reconcileRegisters(function);
     function->setTempRegisterCount(tempRegisterCount);
         
-    // Place the current code in this function
+    // Place the current code and constants in this function
     function->setCode(currentCode());
+    function->setConstants(currentConstants());
     
     _functions.pop_back();
 
@@ -781,7 +803,7 @@ uint32_t Parser::ParseStack::bake()
         }
         case Type::Constant: {
             uint32_t r = entry._reg;
-            Value v = _parser->currentFunction()->constants()->at(ConstantId(r - MaxRegister - 1).raw());
+            Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
             Mad<Object> obj = v.asObject();
             Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
             if (func.valid()) {

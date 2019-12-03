@@ -229,8 +229,14 @@ private:
 
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
+    // We only want to showAllocationRecord on Mac
 #ifdef MEMORY_HEADER
-    void showAllocationRecord() const { }
+    void showAllocationRecord() const
+#ifdef __APPLE__
+    ;
+#else
+    { }
+#endif
 #define MEMORY_HEADER_ASSERT(expr) assert(expr)
 #else
     void showAllocationRecord() const { }

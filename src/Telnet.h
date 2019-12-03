@@ -113,6 +113,43 @@ public:
         SLE     = 45,   // (0x2d) suppress local echo
     };
     
+    enum class State : uint8_t {
+        Ready, Interrupt, Backspace, AddChar, AddFF, SendLine,
+        IAC, IACVerb, IACCommand,
+        CSI, CSIBracket, CSIParam, CSICommand,
+    };
+    
+    struct Input {
+        Input() { }
+        Input(char a) : _a(a), _b(a) { }
+        Input(char a, char b)
+        {
+            if (a < b) {
+                _a = a;
+                _b = b;
+            } else {
+                _a = b;
+                _b = a;
+            }
+        }
+    
+        bool operator==(const Input& other) const
+        {
+            // a----------b              a-------b
+            //      A----------B    A-------B
+            //
+            // a------------b       a------b
+            //    A------B      A--------------B
+            //
+            // a-------b                           a-------b
+            //           A-------B     A--------B
+            return !(_b < other._a || _a > other._b);
+        }
+
+        char _a = 0;
+        char _b = 0;
+    };
+
     Telnet();
     
     template<typename T>
@@ -148,9 +185,6 @@ public:
     
     String sendCommand(Action);
 
-private:
-    String makeInputLine();
-    
     void handleBackspace();
     void handleAddChar();
     void handleAddFF();
@@ -159,43 +193,9 @@ private:
     void handleIACCommand();
     void handleSendLine();
     
-    enum class State : uint8_t {
-        Ready, Interrupt, Backspace, AddChar, AddFF, SendLine, 
-        IAC, IACVerb, IACCommand, 
-        CSI, CSIBracket, CSIParam, CSICommand,
-    };
+private:
+    String makeInputLine();
     
-    struct Input {
-        Input() { }
-        Input(char a) : _a(a), _b(a) { }
-        Input(char a, char b)
-        {
-            if (a < b) {
-                _a = a;
-                _b = b;
-            } else {
-                _a = b;
-                _b = a;
-            }
-        }
-    
-        bool operator==(const Input& other) const
-        {
-            // a----------b              a-------b
-            //      A----------B    A-------B
-            //
-            // a------------b       a------b
-            //    A------B      A--------------B
-            //
-            // a-------b                           a-------b
-            //           A-------B     A--------B
-            return !(_b < other._a || _a > other._b);
-        }
-
-        char _a = 0;
-        char _b = 0;
-    };
-
     enum class Verb { None, DO, DONT, WILL, WONT };
     
     Verb _verb = Verb::None;
@@ -205,8 +205,9 @@ private:
     char _escapeParam = 0;
     
     StateMachine<Telnet, State, Input> _stateMachine;
+    static StateTable<Telnet, State, Input>::StateEntry _stateEntries[ ];
     static StateTable<Telnet, State, Input> _stateTable;
-    
+
     String _toChannel;
     String _toClient;
     char _currentChar = 0;

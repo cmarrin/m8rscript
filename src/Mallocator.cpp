@@ -378,7 +378,24 @@ void Mallocator::checkConsistencyHelper()
 }
 #endif
 
-// GCC requires the specializations to be in an explicit namespace
-namespace m8r {
+#ifdef MEMORY_HEADER
+#ifdef __APPLE__
+void Mallocator::showAllocationRecord() const
+{
+    for (BlockId block = _firstAllocatedBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
+        const Header* header = asHeader(block);
+        if (header->memoryType != MemoryType::Vector) {
+            continue;
+        }
+        int32_t size = static_cast<int32_t>(header->sizeInBlocks) * _memoryInfo.blockSize;
+        printf("%15s (%d) size=%8d bytes, %8d elements of type %s\n",
+                         stringFromMemoryType(header->memoryType).value(),
+                         static_cast<int32_t>(block),
+                         static_cast<int32_t>(size),
+                         static_cast<int32_t>(header->nElements),
+                         header->name ?: "*** unknown ***");
+    }
 
 }
+#endif
+#endif

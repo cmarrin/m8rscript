@@ -11,44 +11,42 @@
 
 using namespace m8r;
 
-Map<Token, ParseEngine::OpInfo, ParseEngine::CompareTokens> ParseEngine::_opInfo;
+ParseEngine::OpInfo RODATA_ATTR ParseEngine::_opInfos[ ] = {
+    { Token::STO,         1,  OpInfo::RightAssoc, false, Op::MOVE },
+    { Token::ADDSTO,      2,  OpInfo::RightAssoc, true,  Op::ADD  },
+    { Token::SUBSTO,      2,  OpInfo::RightAssoc, true,  Op::SUB  },
+    { Token::MULSTO,      3,  OpInfo::RightAssoc, true,  Op::MUL  },
+    { Token::DIVSTO,      3,  OpInfo::RightAssoc, true,  Op::DIV  },
+    { Token::MODSTO,      3,  OpInfo::RightAssoc, true,  Op::MOD  },
+    { Token::SHLSTO,      4,  OpInfo::RightAssoc, true,  Op::SHL  },
+    { Token::SHRSTO,      4,  OpInfo::RightAssoc, true,  Op::SHR  },
+    { Token::SARSTO,      4,  OpInfo::RightAssoc, true,  Op::SAR  },
+    { Token::ANDSTO,      5,  OpInfo::RightAssoc, true,  Op::AND  },
+    { Token::ORSTO,       5,  OpInfo::RightAssoc, true,  Op::OR   },
+    { Token::XORSTO,      5,  OpInfo::RightAssoc, true,  Op::XOR  },
+    { Token::LOR,         6,  OpInfo::LeftAssoc,  false, Op::LOR  },
+    { Token::LAND,        7,  OpInfo::LeftAssoc,  false, Op::LAND },
+    { Token::OR,          8,  OpInfo::LeftAssoc,  false, Op::OR   },
+    { Token::XOR,         9,  OpInfo::LeftAssoc,  false, Op::XOR  },
+    { Token::EQ,          11, OpInfo::LeftAssoc,  false, Op::EQ   },
+    { Token::NE,          11, OpInfo::LeftAssoc,  false, Op::NE   },
+    { Token::LT,          12, OpInfo::LeftAssoc,  false, Op::LT   },
+    { Token::GT,          12, OpInfo::LeftAssoc,  false, Op::GT   },
+    { Token::GE,          12, OpInfo::LeftAssoc,  false, Op::GE   },
+    { Token::LE,          12, OpInfo::LeftAssoc,  false, Op::LE   },
+    { Token::SHL,         13, OpInfo::LeftAssoc,  false, Op::SHL  },
+    { Token::SHR,         13, OpInfo::LeftAssoc,  false, Op::SHR  },
+    { Token::SAR,         13, OpInfo::LeftAssoc,  false, Op::SAR  },
+    { Token::Plus,        14, OpInfo::LeftAssoc,  false, Op::ADD  },
+    { Token::Minus,       14, OpInfo::LeftAssoc,  false, Op::SUB  },
+    { Token::Star,        15, OpInfo::LeftAssoc,  false, Op::MUL  },
+    { Token::Slash,       15, OpInfo::LeftAssoc,  false, Op::DIV  },
+    { Token::Percent,     15, OpInfo::LeftAssoc,  false, Op::MOD  },
+};
 
 ParseEngine::ParseEngine(Parser* parser)
     : _parser(parser)
 {
-    if (!_opInfo.size()) {
-        _opInfo.emplace(Token::STO,         { 1, OpInfo::RightAssoc, false, Op::MOVE });
-        _opInfo.emplace(Token::ADDSTO,      { 2, OpInfo::RightAssoc, true, Op::ADD });
-        _opInfo.emplace(Token::SUBSTO,      { 2, OpInfo::RightAssoc, true, Op::SUB });
-        _opInfo.emplace(Token::MULSTO,      { 3, OpInfo::RightAssoc, true, Op::MUL });
-        _opInfo.emplace(Token::DIVSTO,      { 3, OpInfo::RightAssoc, true, Op::DIV });
-        _opInfo.emplace(Token::MODSTO,      { 3, OpInfo::RightAssoc, true, Op::MOD });
-        _opInfo.emplace(Token::SHLSTO,      { 4, OpInfo::RightAssoc, true, Op::SHL });
-        _opInfo.emplace(Token::SHRSTO,      { 4, OpInfo::RightAssoc, true, Op::SHR });
-        _opInfo.emplace(Token::SARSTO,      { 4, OpInfo::RightAssoc, true, Op::SAR });
-        _opInfo.emplace(Token::ANDSTO,      { 5, OpInfo::RightAssoc, true, Op::AND });
-        _opInfo.emplace(Token::ORSTO,       { 5, OpInfo::RightAssoc, true, Op::OR });
-        _opInfo.emplace(Token::XORSTO,      { 5, OpInfo::RightAssoc, true, Op::XOR });
-        _opInfo.emplace(Token::LOR,         { 6, OpInfo::LeftAssoc, false, Op::LOR });
-        _opInfo.emplace(Token::LAND,        { 7, OpInfo::LeftAssoc, false, Op::LAND });
-        _opInfo.emplace(Token::OR,          { 8, OpInfo::LeftAssoc, false, Op::OR });
-        _opInfo.emplace(Token::XOR,         { 9, OpInfo::LeftAssoc, false, Op::XOR });
-        _opInfo.emplace(Token::Ampersand,   { 10, OpInfo::LeftAssoc, false, Op::AND });
-        _opInfo.emplace(Token::EQ,          { 11, OpInfo::LeftAssoc, false, Op::EQ });
-        _opInfo.emplace(Token::NE,          { 11, OpInfo::LeftAssoc, false, Op::NE });
-        _opInfo.emplace(Token::LT,          { 12, OpInfo::LeftAssoc, false, Op::LT });
-        _opInfo.emplace(Token::GT,          { 12, OpInfo::LeftAssoc, false, Op::GT });
-        _opInfo.emplace(Token::GE,          { 12, OpInfo::LeftAssoc, false, Op::GE });
-        _opInfo.emplace(Token::LE,          { 12, OpInfo::LeftAssoc, false, Op::LE });
-        _opInfo.emplace(Token::SHL,         { 13, OpInfo::LeftAssoc, false, Op::SHL });
-        _opInfo.emplace(Token::SHR,         { 13, OpInfo::LeftAssoc, false, Op::SHR });
-        _opInfo.emplace(Token::SAR,         { 13, OpInfo::LeftAssoc, false, Op::SAR });
-        _opInfo.emplace(Token::Plus,        { 14, OpInfo::LeftAssoc, false, Op::ADD });
-        _opInfo.emplace(Token::Minus,       { 14, OpInfo::LeftAssoc, false, Op::SUB });
-        _opInfo.emplace(Token::Star,        { 15, OpInfo::LeftAssoc, false, Op::MUL });
-        _opInfo.emplace(Token::Slash,       { 15, OpInfo::LeftAssoc, false, Op::DIV });
-        _opInfo.emplace(Token::Percent,     { 15, OpInfo::LeftAssoc, false, Op::MOD });
-    }
 }
 
 bool ParseEngine::expect(Token token)
@@ -629,31 +627,32 @@ bool ParseEngine::expression(uint8_t minPrec)
     }
     
     while(1) {
-        auto it = _opInfo.find(getToken());
-        if (it == _opInfo.end() || it->value.prec < minPrec) {
+        auto endit = _opInfos + sizeof(_opInfos) / sizeof(OpInfo);
+        auto it = std::find(_opInfos, endit, getToken());
+        if (it == endit || it->prec < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (it->value.assoc == OpInfo::LeftAssoc) ? (it->value.prec + 1) : it->value.prec;
+        uint8_t nextMinPrec = (it->assoc == OpInfo::LeftAssoc) ? (it->prec + 1) : it->prec;
         retireToken();
-        if (it->value.sto) {
+        if (it->sto) {
             _parser->emitDup();
         }
     
         // If the op is LAND or LOR we want to short circuit. Add logic
         // here to jump over the next expression if TOS is false in the
         // case of LAND or true in the case of LOR
-        if (it->value.op == Op::LAND || it->value.op == Op::LOR) {
+        if (it->op == Op::LAND || it->op == Op::LOR) {
             _parser->emitDup();
             Label passLabel = _parser->label();
             Label skipLabel = _parser->label();
-            bool skipResult = it->value.op != Op::LAND;
+            bool skipResult = it->op != Op::LAND;
             _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
             
             if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             
-            _parser->emitBinOp(it->value.op);
+            _parser->emitBinOp(it->op);
             _parser->addMatchedJump(Op::JMP, passLabel);
             _parser->matchJump(skipLabel);
             _parser->pushK(Value(skipResult));
@@ -663,10 +662,10 @@ bool ParseEngine::expression(uint8_t minPrec)
             if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
                 return false;
             }
-            _parser->emitBinOp(it->value.op);
+            _parser->emitBinOp(it->op);
         }
         
-        if (it->value.sto) {
+        if (it->sto) {
             _parser->emitMove();
         }
     }
