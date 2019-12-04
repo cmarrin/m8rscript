@@ -356,16 +356,11 @@ public:
         if (call) {
             assert(ra < (1 << 7));
             _rcall = ra;
-            assert(rb < (1 << 8));
             _rthis = rb;
-            assert(rc < (1 << 8));
             _nparams = rc;
         } else {
-            assert(ra < (1 << 8));
             _ra = ra;
-            assert(rb < (1 << 8));
             _rb = rb;
-            assert(rc < (1 << 8));
             _rc = rc;
         }
     }
@@ -373,18 +368,14 @@ public:
     Instruction(Op op, uint8_t rn, uint16_t n)
     {
         _op = op;
-        assert(rn < (1 << 8));
         _rn = rn;
-        assert(n < (1 << 16));
         _un = n;
     }
     
     Instruction(Op op, uint8_t rn, int16_t n)
     {
         _op = op;
-        assert(rn < (1 << 8));
         _rn = rn;
-        assert(n < (1 << 16));
         _sn = n;
     }
     
