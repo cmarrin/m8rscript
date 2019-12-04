@@ -96,23 +96,23 @@ private:
     void addMatchedJump(Op op, Label&);
     void matchJump(const Label& matchLabel)
     {
-        int32_t jumpAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size()) - matchLabel.matchedAddr;
+        int16_t jumpAddr = static_cast<int16_t>(_deferred ? _deferredCode.size() : currentCode().size()) - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
 
     void matchJump(const Label& matchLabel, const Label& dstLabel)
     {
-        int32_t jumpAddr = dstLabel.label - matchLabel.matchedAddr;
+        int16_t jumpAddr = dstLabel.label - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
     
-    void matchJump(const Label& matchLabel, int32_t dstAddr)
+    void matchJump(const Label& matchLabel, int16_t dstAddr)
     {
-        int32_t jumpAddr = dstAddr - matchLabel.matchedAddr;
+        int16_t jumpAddr = dstAddr - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
     
-    void doMatchJump(int32_t matchAddr, int32_t jumpAddr);
+    void doMatchJump(int16_t matchAddr, int16_t jumpAddr);
     void jumpToLabel(Op op, Label&);
     
     int32_t startDeferred()
@@ -179,7 +179,7 @@ private:
         if (_debug == Debug::None) {
             return;
         }
-        uint32_t lineno = _scanner.lineno();
+        uint16_t lineno = _scanner.lineno();
         if (lineno == _emittedLineNumber) {
             return;
         }
@@ -202,10 +202,10 @@ private:
     
     // Parse Stack manipulation and code generation
     
-    void emitCodeRRR(Op, uint32_t ra = 0, uint32_t rb = 0, uint32_t rc = 0);
-    void emitCodeRUN(Op, uint32_t rn, uint32_t n);
-    void emitCodeRSN(Op, uint32_t rn, int32_t n);
-    void emitCodeCall(Op, uint32_t rcall, uint32_t rthis, uint32_t nparams);
+    void emitCodeRRR(Op, uint8_t ra = 0, uint8_t rb = 0, uint8_t rc = 0);
+    void emitCodeRUN(Op, uint8_t rn, uint16_t n);
+    void emitCodeRSN(Op, uint8_t rn, int16_t n);
+    void emitCodeCall(Op, uint8_t rcall, uint8_t rthis, uint8_t nparams);
     
     void reconcileRegisters(Mad<Function>);
 
@@ -269,11 +269,11 @@ private:
     struct FunctionEntry {
         FunctionEntry() { }
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
-        Mad<Function> _function;
         Vector<Instruction> _code;
         Vector<Value> _constants;
-        uint32_t _nextReg = 255;
-        uint32_t _minReg = 256;
+        Mad<Function> _function;
+        uint8_t _nextReg = MaxRegister;
+        uint8_t _minReg = MaxRegister + 1;
         bool _ctor = false;
     };
         

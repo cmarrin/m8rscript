@@ -128,11 +128,11 @@ void Parser::addMatchedJump(Op op, Label& label)
     emitCodeRSN(op, reg, 0);
 }
 
-void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
+void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
 {
     if (_nerrors) return;
     
-    if (jumpAddr < -32767 || jumpAddr > 32767) {
+    if (jumpAddr < -MaxJump || jumpAddr > MaxJump) {
         printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
         return;
     }
@@ -164,26 +164,26 @@ void Parser::jumpToLabel(Op op, Label& label)
     emitCodeRSN(op, (op == Op::JMP) ? 0 : r, jumpAddr);
 }
 
-void Parser::emitCodeRRR(Op op, uint32_t ra, uint32_t rb, uint32_t rc)
+void Parser::emitCodeRRR(Op op, uint8_t ra, uint8_t rb, uint8_t rc)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb, rc));
 }
 
-void Parser::emitCodeRUN(Op op, uint32_t rn, uint32_t n)
+void Parser::emitCodeRUN(Op op, uint8_t rn, uint16_t n)
 {
     emitLineNumber();
     addCode(Instruction(op, rn, n));
 }
 
-void Parser::emitCodeRSN(Op op, uint32_t rn, int32_t n)
+void Parser::emitCodeRSN(Op op, uint8_t rn, int16_t n)
 {
     // Tbis Op is used for jumps, so we need to put the line number after
     addCode(Instruction(op, rn, n));
     emitLineNumber();
 }
 
-void Parser::emitCodeCall(Op op, uint32_t rcall, uint32_t rthis, uint32_t nparams)
+void Parser::emitCodeCall(Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams)
 {
     emitLineNumber();
     addCode(Instruction(op, rcall, rthis, nparams, true));
@@ -531,7 +531,6 @@ void Parser::emitPush()
     uint32_t src = _parseStack.bake();
     _parseStack.pop();
     
-    // Value pushed is a register or constant, so it has to go into rb
     emitCodeRUN(Op::PUSH, src, 0);
 }
 
@@ -558,7 +557,7 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
 {
     if (_nerrors) return;
     
-    assert(nparams < 256);
+    assert(nparams < MaxParams);
     assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
     
     uint32_t calleeReg = 0;
@@ -658,7 +657,7 @@ Mad<Function> Parser::functionEnd()
     
     emitEnd();
     Mad<Function> function = currentFunction();
-    uint8_t tempRegisterCount = 256 - _functions.back()._minReg;
+    uint8_t tempRegisterCount = MaxRegister + 1 - _functions.back()._minReg;
 
     reconcileRegisters(function);
     function->setTempRegisterCount(tempRegisterCount);
@@ -734,7 +733,7 @@ void Parser::ParseStack::pop()
         return;
     }
     if (_stack.top()._type == Type::Register) {
-        assert(_parser->_functions.back()._nextReg < 255);
+        assert(_parser->_functions.back()._nextReg < MaxRegister);
         _parser->_functions.back()._nextReg++;
     }
     _stack.pop();

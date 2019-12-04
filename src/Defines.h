@@ -231,14 +231,16 @@ struct Label {
 
     Opcodes are 32 bits. There are 3 bit patterns:
     
-    Opcode:6, R:8, RK:9, RK:9
-    Opcode:6, RK:9, N:17
+    Opcode:6, R:7, RK:8, RK:8
+    Opcode:6, RK:8 (call), RK:8 (this), NPARAMS:8
+    Opcode:6, RK:8, N:16 (signed or unsigned)
 
 
-    R       - Register (0..255)
-    RK      - Register (0..255) or Constant (256..511)
+    R       - Register (0..127)
+    RK      - Register (0..127) or Constant (128..255)
     N       - Passed params (0..256K) or address (-128K..128K)
-    L       - Local variable (0..255) - only used during initial code generation
+    L       - Local variable (0..127) - only used during initial code generation
+    NPARAMS - Param count (0..255)
     
     Local vs Register parameters
     ----------------------------
@@ -258,14 +260,14 @@ struct Label {
     the ExecutionUnit.
 
     UNKNOWN     X, X, X
-    RET         X, N
+    RET         X, X, NPARAMS
     END         X, X, X
     
     MOVE        R[d], RK[s], X
     LOADREFK    R[d], RK[s], X
     STOREFK     X, RK[d], RK[s]
-    LOADUP      R[d], U[s]
-    STOREUP     U[d], RK[s]
+    LOADUP      R[d], R[s]
+    STOREUP     R[d], RK[s]
     APPENDELT   R[d], RK[s], X
  
     APPENDPROP  R[d], RK[p], RK[s]
@@ -311,7 +313,9 @@ struct Label {
     Total: 51 instructions
 */
 
-static constexpr uint32_t MaxRegister = 255;
+static constexpr uint32_t MaxRegister = 127;
+static constexpr uint32_t MaxParams = 256;
+static constexpr int32_t MaxJump = 32767;
 
 // Opcodes are 6 bits, 0x00 to 0x3f
 enum class Op : uint8_t {
@@ -344,79 +348,79 @@ static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bit
 
 class Instruction {
 public:
-    Instruction() { _v = 0; _op = static_cast<uint32_t>(Op::END); }
+    Instruction() { _v = 0; _op = Op::END; }
     
-    Instruction(Op op, uint32_t ra, uint32_t rb, uint32_t rc, bool call = false)
+    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc, bool call = false)
     {
-        _op = static_cast<uint32_t>(op);
+        _op = op;
         if (call) {
-            assert(ra < (1 << 9));
+            assert(ra < (1 << 7));
             _rcall = ra;
-            assert(rb < (1 << 9));
+            assert(rb < (1 << 8));
             _rthis = rb;
             assert(rc < (1 << 8));
             _nparams = rc;
         } else {
             assert(ra < (1 << 8));
             _ra = ra;
-            assert(rb < (1 << 9));
+            assert(rb < (1 << 8));
             _rb = rb;
-            assert(rc < (1 << 9));
+            assert(rc < (1 << 8));
             _rc = rc;
         }
     }
     
-    Instruction(Op op, uint32_t rn, uint32_t n)
+    Instruction(Op op, uint8_t rn, uint16_t n)
     {
-        _op = static_cast<uint32_t>(op);
-        assert(rn < (1 << 9));
+        _op = op;
+        assert(rn < (1 << 8));
         _rn = rn;
-        assert(n < (1 << 17));
+        assert(n < (1 << 16));
         _un = n;
     }
     
-    Instruction(Op op, uint32_t rn, int32_t n)
+    Instruction(Op op, uint8_t rn, int16_t n)
     {
-        _op = static_cast<uint32_t>(op);
-        assert(rn < (1 << 9));
+        _op = op;
+        assert(rn < (1 << 8));
         _rn = rn;
-        assert(n < (1 << 17));
+        assert(n < (1 << 16));
         _sn = n;
     }
     
-    Op op() const { return static_cast<Op>(_op); }
-    uint32_t ra() const { return _ra; }
-    uint32_t rb() const { return _rb; }
-    uint32_t rc() const { return _rc; }
-    uint32_t rn() const { return _rn; }
-    uint32_t un() const { return _un; }
-    int32_t sn() const { return _sn; }
-    uint32_t rcall() const { return _rcall; }
-    uint32_t rthis() const { return _rthis; }
-    uint32_t nparams() const { return _nparams; }
+    Op op() const { return _op; }
+    uint8_t ra() const { return _ra; }
+    uint8_t rb() const { return _rb; }
+    uint8_t rc() const { return _rc; }
+    uint8_t rn() const { return _rn; }
+    uint16_t un() const { return _un; }
+    int16_t sn() const { return _sn; }
+    uint8_t rcall() const { return _rcall; }
+    uint8_t rthis() const { return _rthis; }
+    uint8_t nparams() const { return _nparams; }
     
 private:
     union {
         struct {
-            uint32_t _op : 6;
-            uint32_t _ra : 8;
-            uint32_t _rb : 9;
-            uint32_t _rc : 9;
+            Op _op;
+            uint8_t _ra;
+            uint8_t _rb;
+            uint8_t _rc;
         };
         struct {
-            uint32_t _ : 6;
-            uint32_t _rcall : 9;
-            uint32_t _rthis : 9;
-            uint32_t _nparams : 8;
+            uint8_t _;
+            uint8_t _rcall;
+            uint8_t _rthis;
+            uint8_t _nparams;
         };
         struct {
-            uint32_t __ : 6;
-            uint32_t _rn : 9;
-            int32_t _sn : 17;
+            uint8_t __;
+            uint8_t _rn;
+            int16_t _sn;
         };
         struct {
-            uint32_t ___ : 15;
-            uint32_t _un : 17;
+            uint16_t ___;
+            uint16_t _un;
         };
         uint32_t _v;
     };

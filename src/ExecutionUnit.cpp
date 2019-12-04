@@ -510,7 +510,6 @@ CallReturnValue ExecutionUnit::continueExecution()
         return callReturnValue;
 
     L_RET:
-    L_RETX:
     L_END:
         if (_terminate) {
             _stack.clear();
