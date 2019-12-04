@@ -90,6 +90,8 @@ void Mallocator::init()
 
 RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType type, const char* valueType)
 {
+    Mallocator::shared()->init();
+
     if (!_heapBase) {
         return NoRawMad;
     }
