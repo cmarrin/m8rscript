@@ -137,15 +137,13 @@ void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
         return;
     }
     
-    Instruction inst = _deferred ? _deferredCode.at(matchAddr) : currentCode().at(matchAddr);
-    Op op = static_cast<Op>(inst.op());
+    Op op = static_cast<Op>(_deferred ? _deferredCode.at(matchAddr) : currentCode().at(matchAddr));
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
-    uint32_t reg = inst.rn();
-    if (_deferred) {
-        _deferredCode.at(matchAddr) = Instruction(op, reg, jumpAddr);
-    } else {
-        currentCode().at(matchAddr) = Instruction(op, reg, jumpAddr);
-    }
+    Instruction inst;
+    int16_t emitAddr = (op == Op::JMP) ? (matchAddr + 1) : (matchAddr + 2);
+    uint8_t* code = _deferred ? &(_deferredCode[emitAddr]) : &(currentCode()[matchAddr]);
+    code[0] = static_cast<uint8_t>(jumpAddr >> 8);
+    code[1] = static_cast<uint8_t>(jumpAddr);
 }
 
 void Parser::jumpToLabel(Op op, Label& label)
@@ -170,10 +168,10 @@ void Parser::emitCodeRRR(Op op, uint8_t ra, uint8_t rb, uint8_t rc)
     addCode(Instruction(op, ra, rb, rc));
 }
 
-void Parser::emitCodeRUN(Op op, uint8_t rn, uint16_t n)
+void Parser::emitCodeR(Op op, uint8_t rn)
 {
     emitLineNumber();
-    addCode(Instruction(op, rn, n));
+    addCode(Instruction(op, rn));
 }
 
 void Parser::emitCodeRSN(Op op, uint8_t rn, int16_t n)
@@ -183,20 +181,43 @@ void Parser::emitCodeRSN(Op op, uint8_t rn, int16_t n)
     emitLineNumber();
 }
 
+void Parser::emitCodeSN(Op op, int16_t n)
+{
+    // Tbis Op is used for jumps, so we need to put the line number after
+    addCode(Instruction(op, n));
+    emitLineNumber();
+}
+
+void Parser::emitCodeUN(Op op, uint16_t n)
+{
+    addCode(Instruction(op, n));
+}
+
 void Parser::emitCodeCall(Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams)
 {
     emitLineNumber();
-    addCode(Instruction(op, rcall, rthis, nparams, true));
+    addCode(Instruction(op, rcall, rthis, nparams));
 }
 
 void Parser::addCode(Instruction inst)
 {
+    Vector<uint8_t>* vec;
     if (_deferred) {
         assert(_deferredCodeBlocks.size() > 0);
-        _deferredCode.push_back(inst);
+        vec = &_deferredCode;
     } else {
-        currentCode().push_back(inst);
+        vec = &currentCode();
     }
+        vec->push_back(static_cast<uint8_t>(inst.op()));
+        if (inst.haveRa()) vec->push_back(inst.ra());
+        if (inst.haveRb()) vec->push_back(inst.rb());
+        if (inst.haveRc()) vec->push_back(inst.rc());
+        if (inst.haveN()) {
+            vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
+            vec->push_back(static_cast<uint8_t>(inst.n()));
+        }
+    }
+    
 }
 
 ConstantId Parser::addConstant(const Value& v)
@@ -531,7 +552,7 @@ void Parser::emitPush()
     uint32_t src = _parseStack.bake();
     _parseStack.pop();
     
-    emitCodeRUN(Op::PUSH, src, 0);
+    emitCodeR(Op::PUSH, src);
 }
 
 void Parser::emitPop()
@@ -682,29 +703,49 @@ void Parser::reconcileRegisters(Mad<Function> function)
     uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
     for (int i = 0; i < currentCode().size(); ++i) {
-        Instruction inst = currentCode()[i];
-        Op op = static_cast<Op>(inst.op());
+        Op op = static_cast<Op>(currentCode()[i]);
         
-        if (op == Op::LINENO) {
+        if (op == Op::LINENO || op == Op::JMP) {
+            i += 2;
             continue;
         }
+        
+        if (op == Op::RET) {
+            i += 1;
+            continue;
+        }
+        
+        if (op == Op::END || op == Op::UNKNOWN) {
+            continue;
+        }
+        
         if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
-            currentCode()[i] = Instruction(op, regFromTempReg(inst.rcall(), numLocals), regFromTempReg(inst.rthis(), numLocals), inst.nparams(), true);
-        } else if (op == Op::JMP || op == Op::JT || op == Op::JF) {
-            uint32_t rn = regFromTempReg(inst.rn(), numLocals);
-            currentCode()[i] = Instruction(op, rn, inst.sn());
+            // Fixup ra na rb
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
+            i += 3;
+        } else if (op == Op::JT || op == Op::JF) {
+            // Fixup ra
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            i += 3;
         } else if (op == Op::PUSH) {
-            uint32_t rn = regFromTempReg(inst.rn(), numLocals);
-            currentCode()[i] = Instruction(op, rn, inst.sn());
+            // Fixup ra
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            i += 1;
         } else if (op == Op::LOADUP) {
-            uint32_t ra = regFromTempReg(inst.ra(), numLocals);
-            currentCode()[i] = Instruction(op, ra, inst.rb(), 0);
+            // Fixup ra
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            i += 2;
         } else if (op == Op::STOREUP) {
-            uint32_t rb = regFromTempReg(inst.rb(), numLocals);
-            currentCode()[i] = Instruction(op, inst.ra(), rb, 0);
+            // Fixup rb
+            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
+            i += 2;
         } else {
-            uint32_t ra = regFromTempReg(inst.ra(), numLocals);
-            currentCode()[i] = Instruction(op, ra, regFromTempReg(inst.rb(), numLocals), regFromTempReg(inst.rc(), numLocals));
+            // Fixup ra, rb and rc
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
+            currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], numLocals);
+            i += 3;
         }
     }
 }

@@ -23,7 +23,7 @@ class Stream;
 
 using ConstantValue = Value;
 using ConstantValueVector = FixedVector<ConstantValue>;
-using InstructionVector = FixedVector<Instruction>;
+using InstructionVector = FixedVector<uint8_t>;
 using PropertyMap = Map<Atom, Value>;
 
 class Object {    

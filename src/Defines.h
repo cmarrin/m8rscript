@@ -229,16 +229,24 @@ struct Label {
 /*
     Here is the new design of Opcodes:
 
-    Opcodes are 32 bits. There are 3 bit patterns:
-    
-    Opcode:6, R:7, RK:8, RK:8
-    Opcode:6, RK:8 (call), RK:8 (this), NPARAMS:8
-    Opcode:6, RK:8, N:16 (signed or unsigned)
+    Instructions are a series of bytes. Opcode is always first
+    byte and is followed by 0-3 bytes of operands. Most operands
+    are 1 byte (register index, upvalue index, constant index or
+    nparams). In some cases operand is a 2 byte uint16_t or
+    int16_t. The are 2 consecutive bytes, MSB first.
 
+    During parsing, instructions are placed in an Instruction
+    object. This contains opcode, operands and an indication of
+    which operands are valid. This instruction is then emitted
+    in the code vector, which is a series of uint8_t.
+    
+    The structure of each instruction is given below, using this
+    key:
 
     R       - Register (0..127)
     RK      - Register (0..127) or Constant (128..255)
-    N       - Passed params (0..256K) or address (-128K..128K)
+    UN      - Line number (0..64K)
+    SN      - Address (-32K..32K)
     L       - Local variable (0..127) - only used during initial code generation
     NPARAMS - Param count (0..255)
     
@@ -259,27 +267,27 @@ struct Label {
     index left intact. So the LOADL opcode should never make it through to
     the ExecutionUnit.
 
-    UNKNOWN     X, X, X
-    RET         X, X, NPARAMS
-    END         X, X, X
+    UNKNOWN
+    RET         NPARAMS
+    END
     
-    MOVE        R[d], RK[s], X
-    LOADREFK    R[d], RK[s], X
-    STOREFK     X, RK[d], RK[s]
-    LOADUP      R[d], R[s]
-    STOREUP     R[d], RK[s]
-    APPENDELT   R[d], RK[s], X
+    MOVE        R[d], RK[s]
+    LOADREFK    R[d], RK[s]
+    STOREFK     RK[d], RK[s]
+    LOADUP      R[d], U[s]
+    STOREUP     U[d], RK[s]
+    APPENDELT   R[d], RK[s]
  
     APPENDPROP  R[d], RK[p], RK[s]
  
-    LOADLITA    R[d], X, X
-    LOADLITO    R[d], X, X
-    LOADTRUE    R[d], X, X
-    LOADFALSE   R[d], X, X
-    LOADNULL    R[d], X, X
-    LOADTHIS    R[2], X, X
+    LOADLITA    R[d]
+    LOADLITO    R[d]
+    LOADTRUE    R[d]
+    LOADFALSE   R[d]
+    LOADNULL    R[d]
+    LOADTHIS    R[2]
     
-    PUSH        RK[s], X
+    PUSH        RK[s]
     POP         R[d]
  
     LOADPROP    R[d], RK[o], K[p]
@@ -298,17 +306,17 @@ struct Label {
     <unop> ==>  UMINUS, UNOT, UNEG,                 ; (7)
                 PREINC, PREDEC, POSTINC, POSTDEC
                 
-    <unop>R     R[d], R[s], X
+    <unop>R     R[d], R[s]
  
     CALL        RK[call], RK[this], NPARAMS
     NEW         RK[call], NPARAMS
     CALLPROP    RK[o], RK[p], NPARAMS
     CLOSURE     R[d], RK[s]
  
-    JMP         X, N
-    JT          RK[s], N
-    JF          RK[s], N
-    LINENO      X, N
+    JMP         SN
+    JT          RK[s], SN
+    JF          RK[s], NS
+    LINENO      UN
  
     Total: 51 instructions
 */
@@ -348,49 +356,34 @@ static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bit
 
 class Instruction {
 public:
-    Instruction() { _v = 0; _op = Op::END; }
+    Instruction() { }
+    Instruction(Op op) { init(op); }
+    Instruction(Op op, uint8_t ra) { init(op, ra); }
+    Instruction(Op op, uint8_t ra, uint8_t rb) { init(op, ra, rb); }
+    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { init(op, ra, rb, rc); }
+    Instruction(Op op, uint8_t ra, int16_t sn) { init(op, ra, static_cast<uint16_t>(sn)); }
+    Instruction(Op op, int16_t sn) { init(op, static_cast<uint16_t>(sn)); }
+    Instruction(Op op, uint16_t un) { init(op, un); }
     
-    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc, bool call = false)
-    {
-        _op = op;
-        if (call) {
-            assert(ra < (1 << 7));
-            _rcall = ra;
-            _rthis = rb;
-            _nparams = rc;
-        } else {
-            _ra = ra;
-            _rb = rb;
-            _rc = rc;
-        }
-    }
-    
-    Instruction(Op op, uint8_t rn, uint16_t n)
-    {
-        _op = op;
-        _rn = rn;
-        _un = n;
-    }
-    
-    Instruction(Op op, uint8_t rn, int16_t n)
-    {
-        _op = op;
-        _rn = rn;
-        _sn = n;
-    }
+    bool haveRa() const { return _haveRa; }
+    bool haveRb() const { return _haveRb; }
+    bool haveRc() const { return _haveRc; }
+    bool haveN()  const { return _haveN; }
     
     Op op() const { return _op; }
     uint8_t ra() const { return _ra; }
     uint8_t rb() const { return _rb; }
     uint8_t rc() const { return _rc; }
-    uint8_t rn() const { return _rn; }
-    uint16_t un() const { return _un; }
-    int16_t sn() const { return _sn; }
-    uint8_t rcall() const { return _rcall; }
-    uint8_t rthis() const { return _rthis; }
-    uint8_t nparams() const { return _nparams; }
-    
+    uint16_t n() const { return _n; }
+
 private:
+    void init(Op op) { _op = op; }
+    void init(Op op, uint8_t ra) { init(op); _haveRa = true; _ra = ra; }
+    void init(Op op, uint8_t ra, uint8_t rb) {init(op, ra); _haveRb = true; _rb = rb; }
+    void init(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { init(op, ra, rb); _haveRc = true; _rc = rc; }
+    void init(Op op, uint8_t ra, uint16_t n) { init(op, ra); _haveN = true; _n = n; }
+    void init(Op op, uint16_t n) {init(op); _haveN = true; _n = n; }
+
     union {
         struct {
             Op _op;
@@ -399,25 +392,16 @@ private:
             uint8_t _rc;
         };
         struct {
-            uint8_t _;
-            uint8_t _rcall;
-            uint8_t _rthis;
-            uint8_t _nparams;
-        };
-        struct {
-            uint8_t __;
-            uint8_t _rn;
-            int16_t _sn;
-        };
-        struct {
             uint16_t ___;
-            uint16_t _un;
+            uint16_t _n;
         };
-        uint32_t _v;
     };
+    
+    bool _haveRa = false;
+    bool _haveRb = false;
+    bool _haveRc = false;
+    bool _haveN = false;
 };
-
-static_assert(sizeof(Instruction) == 4, "Instruction must be 32 bits");
 
 #undef DEC
 enum class Token : uint8_t {

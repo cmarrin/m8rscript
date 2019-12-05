@@ -192,7 +192,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     
     _nestingLevel++;
     
-    const Instruction* code = &(function->code()->at(0));
+    const uint8_t* code = &(function->code()->at(0));
 
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
@@ -203,8 +203,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
             return outputString;
         }
 
-        Instruction c = function->code()->at(i);
-        Op op = static_cast<Op>(c.op());
+        Op op = static_cast<Op>(function->code()->at(i));
         if (op == Op::END) {
             break;
         }

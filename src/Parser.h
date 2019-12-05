@@ -139,7 +139,7 @@ private:
     bool functionIsCtor() const { return _functions.back()._ctor; }
     Mad<Function> functionEnd();
     Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
-    Vector<Instruction>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
+    Vector<uint8_t>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
     Vector<Value>& currentConstants() { assert(_functions.size()); return _functions.back()._constants; }
 
     void classStart() { _classes.push_back(Object::create<MaterObject>()); }
@@ -184,7 +184,7 @@ private:
             return;
         }
         _emittedLineNumber = lineno;
-        addCode(Instruction(Op::LINENO, 0, lineno));
+        addCode(Instruction(Op::LINENO, lineno));
     }
     
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
@@ -203,8 +203,10 @@ private:
     // Parse Stack manipulation and code generation
     
     void emitCodeRRR(Op, uint8_t ra = 0, uint8_t rb = 0, uint8_t rc = 0);
-    void emitCodeRUN(Op, uint8_t rn, uint16_t n);
+    void emitCodeR(Op, uint8_t rn);
     void emitCodeRSN(Op, uint8_t rn, int16_t n);
+    void emitCodeSN(Op, int16_t n);
+    void emitCodeUN(Op, uint16_t n);
     void emitCodeCall(Op, uint8_t rcall, uint8_t rthis, uint8_t nparams);
     
     void reconcileRegisters(Mad<Function>);
@@ -269,7 +271,7 @@ private:
     struct FunctionEntry {
         FunctionEntry() { }
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
-        Vector<Instruction> _code;
+        Vector<uint8_t> _code;
         Vector<Value> _constants;
         Mad<Function> _function;
         uint8_t _nextReg = MaxRegister;
@@ -288,7 +290,7 @@ private:
     ExecutionUnit* _eu = nullptr;
     uint32_t _nerrors = 0;
     Vector<size_t> _deferredCodeBlocks;
-    Vector<Instruction> _deferredCode;
+    Vector<uint8_t> _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     Debug _debug;

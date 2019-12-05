@@ -139,7 +139,7 @@ public:
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     
-    Op dispatchNextOp(Instruction& inst, uint16_t& checkCounter)
+    Op dispatchNextOp(uint16_t& checkCounter)
     {
         if (_nerrors > MaxRunTimeErrrors) {
             tooManyErrors();
@@ -154,8 +154,7 @@ private:
                 return Op::YIELD;
             }
         }
-        inst = _code[_pc++];
-        return inst.op();
+        return static_cast<Op>(_code[_pc++]);
     }
 
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
@@ -251,7 +250,7 @@ private:
     uint32_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
 
-    const Instruction* _code = nullptr;
+    const uint8_t* _code = nullptr;
     size_t _codeSize;
     
     mutable uint32_t _nerrors = 0;

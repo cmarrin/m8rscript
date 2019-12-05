@@ -454,7 +454,7 @@ CallReturnValue ExecutionUnit::continueExecution()
  
     static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-    #define DISPATCH goto *dispatchTable[static_cast<uint8_t>(dispatchNextOp(inst, checkCounter))]
+    #define DISPATCH goto *dispatchTable[static_cast<uint8_t>(dispatchNextOp(checkCounter))]
     
     if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
@@ -480,8 +480,6 @@ CallReturnValue ExecutionUnit::continueExecution()
     uint32_t localsToPop;
     Mad<Object> prevThis;
     Atom prop;
-
-    Instruction inst;
     
     DISPATCH;
     

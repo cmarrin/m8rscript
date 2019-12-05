@@ -39,7 +39,7 @@ public:
     }
 
     virtual const InstructionVector* code() const override { return &_code; }
-    void setCode(const Vector<Instruction>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
+    void setCode(const Vector<uint8_t>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
 
     int32_t addLocal(const Atom& name);
     int32_t localIndex(const Atom& name) const;
