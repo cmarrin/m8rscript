@@ -208,16 +208,14 @@ void Parser::addCode(Instruction inst)
     } else {
         vec = &currentCode();
     }
-        vec->push_back(static_cast<uint8_t>(inst.op()));
-        if (inst.haveRa()) vec->push_back(inst.ra());
-        if (inst.haveRb()) vec->push_back(inst.rb());
-        if (inst.haveRc()) vec->push_back(inst.rc());
-        if (inst.haveN()) {
-            vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
-            vec->push_back(static_cast<uint8_t>(inst.n()));
-        }
+    vec->push_back(static_cast<uint8_t>(inst.op()));
+    if (inst.haveRa()) vec->push_back(inst.ra());
+    if (inst.haveRb()) vec->push_back(inst.rb());
+    if (inst.haveRc()) vec->push_back(inst.rc());
+    if (inst.haveN()) {
+        vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
+        vec->push_back(static_cast<uint8_t>(inst.n()));
     }
-    
 }
 
 ConstantId Parser::addConstant(const Value& v)

@@ -11,37 +11,37 @@
 
 using namespace m8r;
 
-ParseEngine::OpInfo RODATA_ATTR ParseEngine::_opInfos[ ] = {
-    { Token::STO,         1,  OpInfo::RightAssoc, false, Op::MOVE },
-    { Token::ADDSTO,      2,  OpInfo::RightAssoc, true,  Op::ADD  },
-    { Token::SUBSTO,      2,  OpInfo::RightAssoc, true,  Op::SUB  },
-    { Token::MULSTO,      3,  OpInfo::RightAssoc, true,  Op::MUL  },
-    { Token::DIVSTO,      3,  OpInfo::RightAssoc, true,  Op::DIV  },
-    { Token::MODSTO,      3,  OpInfo::RightAssoc, true,  Op::MOD  },
-    { Token::SHLSTO,      4,  OpInfo::RightAssoc, true,  Op::SHL  },
-    { Token::SHRSTO,      4,  OpInfo::RightAssoc, true,  Op::SHR  },
-    { Token::SARSTO,      4,  OpInfo::RightAssoc, true,  Op::SAR  },
-    { Token::ANDSTO,      5,  OpInfo::RightAssoc, true,  Op::AND  },
-    { Token::ORSTO,       5,  OpInfo::RightAssoc, true,  Op::OR   },
-    { Token::XORSTO,      5,  OpInfo::RightAssoc, true,  Op::XOR  },
-    { Token::LOR,         6,  OpInfo::LeftAssoc,  false, Op::LOR  },
-    { Token::LAND,        7,  OpInfo::LeftAssoc,  false, Op::LAND },
-    { Token::OR,          8,  OpInfo::LeftAssoc,  false, Op::OR   },
-    { Token::XOR,         9,  OpInfo::LeftAssoc,  false, Op::XOR  },
-    { Token::EQ,          11, OpInfo::LeftAssoc,  false, Op::EQ   },
-    { Token::NE,          11, OpInfo::LeftAssoc,  false, Op::NE   },
-    { Token::LT,          12, OpInfo::LeftAssoc,  false, Op::LT   },
-    { Token::GT,          12, OpInfo::LeftAssoc,  false, Op::GT   },
-    { Token::GE,          12, OpInfo::LeftAssoc,  false, Op::GE   },
-    { Token::LE,          12, OpInfo::LeftAssoc,  false, Op::LE   },
-    { Token::SHL,         13, OpInfo::LeftAssoc,  false, Op::SHL  },
-    { Token::SHR,         13, OpInfo::LeftAssoc,  false, Op::SHR  },
-    { Token::SAR,         13, OpInfo::LeftAssoc,  false, Op::SAR  },
-    { Token::Plus,        14, OpInfo::LeftAssoc,  false, Op::ADD  },
-    { Token::Minus,       14, OpInfo::LeftAssoc,  false, Op::SUB  },
-    { Token::Star,        15, OpInfo::LeftAssoc,  false, Op::MUL  },
-    { Token::Slash,       15, OpInfo::LeftAssoc,  false, Op::DIV  },
-    { Token::Percent,     15, OpInfo::LeftAssoc,  false, Op::MOD  },
+ParseEngine::OperatorInfo RODATA_ATTR ParseEngine::_opInfos[ ] = {
+    { Token::STO,         1,  OperatorInfo::RightAssoc, false, Op::MOVE },
+    { Token::ADDSTO,      2,  OperatorInfo::RightAssoc, true,  Op::ADD  },
+    { Token::SUBSTO,      2,  OperatorInfo::RightAssoc, true,  Op::SUB  },
+    { Token::MULSTO,      3,  OperatorInfo::RightAssoc, true,  Op::MUL  },
+    { Token::DIVSTO,      3,  OperatorInfo::RightAssoc, true,  Op::DIV  },
+    { Token::MODSTO,      3,  OperatorInfo::RightAssoc, true,  Op::MOD  },
+    { Token::SHLSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SHL  },
+    { Token::SHRSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SHR  },
+    { Token::SARSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SAR  },
+    { Token::ANDSTO,      5,  OperatorInfo::RightAssoc, true,  Op::AND  },
+    { Token::ORSTO,       5,  OperatorInfo::RightAssoc, true,  Op::OR   },
+    { Token::XORSTO,      5,  OperatorInfo::RightAssoc, true,  Op::XOR  },
+    { Token::LOR,         6,  OperatorInfo::LeftAssoc,  false, Op::LOR  },
+    { Token::LAND,        7,  OperatorInfo::LeftAssoc,  false, Op::LAND },
+    { Token::OR,          8,  OperatorInfo::LeftAssoc,  false, Op::OR   },
+    { Token::XOR,         9,  OperatorInfo::LeftAssoc,  false, Op::XOR  },
+    { Token::EQ,          11, OperatorInfo::LeftAssoc,  false, Op::EQ   },
+    { Token::NE,          11, OperatorInfo::LeftAssoc,  false, Op::NE   },
+    { Token::LT,          12, OperatorInfo::LeftAssoc,  false, Op::LT   },
+    { Token::GT,          12, OperatorInfo::LeftAssoc,  false, Op::GT   },
+    { Token::GE,          12, OperatorInfo::LeftAssoc,  false, Op::GE   },
+    { Token::LE,          12, OperatorInfo::LeftAssoc,  false, Op::LE   },
+    { Token::SHL,         13, OperatorInfo::LeftAssoc,  false, Op::SHL  },
+    { Token::SHR,         13, OperatorInfo::LeftAssoc,  false, Op::SHR  },
+    { Token::SAR,         13, OperatorInfo::LeftAssoc,  false, Op::SAR  },
+    { Token::Plus,        14, OperatorInfo::LeftAssoc,  false, Op::ADD  },
+    { Token::Minus,       14, OperatorInfo::LeftAssoc,  false, Op::SUB  },
+    { Token::Star,        15, OperatorInfo::LeftAssoc,  false, Op::MUL  },
+    { Token::Slash,       15, OperatorInfo::LeftAssoc,  false, Op::DIV  },
+    { Token::Percent,     15, OperatorInfo::LeftAssoc,  false, Op::MOD  },
 };
 
 ParseEngine::ParseEngine(Parser* parser)
@@ -627,12 +627,12 @@ bool ParseEngine::expression(uint8_t minPrec)
     }
     
     while(1) {
-        auto endit = _opInfos + sizeof(_opInfos) / sizeof(OpInfo);
+        auto endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
         auto it = std::find(_opInfos, endit, getToken());
         if (it == endit || it->prec < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (it->assoc == OpInfo::LeftAssoc) ? (it->prec + 1) : it->prec;
+        uint8_t nextMinPrec = (it->assoc == OperatorInfo::LeftAssoc) ? (it->prec + 1) : it->prec;
         retireToken();
         if (it->sto) {
             _parser->emitDup();

@@ -39,7 +39,7 @@ public:
     bool expression(uint8_t minPrec = 1);
 
 private:
-    struct OpInfo {
+    struct OperatorInfo {
         static const uint8_t LeftAssoc = 0;
         static const uint8_t RightAssoc = 1;
         
@@ -96,7 +96,7 @@ private:
         int operator()(const Token& lhs, const Token& rhs) const { return static_cast<int>(lhs) - static_cast<int>(rhs); }
     };
 
-    static OpInfo _opInfos[ ];
+    static OperatorInfo _opInfos[ ];
 
 };
 

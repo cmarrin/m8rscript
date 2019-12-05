@@ -454,7 +454,7 @@ CallReturnValue ExecutionUnit::continueExecution()
  
     static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-    #define DISPATCH goto *dispatchTable[static_cast<uint8_t>(dispatchNextOp(checkCounter))]
+    #define DISPATCH { op = dispatchNextOp(checkCounter); goto *dispatchTable[static_cast<uint8_t>(op)]; }
     
     if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
@@ -466,7 +466,6 @@ CallReturnValue ExecutionUnit::continueExecution()
     
     uint16_t checkCounter = 0;
     uint32_t uintValue;
-    int32_t intValue;
     Float floatValue;
     bool boolValue;
     Value leftValue, rightValue;
@@ -480,11 +479,14 @@ CallReturnValue ExecutionUnit::continueExecution()
     uint32_t localsToPop;
     Mad<Object> prevThis;
     Atom prop;
+    uint8_t ra, rb;
+    
+    Op op = Op::UNKNOWN;
     
     DISPATCH;
     
     L_LINENO:
-        _lineno = inst.un();
+        _lineno = uNFromCode();
         DISPATCH;
         
     L_UNKNOWN:
@@ -516,14 +518,15 @@ CallReturnValue ExecutionUnit::continueExecution()
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
-        if (inst.op() == Op::END || (inst.op() == Op::RET && _callRecords.empty())) {
+        if (op == Op::END || (op == Op::RET && _callRecords.empty())) {
             // If _callRecords is empty it means we're returning from the top-level program.
             // TODO: How do we return this to the caller? What does the caller do with it.
             // This is essentially the same as the exit code returned from main() in C
-            if (inst.op() == Op::RET) {
+            if (op == Op::RET) {
                 // Take care of the values on the return stack
-                returnedValue = (inst.nparams()) ? _stack.top(1 - inst.nparams()) : Value();
-                _stack.pop(inst.nparams());
+                uint8_t nparams = byteFromCode();
+                returnedValue = nparams ? _stack.top(1 - nparams) : Value();
+                _stack.pop(nparams);
             }
             if (_program == _function) {
                 // We've hit the end of the program
@@ -542,7 +545,9 @@ CallReturnValue ExecutionUnit::continueExecution()
             callReturnValue = CallReturnValue();
         }
         else {
-            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, inst.nparams());
+            // Assume this is RET
+            uint8_t nparams = byteFromCode();
+            callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, nparams);
         }
         
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
@@ -590,18 +595,17 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_MOVE:
-        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        setInFrame(byteFromCode(), regOrConst(byteFromCode()));
         DISPATCH;
     L_LOADREFK:
-        setInFrame(inst.ra(), derefId(regOrConst(inst.rb()).asIdValue()));
+        setInFrame(byteFromCode(), derefId(regOrConst(byteFromCode()).asIdValue()));
         DISPATCH;
     L_STOREFK:
-        stoIdRef(regOrConst(inst.rb()).asIdValue(), regOrConst(inst.rc()));
+        stoIdRef(regOrConst(byteFromCode()).asIdValue(), regOrConst(byteFromCode()));
         DISPATCH;
     L_LOADPROP:
-        prop = regOrConst(inst.rc()).toIdValue(this);
-        
-        leftValue = regOrConst(inst.rb()).property(this, prop);
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode()).property(this, (rightValue = regOrConst(byteFromCode())).toIdValue(this));
         // TODO: Distinguish between Values that can't have properties and those that can
         //
         // We don't distinguish between Values that can't have properties (like Id and NativeFunction) and
@@ -613,90 +617,94 @@ CallReturnValue ExecutionUnit::continueExecution()
             if (prop == Atom(SA::iterator)) {
                 leftValue = program()->global()->property(Atom(SA::Iterator));
             } else {
-                printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rc()).toStringValue(this).c_str());
+                printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringValue(this).c_str());
                 DISPATCH;
             }
         }
-        setInFrame(inst.ra(), leftValue);
+        setInFrame(ra, leftValue);
         DISPATCH;
     L_STOPROP:
-        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::NeverAdd)) {
-            printError(ROMSTR("Property '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        if (!reg(byteFromCode()).setProperty(this, (leftValue = regOrConst(byteFromCode())).toIdValue(this), regOrConst(byteFromCode()), Value::SetPropertyType::NeverAdd)) {
+            printError(ROMSTR("Property '%s' does not exist"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADELT:
-        leftValue = regOrConst(inst.rb()).element(this, regOrConst(inst.rc()));
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode()).element(this, (rightValue = regOrConst(byteFromCode())));
         if (!leftValue) {
-            printError(ROMSTR("Can't read element '%s' of a non-existant object"), regOrConst(inst.rc()).toStringValue(this).c_str());
+            printError(ROMSTR("Can't read element '%s' of a non-existant object"), rightValue.toStringValue(this).c_str());
         } else {
-            setInFrame(inst.ra(), leftValue);
+            setInFrame(ra, leftValue);
         }
         DISPATCH;
     L_STOELT:
-        if (!reg(inst.ra()).setElement(this, regOrConst(inst.rb()), regOrConst(inst.rc()), false)) {
-            printError(ROMSTR("Element '%s' does not exist"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        if (!reg(byteFromCode()).setElement(this, (leftValue = regOrConst(byteFromCode())), regOrConst(byteFromCode()), false)) {
+            printError(ROMSTR("Element '%s' does not exist"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADUP:
-        if (!_function->loadUpValue(this, inst.rb(), rightValue)) {
+        ra = byteFromCode();
+        if (!_function->loadUpValue(this, byteFromCode(), rightValue)) {
             printError(ROMSTR("unable to load upValue"));
         } else {
-            setInFrame(inst.ra(), rightValue);
+            setInFrame(ra, rightValue);
         }
         DISPATCH;
     L_STOREUP:
-        if (!_function->storeUpValue(this, inst.ra(), regOrConst(inst.rb()))) {
+        if (!_function->storeUpValue(this, byteFromCode(), regOrConst(byteFromCode()))) {
             printError(ROMSTR("unable to store upValue"));
         }
         DISPATCH;
     L_LOADLITA:
         materObjectValue = Object::create<MaterObject>();
         materObjectValue->setArray(true);
-        setInFrame(inst.ra(), Value(materObjectValue));
+        setInFrame(byteFromCode(), Value(materObjectValue));
         DISPATCH;
     L_LOADLITO:
         objectValue = Object::create<MaterObject>();
-        setInFrame(inst.ra(), Value(objectValue));
+        setInFrame(byteFromCode(), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
-        if (!reg(inst.ra()).setProperty(this, regOrConst(inst.rb()).toIdValue(this), regOrConst(inst.rc()), Value::SetPropertyType::AlwaysAdd)) {
-            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        if (!reg(byteFromCode()).setProperty(this, (leftValue = regOrConst(byteFromCode())).toIdValue(this), regOrConst(byteFromCode()), Value::SetPropertyType::AlwaysAdd)) {
+            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_APPENDELT:
-        if (!reg(inst.ra()).setElement(this, Value(), regOrConst(inst.rb()), true)) {
-            printError(ROMSTR("Can't append element '%s' to object"), regOrConst(inst.rb()).toStringValue(this).c_str());
+        if (!reg(byteFromCode()).setElement(this, Value(), (leftValue = regOrConst(byteFromCode())), true)) {
+            printError(ROMSTR("Can't append element '%s' to object"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADTRUE:
-        setInFrame(inst.ra(), Value(true));
+        setInFrame(byteFromCode(), Value(true));
         DISPATCH;
     L_LOADFALSE:
-        setInFrame(inst.ra(), Value(false));
+        setInFrame(byteFromCode(), Value(false));
         DISPATCH;
     L_LOADNULL:
-        setInFrame(inst.ra(), Value());
+        setInFrame(byteFromCode(), Value());
         DISPATCH;
     L_LOADTHIS:
-        setInFrame(inst.ra(), Value(_this));
+        setInFrame(byteFromCode(), Value(_this));
         DISPATCH;
     L_PUSH:
-        _stack.push(regOrConst(inst.rn()));
+        _stack.push(regOrConst(byteFromCode()));
         DISPATCH;
     L_POP:
-        setInFrame(inst.ra(), _stack.top());
+        setInFrame(byteFromCode(), _stack.top());
         _stack.pop();
         DISPATCH;
     L_LOR:
     L_LAND:
-        leftBoolValue = regOrConst(inst.rb()).toBoolValue(this);
-        rightBoolValue = regOrConst(inst.rc()).toBoolValue(this);
-        setInFrame(inst.ra(), (inst.op() == Op::LOR) ? Value(leftBoolValue || rightBoolValue) : Value(leftBoolValue && rightBoolValue));
+        ra = byteFromCode();
+        leftBoolValue = regOrConst(byteFromCode()).toBoolValue(this);
+        rightBoolValue = regOrConst(byteFromCode()).toBoolValue(this);
+        setInFrame(ra, (op == Op::LOR) ? Value(leftBoolValue || rightBoolValue) : Value(leftBoolValue && rightBoolValue));
         DISPATCH;
     L_BINIOP:
-        leftIntValue = regOrConst(inst.rb()).toIntValue(this);
-        rightIntValue = regOrConst(inst.rc()).toIntValue(this);
-        switch(inst.op()) {
+        ra = byteFromCode();
+        leftIntValue = regOrConst(byteFromCode()).toIntValue(this);
+        rightIntValue = regOrConst(byteFromCode()).toIntValue(this);
+        switch(op) {
             case Op::LOR: leftIntValue = leftIntValue || rightIntValue; break;
             case Op::LAND: leftIntValue = leftIntValue && rightIntValue; break;
             case Op::AND: leftIntValue &= rightIntValue; break;
@@ -707,121 +715,139 @@ CallReturnValue ExecutionUnit::continueExecution()
             case Op::SHR: leftIntValue = static_cast<uint32_t>(leftIntValue) >> rightIntValue; break;
             default: assert(0); break;
         }
-        setInFrame(inst.ra(), Value(leftIntValue));
+        setInFrame(ra, Value(leftIntValue));
         DISPATCH;
     L_EQ: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) == 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) == 0));
         DISPATCH;
     L_NE: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) != 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) != 0));
         DISPATCH;
     L_LT: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) < 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) < 0));
         DISPATCH;
     L_LE: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) <= 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) <= 0));
         DISPATCH;
     L_GT: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) > 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) > 0));
         DISPATCH;
     L_GE: 
-        setInFrame(inst.ra(), Value(compareValues(regOrConst(inst.rb()), regOrConst(inst.rc())) >= 0));
+        setInFrame(byteFromCode(), Value(compareValues(regOrConst(byteFromCode()), regOrConst(byteFromCode())) >= 0));
         DISPATCH;
-    L_SUB: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
+    L_SUB:
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
+        rightValue = regOrConst(byteFromCode());
         if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() - rightValue.asIntValue()));
+            setInFrame(ra, Value(leftValue.asIntValue() - rightValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) - rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(leftValue.toFloatValue(this) - rightValue.toFloatValue(this)));
         }
         DISPATCH;
-    L_MUL: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
+    L_MUL:
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
+        rightValue = regOrConst(byteFromCode());
         if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() * rightValue.asIntValue()));
+            setInFrame(ra, Value(leftValue.asIntValue() * rightValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) * rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(leftValue.toFloatValue(this) * rightValue.toFloatValue(this)));
         }
         DISPATCH;
-    L_DIV: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
+    L_DIV:
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
+        rightValue = regOrConst(byteFromCode());
         if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() / rightValue.asIntValue()));
+            setInFrame(ra, Value(leftValue.asIntValue() / rightValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) / rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(leftValue.toFloatValue(this) / rightValue.toFloatValue(this)));
         }
         DISPATCH;
     L_MOD: 
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
+        rightValue = regOrConst(byteFromCode());
         if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() % rightValue.asIntValue()));
+            setInFrame(ra, Value(leftValue.asIntValue() % rightValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) % rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(leftValue.toFloatValue(this) % rightValue.toFloatValue(this)));
         }
         DISPATCH;
     L_ADD:
-        leftValue = regOrConst(inst.rb());
-        rightValue = regOrConst(inst.rc());
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
+        rightValue = regOrConst(byteFromCode());
         if (valuesAreInt(leftValue, rightValue)) {
-            setInFrame(inst.ra(), Value(leftValue.asIntValue() + rightValue.asIntValue()));
+            setInFrame(ra, Value(leftValue.asIntValue() + rightValue.asIntValue()));
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
-            setInFrame(inst.ra(), Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
             Mad<String> string = String::create(leftValue.toStringValue(this) + rightValue.toStringValue(this));
-            setInFrame(inst.ra(), Value(string));
+            setInFrame(ra, Value(string));
         }
         DISPATCH;
     L_UMINUS:
-        leftValue = regOrConst(inst.rb());
+        ra = byteFromCode();
+        leftValue = regOrConst(byteFromCode());
         if (leftValue.isInteger()) {
-            setInFrame(inst.ra(), Value(-leftValue.asIntValue()));
+            setInFrame(ra, Value(-leftValue.asIntValue()));
         } else {
-            setInFrame(inst.ra(), Value(-leftValue.toFloatValue(this)));
+            setInFrame(ra, Value(-leftValue.toFloatValue(this)));
         }
         DISPATCH;
     L_UNEG:
-        setInFrame(inst.ra(), Value((regOrConst(inst.rb()).toIntValue(this) == 0) ? 1 : 0));
+        setInFrame(byteFromCode(), Value((regOrConst(byteFromCode()).toIntValue(this) == 0) ? 1 : 0));
         DISPATCH;
     L_UNOT:
-        setInFrame(inst.ra(), Value(~(regOrConst(inst.rb()).toIntValue(this))));
+        setInFrame(byteFromCode(), Value(~(regOrConst(byteFromCode()).toIntValue(this))));
         DISPATCH;
     L_PREINC:
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
-        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        ra = byteFromCode();
+        rb = byteFromCode();
+        setInFrame(rb, Value(regOrConst(rb).toIntValue(this) + 1));
+        setInFrame(ra, regOrConst(rb));
         DISPATCH;
     L_PREDEC:
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
-        setInFrame(inst.ra(), regOrConst(inst.rb()));
+        ra = byteFromCode();
+        rb = byteFromCode();
+        setInFrame(rb, Value(regOrConst(rb).toIntValue(this) - 1));
+        setInFrame(ra, regOrConst(rb));
         DISPATCH;
     L_POSTINC:
-        setInFrame(inst.ra(), regOrConst(inst.rb()));
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) + 1));
+        ra = byteFromCode();
+        rb = byteFromCode();
+        setInFrame(ra, regOrConst(rb));
+        setInFrame(rb, Value(regOrConst(rb).toIntValue(this) + 1));
         DISPATCH;
     L_POSTDEC:
-        setInFrame(inst.ra(), regOrConst(inst.rb()));
-        setInFrame(inst.rb(), Value(regOrConst(inst.rb()).toIntValue(this) - 1));
+        ra = byteFromCode();
+        rb = byteFromCode();
+        setInFrame(ra, regOrConst(rb));
+        setInFrame(rb, Value(regOrConst(rb).toIntValue(this) - 1));
         DISPATCH;
     L_CLOSURE: {
+        ra = byteFromCode();
         Mad<Closure> closure = Object::create<Closure>();
-        closure->init(this, regOrConst(inst.rb()), _this.valid() ? Value(_this) : Value());
-        setInFrame(inst.ra(), Value(static_cast<Mad<Object>>(closure)));
+        closure->init(this, regOrConst(byteFromCode()), _this.valid() ? Value(_this) : Value());
+        setInFrame(ra, Value(static_cast<Mad<Object>>(closure)));
         DISPATCH;
     }
     L_NEW:
     L_CALL:
     L_CALLPROP: {
-        leftValue = regOrConst(inst.rcall());
-        uintValue = inst.nparams();
+        ra = byteFromCode();
+        rb = (op != Op::NEW) ? byteFromCode() : 0;
+        
+        leftValue = regOrConst(ra);
+        uintValue = byteFromCode();
         Atom name;
 
-        switch(inst.op()) {
+        switch(op) {
             default: break;
             case Op::CALL: {
-                rightValue = regOrConst(inst.rthis());
+                rightValue = regOrConst(rb);
                 if (!rightValue) {
                     rightValue = Value(_this);
                 }
@@ -832,7 +858,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 callReturnValue = leftValue.call(this, Value(), uintValue, true);
                 break;
             case Op::CALLPROP:
-                name = regOrConst(inst.rthis()).asIdValue();
+                name = regOrConst(rb).asIdValue();
                 callReturnValue = leftValue.callProperty(this, name, uintValue);
                 if (callReturnValue.isError()) {
                     printError(ROMSTR("'%s'"), _program->stringFromAtom(name).c_str());
@@ -870,17 +896,17 @@ CallReturnValue ExecutionUnit::continueExecution()
     L_JMP:
     L_JT:
     L_JF:
-        intValue = inst.sn();
-        if (inst.op() != Op::JMP) {
-            boolValue = regOrConst(inst.rn()).toBoolValue(this);
-            if (inst.op() == Op::JT) {
+        if (op != Op::JMP) {
+            boolValue = regOrConst(byteFromCode()).toBoolValue(this);
+            if (op == Op::JT) {
                 boolValue = !boolValue;
             }
             if (boolValue) {
+                sNFromCode();
                 DISPATCH;
             }
         }
-        _pc += intValue - 1;
+        _pc += sNFromCode() - 1;
         DISPATCH;
 }
 

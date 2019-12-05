@@ -27,17 +27,26 @@ public:
     
     m8r::String generateCodeString(const Mad<Program> program) const;
     
-private:   
+private:
+    static uint8_t byteFromCode(const uint8_t* code) { return *code; }
+    static Op opFromCode(const uint8_t* code) { return static_cast<Op>(byteFromCode(code)); }
+    static uint16_t uNFromCode(const uint8_t* code)
+    {
+        uint16_t n = static_cast<uint16_t>(byteFromCode(code)) << 8;
+        return n | static_cast<uint16_t>(byteFromCode(code));
+    }
+    static inline int16_t sNFromCode(const uint8_t* code) { return static_cast<int16_t>(uNFromCode(code)); }
+
     String regString(const Mad<Program>, const Mad<Function>, uint32_t reg, bool up = false) const;
     void generateXXX(m8r::String&, uint32_t addr, Op op) const;
-    void generateRXX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d) const;
-    void generateRRX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateRUX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateURX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s) const;
-    void generateRRR(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const;
-    void generateXN(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, int32_t n) const;
-    void generateRN(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint32_t d, int32_t n) const;
-    void generateCall(const Mad<Program>, const Mad<Function>, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const;
+    void generateRXX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d) const;
+    void generateRRX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d, uint8_t s) const;
+    void generateRUX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d, uint8_t s) const;
+    void generateURX(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d, uint8_t s) const;
+    void generateRRR(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d, uint8_t s1, uint8_t s2) const;
+    void generateXN(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, int16_t n) const;
+    void generateRN(const Mad<Program>, const Mad<Function>, m8r::String&, uint32_t addr, Op op, uint8_t d, int16_t n) const;
+    void generateCall(const Mad<Program>, const Mad<Function>, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const;
  
     void showConstant(const Mad<Program>, m8r::String&, const Value&, bool abbreviated = false) const;
     Value* valueFromId(Atom, const Mad<Object>) const;

@@ -81,49 +81,49 @@ void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
     str += String(stringFromOp(op)) + "\n";
 }
 
-void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d) const
+void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + "\n";
 }
 
-void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s, true) + "\n";
 }
 
-void CodePrinter::generateURX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s) const
+void CodePrinter::generateURX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d, true) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, uint32_t s1, uint32_t s2) const
+void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s1, uint8_t s2) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
 }
 
-void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int32_t n) const
+void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int16_t n) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + String::toString(n) + "\n";
 }
 
-void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t d, int32_t n) const
+void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + String::toString(n) + "\n";
 }
 
-void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint32_t rcall, uint32_t rthis, int32_t nparams) const
+void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
@@ -159,8 +159,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
     #undef DISPATCH
     #define DISPATCH { \
-        inst = code[i++]; \
-        op = static_cast<Op>(inst.op()); \
+        op = opFromCode(currentAddr); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -191,27 +190,35 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     outputString += ")\n";
     
     _nestingLevel++;
-    
-    const uint8_t* code = &(function->code()->at(0));
 
+    const uint8_t* code = &(function->code()->at(0));
+    Op op;
+    
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
-    uint32_t i = 0;
-    for (uint32_t i = 0; ; ++i) {
-        if (i >= function->code()->size()) {
+    const uint8_t* end = code + function->code()->size();
+    
+    for (const uint8_t* p = code; ; ++p) {
+        if (p >= end) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
 
-        Op op = static_cast<Op>(function->code()->at(i));
+        Op op = opFromCode(p);
         if (op == Op::END) {
             break;
         }
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
-            int16_t addr = c.sn();
-            Annotation annotation = { static_cast<uint32_t>(i + addr), uniqueID++ };
+            if (op == Op::JT || op == Op::JF) {
+                p++;
+            }
+
+            uint32_t addr = static_cast<uint32_t>((p - code) + sNFromCode(p));
+            Annotation annotation = { addr, uniqueID++ };
             annotations.push_back(annotation);
+        } else {
+            code += OpInfo::size(op);
         }
     }
     
@@ -255,12 +262,10 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     outputString += "CODE:\n";
     _nestingLevel++;
 
-    i = 0;
     m8r::String strValue;
     Atom localName;
     
-    Instruction inst;
-    Op op;
+    const uint8_t* currentAddr = code;
     
     DISPATCH;
     
@@ -269,7 +274,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         DISPATCH;
     L_END:
         _nestingLevel--;
-        preamble(outputString, i - 1);
+        preamble(outputString, static_cast<uint32_t>(currentAddr - code - 1));
         outputString += "END\n";
         _nestingLevel--;
         return outputString;  
@@ -279,28 +284,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADFALSE:
     L_LOADNULL:
     L_LOADTHIS:
-        generateRXX(program, function, outputString, i - 1, op, inst.ra());
+        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
         DISPATCH;
     L_PUSH:
-        generateRXX(program, function, outputString, i - 1, op, inst.rn());
+        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
         DISPATCH;
     L_POP:
-        generateRXX(program, function, outputString, i - 1, op, inst.ra());
+        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
         DISPATCH;
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG: L_CLOSURE:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
+        generateRRX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADUP:
-        generateRUX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
+        generateRUX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREUP:
-        generateURX(program, function, outputString, i - 1, op, inst.ra(), inst.rb());
+        generateURX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREFK:
-        generateRRX(program, function, outputString, i - 1, op, inst.rb(), inst.rc());
+        generateRRX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -308,28 +313,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_DEREF:
-        generateRRR(program, function, outputString, i - 1, op, inst.ra(), inst.rb(), inst.rc());
+        generateRRR(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_RET:
-        generateXN(program, function, outputString, i - 1, op, inst.nparams());
+        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
         DISPATCH;
     L_JMP:
-        generateXN(program, function, outputString, i - 1, op, inst.sn());
+        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, sNFromCode(currentAddr));
         DISPATCH;
     L_JT: L_JF:
-        generateRN(program, function, outputString, i - 1, op, inst.rn(), inst.sn());
+        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), sNFromCode(currentAddr));
         DISPATCH;
     L_CALL:
-        generateCall(program, function, outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_NEW:
-        generateRN(program, function, outputString, i - 1, op, inst.rcall(), inst.nparams());
+        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_CALLPROP:
-        generateCall(program, function, outputString, i - 1, op, inst.rcall(), inst.rthis(), inst.nparams());
+        generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LINENO:
-        _lineno = inst.un();
+        _lineno = uNFromCode(currentAddr);
         DISPATCH;
 }
 

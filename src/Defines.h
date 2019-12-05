@@ -354,6 +354,123 @@ enum class Op : uint8_t {
 
 static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bits");
 
+class OpInfo
+{
+public:
+    static uint8_t size(Op op) { return array()[static_cast<uint8_t>(op)].size; }
+    static bool aReg(Op op) { return flagFromLayout(op, Flags::a); }
+
+private:
+    // Bits here are a(0x01), b(0x02), c(0x04), sn(0x08), un(0x10)
+    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, sn = 0x08, un = 0x10 };
+    
+    static constexpr uint8_t layoutFromFlags(Flags x, Flags y = Flags::None, Flags z = Flags::None)
+    {
+        return static_cast<uint8_t>(x) | static_cast<uint8_t>(y) | static_cast<uint8_t>(z);
+    }
+
+    enum class Layout : uint8_t {
+        None    = 0,
+        AReg    = static_cast<uint8_t>(Flags::a),
+        BReg    = static_cast<uint8_t>(Flags::b),
+        ABReg   = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b),
+        ABCReg  = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
+        SN      = static_cast<uint8_t>(Flags::sn),
+        ARegSN  = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::sn),
+        UN      = static_cast<uint8_t>(Flags::un),
+    };
+    
+    static bool flagFromLayout(Op op, Flags flag)
+    {
+        return static_cast<uint8_t>(array()[static_cast<uint8_t>(op)].layout) & static_cast<uint8_t>(flag);
+    }
+    
+    struct Entry
+    {
+        Layout layout : 5;
+        uint8_t size  : 3;
+    };
+    static_assert(sizeof(Entry) == 1, "OpInfo::Entry must be 8 bits");
+
+    static const Entry* array()
+    {
+        static const Entry RODATA_ATTR _array[ ] = {
+/*0x00 */   { Layout::ABReg, 2 },   // MOVE
+            { Layout::ABReg, 2 },   // LOADREFK
+            { Layout::ABReg, 2 },   // STOREFK
+            { Layout::ABReg, 2 },   // LOADLITA
+            { Layout::ABReg, 2 },   // LOADLITO
+            { Layout::ABReg, 2 },   // LOADPROP
+            { Layout::ABReg, 2 },   // LOADELT
+            { Layout::ABReg, 2 },   // STOPROP
+            { Layout::ABReg, 2 },   // STOELT
+            { Layout::ABReg, 2 },   // APPENDELT
+            { Layout::ABReg, 2 },   // APPENDPROP
+            { Layout::ABReg, 2 },   // LOADTRUE
+            { Layout::ABReg, 2 },   // LOADFALSE
+            { Layout::ABReg, 2 },   // LOADNULL
+            { Layout::ABReg, 2 },   // PUSH
+            { Layout::ABReg, 2 },   // POP
+            
+/*0x10 */   { Layout::ABReg, 2 },   // LOR
+            { Layout::ABReg, 2 },   // LAND
+            { Layout::ABReg, 2 },   // OR
+            { Layout::ABReg, 2 },   // AND
+            { Layout::ABReg, 2 },   // XOR
+            { Layout::ABReg, 2 },   // EQ
+            { Layout::ABReg, 2 },   // NE
+            { Layout::ABReg, 2 },   // LT
+            { Layout::ABReg, 2 },   // LE
+            { Layout::ABReg, 2 },   // GT
+            { Layout::ABReg, 2 },   // GE
+            { Layout::ABReg, 2 },   // SHL
+            { Layout::ABReg, 2 },   // SHR
+            { Layout::ABReg, 2 },   // SAR
+            { Layout::ABReg, 2 },   // ADD
+            { Layout::ABReg, 2 },   // SUB
+            
+/*0x20 */   { Layout::ABReg, 2 },   // MUL
+            { Layout::ABReg, 2 },   // DIV
+            { Layout::ABReg, 2 },   // MOD
+            
+            { Layout::ABReg, 2 },   // UMINUS
+            { Layout::ABReg, 2 },   // UNOT
+            { Layout::ABReg, 2 },   // UNEG
+            { Layout::ABReg, 2 },   // PREINC
+            { Layout::ABReg, 2 },   // PREDEC
+            { Layout::ABReg, 2 },   // POSTINC
+            { Layout::ABReg, 2 },   // POSTDEC
+
+            { Layout::ABReg, 2 },   // LINENO
+            { Layout::ABReg, 2 },   // LOADTHIS
+            { Layout::ABReg, 2 },   // LOADUP
+            { Layout::ABReg, 2 },   // STOREUP
+            { Layout::ABReg, 2 },   // CLOSURE
+            { Layout::ABReg, 2 },   // YIELD
+
+/*0x30 */   { Layout::ABReg, 2 },   // CALL
+            { Layout::ABReg, 2 },   // NEW
+            { Layout::ABReg, 2 },   // CALLPROP
+            { Layout::ABReg, 2 },   // JMP
+            { Layout::ABReg, 2 },   // JT
+            { Layout::ABReg, 2 },   // JF
+            
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+            { Layout::ABReg, 2 },   // unused
+
+/*0x3d */   { Layout::ABReg, 2 },   // END
+/*0x3e */   { Layout::ABReg, 2 },   // RET
+/*0x3f */   { Layout::ABReg, 2 },   // UNKNOWN
+        };
+        return _array;
+    }
+};
+
 class Instruction {
 public:
     Instruction() { }

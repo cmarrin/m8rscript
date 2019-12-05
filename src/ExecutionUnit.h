@@ -154,8 +154,17 @@ private:
                 return Op::YIELD;
             }
         }
-        return static_cast<Op>(_code[_pc++]);
+        return opFromCode();
     }
+    
+    Op opFromCode() { return static_cast<Op>(_code[_pc++]); }
+    uint8_t byteFromCode() { return _code[_pc++]; }
+    uint16_t uNFromCode()
+    {
+        uint16_t n = static_cast<uint16_t>(_code[_pc++]) << 8;
+        return n | static_cast<uint16_t>(_code[_pc++]);
+    }
+    int16_t sNFromCode() { return static_cast<int16_t>(uNFromCode()); }
 
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue runNextEvent();
