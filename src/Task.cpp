@@ -17,6 +17,8 @@
 #include "Parser.h"
 #endif
 
+#define PRINT_CODE
+
 #ifdef PRINT_CODE
 #include "CodePrinter.h"
 #endif
@@ -74,7 +76,7 @@ void Task::setFilename(const char* filename)
             m8r::String codeString = codePrinter.generateCodeString(parser.program());
             
             system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-            system()->printf("%s", codeString.c_str());
+            system()->printf(ROMSTR("%s"), codeString.c_str());
             system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
 #endif
         }

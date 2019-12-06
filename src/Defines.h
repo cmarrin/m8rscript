@@ -359,7 +359,7 @@ static_assert(static_cast<uint32_t>(Op::LAST) <= 0x40, "Opcode must fit in 6 bit
 class OpInfo
 {
 public:
-    static uint8_t size(Op op) { return array()[static_cast<uint8_t>(op)].size; }
+    static uint8_t size(Op op) { return array(op).size; }
     static bool aReg(Op op) { return flagFromLayout(op, Flags::a); }
     static bool bReg(Op op) { return flagFromLayout(op, Flags::b); }
     static bool cReg(Op op) { return flagFromLayout(op, Flags::c); }
@@ -386,7 +386,7 @@ private:
     
     static bool flagFromLayout(Op op, Flags flag)
     {
-        return static_cast<uint8_t>(array()[static_cast<uint8_t>(op)].layout) & static_cast<uint8_t>(flag);
+        return static_cast<uint8_t>(array(op).layout) & static_cast<uint8_t>(flag);
     }
     
     struct Entry
@@ -396,7 +396,7 @@ private:
     };
     static_assert(sizeof(Entry) == 1, "OpInfo::Entry must be 8 bits");
 
-    static const Entry* array()
+    static const Entry& array(Op op)
     {
         static const Entry RODATA_ATTR _array[ ] = {
 /*0x00 */   { Layout::ABReg,  2 },   // MOVE         R[d], RK[s]
@@ -471,7 +471,9 @@ private:
 /*0x3e */   { Layout::None,   1 },   // RET          NPARAMS
 /*0x3f */   { Layout::None,   0 },   // UNKNOWN
         };
-        return _array;
+        
+        assert(static_cast<uint8_t>(op) < sizeof(_array) / sizeof(Entry));
+        return _array[static_cast<uint8_t>(op)];
     }
 };
 

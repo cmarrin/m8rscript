@@ -144,22 +144,23 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Ma
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(SHL)
         /* 0x1C */ OP(SHR) OP(SAR) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CLOSURE)
-        /* 0x28 */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(UMINUS)
+        /* 0x24 */ OP(UNOT)  OP(UNEG)  OP(PREINC)  OP(PREDEC)
+        /* 0x28 */ OP(POSTINC)  OP(POSTDEC)  OP(CALL)  OP(NEW)
+        /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
-        /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
-        /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
-        /* 0x38 */ OP(NEW)  OP(CALLPROP) OP(JMP)  OP(JT)
-        /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
+        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
+        /* 0x34 */ OP(CLOSURE) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
     
 static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is wrong size");
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = opFromCode(currentAddr); \
+        currentAddr += OpInfo::size(op); \
+        op = opFromCode(currentAddr++); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -198,27 +199,29 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     uint32_t uniqueID = 1;
     const uint8_t* end = code + function->code()->size();
     
-    for (const uint8_t* p = code; ; ++p) {
+    for (const uint8_t* p = code; ; ) {
         if (p >= end) {
             outputString += "\n\nWENT PAST THE END OF CODE\n\n";
             return outputString;
         }
 
-        Op op = opFromCode(p);
+        op = opFromCode(p);
         if (op == Op::END) {
             break;
         }
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
+            p++;
             if (op == Op::JT || op == Op::JF) {
                 p++;
             }
 
             uint32_t addr = static_cast<uint32_t>((p - code) + sNFromCode(p));
+            p += 2;
             Annotation annotation = { addr, uniqueID++ };
             annotations.push_back(annotation);
         } else {
-            code += OpInfo::size(op);
+            p += OpInfo::size(op) + 1;
         }
     }
     
@@ -266,7 +269,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     Atom localName;
     
     const uint8_t* currentAddr = code;
-    
+    op = Op::UNKNOWN;
     DISPATCH;
     
     L_UNKNOWN:
