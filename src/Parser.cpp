@@ -702,49 +702,22 @@ void Parser::reconcileRegisters(Mad<Function> function)
     
     for (int i = 0; i < currentCode().size(); ++i) {
         Op op = static_cast<Op>(currentCode()[i]);
+        uint8_t size = OpInfo::size(op);
         
-        if (op == Op::LINENO || op == Op::JMP) {
-            i += 2;
-            continue;
+        if (OpInfo::aReg(op)) {
+            assert(size >= 1);
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
         }
-        
-        if (op == Op::RET) {
-            i += 1;
-            continue;
+        if (OpInfo::bReg(op)) {
+            assert(size >= 2);
+            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
         }
-        
-        if (op == Op::END || op == Op::UNKNOWN) {
-            continue;
-        }
-        
-        if (op == Op::RET || op == Op::CALL || op == Op::NEW || op == Op::CALLPROP) {
-            // Fixup ra na rb
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
-            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
-            i += 3;
-        } else if (op == Op::JT || op == Op::JF) {
-            // Fixup ra
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
-            i += 3;
-        } else if (op == Op::PUSH) {
-            // Fixup ra
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
-            i += 1;
-        } else if (op == Op::LOADUP) {
-            // Fixup ra
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
-            i += 2;
-        } else if (op == Op::STOREUP) {
-            // Fixup rb
-            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
-            i += 2;
-        } else {
-            // Fixup ra, rb and rc
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
-            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
+        if (OpInfo::cReg(op)) {
+            assert(size >= 3);
             currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], numLocals);
-            i += 3;
         }
+        
+        i += size + 1;
     }
 }
 

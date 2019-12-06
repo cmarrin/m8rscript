@@ -328,24 +328,26 @@ static constexpr int32_t MaxJump = 32767;
 // Opcodes are 6 bits, 0x00 to 0x3f
 enum class Op : uint8_t {
     
-    MOVE = 0x00, LOADREFK, STOREFK, LOADLITA, LOADLITO,
-    LOADPROP, LOADELT, STOPROP, STOELT, APPENDELT, APPENDPROP,
-    LOADTRUE, LOADFALSE, LOADNULL, PUSH, POP,
+    MOVE = 0x00, LOADREFK, STOREFK, LOADLITA,
+    LOADLITO, LOADPROP, LOADELT, STOPROP,
+    STOELT, APPENDELT, APPENDPROP, LOADTRUE,
+    LOADFALSE, LOADNULL, PUSH, POP,
 
-    LOR = 0x10, LAND, OR, AND, XOR,
-    EQ,  NE, LT, LE, GT, GE,
-    SHL, SHR, SAR,
-    ADD, SUB,
-    MUL = 0x20, DIV, MOD,
+    LOR = 0x10, LAND, OR, AND,
+    XOR, EQ,  NE, LT,
+    LE, GT, GE, SHL,
+    SHR, SAR, ADD, SUB,
     
-    LINENO,
-    
-    LOADTHIS, LOADUP, STOREUP, CLOSURE, YIELD,
-    
-    // 0x29 - 0x2f unused (8)
+    MUL = 0x20, DIV, MOD, UMINUS,
+    UNOT, UNEG, PREINC, PREDEC,
+    POSTINC, POSTDEC, CALL, NEW,
+    CALLPROP, JMP, JT, JF,
 
-    UMINUS = 0x30, UNOT, UNEG, PREINC, PREDEC, POSTINC, POSTDEC,
-    CALL, NEW, CALLPROP, JMP, JT, JF,
+
+    LINENO = 0x30, LOADTHIS, LOADUP, STOREUP,
+    CLOSURE, YIELD,
+    
+    // 0x36 - 0x3c open
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
@@ -359,6 +361,8 @@ class OpInfo
 public:
     static uint8_t size(Op op) { return array()[static_cast<uint8_t>(op)].size; }
     static bool aReg(Op op) { return flagFromLayout(op, Flags::a); }
+    static bool bReg(Op op) { return flagFromLayout(op, Flags::b); }
+    static bool cReg(Op op) { return flagFromLayout(op, Flags::c); }
 
 private:
     // Bits here are a(0x01), b(0x02), c(0x04), sn(0x08), un(0x10)
@@ -441,27 +445,27 @@ private:
             { Layout::ABReg, 2 },   // POSTINC
             { Layout::ABReg, 2 },   // POSTDEC
 
-            { Layout::ABReg, 2 },   // LINENO
-            { Layout::ABReg, 2 },   // LOADTHIS
-            { Layout::ABReg, 2 },   // LOADUP
-            { Layout::ABReg, 2 },   // STOREUP
-            { Layout::ABReg, 2 },   // CLOSURE
-            { Layout::ABReg, 2 },   // YIELD
-
-/*0x30 */   { Layout::ABReg, 2 },   // CALL
+            { Layout::ABReg, 2 },   // CALL
             { Layout::ABReg, 2 },   // NEW
             { Layout::ABReg, 2 },   // CALLPROP
             { Layout::ABReg, 2 },   // JMP
             { Layout::ABReg, 2 },   // JT
             { Layout::ABReg, 2 },   // JF
             
+/*0x30 */   { Layout::ABReg, 2 },   // LINENO
+            { Layout::ABReg, 2 },   // LOADTHIS
+            { Layout::ABReg, 2 },   // LOADUP
+            { Layout::ABReg, 2 },   // STOREUP
+            { Layout::ABReg, 2 },   // CLOSURE
+            { Layout::ABReg, 2 },   // YIELD
+
+/*0x36 */   { Layout::ABReg, 2 },   // unused
             { Layout::ABReg, 2 },   // unused
             { Layout::ABReg, 2 },   // unused
             { Layout::ABReg, 2 },   // unused
             { Layout::ABReg, 2 },   // unused
             { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
+/*0x3c */   { Layout::ABReg, 2 },   // unused
 
 /*0x3d */   { Layout::ABReg, 2 },   // END
 /*0x3e */   { Layout::ABReg, 2 },   // RET

@@ -441,15 +441,16 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x18 */ OP(LE) OP(GT) OP(GE) OP(BINIOP)
         /* 0x1C */ OP(BINIOP) OP(BINIOP) OP(ADD) OP(SUB)
         
-        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD)  OP(LINENO)
-        /* 0x24 */ OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)  OP(CLOSURE)
-        /* 0x28 */ OP(YIELD)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
-        /* 0x2c */ OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x20 */ OP(MUL)  OP(DIV)  OP(MOD) OP(UMINUS)
+        /* 0x24 */ OP(UNOT)  OP(UNEG)  OP(PREINC) OP(PREDEC)
+        /* 0x28 */ OP(POSTINC)  OP(POSTDEC)  OP(CALL)  OP(NEW)
+        /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
-        /* 0x30 */ OP(UMINUS)  OP(UNOT)  OP(UNEG)  OP(PREINC)
-        /* 0x34 */ OP(PREDEC)  OP(POSTINC)  OP(POSTDEC)  OP(CALL)
-        /* 0x38 */ OP(NEW)  OP(CALLPROP) OP(JMP)  OP(JT)
-        /* 0x3c */ OP(JF) OP(END) OP(RET) OP(UNKNOWN)
+
+        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
+        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
  
     static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
