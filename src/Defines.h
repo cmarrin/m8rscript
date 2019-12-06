@@ -285,7 +285,7 @@ struct Label {
     LOADTRUE    R[d]
     LOADFALSE   R[d]
     LOADNULL    R[d]
-    LOADTHIS    R[2]
+    LOADTHIS    R[d]
     
     PUSH        RK[s]
     POP         R[d]
@@ -315,7 +315,7 @@ struct Label {
  
     JMP         SN
     JT          RK[s], SN
-    JF          RK[s], NS
+    JF          RK[s], SN
     LINENO      UN
  
     Total: 51 instructions
@@ -399,77 +399,77 @@ private:
     static const Entry* array()
     {
         static const Entry RODATA_ATTR _array[ ] = {
-/*0x00 */   { Layout::ABReg, 2 },   // MOVE
-            { Layout::ABReg, 2 },   // LOADREFK
-            { Layout::ABReg, 2 },   // STOREFK
-            { Layout::ABReg, 2 },   // LOADLITA
-            { Layout::ABReg, 2 },   // LOADLITO
-            { Layout::ABReg, 2 },   // LOADPROP
-            { Layout::ABReg, 2 },   // LOADELT
-            { Layout::ABReg, 2 },   // STOPROP
-            { Layout::ABReg, 2 },   // STOELT
-            { Layout::ABReg, 2 },   // APPENDELT
-            { Layout::ABReg, 2 },   // APPENDPROP
-            { Layout::ABReg, 2 },   // LOADTRUE
-            { Layout::ABReg, 2 },   // LOADFALSE
-            { Layout::ABReg, 2 },   // LOADNULL
-            { Layout::ABReg, 2 },   // PUSH
-            { Layout::ABReg, 2 },   // POP
+/*0x00 */   { Layout::ABReg,  2 },   // MOVE         R[d], RK[s]
+            { Layout::ABReg,  2 },   // LOADREFK     R[d], RK[s]
+            { Layout::ABReg,  2 },   // STOREFK      RK[d], RK[s]
+            { Layout::AReg,   1 },   // LOADLITA     R[d]
+            { Layout::AReg,   1 },   // LOADLITO     R[d]
+            { Layout::ABCReg, 3 },   // LOADPROP     R[d], RK[o], K[p]
+            { Layout::ABCReg, 3 },   // LOADELT      R[d], RK[o], RK[e]
+            { Layout::ABCReg, 3 },   // STOPROP      R[o], K[p], RK[s]
+            { Layout::ABCReg, 3 },   // STOELT       R[o], RK[e], RK[s]
+            { Layout::ABReg,  2 },   // APPENDELT    R[d], RK[s]
+            { Layout::ABCReg, 3 },   // APPENDPROP   R[d], RK[p], RK[s]
+            { Layout::AReg,   1 },   // LOADTRUE     R[d]
+            { Layout::AReg,   1 },   // LOADFALSE    R[d]
+            { Layout::AReg,   1 },   // LOADNULL     R[d]
+            { Layout::AReg,   1 },   // PUSH         RK[s]
+            { Layout::AReg,   1 },   // POP          R[d]
             
-/*0x10 */   { Layout::ABReg, 2 },   // LOR
-            { Layout::ABReg, 2 },   // LAND
-            { Layout::ABReg, 2 },   // OR
-            { Layout::ABReg, 2 },   // AND
-            { Layout::ABReg, 2 },   // XOR
-            { Layout::ABReg, 2 },   // EQ
-            { Layout::ABReg, 2 },   // NE
-            { Layout::ABReg, 2 },   // LT
-            { Layout::ABReg, 2 },   // LE
-            { Layout::ABReg, 2 },   // GT
-            { Layout::ABReg, 2 },   // GE
-            { Layout::ABReg, 2 },   // SHL
-            { Layout::ABReg, 2 },   // SHR
-            { Layout::ABReg, 2 },   // SAR
-            { Layout::ABReg, 2 },   // ADD
-            { Layout::ABReg, 2 },   // SUB
+/*0x10 */   { Layout::ABCReg, 3 },   // LOR          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // LAND         R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // OR           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // AND          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // XOR          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // EQ           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // NE           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // LT           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // LE           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // GT           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // GE           R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // SHL          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // SHR          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // SAR          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // ADD          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // SUB          R[d], RK[s1], RK[s2]
+             
+/*0x20 */   { Layout::ABCReg, 3 },   // MUL          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // DIV          R[d], RK[s1], RK[s2]
+            { Layout::ABCReg, 3 },   // MOD          R[d], RK[s1], RK[s2]
             
-/*0x20 */   { Layout::ABReg, 2 },   // MUL
-            { Layout::ABReg, 2 },   // DIV
-            { Layout::ABReg, 2 },   // MOD
-            
-            { Layout::ABReg, 2 },   // UMINUS
-            { Layout::ABReg, 2 },   // UNOT
-            { Layout::ABReg, 2 },   // UNEG
-            { Layout::ABReg, 2 },   // PREINC
-            { Layout::ABReg, 2 },   // PREDEC
-            { Layout::ABReg, 2 },   // POSTINC
-            { Layout::ABReg, 2 },   // POSTDEC
+            { Layout::ABReg,  2 },   // UMINUS       R[d], R[s]
+            { Layout::ABReg,  2 },   // UNOT         R[d], R[s]
+            { Layout::ABReg,  2 },   // UNEG         R[d], R[s]
+            { Layout::ABReg,  2 },   // PREINC       R[d], R[s]
+            { Layout::ABReg,  2 },   // PREDEC       R[d], R[s]
+            { Layout::ABReg,  2 },   // POSTINC      R[d], R[s]
+            { Layout::ABReg,  2 },   // POSTDEC      R[d], R[s]
 
-            { Layout::ABReg, 2 },   // CALL
-            { Layout::ABReg, 2 },   // NEW
-            { Layout::ABReg, 2 },   // CALLPROP
-            { Layout::ABReg, 2 },   // JMP
-            { Layout::ABReg, 2 },   // JT
-            { Layout::ABReg, 2 },   // JF
+            { Layout::ABReg,  3 },   // CALL         RK[call], RK[this], NPARAMS
+            { Layout::AReg,   2 },   // NEW          RK[call], NPARAMS
+            { Layout::ABReg,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
+            { Layout::SN,     2 },   // JMP          SN
+            { Layout::ARegSN, 3 },   // JT           RK[s], SN
+            { Layout::ARegSN, 3 },   // JF           RK[s], SN
             
-/*0x30 */   { Layout::ABReg, 2 },   // LINENO
-            { Layout::ABReg, 2 },   // LOADTHIS
-            { Layout::ABReg, 2 },   // LOADUP
-            { Layout::ABReg, 2 },   // STOREUP
-            { Layout::ABReg, 2 },   // CLOSURE
-            { Layout::ABReg, 2 },   // YIELD
+/*0x30 */   { Layout::UN,     2 },   // LINENO       UN
+            { Layout::AReg,   1 },   // LOADTHIS     R[d]
+            { Layout::AReg,   2 },   // LOADUP       R[d], U[s]
+            { Layout::BReg,   2 },   // STOREUP      U[d], RK[s]
+            { Layout::ABReg,  2 },   // CLOSURE      R[d], RK[s]
+            { Layout::None,   0 },   // YIELD
 
-/*0x36 */   { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-            { Layout::ABReg, 2 },   // unused
-/*0x3c */   { Layout::ABReg, 2 },   // unused
+/*0x36 */   { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // unused
+/*0x3c */   { Layout::None,   0 },   // unused
 
-/*0x3d */   { Layout::ABReg, 2 },   // END
-/*0x3e */   { Layout::ABReg, 2 },   // RET
-/*0x3f */   { Layout::ABReg, 2 },   // UNKNOWN
+/*0x3d */   { Layout::None,   0 },   // END
+/*0x3e */   { Layout::None,   1 },   // RET          NPARAMS
+/*0x3f */   { Layout::None,   0 },   // UNKNOWN
         };
         return _array;
     }
@@ -478,13 +478,13 @@ private:
 class Instruction {
 public:
     Instruction() { }
-    Instruction(Op op) { init(op); }
-    Instruction(Op op, uint8_t ra) { init(op, ra); }
-    Instruction(Op op, uint8_t ra, uint8_t rb) { init(op, ra, rb); }
-    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { init(op, ra, rb, rc); }
-    Instruction(Op op, uint8_t ra, int16_t sn) { init(op, ra, static_cast<uint16_t>(sn)); }
-    Instruction(Op op, int16_t sn) { init(op, static_cast<uint16_t>(sn)); }
-    Instruction(Op op, uint16_t un) { init(op, un); }
+    Instruction(Op op) { assert(OpInfo::size(op) == 0); init(op); }
+    Instruction(Op op, uint8_t ra) { assert(OpInfo::size(op) == 1); init(op, ra); }
+    Instruction(Op op, uint8_t ra, uint8_t rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
+    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
+    Instruction(Op op, uint8_t ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); }
+    Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); }
+    Instruction(Op op, uint16_t un) { assert(OpInfo::size(op) == 2); init(op, un); }
     
     bool haveRa() const { return _haveRa; }
     bool haveRb() const { return _haveRb; }

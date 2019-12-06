@@ -202,13 +202,14 @@ private:
     
     // Parse Stack manipulation and code generation
     
-    void emitCodeRRR(Op, uint8_t ra = 0, uint8_t rb = 0, uint8_t rc = 0);
+    void emitCodeRRR(Op, uint8_t ra, uint8_t rb, uint8_t rc);
+    void emitCodeRR(Op, uint8_t ra, uint8_t rb);
     void emitCodeR(Op, uint8_t rn);
     void emitCodeRSN(Op, uint8_t rn, int16_t n);
     void emitCodeSN(Op, int16_t n);
     void emitCodeUN(Op, uint16_t n);
-    void emitCodeCall(Op, uint8_t rcall, uint8_t rthis, uint8_t nparams);
-    
+    void emitCode(Op);
+
     void reconcileRegisters(Mad<Function>);
 
     class ParseStack {

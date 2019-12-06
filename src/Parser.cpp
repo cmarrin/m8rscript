@@ -125,7 +125,11 @@ void Parser::addMatchedJump(Op op, Label& label)
     }
     // Emit opcode with a dummy address
     label.matchedAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
-    emitCodeRSN(op, reg, 0);
+    if (op != Op::JMP) {
+        emitCodeRSN(op, reg, 0);
+    } else {
+        emitCodeSN(op, 0);
+    }
 }
 
 void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
@@ -139,9 +143,8 @@ void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
     
     Op op = static_cast<Op>(_deferred ? _deferredCode.at(matchAddr) : currentCode().at(matchAddr));
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
-    Instruction inst;
     int16_t emitAddr = (op == Op::JMP) ? (matchAddr + 1) : (matchAddr + 2);
-    uint8_t* code = _deferred ? &(_deferredCode[emitAddr]) : &(currentCode()[matchAddr]);
+    uint8_t* code = _deferred ? &(_deferredCode[emitAddr]) : &(currentCode()[emitAddr]);
     code[0] = static_cast<uint8_t>(jumpAddr >> 8);
     code[1] = static_cast<uint8_t>(jumpAddr);
 }
@@ -159,13 +162,23 @@ void Parser::jumpToLabel(Op op, Label& label)
         _parseStack.pop();
     }
 
-    emitCodeRSN(op, (op == Op::JMP) ? 0 : r, jumpAddr);
+    if (op == Op::JMP) {
+        emitCodeSN(op, jumpAddr);
+    } else {
+        emitCodeRSN(op, r, jumpAddr);
+    }
 }
 
 void Parser::emitCodeRRR(Op op, uint8_t ra, uint8_t rb, uint8_t rc)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb, rc));
+}
+
+void Parser::emitCodeRR(Op op, uint8_t ra, uint8_t rb)
+{
+    emitLineNumber();
+    addCode(Instruction(op, ra, rb));
 }
 
 void Parser::emitCodeR(Op op, uint8_t rn)
@@ -193,10 +206,9 @@ void Parser::emitCodeUN(Op op, uint16_t n)
     addCode(Instruction(op, n));
 }
 
-void Parser::emitCodeCall(Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams)
+void Parser::emitCode(Op op)
 {
-    emitLineNumber();
-    addCode(Instruction(op, rcall, rthis, nparams));
+    addCode(Instruction(op));
 }
 
 void Parser::addCode(Instruction inst)
@@ -389,15 +401,15 @@ void Parser::emitMove()
             break;
         case ParseStack::Type::Local:
         case ParseStack::Type::Register:
-            emitCodeRRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            emitCodeRR(Op::MOVE, _parseStack.topReg(), srcReg);
             break;
         case ParseStack::Type::RefK:
-            emitCodeRRR(Op::STOREFK, 0, _parseStack.topReg(), srcReg);
+            emitCodeRR(Op::STOREFK, _parseStack.topReg(), srcReg);
             _parseStack.pop();
             assert(_parseStack.topReg() == srcReg);
             return;
         case ParseStack::Type::UpValue:
-            emitCodeRRR(Op::STOREUP, _parseStack.topReg(), srcReg);
+            emitCodeRR(Op::STOREUP, _parseStack.topReg(), srcReg);
             break;
         }
     }
@@ -458,7 +470,7 @@ void Parser::emitAppendElt()
     _parseStack.swap();
     _parseStack.pop();
     
-    emitCodeRRR(Op::APPENDELT, objectReg, srcReg);
+    emitCodeRR(Op::APPENDELT, objectReg, srcReg);
 }
 
 void Parser::emitAppendProp()
@@ -523,7 +535,7 @@ void Parser::emitUnOp(Op op)
         _parseStack.swap();
         emitDup();
         uint32_t srcReg = _parseStack.bake();
-        emitCodeRRR(op, dst, srcReg);
+        emitCodeRR(op, dst, srcReg);
         emitMove();
         _parseStack.pop();
         return;
@@ -532,7 +544,7 @@ void Parser::emitUnOp(Op op)
     uint32_t srcReg = _parseStack.bake();
     _parseStack.pop();
     uint32_t dst = _parseStack.pushRegister();
-    emitCodeRRR(op, dst, srcReg);
+    emitCodeRR(op, dst, srcReg);
 }
 
 void Parser::emitLoadLit(bool array)
@@ -540,7 +552,7 @@ void Parser::emitLoadLit(bool array)
     if (_nerrors) return;
     
     uint32_t dst = _parseStack.pushRegister();
-    emitCodeRRR(array ? Op::LOADLITA : Op::LOADLITO, dst);
+    emitCodeR(array ? Op::LOADLITA : Op::LOADLITO, dst);
 }
 
 void Parser::emitPush()
@@ -558,7 +570,7 @@ void Parser::emitPop()
     if (_nerrors) return;
     
     uint32_t dst = _parseStack.pushRegister();
-    emitCodeRRR(Op::POP, dst);
+    emitCodeR(Op::POP, dst);
 }
 
 void Parser::emitEnd()
@@ -569,15 +581,15 @@ void Parser::emitEnd()
     if (_nerrors) {
         _parseStack.clear();
     }
-    emitCodeRRR(Op::END);
+    emitCode(Op::END);
 }
 
-void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
+void Parser::emitCallRet(Op op, int32_t thisReg, uint32_t nparams)
 {
     if (_nerrors) return;
     
     assert(nparams < MaxParams);
-    assert(value == Op::CALL || value == Op::NEW || value == Op::RET);
+    assert(op == Op::CALL || op == Op::NEW || op == Op::RET);
     
     uint32_t calleeReg = 0;
     if (thisReg < 0) {
@@ -585,10 +597,10 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
         thisReg = MaxRegister + 1;
     }
 
-    if (value == Op::CALL) {
+    if (op == Op::CALL) {
         // If tos is a PropRef or EltRef, emit CALLPROP with the object and property
         if (_parseStack.topType() == ParseStack::Type::PropRef || _parseStack.topType() == ParseStack::Type::EltRef) {
-            emitCodeCall(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
+            emitCodeRRR(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
             _parseStack.pop();
             emitPop();
             return;
@@ -596,7 +608,7 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
     }
             
     
-    if (value == Op::CALL || value == Op::NEW) {
+    if (op == Op::CALL || op == Op::NEW) {
         calleeReg = _parseStack.bake();
         _parseStack.pop();
     } else {
@@ -605,10 +617,16 @@ void Parser::emitCallRet(Op value, int32_t thisReg, uint32_t nparams)
             emitPush();
         }
     }
-        
-    emitCodeCall(value, calleeReg, thisReg, nparams);
     
-    if (value == Op::CALL || value == Op::NEW) {
+    if (op == Op::RET) {
+        emitCodeR(op, nparams);
+    } else if (op == Op::NEW) {
+        emitCodeRR(op, calleeReg, nparams);
+    } else {
+        emitCodeRRR(op, calleeReg, thisReg, nparams);
+    }
+    
+    if (op == Op::CALL || op == Op::NEW) {
         // On return there will be a value on the runtime stack. Pop it into a register
         emitPop();
     }
@@ -717,7 +735,7 @@ void Parser::reconcileRegisters(Mad<Function> function)
             currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], numLocals);
         }
         
-        i += size + 1;
+        i += size;
     }
 }
 
@@ -796,20 +814,20 @@ uint32_t Parser::ParseStack::bake()
                 _parser->emitCallRet(Op::CALL, -1, 0);
                 _parser->emitMove();
             } else {
-                _parser->emitCodeRRR(Op::LOADREFK, r, entry._reg);
+                _parser->emitCodeRR(Op::LOADREFK, r, entry._reg);
             }
             return r;
         }
         case Type::This: {
             pop();
             uint32_t r = pushRegister();
-            _parser->emitCodeRRR(Op::LOADTHIS, r);
+            _parser->emitCodeR(Op::LOADTHIS, r);
             return r;
         }
         case Type::UpValue: {
             pop();
             uint32_t r = pushRegister();
-            _parser->emitCodeRRR(Op::LOADUP, r, entry._reg);
+            _parser->emitCodeRR(Op::LOADUP, r, entry._reg);
             return r;
         }
         case Type::Constant: {
@@ -820,7 +838,7 @@ uint32_t Parser::ParseStack::bake()
             if (func.valid()) {
                 pop();
                 uint32_t dst = pushRegister();
-                _parser->emitCodeRRR(Op::CLOSURE, dst, r);
+                _parser->emitCodeRR(Op::CLOSURE, dst, r);
                 r = dst;
             }
             return r;

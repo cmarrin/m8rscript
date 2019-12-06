@@ -455,7 +455,7 @@ CallReturnValue ExecutionUnit::continueExecution()
  
     static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-    #define DISPATCH { op = dispatchNextOp(checkCounter); goto *dispatchTable[static_cast<uint8_t>(op)]; }
+    #define DISPATCH { goto *dispatchTable[static_cast<uint8_t>(op = dispatchNextOp(checkCounter))]; }
     
     if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
