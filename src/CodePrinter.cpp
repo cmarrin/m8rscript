@@ -111,16 +111,32 @@ void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Function> fu
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
 }
 
-void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int16_t n) const
+void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int16_t n, bool annotation) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + String::toString(n) + "\n";
+    String target = String::toString(n);
+    if (annotation) {
+        if (n == 0) {
+            target = "[???]";
+        } else {
+            target = "LABEL[" + target + "]";
+        }
+    }
+    str += String(stringFromOp(op)) + " " + target + "\n";
 }
 
-void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n) const
+void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n, bool annotation) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + String::toString(n) + "\n";
+    String target = String::toString(n);
+    if (annotation) {
+        if (n == 0) {
+            target = "[???]";
+        } else {
+            target = "LABEL[" + target + "]";
+        }
+    }
+    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + target + "\n";
 }
 
 void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const
@@ -159,8 +175,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
     #undef DISPATCH
     #define DISPATCH { \
-        currentAddr += OpInfo::size(op); \
-        op = opFromCode(currentAddr++); \
+        op = opFromCode(currentAddr); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -205,23 +220,23 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
             return outputString;
         }
 
+        const uint8_t* jumpAddr = p;
+        
         op = opFromCode(p);
         if (op == Op::END) {
             break;
         }
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
-            p++;
             if (op == Op::JT || op == Op::JF) {
                 p++;
             }
 
-            uint32_t addr = static_cast<uint32_t>((p - code) + sNFromCode(p));
-            p += 2;
+            uint32_t addr = static_cast<uint32_t>((jumpAddr - code) + sNFromCode(p));
             Annotation annotation = { addr, uniqueID++ };
             annotations.push_back(annotation);
         } else {
-            p += OpInfo::size(op) + 1;
+            p += OpInfo::size(op);
         }
     }
     
@@ -319,19 +334,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         generateRRR(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_RET:
-        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
+        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), false);
         DISPATCH;
     L_JMP:
-        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, sNFromCode(currentAddr));
+    {
+        uint32_t targetAddr = sNFromCode(currentAddr);
+        uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 3));
+        generateXN(program, function, outputString, id ?: static_cast<uint32_t>(currentAddr - code - 1), op, id, true);
         DISPATCH;
+    }
     L_JT: L_JF:
-        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), sNFromCode(currentAddr));
+    {
+        uint8_t reg = byteFromCode(currentAddr);
+        uint32_t targetAddr = sNFromCode(currentAddr);
+        uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 4));
+        generateRN(program, function, outputString, id ?: static_cast<uint32_t>(currentAddr - code - 1), op, reg, id, true);
         DISPATCH;
+    }
     L_CALL:
         generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_NEW:
-        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
         DISPATCH;
     L_CALLPROP:
         generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));

@@ -50,7 +50,7 @@ void Task::setFilename(const char* filename)
 {
     // FIXME: What do we do with these?
     ErrorList syntaxErrors;
-    Parser::Debug debug = Parser::Debug::Full;
+    Parser::Debug debug = Parser::Debug::None;
     
     if (filename) {
         FileStream m8rStream(system()->fileSystem(), filename);
