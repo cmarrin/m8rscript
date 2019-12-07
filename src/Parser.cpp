@@ -141,7 +141,7 @@ void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
         return;
     }
     
-    Op op = static_cast<Op>(_deferred ? _deferredCode.at(matchAddr) : currentCode().at(matchAddr));
+    Op op = opFromByte(_deferred ? _deferredCode.at(matchAddr) : currentCode().at(matchAddr));
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int16_t emitAddr = (op == Op::JMP) ? (matchAddr + 1) : (matchAddr + 2);
     uint8_t* code = _deferred ? &(_deferredCode[emitAddr]) : &(currentCode()[emitAddr]);
@@ -179,6 +179,12 @@ void Parser::emitCodeRR(Op op, uint8_t ra, uint8_t rb)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb));
+}
+
+void Parser::emitCodeRET(uint8_t nparams)
+{
+    emitLineNumber();
+    addCode(Instruction((nparams <= 3) ? Op::RETI : Op::RET, nparams));
 }
 
 void Parser::emitCodeR(Op op, uint8_t rn)
@@ -619,7 +625,7 @@ void Parser::emitCallRet(Op op, int32_t thisReg, uint32_t nparams)
     }
     
     if (op == Op::RET) {
-        emitCodeR(op, nparams);
+        emitCodeRET(nparams);
     } else if (op == Op::NEW) {
         emitCodeRR(op, calleeReg, nparams);
     } else {
@@ -741,7 +747,7 @@ void Parser::reconcileRegisters(Mad<Function> function)
     uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
     for (int i = 0; i < currentCode().size(); ++i) {
-        Op op = static_cast<Op>(currentCode()[i]);
+        Op op = opFromByte(currentCode()[i]);
         uint8_t size = OpInfo::size(op);
         
         if (OpInfo::aReg(op)) {

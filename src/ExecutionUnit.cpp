@@ -446,7 +446,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
         /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
-        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(POPX)  OP(UNKNOWN)
+        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(POPX)  OP(RETI)
         /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
@@ -507,6 +507,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         return callReturnValue;
 
     L_RET:
+    L_RETI:
     L_END:
         if (_terminate) {
             _stack.clear();
@@ -515,13 +516,13 @@ CallReturnValue ExecutionUnit::continueExecution()
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
-        if (op == Op::END || (op == Op::RET && _callRecords.empty())) {
+        if (op == Op::END || _callRecords.empty()) {
             // If _callRecords is empty it means we're returning from the top-level program.
             // TODO: How do we return this to the caller? What does the caller do with it.
             // This is essentially the same as the exit code returned from main() in C
-            if (op == Op::RET) {
+            if (op == Op::RET || op == Op::RETI) {
                 // Take care of the values on the return stack
-                uint8_t nparams = byteFromCode(_currentAddr);
+                uint8_t nparams = (op == Op::RET) ? byteFromCode(_currentAddr) : immFromOp(op);
                 returnedValue = nparams ? _stack.top(1 - nparams) : Value();
                 _stack.pop(nparams);
             }

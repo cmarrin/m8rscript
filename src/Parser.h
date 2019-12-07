@@ -211,6 +211,7 @@ private:
     void emitCodeRRR(Op, uint8_t ra, uint8_t rb, uint8_t rc);
     void emitCodeRR(Op, uint8_t ra, uint8_t rb);
     void emitCodeR(Op, uint8_t rn);
+    void emitCodeRET(uint8_t nparams);
     void emitCodeRSN(Op, uint8_t rn, int16_t n);
     void emitCodeSN(Op, int16_t n);
     void emitCodeUN(Op, uint16_t n);

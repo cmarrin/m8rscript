@@ -170,7 +170,7 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Ma
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
         /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
-        /* 0x34 */ OP(CLOSURE) OP(UNKNOWN)  OP(POPX)  OP(UNKNOWN)
+        /* 0x34 */ OP(CLOSURE) OP(UNKNOWN)  OP(POPX)  OP(RETI)
         /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
@@ -347,6 +347,9 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_RET:
         generateXN(program, function, outputString, pc, op, byteFromCode(currentAddr), false);
         DISPATCH;
+    L_RETI:
+        generateXN(program, function, outputString, pc, op, imm, false);
+        DISPATCH;
     L_JMP:
     {
         uint32_t targetAddr = sNFromCode(currentAddr);
@@ -395,7 +398,7 @@ static CodeMap opcodes[] = {
     OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) OP(LOADLITO)
     OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
     OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(LOADTHIS) OP(LOADUP) OP(STOREUP)
-    OP(PUSH) OP(POP) OP(POPX)
+    OP(PUSH) OP(POP) OP(POPX) OP(RETI)
     
     OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
     OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)

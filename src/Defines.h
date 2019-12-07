@@ -278,6 +278,7 @@ struct Label {
 
     UNKNOWN
     RET         NPARAMS
+    RETI        IMM
     END
     
     MOVE        R[d], RK[s]
@@ -354,9 +355,9 @@ enum class Op : uint8_t {
     CALLPROP, JMP, JT, JF,
 
     LINENO = 0x30, LOADTHIS, LOADUP, STOREUP,
-    CLOSURE, YIELD, POPX,
+    CLOSURE, YIELD, POPX, RETI,
     
-    // 0x36 - 0x3c open
+    // 0x38 - 0x3c open
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
@@ -372,10 +373,11 @@ public:
     static bool aReg(Op op) { return flagFromLayout(op, Flags::a); }
     static bool bReg(Op op) { return flagFromLayout(op, Flags::b); }
     static bool cReg(Op op) { return flagFromLayout(op, Flags::c); }
+    static bool imm(Op op) { return flagFromLayout(op, Flags::imm); }
 
 private:
     // Bits here are a(0x01), b(0x02), c(0x04), sn(0x08), un(0x10)
-    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, sn = 0x08, un = 0x10 };
+    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, imm = 0x08 };
     
     static constexpr uint8_t layoutFromFlags(Flags x, Flags y = Flags::None, Flags z = Flags::None)
     {
@@ -388,9 +390,7 @@ private:
         BReg    = static_cast<uint8_t>(Flags::b),
         ABReg   = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b),
         ABCReg  = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
-        SN      = static_cast<uint8_t>(Flags::sn),
-        ARegSN  = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::sn),
-        UN      = static_cast<uint8_t>(Flags::un),
+        IMM     = static_cast<uint8_t>(Flags::imm),
     };
     
     static bool flagFromLayout(Op op, Flags flag)
@@ -457,20 +457,20 @@ private:
             { Layout::ABReg,  3 },   // CALL         RK[call], RK[this], NPARAMS
             { Layout::AReg,   2 },   // NEW          RK[call], NPARAMS
             { Layout::ABReg,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
-            { Layout::SN,     2 },   // JMP          SN
-            { Layout::ARegSN, 3 },   // JT           RK[s], SN
-            { Layout::ARegSN, 3 },   // JF           RK[s], SN
+            { Layout::None,   2 },   // JMP          SN
+            { Layout::AReg,   3 },   // JT           RK[s], SN
+            { Layout::AReg,   3 },   // JF           RK[s], SN
             
-/*0x30 */   { Layout::UN,     2 },   // LINENO       UN
+/*0x30 */   { Layout::None,   2 },   // LINENO       UN
             { Layout::AReg,   1 },   // LOADTHIS     R[d]
             { Layout::AReg,   2 },   // LOADUP       R[d], U[s]
             { Layout::BReg,   2 },   // STOREUP      U[d], RK[s]
             { Layout::ABReg,  2 },   // CLOSURE      R[d], RK[s]
             { Layout::None,   0 },   // YIELD
             { Layout::None,   0 },   // POPX
+            { Layout::IMM,    0 },   // RETI
             
-/*0x37 */   { Layout::None,   0 },   // unused
-            { Layout::None,   0 },   // unused
+/*0x38 */   { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused
@@ -524,7 +524,7 @@ class Instruction {
 public:
     Instruction() { }
     Instruction(Op op) { assert(OpInfo::size(op) == 0); init(op); }
-    Instruction(Op op, uint8_t ra) { assert(OpInfo::size(op) == 1); init(op, ra); }
+    Instruction(Op op, uint8_t ra) { init(op, ra); }
     Instruction(Op op, uint8_t ra, uint8_t rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
     Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
     Instruction(Op op, uint8_t ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); }
@@ -551,9 +551,15 @@ private:
 
     void init(Op op, uint8_t ra)
     {
-        init(op);
-        _haveRa = true;
-        _ra = ra;
+        // The op might be immediate
+        if (OpInfo::imm(op)) {
+            assert(ra <= 3);
+            init(opFromByte(byteFromOp(op, ra)));
+        } else {
+            init(op);
+            _haveRa = true;
+            _ra = ra;
+        }
     }
 
     union {
