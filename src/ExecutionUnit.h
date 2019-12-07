@@ -48,56 +48,6 @@ public:
     
     const Mad<Program> program() const { return _program; }
     
-    static uint8_t byteFromInt(uint64_t value, uint32_t index)
-    {
-        assert(index < 8);
-        return static_cast<uint8_t>(value >> (8 * index));
-    }
-    
-    static Op maskOp(Op op, uint8_t mask) { return static_cast<Op>(static_cast<uint8_t>(op) & ~mask); }
-
-    static uint32_t sizeFromOp(Op op)
-    {
-        uint32_t size = static_cast<uint8_t>(op) & 0x03;
-        if (size < 2) {
-            return size + 1;
-        }
-        if (size == 2) {
-            return 4;
-        }
-        return 8;
-    }
-    
-    static int8_t intFromOp(Op op, uint8_t mask)
-    {
-        uint8_t num = static_cast<uint8_t>(op) & mask;
-        if (num & 0x8) {
-            num |= 0xf0;
-        }
-        return static_cast<int8_t>(num);
-    }
-    static uint8_t uintFromOp(Op op, uint8_t mask) { return static_cast<uint8_t>(op) & mask; }
-
-    static int32_t intFromCode(const uint8_t* code, uint32_t index, uint32_t size)
-    {
-        uint32_t num = uintFromCode(code, index, size);
-        uint32_t mask = 0x80 << (8 * (size - 1));
-        if (num & mask) {
-            return num | ~(mask - 1);
-        }
-        return static_cast<int32_t>(num);
-    }
-    
-    static uint32_t uintFromCode(const uint8_t* code, uint32_t index, uint32_t size)
-    {
-        uint32_t value = 0;
-        for (uint32_t i = 0; i < size; ++i) {
-            value <<= 8;
-            value |= code[index + i];
-        }
-        return value;
-    }
-    
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
@@ -154,18 +104,9 @@ private:
                 return Op::YIELD;
             }
         }
-        return opFromCode();
+        return opFromCode(_currentAddr);
     }
     
-    Op opFromCode() { return static_cast<Op>(_code[_pc++]); }
-    uint8_t byteFromCode() { return _code[_pc++]; }
-    uint16_t uNFromCode()
-    {
-        uint16_t n = static_cast<uint16_t>(_code[_pc++]) << 8;
-        return n | static_cast<uint16_t>(_code[_pc++]);
-    }
-    int16_t sNFromCode() { return static_cast<int16_t>(uNFromCode()); }
-
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue runNextEvent();
 
@@ -182,6 +123,7 @@ private:
         assert(_function->code());
         _codeSize = _function->code()->size();
         _code = &(_function->code()->front());
+        _currentAddr = _code;
     }
     
     Value derefId(Atom);
@@ -249,18 +191,18 @@ private:
     CallRecordVector _callRecords;
     ExecutionStack _stack;
     
-    uint32_t _pc = 0;
     Mad<Program> _program;
     Mad<Object> _function;
     Mad<Object> _this;
-    const Value* _constants = nullptr;
-    Value* _framePtr = nullptr;
     uint32_t _localOffset = 0;
     uint32_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
 
+    uint32_t _codeSize;
     const uint8_t* _code = nullptr;
-    size_t _codeSize;
+    const uint8_t* _currentAddr = nullptr;
+    const Value* _constants = nullptr;
+    Value* _framePtr = nullptr;
     
     mutable uint32_t _nerrors = 0;
     mutable bool _terminate = false;

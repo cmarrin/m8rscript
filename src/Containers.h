@@ -397,7 +397,7 @@ public:
     }
 
     bool empty() const { return _size == 0; }
-    size_t size() const { return _size; };
+    uint32_t size() const { return _size; };
     const T& operator[](uint16_t i) const { return at(i); };
     
     const T& at(uint16_t i) const { assert(i < _size); return _data.get()[i]; }

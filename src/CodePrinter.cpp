@@ -179,7 +179,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
     #undef DISPATCH
     #define DISPATCH { \
-        op = opFromCode(currentAddr); \
+        op = opFromCode(currentAddr, imm); \
         pc = static_cast<uint32_t>(currentAddr - code - 1); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
@@ -214,6 +214,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
     const uint8_t* code = &(function->code()->at(0));
     Op op;
+    uint8_t imm;
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
@@ -227,7 +228,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
         const uint8_t* jumpAddr = p;
         
-        op = opFromCode(p);
+        op = opFromCode(p, imm);
         if (op == Op::END) {
             break;
         }

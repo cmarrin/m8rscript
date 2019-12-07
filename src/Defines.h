@@ -227,13 +227,22 @@ struct Label {
 };
 
 /*
-    Here is the new design of Opcodes:
+    Opcodes:
 
     Instructions are a series of bytes. Opcode is always first
     byte and is followed by 0-3 bytes of operands. Most operands
     are 1 byte (register index, upvalue index, constant index or
     nparams). In some cases operand is a 2 byte uint16_t or
     int16_t. The are 2 consecutive bytes, MSB first.
+    
+    Opcodes are 6 bits. The upper 2 bits of the Opcode byte are
+    "immediate" bits. They are used by some opcodes (ending in 'I')
+    as an additional operand. For instance RETI uses them as the
+    return count, from 0 to 3. Because of this the inline accessor
+    function (e.g., opFromCode) must be used to access opcodes.
+    These both ensure that the upper 2 bits are masked out and
+    that if you attempt to access an opcode that should not have
+    immediate bits set and it does it will assert.
 
     During parsing, instructions are placed in an Instruction
     object. This contains opcode, operands and an indication of
@@ -476,6 +485,38 @@ private:
         return _array[static_cast<uint8_t>(op)];
     }
 };
+
+static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
+static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
+
+static inline uint8_t byteFromCode(const uint8_t*& code) { return *code++; }
+
+static inline Op opFromCode(const uint8_t*& code)
+{
+    // Using this form is only for opcodes that don't
+    // have any immediate bits set. Assure that here
+#ifndef NDEBUG
+    uint8_t c = byteFromCode(code);
+    assert(immFromByte(c) == 0);
+    return opFromByte(c);
+#else
+    return opFromByte(byteFromCode(code));
+#endif
+}
+    
+static inline Op opFromCode(const uint8_t*& code, uint8_t& imm)
+{
+    uint8_t c = byteFromCode(code);
+    imm = immFromByte(c);
+    return opFromByte(c);
+}
+
+static inline uint16_t uNFromCode(const uint8_t*& code)
+{
+    uint16_t n = static_cast<uint16_t>(byteFromCode(code)) << 8;
+    return n | static_cast<uint16_t>(byteFromCode(code));
+}
+static inline int16_t sNFromCode(const uint8_t*& code) { return static_cast<int16_t>(uNFromCode(code)); }
 
 class Instruction {
 public:
