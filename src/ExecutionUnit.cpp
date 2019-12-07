@@ -447,7 +447,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
         /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
-        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(POPX)  OP(UNKNOWN)
         /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
@@ -691,6 +691,9 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_POP:
         setInFrame(byteFromCode(), _stack.top());
+        _stack.pop();
+        DISPATCH;
+    L_POPX:
         _stack.pop();
         DISPATCH;
     L_LOR:

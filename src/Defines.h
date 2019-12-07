@@ -289,6 +289,7 @@ struct Label {
     
     PUSH        RK[s]
     POP         R[d]
+    POPX
  
     LOADPROP    R[d], RK[o], K[p]
     LOADELT     R[d], RK[o], RK[e]
@@ -343,9 +344,8 @@ enum class Op : uint8_t {
     POSTINC, POSTDEC, CALL, NEW,
     CALLPROP, JMP, JT, JF,
 
-
     LINENO = 0x30, LOADTHIS, LOADUP, STOREUP,
-    CLOSURE, YIELD,
+    CLOSURE, YIELD, POPX,
     
     // 0x36 - 0x3c open
 
@@ -458,9 +458,9 @@ private:
             { Layout::BReg,   2 },   // STOREUP      U[d], RK[s]
             { Layout::ABReg,  2 },   // CLOSURE      R[d], RK[s]
             { Layout::None,   0 },   // YIELD
-
-/*0x36 */   { Layout::None,   0 },   // unused
-            { Layout::None,   0 },   // unused
+            { Layout::None,   0 },   // POPX
+            
+/*0x37 */   { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused
             { Layout::None,   0 },   // unused

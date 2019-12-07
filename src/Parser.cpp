@@ -648,6 +648,28 @@ int32_t Parser::emitDeferred()
     return start;
 }
 
+void Parser::discardResult()
+{
+    _parseStack.pop();
+
+    // If the last instruction was a pop, we are not using the 
+    // returned value. So we can replace it with an Op::POPX and
+    // save a byte
+    Vector<uint8_t>* vec;
+    
+    if (_deferred) {
+        assert(_deferredCodeBlocks.size() > 0);
+        vec = &_deferredCode;
+    } else {
+        vec = &currentCode();
+    }
+    
+    if (vec->size() >= 2 && vec->at(vec->size() - 2) == static_cast<uint8_t>(Op::POP)) {
+        vec->at(vec->size() - 2) = static_cast<uint8_t>(Op::POPX);
+        vec->pop_back();
+    }
+}
+
 void Parser::functionAddParam(const Atom& atom)
 {
     if (_nerrors) return;

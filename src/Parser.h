@@ -196,7 +196,7 @@ private:
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
     void addVar(const Atom& name) { currentFunction()->addLocal(name); }
     
-    void discardResult() { _parseStack.pop(); }
+    void discardResult();
     
     Token getToken() { return _scanner.getToken(); }
     const Scanner::TokenType& getTokenValue() { return _scanner.getTokenValue(); }
