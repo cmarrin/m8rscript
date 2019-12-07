@@ -63,7 +63,7 @@ private:
     using Annotations = Vector<Annotation>;
 
     uint32_t findAnnotation(uint32_t addr) const;
-    void preamble(m8r::String& s, uint32_t addr) const;
+    void preamble(m8r::String& s, uint32_t addr, bool indent = true) const;
     static const char* stringFromOp(Op op);
     void indentCode(m8r::String&) const;
     mutable uint32_t _nestingLevel = 0;

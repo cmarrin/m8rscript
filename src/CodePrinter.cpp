@@ -25,7 +25,7 @@ uint32_t CodePrinter::findAnnotation(uint32_t addr) const
     return 0;
 }
 
-void CodePrinter::preamble(String& s, uint32_t addr) const
+void CodePrinter::preamble(String& s, uint32_t addr, bool indent) const
 {
     if (_lineno != _emittedLineNumber) {
         _emittedLineNumber = _lineno;
@@ -41,7 +41,9 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
     
     uint32_t uniqueID = findAnnotation(addr);
     if (!uniqueID) {
-        indentCode(s);
+        if (indent) {
+            indentCode(s);
+        }
         return;
     }
     if (_nestingLevel) {
@@ -52,7 +54,9 @@ void CodePrinter::preamble(String& s, uint32_t addr) const
     s += "LABEL[";
     s += String::toString(uniqueID);
     s += "]\n";
-    indentCode(s);
+    if (indent) {
+        indentCode(s);
+    }
 }
 
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program) const
@@ -176,6 +180,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     #undef DISPATCH
     #define DISPATCH { \
         op = opFromCode(currentAddr); \
+        pc = static_cast<uint32_t>(currentAddr - code - 1); \
         goto *dispatchTable[static_cast<uint8_t>(op)]; \
     }
     
@@ -284,6 +289,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     Atom localName;
     
     const uint8_t* currentAddr = code;
+    uint32_t pc = 0;
     op = Op::UNKNOWN;
     DISPATCH;
     
@@ -291,8 +297,9 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         outputString += "UNKNOWN\n";
         DISPATCH;
     L_END:
+        preamble(outputString, pc, false);
         _nestingLevel--;
-        preamble(outputString, static_cast<uint32_t>(currentAddr - code - 1));
+        indentCode(outputString);
         outputString += "END\n";
         _nestingLevel--;
         return outputString;  
@@ -302,28 +309,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADFALSE:
     L_LOADNULL:
     L_LOADTHIS:
-        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
+        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_PUSH:
-        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
+        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_POP:
-        generateRXX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr));
+        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_MOVE: L_LOADREFK:
     L_UMINUS: L_UNOT: L_UNEG: L_CLOSURE:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADUP:
-        generateRUX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRUX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREUP:
-        generateURX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateURX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREFK:
-        generateRRX(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -331,16 +338,16 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_DEREF:
-        generateRRR(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRR(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_RET:
-        generateXN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), false);
+        generateXN(program, function, outputString, pc, op, byteFromCode(currentAddr), false);
         DISPATCH;
     L_JMP:
     {
         uint32_t targetAddr = sNFromCode(currentAddr);
         uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 3));
-        generateXN(program, function, outputString, id ?: static_cast<uint32_t>(currentAddr - code - 1), op, id, true);
+        generateXN(program, function, outputString, id ?: pc, op, id, true);
         DISPATCH;
     }
     L_JT: L_JF:
@@ -348,20 +355,23 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         uint8_t reg = byteFromCode(currentAddr);
         uint32_t targetAddr = sNFromCode(currentAddr);
         uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 4));
-        generateRN(program, function, outputString, id ?: static_cast<uint32_t>(currentAddr - code - 1), op, reg, id, true);
+        generateRN(program, function, outputString, id ?: pc, op, reg, id, true);
         DISPATCH;
     }
     L_CALL:
-        generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateCall(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_NEW:
-        generateRN(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
+        generateRN(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
         DISPATCH;
     L_CALLPROP:
-        generateCall(program, function, outputString, static_cast<uint32_t>(currentAddr - code - 1), op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateCall(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LINENO:
         _lineno = uNFromCode(currentAddr);
+        if (findAnnotation(pc)) {
+            preamble(outputString, pc, false);
+        }
         DISPATCH;
 }
 
