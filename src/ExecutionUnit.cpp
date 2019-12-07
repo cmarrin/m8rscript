@@ -402,7 +402,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     // be extracted into an Object
     Mad<Function> parent = Object::create<Function>();
     
-    Mad<Function> function = parser.parse(stream, this, Parser::Debug::Full, parent);
+    Mad<Function> function = parser.parse(stream, this, Parser::debug, parent);
     if (parser.nerrors()) {
         syntaxErrors.swap(parser.syntaxErrors());
         

@@ -61,6 +61,12 @@ public:
     ~Parser();
         
     enum class Debug { None, Full };
+    // Debugging variable set according to NDEBUG compile time flag
+    #ifndef NDEBUG
+        static constexpr Debug debug = Parser::Debug::Full;
+    #else
+        static constexpr Debug debug = Parser::Debug::None;
+    #endif
     
     Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, Mad<Function> parent = Mad<Function>());
 
