@@ -893,20 +893,20 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     }
-    L_JMP:
     L_JT:
     L_JF:
-        if (op != Op::JMP) {
-            boolValue = regOrConst(byteFromCode()).toBoolValue(this);
-            if (op == Op::JT) {
-                boolValue = !boolValue;
-            }
-            if (boolValue) {
-                sNFromCode();
-                DISPATCH;
-            }
+        boolValue = regOrConst(byteFromCode()).toBoolValue(this);
+        if (op == Op::JT) {
+            boolValue = !boolValue;
         }
-        _pc += sNFromCode() - 1;
+        if (boolValue) {
+            sNFromCode();
+            DISPATCH;
+        }
+        _pc += sNFromCode() - 4;
+        DISPATCH;
+    L_JMP:
+        _pc += sNFromCode() - 3;
         DISPATCH;
 }
 
