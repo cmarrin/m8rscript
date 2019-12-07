@@ -488,7 +488,9 @@ private:
 
 static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
 static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
-
+static inline uint8_t byteFromOp(Op op) { return static_cast<uint8_t>(op); }
+static inline uint8_t immFromOp(Op op) { return byteFromOp(op) >> 6; }
+static inline uint8_t byteFromOp(Op op, uint8_t imm) { assert(byteFromOp(op) <= 0x3f); return byteFromOp(op) | (imm << 6); }
 static inline uint8_t byteFromCode(const uint8_t*& code) { return *code++; }
 
 static inline Op opFromCode(const uint8_t*& code)
@@ -542,11 +544,17 @@ public:
 
 private:
     void init(Op op) { _op = op; }
-    void init(Op op, uint8_t ra) { init(op); _haveRa = true; _ra = ra; }
     void init(Op op, uint8_t ra, uint8_t rb) {init(op, ra); _haveRb = true; _rb = rb; }
     void init(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { init(op, ra, rb); _haveRc = true; _rc = rc; }
     void init(Op op, uint8_t ra, uint16_t n) { init(op, ra); _haveN = true; _n = n; }
     void init(Op op, uint16_t n) {init(op); _haveN = true; _n = n; }
+
+    void init(Op op, uint8_t ra)
+    {
+        init(op);
+        _haveRa = true;
+        _ra = ra;
+    }
 
     union {
         struct {
