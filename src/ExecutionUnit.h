@@ -89,7 +89,7 @@ public:
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     
-    Op dispatchNextOp(uint16_t& checkCounter)
+    Op dispatchNextOp(uint16_t& checkCounter, uint8_t& imm)
     {
         if (_nerrors > MaxRunTimeErrrors) {
             tooManyErrors();
@@ -104,7 +104,7 @@ private:
                 return Op::YIELD;
             }
         }
-        return opFromCode(_currentAddr);
+        return opFromCode(_currentAddr, imm);
     }
     
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);

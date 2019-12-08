@@ -453,7 +453,7 @@ CallReturnValue ExecutionUnit::continueExecution()
  
     static_assert (sizeof(dispatchTable) == (1 << 6) * sizeof(void*), "Dispatch table is wrong size");
 
-    #define DISPATCH { goto *dispatchTable[static_cast<uint8_t>(op = dispatchNextOp(checkCounter))]; }
+    #define DISPATCH { goto *dispatchTable[static_cast<uint8_t>(op = dispatchNextOp(checkCounter, imm))]; }
     
     if (!_program.valid()) {
         return CallReturnValue(CallReturnValue::Type::Finished);
@@ -478,6 +478,7 @@ CallReturnValue ExecutionUnit::continueExecution()
     Atom prop;
     uint8_t ra, rb;
     
+    uint8_t imm;
     Op op = Op::UNKNOWN;
     
     DISPATCH;
@@ -522,7 +523,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             // This is essentially the same as the exit code returned from main() in C
             if (op == Op::RET || op == Op::RETI) {
                 // Take care of the values on the return stack
-                uint8_t nparams = (op == Op::RET) ? byteFromCode(_currentAddr) : immFromOp(op);
+                uint8_t nparams = (op == Op::RET) ? byteFromCode(_currentAddr) : imm;
                 returnedValue = nparams ? _stack.top(1 - nparams) : Value();
                 _stack.pop(nparams);
             }

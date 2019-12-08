@@ -554,7 +554,7 @@ private:
         // The op might be immediate
         if (OpInfo::imm(op)) {
             assert(ra <= 3);
-            init(opFromByte(byteFromOp(op, ra)));
+            init(static_cast<Op>((byteFromOp(op, ra))));
         } else {
             init(op);
             _haveRa = true;
