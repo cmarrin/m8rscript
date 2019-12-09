@@ -17,7 +17,9 @@
 #include "Parser.h"
 #endif
 
+#ifndef NDEBUG
 #define PRINT_CODE
+#endif
 
 #ifdef PRINT_CODE
 #include "CodePrinter.h"
