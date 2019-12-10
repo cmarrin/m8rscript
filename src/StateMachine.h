@@ -31,7 +31,8 @@ namespace m8r {
     {
     public:
         using Action = void(*)(T*);
-        using NextStates = Vector<std::pair<Input, State>>;
+        using NextState = std::pair<Input, State>;
+        using NextStates = Vector<NextState>;
         
         struct StateEntry
         {
@@ -58,14 +59,16 @@ namespace m8r {
             Action _action = Action();
             NextStates _nextStates;
             State _jumpState = State();
+            uint16_t _nextStateCount = 0;
+            uint16_t _nextStateIndex = 0;
         };
         
-        StateTable(StateEntry* states, uint32_t numStates) : _states(states), _numStates(numStates) { }
-        StateTable(StateEntry* states, uint32_t numStates, const NextStates& nextStates) : _states(states), _numStates(numStates), _commonNextStates(nextStates) { }
+        StateTable(StateEntry* states, uint32_t numStates) : _states(states), _numStates(numStates) { collapseStates(); }
+        StateTable(StateEntry* states, uint32_t numStates, const NextStates& nextStates) : _states(states), _numStates(numStates), _commonNextStates(nextStates) {collapseStates(); }
         
         bool empty() const { return _numStates == 0; }
         
-        void nextState(State state, State& next, T* owner)
+        void gotoNextState(State state, State& next, T* owner)
         {
             auto it = findState(state);
             if (it != _states + _numStates) {
@@ -75,7 +78,7 @@ namespace m8r {
                     it->_action(owner);
                 }
                 
-                if (it->_nextStates.empty()) {
+                if (it->_nextStateCount == 0) {
                     next = it->_jumpState;
                 }
             }
@@ -89,11 +92,12 @@ namespace m8r {
                 return false;
             }
 
-            auto inputIt = std::find_if(it->_nextStates.begin(), it->_nextStates.end(), [input](const std::pair<Input, State>& entry) {
+            NextState* nextStates = &(_nextStateBuffer.get()[it->_nextStateIndex]);
+            auto inputIt = std::find_if(nextStates, nextStates + it->_nextStateCount, [input](const std::pair<Input, State>& entry) {
                 return entry.first == input;
             });
 
-            if (inputIt != it->_nextStates.end()) {
+            if (inputIt != nextStates + it->_nextStateCount) {
                 nextState = inputIt->second;
                 return true;
             }
@@ -110,9 +114,33 @@ namespace m8r {
         }
         
     private:
-        using StateVector = Vector<StateEntry>;
+        void collapseStates()
+        {
+            // Put all NextStates vectors in a single buffer
+            // First see how big the buffer needs to be
+            uint32_t count = 0;
+            for (uint32_t i = 0; i < _numStates; ++i) {
+                count += _states[i]._nextStates.size();
+            }
+            
+            _nextStateBuffer = Mad<NextState>::create(MemoryType::Vector, count);
+            
+            // Fill in the buffer
+            uint32_t index = 0;
+
+            for (uint32_t i = 0; i < _numStates; ++i) {
+                count = static_cast<uint32_t>(_states[i]._nextStates.size());
+                _states[i]._nextStateCount = count;
+                _states[i]._nextStateIndex = index;
+                
+                for (auto it : _states[i]._nextStates) {
+                    _nextStateBuffer.get()[index++] = it;
+                }
+                _states[i]._nextStates = NextStates();
+            }
+        }
         
-        typename StateVector::const_iterator findState(State state)
+        const StateEntry* findState(State state)
         {
             return std::find_if(_states, _states + _numStates, [state](const StateEntry& entry) { return entry._state == state; });
         }
@@ -120,6 +148,7 @@ namespace m8r {
         StateEntry* _states = nullptr;
         uint32_t _numStates = 0;
         NextStates _commonNextStates;
+        Mad<NextState> _nextStateBuffer;
     };
 
 
@@ -132,7 +161,7 @@ namespace m8r {
     public:
         StateMachine(T* owner, StateTable<T, State, Input>* table) : _owner(owner), _table(table) { }
         
-        void gotoState(State state) { _table->nextState(state, _currentState, _owner); }
+        void gotoState(State state) { _table->gotoNextState(state, _currentState, _owner); }
         
         void sendInput(Input input)
         {
