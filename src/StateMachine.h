@@ -58,7 +58,10 @@ namespace m8r {
             Action _action = Action();
             NextStates _nextStates;
             State _jumpState = State();
+            uint8_t _;
         };
+        
+        static_assert(sizeof(StateEntry) % 4 == 0, "states are in ROM, must be a multiple of 4");
         
         StateTable(StateEntry* states, uint32_t numStates) : _states(states), _numStates(numStates) { }
         StateTable(StateEntry* states, uint32_t numStates, const NextStates& nextStates) : _states(states), _numStates(numStates), _commonNextStates(nextStates) { }
@@ -67,16 +70,16 @@ namespace m8r {
         
         void nextState(State state, State& next, T* owner)
         {
-            auto it = findState(state);
-            if (it != _states + _numStates) {
+            StateEntry entry;
+            if (findState(state, entry)) {
                 next = state;
                 
-                if (it->_action) {
-                    it->_action(owner);
+                if (entry._action) {
+                    entry._action(owner);
                 }
                 
-                if (it->_nextStates.empty()) {
-                    next = it->_jumpState;
+                if (entry._nextStates.empty()) {
+                    next = entry._jumpState;
                 }
             }
         }
@@ -84,16 +87,16 @@ namespace m8r {
         bool sendInput(Input input, State currentState, State& nextState)
         {
             // Check next states for currentState
-            auto it = findState(currentState);
-            if (it == _states + _numStates) {
+            StateEntry entry;
+            if (!findState(currentState, entry)) {
                 return false;
             }
 
-            auto inputIt = std::find_if(it->_nextStates.begin(), it->_nextStates.end(), [input](const std::pair<Input, State>& entry) {
+            auto inputIt = std::find_if(entry._nextStates.begin(), entry._nextStates.end(), [input](const std::pair<Input, State>& entry) {
                 return entry.first == input;
             });
 
-            if (inputIt != it->_nextStates.end()) {
+            if (inputIt != entry._nextStates.end()) {
                 nextState = inputIt->second;
                 return true;
             }
@@ -112,9 +115,17 @@ namespace m8r {
     private:
         using StateVector = Vector<StateEntry>;
         
-        typename StateVector::const_iterator findState(State state)
+        bool findState(State state, StateEntry& entry)
         {
-            return std::find_if(_states, _states + _numStates, [state](const StateEntry& entry) { return entry._state == state; });
+            for (uint32_t i = 0; i < _numStates; ++i) {
+                // _states are in ROM, need to get the entry out
+                ROMString s(reinterpret_cast<const char*>(_states + i));
+                ROMmemcpy(&entry, s, sizeof(entry));
+                if (entry._state == state) {
+                    return true;
+                }
+            }
+            return false;
         }
         
         StateEntry* _states = nullptr;
