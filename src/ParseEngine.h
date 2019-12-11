@@ -43,13 +43,20 @@ private:
         static const uint8_t LeftAssoc = 0;
         static const uint8_t RightAssoc = 1;
         
-        bool operator==(const Token& t) { return t == token; }
+        bool operator==(const Token& t)
+        {
+            uint8_t tokenByte = readRomByte(ROMString(reinterpret_cast<const char*>(&t)));
+            return static_cast<Token>(tokenByte) == token; }
         Token token;
         uint8_t prec : 6;
         uint8_t assoc : 1;
         uint8_t sto : 1;
         Op op;
+        uint8_t _;
     };
+    
+    // OperatorInfo is in Flash, so we need to access it as a single 4 byte read
+    static_assert(sizeof(OperatorInfo) == 4, "OperatorInfo must fit in 4 bytes");
 
     bool expect(Token token);
     bool expect(Token token, bool expected, const char* = nullptr);
