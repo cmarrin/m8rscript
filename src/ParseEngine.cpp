@@ -627,8 +627,8 @@ bool ParseEngine::expression(uint8_t minPrec)
     }
     
     while(1) {
-        auto endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
-        auto it = std::find(_opInfos, endit, getToken());
+        OperatorInfo* endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
+        OperatorInfo* it = std::find(_opInfos, endit, getToken());
         if (it == endit || it->prec < minPrec) {
             break;
         }

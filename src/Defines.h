@@ -140,6 +140,39 @@ static inline bool isspace(uint8_t c)       { return c == ' ' || c == '\n' || c 
 static inline uint8_t tolower(uint8_t c)    { return isUpper(c) ? (c - 'A' + 'a') : c; }
 static inline uint8_t toupper(uint8_t c)    { return isLower(c) ? (c - 'a' + 'A') : c; }
 
+// KeyActions have a 1-4 character code which m8rscript can compare against. For instance
+// 
+//      function handleAction(action)
+//      {
+//          if (action == "down") ...
+//      }
+//
+// Interrupt is control-c
+//
+// to make this work efficiently Action enumerants are uint32_t with the characters packed
+// in. These are converted to StringLiteral Values and sent to the script.     
+
+static constexpr uint32_t makeAction(const char* s)
+{
+    return
+        (static_cast<uint32_t>(s[0]) << 24) |
+        (static_cast<uint32_t>(s[1]) << 16) |
+        (static_cast<uint32_t>(s[2]) << 8) |
+        static_cast<uint32_t>(s[3]);
+}
+
+enum class KeyAction : uint32_t {
+    None = 0,
+    UpArrow = makeAction("up  "),
+    DownArrow = makeAction("down"),
+    RightArrow = makeAction("rt  "),
+    LeftArrow = makeAction("lt  "),
+    Delete = makeAction("del "),
+    Backspace = makeAction("bs  "),
+    Interrupt = makeAction("intr"),
+    NewLine = makeAction("newl"),
+};
+
 //  Class: Id/RawId template
 //
 //  Generic Id class

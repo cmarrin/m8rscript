@@ -14,7 +14,6 @@
 #include "Atom.h"
 #include "Closure.h"
 #include "Program.h"
-#include "Telnet.h"
 
 namespace m8r {
 
@@ -53,7 +52,7 @@ public:
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
 
-    void receivedData(const String&, Telnet::Action);
+    void receivedData(const String&, KeyAction);
 
     void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
     const std::function<void(const String&)>& consolePrintFunction() const { return _consolePrintFunction; }

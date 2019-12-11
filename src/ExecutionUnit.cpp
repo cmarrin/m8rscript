@@ -198,7 +198,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     eventUnlock();
 }
 
-void ExecutionUnit::receivedData(const String& data, Telnet::Action action)
+void ExecutionUnit::receivedData(const String& data, KeyAction action)
 {
     // Get the consoleListener from Program and use that to fire an event
     Value listener = program()->property(Atom(SA::consoleListener));

@@ -106,7 +106,7 @@ void Telnet::handleAddFF()
 
 void Telnet::handleInterrupt()
 {
-    _currentAction = Action::Interrupt;
+    _currentAction = KeyAction::Interrupt;
 }
 
 void Telnet::handleCSICommand()
@@ -148,7 +148,7 @@ void Telnet::handleSendLine()
     _line.clear();
     _position = 0;
     _toChannel = "\r\n";
-    _currentAction = Action::NewLine;
+    _currentAction = KeyAction::NewLine;
 }
 
 String Telnet::makeInputLine()
@@ -166,9 +166,9 @@ String Telnet::makeInputLine()
     return s;
 }
 
-Telnet::Action Telnet::receive(char fromChannel, String& toChannel, String& toClient)
+KeyAction Telnet::receive(char fromChannel, String& toChannel, String& toClient)
 {
-    _currentAction = Action::None;
+    _currentAction = KeyAction::None;
     _currentChar = fromChannel;
     _stateMachine.sendInput(_currentChar);
     

@@ -12,7 +12,6 @@
 #include "Containers.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
-#include "Telnet.h"
 #include <cstdint>
 #include <functional>
 
@@ -64,7 +63,7 @@ public:
     
     void setFilename(const char*);
     
-    void receivedData(const String& data, Telnet::Action action);
+    void receivedData(const String& data, KeyAction action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f);
     void setConsoleListener(Value func);

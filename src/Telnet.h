@@ -42,39 +42,8 @@ namespace m8r {
 //
 //--------------------------------------------------------------------------
 
-static constexpr uint32_t makeAction(const char* s)
-{
-    return
-        (static_cast<uint32_t>(s[0]) << 24) |
-        (static_cast<uint32_t>(s[1]) << 16) |
-        (static_cast<uint32_t>(s[2]) << 8) |
-        static_cast<uint32_t>(s[3]);
-}
-
 class Telnet {
 public:
-    // Interrupt is control-c
-    // Actions have a 1-4 character code which m8rscript can compare against. For instance
-    // 
-    //      function handleAction(action)
-    //      {
-    //          if (action == "down") ...
-    //      }
-    //
-    // to make this work efficiently Action enumerants are uint32_t with the characters packed
-    // in. These are converted to StringLiteral Values and sent to the script.     
-    enum class Action : uint32_t {
-        None = 0,
-        UpArrow = makeAction("up  "),
-        DownArrow = makeAction("down"),
-        RightArrow = makeAction("rt  "),
-        LeftArrow = makeAction("lt  "),
-        Delete = makeAction("del "),
-        Backspace = makeAction("bs  "),
-        Interrupt = makeAction("intr"),
-        NewLine = makeAction("newl"),
-    };
-    
     // Commands from the Telnet Channel. See https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
     enum class Command : uint8_t {
         SE      = 240,  // (0xf0) End of subnegotiation parameters.
@@ -181,9 +150,9 @@ public:
     //  - Constructs string to send back to Channel (e.g., echo) if any
     //  - Constructs string to send to Client if any
     //  - Returns any command that resulted from the incoming data
-    Action receive(char fromChannel, String& toChannel, String& toClient);
+    KeyAction receive(char fromChannel, String& toChannel, String& toClient);
     
-    String sendCommand(Action);
+    String sendCommand(KeyAction);
 
     void handleBackspace();
     void handleAddChar();
@@ -211,7 +180,7 @@ private:
     String _toChannel;
     String _toClient;
     char _currentChar = 0;
-    Action _currentAction = Action::None;
+    KeyAction _currentAction = KeyAction::None;
     char _csiParam = 0;
 };
 

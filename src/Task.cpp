@@ -87,7 +87,7 @@ void Task::setFilename(const char* filename)
     }
 }
 
-void Task::receivedData(const String& data, Telnet::Action action)
+void Task::receivedData(const String& data, KeyAction action)
 {
     _eu->receivedData(data, action);
 }

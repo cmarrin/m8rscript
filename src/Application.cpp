@@ -84,9 +84,9 @@ public:
                         if (!data[i]) {
                             break;
                         }
-                        Telnet::Action action = _shells[connectionId].telnet.receive(data[i], toChannel, toClient);
+                        KeyAction action = _shells[connectionId].telnet.receive(data[i], toChannel, toClient);
                     
-                        if (!toClient.empty() || action != Telnet::Action::None) {
+                        if (!toClient.empty() || action != KeyAction::None) {
                             _shells[connectionId].task->receivedData(toClient, action);
                         }
                         if (!toChannel.empty()) {
