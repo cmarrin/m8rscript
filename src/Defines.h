@@ -400,10 +400,9 @@ private:
     
     struct Entry
     {
-        Layout layout : 5;
-        uint8_t size  : 3;
+        Layout layout;
+        uint8_t size;
     };
-    static_assert(sizeof(Entry) == 1, "OpInfo::Entry must be 8 bits");
 
     static const Entry& array(Op op)
     {
