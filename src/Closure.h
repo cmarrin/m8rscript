@@ -61,8 +61,6 @@ public:
         }
     }
     
-    void closeUpValues(ExecutionUnit*, uint32_t frame);
-
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;

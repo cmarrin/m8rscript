@@ -57,16 +57,6 @@ bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value
     return true;
 }
 
-void Closure::closeUpValues(ExecutionUnit* eu, uint32_t frame)
-{
-    for (auto& it : _upValues) {
-        if (!it->closed() && it->stackIndex() >= frame) {
-            it->value() = eu->stack().at(it->stackIndex());
-            it->setClosed(true);
-        }
-    }
-}
-
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
     if (!thisValue) {
