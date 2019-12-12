@@ -15,7 +15,9 @@ using namespace m8r;
 
 //StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable({ { { '\x01', '\xff'}, State::Ready } });
 
-StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry RODATA_ATTR Telnet::_stateEntries[ ] = {
+// This table can't be kept in ROM. It contains NextState vectors which get created on the fly from the
+// initialization data. Those Vectors can't be in ROM. In this case we're only talking about 200 bytes.
+StateTable<Telnet, Telnet::State, Telnet::Input>::StateEntry Telnet::_stateEntries[ ] = {
     { State::Ready,
         {
               { '\x7f', State::Backspace }
