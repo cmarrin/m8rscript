@@ -499,13 +499,7 @@ private:
 //  Simle ordered array. Done this way to minimize space
 //
 
-template<class T>
-struct CompareKeys
-{
-    int operator()(const T& lhs, const T& rhs) const { return static_cast<int>(lhs - rhs); }
-};
-
-template<typename Key, typename Value, typename Compare=CompareKeys<Key>>
+template<typename Key, typename Value>
 class Map {
 public:
     struct Pair
@@ -567,14 +561,13 @@ private:
     {
         if (first <= last) {
             int mid = (first + last) / 2;
-            int result = _compare(key, _list[mid].key);
+            int result = static_cast<int>(key - _list[mid].key);
             return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
         }
         return -(first + 1);    // failed to find key
     }
     
     MapList _list;
-    Compare _compare;
 };
 
 //
