@@ -73,7 +73,6 @@ public:
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
     virtual Atom name() const { return Atom(); }
-    virtual bool hasUpValues() const { return false; }
     virtual bool isFunction() const { return false; }
     virtual void setArray(bool b) { }
     

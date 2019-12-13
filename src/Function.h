@@ -73,8 +73,6 @@ public:
     
     void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
-
-    virtual bool hasUpValues() const override { return !_upValues.empty(); }
     
 private:
     struct UpValueEntry {
