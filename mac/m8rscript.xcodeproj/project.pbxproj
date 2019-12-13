@@ -84,7 +84,6 @@
 		49BF344823680892001E5508 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
 		49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED38E235392FF00DE0C42 /* spiffs_cache.c */; };
 		49BF344A236811BF001E5508 /* spiffs_check.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED390235392FF00DE0C42 /* spiffs_check.c */; };
-		49BF344B236811BF001E5508 /* spiffs_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38F235392FF00DE0C42 /* spiffs_config.h */; };
 		49BF344C236811BF001E5508 /* spiffs_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED393235392FF00DE0C42 /* spiffs_gc.c */; };
 		49BF344D236811BF001E5508 /* spiffs_hydrogen.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */; };
 		49BF344E236811BF001E5508 /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED394235392FF00DE0C42 /* spiffs_nucleus.c */; };
@@ -215,7 +214,6 @@
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../src/Telnet.h; sourceTree = "<group>"; };
 		491ED38D235392FF00DE0C42 /* spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs.h; path = ../src/spiffs/src/spiffs.h; sourceTree = "<group>"; };
 		491ED38E235392FF00DE0C42 /* spiffs_cache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_cache.c; path = ../src/spiffs/src/spiffs_cache.c; sourceTree = "<group>"; };
-		491ED38F235392FF00DE0C42 /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs/src/spiffs_config.h; sourceTree = "<group>"; };
 		491ED390235392FF00DE0C42 /* spiffs_check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_check.c; path = ../src/spiffs/src/spiffs_check.c; sourceTree = "<group>"; };
 		491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_hydrogen.c; path = ../src/spiffs/src/spiffs_hydrogen.c; sourceTree = "<group>"; };
 		491ED392235392FF00DE0C42 /* spiffs_nucleus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_nucleus.h; path = ../src/spiffs/src/spiffs_nucleus.h; sourceTree = "<group>"; };
@@ -269,6 +267,7 @@
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
 		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		4961121923A44601002300CB /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs_config.h; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../src/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../src/CodePrinter.h; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
@@ -426,7 +425,6 @@
 			children = (
 				491ED38E235392FF00DE0C42 /* spiffs_cache.c */,
 				491ED390235392FF00DE0C42 /* spiffs_check.c */,
-				491ED38F235392FF00DE0C42 /* spiffs_config.h */,
 				491ED393235392FF00DE0C42 /* spiffs_gc.c */,
 				491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */,
 				491ED394235392FF00DE0C42 /* spiffs_nucleus.c */,
@@ -705,6 +703,7 @@
 				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
+				4961121923A44601002300CB /* spiffs_config.h */,
 				490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */,
 				490C1BDB239185CB0094A6B4 /* SpiffsFS.h */,
 				49884F06236CB25100C292EA /* StateMachine.h */,
@@ -751,7 +750,6 @@
 			files = (
 				497CAFC8237DF219000495B2 /* GC.h in Headers */,
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
-				49BF344B236811BF001E5508 /* spiffs_config.h in Headers */,
 				49EED98C2357971500831598 /* lfs_util.h in Headers */,
 				49846006238C60ED001F4FD4 /* Mac.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
