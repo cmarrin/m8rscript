@@ -291,7 +291,7 @@ private:
 
     FunctionEntryVector _functions;
     
-    Vector<Mad<MaterObject>> _classes;
+    Vector<Mad<Object>> _classes;
 
     Scanner _scanner;
     Mad<Program> _program;

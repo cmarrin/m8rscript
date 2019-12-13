@@ -83,7 +83,6 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
     
     Mad<Object> thisObject = thisValue.asObject();
     if (thisObject.valid()) {
-        thisObject->setArray(true);
         thisObject->setElement(eu, Value(0), Value(ipAddr[0]), true);
         thisObject->setElement(eu, Value(1), Value(ipAddr[1]), true);
         thisObject->setElement(eu, Value(2), Value(ipAddr[2]), true);

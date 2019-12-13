@@ -469,7 +469,6 @@ CallReturnValue ExecutionUnit::continueExecution()
     int32_t leftIntValue, rightIntValue;
     Float leftFloatValue, rightFloatValue;
     Mad<Object> objectValue;
-    Mad<MaterObject> materObjectValue;
     Value returnedValue;
     CallReturnValue callReturnValue;
     uint32_t localsToPop;
@@ -654,9 +653,8 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_LOADLITA:
-        materObjectValue = Object::create<MaterObject>();
-        materObjectValue->setArray(true);
-        setInFrame(byteFromCode(_currentAddr), Value(materObjectValue));
+        objectValue = Object::create<MaterArray>();
+        setInFrame(byteFromCode(_currentAddr), Value(objectValue));
         DISPATCH;
     L_LOADLITO:
         objectValue = Object::create<MaterObject>();

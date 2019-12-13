@@ -37,7 +37,7 @@ void Object::addToObjectStore(RawMad obj)
 
 CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_t nparams)
 {
-    Mad<MaterObject> obj = create<MaterObject>();
+    Mad<Object> obj = create<MaterObject>();
     Value objectValue(obj);
     obj->setProto(proto);
     
@@ -53,6 +53,27 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
+String Object::toString(ExecutionUnit* eu, bool typeOnly) const
+{
+    if (typeOnly) {
+        return eu->program()->stringFromAtom(typeName());
+    }
+    
+    Value callable = property(Atom(SA::toString));
+    
+    if (callable) {
+        CallReturnValue retval = callable.call(eu, Value(Mad<Object>(this)), 0, true);
+        if (!retval.isReturnCount()) {
+            return "";
+        }
+        Value stringValue = eu->stack().top(1 - retval.returnCount());
+        eu->stack().pop(retval.returnCount());
+        return stringValue.toStringValue(eu);
+    }
+
+    return String();
+}
+
 MaterObject::~MaterObject()
 {
     for (auto it : _properties) {
@@ -66,40 +87,13 @@ MaterObject::~MaterObject()
 
 String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
-    if (typeOnly) {
-        String name = eu->program()->stringFromAtom(typeName());
-        return name.empty() ? (_isArray ? String("Array") : String("Object")) : name;
-    }
-    
-    Value callable = property(Atom(SA::toString));
-    
-    if (callable) {
-        CallReturnValue retval = callable.call(eu, Value(Mad<MaterObject>(this)), 0, true);
-        if (!retval.isReturnCount()) {
-            return "";
-        }
-        Value stringValue = eu->stack().top(1 - retval.returnCount());
-        eu->stack().pop(retval.returnCount());
-        return stringValue.toStringValue(eu);
-    }
-
-    if (_isArray) {
-        String s = "[ ";
-        bool first = true;
-        for (auto& it : _array) {
-            if (first) {
-                first = false;
-            } else {
-                s += ", ";
-            }
-            s += it.toStringValue(eu);
-        }
-        s += " ]";
+    String s = Object::toString(eu, typeOnly);
+    if (!s.empty()) {
         return s;
     }
-    
+
     // FIXME: Pretty print
-    String s = "{ ";
+    s = "{ ";
     bool first = true;
     for (auto prop : _properties) {
         if (!first) {
@@ -127,6 +121,27 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return s;
 }
 
+String MaterArray::toString(ExecutionUnit* eu, bool typeOnly) const
+{
+    String s = Object::toString(eu, typeOnly);
+    if (!s.empty()) {
+        return s;
+    }
+
+    s = "[ ";
+    bool first = true;
+    for (auto& it : _array) {
+        if (first) {
+            first = false;
+        } else {
+            s += ", ";
+        }
+        s += it.toStringValue(eu);
+    }
+    s += " ]";
+    return s;
+}
+
 void MaterObject::gcMark()
 {
     if (isMarked()) {
@@ -136,6 +151,15 @@ void MaterObject::gcMark()
     for (auto entry : _properties) {
         entry.value.gcMark();
     }
+}
+
+void MaterArray::gcMark()
+{
+    if (isMarked()) {
+        return;
+    }
+    Object::gcMark();
+
     if (_arrayNeedsGC) {
         _arrayNeedsGC = false;
         for (auto entry : _array) {
@@ -149,25 +173,28 @@ void MaterObject::gcMark()
 
 const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
 {
-    if (elt.isString() || !_isArray) {
-        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-        return property(prop);
-    }
+    Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+    return property(prop);
+}
+
+const Value MaterArray::element(ExecutionUnit* eu, const Value& elt) const
+{
     int32_t index = elt.toIntValue(eu);
     return (index >= 0 && index < _array.size()) ? _array[index] : Value();
 }
 
 bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
 {
+    Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
+    return setProperty(prop, value, Value::SetPropertyType::NeverAdd);
+}
+
+bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+{
     if (append) {
         _array.push_back(value);
         _arrayNeedsGC |= value.needsGC();
         return true;
-    }
-    
-    if (elt.isString() || !_isArray) {
-        Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-        return setProperty(prop, value, Value::SetPropertyType::NeverAdd);
     }
     
     int32_t index = elt.toIntValue(eu);
@@ -183,68 +210,79 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 {
     Value callee = property(prop);
     if (!callee) {
-        if (prop == Atom(SA::pop_back)) {
-            if (!_array.empty()) {
-                _array.pop_back();
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-
-        if (prop == Atom(SA::pop_front)) {
-            if (!_array.empty()) {
-                _array.erase(_array.begin());
-            }
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-
-        if (prop == Atom(SA::push_back)) {
-            // Push all the params
-            for (int32_t i = 1 - nparams; i <= 0; ++i) {
-                _array.push_back(eu->stack().top(i));
-            }
-
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-        
-        if (prop == Atom(SA::push_front)) {
-            // Push all the params, efficiently
-            if (nparams == 1) {
-                _array.insert(_array.begin(), eu->stack().top());
-            }
-            
-            Vector<Value> vec;
-            vec.reserve(nparams);
-            for (int32_t i = 1 - nparams; i <= 0; ++i) {
-                vec.push_back(eu->stack().top(i));
-            }
-            _array.insert(_array.begin(), vec.begin(), vec.end());
-
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-        }
-
-        if (prop == Atom(SA::join)) {
-            String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String("");
-            String s;
-            bool first = true;
-            for (auto it : _array) {
-                if (!first) {
-                    s += separator;
-                } else {
-                    first = false;
-                }
-                s += it.toStringValue(eu);
-            }
-            
-            eu->stack().push(Value(String::create(s)));
-            return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-        }
-        
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
     return callee.call(eu, Value(Mad<Object>(this)), nparams, false);
 }
 
+CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
+{
+    if (prop == Atom(SA::pop_back)) {
+        if (!_array.empty()) {
+            _array.pop_back();
+        }
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+
+    if (prop == Atom(SA::pop_front)) {
+        if (!_array.empty()) {
+            _array.erase(_array.begin());
+        }
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+
+    if (prop == Atom(SA::push_back)) {
+        // Push all the params
+        for (int32_t i = 1 - nparams; i <= 0; ++i) {
+            _array.push_back(eu->stack().top(i));
+        }
+
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    if (prop == Atom(SA::push_front)) {
+        // Push all the params, efficiently
+        if (nparams == 1) {
+            _array.insert(_array.begin(), eu->stack().top());
+        }
+        
+        Vector<Value> vec;
+        vec.reserve(nparams);
+        for (int32_t i = 1 - nparams; i <= 0; ++i) {
+            vec.push_back(eu->stack().top(i));
+        }
+        _array.insert(_array.begin(), vec.begin(), vec.end());
+
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+
+    if (prop == Atom(SA::join)) {
+        String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String("");
+        String s;
+        bool first = true;
+        for (auto it : _array) {
+            if (!first) {
+                s += separator;
+            } else {
+                first = false;
+            }
+            s += it.toStringValue(eu);
+        }
+        
+        eu->stack().push(Value(String::create(s)));
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
+    }
+    
+    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+}
+
 const Value MaterObject::property(const Atom& prop) const
+{
+    auto it = _properties.find(prop);
+    return (it == _properties.end()) ? (proto() ? proto().property(prop) : Value()) : it->value;
+}
+
+const Value MaterArray::property(const Atom& prop) const
 {
     if (prop == Atom(SA::length)) {
         return Value(static_cast<int32_t>(_array.size()));
@@ -258,8 +296,7 @@ const Value MaterObject::property(const Atom& prop) const
         return _array.empty() ? Value() : _array[_array.size() - 1];
     }
     
-    auto it = _properties.find(prop);
-    return (it == _properties.end()) ? (proto() ? proto().property(prop) : Value()) : it->value;
+    return Value();
 }
 
 bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
@@ -273,11 +310,6 @@ bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetProper
         return false;
     }
 
-    if (prop == Atom(SA::length)) {
-        _array.resize(v.asIntValue());
-        return true;
-    }
-
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
@@ -287,6 +319,15 @@ bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetProper
         it->value = v;
     }
     return true;
+}
+
+bool MaterArray::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
+{
+    if (prop == Atom(SA::length)) {
+        _array.resize(v.asIntValue());
+        return true;
+    }
+    return false;
 }
 
 CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)

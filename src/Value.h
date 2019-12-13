@@ -152,8 +152,8 @@ public:
     }
 
     explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<const MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    //explicit Value(Mad<const MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
+    //explicit Value(Mad<MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Function; }
     explicit Value(Mad<String> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
     explicit Value(Mad<NativeObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }

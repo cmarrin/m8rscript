@@ -217,8 +217,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     obj->setProperty(eu->program()->atomizeString(ROMSTR("numAllocations")),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetPropertyType::AlwaysAdd);
                      
-    Mad<Object> allocationsByType = Object::create<MaterObject>();
-    allocationsByType->setArray(true);
+    Mad<Object> allocationsByType = Object::create<MaterArray>();
     for (int i = 0; i < info.allocationsByType.size(); ++i) {
         Mad<Object> allocation = Object::create<MaterObject>();
         uint32_t size = info.allocationsByType[i].sizeInBlocks * info.blockSize;

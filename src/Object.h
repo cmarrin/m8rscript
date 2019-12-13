@@ -41,7 +41,7 @@ public:
     template<typename T>
     static Mad<T> create() { Mad<T> obj = Mad<T>::create(MemoryType::Object); addToObjectStore(obj.raw()); return obj; }
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const { return typeOnly ? String() : toString(eu, true) + " { }"; }
+    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const;
     
     virtual void gcMark() { gcMark(this); _proto.gcMark(); }
     
@@ -74,7 +74,6 @@ public:
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
     virtual Atom name() const { return Atom(); }
     virtual bool isFunction() const { return false; }
-    virtual void setArray(bool b) { }
     
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
@@ -103,7 +102,7 @@ private:
 
 class MaterObject : public Object {
 public:
-    MaterObject(bool isArray = false) : _isArray(isArray) { }
+    MaterObject() { }
     virtual ~MaterObject();
 
     virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
@@ -118,22 +117,38 @@ public:
     virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
-    virtual void setArray(bool b) override { _isArray = b; }
-
     uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
     Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
     
+private:
+    PropertyMap _properties;
+};
+
+class MaterArray : public Object {
+public:
+    MaterArray() { }
+    virtual ~MaterArray() { }
+
+    virtual String toString(ExecutionUnit*, bool typeOnly = false) const override;
+
+    virtual void gcMark() override;
+    
+    virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
+
+    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
+    virtual const Value property(const Atom& prop) const override;
+    virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
+    
     const Value& operator[](size_t i) const { assert(i >= 0 && i < _array.size()); return _array[i]; };
     Value& operator[](size_t i) { assert(i >= 0 && i < _array.size()); return _array[i]; };
-	size_t size() const { return _array.size(); }
+    size_t size() const { return _array.size(); }
     bool empty() const { return _array.empty(); }
     void clear() { _array.clear(); }
     void resize(size_t size) { _array.resize(size); }
 
 private:
-    PropertyMap _properties;
     Vector<Value> _array;
-    bool _isArray = false;
     bool _arrayNeedsGC = false;
 };
 
