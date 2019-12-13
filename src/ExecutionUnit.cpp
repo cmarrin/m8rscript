@@ -544,8 +544,8 @@ CallReturnValue ExecutionUnit::continueExecution()
             callReturnValue = CallReturnValue();
         }
         else {
-            // Assume this is RET
-            uint8_t nparams = byteFromCode(_currentAddr);
+            // Assume this is RET or RETI
+            uint8_t nparams = (op == Op::RET) ? byteFromCode(_currentAddr) : imm;
             callReturnValue = CallReturnValue(CallReturnValue::Type::ReturnCount, nparams);
         }
         
