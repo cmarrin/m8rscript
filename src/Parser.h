@@ -194,7 +194,7 @@ private:
     }
     
     void emitCallRet(Op value, int32_t thisReg, uint32_t count);
-    void addVar(const Atom& name) { currentFunction()->addLocal(name); }
+    void addVar(const Atom& name) { _functions.back().addLocal(name); }
     
     void discardResult();
     
@@ -217,7 +217,7 @@ private:
     void emitCodeUN(Op, uint16_t n);
     void emitCode(Op);
 
-    void reconcileRegisters(Mad<Function>);
+    void reconcileRegisters(uint16_t localCount);
 
     class ParseStack {
     public:
@@ -281,10 +281,34 @@ private:
         FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
         Vector<uint8_t> _code;
         Vector<Value> _constants;
+        Vector<Atom> _locals;
         Mad<Function> _function;
         uint8_t _nextReg = MaxRegister;
         uint8_t _minReg = MaxRegister + 1;
         bool _ctor = false;
+
+        int16_t addLocal(const Atom& atom)
+        {
+            for (auto name : _locals) {
+                if (name == atom) {
+                    return -1;
+                }
+            }
+            _locals.push_back(atom);
+            return static_cast<int16_t>(_locals.size()) - 1;
+        }
+
+        int32_t localIndex(const Atom& name) const
+        {
+            for (int16_t i = 0; i < static_cast<int16_t>(_locals.size()); ++i) {
+                if (_locals[i] == name) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        void markParamEnd() { _function->setFormalParamCount(static_cast<uint16_t>(_locals.size())); }
     };
         
     using FunctionEntryVector = Vector<FunctionEntry>;

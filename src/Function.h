@@ -41,10 +41,8 @@ public:
     virtual const InstructionVector* code() const override { return &_code; }
     void setCode(const Vector<uint8_t>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
 
-    int32_t addLocal(const Atom& name);
-    int32_t localIndex(const Atom& name) const;
-    Atom localName(int32_t index) const { return (index < static_cast<int32_t>(_locals.size())) ? _locals[index] : Atom(); }
-    virtual uint32_t localSize() const override { return static_cast<uint32_t>(_locals.size()) + _tempRegisterCount; }
+    void setLocalCount(uint16_t size) { _localSize = size; }
+    virtual uint16_t localCount() const override { return _localSize; }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
@@ -72,14 +70,11 @@ public:
     
     uint32_t upValueCount() const { return static_cast<uint32_t>(_upValues.size()); }
 
-    void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
-    virtual uint32_t formalParamCount() const override{ return _formalParamCount; }
+    void setFormalParamCount(uint16_t count) { _formalParamCount = count; }
+    virtual uint16_t formalParamCount() const override{ return _formalParamCount; }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
-    
-    void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
-    uint8_t tempRegisterCount() const { return _tempRegisterCount; }
-    
+
 private:
     struct UpValueEntry {
         UpValueEntry() { }
@@ -100,12 +95,10 @@ private:
     };
     
     Vector<UpValueEntry> _upValues;
-    
+    uint16_t _formalParamCount = 0;
     InstructionVector _code;
-    Vector<Atom> _locals;
-    uint32_t _formalParamCount = 0;
+    uint16_t _localSize = 0;
     ConstantValueVector _constants;
-    uint8_t _tempRegisterCount = 0;
     Atom _name;
 };
 

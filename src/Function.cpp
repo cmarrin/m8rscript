@@ -40,27 +40,6 @@ CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t npar
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 
-int32_t Function::addLocal(const Atom& atom)
-{
-    for (auto name : _locals) {
-        if (name == atom) {
-            return -1;
-        }
-    }
-    _locals.push_back(atom);
-    return static_cast<int32_t>(_locals.size()) - 1;
-}
-
-int32_t Function::localIndex(const Atom& name) const
-{
-    for (int32_t i = 0; i < static_cast<int32_t>(_locals.size()); ++i) {
-        if (_locals[i] == name) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 uint32_t Function::addUpValue(uint32_t index, uint16_t frame, Atom name)
 {
     assert(_upValues.size() < std::numeric_limits<uint16_t>::max());

@@ -67,9 +67,9 @@ public:
     
     // methods for Callable (m8rscript) objects
     virtual const InstructionVector* code() const { return nullptr; }
-    virtual uint32_t localSize() const { return 0; }
+    virtual uint16_t localCount() const { return 0; }
     virtual const ConstantValueVector*  constants() const { return nullptr; }
-    virtual uint32_t formalParamCount() const { return 0; }
+    virtual uint16_t formalParamCount() const { return 0; }
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
     virtual Atom name() const { return Atom(); }

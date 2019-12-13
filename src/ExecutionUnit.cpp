@@ -165,7 +165,7 @@ void ExecutionUnit::startExecution(Mad<Program> program)
     _function =  _program;
     _this = program;
     _constants = _function->constants() ? &(_function->constants()->at(0)) : nullptr;
-    _stack.setLocalFrame(0, 0, _function->localSize());
+    _stack.setLocalFrame(0, 0, _function->localCount());
     _framePtr =_stack.framePtr();
 
     _localOffset = 0;
@@ -341,7 +341,7 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
         _this = _program;
     }
     
-    uint32_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localSize());
+    uint16_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localCount());
     
     _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno });
     
@@ -528,8 +528,8 @@ CallReturnValue ExecutionUnit::continueExecution()
             if (_program == _function) {
                 // We've hit the end of the program
                 
-                if (!_stack.validateFrame(0, _program->localSize())) {
-                    printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localSize());
+                if (!_stack.validateFrame(0, _program->localCount())) {
+                    printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localCount());
                     _terminate = true;
                     _stack.clear();
                     GC::gc(true);
@@ -550,7 +550,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _function->localSize() + _localOffset;
+        localsToPop = _function->localCount() + _localOffset;
         
         // Make a block so we can have a local var
         {

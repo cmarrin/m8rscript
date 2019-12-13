@@ -329,8 +329,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         bool local = true;
         uint16_t frame = 0;
         for (int32_t i = static_cast<int32_t>(_functions.size()) - 1; i >= 0; --i) {
-            Mad<Function> function = _functions[i]._function;
-            int32_t index = function->localIndex(atom);
+            int32_t index = _functions[i].localIndex(atom);
             
             if (index >= 0) {
                 if (local) {
@@ -680,7 +679,7 @@ void Parser::functionAddParam(const Atom& atom)
 {
     if (_nerrors) return;
     
-    if (currentFunction()->addLocal(atom) < 0) {
+    if (_functions.back().addLocal(atom) < 0) {
         m8r::String s = "param '";
         s += _program->stringFromAtom(atom);
         s += "' already exists";
@@ -703,7 +702,7 @@ void Parser::functionParamsEnd()
 {
     if (_nerrors) return;
     
-    currentFunction()->markParamEnd();
+    _functions.back().markParamEnd();
 }
 
 Mad<Function> Parser::functionEnd()
@@ -721,15 +720,15 @@ Mad<Function> Parser::functionEnd()
     }
     
     emitEnd();
-    Mad<Function> function = currentFunction();
     uint8_t tempRegisterCount = MaxRegister + 1 - _functions.back()._minReg;
 
-    reconcileRegisters(function);
-    function->setTempRegisterCount(tempRegisterCount);
+    reconcileRegisters(_functions.back()._locals.size());
         
     // Place the current code and constants in this function
+    Mad<Function> function = currentFunction();
     function->setCode(currentCode());
     function->setConstants(currentConstants());
+    function->setLocalCount(_functions.back()._locals.size() + tempRegisterCount);
     
     _functions.pop_back();
 
@@ -741,10 +740,9 @@ static inline uint32_t regFromTempReg(uint32_t reg, uint32_t numLocals)
     return (reg > numLocals && reg <= MaxRegister) ? (MaxRegister - reg + numLocals) : reg;
 }
 
-void Parser::reconcileRegisters(Mad<Function> function)
+void Parser::reconcileRegisters(uint16_t localCount)
 {
     assert(currentCode().size());
-    uint32_t numLocals = static_cast<uint32_t>(function->localSize());
     
     for (int i = 0; i < currentCode().size(); ++i) {
         Op op = opFromByte(currentCode()[i]);
@@ -752,15 +750,15 @@ void Parser::reconcileRegisters(Mad<Function> function)
         
         if (OpInfo::aReg(op)) {
             assert(size >= 1);
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], numLocals);
+            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], localCount);
         }
         if (OpInfo::bReg(op)) {
             assert(size >= 2);
-            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], numLocals);
+            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], localCount);
         }
         if (OpInfo::cReg(op)) {
             assert(size >= 3);
-            currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], numLocals);
+            currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], localCount);
         }
         
         i += size;

@@ -194,7 +194,7 @@ private:
     Mad<Object> _function;
     Mad<Object> _this;
     uint32_t _localOffset = 0;
-    uint32_t _formalParamCount = 0;
+    uint16_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
 
     uint32_t _codeSize;

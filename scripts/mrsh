@@ -11,13 +11,6 @@
 //
 
 //var b = "world";
-//function foo(a)
-//{
-//    printf("%s %s\n", a, b);
-//}
-//
-//foo("Hello");
-//
 //function bar(a)
 //{
 //    return function(c) {
@@ -27,7 +20,7 @@
 //
 //var f = bar("Goodbye");
 //f("cruel");
-
+//
 
 printf("m8rscript shell v 1.0\n\n");
 
