@@ -280,11 +280,11 @@ void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
     if (_nerrors) return;
     
     // Add code to make this look like 'var name = function(...) ...'
-    addVar(name);
-    emitId(name, IdType::MustBeLocal);
-    pushK(Value(func));
-    emitMove();
-    discardResult();
+//    addVar(name);
+//    emitId(name, IdType::MustBeLocal);
+//    pushK(Value(func));
+//    emitMove();
+//    discardResult();
 
     addConstant(Value(func));
     func->setName(name);
@@ -860,15 +860,15 @@ uint32_t Parser::ParseStack::bake()
         }
         case Type::Constant: {
             uint32_t r = entry._reg;
-            Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
-            Mad<Object> obj = v.asObject();
-            Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
-            if (func.valid()) {
-                pop();
-                uint32_t dst = pushRegister();
-                _parser->emitCodeRR(Op::CLOSURE, dst, r);
-                r = dst;
-            }
+//            Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
+//            Mad<Object> obj = v.asObject();
+//            Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
+//            if (func.valid()) {
+//                pop();
+//                uint32_t dst = pushRegister();
+//                _parser->emitCodeRR(Op::CLOSURE, dst, r);
+//                r = dst;
+//            }
             return r;
         }
         case Type::Local:

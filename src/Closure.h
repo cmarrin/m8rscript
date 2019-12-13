@@ -15,7 +15,18 @@ namespace m8r {
 
 class UpValue {
 public:
-    ~UpValue() { assert(!_destroyed); _destroyed = true; }
+    UpValue()
+        : _closed(false)
+        , _marked(true)
+        , _destroyed(false)
+    {
+    }
+
+    ~UpValue()
+    {
+        assert(!_destroyed);
+        _destroyed = true;
+    }
     
     bool closed() const { return _closed; }
     void setClosed(bool v) { _closed = v; }
@@ -32,10 +43,10 @@ public:
     uint32_t stackIndex() const { return static_cast<uint32_t>(_value.asIntValue()); }
     
 private:
-    bool _closed = false;
-    bool _marked = true;
-    bool _destroyed = false;
     Value _value;
+    bool _closed : 1;
+    bool _marked : 1;
+    bool _destroyed : 1;
 };
 
 class Closure : public Object {
