@@ -10,12 +10,13 @@
 // mrsh - m8rscript shell
 //
 
-function foo()
+var b = "world";
+function foo(a)
 {
-    printf("Hello world\n");
+    printf("%s %s\n", a, b);
 }
 
-foo();
+foo("Hello");
 
 //printf("m8rscript shell v 1.0\n\n");
 //

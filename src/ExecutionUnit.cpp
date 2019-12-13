@@ -304,7 +304,7 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
     frame--;
     assert(frame <= _callRecords.size());
     if (frame == 0) {
-        return _stack.frame() + index;
+        return index;
     }
     uint32_t stackIndex = _callRecords[_callRecords.size() - frame]._frame + index;
     assert(stackIndex < _stack.size());

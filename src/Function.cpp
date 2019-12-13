@@ -80,3 +80,15 @@ uint32_t Function::upValueStackIndex(ExecutionUnit* eu, uint32_t index) const
 {
     return eu->upValueStackIndex(_upValues[index]._index, _upValues[index]._frame);
 }
+
+bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
+{
+    assert(index < _upValues.size());
+    value = eu->stack().at(upValueStackIndex(eu, index));
+    return true;
+}
+
+bool Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
+{
+    return false;
+}

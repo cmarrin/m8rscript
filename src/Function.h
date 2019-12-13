@@ -70,6 +70,8 @@ public:
 
     void markParamEnd() { _formalParamCount = static_cast<uint32_t>(_locals.size()); }
     virtual uint32_t formalParamCount() const override{ return _formalParamCount; }
+    virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
+    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
     
     void setTempRegisterCount(uint8_t n) { _tempRegisterCount = n; }
     uint8_t tempRegisterCount() const { return _tempRegisterCount; }
