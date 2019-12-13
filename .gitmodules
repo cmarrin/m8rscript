@@ -1,3 +1,6 @@
 [submodule "esp/spiffs"]
 	path = esp/spiffs
 	url = git@github.com:cmarrin/spiffs.git
+[submodule "src/spiffs"]
+	path = src/spiffs
+	url = https://github.com/pellepl/spiffs.git
