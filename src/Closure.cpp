@@ -28,10 +28,15 @@ void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisVa
     assert(_func.valid());
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
-        Mad<UpValue> upValue = Mad<UpValue>::create(MemoryType::UpValue);
-        upValue->setStackIndex(_func->upValueStackIndex(eu, i));
-        eu->addOpenUpValue(upValue);
-        _upValues.push_back(upValue);
+        Mad<UpValue> up = Mad<UpValue>::create(MemoryType::UpValue);
+
+        uint32_t index;
+        uint16_t frame;
+        _func->upValue(i, index, frame);
+        
+        up->setStackIndex(eu->upValueStackIndex(index, frame - 1));
+        eu->addOpenUpValue(up);
+        _upValues.push_back(up);
     }
 }
 

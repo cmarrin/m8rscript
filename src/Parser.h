@@ -240,7 +240,7 @@ private:
         bool empty() const { return _stack.empty(); }
         void clear() { _stack.clear(); }
         
-        uint32_t bake();
+        uint32_t bake(bool makeClosure = false);
         bool needsBaking() const { return _stack.top()._type == Type::PropRef || _stack.top()._type == Type::EltRef || _stack.top()._type == Type::RefK; }
         void replaceTop(Type, uint32_t reg, uint32_t derefReg);
         void dup() {

@@ -565,7 +565,7 @@ void Parser::emitPush()
 {
     if (_nerrors) return;
     
-    uint32_t src = _parseStack.bake();
+    uint32_t src = _parseStack.bake(true);
     _parseStack.pop();
     
     emitCodeR(Op::PUSH, src);
@@ -805,7 +805,7 @@ void Parser::ParseStack::swap()
     _stack.top(-1) = t;
 }
 
-uint32_t Parser::ParseStack::bake()
+uint32_t Parser::ParseStack::bake(bool makeClosure)
 {
     Entry entry = _stack.top();
     
@@ -860,15 +860,17 @@ uint32_t Parser::ParseStack::bake()
         }
         case Type::Constant: {
             uint32_t r = entry._reg;
-//            Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
-//            Mad<Object> obj = v.asObject();
-//            Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
-//            if (func.valid()) {
-//                pop();
-//                uint32_t dst = pushRegister();
-//                _parser->emitCodeRR(Op::CLOSURE, dst, r);
-//                r = dst;
-//            }
+            if (makeClosure) {
+                Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
+                Mad<Object> obj = v.asObject();
+                Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
+                if (func.valid()) {
+                    pop();
+                    uint32_t dst = pushRegister();
+                    _parser->emitCodeRR(Op::CLOSURE, dst, r);
+                    r = dst;
+                }
+            }
             return r;
         }
         case Type::Local:

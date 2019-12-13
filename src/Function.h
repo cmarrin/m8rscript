@@ -56,14 +56,18 @@ public:
     virtual Atom name() const override { return _name; }
     
     uint32_t addUpValue(uint32_t index, uint16_t frame, Atom name);
-    
-    uint32_t upValueStackIndex(ExecutionUnit* eu, uint32_t index) const; 
-    
+        
     void upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const
     {
         index = _upValues[i]._index;
         frame = _upValues[i]._frame;
         name = _upValues[i]._name;
+    }
+    
+    void upValue(uint32_t i, uint32_t& index, uint16_t& frame) const
+    {
+        index = _upValues[i]._index;
+        frame = _upValues[i]._frame;
     }
     
     uint32_t upValueCount() const { return static_cast<uint32_t>(_upValues.size()); }
