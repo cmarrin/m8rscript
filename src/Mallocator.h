@@ -251,10 +251,13 @@ private:
         enum class Type : uint16_t { Free, Allocated };
         
         uint16_t magic;
-        Type type : 1;
+        uint16_t _type : 1; // Type: Free or Allocated
         uint16_t nElements : 15;
         MemoryType memoryType;
         const char* name;
+        
+        Type type() const { return static_cast<Type>(_type); }
+        void setType(Type t) { _type = static_cast<uint16_t>(t); }
 #endif
         BlockId nextBlock;
         uint16_t sizeInBlocks;

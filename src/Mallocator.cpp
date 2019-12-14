@@ -57,6 +57,9 @@ void Mallocator::init()
     void* base;
     uint32_t size;
     heapInfo(base, size);
+    if (base == nullptr) {
+        return;
+    }
     
     // Limit is one less block, to provide for a NoBlockId value
     if (size < (1024 * 256 - 4)) {
@@ -79,7 +82,7 @@ void Mallocator::init()
 
 #ifdef MEMORY_HEADER
     asHeader(0)->magic = Header::FREEMAGIC;
-    asHeader(0)->type = Header::Type::Free;
+    asHeader(0)->setType(Header::Type::Free);
     asHeader(0)->memoryType = MemoryType::Unknown;
     _firstAllocatedBlock = NoBlockId;
 #endif
@@ -121,7 +124,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
         assert(header->nextBlock != freeBlock);
 
         MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->type == Header::Type::Free);
+        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Free);
 
         if (header->sizeInBlocks >= blocksToAlloc) {
             if (blocksToAlloc == header->sizeInBlocks) {
@@ -167,7 +170,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
         header->sizeInBlocks = blocksToAlloc;
 #ifdef MEMORY_HEADER
         header->magic = Header::ALLOCMAGIC;
-        header->type = Header::Type::Allocated;
+        header->setType(Header::Type::Allocated);
         header->nElements = nElements;
         header->memoryType = type;
         header->name = valueType;
@@ -233,12 +236,12 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
 
     // Check to make sure this is a valid block
     MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic == Header::ALLOCMAGIC);
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->type == Header::Type::Allocated);
+    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->type() == Header::Type::Allocated);
     MEMORY_HEADER_ASSERT(asHeader(blockToFree)->sizeInBlocks == blocksToFree);
 
 #ifdef MEMORY_HEADER
     asHeader(blockToFree)->magic = Header::FREEMAGIC;
-    asHeader(blockToFree)->type = Header::Type::Free;
+    asHeader(blockToFree)->setType(Header::Type::Free);
     asHeader(blockToFree)->memoryType = MemoryType::Unknown;
 
     // Disconnect from allocated list
@@ -364,7 +367,7 @@ void Mallocator::checkConsistencyHelper()
 
         // Check to make sure this is a valid block
         MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->type == Header::Type::Free);
+        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Free);
     }
     
 #ifdef MEMORY_HEADER
@@ -374,7 +377,7 @@ void Mallocator::checkConsistencyHelper()
 
         // Check to make sure this is a valid block
         MEMORY_HEADER_ASSERT(header->magic == Header::ALLOCMAGIC);
-        MEMORY_HEADER_ASSERT(header->type == Header::Type::Allocated);
+        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Allocated);
     }
 #endif
 }

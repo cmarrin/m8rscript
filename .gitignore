@@ -7,3 +7,4 @@ esp/build/
 SpiffsFSFile
 mac/build
 m8rFSFile
+sdkconfig.old

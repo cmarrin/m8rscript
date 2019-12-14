@@ -370,6 +370,10 @@ static constexpr uint32_t MaxParams = 256;
 static constexpr int32_t MaxJump = 32767;
 
 // Opcodes are 6 bits, 0x00 to 0x3f
+
+// ESP RTOS defines SAR. Fix that here to avoid errors
+#undef SAR
+
 enum class Op : uint8_t {
     
     MOVE = 0x00, LOADREFK, STOREFK, LOADLITA,
