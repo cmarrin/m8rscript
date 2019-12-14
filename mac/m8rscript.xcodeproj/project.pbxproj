@@ -52,6 +52,7 @@
 		49562F6A1D1D7A75001AFAEE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.m */; };
 		49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */; };
 		49562F701D1D7A9C001AFAEE /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 49562F6E1D1D7A9C001AFAEE /* Document.m */; };
+		4961121D23A46CA2002300CB /* spiffs_hfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 4961121B23A46206002300CB /* spiffs_hfs.c */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
 		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
@@ -268,6 +269,8 @@
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
 		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
 		4961121923A44601002300CB /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs_config.h; sourceTree = "<group>"; };
+		4961121A23A46206002300CB /* spiffs_hfs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = spiffs_hfs.h; path = ../src/spiffs_hfs.h; sourceTree = "<group>"; };
+		4961121B23A46206002300CB /* spiffs_hfs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = spiffs_hfs.c; path = ../src/spiffs_hfs.c; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../src/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../src/CodePrinter.h; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
@@ -704,6 +707,8 @@
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
 				4961121923A44601002300CB /* spiffs_config.h */,
+				4961121B23A46206002300CB /* spiffs_hfs.c */,
+				4961121A23A46206002300CB /* spiffs_hfs.h */,
 				490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */,
 				490C1BDB239185CB0094A6B4 /* SpiffsFS.h */,
 				49884F06236CB25100C292EA /* StateMachine.h */,
@@ -1003,6 +1008,7 @@
 				49CDE69A2386633900159439 /* Iterator.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
+				4961121D23A46CA2002300CB /* spiffs_hfs.c in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
