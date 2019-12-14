@@ -716,7 +716,6 @@ enum class Token : uint8_t {
 
 static constexpr uint8_t MajorVersion = 0;
 static constexpr uint8_t MinorVersion = 2;
-static const char* BuildTimeStamp = __TIMESTAMP__;
 
 // File format is a sequence of blocks. Some blocks are simply a byte
 // token indicating the block type and others are a generic format

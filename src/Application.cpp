@@ -184,7 +184,7 @@ bool Application::mountFileSystem()
 
 void Application::runLoop()
 {
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, BuildTimeStamp);
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
     
     // If autostart is on, run the main program
     String filename = autostartFilename();

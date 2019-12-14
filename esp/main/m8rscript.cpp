@@ -10,6 +10,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
+#include "esp_heap_caps.h"
 
 #include <Defines.h>
 #include <Mallocator.h>
@@ -20,17 +21,30 @@ void m8r::heapInfo(void*& start, uint32_t& size)
     static uint32_t heapSize = 0;
     
     if (!heapAddr) {
-        heapSize = heap_caps_get_free_size(MALLOC_CAP_32BIT) - 10000;
-        heapAddr = malloc(heapSize);
+        heapSize = heap_caps_get_free_size(MALLOC_CAP_8BIT) - 10000;
+        heapAddr = heap_caps_malloc(heapSize, MALLOC_CAP_8BIT);
     }
     
-    printf("*** getting heapInfo: size=%d, addr=%p\n", heapSize, heapAddr);
     start = heapAddr;
     size = heapSize;
 }
 
 extern "C" void app_main()
 {
-    printf("Hello world!\n");
-    printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, m8r::BuildTimeStamp);
+    printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
+
+    m8r::ROMString s = ROMSTR("*** HELLO ***\n");
+    printf(s.value());
+    
+    m8r::Mad<char> chars = m8r::Mad<char>::create(22);
+    strcpy(chars.get(), "It's Mad I tell you!\n");
+    printf(chars.get());
+    
+    char* newstr = new char[22];
+    strcpy(newstr, "Simply Mad!\n");
+    printf(newstr);
+    
+    const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
+
+    printf("Total heap: %d, free heap: %d\n", info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
 }
