@@ -23,8 +23,8 @@
 
 #include "slre.h"
 
-#define MAX_BRANCHES 100
-#define MAX_BRACKETS 100
+#define MAX_BRANCHES 2
+#define MAX_BRACKETS 6
 #define FAIL_IF(condition, error_code) if (condition) return (error_code)
 
 #ifndef ARRAY_SIZE
