@@ -121,7 +121,7 @@ void MyUDPDelegate::UDPevent(UDP* udp, Event event, const char* data, uint16_t l
     args[0] = Value(static_cast<int32_t>(event));
     
     if (data) {
-        Mad<String> dataString = String::create(data, length);
+        Mad<String> dataString = ExecutionUnit::createString(data, length);
         args[1] = Value(dataString);
     }
     _eu->fireEvent(_func, _parent, args, data ? 2 : 1);

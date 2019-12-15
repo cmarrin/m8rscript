@@ -21,10 +21,6 @@
 
 #include "Defines.h"
 
-#ifndef __APPLE__
-    #include "Esp.h"
-#endif
-
 #include "slre.h"
 
 #define MAX_BRANCHES 100

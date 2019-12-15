@@ -9,10 +9,8 @@
 
 #include "MString.h"
 
-#include "GC.h"
 #include "MStream.h"
 #include "Scanner.h"
-#include "SystemInterface.h"
 #include "slre.h"
 
 using namespace m8r;

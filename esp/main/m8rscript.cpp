@@ -12,8 +12,12 @@
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 
-#include <Defines.h>
-#include <Mallocator.h>
+#include "Defines.h"
+#include "Mallocator.h"
+#include "SystemInterface.h"
+
+#include <unistd.h>
+#include <chrono>
 
 void m8r::heapInfo(void*& start, uint32_t& size)
 {
@@ -47,4 +51,12 @@ extern "C" void app_main()
     const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
 
     printf("Total heap: %d, free heap: %d\n", info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
+    
+    m8r::system()->printf(ROMSTR("***** System printf working!!!\n"));
+    m8r::system()->printf(ROMSTR("***** System printf working again!!!\n"));
+    
+    while(1) {
+        printf("sleeping\n");
+        usleep(1000000);
+    }
 }
