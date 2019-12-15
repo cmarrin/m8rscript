@@ -76,7 +76,7 @@ public:
     {
         switch(type) {
             case Type::MsDelay:
-                 assert(value >= 0 && value <= MaxMsDelay);
+                 assert(value <= MaxMsDelay);
                  
                  // If a 0 delay was passed, handle this like a yield
                  _value = (value == 0) ? YieldValue : -value;

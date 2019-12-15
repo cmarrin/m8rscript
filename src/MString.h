@@ -184,10 +184,10 @@ public:
 
     operator bool () { return !empty(); }
     
-    const char& operator[](uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    char& operator[](uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    const char& at(uint16_t i) const { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
-    char& at(uint16_t i) { assert(i >= 0 && i < _size - 1); return _data.get()[i]; };
+    const char& operator[](uint16_t i) const { assert(i < _size - 1); return _data.get()[i]; };
+    char& operator[](uint16_t i) { assert(i < _size - 1); return _data.get()[i]; };
+    const char& at(uint16_t i) const { assert(i < _size - 1); return _data.get()[i]; };
+    char& at(uint16_t i) { assert(i < _size - 1); return _data.get()[i]; };
     
     char& back() { return at(size() - 1); }
     const char& back() const { return at(size() - 1); }
