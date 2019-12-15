@@ -22,15 +22,6 @@ void String::addToStringStore(RawMad p)
     GC::addToStore<MemoryType::String>(p);
 }
 
-inline static void reverse(char *str, int len)
-{
-    for (int32_t i = 0, j = len - 1; i < j; i++, j--) {
-        char tmp = str[i];
-        str[i] = str[j];
-        str[j] = tmp;
-    }
-}
-
 String& String::erase(uint16_t pos, uint16_t len)
 {
     if (pos >= _size - 1) {
@@ -167,7 +158,7 @@ static int32_t intToString(Float::decompose_type x, char* str, int16_t dp)
         str[i++] = '0';
     }
     
-    reverse(str, i);
+    std::reverse(str, str + i);
     str[i] = '\0';
 
     if (haveDP) {
