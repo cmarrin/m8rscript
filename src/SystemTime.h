@@ -34,7 +34,7 @@ public:
     enum class Units { us = 0, ms = 1, sec = 2, none = 3 };
 
     Duration() { }
-    Duration(uint64_t value, Units units = Units::none)
+    Duration(int64_t value, Units units = Units::none)
     {
         if (units == Units::none) {
             // Select the best units
