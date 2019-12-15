@@ -481,6 +481,8 @@ String String::vformat(const char* fmt, va_list args)
                 // TODO: Implement
                 va_arg(args, void*);
                 return Value();
+            default:
+                return Value();
             }
         }
     });
@@ -503,6 +505,8 @@ String String::vformat(ROMString romfmt, va_list args)
             case String::FormatType::Ptr: {
                 // TODO: Implement
                 va_arg(args, void*);
+                return Value();
+            default:
                 return Value();
             }
         }
