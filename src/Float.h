@@ -205,7 +205,7 @@ template<>
 inline _Float<float, int32_t> _Float<float, int32_t>::nan()
 {
     _Float<float, int32_t> r;
-    r._value._raw = std::nanf("1");
+    r._value._raw = ::nanf("1");
     return r; 
 }
 
@@ -213,7 +213,7 @@ template<>
 inline _Float<double, int64_t> _Float<double, int64_t>::nan()
 {
     _Float<double, int64_t> r;
-    r._value._raw = std::nanf("1");
+    r._value._raw = ::nan("1");
     return r; 
 }
 
