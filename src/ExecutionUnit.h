@@ -85,6 +85,10 @@ public:
 
     String debugString(uint16_t index);
 
+    static Mad<String> createString(const String& other);
+    static Mad<String> createString(String&& other);
+    static Mad<String> createString(const char* str, int32_t length = -1);
+
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     

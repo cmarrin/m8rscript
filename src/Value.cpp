@@ -117,35 +117,35 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     int32_t nextParam = 1 - nparams;
     Value value;
     
-    return String::fformat(format.c_str(), [eu, &nextParam](String::FormatType type) {
+    return String::fformat(format.c_str(), [eu, &nextParam](String::FormatType type, String& s) {
         switch(type) {
             case String::FormatType::Int:
-                return Value(eu->stack().top(nextParam++).toIntValue(eu));
+                s = String::toString(eu->stack().top(nextParam++).toIntValue(eu));
+                return;
             case String::FormatType::String:
-                return Value(String::create(eu->stack().top(nextParam++).toStringValue(eu)));
+                s = eu->stack().top(nextParam++).toStringValue(eu);
+                return;
             case String::FormatType::Float:
-                return Value(eu->stack().top(nextParam++).toFloatValue(eu));
+                s = String::toString(eu->stack().top(nextParam++).toFloatValue(eu));
+                return;
             case String::FormatType::Ptr: {
                 // return a string showing <type>(value)
                 Value val = eu->stack().top(nextParam++);
-                Mad<String> s = Mad<String>::create();
                 switch(val.type()) {
-                    case Type::None:            *s = "UND()"; break;
-                    case Type::Float:           *s = "FLT()"; break;
-                    case Type::Object:          *s = "OBJ()"; break;
-                    case Type::Function:        *s = "FUN()"; break;
-                    case Type::Integer:         *s = "INT()"; break;
-                    case Type::String:          *s = "STR()"; break;
-                    case Type::StringLiteral:   *s = "LIT()"; break;
-                    case Type::Id:              *s = "ID()";  break;
-                    case Type::Null:            *s = "NUL()"; break;
-                    case Type::NativeObject:    *s = "NOB()"; break;
-                    case Type::NativeFunction:  *s = "NFU()"; break;
-                    case Type::StaticObject:    *s = "STA()"; break;
-
+                    case Type::None:            s = "UND()"; break;
+                    case Type::Float:           s = "FLT()"; break;
+                    case Type::Object:          s = "OBJ()"; break;
+                    case Type::Function:        s = "FUN()"; break;
+                    case Type::Integer:         s = "INT()"; break;
+                    case Type::String:          s = "STR()"; break;
+                    case Type::StringLiteral:   s = "LIT()"; break;
+                    case Type::Id:              s = "ID()";  break;
+                    case Type::Null:            s = "NUL()"; break;
+                    case Type::NativeObject:    s = "NOB()"; break;
+                    case Type::NativeFunction:  s = "NFU()"; break;
+                    case Type::StaticObject:    s = "STA()"; break;
                 }
-                
-                return Value(s);
+                return;
             }
         }
     });
@@ -291,7 +291,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
             }
             if (prop == Atom(SA::trim)) {
                 s = s.trim();
-                eu->stack().push(Value(String::create(s)));
+                eu->stack().push(Value(ExecutionUnit::createString(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
             if (prop == Atom(SA::split)) {
@@ -301,7 +301,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 Mad<MaterArray> arrayObject = Object::create<MaterArray>();
                 arrayObject->resize(array.size());
                 for (uint16_t i = 0; i < array.size(); ++i) {
-                    (*arrayObject)[i] = Value(String::create(array[i]));
+                    (*arrayObject)[i] = Value(ExecutionUnit::createString(array[i]));
                 }
                 
                 eu->stack().push(Value(Mad<Object>(static_cast<Mad<Object>>(arrayObject))));

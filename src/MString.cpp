@@ -17,11 +17,6 @@
 
 using namespace m8r;
 
-void String::addToStringStore(RawMad p)
-{
-    GC::addToStore<MemoryType::String>(p);
-}
-
 String& String::erase(uint16_t pos, uint16_t len)
 {
     if (pos >= _size - 1) {
@@ -354,13 +349,14 @@ static void toInteger(char* result, bool zeroFill, int32_t width, char type, uin
     strcpy(result, p);
 }
 
-String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
+String String::fformat(const char* fmt, std::function<void(FormatType, String&)> func)
 {
     if (!fmt || fmt[0] == '\0') {
         return String();
     }
     
     String resultString;
+    String tmpString;
     
     static ROMString formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
@@ -408,7 +404,8 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
         
         switch (formatChar) {
             case 'c': {
-                uint8_t uc = static_cast<char>(func(FormatType::Int).asIntValue());
+                func(FormatType::Int, tmpString);
+                uint8_t uc = static_cast<char>(tmpString.toUInt());
                 char escapeChar = '\0';
                 switch(uc) {
                     case 0x07: escapeChar = 'a'; break;
@@ -433,15 +430,17 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
                 break;
             }
             case 's':
-                resultString += func(FormatType::String).asString().get()->c_str();
+                func(FormatType::String, tmpString);
+                resultString += tmpString;
                 break;
             case 'd':
             case 'i':
             case 'x':
             case 'X':
             case 'u': {
+                func(FormatType::Int, tmpString);
                 char numberBuf[20];
-                toInteger(numberBuf, zeroFill, width, formatChar, static_cast<uint32_t>(func(FormatType::Int).asIntValue()));
+                toInteger(numberBuf, zeroFill, width, formatChar, tmpString.toUInt());
                 resultString += numberBuf;
                 break;
             }
@@ -450,10 +449,12 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
             case 'E':
             case 'g':
             case 'G':
-                resultString += toString(func(FormatType::Float).asFloatValue());
+                func(FormatType::Float, tmpString);
+                resultString += tmpString;
                 break;
             case 'p': {
-                resultString += func(FormatType::Ptr).asString().get()->c_str();
+                func(FormatType::Ptr, tmpString);
+                resultString += tmpString;
                 break;
             }
             default:
@@ -467,22 +468,26 @@ String String::fformat(const char* fmt, std::function<Value(FormatType)> func)
 
 String String::vformat(const char* fmt, va_list args)
 {
-    String s = fformat(fmt, [&args](String::FormatType type) {
+    String s = fformat(fmt, [&args](String::FormatType type, String& s) {
         switch(type) {
             case String::FormatType::Int:
-                return Value(static_cast<int32_t>(va_arg(args, int)));
+                s = String::toString(static_cast<int32_t>(va_arg(args, int)));
+                return;
             case String::FormatType::String:
-                return Value(String::create(va_arg(args, const char*)));
+                s = String(va_arg(args, const char*));
+                return;
             case String::FormatType::Float:
                 // TODO: Implement
-                va_arg(args, double);
-                return Value(Float());
+                //s = String::toString(Float(va_arg(args, double)));
+                return;
             case String::FormatType::Ptr: {
                 // TODO: Implement
                 va_arg(args, void*);
-                return Value();
+                s = "*Not Implemented*";
+                return;
             default:
-                return Value();
+                s = "UNKNOWN";
+                return;
             }
         }
     });
@@ -491,25 +496,5 @@ String String::vformat(const char* fmt, va_list args)
 
 String String::vformat(ROMString romfmt, va_list args)
 {
-    String fmt(romfmt);
-    String s = fformat(fmt.c_str(), [&args](String::FormatType type) {
-        switch(type) {
-            case String::FormatType::Int:
-                return Value(static_cast<int32_t>(va_arg(args, int)));
-            case String::FormatType::String:
-                return Value(String::create(va_arg(args, const char*)));
-            case String::FormatType::Float:
-                // TODO: Implement
-                va_arg(args, double);
-                return Value(Float());
-            case String::FormatType::Ptr: {
-                // TODO: Implement
-                va_arg(args, void*);
-                return Value();
-            default:
-                return Value();
-            }
-        }
-    });
-    return s;
+    return vformat(String(romfmt).c_str(), args);
 }

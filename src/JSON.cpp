@@ -43,7 +43,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
             break;
         case Token::Float: v = Value(Float(scanner.getTokenValue().number)); scanner.retireToken(); break;
         case Token::Integer: v = Value(static_cast<int32_t>(scanner.getTokenValue().integer)); scanner.retireToken(); break;
-        case Token::String: v = Value(String::create(scanner.getTokenValue().str)); scanner.retireToken(); break;
+        case Token::String: v = Value(ExecutionUnit::createString(scanner.getTokenValue().str)); scanner.retireToken(); break;
         case Token::True: v = Value(static_cast<int32_t>(1)); scanner.retireToken(); break;
         case Token::False: v = Value(static_cast<int32_t>(0)); scanner.retireToken(); break;
         case Token::Null: v = Value::NullValue(); scanner.retireToken(); break;;
@@ -113,7 +113,7 @@ bool JSON::propertyAssignment(ExecutionUnit* eu, Scanner& scanner, Value& key, V
         return false;
     }
     
-    key = Value(String::create(scanner.getTokenValue().str));
+    key = Value(ExecutionUnit::createString(scanner.getTokenValue().str));
     scanner.retireToken();
     if (scanner.getToken() != Token::Colon) {
         Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("missing ':' in JSON Object"));
@@ -161,6 +161,6 @@ CallReturnValue JSON::stringifyFunc(ExecutionUnit* eu, Value thisValue, uint32_t
     
     Value v = eu->stack().top(1 - nparams);
     String s = stringify(eu, v);
-    eu->stack().push(Value(String::create(s)));
+    eu->stack().push(Value(ExecutionUnit::createString(s)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

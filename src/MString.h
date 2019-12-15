@@ -84,30 +84,6 @@ public:
     
     ~String() { _data.destroy(_capacity); _destroyed = true; };
     
-    static Mad<String> create(const String& other)
-    {
-        Mad<String> s = Mad<String>::create(MemoryType::String);
-        *(s.get()) = other;
-        addToStringStore(s.raw());
-        return s;
-    }
-    
-    static Mad<String> create(String&& other)
-    {
-        Mad<String> s = Mad<String>::create(MemoryType::String);
-        *(s.get()) = other;
-        addToStringStore(s.raw());
-        return s;
-    }
-    
-    static Mad<String> create(const char* str, int32_t length = -1)
-    {
-        Mad<String> s = Mad<String>::create(MemoryType::String);
-        *(s.get()) = String(str, length);
-        addToStringStore(s.raw());
-        return s;
-    }
-
     String& operator=(ROMString other)
     {
         uint16_t romSize = static_cast<uint16_t>(ROMstrlen(other));
@@ -280,9 +256,27 @@ public:
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
+    int32_t toInt() const
+    {
+        int32_t value;
+        return toInt(value, c_str()) ? value : 0;
+    }
+    
+    uint32_t toUInt() const
+    {
+        uint32_t value;
+        return toUInt(value, c_str()) ? value : 0;
+    }
+    
+    uint32_t toFloat() const
+    {
+        Float value;
+        return toFloat(value, c_str()) ? value : 0;
+    }
+    
     enum class FormatType { Int, String, Float, Ptr };
     
-    static String fformat(const char* fmt, std::function<Value(FormatType)>);
+    static String fformat(const char* fmt, std::function<void(FormatType, String&)>);
     static String vformat(const char*, va_list);
     static String vformat(ROMString, va_list);
     static String format(const char* fmt, ...)
@@ -302,8 +296,6 @@ private:
         }
         doEnsureCapacity(size);
     }
-
-    static void addToStringStore(RawMad);
     
     uint16_t _size = 0;
     uint16_t _capacity = 0;

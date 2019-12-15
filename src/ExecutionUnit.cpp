@@ -21,6 +21,30 @@ using namespace m8r;
 
 static const Duration EvalDurationMax = 2_sec;
 
+Mad<String> ExecutionUnit::createString(const String& other)
+{
+    Mad<String> s = Mad<String>::create(MemoryType::String);
+    *(s.get()) = other;
+    GC::addToStore<MemoryType::String>(s.raw());
+    return s;
+}
+
+Mad<String> ExecutionUnit::createString(String&& other)
+{
+    Mad<String> s = Mad<String>::create(MemoryType::String);
+    *(s.get()) = other;
+    GC::addToStore<MemoryType::String>(s.raw());
+    return s;
+}
+
+Mad<String> ExecutionUnit::createString(const char* str, int32_t length)
+{
+    Mad<String> s = Mad<String>::create(MemoryType::String);
+    *(s.get()) = String(str, length);
+    GC::addToStore<MemoryType::String>(s.raw());
+    return s;
+}
+
 void ExecutionUnit::tooManyErrors() const
 {
     printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
@@ -204,7 +228,7 @@ void ExecutionUnit::receivedData(const String& data, KeyAction action)
     Value listener = program()->property(Atom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
-        args[0] = Value(String::create(data));
+        args[0] = Value(ExecutionUnit::createString(data));
 
         // Action is an enum, but it is always a 4 character string encoded as a uint32_t.
         // It may have trailing spaces. Convert it to a StringLiteral
@@ -783,7 +807,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         } else if (leftValue.isNumber() && rightValue.isNumber()) {
             setInFrame(ra, Value(leftValue.toFloatValue(this) + rightValue.toFloatValue(this)));
         } else {
-            Mad<String> string = String::create(leftValue.toStringValue(this) + rightValue.toStringValue(this));
+            Mad<String> string = ExecutionUnit::createString(leftValue.toStringValue(this) + rightValue.toStringValue(this));
             setInFrame(ra, Value(string));
         }
         DISPATCH;

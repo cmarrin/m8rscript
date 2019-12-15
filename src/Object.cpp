@@ -269,7 +269,7 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
             s += it.toStringValue(eu);
         }
         
-        eu->stack().push(Value(String::create(s)));
+        eu->stack().push(Value(ExecutionUnit::createString(s)));
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     

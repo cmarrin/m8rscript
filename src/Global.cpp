@@ -227,7 +227,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("size")),
                          Value(static_cast<int32_t>(size)), Value::SetPropertyType::AlwaysAdd);
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("type")),
-                         Value(String::create(type)), Value::SetPropertyType::AlwaysAdd);
+                         Value(ExecutionUnit::createString(type)), Value::SetPropertyType::AlwaysAdd);
 
         allocationsByType->setElement(eu, Value(0), Value(allocation), true);
     }
