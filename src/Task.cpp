@@ -18,7 +18,9 @@
 #endif
 
 #ifndef NDEBUG
+#ifdef __APPLE__
 #define PRINT_CODE
+#endif
 #endif
 
 #ifdef PRINT_CODE
