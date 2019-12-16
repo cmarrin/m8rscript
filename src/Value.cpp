@@ -35,6 +35,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
         case Type::NativeFunction: return String("Callable()"); // FIXME: Add formatted toString and show the address
         case Type::StaticObject: return String("StaticObject()"); // FIXME: Add formatted toString and show the address
+        default: return String();
     }
 }
 
@@ -74,6 +75,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::Null:
             return Float();
         case Type::None:
+        default:
             return Float::nan();
     }
 }
@@ -102,6 +104,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::StaticObject:
         case Type::None:
         case Type::Null:
+        default:
             return Atom();
     }
 }
@@ -193,6 +196,7 @@ const Value Value::property(const Atom& prop) const
         case Type::NativeFunction:
         case Type::None:
         case Type::Null:
+        default:
             break;
     }
     return Value();
@@ -322,6 +326,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::NativeFunction:
         case Type::None:
         case Type::Null:
+        default:
             return CallReturnValue(CallReturnValue::Error::CannotCall);
     }
 }

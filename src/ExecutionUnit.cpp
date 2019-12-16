@@ -324,7 +324,6 @@ void ExecutionUnit::print(const char* s) const
 
 uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 {
-    assert(frame >= 0);
     assert(frame <= _callRecords.size());
     if (frame == 0) {
         return _stack.frame() + index;

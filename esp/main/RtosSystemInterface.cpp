@@ -99,6 +99,10 @@ int ROMstrcmp(m8r::ROMString s1, const char* s2)
     return c1 - c2;
 }
 
+void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)
+{
+}
+
 class RtosSystemInterface : public SystemInterface
 {
 public:

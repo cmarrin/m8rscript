@@ -12,6 +12,7 @@
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 
+#include "Application.h"
 #include "Defines.h"
 #include "Mallocator.h"
 #include "SystemInterface.h"
@@ -52,8 +53,10 @@ extern "C" void app_main()
 
     m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
     
-    while(1) {
-        printf("sleeping\n");
-        usleep(1000000);
-    }
+    m8r::Application application(23);
+    printf("after application ctor\n");
+    m8r::Application::mountFileSystem();
+    printf("after application mountFileSystem\n");
+    application.runLoop();
+    printf("after application runLoop\n");
 }
