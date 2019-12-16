@@ -48,11 +48,10 @@ private:
             uint8_t tokenByte = readRomByte(ROMString(reinterpret_cast<const char*>(&t)));
             return static_cast<Token>(tokenByte) == token; }
         Token token;
-        uint8_t prec : 6;
+        uint8_t prec;
         uint8_t assoc : 1;
         uint8_t sto : 1;
         Op op;
-        uint8_t _;
     };
     
     // OperatorInfo is in Flash, so we need to access it as a single 4 byte read
