@@ -12,8 +12,7 @@
 #include "MFS.h"
 
 #include "Containers.h"
-#include "spiffs.h"
-#include "spiffs_nucleus.h"
+#include "esp_spiffs.h"
 
 // Spiffs++ File System
 //

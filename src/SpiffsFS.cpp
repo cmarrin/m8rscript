@@ -9,7 +9,6 @@
 
 #include "SpiffsFS.h"
 
-#include "spiffs_nucleus.h"
 #include "Application.h"
 
 using namespace m8r;
