@@ -24,6 +24,7 @@
 #include <array>
 #include <cstdarg>
 #include <cstdint>
+#include <cstdio>
 #include <vector>
 #include <cassert>
 #include <limits>
