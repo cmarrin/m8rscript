@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ExecutionUnit.h"
-#include "Heartbeat.h"
+//#include "Heartbeat.h"
 #include "SystemInterface.h"
 #include "Task.h"
 #include <functional>
@@ -42,7 +42,7 @@ public:
 private:
     Mad<TCPDelegate> _shellSocket;
     
-    Heartbeat _heartbeat;
+    //Heartbeat _heartbeat;
     Mad<Task> _autostartTask;
 };
     
