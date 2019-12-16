@@ -102,23 +102,23 @@ private:
     void addMatchedJump(Op op, Label&);
     void matchJump(const Label& matchLabel)
     {
-        int16_t jumpAddr = static_cast<int16_t>(_deferred ? _deferredCode.size() : currentCode().size()) - matchLabel.matchedAddr;
+        int32_t jumpAddr = static_cast<int16_t>(_deferred ? _deferredCode.size() : currentCode().size()) - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
 
     void matchJump(const Label& matchLabel, const Label& dstLabel)
     {
-        int16_t jumpAddr = dstLabel.label - matchLabel.matchedAddr;
+        int32_t jumpAddr = dstLabel.label - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
     
     void matchJump(const Label& matchLabel, int16_t dstAddr)
     {
-        int16_t jumpAddr = dstAddr - matchLabel.matchedAddr;
+        int32_t jumpAddr = dstAddr - matchLabel.matchedAddr;
         doMatchJump(matchLabel.matchedAddr, jumpAddr);
     }
     
-    void doMatchJump(int16_t matchAddr, int16_t jumpAddr);
+    void doMatchJump(int32_t matchAddr, int32_t jumpAddr);
     void jumpToLabel(Op op, Label&);
     
     int32_t startDeferred()

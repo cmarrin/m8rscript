@@ -132,7 +132,7 @@ void Parser::addMatchedJump(Op op, Label& label)
     }
 }
 
-void Parser::doMatchJump(int16_t matchAddr, int16_t jumpAddr)
+void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
 {
     if (_nerrors) return;
     
@@ -875,6 +875,7 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
         case Type::Register:
             return entry._reg;
         case Type::Unknown:
+        default:
             assert(0);
             return 0;
     }
