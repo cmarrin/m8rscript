@@ -22,6 +22,12 @@
 #include "SystemInterface.h"
 #include "esp_system.h"
 
+#ifndef USE_LITTLEFS
+#include "SpiffsFS.h"
+#else
+#include "LittleFS.h"
+#endif
+
 using namespace m8r;
 
 void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len)
@@ -119,7 +125,7 @@ public:
     
     virtual void setDeviceName(const char* name) { }
     
-    virtual FS* fileSystem() override { return nullptr; }
+    virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
     virtual TaskManager* taskManager() override { return nullptr; };
     
@@ -135,11 +141,11 @@ public:
 
 private:
 //    RtosGPIOInterface _gpio;
-//#ifndef USE_LITTLEFS
-//    SpiffsFS _fileSystem;
-//#else
-//    LittleFS _fileSystem;
-//#endif
+#ifndef USE_LITTLEFS
+    SpiffsFS _fileSystem;
+#else
+    LittleFS _fileSystem;
+#endif
 //    RtosTaskManager _taskManager;
 };
 

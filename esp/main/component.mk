@@ -6,6 +6,7 @@
 SRC_DIR := ../../src
 
 COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR)
+COMPONENT_EXTRA_INCLUDES := $(IDF_PATH)/components/spiffs/spiffs/src/
 COMPONENT_SRCDIRS := . $(SRC_DIR)
 COMPONENT_OBJS := m8rscript.o \
     RtosSystemInterface.o \
