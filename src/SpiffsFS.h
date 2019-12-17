@@ -176,6 +176,8 @@ public:
     virtual uint32_t totalUsed() const override;
 
 private:
+    static constexpr uint32_t MaxOpenFiles = 4;
+    
     static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
     
     static Error::Code mapSpiffsError(spiffs_file);
@@ -193,7 +195,8 @@ private:
 
     static spiffs _spiffsFileSystem;
     uint8_t _spiffsWorkBuf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
-    uint8_t _spiffsFileDescriptors[sizeof(spiffs_fd) * 4];
+    uint8_t* _spiffsFileDescriptors;
+    uint32_t _spiffsFileDescriptorsLength = 0;
 };
 
 }

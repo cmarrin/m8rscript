@@ -20,11 +20,14 @@ void SpiffsFS::init(const char* name)
 {
     memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));    
     setConfig(_config, name);
+    _spiffsFileDescriptorsLength = SPIFFS_buffer_bytes_for_filedescs(nullptr, MaxOpenFiles);
+    _spiffsFileDescriptors = new uint8_t[_spiffsFileDescriptorsLength];
 }
 
 SpiffsFS::~SpiffsFS()
 {
     SPIFFS_unmount(&_spiffsFileSystem);
+    delete _spiffsFileDescriptors;
 }
 
 bool SpiffsFS::mount()
@@ -231,7 +234,7 @@ uint32_t SpiffsFS::totalUsed() const
 int32_t SpiffsFS::internalMount()
 {
     return SPIFFS_mount(&_spiffsFileSystem, &_config, _spiffsWorkBuf,
-                        _spiffsFileDescriptors, sizeof(_spiffsFileDescriptors), nullptr, 0, NULL);
+                        _spiffsFileDescriptors, _spiffsFileDescriptorsLength, nullptr, 0, NULL);
 }
 
 Error::Code SpiffsFS::mapSpiffsError(spiffs_file spiffsError)
