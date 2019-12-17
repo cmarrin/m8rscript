@@ -443,7 +443,7 @@ SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
     
     char offset = 0x21;
     char range = 0x7e - offset + 1;
-    for (char i = 0; i < FileIDLength; ++i) {
+    for (uint8_t i = 0; i < FileIDLength; ++i) {
         fileID._value[i] = static_cast<char>(rand() % range) + offset;
     }
     
