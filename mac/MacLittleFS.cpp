@@ -84,7 +84,7 @@ static int lfs_flash_sync(const struct lfs_config *c) {
     return 0;
 }
 
-void LittleFS::setConfig(lfs_config& config, const char* name)
+void LittleFS::setConfig(lfs_config& config)
 {
     // If the file exists, use it as long as it is big enough
     fsFile = fopen(name, "rb+");

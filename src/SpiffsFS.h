@@ -157,7 +157,7 @@ class SpiffsFS : public FS {
     friend SpiffsFile;
     
 public:
-    void init(const char* name);
+    SpiffsFS();
     virtual ~SpiffsFS();
     
     virtual bool mount() override;
@@ -175,6 +175,8 @@ public:
     virtual uint32_t totalSize() const override;
     virtual uint32_t totalUsed() const override;
 
+    static void setHostFilename(const char*);
+
 private:
     static constexpr uint32_t MaxOpenFiles = 4;
     
@@ -182,8 +184,7 @@ private:
     
     static Error::Code mapSpiffsError(spiffs_file);
 
-    static void setConfig(spiffs_config&, const char*);
-    
+    static void setConfig(spiffs_config&);
     static spiffs* sharedSpiffs()
     {
         return &_spiffsFileSystem;

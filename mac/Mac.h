@@ -11,6 +11,6 @@
 
 namespace m8r {
 
-void initMacSystemInterface(const char* fsFile);
+void initMacFileSystem(const char* fsFile);
 
 }

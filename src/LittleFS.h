@@ -71,7 +71,7 @@ class LittleFS : public FS {
     friend LittleFile;
     
 public:
-    LittleFS(const char* name);
+    LittleFS();
     virtual ~LittleFS();
     
     virtual bool mount() override;
@@ -91,7 +91,7 @@ public:
 private:
     static Error::Code mapLittleError(lfs_error);
 
-    static void setConfig(lfs_config&, const char*);
+    static void setConfig(lfs_config&);
     
     static lfs_t* sharedLittle()
     {

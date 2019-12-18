@@ -16,10 +16,10 @@ using namespace m8r;
 spiffs SpiffsFS::_spiffsFileSystem;
 
 
-void SpiffsFS::init(const char* name)
+SpiffsFS::SpiffsFS()
 {
-    memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));    
-    setConfig(_config, name);
+    memset(&_spiffsFileSystem, 0, sizeof(_spiffsFileSystem));
+    setConfig(_config);
     _spiffsFileDescriptorsLength = SPIFFS_buffer_bytes_for_filedescs(nullptr, MaxOpenFiles);
     _spiffsFileDescriptors = new uint8_t[_spiffsFileDescriptorsLength];
 }

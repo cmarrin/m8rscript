@@ -70,8 +70,24 @@ static s32_t spiffsErase(u32_t addr, u32_t size)
     return SPIFFS_OK;
 }
 
-void SpiffsFS::setConfig(spiffs_config& config, const char* name)
+void SpiffsFS::setConfig(spiffs_config& config)
 {
+    config.hal_read_f = spiffsRead;
+    config.hal_write_f = spiffsWrite;
+    config.hal_erase_f = spiffsErase;
+}
+
+void SpiffsFS::setHostFilename(const char* name)
+{
+    if (fsFile) {
+        fclose(fsFile);
+        fsFile = nullptr;
+    }
+    
+    if (!name) {
+        return;
+    }
+    
     // If the file exists, use it as long as it is big enough
     fsFile = fopen(name, "rb+");
     if (!fsFile) {
@@ -92,9 +108,4 @@ void SpiffsFS::setConfig(spiffs_config& config, const char* name)
             ftruncate(fileno(fsFile), SPIFFS_PHYS_SIZE);
         }
     }
-    memset(&config, 0, sizeof(config));
-    config.hal_read_f = spiffsRead;
-    config.hal_write_f = spiffsWrite;
-    config.hal_erase_f = spiffsErase;
 }
-

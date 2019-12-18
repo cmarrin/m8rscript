@@ -16,10 +16,10 @@ using namespace m8r;
 lfs_t LittleFS::_littleFileSystem;
 
 
-LittleFS::LittleFS(const char* name)
+LittleFS::LittleFS()
 {
     memset(&_littleFileSystem, 0, sizeof(_littleFileSystem));
-    setConfig(_config, name);
+    setConfig(_config);
 }
 
 LittleFS::~LittleFS()
