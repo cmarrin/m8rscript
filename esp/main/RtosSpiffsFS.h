@@ -67,7 +67,7 @@ public:
     void setName(const char* name);
     
 private:
-    static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
+    static constexpr uint8_t FileIDLength = 4;
 
     enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
     
@@ -97,7 +97,6 @@ private:
         const char* value() const { return _value; }
         char* value() { return _value; }
         operator bool() const { return _value[0] != '\0'; }
-        String str() const { return String(_value, FileIDLength); }
         
         static FileID bad() { return FileID(); }
         static FileID root() { return FileID('/'); }
@@ -121,7 +120,7 @@ private:
     static bool findNameInDirectory(File*, const String& name, FileID&, File::Type&);
     static void createEntry(File*, const String& name, File::Type, FileID&);
     
-    FILE* _dirFile;
+    int _dirFile = -1;
     FileID _fileID;
 };
 
@@ -133,7 +132,6 @@ public:
     SpiffsFile() { }
     virtual ~SpiffsFile() { close(); }
   
-    void open(const char* name, spiffs_flags mode);
     virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
@@ -148,7 +146,7 @@ protected:
     void setError(Error error) { _error = error; }
     
 private:
-    FILE* _file = nullptr;
+    int _file = -1;
 };
 
 class SpiffsFS : public FS {
@@ -178,18 +176,9 @@ public:
 
 private:
     static constexpr uint32_t MaxOpenFiles = 4;
-    
-    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
-    
-    static Error::Code mapSpiffsError(spiffs_file);
 
-    static void setConfig(spiffs_config&);
-    static spiffs* sharedSpiffs()
-    {
-        return &_spiffsFileSystem;
-    }
-    
-    int32_t internalMount();
+    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, int flags, File::Type, FileOpenMode = FileOpenMode::Read);
+    static Error::Code mapSpiffsError(int);
 };
 
 }

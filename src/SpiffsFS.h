@@ -12,7 +12,6 @@
 #include "MFS.h"
 
 #include "Containers.h"
-#include "spiffs.h"
 
 // Spiffs++ File System
 //
@@ -68,7 +67,7 @@ public:
     void setName(const char* name);
     
 private:
-    static constexpr uint8_t FileIDLength = SPIFFS_OBJ_NAME_LEN - 1;
+    static constexpr uint8_t FileIDLength = 4;
 
     enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
     
@@ -134,7 +133,6 @@ public:
     SpiffsFile() { }
     virtual ~SpiffsFile() { close(); }
   
-    void open(const char* name, spiffs_flags mode);
     virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;

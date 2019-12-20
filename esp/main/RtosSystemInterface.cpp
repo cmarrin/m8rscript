@@ -19,14 +19,9 @@
  */
 
 #include "Defines.h"
+#include "RtosSpiffsFS.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
-
-#ifndef USE_LITTLEFS
-#include "SpiffsFS.h"
-#else
-#include "LittleFS.h"
-#endif
 
 using namespace m8r;
 
@@ -141,11 +136,7 @@ public:
 
 private:
 //    RtosGPIOInterface _gpio;
-#ifndef USE_LITTLEFS
-    SpiffsFS _fileSystem;
-#else
-    LittleFS _fileSystem;
-#endif
+        SpiffsFS _fileSystem;
 //    RtosTaskManager _taskManager;
 };
 
