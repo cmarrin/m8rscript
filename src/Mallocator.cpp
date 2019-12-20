@@ -14,14 +14,11 @@ using namespace m8r;
 
 void* operator new(size_t size)
 {
-    void* p = Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
-    printf("***** new(%d) => %p\n", static_cast<int>(size), p);
-    return p;
+    return Mallocator::shared()->allocate<char>(m8r::MemoryType::Fixed, size).get();
 }
 
 void operator delete(void* p) noexcept
 {
-    printf("***** delete(%p)\n", p);
     Mallocator::shared()->deallocate<char>(m8r::MemoryType::Fixed, m8r::Mad<char>(reinterpret_cast<char*>(p)), 0);
 }
 
