@@ -61,6 +61,7 @@
 		497DC63B23A585BB00748031 /* m8rscript.ino in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BD92390709C0094A6B4 /* m8rscript.ino */; };
 		497DC63E23A58A8000748031 /* component.mk in Resources */ = {isa = PBXBuildFile; fileRef = 497DC63D23A58A7F00748031 /* component.mk */; };
 		497DC64023A5BC9700748031 /* RtosSystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */; };
+		497DC64223A921FF00748031 /* partitions.csv in Resources */ = {isa = PBXBuildFile; fileRef = 497DC64123A921FF00748031 /* partitions.csv */; };
 		49846005238C60ED001F4FD4 /* Mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49846003238C60ED001F4FD4 /* Mac.cpp */; };
 		49846006238C60ED001F4FD4 /* Mac.h in Headers */ = {isa = PBXBuildFile; fileRef = 49846004238C60ED001F4FD4 /* Mac.h */; };
 		49884F07236CB25100C292EA /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49884F06236CB25100C292EA /* StateMachine.h */; };
@@ -288,6 +289,7 @@
 		497DC63823A5849E00748031 /* sdkconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sdkconfig; path = ../esp/sdkconfig; sourceTree = "<group>"; };
 		497DC63D23A58A7F00748031 /* component.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = component.mk; path = ../esp/main/component.mk; sourceTree = "<group>"; };
 		497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSystemInterface.cpp; path = ../esp/main/RtosSystemInterface.cpp; sourceTree = "<group>"; };
+		497DC64123A921FF00748031 /* partitions.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = partitions.csv; path = ../esp/partitions.csv; sourceTree = "<group>"; };
 		49846003238C60ED001F4FD4 /* Mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac.cpp; sourceTree = "<group>"; };
 		49846004238C60ED001F4FD4 /* Mac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mac.h; sourceTree = "<group>"; };
 		4984E8301D1370A500D0ABA6 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../src/Global.cpp; sourceTree = "<group>"; };
@@ -558,6 +560,7 @@
 		497DC63C23A585CF00748031 /* esprtos */ = {
 			isa = PBXGroup;
 			children = (
+				497DC64123A921FF00748031 /* partitions.csv */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
 				497DC63D23A58A7F00748031 /* component.mk */,
 				497DC63423A5771A00748031 /* rtos.mk */,
@@ -963,6 +966,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				497DC63523A5771A00748031 /* rtos.mk in Resources */,
+				497DC64223A921FF00748031 /* partitions.csv in Resources */,
 				49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */,
 				49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */,
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
