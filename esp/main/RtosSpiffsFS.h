@@ -12,7 +12,6 @@
 #include "MFS.h"
 
 #include "Containers.h"
-#include "spiffs.h"
 
 // Spiffs++ File System
 //
@@ -118,10 +117,10 @@ private:
     enum class FindCreateMode { None, Directory, File };
     
     static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
-    static bool findNameInDirectory(File*, const String& name, FileID&, File::Type&);
-    static void createEntry(File*, const String& name, File::Type, FileID&);
+    static bool findNameInDirectory(int fd, const String& name, FileID&, File::Type&);
+    static void createEntry(int fd, const String& name, File::Type, FileID&);
     
-    Mad<File> _dirFile;
+    int _dirFile = -1;
     FileID _fileID;
 };
 
@@ -133,7 +132,6 @@ public:
     SpiffsFile() { }
     virtual ~SpiffsFile() { close(); }
   
-    void open(const char* name, spiffs_flags mode);
     virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
@@ -147,7 +145,7 @@ protected:
     void setError(Error error) { _error = error; }
     
 private:
-    spiffs_file _file = SPIFFS_ERR_FILE_CLOSED;
+    int _file = -1;
 };
 
 class SpiffsFS : public FS {
@@ -177,25 +175,9 @@ public:
 
 private:
     static constexpr uint32_t MaxOpenFiles = 4;
-    
-    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, spiffs_flags, File::Type, FileOpenMode = FileOpenMode::Read);
-    
-    static Error::Code mapSpiffsError(spiffs_file);
 
-    static void setConfig(spiffs_config&);
-    static spiffs* sharedSpiffs()
-    {
-        return &_spiffsFileSystem;
-    }
-    
-    int32_t internalMount();
-
-    spiffs_config _config;
-
-    static spiffs _spiffsFileSystem;
-    uint8_t _spiffsWorkBuf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
-    uint8_t* _spiffsFileDescriptors;
-    uint32_t _spiffsFileDescriptorsLength = 0;
+    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, int flags, File::Type, FileOpenMode = FileOpenMode::Read);
+    static Error::Code mapSpiffsError(int);
 };
 
 }

@@ -26,8 +26,6 @@ using namespace m8r;
 class MacSystemInterface : public m8r::SystemInterface
 {
 public:
-    void init(const char* fsFile) { _fileSystem.init(fsFile); }
-    
     virtual void vprintf(m8r::ROMString s, va_list args) const override
     {
         m8r::String ss(s);
@@ -113,4 +111,4 @@ void m8r::heapInfo(void*& start, uint32_t& size)
 static MacSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
-void m8r::initMacSystemInterface(const char* fsFile) { _gSystemInterface.init(fsFile); }
+void m8r::initMacFileSystem(const char* fsFile) { SpiffsFS::setHostFilename(fsFile); }

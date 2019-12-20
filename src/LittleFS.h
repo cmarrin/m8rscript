@@ -54,7 +54,6 @@ public:
     virtual bool seek(int32_t offset, File::SeekWhence whence) override;
     virtual int32_t tell() const override;
     virtual int32_t size() const override;
-    virtual bool eof() const override;
     
 protected:
     void setType(File::Type type) { _type = type; }
@@ -71,7 +70,7 @@ class LittleFS : public FS {
     friend LittleFile;
     
 public:
-    LittleFS(const char* name);
+    LittleFS();
     virtual ~LittleFS();
     
     virtual bool mount() override;
@@ -91,7 +90,7 @@ public:
 private:
     static Error::Code mapLittleError(lfs_error);
 
-    static void setConfig(lfs_config&, const char*);
+    static void setConfig(lfs_config&);
     
     static lfs_t* sharedLittle()
     {

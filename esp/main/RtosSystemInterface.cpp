@@ -19,6 +19,7 @@
  */
 
 #include "Defines.h"
+#include "RtosSpiffsFS.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
 
@@ -119,7 +120,7 @@ public:
     
     virtual void setDeviceName(const char* name) { }
     
-    virtual FS* fileSystem() override { return nullptr; }
+    virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
     virtual TaskManager* taskManager() override { return nullptr; };
     
@@ -135,11 +136,7 @@ public:
 
 private:
 //    RtosGPIOInterface _gpio;
-//#ifndef USE_LITTLEFS
-//    SpiffsFS _fileSystem;
-//#else
-//    LittleFS _fileSystem;
-//#endif
+        SpiffsFS _fileSystem;
 //    RtosTaskManager _taskManager;
 };
 

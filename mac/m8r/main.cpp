@@ -51,8 +51,7 @@ int main(int argc, char * argv[])
     // TODO: The file system gets corrupted often. Let's recreate it every time until it is fixed
     remove(fsFile);
     
-    m8r::initMacSystemInterface(fsFile);
-    
+    m8r::initMacFileSystem(fsFile);
     m8r::Application::mountFileSystem();
     
     // Upload files if present
@@ -119,7 +118,6 @@ int main(int argc, char * argv[])
     }
 
     m8r::Application application(port);
-    m8r::Application::mountFileSystem();
     application.runLoop();
 
     return 0;

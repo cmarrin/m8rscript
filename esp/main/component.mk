@@ -6,8 +6,10 @@
 SRC_DIR := ../../src
 
 COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR)
+COMPONENT_EXTRA_INCLUDES := $(IDF_PATH)/components/spiffs/spiffs/src/
 COMPONENT_SRCDIRS := . $(SRC_DIR)
 COMPONENT_OBJS := m8rscript.o \
+    RtosSpiffsFS.o \
     RtosSystemInterface.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \
@@ -31,7 +33,6 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/Program.o \
     $(SRC_DIR)/Scanner.o \
     $(SRC_DIR)/SharedAtoms.o \
-    $(SRC_DIR)/SpiffsFS.o \
     $(SRC_DIR)/SystemInterface.o \
     $(SRC_DIR)/SystemTime.o \
     $(SRC_DIR)/Task.o \

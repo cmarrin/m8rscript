@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		490C1BE0239186380094A6B4 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDA239185CB0094A6B4 /* LittleFS.cpp */; };
 		490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
@@ -88,7 +87,6 @@
 		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
-		49BF344823680892001E5508 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
 		49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED38E235392FF00DE0C42 /* spiffs_cache.c */; };
 		49BF344A236811BF001E5508 /* spiffs_check.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED390235392FF00DE0C42 /* spiffs_check.c */; };
 		49BF344C236811BF001E5508 /* spiffs_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED393235392FF00DE0C42 /* spiffs_gc.c */; };
@@ -213,6 +211,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
+		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		490C1BD92390709C0094A6B4 /* m8rscript.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../src/LittleFS.cpp; sourceTree = "<group>"; };
 		490C1BDB239185CB0094A6B4 /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
@@ -561,6 +561,8 @@
 			isa = PBXGroup;
 			children = (
 				497DC64123A921FF00748031 /* partitions.csv */,
+				490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */,
+				490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
 				497DC63D23A58A7F00748031 /* component.mk */,
 				497DC63423A5771A00748031 /* rtos.mk */,
@@ -1031,7 +1033,6 @@
 				49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
-				49BF344823680892001E5508 /* MacLittleFS.cpp in Sources */,
 				490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */,
@@ -1060,7 +1061,6 @@
 				49BF344A236811BF001E5508 /* spiffs_check.c in Sources */,
 				49BF344D236811BF001E5508 /* spiffs_hydrogen.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
-				490C1BE0239186380094A6B4 /* LittleFS.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
