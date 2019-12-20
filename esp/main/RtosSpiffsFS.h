@@ -92,7 +92,7 @@ private:
     class FileID
     {
     public:
-        FileID() { }
+        FileID() { _value[0] = '\0'; }
         
         const char* value() const { return _value; }
         char* value() { return _value; }
@@ -103,9 +103,9 @@ private:
         static FileID random();
 
     private:
-        FileID(char c) { _value[0] = c; }
+        FileID(char c) { _value[0] = c; _value[1] = '\0'; }
         
-        char _value[FileIDLength] = { '\0', '\0', '\0' };
+        char _value[FileIDLength];
     };
     
     // What happens in find when part of the path doesn't exist?

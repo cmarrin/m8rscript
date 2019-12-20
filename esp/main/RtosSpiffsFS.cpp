@@ -404,10 +404,10 @@ SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
     
     char offset = 0x21;
     char range = 0x7e - offset + 1;
-    for (uint8_t i = 0; i < FileIDLength; ++i) {
+    for (uint8_t i = 0; i < FileIDLength - 1; ++i) {
         fileID._value[i] = static_cast<char>(rand() % range) + offset;
     }
-    
+    fileID._value[FileIDLength - 1] = '\0';
     return fileID;
 }
 
