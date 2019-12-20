@@ -117,8 +117,8 @@ private:
     enum class FindCreateMode { None, Directory, File };
     
     static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
-    static bool findNameInDirectory(File*, const String& name, FileID&, File::Type&);
-    static void createEntry(File*, const String& name, File::Type, FileID&);
+    static bool findNameInDirectory(int fd, const String& name, FileID&, File::Type&);
+    static void createEntry(int fd, const String& name, File::Type, FileID&);
     
     int _dirFile = -1;
     FileID _fileID;
@@ -139,7 +139,6 @@ public:
     virtual bool seek(int32_t offset, File::SeekWhence whence) override;
     virtual int32_t tell() const override;
     virtual int32_t size() const override;
-    virtual bool eof() const override;
     
 protected:
     void setType(File::Type type) { _type = type; }

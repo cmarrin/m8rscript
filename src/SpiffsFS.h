@@ -12,6 +12,7 @@
 #include "MFS.h"
 
 #include "Containers.h"
+#include "spiffs.h"
 
 // Spiffs++ File System
 //
@@ -97,7 +98,6 @@ private:
         const char* value() const { return _value; }
         char* value() { return _value; }
         operator bool() const { return _value[0] != '\0'; }
-        String str() const { return String(_value, FileIDLength); }
         
         static FileID bad() { return FileID(); }
         static FileID root() { return FileID('/'); }
@@ -133,6 +133,7 @@ public:
     SpiffsFile() { }
     virtual ~SpiffsFile() { close(); }
   
+    void open(const char* name, spiffs_flags mode);
     virtual void close() override;
     virtual int32_t read(char* buf, uint32_t size) override;
     virtual int32_t write(const char* buf, uint32_t size) override;
@@ -140,7 +141,6 @@ public:
     virtual bool seek(int32_t offset, File::SeekWhence whence) override;
     virtual int32_t tell() const override;
     virtual int32_t size() const override;
-    virtual bool eof() const override;
     
 protected:
     void setType(File::Type type) { _type = type; }

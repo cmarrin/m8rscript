@@ -266,8 +266,8 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     }
     
     // Split up the name and find each component
-    Mad<SpiffsFile> file(SpiffsFS::rawOpen(FileID::root(), SPIFFS_O_RDWR, File::Type::Directory, FS::FileOpenMode::ReadUpdate));
-    if (!file.valid() || !file->valid()) {
+    int fd = ::open(FileID::root().value(), O_RDWR);
+    if (fd < 0) {
         error = Error::Code::InternalError;
     } else {
         Vector<String> components = String(name).split("/");
@@ -285,12 +285,13 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
             
             bool last = i == components.size() - 1;
             
-            if (!findNameInDirectory(file.get(), components[i], fileID, type)) {
+            if (!findNameInDirectory(fd, components[i], fileID, type)) {
                 if (!last && createMode == FindCreateMode::Directory) {
                     type = File::Type::Directory;
-                    createEntry(file.get(), components[i], File::Type::Directory, fileID);
-                    file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, File::Type::Directory, FS::FileOpenMode::ReadUpdate);
-                    if (!file->valid()) {
+                    createEntry(fd, components[i], File::Type::Directory, fileID);
+                    ::close(fd);
+                    fd = ::open(fileID.value(), O_RDWR | O_CREAT);
+                    if (fd < 0) {
                         // We should be able to create the new directory
                         error = Error::Code::InternalError;
                     }
@@ -305,10 +306,11 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                         }
                         
                         type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
-                        createEntry(file.get(), components[i], type, fileID);
+                        createEntry(fd, components[i], type, fileID);
                         if (type == File::Type::Directory) {
-                            file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR | SPIFFS_O_CREAT, type, FS::FileOpenMode::ReadUpdate);
-                            if (!file->valid()) {
+                            ::close(fd);
+                            fd = ::open(fileID.value(), O_RDWR | O_CREAT);
+                            if (fd < 0) {
                                 error = Error::Code::InternalError;
                                 break;
                             }
@@ -330,16 +332,16 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
                 break;
             }
             
-            file.destroy(MemoryType::Native);
-            file = SpiffsFS::rawOpen(fileID, SPIFFS_O_RDWR, type, FS::FileOpenMode::ReadUpdate);
-            if (!file->valid()) {
+            ::close(fd);
+            fd = ::open(fileID.value(), O_RDWR);
+            if (fd < 0) {
                 error = Error::Code::InternalError;
                 break;
             }
         }
     }
     
-    file.destroy(MemoryType::Native);
+    ::close(fd);
     if (error != Error::Code::OK) {
         fileID = FileID();
         return false;
@@ -348,13 +350,19 @@ bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& 
     return true;
 }
 
-bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID& fileID, File::Type& type)
+bool SpiffsDirectory::findNameInDirectory(int fd, const String& name, FileID& fileID, File::Type& type)
 {
     String s;
     
-    while (!dir->eof()) {
+    while (1) {
         Entry entry;
-        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        int result = ::read(fd, reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (result == 0) {
+            break;
+        }
+        if (result != sizeof(entry)) {
+            return false;
+        }
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
@@ -362,12 +370,12 @@ bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID&
             s.reserve(size + 1);
             for ( ; size > 0; --size) {
                 char c;
-                dir->read(&c, 1);
+                read(fd, &c, 1);
                 s += c;
             }
             
             FileID testFileID;
-            dir->read(testFileID.value(), sizeof(testFileID));
+            ::read(fd, testFileID.value(), sizeof(testFileID));
             if (s == name) {
                 type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
                 fileID = testFileID;
@@ -379,14 +387,15 @@ bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID&
     return false;
 }
 
-void SpiffsDirectory::createEntry(File* dir, const String& name, File::Type type, FileID& fileID)
+void SpiffsDirectory::createEntry(int fd, const String& name, File::Type type, FileID& fileID)
 {
+    // TODO: Make sure fileID doesn't exist
     fileID = FileID::random();
     EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;
     Entry entry(name.size(), entryType);
-    dir->write(entry.value());
-    dir->write(name.c_str(), static_cast<uint32_t>(name.size()));
-    dir->write(fileID.value(), FileIDLength);
+    ::write(fd, &(entry.value()), sizeof(Entry));
+    ::write(fd, name.c_str(), static_cast<uint32_t>(name.size()));
+    ::write(fd, fileID.value(), FileIDLength);
 }
 
 SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
@@ -402,19 +411,9 @@ SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
     return fileID;
 }
 
-void SpiffsFile::open(const char* name, spiffs_flags flags)
-{
-    if (!name || name[0] == '\0') {
-        // We're opening a dummy file just so it can hold an error
-        return;
-    }
-    _file = SPIFFS_open(SpiffsFS::sharedSpiffs(), name, flags, 0);
-    _error = (_file < 0) ? SpiffsFS::mapSpiffsError(_file) : Error::Code::OK;
-}
-
 void SpiffsFile::close()
 {
-    SPIFFS_close(SpiffsFS::sharedSpiffs(), _file);
+    ::close(_file);
     _error = Error::Code::FileClosed;
 }
 
@@ -424,7 +423,7 @@ int32_t SpiffsFile::read(char* buf, uint32_t size)
         _error = Error::Code::NotReadable;
         return -1;
     }
-    return SPIFFS_read(SpiffsFS::sharedSpiffs(), _file, buf, size);
+    return ::read(_file, buf, size);
 }
 
 int32_t SpiffsFile::write(const char* buf, uint32_t size)
@@ -438,7 +437,7 @@ int32_t SpiffsFile::write(const char* buf, uint32_t size)
         seek(0, SeekWhence::End);
     }
 
-    return SPIFFS_write(SpiffsFS::sharedSpiffs(), _file, const_cast<char*>(buf), size);
+    return ::write(_file, const_cast<char*>(buf), size);
 }
 
 bool SpiffsFile::seek(int32_t offset, SeekWhence whence)
@@ -448,33 +447,26 @@ bool SpiffsFile::seek(int32_t offset, SeekWhence whence)
         return -1;
     }
 
-    int whenceFlag = SPIFFS_SEEK_SET;
+    int whenceFlag = SEEK_SET;
     if (whence == SeekWhence::Cur) {
-        whenceFlag = SPIFFS_SEEK_CUR;
+        whenceFlag = SEEK_CUR;
     } else if (whence == SeekWhence::End) {
-        whenceFlag = SPIFFS_SEEK_END;
+        whenceFlag = SEEK_END;
     }
-    return SPIFFS_lseek(SpiffsFS::sharedSpiffs(), _file, offset, whenceFlag) == SPIFFS_OK;
+    return lseek(_file, offset, whenceFlag) >= 0;
 }
 
 int32_t SpiffsFile::tell() const
 {
-    return SPIFFS_tell(SpiffsFS::sharedSpiffs(), _file);
+    return lseek(_file, SEEK_CUR, 0);
 }
 
 int32_t SpiffsFile::size() const
 {
-    spiffs_stat stat;
-    s32_t res = SPIFFS_fstat(SpiffsFS::sharedSpiffs(), _file, &stat);
-    if (res < SPIFFS_OK) {
+    struct stat stat;
+    int res = fstat(_file, &stat);
+    if (res < 0) {
         return -1;
     }
-    return stat.size;
+    return stat.st_size;
 }
-
-bool SpiffsFile::eof() const
-{
-    return SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
-}
-
-

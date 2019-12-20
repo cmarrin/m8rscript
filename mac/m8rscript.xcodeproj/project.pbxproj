@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		490BA29A23A9B45000D9A4F0 /* RtosSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */; };
 		490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
@@ -1095,7 +1094,6 @@
 				49AD0A20209B534F00F86278 /* Simulator.mm in Sources */,
 				497DC63723A5835200748031 /* m8rscript.cpp in Sources */,
 				49F166F81DA7443100C07A1A /* SimulationView.m in Sources */,
-				490BA29A23A9B45000D9A4F0 /* RtosSpiffsFS.cpp in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
 			);

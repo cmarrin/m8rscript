@@ -470,10 +470,11 @@ uint8_t Scanner::get() const
         _lastChar = C_EOF;
         return c;
     }
-    if (_istream->eof()) {
+    int result = _istream->read();
+    if (result < 0 || result > 0xff) {
         return C_EOF;
     }
-    uint8_t c = _istream->read();
+    uint8_t c = static_cast<uint8_t>(result);
     if (c == '\n') {
         ++_lineno;
     }

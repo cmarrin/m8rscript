@@ -24,7 +24,6 @@ namespace m8r {
 
 class Stream {
 public:
-	virtual bool eof() const = 0;
     virtual int read() const = 0;
     virtual int write(uint8_t) = 0;
 	
@@ -51,10 +50,6 @@ public:
     bool loaded()
     {
         return _file.valid() && _file->valid();
-    }
-	virtual bool eof() const override
-    {
-        return !_file.valid() || _file->eof();
     }
     virtual int read() const override
     {
@@ -99,10 +94,6 @@ public:
     virtual ~StringStream() { }
 	
     bool loaded() { return true; }
-	virtual bool eof() const override
-    {
-        return _string.size() <= _index;
-    }
     virtual int read() const override
     {
         return (_index < _string.size()) ? _string[_index++] : -1;
@@ -139,10 +130,6 @@ public:
     virtual ~VectorStream() { }
 	
     bool loaded() { return true; }
-	virtual bool eof() const override
-    {
-        return _vector.size() <= _index;
-    }
     virtual int read() const override
     {
         return (_index < _vector.size()) ? _vector[_index++] : -1;

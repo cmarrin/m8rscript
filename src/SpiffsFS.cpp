@@ -105,7 +105,7 @@ bool SpiffsFS::format()
 Mad<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, spiffs_flags flags, File::Type type, FileOpenMode mode)
 {
     Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::Native);
-    file->open(fileID.str().c_str(), flags);
+    file->open(fileID.value(), flags);
     
     if (!file->valid()) {
         file->_file = SPIFFS_ERR_FILE_CLOSED;
@@ -282,9 +282,8 @@ bool SpiffsDirectory::next()
 {
     String s;
     
-    if (_dirFile->eof()) {
-        Entry entry;
-        _dirFile->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+    Entry entry;
+    if (_dirFile->read(reinterpret_cast<char*>(&entry), sizeof(entry)) == sizeof(entry)) {
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
@@ -400,9 +399,11 @@ bool SpiffsDirectory::findNameInDirectory(File* dir, const String& name, FileID&
 {
     String s;
     
-    while (!dir->eof()) {
+    while (1) {
         Entry entry;
-        dir->read(reinterpret_cast<char*>(&entry), sizeof(entry));
+        if (dir->read(reinterpret_cast<char*>(&entry), sizeof(entry)) == 0) {
+            break;
+        }
         if (entry.type() == EntryType::File ||
             entry.type() == EntryType::Directory) {
             uint8_t size = entry.size();
@@ -519,10 +520,3 @@ int32_t SpiffsFile::size() const
     }
     return stat.size;
 }
-
-bool SpiffsFile::eof() const
-{
-    return SPIFFS_eof(SpiffsFS::sharedSpiffs(), _file) > 0;
-}
-
-

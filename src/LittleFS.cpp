@@ -251,9 +251,4 @@ int32_t LittleFile::size() const
     return static_cast<int32_t>(lfs_file_size(&LittleFS::_littleFileSystem, const_cast<lfs_file_t*>(&_file)));
 }
 
-bool LittleFile::eof() const
-{
-    return tell() >= size();
-}
-
 

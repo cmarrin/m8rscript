@@ -176,7 +176,6 @@ public:
     virtual  bool seek(int32_t offset, SeekWhence whence = SeekWhence::Set) = 0;
     virtual int32_t tell() const = 0;
     virtual int32_t size() const = 0;
-    virtual bool eof() const = 0;
     
     bool valid() const { return _error == Error::Code::OK; }
     Error error() const { return _error; }

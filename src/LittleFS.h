@@ -54,7 +54,6 @@ public:
     virtual bool seek(int32_t offset, File::SeekWhence whence) override;
     virtual int32_t tell() const override;
     virtual int32_t size() const override;
-    virtual bool eof() const override;
     
 protected:
     void setType(File::Type type) { _type = type; }
