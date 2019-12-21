@@ -190,8 +190,6 @@ uint32_t SpiffsFS::totalUsed() const
 
 Error::Code SpiffsFS::mapSpiffsError(int spiffsError)
 {
-    assert(spiffsError < 0);
-
     switch(spiffsError) {
         case ESP_OK:                return Error::Code::OK;
         case ESP_ERR_NOT_FOUND:
