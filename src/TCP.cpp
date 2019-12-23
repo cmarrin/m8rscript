@@ -17,21 +17,27 @@
 
 using namespace m8r;
 
-static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
-    { SA::send, Value(TCPProto::send) },
-    { SA::disconnect, Value(TCPProto::disconnect) },
-    { SA::disconnect, Value(TCPProto::disconnect) },
+    { SA::send, TCPProto::send },
+    { SA::disconnect, TCPProto::disconnect },
+    { SA::disconnect, TCPProto::disconnect },
+};
+
+static StaticObject::StaticProperty _props[] =
+{
     { SA::Connected, Value(static_cast<int32_t>(TCPDelegate::Event::Connected)) },
     { SA::Reconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)) },
     { SA::Disconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)) },
     { SA::Error, Value(static_cast<int32_t>(TCPDelegate::Event::Error)) },
     { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
     { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
-    { SA::MaxConnections, Value(static_cast<int32_t>(TCP::MaxConnections)) },};
+    { SA::MaxConnections, Value(static_cast<int32_t>(TCP::MaxConnections)) },
+};
 
 TCPProto::TCPProto()
 {
+    setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
     setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
 }
 

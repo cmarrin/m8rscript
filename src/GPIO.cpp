@@ -19,18 +19,23 @@ using namespace m8r;
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsGPIO[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _funcPropsGPIO[] =
 {
-    { SA::setPinMode, Value(GPIO::setPinMode) },
-    { SA::digitalWrite, Value(GPIO::digitalWrite) },
-    { SA::digitalRead, Value(GPIO::digitalRead) },
-    { SA::onInterrupt, Value(GPIO::onInterrupt) },
+    { SA::setPinMode, GPIO::setPinMode },
+    { SA::digitalWrite, GPIO::digitalWrite },
+    { SA::digitalRead, GPIO::digitalRead },
+    { SA::onInterrupt, GPIO::onInterrupt },
+};
+
+static StaticObject::StaticProperty  _propsGPIO[] =
+{
     { SA::PinMode, Value(&GPIO::_pinMode) },
     { SA::Trigger, Value(&GPIO::_trigger) },
 };
 
 GPIO::GPIO()
 {
+    setProperties(_funcPropsGPIO, sizeof(_funcPropsGPIO) / sizeof(StaticFunctionProperty));
     setProperties(_propsGPIO, sizeof(_propsGPIO) / sizeof(StaticProperty));
 }
 
@@ -62,7 +67,7 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
     return CallReturnValue(CallReturnValue::Error::Unimplemented);
 }
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsPinMode[] =
+static StaticObject::StaticProperty _propsPinMode[] =
 {
     { SA::Output, Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)) },
     { SA::OutputOpenDrain, Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)) },
@@ -76,7 +81,7 @@ PinMode::PinMode()
     setProperties(_propsPinMode, sizeof(_propsPinMode) / sizeof(StaticProperty));
 }
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsTrigger[] =
+static StaticObject::StaticProperty _propsTrigger[] =
 {
     { SA::None, Value(static_cast<int32_t>(GPIOInterface::Trigger::None)) },
     { SA::RisingEdge, Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)) },

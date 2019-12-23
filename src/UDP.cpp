@@ -16,16 +16,21 @@
 
 using namespace m8r;
 
-static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
-    { SA::send, Value(UDPProto::send) },
-    { SA::disconnect, Value(UDPProto::disconnect) },
+    { SA::send, UDPProto::send },
+    { SA::disconnect, UDPProto::disconnect },
+};
+
+static StaticObject::StaticProperty _props[] =
+{
     { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
     { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
 };
 
 UDPProto::UDPProto()
 {
+    setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
     setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
 }
 

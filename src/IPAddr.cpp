@@ -33,17 +33,17 @@ static bool toIPAddr(const String& ipString, IPAddr& ip)
     return true;
 }
 
-static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
 {
-    { SA::constructor, Value(IPAddrProto::constructor) },
-    { SA::toString, Value(IPAddrProto::toString) },
-    { SA::lookupHostname, Value(IPAddrProto::lookupHostname) },
+    { SA::constructor, IPAddrProto::constructor },
+    { SA::toString, IPAddrProto::toString },
+    { SA::lookupHostname, IPAddrProto::lookupHostname },
 
 };
 
 IPAddrProto::IPAddrProto()
 {
-    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+    setProperties(_props, sizeof(_props) / sizeof(StaticFunctionProperty));
 }
 
 IPAddr::IPAddr(const String& ipString)
