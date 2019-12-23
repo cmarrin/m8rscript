@@ -39,19 +39,44 @@ public:
     bool expression(uint8_t minPrec = 1);
 
 private:
-    struct OperatorInfo {
-        static const uint8_t LeftAssoc = 0;
-        static const uint8_t RightAssoc = 1;
+    class OperatorInfo {
+    public:
+        enum class Assoc { Left = 0, Right = 1 };
+        
+        OperatorInfo() { }
+        OperatorInfo(Token token, uint8_t prec, Assoc assoc, bool sto, Op op)
+        {
+            OperatorInfo info;
+            info._token = static_cast<uint32_t>(token);
+            info._prec = prec;
+            info._op = static_cast<uint32_t>(op);
+            info._assoc = static_cast<uint32_t>(assoc);
+            info._sto = sto;
+            _u = info._u;
+        }
         
         bool operator==(const Token& t)
         {
-            uint8_t tokenByte = readRomByte(ROMString(reinterpret_cast<const char*>(&t)));
-            return static_cast<Token>(tokenByte) == token; }
-        Token token;
-        uint8_t prec;
-        uint8_t assoc : 1;
-        uint8_t sto : 1;
-        Op op;
+            return static_cast<Token>(_token) == t;
+        }
+        
+        Token token() const { return static_cast<Token>(_token); }
+        uint8_t prec() const { return _prec; }
+        Op op() const { return static_cast<Op>(_op); }
+        bool sto() const { return _sto != 0; }
+        Assoc assoc() const { return static_cast<Assoc>(_assoc); }
+
+    private:
+        union {
+            struct {
+                uint32_t _token : 8;
+                uint32_t _prec : 8;
+                uint32_t _op : 8;
+                uint32_t _assoc : 1;
+                uint32_t _sto : 1;
+            };
+            uint32_t _u;
+        };
     };
     
     // OperatorInfo is in Flash, so we need to access it as a single 4 byte read

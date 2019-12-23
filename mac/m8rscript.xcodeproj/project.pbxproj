@@ -67,6 +67,7 @@
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
+		49956B3823AEC06F000DF8A9 /* RtosTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49956B3723AEC06F000DF8A9 /* RtosTaskManager.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8DF2349B1BC00459451 /* Heartbeat.cpp */; };
 		499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E02349B1BC00459451 /* Heartbeat.h */; };
@@ -303,6 +304,8 @@
 		49899B991EA56A6E003B334B /* Closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../src/Closure.h; sourceTree = "<group>"; };
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../src/ParseEngine.cpp; sourceTree = "<group>"; };
 		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../src/ParseEngine.h; sourceTree = "<group>"; };
+		49956B3623AEC06F000DF8A9 /* RtosTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosTaskManager.h; path = ../esp/main/RtosTaskManager.h; sourceTree = "<group>"; };
+		49956B3723AEC06F000DF8A9 /* RtosTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosTaskManager.cpp; path = ../esp/main/RtosTaskManager.cpp; sourceTree = "<group>"; };
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
 		499AE8DF2349B1BC00459451 /* Heartbeat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Heartbeat.cpp; path = ../src/Heartbeat.cpp; sourceTree = "<group>"; };
 		499AE8E02349B1BC00459451 /* Heartbeat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Heartbeat.h; path = ../src/Heartbeat.h; sourceTree = "<group>"; };
@@ -564,6 +567,8 @@
 				490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */,
 				490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
+				49956B3723AEC06F000DF8A9 /* RtosTaskManager.cpp */,
+				49956B3623AEC06F000DF8A9 /* RtosTaskManager.h */,
 				497DC63D23A58A7F00748031 /* component.mk */,
 				497DC63423A5771A00748031 /* rtos.mk */,
 				497DC63623A5835100748031 /* m8rscript.cpp */,
@@ -1084,6 +1089,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49956B3823AEC06F000DF8A9 /* RtosTaskManager.cpp in Sources */,
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
 				491E2F8F236A52160054725E /* Telnet.cpp in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,

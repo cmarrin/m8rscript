@@ -11,6 +11,7 @@ COMPONENT_SRCDIRS := . $(SRC_DIR)
 COMPONENT_OBJS := m8rscript.o \
     RtosSpiffsFS.o \
     RtosSystemInterface.o \
+    RtosTaskManager.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \
     $(SRC_DIR)/Base64.o \

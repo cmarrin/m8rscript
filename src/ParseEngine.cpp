@@ -11,37 +11,37 @@
 
 using namespace m8r;
 
-ParseEngine::OperatorInfo RODATA_ATTR ParseEngine::_opInfos[ ] = {
-    { Token::STO,         1,  OperatorInfo::RightAssoc, false, Op::MOVE },
-    { Token::ADDSTO,      2,  OperatorInfo::RightAssoc, true,  Op::ADD  },
-    { Token::SUBSTO,      2,  OperatorInfo::RightAssoc, true,  Op::SUB  },
-    { Token::MULSTO,      3,  OperatorInfo::RightAssoc, true,  Op::MUL  },
-    { Token::DIVSTO,      3,  OperatorInfo::RightAssoc, true,  Op::DIV  },
-    { Token::MODSTO,      3,  OperatorInfo::RightAssoc, true,  Op::MOD  },
-    { Token::SHLSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SHL  },
-    { Token::SHRSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SHR  },
-    { Token::SARSTO,      4,  OperatorInfo::RightAssoc, true,  Op::SAR  },
-    { Token::ANDSTO,      5,  OperatorInfo::RightAssoc, true,  Op::AND  },
-    { Token::ORSTO,       5,  OperatorInfo::RightAssoc, true,  Op::OR   },
-    { Token::XORSTO,      5,  OperatorInfo::RightAssoc, true,  Op::XOR  },
-    { Token::LOR,         6,  OperatorInfo::LeftAssoc,  false, Op::LOR  },
-    { Token::LAND,        7,  OperatorInfo::LeftAssoc,  false, Op::LAND },
-    { Token::OR,          8,  OperatorInfo::LeftAssoc,  false, Op::OR   },
-    { Token::XOR,         9,  OperatorInfo::LeftAssoc,  false, Op::XOR  },
-    { Token::EQ,          11, OperatorInfo::LeftAssoc,  false, Op::EQ   },
-    { Token::NE,          11, OperatorInfo::LeftAssoc,  false, Op::NE   },
-    { Token::LT,          12, OperatorInfo::LeftAssoc,  false, Op::LT   },
-    { Token::GT,          12, OperatorInfo::LeftAssoc,  false, Op::GT   },
-    { Token::GE,          12, OperatorInfo::LeftAssoc,  false, Op::GE   },
-    { Token::LE,          12, OperatorInfo::LeftAssoc,  false, Op::LE   },
-    { Token::SHL,         13, OperatorInfo::LeftAssoc,  false, Op::SHL  },
-    { Token::SHR,         13, OperatorInfo::LeftAssoc,  false, Op::SHR  },
-    { Token::SAR,         13, OperatorInfo::LeftAssoc,  false, Op::SAR  },
-    { Token::Plus,        14, OperatorInfo::LeftAssoc,  false, Op::ADD  },
-    { Token::Minus,       14, OperatorInfo::LeftAssoc,  false, Op::SUB  },
-    { Token::Star,        15, OperatorInfo::LeftAssoc,  false, Op::MUL  },
-    { Token::Slash,       15, OperatorInfo::LeftAssoc,  false, Op::DIV  },
-    { Token::Percent,     15, OperatorInfo::LeftAssoc,  false, Op::MOD  },
+ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {
+    { Token::STO,         1,  OperatorInfo::Assoc::Right, false, Op::MOVE },
+    { Token::ADDSTO,      2,  OperatorInfo::Assoc::Right, true,  Op::ADD  },
+    { Token::SUBSTO,      2,  OperatorInfo::Assoc::Right, true,  Op::SUB  },
+    { Token::MULSTO,      3,  OperatorInfo::Assoc::Right, true,  Op::MUL  },
+    { Token::DIVSTO,      3,  OperatorInfo::Assoc::Right, true,  Op::DIV  },
+    { Token::MODSTO,      3,  OperatorInfo::Assoc::Right, true,  Op::MOD  },
+    { Token::SHLSTO,      4,  OperatorInfo::Assoc::Right, true,  Op::SHL  },
+    { Token::SHRSTO,      4,  OperatorInfo::Assoc::Right, true,  Op::SHR  },
+    { Token::SARSTO,      4,  OperatorInfo::Assoc::Right, true,  Op::SAR  },
+    { Token::ANDSTO,      5,  OperatorInfo::Assoc::Right, true,  Op::AND  },
+    { Token::ORSTO,       5,  OperatorInfo::Assoc::Right, true,  Op::OR   },
+    { Token::XORSTO,      5,  OperatorInfo::Assoc::Right, true,  Op::XOR  },
+    { Token::LOR,         6,  OperatorInfo::Assoc::Left,  false, Op::LOR  },
+    { Token::LAND,        7,  OperatorInfo::Assoc::Left,  false, Op::LAND },
+    { Token::OR,          8,  OperatorInfo::Assoc::Left,  false, Op::OR   },
+    { Token::XOR,         9,  OperatorInfo::Assoc::Left,  false, Op::XOR  },
+    { Token::EQ,          11, OperatorInfo::Assoc::Left,  false, Op::EQ   },
+    { Token::NE,          11, OperatorInfo::Assoc::Left,  false, Op::NE   },
+    { Token::LT,          12, OperatorInfo::Assoc::Left,  false, Op::LT   },
+    { Token::GT,          12, OperatorInfo::Assoc::Left,  false, Op::GT   },
+    { Token::GE,          12, OperatorInfo::Assoc::Left,  false, Op::GE   },
+    { Token::LE,          12, OperatorInfo::Assoc::Left,  false, Op::LE   },
+    { Token::SHL,         13, OperatorInfo::Assoc::Left,  false, Op::SHL  },
+    { Token::SHR,         13, OperatorInfo::Assoc::Left,  false, Op::SHR  },
+    { Token::SAR,         13, OperatorInfo::Assoc::Left,  false, Op::SAR  },
+    { Token::Plus,        14, OperatorInfo::Assoc::Left,  false, Op::ADD  },
+    { Token::Minus,       14, OperatorInfo::Assoc::Left,  false, Op::SUB  },
+    { Token::Star,        15, OperatorInfo::Assoc::Left,  false, Op::MUL  },
+    { Token::Slash,       15, OperatorInfo::Assoc::Left,  false, Op::DIV  },
+    { Token::Percent,     15, OperatorInfo::Assoc::Left,  false, Op::MOD  },
 };
 
 ParseEngine::ParseEngine(Parser* parser)
@@ -629,30 +629,30 @@ bool ParseEngine::expression(uint8_t minPrec)
     while(1) {
         OperatorInfo* endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
         OperatorInfo* it = std::find(_opInfos, endit, getToken());
-        if (it == endit || it->prec < minPrec) {
+        if (it == endit || it->prec() < minPrec) {
             break;
         }
-        uint8_t nextMinPrec = (it->assoc == OperatorInfo::LeftAssoc) ? (it->prec + 1) : it->prec;
+        uint8_t nextMinPrec = (it->assoc() == OperatorInfo::Assoc::Left) ? (it->prec() + 1) : it->prec();
         retireToken();
-        if (it->sto) {
+        if (it->sto()) {
             _parser->emitDup();
         }
     
         // If the op is LAND or LOR we want to short circuit. Add logic
         // here to jump over the next expression if TOS is false in the
         // case of LAND or true in the case of LOR
-        if (it->op == Op::LAND || it->op == Op::LOR) {
+        if (it->op() == Op::LAND || it->op() == Op::LOR) {
             _parser->emitDup();
             Label passLabel = _parser->label();
             Label skipLabel = _parser->label();
-            bool skipResult = it->op != Op::LAND;
+            bool skipResult = it->op() != Op::LAND;
             _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
             
             if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             
-            _parser->emitBinOp(it->op);
+            _parser->emitBinOp(it->op());
             _parser->addMatchedJump(Op::JMP, passLabel);
             _parser->matchJump(skipLabel);
             _parser->pushK(Value(skipResult));
@@ -662,10 +662,10 @@ bool ParseEngine::expression(uint8_t minPrec)
             if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
                 return false;
             }
-            _parser->emitBinOp(it->op);
+            _parser->emitBinOp(it->op());
         }
         
-        if (it->sto) {
+        if (it->sto()) {
             _parser->emitMove();
         }
     }

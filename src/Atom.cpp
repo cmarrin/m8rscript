@@ -13,7 +13,7 @@
 
 using namespace m8r;
 
-static int32_t binarySearch(ROMString* names, uint16_t nelts, const char* value)
+static int32_t binarySearch(const char** names, uint16_t nelts, const char* value)
 {
     int32_t first = 0;
     int32_t last = nelts - 1;
@@ -21,7 +21,7 @@ static int32_t binarySearch(ROMString* names, uint16_t nelts, const char* value)
     while (first <= last)
     {
         int32_t middle = (first + last) / 2;
-        int result = ROMstrcmp(names[middle], value);
+        int result = strcmp(names[middle], value);
         if (result == 0) {
             return middle;
         } else if (result > 0) {
@@ -77,7 +77,7 @@ Atom AtomTable::findAtom(const char* s) const
 {
     // First look in the sharedAtom table
     uint16_t nelts;
-    ROMString* sharedAtomTable = sharedAtoms(nelts);
+    const char** sharedAtomTable = sharedAtoms(nelts);
     int32_t result = binarySearch(sharedAtomTable, nelts, s);
     if (result >= 0) {
         return Atom(static_cast<Atom::value_type>(result));

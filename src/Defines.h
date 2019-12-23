@@ -85,11 +85,13 @@ namespace m8r {
 
 static constexpr uint32_t HeapSize = 200000;
 #else
+    #include <esp_attr.h>
+    
     #ifndef __STRINGIFY
     #define __STRINGIFY(a) #a
     #endif
-    #define RODATA_ATTR
-    #define RODATA2_ATTR
+    #define RODATA_ATTR _SECTION_ATTR_IMPL(".rodata2", __COUNTER__) 
+    #define RODATA2_ATTR _SECTION_ATTR_IMPL(".rodata2", __COUNTER__)
     #define ROMSTR_ATTR
     #define FLASH_ATTR
     #define ICACHE_FLASH_ATTR

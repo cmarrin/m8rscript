@@ -212,18 +212,34 @@ public:
         Value value;
     };
     
+    struct StaticFunctionProperty
+    {
+        SA name;
+        NativeFunction func;
+    };
+
+    static_assert(std::is_pod<StaticFunctionProperty>::value, "StaticFunctionProperty must be pod");
+    
     StaticObject() { }
     
     const Value property(const Atom& name) const
     {
-        auto it = std::find(_properties, _properties + _propertiesCount, name);
-        return (it == _properties + _propertiesCount) ? Value() : it->value;
+        auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
+        if (it != _functionProperties + _functionPropertiesCount) {
+            return Value(it->func);
+        }
+        auto it2 = std::find(_properties, _properties + _propertiesCount, name);
+        return (it2 == _properties + _propertiesCount) ? Value() : it2->value;
     }
 
     Value property(const Atom& name)
     {
-        auto it = std::find(_properties, _properties + _propertiesCount, name);
-        return (it == _properties + _propertiesCount) ? Value() : it->value;
+        auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
+        if (it != _functionProperties + _functionPropertiesCount) {
+            return Value(it->func);
+        }
+        auto it2 = std::find(_properties, _properties + _propertiesCount, name);
+        return (it2 == _properties + _propertiesCount) ? Value() : it2->value;
     }
     
     void setProperties(StaticProperty* props, size_t count)
@@ -232,8 +248,16 @@ public:
         _propertiesCount = count;
     }
 
+    void setProperties(StaticFunctionProperty* props, size_t count)
+    {
+        _functionProperties = props;
+        _functionPropertiesCount = count;
+    }
+
 protected:
+    const StaticFunctionProperty* _functionProperties = nullptr;
     const StaticProperty* _properties = nullptr;
+    uint16_t _functionPropertiesCount = 0;
     uint16_t _propertiesCount = 0;
 };
 

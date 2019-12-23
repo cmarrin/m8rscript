@@ -20,6 +20,7 @@
 
 #include "Defines.h"
 #include "RtosSpiffsFS.h"
+#include "RtosTaskManager.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
 
@@ -122,7 +123,7 @@ public:
     
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
-    virtual TaskManager* taskManager() override { return nullptr; };
+    virtual TaskManager* taskManager() override { return &_taskManager; };
     
     virtual Mad<TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
     {
@@ -136,8 +137,8 @@ public:
 
 private:
 //    RtosGPIOInterface _gpio;
-        SpiffsFS _fileSystem;
-//    RtosTaskManager _taskManager;
+    SpiffsFS _fileSystem;
+    RtosTaskManager _taskManager;
 };
 
 extern uint64_t g_esp_os_us;

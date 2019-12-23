@@ -15,15 +15,15 @@
 
 using namespace m8r;
 
-static StaticObject::StaticProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
 {
-    { SA::encode, Value(Base64::encodeFunc) },
-    { SA::decode, Value(Base64::decodeFunc) },
+    { SA::encode, Base64::encodeFunc },
+    { SA::decode, Base64::decodeFunc },
 };
 
 Base64::Base64()
 {
-    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+    setProperties(_props, sizeof(_props) / sizeof(StaticFunctionProperty));
 }
 
 static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;

@@ -115,7 +115,6 @@ enum class SA : uint16_t {
 };
 
 namespace m8r {
-    class ROMString;
-    ROMString* sharedAtoms(uint16_t& nelts);
+    const char** sharedAtoms(uint16_t& nelts);
     static constexpr uint16_t ExternalAtomOffset = 200;
 }

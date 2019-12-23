@@ -15,25 +15,25 @@
 
 using namespace m8r;
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsFS[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsFS[] =
 {
-    { SA::mount, Value(FSProto::mount) },
-    { SA::mounted, Value(FSProto::mounted) },
-    { SA::unmount, Value(FSProto::unmount) },
-    { SA::format, Value(FSProto::format) },
-    { SA::open, Value(FSProto::open) },
-    { SA::openDirectory, Value(FSProto::openDirectory) },
-    { SA::makeDirectory, Value(FSProto::makeDirectory) },
-    { SA::remove, Value(FSProto::remove) },
-    { SA::rename, Value(FSProto::rename) },
-    { SA::stat, Value(FSProto::stat) },
-    { SA::lastError, Value(FSProto::lastError) },
-    { SA::errorString, Value(FSProto::errorString) },
+    { SA::mount, FSProto::mount },
+    { SA::mounted, FSProto::mounted },
+    { SA::unmount, FSProto::unmount },
+    { SA::format, FSProto::format },
+    { SA::open, FSProto::open },
+    { SA::openDirectory, FSProto::openDirectory },
+    { SA::makeDirectory, FSProto::makeDirectory },
+    { SA::remove, FSProto::remove },
+    { SA::rename, FSProto::rename },
+    { SA::stat, FSProto::stat },
+    { SA::lastError, FSProto::lastError },
+    { SA::errorString, FSProto::errorString },
 };
 
 FSProto::FSProto()
 {
-    setProperties(_propsFS, sizeof(_propsFS) / sizeof(StaticProperty));
+    setProperties(_propsFS, sizeof(_propsFS) / sizeof(StaticFunctionProperty));
 }
 
 CallReturnValue FSProto::mount(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -106,22 +106,22 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsFile[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsFile[] =
 {
-    { SA::constructor, Value(FileProto::constructor) },
-    { SA::close, Value(FileProto::close) },
-    { SA::read, Value(FileProto::read) },
-    { SA::write, Value(FileProto::write) },
-    { SA::seek, Value(FileProto::seek) },
-    { SA::eof, Value(FileProto::eof) },
-    { SA::valid, Value(FileProto::valid) },
-    { SA::error, Value(FileProto::error) },
-    { SA::type, Value(FileProto::type) },
+    { SA::constructor, FileProto::constructor },
+    { SA::close, FileProto::close },
+    { SA::read, FileProto::read },
+    { SA::write, FileProto::write },
+    { SA::seek, FileProto::seek },
+    { SA::eof, FileProto::eof },
+    { SA::valid, FileProto::valid },
+    { SA::error, FileProto::error },
+    { SA::type, FileProto::type },
 };
 
 FileProto::FileProto()
 {
-    setProperties(_propsFile, sizeof(_propsFile) / sizeof(StaticProperty));
+    setProperties(_propsFile, sizeof(_propsFile) / sizeof(StaticFunctionProperty));
 }
 
 CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -250,20 +250,20 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static StaticObject::StaticProperty RODATA2_ATTR _propsDirectory[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsDirectory[] =
 {
-    { SA::constructor, Value(DirectoryProto::constructor) },
-    { SA::name, Value(DirectoryProto::name) },
-    { SA::size, Value(DirectoryProto::size) },
-    { SA::type, Value(DirectoryProto::type) },
-    { SA::valid, Value(DirectoryProto::valid) },
-    { SA::error, Value(DirectoryProto::error) },
-    { SA::next, Value(DirectoryProto::next) },
+    { SA::constructor, DirectoryProto::constructor },
+    { SA::name, DirectoryProto::name },
+    { SA::size, DirectoryProto::size },
+    { SA::type, DirectoryProto::type },
+    { SA::valid, DirectoryProto::valid },
+    { SA::error, DirectoryProto::error },
+    { SA::next, DirectoryProto::next },
 };
 
 DirectoryProto::DirectoryProto()
 {
-    setProperties(_propsDirectory, sizeof(_propsDirectory) / sizeof(StaticProperty));
+    setProperties(_propsDirectory, sizeof(_propsDirectory) / sizeof(StaticFunctionProperty));
 }
 
 CallReturnValue DirectoryProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

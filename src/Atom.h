@@ -64,7 +64,7 @@ public:
         uint16_t index = atom.raw();
         if (index < ExternalAtomOffset) {
             uint16_t nelts;
-            ROMString* p = sharedAtoms(nelts);
+            const char** p = sharedAtoms(nelts);
             assert(index < nelts);
             return String(p[index]);
         }
