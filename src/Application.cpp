@@ -125,7 +125,8 @@ Application::Application(uint16_t port)
 
 Application::~Application()
 {
-    _shellSocket.destroy();
+    Mad<MyShellSocket> sock(static_cast<MyShellSocket*>(_shellSocket.get()));
+    sock.destroy();
 }
 
 Application::NameValidationType Application::validateBonjourName(const char* name)
