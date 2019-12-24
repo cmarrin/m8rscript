@@ -99,8 +99,7 @@ RawMad Mallocator::alloc(uint16_t nElements, uint16_t elementSize, MemoryType ty
         Header* header = asHeader(freeBlock);
         assert(header->nextBlock != freeBlock);
 
-        MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Free);
+        checkMemoryHeader(header, Header::Type::Free);
 
         if (header->sizeInBlocks >= blocksToAlloc) {
             if (blocksToAlloc == header->sizeInBlocks) {
@@ -211,9 +210,7 @@ void Mallocator::free(RawMad ptr, size_t size, MemoryType type)
     uint16_t blocksToFree = blockSizeFromByteSize(size);
 
     // Check to make sure this is a valid block
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->magic == Header::ALLOCMAGIC);
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->type() == Header::Type::Allocated);
-    MEMORY_HEADER_ASSERT(asHeader(blockToFree)->sizeInBlocks == blocksToFree);
+    checkMemoryHeader(asHeader(blockToFree), Header::Type::Allocated, blocksToFree);
 
 #ifdef MEMORY_HEADER
     asHeader(blockToFree)->magic = Header::FREEMAGIC;
@@ -343,8 +340,7 @@ void Mallocator::checkConsistencyHelper()
         assert(header && (header->nextBlock == NoBlockId || block + header->sizeInBlocks < header->nextBlock));
 
         // Check to make sure this is a valid block
-        MEMORY_HEADER_ASSERT(header->magic == Header::FREEMAGIC);
-        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Free);
+        checkMemoryHeader(header, Header::Type::Free);
     }
     
 #ifdef MEMORY_HEADER
@@ -353,14 +349,40 @@ void Mallocator::checkConsistencyHelper()
         Header* header = asHeader(block);
 
         // Check to make sure this is a valid block
-        MEMORY_HEADER_ASSERT(header->magic == Header::ALLOCMAGIC);
-        MEMORY_HEADER_ASSERT(header->type() == Header::Type::Allocated);
+        checkMemoryHeader(header, Header::Type::Allocated);
     }
 #endif
 }
 #endif
 
 #ifdef MEMORY_HEADER
+
+void Mallocator::showMemoryHeaderError(Header* header, Header::Type type, int32_t blocksToFree) const
+{
+    if (type == Header::Type::Allocated) {
+        ::printf("***** Allocated Memory Header error at addr %p, memory type %d, name '%s'\n", header, static_cast<uint32_t>(header->memoryType), header->name);
+        if (header->magic != Header::ALLOCMAGIC) {
+            ::printf("      expected ALLOCMAGIC, got 0x%08x\n", header->magic);
+        }
+        if (header->type() != Header::Type::Allocated) {
+            ::printf("      expected Header::Type::Allocated, got 0x%04hx\n", static_cast<uint16_t>(header->type()));
+        }
+        if (blocksToFree >= 0 && header->sizeInBlocks != blocksToFree) {
+            ::printf("      sizes don't match - allocation contains %d blocks, request to free %d blocks\n", header->sizeInBlocks, blocksToFree);
+        }
+    } else {
+        ::printf("***** Free Memory Header error at addr %p\n", header);
+        if (header->magic != Header::FREEMAGIC) {
+            ::printf("      expected FREEMAGIC, got 0x%08x\n", header->magic);
+        }
+        if (header->type() != Header::Type::Free) {
+            ::printf("      expected Header::Type::Free, got 0x%04hx\n", static_cast<uint16_t>(header->type()));
+            return;
+        }
+    }
+    abort();
+}
+
 #ifdef __APPLE__
 void Mallocator::showAllocationRecord() const
 {

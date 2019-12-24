@@ -237,10 +237,8 @@ private:
 #else
     { }
 #endif
-#define MEMORY_HEADER_ASSERT(expr) assert(expr)
 #else
     void showAllocationRecord() const { }
-#define MEMORY_HEADER_ASSERT(expr)
 #endif
     
     struct Header
@@ -262,6 +260,31 @@ private:
         BlockId nextBlock;
         uint16_t sizeInBlocks;
     };
+
+#ifdef MEMORY_HEADER
+    void showMemoryHeaderError(Header*, Header::Type type, int32_t blocksToFree) const;
+
+    void checkMemoryHeader(Header* header, Header::Type type, int32_t blocksToFree = -1) const
+    {
+        if (type == Header::Type::Allocated) {
+            if (header->magic != Header::ALLOCMAGIC || header->type() != Header::Type::Allocated) {
+                showMemoryHeaderError(header, type, blocksToFree);
+                return;
+            }
+            if (blocksToFree >= 0 && header->sizeInBlocks != blocksToFree) {
+                showMemoryHeaderError(header, type, blocksToFree);
+                return;
+            }
+        } else {
+            if (header->magic != Header::FREEMAGIC || header->type() != Header::Type::Free) {
+                showMemoryHeaderError(header, type, blocksToFree);
+                return;
+            }
+        }
+    }
+#else
+    void checkMemoryHeader(Header* header, Header::Type type, int32_t blocksToFree = -1) const { }
+#endif
 
     Header* asHeader(BlockId b) { return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
     const Header* asHeader(BlockId b) const { return reinterpret_cast<const Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
