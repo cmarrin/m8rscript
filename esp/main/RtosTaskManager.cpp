@@ -43,3 +43,10 @@ void RtosTaskManager::executionTask(void* param)
         xTaskNotifyWait(0, 0, nullptr, durationToNextEvent.ms() / portTICK_PERIOD_MS);
     }
 }
+
+void RtosTaskManager::runLoop()
+{
+    while (1) {
+        vTaskDelay(50 / portTICK_RATE_MS);
+    }
+}

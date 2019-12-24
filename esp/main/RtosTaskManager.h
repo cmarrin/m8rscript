@@ -21,8 +21,7 @@ public:
     virtual ~RtosTaskManager();
     
 private:
-    // The ESP handlles it's own runloop, we can just return here
-    virtual void runLoop() { }
+    virtual void runLoop();
 
     virtual void readyToExecuteNextTask() override;
     
