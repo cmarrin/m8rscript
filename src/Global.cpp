@@ -15,37 +15,54 @@
 
 using namespace m8r;
 
+Base64 Global::_base64;
+GPIO Global::_gpio;
+JSON Global::_json;
+TCPProto Global::_tcp;
+UDPProto Global::_udp;
+IPAddrProto Global::_ipAddr;
+Iterator Global::_iterator;
+TaskProto Global::_task;
+FSProto Global::_fs;
+FileProto Global::_file;
+DirectoryProto Global::_directory;
+
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+{
+    { SA::currentTime, Global::currentTime },
+    { SA::delay, Global::delay },
+    { SA::print, Global::print },
+    { SA::printf, Global::printf },
+    { SA::println, Global::println },
+    { SA::toFloat, Global::toFloat },
+    { SA::toInt, Global::toInt },
+    { SA::toUInt, Global::toUInt },
+    { SA::arguments, Global::arguments },
+    { SA::import, Global::import },
+    { SA::importString, Global::importString },
+    { SA::waitForEvent, Global::waitForEvent },
+    { SA::meminfo, Global::meminfo },
+};
+
+static StaticObject::StaticObjectProperty RODATA2_ATTR _objectProps[] =
+{
+    { SA::Base64, &Global::_base64 },
+    { SA::GPIO, &Global::_gpio },
+    { SA::JSON, &Global::_json },
+    { SA::TCP, &Global::_tcp },
+    { SA::UDP, &Global::_udp },
+    { SA::IPAddr, &Global::_ipAddr },
+    { SA::Iterator, &Global::_iterator },
+    { SA::Task, &Global::_task },
+    { SA::FS, &Global::_fs },
+    { SA::File, &Global::_file },
+    { SA::Directory, &Global::_directory },
+};
+
 Global::Global()
 {
-    static StaticObject::StaticProperty RODATA2_ATTR _props[] =
-    {
-        { SA::Base64, Value(&_base64) },
-        { SA::GPIO, Value(&_gpio) },
-        { SA::JSON, Value(&_json) },
-        { SA::TCP, Value(&_tcp) },
-        { SA::UDP, Value(&_udp) },
-        { SA::IPAddr, Value(&_ipAddr) },
-        { SA::Iterator, Value(&_iterator) },
-        { SA::Task, Value(&_task) },
-        { SA::FS, Value(&_fs) },
-        { SA::File, Value(&_file) },
-        { SA::Directory, Value(&_directory) },
-        
-        { SA::currentTime, Value(currentTime) },
-        { SA::delay, Value(delay) },
-        { SA::print, Value(print) },
-        { SA::printf, Value(printf) },
-        { SA::println, Value(println) },
-        { SA::toFloat, Value(toFloat) },
-        { SA::toInt, Value(toInt) },
-        { SA::toUInt, Value(toUInt) },
-        { SA::arguments, Value(arguments) },
-        { SA::import, Value(import) },
-        { SA::importString, Value(importString) },
-        { SA::waitForEvent, Value(waitForEvent) },
-        { SA::meminfo, Value(meminfo) },
-    };
-    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
+    setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
+    setProperties(_objectProps, sizeof(_objectProps) / sizeof(StaticObjectProperty));
 }
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

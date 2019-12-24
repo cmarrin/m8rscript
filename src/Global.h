@@ -27,17 +27,17 @@ class Global : public StaticObject {
 public:
     Global();
 
-    Base64 _base64;
-    GPIO _gpio;
-    JSON _json;
-    TCPProto _tcp;
-    UDPProto _udp;
-    IPAddrProto _ipAddr;
-    Iterator _iterator;
-    TaskProto _task;
-    FSProto _fs;
-    FileProto _file;
-    DirectoryProto _directory;
+    static Base64 _base64;
+    static GPIO _gpio;
+    static JSON _json;
+    static TCPProto _tcp;
+    static UDPProto _udp;
+    static IPAddrProto _ipAddr;
+    static Iterator _iterator;
+    static TaskProto _task;
+    static FSProto _fs;
+    static FileProto _file;
+    static DirectoryProto _directory;
 
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);

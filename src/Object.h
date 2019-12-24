@@ -219,27 +219,36 @@ public:
     };
 
     static_assert(std::is_pod<StaticFunctionProperty>::value, "StaticFunctionProperty must be pod");
+
+    struct StaticObjectProperty
+    {
+        SA name;
+        StaticObject* obj;
+    };
+
+    static_assert(std::is_pod<StaticObjectProperty>::value, "StaticObjectProperty must be pod");
     
     StaticObject() { }
     
     const Value property(const Atom& name) const
     {
-        auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
-        if (it != _functionProperties + _functionPropertiesCount) {
-            return Value(it->func);
-        }
-        auto it2 = std::find(_properties, _properties + _propertiesCount, name);
-        return (it2 == _properties + _propertiesCount) ? Value() : it2->value;
+        return const_cast<StaticObject*>(this)->property(name);
     }
 
     Value property(const Atom& name)
     {
-        auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
+        auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, 
+                               [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
         if (it != _functionProperties + _functionPropertiesCount) {
             return Value(it->func);
         }
-        auto it2 = std::find(_properties, _properties + _propertiesCount, name);
-        return (it2 == _properties + _propertiesCount) ? Value() : it2->value;
+        auto it2 = std::find_if(_objectProperties, _objectProperties + _objectPropertiesCount,
+                                [name](const StaticObjectProperty& p) { return name == Atom(p.name); });
+        if (it2 != _objectProperties + _objectPropertiesCount) {
+            return Value(it2->obj);
+        }
+        auto it3 = std::find(_properties, _properties + _propertiesCount, name);
+        return (it3 == _properties + _propertiesCount) ? Value() : it3->value;
     }
     
     void setProperties(StaticProperty* props, size_t count)
@@ -254,10 +263,18 @@ public:
         _functionPropertiesCount = count;
     }
 
+    void setProperties(StaticObjectProperty* props, size_t count)
+    {
+        _objectProperties = props;
+        _objectPropertiesCount = count;
+    }
+
 protected:
     const StaticFunctionProperty* _functionProperties = nullptr;
+    const StaticObjectProperty* _objectProperties = nullptr;
     const StaticProperty* _properties = nullptr;
     uint16_t _functionPropertiesCount = 0;
+    uint16_t _objectPropertiesCount = 0;
     uint16_t _propertiesCount = 0;
 };
 

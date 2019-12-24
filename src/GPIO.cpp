@@ -27,16 +27,16 @@ static StaticObject::StaticFunctionProperty RODATA2_ATTR _funcPropsGPIO[] =
     { SA::onInterrupt, GPIO::onInterrupt },
 };
 
-static StaticObject::StaticProperty  _propsGPIO[] =
+static StaticObject::StaticObjectProperty  _objPropsGPIO[] =
 {
-    { SA::PinMode, Value(&GPIO::_pinMode) },
-    { SA::Trigger, Value(&GPIO::_trigger) },
+    { SA::PinMode, &GPIO::_pinMode },
+    { SA::Trigger, &GPIO::_trigger },
 };
 
 GPIO::GPIO()
 {
     setProperties(_funcPropsGPIO, sizeof(_funcPropsGPIO) / sizeof(StaticFunctionProperty));
-    setProperties(_propsGPIO, sizeof(_propsGPIO) / sizeof(StaticProperty));
+    setProperties(_objPropsGPIO, sizeof(_objPropsGPIO) / sizeof(StaticObjectProperty));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
