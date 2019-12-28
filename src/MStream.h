@@ -81,25 +81,39 @@ private:
 //
 //  Class: StringStream
 //
-//
+//  This class can take either a String or const char*. If it's a String
+//  you can write (append) or read. Otherwise you can just read.
 //
 //////////////////////////////////////////////////////////////////////////////
 
 class StringStream : public m8r::Stream {
 public:
-    StringStream() { }
-	StringStream(const String& s) : _string(s) { }
-	StringStream(const char* s) : _string(s) { }
+    StringStream() : _s(nullptr), _isString(false) { }
+	StringStream(const String& s) : _string(s), _isString(true) { }
+	StringStream(const char* s) : _s(s), _isString(false) { }
     
     virtual ~StringStream() { }
 	
     bool loaded() { return true; }
+    
     virtual int read() const override
     {
-        return (_index < _string.size()) ? _string[_index++] : -1;
+        if (_isString) {
+            return (_index < _string.size()) ? _string[_index++] : -1;
+        } else {
+            if (!_s) {
+                return -1;
+            }
+            return (_s[_index] == '\0') ? -1 : _s[_index++];
+        }
     }
+    
     virtual int write(uint8_t c) override
     {
+        if (!_isString) {
+            return -1;
+        }
+        
         // Only allow writing to the end of the string
         if (_index != _string.size()) {
             return -1;
@@ -110,7 +124,11 @@ public:
     }
 	
 private:
-    String _string;
+    union {
+        String _string;
+        const char* _s;
+    };
+    bool _isString = false;
     mutable uint32_t _index = 0;
 };
 
