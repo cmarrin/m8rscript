@@ -70,7 +70,7 @@ public:
         }
         
         index -= ExternalAtomOffset;
-        return String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
+        return String(&(_table[index]));
     }
     
     static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa)); }
@@ -80,7 +80,7 @@ private:
 
     static constexpr uint8_t MaxAtomSize = 127;
 
-    mutable Vector<int8_t> _table;
+    mutable Vector<char> _table;
 };
 
 }

@@ -33,6 +33,39 @@ static int32_t binarySearch(const char** names, uint16_t nelts, const char* valu
     return -1;
 }
 
+// Check that p and s are the same up to and including the '\0' at the end of s
+static bool atomcomp(const char* p, const char* s)
+{
+    while (1) {
+        if (*p++ != *s++) {
+            return false;
+        }
+        if (*s == '\0') {
+            return *p == '\0';
+        }
+    }
+}
+
+static const char* atomfind(const char* buf, size_t size, const char* atom)
+{
+    const char* end = buf + size;
+    const char* p = buf;
+    while (p < end) {
+        if (*p == *atom) {
+            if (atomcomp(p, atom)) {
+                // We know the substrings match fully. and we know that
+                // the char at the end of p is a '\0'. But we need to also
+                // make sure the char before p is '\0'
+                if (p == buf || p[-1] == '\0') {
+                    return p;
+                }
+            }
+        }
+        ++p;
+    }
+    return nullptr;
+}
+
 AtomTable::AtomTable()
 {
 }
@@ -51,21 +84,17 @@ Atom AtomTable::atomizeString(ROMString romstr) const
     return atom;
 }
 
-    Atom AtomTable::atomizeString(const char* str) const
+Atom AtomTable::atomizeString(const char* str) const
 {
     Atom atom = findAtom(str);
     if (atom) {
         return atom;
     }
     
-     if (_table.size() == 0) {
-        _table.push_back('\0');
-    }
-    
     uint16_t len = strlen(str);
     
-    Atom a(static_cast<Atom::value_type>(_table.size() - 1 + ExternalAtomOffset));
-    _table[_table.size() - 1] = -static_cast<int8_t>(len);
+    Atom a(static_cast<Atom::value_type>(_table.size() + ExternalAtomOffset));
+    _table.reserve(_table.size() + len + 1);
     for (uint16_t i = 0; i < len; ++i) {
         _table.push_back(str[i]);
     }
@@ -83,25 +112,10 @@ Atom AtomTable::findAtom(const char* s) const
         return Atom(static_cast<Atom::value_type>(result));
     }
     
-    size_t len = strlen(s);
-
-    if (_table.size() == 0) {
-        return Atom();
-    }
-
-    if (_table.size() > 1) {
-        const char* start = reinterpret_cast<const char*>(&(_table[0]));
-        const char* p = start;
-        while(p && *p != '\0') {
-            p++;
-            p = strstr(p, s);
-            assert(p != start); // Since the first string is preceded by a length, this should never happen
-            if (p && static_cast<int8_t>(p[-1]) < 0) {
-                // The next char either needs to be negative (meaning the start of the next word) or the end of the string
-                if (static_cast<int8_t>(p[len]) <= 0) {
-                    return Atom(static_cast<Atom::value_type>(p - start - 1 + ExternalAtomOffset));
-                }
-            }
+    if (_table.size()) {
+        const char* p = atomfind(&(_table[0]), _table.size(), s);
+        if (p) {
+            return Atom(static_cast<Atom::value_type>(p - &(_table[0]) + ExternalAtomOffset));
         }
     }
     
