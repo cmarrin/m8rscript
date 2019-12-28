@@ -243,10 +243,11 @@ private:
     
     struct Header
     {
+        enum class Type : uint16_t { Free, Allocated };
+
 #ifdef MEMORY_HEADER
         static constexpr uint16_t FREEMAGIC = 0xDEAD;
         static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
-        enum class Type : uint16_t { Free, Allocated };
         
         uint16_t magic;
         uint16_t _type : 1; // Type: Free or Allocated
