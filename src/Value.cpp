@@ -16,8 +16,12 @@ using namespace m8r;
 
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {
+    const char* s = toStringPointer(eu);
+    if (s && s[0] != '\0') {
+        return String(s);
+    }
+    
     switch(type()) {
-        case Type::None: return String("undefined");
         case Type::Function:
         case Type::Object: {
             Mad<Object> obj = asObject();
@@ -25,17 +29,29 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
         }
         case Type::Float: return String::toString(asFloatValue());
         case Type::Integer: return String::toString(asIntValue());
+        default: return String();
+    }
+}
+
+const char* Value::toStringPointer(ExecutionUnit* eu) const
+{
+    switch(type()) {
+        case Type::None: return "undefined";
+        default:
+        case Type::Function:
+        case Type::Object:
+        case Type::Float:
+        case Type::Integer: return "";
         case Type::String: {
             Mad<String> s = asString();
-            return s.valid() ? *s : String("*BAD*");
+            return s.valid() ? s->c_str() : "*BAD*";
         }
         case Type::StringLiteral: return eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-        case Type::Id: return String(eu->program()->stringFromAtom(atomFromValue()));
-        case Type::Null: return String("null");
-        case Type::NativeObject: return String("Native()"); // FIXME: Add formatted toString and show the address
-        case Type::NativeFunction: return String("Callable()"); // FIXME: Add formatted toString and show the address
-        case Type::StaticObject: return String("StaticObject()"); // FIXME: Add formatted toString and show the address
-        default: return String();
+        case Type::Id: return eu->program()->stringFromAtom(atomFromValue());
+        case Type::Null: return "null";
+        case Type::NativeObject: return "Native()"; // FIXME: Add formatted toString and show the address
+        case Type::NativeFunction: return "Callable()"; // FIXME: Add formatted toString and show the address
+        case Type::StaticObject: return "StaticObject()"; // FIXME: Add formatted toString and show the address
     }
 }
 

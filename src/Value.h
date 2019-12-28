@@ -198,6 +198,7 @@ public:
     static Value asValue(Mad<NativeObject> obj) { return Value(static_cast<Mad<NativeObject>>(obj)); }
     
     m8r::String toStringValue(ExecutionUnit*) const;
+    const char* toStringPointer(ExecutionUnit*) const;
     bool toBoolValue(ExecutionUnit* eu) const
     {
         switch (type()) {

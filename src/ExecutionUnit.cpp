@@ -402,7 +402,7 @@ int ExecutionUnit::compareValues(const Value& a, const Value& b)
     }
     
     if (a.isString() && b.isString()) {
-        return String::compare(a.toStringValue(this), b.toStringValue(this));
+        return strcmp(a.toStringPointer(this), b.toStringPointer(this));
     }
     
     if ((a.isNumber() || a.isString()) && (b.isNumber() || b.isString())) {
@@ -637,7 +637,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             if (prop == Atom(SA::iterator)) {
                 leftValue = program()->global()->property(Atom(SA::Iterator));
             } else {
-                printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringValue(this).c_str());
+                printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringPointer(this));
                 DISPATCH;
             }
         }
@@ -645,7 +645,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_STOPROP:
         if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst(byteFromCode(_currentAddr))).toIdValue(this), regOrConst(byteFromCode(_currentAddr)), Value::SetPropertyType::NeverAdd)) {
-            printError(ROMSTR("Property '%s' does not exist"), leftValue.toStringValue(this).c_str());
+            printError(ROMSTR("Property '%s' does not exist"), leftValue.toStringPointer(this));
         }
         DISPATCH;
     L_LOADELT:
@@ -685,7 +685,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
     L_APPENDPROP:
         if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst(byteFromCode(_currentAddr))).toIdValue(this), regOrConst(byteFromCode(_currentAddr)), Value::SetPropertyType::AlwaysAdd)) {
-            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), leftValue.toStringValue(this).c_str());
+            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), leftValue.toStringPointer(this));
         }
         DISPATCH;
     L_APPENDELT:
