@@ -199,7 +199,10 @@ CallReturnValue Global::import(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
-    return eu->import(FileStream(system()->fileSystem(), s.c_str()), thisValue);
+    Mad<File> file = system()->fileSystem()->open(s.c_str(), FS::FileOpenMode::Read);
+    CallReturnValue ret = eu->import(FileStream(file), thisValue);
+    file.destroy(MemoryType::Native);
+    return ret;
 }
 
 CallReturnValue Global::importString(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

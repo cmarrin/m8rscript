@@ -15,34 +15,6 @@
 
 namespace m8r {
 
-struct ErrorEntry {
-    ErrorEntry() { }
-    ErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
-        : _description(description)
-        , _lineno(lineno)
-        , _charno(charno)
-        , _length(length)
-    {
-    }
-    
-    ErrorEntry(const ErrorEntry& other)
-        : _description(other._description)
-        , _lineno(other._lineno)
-        , _charno(other._charno)
-        , _length(other._length)
-    {
-    }
-    
-    ~ErrorEntry() { }
-    
-    String _description;
-    uint32_t _lineno = 0;
-    uint16_t _charno = 0;
-    uint16_t _length = 0;
-};
-
-using ErrorList = Vector<ErrorEntry>;
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: Parser
@@ -74,9 +46,9 @@ public:
     void expectedError(Token token, const char* = nullptr);
     void unknownError(Token token);
     
-    ErrorList& syntaxErrors() { return _syntaxErrors; }
+    ParseErrorList& syntaxErrors() { return _syntaxErrors; }
 
-    uint32_t nerrors() const { return _nerrors; }
+    uint32_t nerrors() const { return static_cast<uint32_t>(_syntaxErrors.size()); }
     Mad<Program> program() const { return _program; }
     
     m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
@@ -320,7 +292,6 @@ private:
     Scanner _scanner;
     Mad<Program> _program;
     ExecutionUnit* _eu = nullptr;
-    uint32_t _nerrors = 0;
     Vector<size_t> _deferredCodeBlocks;
     Vector<uint8_t> _deferredCode;
     bool _deferred = false;
@@ -329,7 +300,7 @@ private:
 
     static uint32_t _nextLabelId;
 
-    ErrorList _syntaxErrors;
+    ParseErrorList _syntaxErrors;
 };
 
 }

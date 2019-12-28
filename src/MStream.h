@@ -40,12 +40,11 @@ private:
 
 class FileStream : public m8r::Stream {
 public:
-	FileStream(FS* fs, const char* file, FS::FileOpenMode mode = FS::FileOpenMode::Read)
-    {
-        _file = fs->open(file, mode);
-    }
+	FileStream(Mad<File> file)
+        : _file(file)
+    { }
     
-    ~FileStream() { _file.destroy(MemoryType::Native); }
+    ~FileStream() { }
 
     bool loaded()
     {

@@ -12,10 +12,7 @@
 #include "Application.h"
 #include "GC.h"
 #include "MStream.h"
-
-#ifndef NO_PARSER_SUPPORT
 #include "Parser.h"
-#endif
 
 #ifndef NDEBUG
 #ifdef __APPLE__
@@ -50,43 +47,41 @@ Task::~Task()
     _eu.destroy();
 }
 
-void Task::setFilename(const char* filename)
+void Task::init(const char* filename, ParseErrorList* errorList)
 {
-    // FIXME: What do we do with these?
-    ErrorList syntaxErrors;
-    
-    if (filename) {
-        FileStream m8rStream(system()->fileSystem(), filename);
-        if (!m8rStream.loaded()) {
-            _error = Error::Code::FileNotFound;
-            return;
-        }
-        
+    Mad<File> file = system()->fileSystem()->open(filename, FS::FileOpenMode::Read);
+    init(FileStream(file), errorList);
+    file.destroy(MemoryType::Native);
+}
+
+void Task::init(const Stream& stream, ParseErrorList* errorList)
+{
 #ifdef NO_PARSER_SUPPORT
-        return;
+    return;
 #else
-        // See if we can parse it
-        Parser parser;
-        parser.parse(m8rStream, _eu.get(), Parser::debug);
-        if (parser.nerrors()) {
-            _eu->printf(ROMSTR("***** %d error%s parsing %s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s", filename);
-            syntaxErrors.swap(parser.syntaxErrors());
-            _error = Error::Code::ParseError;
-            return;
-        } else {
-#ifdef PRINT_CODE
-            CodePrinter codePrinter;
-            m8r::String codeString = codePrinter.generateCodeString(parser.program());
-            
-            system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-            system()->printf(ROMSTR("%s"), codeString.c_str());
-            system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
-#endif
+    // See if we can parse it
+    Parser parser;
+    parser.parse(stream, _eu.get(), Parser::debug);
+    if (parser.nerrors()) {
+        _eu->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        if (errorList) {
+            errorList->swap(parser.syntaxErrors());
         }
+        _error = Error::Code::ParseError;
+        return;
+    } else {
+#ifdef PRINT_CODE
+        CodePrinter codePrinter;
+        m8r::String codeString = codePrinter.generateCodeString(parser.program());
         
-        _eu->startExecution(parser.program());
+        system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+        system()->printf(ROMSTR("%s"), codeString.c_str());
+        system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
 #endif
     }
+        
+    _eu->startExecution(parser.program());
+#endif
 }
 
 void Task::receivedData(const String& data, KeyAction action)
@@ -176,7 +171,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     Mad<Task> task = Mad<Task>::create();
     task->setConsolePrintFunction(eu->consolePrintFunction());
-    task->setFilename(path.c_str());
+    task->init(path.c_str());
     
     if (task->error() != Error::Code::OK) {
         Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;

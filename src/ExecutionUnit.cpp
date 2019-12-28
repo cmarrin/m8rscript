@@ -417,7 +417,7 @@ int ExecutionUnit::compareValues(const Value& a, const Value& b)
 CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
 {
     Parser parser(_program);
-    ErrorList syntaxErrors;
+    ParseErrorList syntaxErrors;
     
     // Contents of import are placed inside the parent Function and then they will
     // be extracted into an Object

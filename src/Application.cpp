@@ -51,7 +51,7 @@ public:
                     }
                 });
                 
-                _shells[connectionId].task->setFilename(Application::shellName());
+                _shells[connectionId].task->init(Application::shellName());
                 if (_shells[connectionId].task->error().code() != Error::Code::OK) {
                     Error::printError(_shells[connectionId].task->eu(), _shells[connectionId].task->error().code());
                     _shells[connectionId].task = Mad<Task>();
@@ -191,7 +191,7 @@ void Application::runLoop()
     String filename = autostartFilename();
     if (filename) {
         _autostartTask = Mad<Task>::create();
-        _autostartTask->setFilename(filename.c_str());
+        _autostartTask->init(filename.c_str());
         _autostartTask->run();
     }
     

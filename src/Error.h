@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Containers.h"
+#include "MString.h"
 
 namespace m8r {
 
@@ -81,5 +82,33 @@ public:
 private:
     Code _code = Code::OK;
 };
+
+struct ParseErrorEntry {
+    ParseErrorEntry() { }
+    ParseErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
+        : _description(description)
+        , _lineno(lineno)
+        , _charno(charno)
+        , _length(length)
+    {
+    }
+    
+    ParseErrorEntry(const ParseErrorEntry& other)
+        : _description(other._description)
+        , _lineno(other._lineno)
+        , _charno(other._charno)
+        , _length(other._length)
+    {
+    }
+    
+    ~ParseErrorEntry() { }
+    
+    String _description;
+    uint32_t _lineno = 0;
+    uint16_t _charno = 0;
+    uint16_t _length = 0;
+};
+
+using ParseErrorList = Vector<ParseErrorEntry>;
 
 }

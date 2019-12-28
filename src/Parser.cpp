@@ -61,8 +61,6 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
 
 void Parser::printError(ROMString format, ...)
 {
-    ++_nerrors;
-
     va_list args;
     va_start(args, format);
     _eu->printf(ROMSTR("***** "));
@@ -105,7 +103,7 @@ void Parser::expectedError(Token token, const char* s)
 Label Parser::label()
 {
     Label label;
-    if (!_nerrors) {
+    if (!nerrors()) {
         label.label = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
         label.uniqueID = _nextLabelId++;
     }
@@ -114,7 +112,7 @@ Label Parser::label()
 
 void Parser::addMatchedJump(Op op, Label& label)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
 
@@ -134,7 +132,7 @@ void Parser::addMatchedJump(Op op, Label& label)
 
 void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     if (jumpAddr < -MaxJump || jumpAddr > MaxJump) {
         printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
@@ -151,7 +149,7 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
 
 void Parser::jumpToLabel(Op op, Label& label)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
@@ -253,7 +251,7 @@ ConstantId Parser::addConstant(const Value& v)
 
 void Parser::pushK(StringLiteral::Raw s)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     ConstantId id = addConstant(Value(StringLiteral(s)));
     _parseStack.pushConstant(id.raw());
@@ -261,7 +259,7 @@ void Parser::pushK(StringLiteral::Raw s)
 
 void Parser::pushK(const char* s)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     ConstantId id = addConstant(Value(_program->addStringLiteral(s)));
     _parseStack.pushConstant(id.raw());
@@ -269,7 +267,7 @@ void Parser::pushK(const char* s)
 
 void Parser::pushK(const Value& value)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     ConstantId id = addConstant(value);
     _parseStack.pushConstant(id.raw());
@@ -277,7 +275,7 @@ void Parser::pushK(const Value& value)
 
 void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // Add code to make this look like 'var name = function(...) ...'
 //    addVar(name);
@@ -292,26 +290,26 @@ void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
 
 void Parser::pushThis()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     _parseStack.push(ParseStack::Type::This, 0);
 }
 
 void Parser::pushTmp()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     _parseStack.pushRegister();
 }
 
 void Parser::emitId(const char* s, IdType type)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     emitId(_program->atomizeString(s), type);
 }
 
 void Parser::emitId(const Atom& atom, IdType type)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     if (type == IdType::MightBeLocal || type == IdType::MustBeLocal) {
         // See if it's a local function
@@ -365,7 +363,7 @@ void Parser::emitId(const Atom& atom, IdType type)
 
 void Parser::emitMove()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // RefK needs to do a STOREFK TOS-1, TOS and then leave TOS-1 (the source) on the stack
     // All others need to do a save and leave TOS (the dest) on the stack
@@ -425,7 +423,7 @@ void Parser::emitMove()
 
 uint32_t Parser::emitDeref(DerefType type)
 {
-    if (_nerrors) return 0;
+    if (nerrors()) return 0;
     
     bool isValue = _parseStack.topIsValue();
     uint32_t derefReg = _parseStack.bake();
@@ -440,7 +438,7 @@ uint32_t Parser::emitDeref(DerefType type)
 
 void Parser::emitDup()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     switch(_parseStack.topType()) {
         case ParseStack::Type::PropRef:
@@ -464,7 +462,7 @@ void Parser::emitDup()
 
 void Parser::emitAppendElt()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // tos-1 object to append to
     // tos value to store
@@ -480,7 +478,7 @@ void Parser::emitAppendElt()
 
 void Parser::emitAppendProp()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // tos-2 object to append to
     // tos-1 property on that object
@@ -499,7 +497,7 @@ void Parser::emitAppendProp()
 
 void Parser::emitBinOp(Op op)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     if (op == Op::MOVE) {
         emitMove();
@@ -518,7 +516,7 @@ void Parser::emitBinOp(Op op)
 
 void Parser::emitCaseTest()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // This is like emitBinOp(Op::EQ), but does not pop the left operand
     uint32_t rightReg = _parseStack.bake();
@@ -533,7 +531,7 @@ void Parser::emitCaseTest()
 
 void Parser::emitUnOp(Op op)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     if (op == Op::PREDEC || op == Op::PREINC || op == Op::POSTDEC || op == Op::POSTINC) {
         uint32_t dst = _parseStack.pushRegister();
@@ -554,7 +552,7 @@ void Parser::emitUnOp(Op op)
 
 void Parser::emitLoadLit(bool array)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     uint32_t dst = _parseStack.pushRegister();
     emitCodeR(array ? Op::LOADLITA : Op::LOADLITO, dst);
@@ -562,7 +560,7 @@ void Parser::emitLoadLit(bool array)
 
 void Parser::emitPush()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     uint32_t src = _parseStack.bake(true);
     _parseStack.pop();
@@ -572,7 +570,7 @@ void Parser::emitPush()
 
 void Parser::emitPop()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     uint32_t dst = _parseStack.pushRegister();
     emitCodeR(Op::POP, dst);
@@ -580,10 +578,10 @@ void Parser::emitPop()
 
 void Parser::emitEnd()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     // If we have no errors we expect an empty stack, otherwise, there might be cruft left over
-    if (_nerrors) {
+    if (nerrors()) {
         _parseStack.clear();
     }
     emitCode(Op::END);
@@ -591,7 +589,7 @@ void Parser::emitEnd()
 
 void Parser::emitCallRet(Op op, int32_t thisReg, uint32_t nparams)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     assert(nparams < MaxParams);
     assert(op == Op::CALL || op == Op::NEW || op == Op::RET);
@@ -639,7 +637,7 @@ void Parser::emitCallRet(Op op, int32_t thisReg, uint32_t nparams)
 
 int32_t Parser::emitDeferred()
 {
-    if (_nerrors) return 0;
+    if (nerrors()) return 0;
     
     assert(!_deferred);
     assert(_deferredCodeBlocks.size() > 0);
@@ -677,7 +675,7 @@ void Parser::discardResult()
 
 void Parser::functionAddParam(const Atom& atom)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     if (_functions.back().addLocal(atom) < 0) {
         m8r::String s = "param '";
@@ -689,7 +687,7 @@ void Parser::functionAddParam(const Atom& atom)
 
 void Parser::functionStart(bool ctor)
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     Mad<Function> func = Object::create<Function>();
     _functions.emplace_back(func, ctor);
@@ -700,14 +698,14 @@ void Parser::functionStart(bool ctor)
 
 void Parser::functionParamsEnd()
 {
-    if (_nerrors) return;
+    if (nerrors()) return;
     
     _functions.back().markParamEnd();
 }
 
 Mad<Function> Parser::functionEnd()
 {
-    if (_nerrors) {
+    if (nerrors()) {
         return Mad<Function>();
     }
     

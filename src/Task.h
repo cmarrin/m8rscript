@@ -61,7 +61,8 @@ public:
     
     virtual ~Task();
     
-    void setFilename(const char*);
+    void init(const Stream&, ParseErrorList* = nullptr);
+    void init(const char* filename, ParseErrorList* = nullptr);
     
     void receivedData(const String& data, KeyAction action);
 
@@ -73,7 +74,7 @@ public:
 private:
     virtual CallReturnValue execute() override;
 
-    Mad<ExecutionUnit> _eu;
+    Mad<ExecutionUnit> _eu;    
 };
 
 class TaskProto : public StaticObject {
