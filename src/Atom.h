@@ -56,21 +56,21 @@ public:
     Atom atomizeString(const char*) const;
     Atom atomizeString(ROMString) const;
 
-    String stringFromAtom(const Atom atom) const
+    const char* stringFromAtom(const Atom atom) const
     {
         if (!atom) {
-            return String();
+            return "";
         }
         uint16_t index = atom.raw();
         if (index < ExternalAtomOffset) {
             uint16_t nelts;
             const char** p = sharedAtoms(nelts);
             assert(index < nelts);
-            return String(p[index]);
+            return p[index];
         }
         
         index -= ExternalAtomOffset;
-        return String(&(_table[index]));
+        return &(_table[index]);
     }
     
     static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa)); }

@@ -123,7 +123,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
         Value oldValue = _this->property(atom);
         if (oldValue) {
             if (!_this->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
-                printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
+                printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
             }
             return;
         }
@@ -133,12 +133,12 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     Value oldValue = _program->property(atom);
     if (oldValue) {
         if (!_program->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
-            printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom).c_str());
+            printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
         }
         return;
     }
 
-    printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom).c_str());
+    printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom));
     return;
 }
 
@@ -168,7 +168,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return value;
     }
     
-    printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom).c_str());
+    printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom));
     return Value();
 }
 
@@ -883,7 +883,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 name = regOrConst(rb).asIdValue();
                 callReturnValue = leftValue.callProperty(this, name, uintValue);
                 if (callReturnValue.isError()) {
-                    printError(ROMSTR("'%s'"), _program->stringFromAtom(name).c_str());
+                    printError(ROMSTR("'%s'"), _program->stringFromAtom(name));
                 }
                 break;
         }

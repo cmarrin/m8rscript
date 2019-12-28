@@ -276,7 +276,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
             uint16_t frame;
             Atom name;
             function->upValue(i, index, frame, name);
-            outputString += String("UP('") + program->stringFromAtom(name).c_str() + "':index=" + String::toString(index) + ", frame=" + String::toString(frame) + ")\n";
+            outputString += String("UP('") + program->stringFromAtom(name) + "':index=" + String::toString(index) + ", frame=" + String::toString(frame) + ")\n";
         }
         _nestingLevel--;
         outputString += "\n";
@@ -453,7 +453,11 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
             s += "STR(\"" + lit + "\")";
             break;
         }
-        case Value::Type::Id: s += "Atom(\"" + program->stringFromAtom(value.asIdValue()) + "\")"; break;
+        case Value::Type::Id: 
+            s += "Atom(\""; 
+            s += program->stringFromAtom(value.asIdValue()); 
+            s += "\")"; 
+            break;
         case Value::Type::Function: {
             if (abbreviated) {
                 s += "FUNCTION";
@@ -490,7 +494,8 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
                     if (name) {
                         Value v = obj->property(name);
                         indentCode(s);
-                        s += program->stringFromAtom(name) + " : ";
+                        s += program->stringFromAtom(name);
+                        s += " : ";
                         showConstant(program, s, v);
                         s += "\n";
                     }
