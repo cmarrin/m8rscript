@@ -15,6 +15,7 @@
 #include "Application.h"
 #include "Defines.h"
 #include "Mallocator.h"
+#include "MStream.h"
 #include "SystemInterface.h"
 
 #include <unistd.h>
@@ -50,11 +51,13 @@ extern "C" void app_main()
     printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
     const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
     m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
-    
+
+    m8r::StringStream stream("print(\"Hello World\n\");");
+    m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
+    task->init(stream);
+    task->run();    
+
     m8r::Application application(23);
-    printf("after application ctor\n");
     m8r::Application::mountFileSystem();
-    printf("after application mountFileSystem\n");
     application.runLoop();
-    printf("after application runLoop\n");
 }
