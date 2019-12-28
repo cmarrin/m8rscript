@@ -55,7 +55,9 @@ extern "C" void app_main()
     m8r::StringStream stream("print(\"Hello World\n\");");
     m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
     task->init(stream);
-    task->run();    
+    task->run([](m8r::TaskBase*) { 
+        m8r::system()->printf(ROMSTR("******* Hello World task completed\n"));
+    });    
 
     m8r::Application application(23);
     m8r::Application::mountFileSystem();
