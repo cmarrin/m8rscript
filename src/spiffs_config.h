@@ -10,46 +10,10 @@
 
 #include <stddef.h>
 
-#ifdef __ets__
-
-#define STORE_TYPEDEF_ATTR  __attribute__((aligned(4),packed))
-#define SYSTEM_ERROR(fmt, ...) os_printf("ERROR: " fmt "\r\n", ##__VA_ARGS__)
-
-// Instead of giving parameters in config struct, singleton build must
-// give parameters in defines below.
-#include <assert.h>
-#include <string.h>
-#include <c_types.h>
-#include <ets_sys.h>
-#include <osapi.h>
-#include "user_config.h"
-#include "flashmem.h"
-
-typedef signed long s32_t;
-typedef unsigned long u32_t;
-typedef signed short s16_t;
-typedef unsigned short u16_t;
-typedef signed char s8_t;
-typedef unsigned char u8_t;
-
-extern u32_t _SPIFFS_start;
-extern u32_t _SPIFFS_end;
-extern u32_t _SPIFFS_page;
-extern u32_t _SPIFFS_block;
-
-#define SPIFFS_PHYS_ADDR ((uint32_t) (&_SPIFFS_start) - 0x40200000)
-#define SPIFFS_PHYS_SIZE ((uint32_t) (&_SPIFFS_end) - (uint32_t) (&_SPIFFS_start))
-
-// SpiffsFS needs this to be constant. Since the loader file specifies this as 0x100 we're safe for now
-#define SPIFFS_PHYS_PAGE 0x100 // ((uint32_t) &_SPIFFS_page)
-#define SPIFFS_PHYS_BLOCK ((uint32_t) &_SPIFFS_block)
-
-#else
-
 #define SPIFFS_PHYS_ADDR 0
 #define SPIFFS_PHYS_SIZE (3 * 1024 * 1024)
-#define SPIFFS_PHYS_PAGE 0x100
-#define SPIFFS_PHYS_BLOCK 0x2000
+#define SPIFFS_PHYS_PAGE 256
+#define SPIFFS_PHYS_BLOCK 65536
 
 // Following includes are for the linux test build of spiffs
 // These may/should/must be removed/altered/replaced in your target
@@ -67,8 +31,6 @@ typedef int8_t s8_t;
 typedef uint8_t u8_t;
 
 #define SPI_FLASH_SEC_SIZE 4096
-
-#endif /* __ets__ */
 
 // compile time switches
 #define DEBUG_SPIFFS 0
@@ -132,7 +94,7 @@ typedef uint8_t u8_t;
 
 // Define maximum number of gc runs to perform to reach desired free pages.
 #ifndef SPIFFS_GC_MAX_RUNS
-#define SPIFFS_GC_MAX_RUNS              3
+#define SPIFFS_GC_MAX_RUNS              5
 #endif
 
 // Enable/disable statistics on gc. Debug/test purpose only.
@@ -167,6 +129,20 @@ typedef uint8_t u8_t;
 // can at most be SPIFFS_OBJ_NAME_LEN - 1.
 #ifndef SPIFFS_OBJ_NAME_LEN
 #define SPIFFS_OBJ_NAME_LEN             (4)
+#endif
+
+// Maximum length of the metadata associated with an object.
+// Setting to non-zero value enables metadata-related API but also
+// changes the on-disk format, so the change is not backward-compatible.
+//
+// Do note: the meta length must never exceed
+// logical_page_size - (SPIFFS_OBJ_NAME_LEN + 64)
+//
+// This is derived from following:
+// logical_page_size - (SPIFFS_OBJ_NAME_LEN + sizeof(spiffs_page_header) +
+// spiffs_object_ix_header fields + at least some LUT entries)
+#ifndef SPIFFS_OBJ_META_LEN
+#define SPIFFS_OBJ_META_LEN             (0)
 #endif
 
 // Size of buffer allocated on stack used when copying data.
