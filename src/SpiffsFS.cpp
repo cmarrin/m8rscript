@@ -59,7 +59,7 @@ bool SpiffsFS::mount()
     }
     
     // Make sure there is a root directory
-    spiffs_file rootDir = SPIFFS_open(SpiffsFS::sharedSpiffs(), "/", SPIFFS_CREAT, 0);
+    spiffs_file rootDir = SPIFFS_open(SpiffsFS::sharedSpiffs(), SpiffsDirectory::FileID::root().value(), SPIFFS_CREAT, 0);
     if (rootDir < 0) {
         system()->printf(ROMSTR("ERROR: Could not create root directory, error=%d\n"), rootDir);
         _error = Error::Code::InternalError;

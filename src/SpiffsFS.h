@@ -100,7 +100,7 @@ private:
         operator bool() const { return _value[0] != '\0'; }
         
         static FileID bad() { return FileID(); }
-        static FileID root() { return FileID('/'); }
+        static FileID root() { return FileID('!'); }
         static FileID random();
 
     private:
