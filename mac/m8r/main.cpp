@@ -48,9 +48,6 @@ int main(int argc, char * argv[])
     // Seed the random number generator
     srand(static_cast<uint32_t>(time(nullptr)));
     
-    // TODO: The file system gets corrupted often. Let's recreate it every time until it is fixed
-    remove(fsFile);
-    
     m8r::initMacFileSystem(fsFile);
     m8r::Application::mountFileSystem();
     
