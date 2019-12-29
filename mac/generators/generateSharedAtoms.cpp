@@ -111,9 +111,9 @@ int main()
     }
     
     // Write the second .cpp entries
-    fprintf(cppfile, "\nm8r::ROMString RODATA_ATTR _sharedAtoms[] = {\n");
+    fprintf(cppfile, "\nconst char* RODATA_ATTR _sharedAtoms[] = {\n");
     for (int32_t i = 0; i < strings.size(); ++i) {
-        fprintf(cppfile, "    m8r::ROMString(_%s),\n", strings[i].c_str());
+        fprintf(cppfile, "    _%s,\n", strings[i].c_str());
     }
     
     // Round count to the nearest 100 to make it easier to compute byte offset into table.
@@ -121,12 +121,11 @@ int main()
 
     // Write the postambles
     fprintf(hfile, "};\n\nnamespace m8r {\n");
-    fprintf(hfile, "    class ROMString;\n");
-    fprintf(hfile, "    ROMString* sharedAtoms(uint16_t& nelts);\n");
+    fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
     fprintf(hfile, "    static constexpr uint16_t ExternalAtomOffset = %zu;\n", count);
     fprintf(hfile, "}\n");
 
-    fprintf(cppfile, "};\n\nm8r::ROMString* m8r::sharedAtoms(uint16_t& nelts)\n{\n    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n    return _sharedAtoms;\n}\n");
+    fprintf(cppfile, "};\n\nconst char** m8r::sharedAtoms(uint16_t& nelts)\n{\n    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n    return _sharedAtoms;\n}\n");
     
     fclose(ifile);
     fclose(hfile);

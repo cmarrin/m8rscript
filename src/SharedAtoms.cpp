@@ -114,7 +114,7 @@ static const char _value[] ROMSTR_ATTR = "value";
 static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
 static const char _write[] ROMSTR_ATTR = "write";
 
-const char* _sharedAtoms[] = {
+const char* RODATA_ATTR _sharedAtoms[] = {
     _Array,
     _Base64,
     _BothEdges,
