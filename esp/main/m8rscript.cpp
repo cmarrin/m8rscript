@@ -49,8 +49,6 @@ void m8r::heapInfo(void*& start, uint32_t& size)
 extern "C" void app_main()
 {
     printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
-    const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
-    m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
 
     m8r::StringStream stream("print(\"Hello World\n\");");
     m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
@@ -61,5 +59,7 @@ extern "C" void app_main()
 
     m8r::Application application(23);
     m8r::Application::mountFileSystem();
+    const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
+    m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
     application.runLoop();
 }
