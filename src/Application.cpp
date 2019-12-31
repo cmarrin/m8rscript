@@ -192,6 +192,14 @@ void Application::runLoop()
     if (filename) {
         _autostartTask = Mad<Task>::create();
         _autostartTask->init(filename.c_str());
+        _autostartTask->setConsolePrintFunction([](const String& s) { system()->printf(ROMSTR("%s"), s.c_str()); });
+        system()->setListenerFunc([this](const char* line) {
+            size_t size = strlen(line);
+            if (line[size - 1] == '\n') {
+                size -= 1;
+            }
+            _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
+        });
         _autostartTask->run();
     }
     

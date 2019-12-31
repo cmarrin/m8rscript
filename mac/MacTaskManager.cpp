@@ -67,6 +67,11 @@ void MacTaskManager::runLoop()
 {
     // The mac main thread has to keep running
     while(1) {
+        // Check for key input
+        char* buffer = nullptr;
+        size_t size = 0;
+        getline(&buffer, &size, stdin);
+        system()->receivedLine(buffer);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }

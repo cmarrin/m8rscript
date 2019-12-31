@@ -61,11 +61,21 @@ public:
     virtual void setDeviceName(const char*) = 0;
     
     virtual void vprintf(ROMString, va_list) const = 0;
+    
+    void receivedLine(const char* line)
+    {
+        if(_listenerFunc) {
+            _listenerFunc(line);
+        }
+    }
+    
+    void setListenerFunc(std::function<void(const char*)> func) { _listenerFunc = func; }
 
     void runLoop();
 
 private:
     static uint64_t currentMicroseconds();
+    std::function<void(const char*)> _listenerFunc;
 };
 
 static inline SystemInterface* system() { return SystemInterface::get(); }
