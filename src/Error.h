@@ -69,6 +69,8 @@ public:
 
     Code code() const { return _code; }
     
+    ROMString description() const;
+    
     static void showError(Error error) { showError(error.code()); }
     static void showError(Code code) { showError(nullptr, code); }
     static void showError(const ExecutionUnit* eu, Error error) { showError(eu, error.code()); }

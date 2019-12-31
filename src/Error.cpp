@@ -13,42 +13,47 @@
 
 using namespace m8r;
 
+ROMString Error::description() const
+{
+    switch(code()) {
+        case Code::OK                       : return ROMSTR("OK");
+        case Code::Unknown                  : return ROMSTR("Unknown");
+        case Code::Write                    : return ROMSTR("Write");
+        case Code::Read                     : return ROMSTR("Read");
+        case Code::SerialHeader             : return ROMSTR("Serial Header");
+        case Code::SerialType               : return ROMSTR("Serial Type");
+        case Code::SerialVersion            : return ROMSTR("Serial Version");
+        case Code::FileNotFound             : return ROMSTR("File Not Found");
+        case Code::FileClosed               : return ROMSTR("File Closed");
+        case Code::ParseError               : return ROMSTR("Parse");
+        case Code::RuntimeError             : return ROMSTR("Runtime");
+        case Code::Exists                   : return ROMSTR("Exists");
+        case Code::ReadError                : return ROMSTR("Read Error");
+        case Code::WriteError               : return ROMSTR("Write Error");
+        case Code::NotReadable              : return ROMSTR("Not Readable");
+        case Code::NotWritable              : return ROMSTR("Not Writable");
+        case Code::SeekNotAllowed           : return ROMSTR("Seek Not Allowed");
+        case Code::TooManyOpenFiles         : return ROMSTR("Too Many Open Files");
+        case Code::DirectoryNotFound        : return ROMSTR("Directory Not Found");
+        case Code::DirectoryNotEmpty        : return ROMSTR("Directory Not Empty");
+        case Code::NotADirectory            : return ROMSTR("Not A Directory");
+        case Code::NotAFile                 : return ROMSTR("Not A File");
+        case Code::InvalidFileName          : return ROMSTR("Invalid Filename");
+        case Code::FSNotFormatted           : return ROMSTR("Fs Not Formatted");
+        case Code::NoSpace                  : return ROMSTR("No Space Left");
+        case Code::MountFailed              : return ROMSTR("Mount Failed");
+        case Code::NotMounted               : return ROMSTR("Not Mounted");
+        case Code::Mounted                  : return ROMSTR("Already Mounted");
+        case Code::Corrupted                : return ROMSTR("Corrupted");
+        case Code::OutOfMemory              : return ROMSTR("Out of Memory");
+        case Code::InternalError            : return ROMSTR("Internal Error");
+        default                             : return ROMSTR("*** INVALID CODE ***");
+    }
+}
+
 void Error::showError(const ExecutionUnit* eu, Code code)
 {
-    ROMString codeString = ROMSTR("*** INVALID CODE ***");
-    switch(code) {
-        case Code::OK                       : codeString = ROMSTR("OK"); break;
-        case Code::Unknown                  : codeString = ROMSTR("Unknown"); break;
-        case Code::Write                    : codeString = ROMSTR("Write"); break;
-        case Code::Read                     : codeString = ROMSTR("Read"); break;
-        case Code::SerialHeader             : codeString = ROMSTR("Serial Header"); break;
-        case Code::SerialType               : codeString = ROMSTR("Serial Type"); break;
-        case Code::SerialVersion            : codeString = ROMSTR("Serial Version"); break;
-        case Code::FileNotFound             : codeString = ROMSTR("File Not Found"); break;
-        case Code::FileClosed               : codeString = ROMSTR("File Closed"); break;
-        case Code::ParseError               : codeString = ROMSTR("Parse"); break;
-        case Code::RuntimeError             : codeString = ROMSTR("Runtime"); break;
-        case Code::Exists                   : codeString = ROMSTR("Exists"); break;
-        case Code::ReadError                : codeString = ROMSTR("Read Error"); break;
-        case Code::WriteError               : codeString = ROMSTR("Write Error"); break;
-        case Code::NotReadable              : codeString = ROMSTR("Not Readable"); break;
-        case Code::NotWritable              : codeString = ROMSTR("Not Writable"); break;
-        case Code::SeekNotAllowed           : codeString = ROMSTR("Seek Not Allowed"); break;
-        case Code::TooManyOpenFiles         : codeString = ROMSTR("Too Many Open Files"); break;
-        case Code::DirectoryNotFound        : codeString = ROMSTR("Directory Not Found"); break;
-        case Code::DirectoryNotEmpty        : codeString = ROMSTR("Directory Not Empty"); break;
-        case Code::NotADirectory            : codeString = ROMSTR("Not A Directory"); break;
-        case Code::NotAFile                 : codeString = ROMSTR("Not A File"); break;
-        case Code::InvalidFileName          : codeString = ROMSTR("Invalid Filename"); break;
-        case Code::FSNotFormatted           : codeString = ROMSTR("Fs Not Formatted"); break;
-        case Code::NoSpace                  : codeString = ROMSTR("No Space Left"); break;
-        case Code::MountFailed              : codeString = ROMSTR("Mount Failed"); break;
-        case Code::NotMounted               : codeString = ROMSTR("Not Mounted"); break;
-        case Code::Mounted                  : codeString = ROMSTR("Already Mounted"); break;
-        case Code::Corrupted                : codeString = ROMSTR("Corrupted"); break;
-        case Code::OutOfMemory              : codeString = ROMSTR("Out of Memory"); break;
-        case Code::InternalError            : codeString = ROMSTR("Internal Error"); break;
-    }
+    ROMString codeString = Error(code).description();
     
     if (eu) {
         eu->printf(codeString);
