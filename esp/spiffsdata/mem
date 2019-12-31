@@ -1,0 +1,27 @@
+/*-------------------------------------------------------------------------
+    This source file is a part of m8rscript
+    For the latest info, see http:www.marrin.org/
+    Copyright (c) 2018-2019, Chris Marrin
+    All rights reserved.
+    Use of this source code is governed by the MIT license that can be
+    found in the LICENSE file.
+-------------------------------------------------------------------------*/
+
+// mem - return memory usage statistics
+//
+
+var info = meminfo();
+printf("meminfo: freeSize = %d, allocatedSize = %d, numAllocations = %d\n",
+    info.freeSize, info.allocatedSize, info.numAllocations);
+
+for (var i = 0; i < info.allocationsByType.length; ++i) {
+    var item = info.allocationsByType[i];
+    printf("         Allocated %3d %s items, total size = %d", item.count, item.type, item.size);
+    if (item.count > 0) {
+        printf(", avg = %d\n", item.size / item.count);
+    } else {
+        printf("\n");
+    }
+}
+
+return 0;

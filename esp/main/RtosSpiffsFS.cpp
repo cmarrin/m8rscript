@@ -44,7 +44,7 @@ bool SpiffsFS::mount()
 
 bool SpiffsFS::mounted() const
 {
-    return esp_spiffs_mounted(nullptr) == ESP_OK;
+    return esp_spiffs_mounted(nullptr);
 }
 
 void SpiffsFS::unmount()
@@ -60,73 +60,27 @@ bool SpiffsFS::format()
     return err == ESP_OK;
 }
 
-Mad<SpiffsFile> SpiffsFS::rawOpen(const SpiffsDirectory::FileID& fileID, int flags, File::Type type, FileOpenMode mode)
-{
-    Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::Native);
-
-    file->_file = ::open(fileID.value(), flags);
-    file->_error = (file->_file < 0) ? SpiffsFS::mapSpiffsError(errno) : Error::Code::OK;
-    
-    if (!file->valid()) {
-        file->_file = -1;
-        return file;
-    }
-    
-    file->setType(type);
-    file->_mode = mode;
-    return file;
-}
-
 Mad<File> SpiffsFS::open(const char* name, FileOpenMode mode)
 {
-    // If our open mode allows file creation, tell find that it can create a file if it doesn't exist
-    SpiffsDirectory::FindCreateMode createMode = SpiffsDirectory::FindCreateMode::File;
-    if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
-        createMode = SpiffsDirectory::FindCreateMode::None;
-    }
-
-    Mad<SpiffsFile> file;
-    SpiffsDirectory::FileID fileID;
-    File::Type fileType;
-    Error error;
-    SpiffsDirectory::find(name, createMode, fileID, fileType, error);
-
-    if (error == Error::Code::OK && fileType != File::Type::File) {
-        error = Error::Code::NotAFile;
-    } else if (error == Error::Code::OK || error == Error::Code::FileNotFound) {
-        // If the file exists its contents are preserved unless it is in Write or
-        // WriteAppend mode, in which case it's truncated. If it doesn't exist
-        // use the SPIFFS_CREAT flag so the file is created and then opened for
-        // read/write
-        int flags = O_RDWR;
-        
-        if (error == Error::Code::OK) {
-            if (mode == FileOpenMode::Write || mode == FileOpenMode::WriteUpdate) {
-                flags |= O_TRUNC;
-            }
-        }
-        if (mode == FileOpenMode::Read || mode == FileOpenMode::ReadUpdate) {
-            error = Error::Code::FileNotFound;
-        } else {
-            flags |= O_CREAT;
-        }
-        
-        if (fileID) {
-            file = SpiffsFS::rawOpen(fileID, flags, File::Type::File, mode);
-        }
+    int flags = 0;
+    
+    switch (mode) {
+        default:                            break;
+        case FileOpenMode::Read:            flags = O_RDONLY; break;
+        case FileOpenMode::ReadUpdate:      flags = O_RDWR; break;
+        case FileOpenMode::Write:           flags = O_WRONLY | O_CREAT | O_TRUNC; break;
+        case FileOpenMode::WriteUpdate:     flags = O_RDWR | O_CREAT | O_TRUNC; break;
+        case FileOpenMode::Append:          flags = O_WRONLY | O_CREAT | O_APPEND; break;
+        case FileOpenMode::AppendUpdate:    flags = O_RDWR | O_CREAT | O_APPEND; break;
+        case FileOpenMode::Create:          flags = O_RDWR | O_CREAT; break;
     }
     
-    // At this point file is null because the file doesn't exist and the mode is Read
-    // or ReadUpdate. Or it's null because there was an error, which is in 'error'.
-    // Or we have a newly created file, an existing file whose contents have been
-    // thrown away or an existing file whose contents have been preserved. In all
-    // cases we're open read/write
-    
-    // If file is null, open a dummy file and put 'error' in it.
-    if (!file.valid()) {
-        assert(error != Error::Code::OK);
-        file = SpiffsFS::rawOpen(SpiffsDirectory::FileID::bad(), 0, File::Type::File, mode);
-        file->_error = error;
+    Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::Native);
+    String filename = "/spiffs/";
+    filename += name;
+    file->_file = ::open(filename.c_str(), flags);
+    if (file->_file < 0) {
+        file->_error = Error::Code::Unknown;
     }
     
     return file;
@@ -138,19 +92,13 @@ Mad<Directory> SpiffsFS::openDirectory(const char* name)
         return Mad<Directory>();
     }
     Mad<SpiffsDirectory> dir = Mad<SpiffsDirectory>::create(MemoryType::Native);
-    dir->setName(name);
     return dir;
 }
 
 bool SpiffsFS::makeDirectory(const char* name)
 {
-    SpiffsDirectory::FileID fileID;
-    File::Type type;
-    Error error;
-    
-    SpiffsDirectory::find(name, SpiffsDirectory::FindCreateMode::Directory, fileID, type, error);
-    _error = error;
-    return error == Error::Code::OK;
+    // TODO: Implement
+    return false;
 }
 
 bool SpiffsFS::remove(const char* name)
@@ -167,11 +115,10 @@ bool SpiffsFS::rename(const char* src, const char* dst)
 
 bool SpiffsFS::exists(const char* name) const
 {
-    SpiffsDirectory::FileID fileID;
-    File::Type fileType;
-    Error error;
-    SpiffsDirectory::find(name, SpiffsDirectory::FindCreateMode::None, fileID, fileType, error);
-    return error == Error::Code::OK;
+    Mad<File> file = const_cast<SpiffsFS*>(this)->open(name, FileOpenMode::Read);
+    bool doesExist = file->error() == Error::Code::OK;
+    file->close();
+    return doesExist;
 }
 
 uint32_t SpiffsFS::totalSize() const
@@ -198,215 +145,17 @@ Error::Code SpiffsFS::mapSpiffsError(int spiffsError)
     }
 }
 
-void SpiffsDirectory::setName(const char* name)
-{
-    FileID fileID;
-    File::Type fileType;
-    if (!find(name, SpiffsDirectory::FindCreateMode::None, fileID, fileType, _error)) {
-        if (_error == Error::Code::FileNotFound) {
-            _error = Error::Code::DirectoryNotFound;
-        } else if (fileType != File::Type::Directory) {
-            _error = Error::Code::NotADirectory;
-        }
-        return;
-    }
-    
-    _dirFile = ::open(fileID.value(), O_RDONLY);
-    
-    if (!_dirFile) {
-        _error = Error::Code::InternalError;
-        return;
-    }
-
-    next();
-}
-
 bool SpiffsDirectory::next()
 {
-    String s;
-    
-    Entry entry;
-    ssize_t size = ::read(_dirFile, reinterpret_cast<char*>(&entry), sizeof(entry));
-    
-    // TODO: Handle errors
-    if (size != sizeof(entry)) {
+    struct dirent* entry = readdir(_dir);
+    if (!entry) {
         return false;
     }
+    _name = String(entry->d_name);
     
-    if (entry.type() == EntryType::File ||
-        entry.type() == EntryType::Directory) {
-        uint8_t size = entry.size();
-        s.reserve(size + 1);
-        for ( ; size > 0; --size) {
-            char c;
-            size = ::read(_dirFile, &c, 1);
-            if (size != 1) {
-                return false;
-            }
-            s += c;
-        }
-        
-        size = ::read(_dirFile, _fileID.value(), sizeof(_fileID));
-        return size == sizeof(_fileID);
-    }
-    
-    return false;
-}
-
-bool SpiffsDirectory::find(const char* name, FindCreateMode createMode, FileID& fileID, File::Type& type, Error& error)
-{
-    error = Error::Code::OK;
-    type = File::Type::Unknown;
-
-    if (!name || name[0] != '/') {
-        error = Error::Code::InvalidFileName;
-        return false;
-    }
-    
-    // Split up the name and find each component
-    int fd = ::open(FileID::root().value(), O_RDWR);
-    if (fd < 0) {
-        error = Error::Code::InternalError;
-    } else {
-        Vector<String> components = String(name).split("/");
-        
-        while (!components.empty() && components.back().empty()) {
-            components.pop_back();
-        }
-        
-        error = Error::Code::DirectoryNotFound;
-
-        for (int i = 0; i < components.size(); ++i) {
-            if (components[i].empty()) {
-                continue;
-            }
-            
-            bool last = i == components.size() - 1;
-            
-            if (!findNameInDirectory(fd, components[i], fileID, type)) {
-                if (!last && createMode == FindCreateMode::Directory) {
-                    type = File::Type::Directory;
-                    createEntry(fd, components[i], File::Type::Directory, fileID);
-                    ::close(fd);
-                    fd = ::open(fileID.value(), O_RDWR | O_CREAT);
-                    if (fd < 0) {
-                        // We should be able to create the new directory
-                        error = Error::Code::InternalError;
-                    }
-                } else {
-                    error = last ? Error::Code::FileNotFound : Error::Code::DirectoryNotFound;
-                    
-                    // If the error is FileNotFound, the baseName doesn't exist. If we are createMode
-                    // is None, just return the error. Otherwise create a file or directory
-                    if (error == Error::Code::FileNotFound) {
-                        if (createMode == FindCreateMode::None) {
-                            break;
-                        }
-                        
-                        type = (createMode == FindCreateMode::File) ? File::Type::File : File::Type::Directory;
-                        createEntry(fd, components[i], type, fileID);
-                        if (type == File::Type::Directory) {
-                            ::close(fd);
-                            fd = ::open(fileID.value(), O_RDWR | O_CREAT);
-                            if (fd < 0) {
-                                error = Error::Code::InternalError;
-                                break;
-                            }
-                        }
-                        error = Error::Code::OK;
-                        break;
-                    }
-                    break;
-                }
-            } 
-            
-            if (last) {
-                error = Error::Code::OK;
-                break;
-            }
-            
-            if (type != File::Type::Directory) {
-                error = Error::Code::DirectoryNotFound;
-                break;
-            }
-            
-            ::close(fd);
-            fd = ::open(fileID.value(), O_RDWR);
-            if (fd < 0) {
-                error = Error::Code::InternalError;
-                break;
-            }
-        }
-    }
-    
-    ::close(fd);
-    if (error != Error::Code::OK) {
-        fileID = FileID();
-        return false;
-    }
-    
+    // TODO: Get file size from stat
+    _size = 0;
     return true;
-}
-
-bool SpiffsDirectory::findNameInDirectory(int fd, const String& name, FileID& fileID, File::Type& type)
-{
-    String s;
-    
-    while (1) {
-        Entry entry;
-        int result = ::read(fd, reinterpret_cast<char*>(&entry), sizeof(entry));
-        if (result == 0) {
-            break;
-        }
-        if (result != sizeof(entry)) {
-            return false;
-        }
-        if (entry.type() == EntryType::File ||
-            entry.type() == EntryType::Directory) {
-            uint8_t size = entry.size();
-            s.clear();
-            s.reserve(size + 1);
-            for ( ; size > 0; --size) {
-                char c;
-                read(fd, &c, 1);
-                s += c;
-            }
-            
-            FileID testFileID;
-            ::read(fd, testFileID.value(), sizeof(testFileID));
-            if (s == name) {
-                type = (entry.type() == EntryType::File) ? File::Type::File : File::Type::Directory;
-                fileID = testFileID;
-                return true;
-            }
-        }
-    }
-    
-    return false;
-}
-
-void SpiffsDirectory::createEntry(int fd, const String& name, File::Type type, FileID& fileID)
-{
-    // TODO: Make sure fileID doesn't exist
-    fileID = FileID::random();
-    EntryType entryType = (type == File::Type::Directory) ? EntryType::Directory : EntryType::File;
-    Entry entry(name.size(), entryType);
-    ::write(fd, &(entry.value()), sizeof(Entry));
-    ::write(fd, name.c_str(), static_cast<uint32_t>(name.size()));
-    ::write(fd, fileID.value(), FileIDLength);
-}
-
-SpiffsDirectory::FileID SpiffsDirectory::FileID::random()
-{
-    SpiffsDirectory::FileID fileID;
-    
-    char offset = 0x21;
-    char range = 0x7e - offset + 1;
-    for (uint8_t i = 0; i < FileIDLength - 1; ++i) {
-        fileID._value[i] = static_cast<char>(rand() % range) + offset;
-    }
-    fileID._value[FileIDLength - 1] = '\0';
-    return fileID;
 }
 
 void SpiffsFile::close()

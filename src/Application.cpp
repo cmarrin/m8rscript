@@ -154,12 +154,12 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "";
+    return "/mrsh";
 }
 
 bool Application::mountFileSystem()
 {
-    if (!system()->fileSystem()->mount() != 0) {
+    if (!system()->fileSystem()->mount()) {
         if (system()->fileSystem()->lastError().code() == Error::Code::FSNotFormatted) {
             m8r::system()->printf(ROMSTR("Filessytem not present, formatting...\n"));
         } else {

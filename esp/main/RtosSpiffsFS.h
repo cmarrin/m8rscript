@@ -13,6 +13,8 @@
 
 #include "Containers.h"
 
+#include <dirent.h>
+
 // Spiffs++ File System
 //
 // The underlying file system is Spiffs. But that doesn't provide a
@@ -59,69 +61,13 @@ class SpiffsDirectory : public Directory {
     friend class SpiffsFS;
     
 public:
-    SpiffsDirectory() { }
-    virtual ~SpiffsDirectory() { }
+    SpiffsDirectory() { _dir = opendir("/spiffs"); }
+    virtual ~SpiffsDirectory() { closedir(_dir); }
     
     virtual bool next() override;
-    
-    void setName(const char* name);
-    
+
 private:
-    static constexpr uint8_t FileIDLength = 4;
-
-    enum class EntryType { Deleted = 0, Directory = 1, File = 2, Reserved = 3 };
-    
-    class Entry {
-    public:
-        Entry() { }
-        Entry(uint8_t size, EntryType type) { setType(type); setSize(size); }
-        
-        EntryType type() const { return static_cast<EntryType>(static_cast<uint8_t>(_value) >> 6); }
-        uint8_t size() const { return _value & 0x3f; }
-
-        const char& value() const { return _value; }
-        char& value() { return _value; }
-
-    private:
-        void setType(EntryType type) { _value = (_value & 0x3f) | (static_cast<uint8_t>(type) << 6); }
-        void setSize(uint8_t size) { _value = (_value & 0xc0) | (size & 0x3f); }
-
-        char _value = 0;
-    };
-
-    class FileID
-    {
-    public:
-        FileID() { _value[0] = '\0'; }
-        
-        const char* value() const { return _value; }
-        char* value() { return _value; }
-        operator bool() const { return _value[0] != '\0'; }
-        
-        static FileID bad() { return FileID(); }
-        static FileID root() { return FileID('/'); }
-        static FileID random();
-
-    private:
-        FileID(char c) { _value[0] = c; _value[1] = '\0'; }
-        
-        char _value[FileIDLength];
-    };
-    
-    // What happens in find when part of the path doesn't exist?
-    //
-    // None         - Nothing. Return not found error
-    // Directory    - Some of the components of the path may not exist. If not, crete a directory
-    // File         - If the tail of the path doesn't exist, create an entry for a new file
-    
-    enum class FindCreateMode { None, Directory, File };
-    
-    static bool find(const char* name, FindCreateMode, FileID&, File::Type&, Error&);
-    static bool findNameInDirectory(int fd, const String& name, FileID&, File::Type&);
-    static void createEntry(int fd, const String& name, File::Type, FileID&);
-    
-    int _dirFile = -1;
-    FileID _fileID;
+    DIR* _dir;
 };
 
 class SpiffsFile : public File {
@@ -176,7 +122,6 @@ public:
 private:
     static constexpr uint32_t MaxOpenFiles = 4;
 
-    static Mad<SpiffsFile> rawOpen(const SpiffsDirectory::FileID&, int flags, File::Type, FileOpenMode = FileOpenMode::Read);
     static Error::Code mapSpiffsError(int);
 };
 
