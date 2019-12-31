@@ -189,6 +189,9 @@ Mad<Directory> SpiffsFS::openDirectory(const char* name)
 
 bool SpiffsFS::makeDirectory(const char* name)
 {
+    if (name[0] == '/' && name[1] == '\0') {
+        return true;
+    }
     SpiffsDirectory::FileID fileID;
     File::Type type;
     Error error;
