@@ -205,7 +205,7 @@ CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t npa
     Mad<char> buf = Mad<char>::create(size);
     file->read(buf.get(), size);
     eu->stack().push(Value(ExecutionUnit::createString(buf.get(), size)));
-    buf.destroy(size);
+    buf.destroy();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 

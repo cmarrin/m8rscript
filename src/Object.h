@@ -36,7 +36,7 @@ public:
     { }
     virtual ~Object() { _isDestroyed = true; }
     
-    void operator delete(void* p, std::size_t sz);
+    void operator delete(void* p);
     
     template<typename T>
     static Mad<T> create() { Mad<T> obj = Mad<T>::create(MemoryType::Object); addToObjectStore(obj.raw()); return obj; }
@@ -158,7 +158,7 @@ class NativeObject {
 public:
     static MemoryType memoryType() { return MemoryType::Native; }
 
-    void operator delete(void* p, std::size_t sz);
+    void operator delete(void* p);
     
     NativeObject() { }
     virtual ~NativeObject() { }

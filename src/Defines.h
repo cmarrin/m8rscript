@@ -243,7 +243,7 @@ enum class MemoryType : uint16_t {
     Vector,
     UpValue,
     Network,
-    Fixed, // Memory that is allocated malloc and needs storage for its size
+    Fixed,
     NumTypes
 };
 

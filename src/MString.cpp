@@ -106,7 +106,6 @@ String String::join(const Vector<char>& array)
 }
 void String::doEnsureCapacity(uint16_t size)
 {
-    uint16_t oldCapacity = _capacity;
     _capacity = _capacity ? _capacity * 2 : 1;
     if (_capacity < size) {
         _capacity = size;
@@ -120,7 +119,7 @@ void String::doEnsureCapacity(uint16_t size)
             _capacity = 0;
             _size = 1;
         }
-        _data.destroy(oldCapacity);
+        _data.destroy();
     }
     _data = newData;
 }
@@ -372,11 +371,11 @@ String String::fformat(const char* fmt, std::function<void(FormatType, String&)>
         if (next == SLRE_NO_MATCH) {
             // Print the remainder of the string
             resultString += s;
-            formatRegex.destroy(formatRegexSize);
+            formatRegex.destroy();
             return resultString;
         }
         if (next < 0) {
-            formatRegex.destroy(formatRegexSize);
+            formatRegex.destroy();
             return String();
         }
         
@@ -456,7 +455,7 @@ String String::fformat(const char* fmt, std::function<void(FormatType, String&)>
                 break;
             }
             default:
-                formatRegex.destroy(formatRegexSize);
+                formatRegex.destroy();
                 return String();
         }
         

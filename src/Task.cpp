@@ -44,31 +44,37 @@ Task::Task()
 Task::~Task()
 {
     GC::removeEU(_eu.raw());
-    _eu.destroy();
+    _eu.destroy(MemoryType::ExecutionUnit);
 }
 
-void Task::init(const char* filename, ParseErrorList* errorList)
+bool Task::init(const char* filename)
 {
     Mad<File> file = system()->fileSystem()->open(filename, FS::FileOpenMode::Read);
-    init(FileStream(file), errorList);
+    if (!file->valid() ) {
+        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, file->error().description());
+        _error = Error::Code::FileNotFound;
+        return false;
+    }
+    
+    bool ret = init(FileStream(file));
     file.destroy(MemoryType::Native);
+    return ret;
 }
 
-void Task::init(const Stream& stream, ParseErrorList* errorList)
+bool Task::init(const Stream& stream)
 {
 #ifdef NO_PARSER_SUPPORT
-    return;
+    return false;
 #else
     // See if we can parse it
+    ParseErrorList errorList;
     Parser parser;
     parser.parse(stream, _eu.get(), Parser::debug);
     if (parser.nerrors()) {
         _eu->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-        if (errorList) {
-            errorList->swap(parser.syntaxErrors());
-        }
+        errorList.swap(parser.syntaxErrors());
         _error = Error::Code::ParseError;
-        return;
+        return false;
     } else {
 #ifdef PRINT_CODE
         CodePrinter codePrinter;
@@ -81,6 +87,7 @@ void Task::init(const Stream& stream, ParseErrorList* errorList)
     }
         
     _eu->startExecution(parser.program());
+    return true;
 #endif
 }
 

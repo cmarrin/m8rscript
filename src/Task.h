@@ -61,8 +61,8 @@ public:
     
     virtual ~Task();
     
-    void init(const Stream&, ParseErrorList* = nullptr);
-    void init(const char* filename, ParseErrorList* = nullptr);
+    bool init(const Stream&);
+    bool init(const char* filename);
     
     void receivedData(const String& data, KeyAction action);
 

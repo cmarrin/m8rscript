@@ -128,7 +128,7 @@ CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
                                          BASE64_STACK_ALLOC_LIMIT, outString.get());
         Mad<String> string = ExecutionUnit::createString(outString.get(), actualLength);
         eu->stack().push(Value(string));
-        outString.destroy(outLength);
+        outString.destroy();
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
@@ -148,7 +148,7 @@ CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
         int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString.get());
         Mad<String> string = ExecutionUnit::createString(reinterpret_cast<char*>(outString.get()), actualLength);
         eu->stack().push(Value(string));
-        outString.destroy(outLength);
+        outString.destroy();
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

@@ -23,7 +23,7 @@ static const Duration EvalDurationMax = 2_sec;
 
 Mad<String> ExecutionUnit::createString(const String& other)
 {
-    Mad<String> s = Mad<String>::create(MemoryType::String);
+    Mad<String> s = Mad<String>::create();
     *(s.get()) = other;
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
@@ -31,7 +31,7 @@ Mad<String> ExecutionUnit::createString(const String& other)
 
 Mad<String> ExecutionUnit::createString(String&& other)
 {
-    Mad<String> s = Mad<String>::create(MemoryType::String);
+    Mad<String> s = Mad<String>::create();
     *(s.get()) = other;
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
@@ -39,7 +39,7 @@ Mad<String> ExecutionUnit::createString(String&& other)
 
 Mad<String> ExecutionUnit::createString(const char* str, int32_t length)
 {
-    Mad<String> s = Mad<String>::create(MemoryType::String);
+    Mad<String> s = Mad<String>::create();
     *(s.get()) = String(str, length);
     GC::addToStore<MemoryType::String>(s.raw());
     return s;

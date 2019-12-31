@@ -82,7 +82,7 @@ class Object;
 // to free and fixed blocks.
 
 #ifndef NDEBUG
-#define MEMORY_HEADER
+#define DEBUG_MEMORY_HEADER
 #endif
 
 template<typename T>
@@ -138,12 +138,10 @@ public:
     
     template<typename X>
     struct assert_false : std::false_type { };
-    void destroy(uint16_t n) { static_assert(assert_false<T>::value, "Must specialize this function"); }
+    void destroy() { destroy(T::memoryType()); }
     
-    void destroyVector(uint32_t n) { destroyHelper(MemoryType::Vector, n * sizeof(T), false); }
-    void destroy(MemoryType type) { destroyHelper(type, sizeof(T), true); }
-    void destroy(MemoryType type, uint16_t size) { destroyHelper(type, size, true); }
-    void destroy() { destroyHelper(T::memoryType(), sizeof(T), true); }
+    void destroyVector() { destroyHelper(MemoryType::Vector, false); }
+    void destroy(MemoryType type) { destroyHelper(type, true); }
 
     static Mad<T> create(MemoryType, uint16_t n = 1);
     
@@ -153,7 +151,7 @@ public:
 private:
     RawMad _raw = NoRawMad;
     
-    void destroyHelper(MemoryType, uint16_t size, bool destruct);
+    void destroyHelper(MemoryType, bool destruct);
     
 #ifdef MEMORY_PTR
     // Keep a pointer around for debugging
@@ -169,13 +167,13 @@ public:
     template<typename T>
     Mad<T> allocate(MemoryType type, uint16_t nElements)
     {
-        return Mad<T>(alloc(nElements, sizeof(T), type, typeName<T>()));
+        return Mad<T>(alloc(static_cast<uint32_t>(nElements) * sizeof(T), type, typeName<T>()));
     }
     
     template<typename T>
-    void deallocate(MemoryType type, Mad<T> p, size_t size)
+    void deallocate(MemoryType type, Mad<T> p)
     {
-        free(p.raw(), size, type);
+        free(p.raw(), type);
     }
     
     static Mallocator* shared() { return &_mallocator; }
@@ -214,8 +212,8 @@ private:
 
     using BlockId = RawMad;
 
-    RawMad alloc(uint16_t nElements, uint16_t elementSize, MemoryType type, const char* valueType);
-    void free(RawMad, size_t size, MemoryType type);
+    RawMad alloc(uint32_t size, MemoryType type, const char* valueType);
+    void free(RawMad, MemoryType type);
     
     void coalesce(BlockId prev, BlockId next);
 
@@ -230,7 +228,7 @@ private:
     static constexpr BlockId NoBlockId = static_cast<BlockId>(-1);
 
     // We only want to showAllocationRecord on Mac
-#ifdef MEMORY_HEADER
+#ifdef DEBUG_MEMORY_HEADER
     void showAllocationRecord() const
 #ifdef __APPLE__
     ;
@@ -245,13 +243,12 @@ private:
     {
         enum class Type : uint16_t { Free, Allocated };
 
-#ifdef MEMORY_HEADER
+#ifdef DEBUG_MEMORY_HEADER
         static constexpr uint16_t FREEMAGIC = 0xDEAD;
         static constexpr uint16_t ALLOCMAGIC = 0xBEEF;
         
         uint16_t magic;
         uint16_t _type : 1; // Type: Free or Allocated
-        uint16_t nElements : 15;
         MemoryType memoryType;
         const char* name;
         
@@ -262,7 +259,7 @@ private:
         uint16_t sizeInBlocks;
     };
 
-#ifdef MEMORY_HEADER
+#ifdef DEBUG_MEMORY_HEADER
     void showMemoryHeaderError(Header*, Header::Type type, int32_t blocksToFree) const;
 
     void checkMemoryHeader(Header* header, Header::Type type, int32_t blocksToFree = -1) const
@@ -293,7 +290,7 @@ private:
     char* _heapBase = nullptr;
     BlockId _firstFreeBlock = 0;
 
-#ifdef MEMORY_HEADER
+#ifdef DEBUG_MEMORY_HEADER
     BlockId _firstAllocatedBlock = 0;
 #endif
 
@@ -310,19 +307,19 @@ template<typename T>
 inline T* Mad<T>::get() const { return reinterpret_cast<T*>(Mallocator::shared()->get(raw())); }
 
 template<typename T>
-inline void Mad<T>::destroyHelper(MemoryType type, uint16_t size, bool destruct)
+inline void Mad<T>::destroyHelper(MemoryType type, bool destruct)
 {
-    if (!valid() || size == 0) {
+    if (!valid()) {
         return;
     }
     
     if (this->valid()) {
         // Only call the destructor if this isn't an array of objects.
-        // Arrays call their desctructors themselves
+        // Arrays call their destructors themselves
         if (destruct) {
             get()->~T();
         }
-        Mallocator::shared()->deallocate(type, *this, size);
+        Mallocator::shared()->deallocate(type, *this);
     }
 }
 
@@ -347,40 +344,45 @@ inline Mad<char> Mad<char>::create(uint16_t n)
 }
 
 template<>
-inline void Mad<char>::destroy(uint16_t size)
-{
-    if (size == 0) {
-        return;
-    }
-    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
-}
-
-template<>
 inline Mad<uint8_t> Mad<uint8_t>::create(uint16_t n)
 {
     return Mallocator::shared()->allocate<uint8_t>(MemoryType::Character, n);
 }
 
 template<>
-inline void Mad<uint8_t>::destroy(uint16_t size)
+inline void Mad<char>::destroy()
 {
-    if (size == 0) {
+    if (!valid()) {
         return;
     }
-    
-    Mallocator::shared()->deallocate(MemoryType::Character, *this, size);
+    Mallocator::shared()->deallocate(MemoryType::Character, *this);
 }
 
 template<>
-inline void Mad<Object>::destroy(uint16_t size)
+inline void Mad<uint8_t>::destroy()
 {
-    Mallocator::shared()->deallocate(MemoryType::Object, *this, size);
+    if (!valid()) {
+        return;
+    }
+    Mallocator::shared()->deallocate(MemoryType::Character, *this);
 }
 
 template<>
-inline void Mad<NativeObject>::destroy(uint16_t size)
+inline void Mad<Object>::destroy()
 {
-    Mallocator::shared()->deallocate(MemoryType::Native, *this, size);
+    if (!valid()) {
+        return;
+    }
+    Mallocator::shared()->deallocate(MemoryType::Object, *this);
+}
+
+template<>
+inline void Mad<NativeObject>::destroy()
+{
+    if (!valid()) {
+        return;
+    }
+    Mallocator::shared()->deallocate(MemoryType::Native, *this);
 }
 
 }

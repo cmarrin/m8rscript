@@ -64,7 +64,7 @@ public:
     
     String(String&& other)
     {
-        _data.destroy(_capacity);
+        _data.destroy();
         _data = other._data;
         other._data = Mad<char>();
         _size = other._size;
@@ -82,7 +82,7 @@ public:
         _size = 2;
     }
     
-    ~String() { _data.destroy(_capacity); _destroyed = true; };
+    ~String() { _data.destroy(); _destroyed = true; };
     
     String& operator=(ROMString other)
     {
@@ -91,7 +91,7 @@ public:
         if (_data.valid()) {
             _size = 0;
             if (_capacity < romSize) {
-                _data.destroy(_capacity);
+                _data.destroy();
                 _data = Mad<char>();
                 _capacity = 0;
             }
@@ -108,7 +108,7 @@ public:
 
     String& operator=(const String& other)
     {
-        _data.destroy(_capacity);
+        _data.destroy();
         _size = other._size;
         _capacity = other._capacity;
         if (!other._data.valid()) {
@@ -133,7 +133,7 @@ public:
             return *this;
         }
 
-        _data.destroy(_capacity);
+        _data.destroy();
 
         _data = other._data;
         _size = other._size;

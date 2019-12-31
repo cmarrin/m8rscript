@@ -80,7 +80,7 @@ Atom AtomTable::atomizeString(ROMString romstr) const
     Mad<char> s = Mad<char>::create(len + 1);
     ROMCopyString(s.get(), romstr);
     Atom atom = atomizeString(s.get());
-    s.destroy(len + 1);
+    s.destroy();
     return atom;
 }
 
