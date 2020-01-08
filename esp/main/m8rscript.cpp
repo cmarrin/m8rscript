@@ -21,17 +21,17 @@
 #include <unistd.h>
 #include <chrono>
 
-#include "esp_spiffs.h"
-#include <errno.h>
-#include <fcntl.h>
+//#include "esp_spiffs.h"
+//#include <errno.h>
+//#include <fcntl.h>
 
-esp_vfs_spiffs_conf_t conf = {
-  .base_path = "/spiffs",
-  .partition_label = NULL,
-  .max_files = 5,
-  .format_if_mount_failed = true
-};
-
+//esp_vfs_spiffs_conf_t conf = {
+//  .base_path = "/spiffs",
+//  .partition_label = NULL,
+//  .max_files = 5,
+//  .format_if_mount_failed = true
+//};
+//
 void m8r::heapInfo(void*& start, uint32_t& size)
 {
     static void* heapAddr = nullptr;
@@ -50,15 +50,31 @@ extern "C" void app_main()
 {
     printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
 
-    m8r::StringStream stream("print(\"Hello World\n\");");
-    m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
-    task->init(stream);
-    task->run([](m8r::TaskBase*) { 
-        m8r::system()->printf(ROMSTR("******* Hello World task completed\n"));
-    });    
+//    m8r::StringStream stream("print(\"Hello World\n\");");
+//    m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
+//    task->init(stream);
+//    task->run([](m8r::TaskBase*) { 
+//        m8r::system()->printf(ROMSTR("******* Hello World task completed\n"));
+//    });    
 
     m8r::Application application(23);
     m8r::Application::mountFileSystem();
+
+
+
+
+//    int fd = ::open("/spiffs/mrsh", O_RDONLY);
+//    printf("***** open: fd=%d, errno=%d\n", fd, errno);
+//    char buf[20];
+//    int result = ::read(fd, buf, 19);
+//    if (result >= 0) {
+//        buf[result] = '\0';
+//    }
+//    printf("***** read: result=%d, data='%s', errno=%d\n", result, buf, errno);
+//    ::close(fd);
+
+
+
     const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
     m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
     application.runLoop();

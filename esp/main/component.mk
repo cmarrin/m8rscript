@@ -9,13 +9,13 @@ COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR)
 COMPONENT_EXTRA_INCLUDES := $(IDF_PATH)/components/spiffs/spiffs/src/
 COMPONENT_SRCDIRS := . $(SRC_DIR)
 COMPONENT_OBJS := m8rscript.o \
-    RtosSpiffsFS.o \
     RtosSystemInterface.o \
     RtosTaskManager.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \
     $(SRC_DIR)/Base64.o \
     $(SRC_DIR)/Closure.o \
+    $(SRC_DIR)/CodePrinter.o \
     $(SRC_DIR)/Error.o \
     $(SRC_DIR)/ExecutionUnit.o \
     $(SRC_DIR)/Function.o \
