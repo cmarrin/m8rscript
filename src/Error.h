@@ -29,6 +29,7 @@ public:
         SerialHeader,
         SerialType,
         SerialVersion,
+        FileExists,
         FileNotFound,
         FileClosed,
         ParseError,

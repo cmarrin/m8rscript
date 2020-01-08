@@ -80,6 +80,7 @@ CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t npara
 
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
+    ::printf("********************* Global::print\n");
     for (int32_t i = 1 - nparams; i <= 0; ++i) {
         String s = eu->stack().top(i).toStringValue(eu);
         eu->print(s.c_str());

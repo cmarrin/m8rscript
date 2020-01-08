@@ -14,6 +14,9 @@
 #include "MStream.h"
 #include "Parser.h"
 
+#define PRINT_CODE
+
+
 #ifndef NDEBUG
 #ifdef __APPLE__
 #define PRINT_CODE
@@ -57,6 +60,11 @@ bool Task::init(const char* filename)
     }
     
     bool ret = init(FileStream(file));
+    
+    if (file->error() != Error::Code::OK) {
+        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description());
+    }
+        
     file.destroy(MemoryType::Native);
     return ret;
 }

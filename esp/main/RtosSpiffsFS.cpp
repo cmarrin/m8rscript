@@ -28,6 +28,16 @@ SpiffsFS::~SpiffsFS()
     unmount();
 }
 
+Error::Code errorCodeFromErrno(int err)
+{
+    switch(err) {
+        case 0: return Error::Code::OK;
+        case EEXIST: return Error::Code::FileExists;
+        case ENOENT: return Error::Code::FileNotFound;
+        default: return Error::Code::Unknown;
+    }
+}
+
 bool SpiffsFS::mount()
 {
     esp_vfs_spiffs_conf_t conf = {
@@ -76,13 +86,10 @@ Mad<File> SpiffsFS::open(const char* name, FileOpenMode mode)
     }
     
     Mad<SpiffsFile> file = Mad<SpiffsFile>::create(MemoryType::Native);
-    String filename = "/spiffs/";
+    String filename = "/spiffs";
     filename += name;
     file->_file = ::open(filename.c_str(), flags);
-    if (file->_file < 0) {
-        file->_error = Error::Code::Unknown;
-    }
-    
+    file->_error = errorCodeFromErrno(errno);
     return file;
 }
 

@@ -154,7 +154,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "/mrsh";
+    return "/hello.m8r";
 }
 
 bool Application::mountFileSystem()
@@ -190,9 +190,17 @@ void Application::runLoop()
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {
+        printf("********************* 1\n");
         _autostartTask = Mad<Task>::create();
+        printf("********************* 2\n");
         _autostartTask->init(filename.c_str());
-        _autostartTask->setConsolePrintFunction([](const String& s) { system()->printf(ROMSTR("%s"), s.c_str()); });
+        printf("********************* 3\n");
+        _autostartTask->setConsolePrintFunction([](const String& s) {
+            printf("********************* 4\n");
+            system()->printf(ROMSTR("%s"), s.c_str());
+            printf("********************* 5\n");
+        });
+        printf("********************* 6\n");
         system()->setListenerFunc([this](const char* line) {
             size_t size = strlen(line);
             if (line[size - 1] == '\n') {
@@ -200,7 +208,11 @@ void Application::runLoop()
             }
             _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
         });
-        _autostartTask->run();
+        printf("********************* 7\n");
+        _autostartTask->run([](m8r::TaskBase*) { 
+            m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
+        });    
+        printf("********************* 8\n");
     }
     
     system()->runLoop();

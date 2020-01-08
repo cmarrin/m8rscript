@@ -9,9 +9,14 @@ PROJECT_NAME := m8rscript
 
 include $(IDF_PATH)/make/project.mk
 
-ESPTOOL_ALL_FLASH_ARGS += 0x100000 build/spiffs.bin
-
 spiffs.bin:
-	python spiffsgen.py 3145728 spiffsdata build/spiffs.bin
+	rm -rf build/spiffsdata
+	mkdir build/spiffsdata
+	cp ../scripts/mrsh build/spiffsdata
+	cp ../scripts/mem build/spiffsdata
+	cp ../scripts/simple/hello.m8r build/spiffsdata
+	python spiffsgen.py 3145728 build/spiffsdata build/spiffs.bin
 	echo '*** generated spiffs.bin'
 
+upload_spiffs: spiffs.bin
+	$(ESPTOOLPY_WRITE_FLASH) 0x100000 build/spiffs.bin

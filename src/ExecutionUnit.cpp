@@ -481,6 +481,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
     
+    ::printf("********************* EU:1\n");
     GC::gc();
     
     uint16_t checkCounter = 0;
@@ -505,10 +506,12 @@ CallReturnValue ExecutionUnit::continueExecution()
     DISPATCH;
     
     L_LINENO:
+        ::printf("********************* EU:3\n");
         _lineno = uNFromCode(_currentAddr);
         DISPATCH;
         
     L_UNKNOWN:
+        ::printf("********************* EU:4\n");
         assert(0);
         return CallReturnValue(CallReturnValue::Type::Finished);
 
@@ -522,19 +525,24 @@ CallReturnValue ExecutionUnit::continueExecution()
                 _terminate = true; 
                 _stack.clear();
                 GC::gc(true);
+                ::printf("********************* EU:5\n");
                 return CallReturnValue(CallReturnValue::Type::Terminated);
             }
+            ::printf("********************* EU:6\n");
             return callReturnValue;
         }
+        ::printf("********************* EU:7\n");
         return callReturnValue;
 
     L_RET:
     L_RETI:
     L_END:
+        ::printf("********************* EU:10.1\n");
         if (_terminate) {
             _stack.clear();
             _callRecords.clear();
             GC::gc(true);
+            ::printf("********************* EU:8\n");
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
@@ -556,10 +564,12 @@ CallReturnValue ExecutionUnit::continueExecution()
                     _terminate = true;
                     _stack.clear();
                     GC::gc(true);
+                    ::printf("********************* EU:9\n");
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
                 GC::gc(true);
+                ::printf("********************* EU:10\n");
                 return CallReturnValue(CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
@@ -706,6 +716,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(byteFromCode(_currentAddr), Value(_this));
         DISPATCH;
     L_PUSH:
+        ::printf("********************* EU:2\n");
         _stack.push(regOrConst(byteFromCode(_currentAddr)));
         DISPATCH;
     L_POP:
