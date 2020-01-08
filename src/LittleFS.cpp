@@ -83,8 +83,9 @@ bool LittleFS::format()
 
 Mad<File> LittleFS::open(const char* name, FileOpenMode mode)
 {
-    // TODO: Implement for the new Mad way
-    return Mad<File>(); //new LittleFile(name, mode);
+    Mad<LittleFile> file = Mad<LittleFile>::create(MemoryType::Native);
+    file->open(name, mode);
+    return file;
 }
 
 Mad<Directory> LittleFS::openDirectory(const char* name)
@@ -125,6 +126,12 @@ bool LittleFS::remove(const char* name)
 bool LittleFS::rename(const char* src, const char* dst)
 {
     return lfs_rename(&_littleFileSystem, src, dst) == 0;
+}
+
+bool LittleFS::exists(const char* name) const
+{
+    struct lfs_info info;
+    return lfs_stat(&_littleFileSystem, name, &info) == LFS_ERR_OK;
 }
 
 uint32_t LittleFS::totalSize() const
@@ -189,9 +196,11 @@ static const int _fileModeMap[] = {
     /* FS::FileOpenMode::Create */          LFS_O_RDWR | LFS_O_CREAT,
 };
 
-LittleFile::LittleFile(const char* name, FS::FileOpenMode mode)
+void LittleFile::open(const char* name, FS::FileOpenMode mode)
 {
-    lfs_error err = static_cast<lfs_error>(lfs_file_open(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)]));
+    struct lfs_file_config defaults = { 0 };
+    defaults.buffer = _buffer;
+    lfs_error err = static_cast<lfs_error>(lfs_file_opencfg(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)], &defaults));
     _error = LittleFS::mapLittleError(err);
     _mode = mode;
 }

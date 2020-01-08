@@ -86,6 +86,8 @@
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
 		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
 		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
+		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
+		49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDA239185CB0094A6B4 /* LittleFS.cpp */; };
 		49BEB2061DC30EB600F70E0B /* MacTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BEB2041DC30EB600F70E0B /* MacTaskManager.cpp */; };
 		49BEB2071DC30EB600F70E0B /* MacTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BEB2051DC30EB600F70E0B /* MacTaskManager.h */; };
 		49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED38E235392FF00DE0C42 /* spiffs_cache.c */; };
@@ -1028,6 +1030,7 @@
 			files = (
 				49E987182365CEF000C17CB6 /* Mallocator.cpp in Sources */,
 				49E9871223628AE600C17CB6 /* MFS.cpp in Sources */,
+				49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */,
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
@@ -1040,6 +1043,7 @@
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
 				490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
+				49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */,
 				499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */,
 				49BDE19E236C711B00304BE8 /* MString.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,

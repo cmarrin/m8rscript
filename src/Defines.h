@@ -16,6 +16,8 @@
 #define USE_UMM
 #endif
 
+#define USE_LITTLEFS
+
 // Do this so we can present defines for malloc/free for c files
 #ifndef __cplusplus
 

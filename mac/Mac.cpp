@@ -111,4 +111,9 @@ void m8r::heapInfo(void*& start, uint32_t& size)
 static MacSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
+
+#ifdef USE_LITTLEFS
+void m8r::initMacFileSystem(const char* fsFile) { LittleFS::setHostFilename(fsFile); }
+#else
 void m8r::initMacFileSystem(const char* fsFile) { SpiffsFS::setHostFilename(fsFile); }
+#endif

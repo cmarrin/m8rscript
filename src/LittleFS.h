@@ -25,6 +25,50 @@ extern "C" {
 
 namespace m8r {
 
+class LittleFS : public FS {
+    friend class LittleDirectory;
+    friend class LittleFile;
+    
+public:
+    static constexpr uint32_t BufferSize = 64;
+
+    LittleFS();
+    virtual ~LittleFS();
+    
+    virtual bool mount() override;
+    virtual bool mounted() const override;
+    virtual void unmount() override;
+    virtual bool format() override;
+    
+    virtual Mad<File> open(const char* name, FileOpenMode) override;
+    virtual Mad<Directory> openDirectory(const char* name) override;
+    virtual bool makeDirectory(const char* name) override;
+    virtual bool remove(const char* name) override;
+    virtual bool rename(const char* src, const char* dst) override;
+    virtual bool exists(const char* name) const override;
+    
+    virtual uint32_t totalSize() const override;
+    virtual uint32_t totalUsed() const override;
+
+    static void setHostFilename(const char*);
+
+private:
+    static Error::Code mapLittleError(lfs_error);
+
+    static void setConfig(lfs_config&);
+    
+    static lfs_t* sharedLittle()
+    {
+        return &_littleFileSystem;
+    }
+    
+    int32_t internalMount();
+
+    lfs_config _config;
+
+    static lfs_t _littleFileSystem;
+};
+
 class LittleDirectory : public Directory {
     friend class LittleFS;
     
@@ -60,48 +104,10 @@ protected:
     void setError(Error error) { _error = error; }
     
 private:
-    LittleFile(const char* name, FS::FileOpenMode mode);
+    void open(const char* name, FS::FileOpenMode);
 
     lfs_file_t _file;
-};
-
-class LittleFS : public FS {
-    friend LittleDirectory;
-    friend LittleFile;
-    
-public:
-    LittleFS();
-    virtual ~LittleFS();
-    
-    virtual bool mount() override;
-    virtual bool mounted() const override;
-    virtual void unmount() override;
-    virtual bool format() override;
-    
-    virtual Mad<File> open(const char* name, FileOpenMode) override;
-    virtual Mad<Directory> openDirectory(const char* name) override;
-    virtual bool makeDirectory(const char* name) override;
-    virtual bool remove(const char* name) override;
-    virtual bool rename(const char* src, const char* dst) override;
-
-    virtual uint32_t totalSize() const override;
-    virtual uint32_t totalUsed() const override;
-
-private:
-    static Error::Code mapLittleError(lfs_error);
-
-    static void setConfig(lfs_config&);
-    
-    static lfs_t* sharedLittle()
-    {
-        return &_littleFileSystem;
-    }
-    
-    int32_t internalMount();
-
-    lfs_config _config;
-
-    static lfs_t _littleFileSystem;
+    char _buffer[LittleFS::BufferSize];
 };
 
 }
