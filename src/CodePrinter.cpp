@@ -341,9 +341,6 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
-    L_DEREF:
-        generateRRR(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
-        DISPATCH;
     L_RET:
         generateXN(program, function, outputString, pc, op, byteFromCode(currentAddr), false);
         DISPATCH;
