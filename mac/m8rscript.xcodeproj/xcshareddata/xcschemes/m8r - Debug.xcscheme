@@ -70,7 +70,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-l /"
+            argument = "-l /sys/bin"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
