@@ -19,6 +19,27 @@ lfs_t LittleFS::_littleFileSystem;
 LittleFS::LittleFS()
 {
     memset(&_littleFileSystem, 0, sizeof(_littleFileSystem));
+
+    lfs_size_t blockSize = 256;
+    lfs_size_t fsSize = FS::PhysicalSize;
+
+    char* buffer = new char[BufferSize * 3];
+    
+    memset(&_config, 0, sizeof(_config));
+    _config.read_size = 64;
+    _config.prog_size = 64;
+    _config.block_size =  blockSize;
+    _config.block_count = blockSize ? fsSize / blockSize: 0;
+    _config.block_cycles = 16; // TODO - need better explanation
+    _config.cache_size = 64;
+    _config.lookahead_size = 64;
+    _config.read_buffer = buffer;
+    _config.prog_buffer = buffer + BufferSize;
+    _config.lookahead_buffer = buffer + (BufferSize * 2);
+    _config.name_max = 0;
+    _config.file_max = 0;
+    _config.attr_max = 0;
+    
     setConfig(_config);
 }
 
@@ -198,7 +219,8 @@ static const int _fileModeMap[] = {
 
 void LittleFile::open(const char* name, FS::FileOpenMode mode)
 {
-    struct lfs_file_config defaults = { 0 };
+    struct lfs_file_config defaults;
+    memset(&defaults, 0, sizeof(defaults));
     defaults.buffer = _buffer;
     lfs_error err = static_cast<lfs_error>(lfs_file_opencfg(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)], &defaults));
     _error = LittleFS::mapLittleError(err);

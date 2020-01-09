@@ -19,10 +19,11 @@
  */
 
 #include "Defines.h"
-//#include "RtosSpiffsFS.h"
+#include "LittleFS.h"
 #include "RtosTaskManager.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
+#include "spi_flash.h"
 
 using namespace m8r;
 
@@ -121,7 +122,7 @@ public:
     
     virtual void setDeviceName(const char* name) { }
     
-    virtual FS* fileSystem() override { return nullptr; /*&_fileSystem;*/ }
+    virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
     virtual TaskManager* taskManager() override { return &_taskManager; };
     
@@ -137,7 +138,7 @@ public:
 
 private:
 //    RtosGPIOInterface _gpio;
-//    SpiffsFS _fileSystem;
+    LittleFS _fileSystem;
     RtosTaskManager _taskManager;
 };
 
@@ -151,3 +152,36 @@ uint64_t m8r::SystemInterface::currentMicroseconds()
 static RtosSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
+
+static int lfs_flash_read(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size)
+{
+    uint32_t addr = (block * 256) + off;
+    return spi_flash_read(addr, static_cast<uint8_t*>(dst), size) == 0 ? 0 : -1;
+}
+
+static int lfs_flash_write(const struct lfs_config *c,
+    lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
+{
+    uint32_t addr = (block * 256) + off;
+    return (spi_flash_write(addr, buffer, size) == 0) ? 0 : -1;
+}
+
+static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block)
+{
+    return (spi_flash_erase_sector(block) == 0) ? 0 : -1;
+}
+
+static int lfs_flash_sync(const struct lfs_config *c) {
+    /* NOOP */
+    (void) c;
+    return 0;
+}
+
+void LittleFS::setConfig(lfs_config& config)
+{
+    config.read = lfs_flash_read;
+    config.prog = lfs_flash_write;
+    config.erase = lfs_flash_erase;
+    config.sync = lfs_flash_sync;
+}

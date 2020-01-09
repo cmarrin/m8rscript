@@ -8,11 +8,12 @@
 -------------------------------------------------------------------------*/
 
 #include "LittleFS.h"
-#include "lfs.h"
-#include "spiffs_config.h" // For SPIFFS_PHYS_SIZE
-#include <errno.h>
 
-// The simulated LittleFS file is a file SPIFFS_PHYS_SIZE in size in the real
+#include "lfs.h"
+#include <errno.h>
+#include <unistd.h>
+
+// The simulated LittleFS file is a file FS::PhysicalSize in size in the real
 // filesystem. The name of that file is passed in
 
 using namespace m8r;
@@ -102,37 +103,16 @@ void LittleFS::setHostFilename(const char* name)
             fsFile = nullptr;
         }
         
-        if (ftell(fsFile) < SPIFFS_PHYS_SIZE) {
-            ftruncate(fileno(fsFile), SPIFFS_PHYS_SIZE);
+        if (ftell(fsFile) < FS::PhysicalSize) {
+            ftruncate(fileno(fsFile), FS::PhysicalSize);
         }
     }
 }
 
 void LittleFS::setConfig(lfs_config& config)
 {
-    lfs_size_t blockSize = 256;
-    lfs_size_t fsSize = SPIFFS_PHYS_SIZE;
-
-    char* buffer = new char[BufferSize * 3];
-    
-    memset(&config, 0, sizeof(config));
-    //config.context = (void*) this;
     config.read = lfs_flash_read;
     config.prog = lfs_flash_prog;
     config.erase = lfs_flash_erase;
     config.sync = lfs_flash_sync;
-    config.read_size = 64;
-    config.prog_size = 64;
-    config.block_size =  blockSize;
-    config.block_count = blockSize ? fsSize / blockSize: 0;
-    config.block_cycles = 16; // TODO - need better explanation
-    config.cache_size = 64;
-    config.lookahead_size = 64;
-    config.read_buffer = buffer;
-    config.prog_buffer = buffer + BufferSize;
-    config.lookahead_buffer = buffer + (BufferSize * 2);
-    config.name_max = 0;
-    config.file_max = 0;
-    config.attr_max = 0;
 }
-

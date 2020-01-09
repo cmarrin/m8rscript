@@ -11,7 +11,7 @@
 #include "spiffs.h"
 #include <errno.h>
 
-// The simulated SPIFFS file is a file SPIFFS_PHYS_SIZE in size in the real
+// The simulated SPIFFS file is a file FS::PhysicalSize in size in the real
 // filesystem. The name of that file is passed in
 
 using namespace m8r;
@@ -104,8 +104,8 @@ void SpiffsFS::setHostFilename(const char* name)
             fsFile = nullptr;
         }
         
-        if (ftell(fsFile) < SPIFFS_PHYS_SIZE) {
-            ftruncate(fileno(fsFile), SPIFFS_PHYS_SIZE);
+        if (ftell(fsFile) < FS::PhysicalSize) {
+            ftruncate(fileno(fsFile), FS::PhysicalSize);
         }
     }
 }

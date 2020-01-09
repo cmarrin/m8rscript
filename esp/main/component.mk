@@ -5,9 +5,9 @@
 
 SRC_DIR := ../../src
 
-COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR)
-COMPONENT_EXTRA_INCLUDES := $(IDF_PATH)/components/spiffs/spiffs/src/
-COMPONENT_SRCDIRS := . $(SRC_DIR)
+COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR) $(SRC_DIR)/littlefs
+COMPONENT_EXTRA_INCLUDES := 
+COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_OBJS := m8rscript.o \
     RtosSystemInterface.o \
     RtosTaskManager.o \
@@ -25,6 +25,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/IPAddr.o \
     $(SRC_DIR)/Iterator.o \
     $(SRC_DIR)/JSON.o \
+    $(SRC_DIR)/LittleFS.o \
     $(SRC_DIR)/Mallocator.o \
     $(SRC_DIR)/MFS.o \
     $(SRC_DIR)/MString.o \
@@ -43,3 +44,5 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/UDP.o \
     $(SRC_DIR)/Value.o \
     $(SRC_DIR)/slre.o \
+    $(SRC_DIR)/littlefs/lfs.o \
+$(SRC_DIR)/littlefs/lfs_util.o \

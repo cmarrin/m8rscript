@@ -71,6 +71,8 @@ class FS {
     friend class File;
     
 public:
+    static constexpr uint32_t PhysicalSize = 3 * 1024 * 1024;
+    
     // Supprted open modes:
     //
     // Mode           Read/write    File does not exist   File Exists            Seek
