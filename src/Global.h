@@ -52,6 +52,11 @@ public:
     static CallReturnValue importString(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue waitForEvent(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue meminfo(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+    static const Global* shared() { return &_global; }
+    
+private:
+    static Global _global;
 };
     
 }

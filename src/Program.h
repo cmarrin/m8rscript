@@ -27,9 +27,6 @@ public:
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
 
-    const StaticObject* global() const { return &_global; }
-    StaticObject* global() { return &_global; }
-        
     const char* stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
     Atom atomizeString(ROMString s) const { return _atomTable.atomizeString(s); }
@@ -70,8 +67,6 @@ private:
     AtomTable _atomTable;
     
     Vector<char> _stringLiteralTable;
-
-    Global _global;
 };
 
 }

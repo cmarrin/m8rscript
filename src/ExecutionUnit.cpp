@@ -163,7 +163,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return value;
     }
     
-    value = _program->global()->property(atom);
+    value = Global::shared()->property(atom);
     if (value) {
         return value;
     }
@@ -635,7 +635,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             // We need to handle 'iterator' here because if the value is undefined and the property
             // is 'iterator' we need to supply the default iterator
             if (prop == Atom(SA::iterator)) {
-                leftValue = program()->global()->property(Atom(SA::Iterator));
+                leftValue = Global::shared()->property(Atom(SA::Iterator));
             } else {
                 printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringPointer(this));
                 DISPATCH;

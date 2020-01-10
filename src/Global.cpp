@@ -15,6 +15,8 @@
 
 using namespace m8r;
 
+Global Global::_global;
+
 Base64 Global::_base64;
 GPIO Global::_gpio;
 JSON Global::_json;
