@@ -127,9 +127,9 @@ public:
     operator Mad<U>() const
     {
         // Verify that U and T are either the same class or T is a subclass of U
-        U* u = nullptr;
-        const T* t = static_cast<const T*>(u);
-        (void) t;
+        T* t = nullptr;
+        const U* u = t;
+        (void) u;
 
         return Mad<U>(raw());
     }

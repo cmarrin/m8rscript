@@ -56,6 +56,9 @@ public:
         return setProperty(elt.toIdValue(eu), value, append ? Value::SetPropertyType::AlwaysAdd : Value::SetPropertyType::NeverAdd);
     }
 
+    virtual uint32_t numProperties() const { return 0; }
+    virtual Atom propertyKeyforIndex(uint32_t i) const { return Atom(); }
+    
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     
@@ -66,7 +69,7 @@ public:
     bool hasSet() const { return _hasSet; }
     
     // methods for Callable (m8rscript) objects
-    virtual const InstructionVector* code() const { return nullptr; }
+    //virtual const InstructionVector* code() const { return nullptr; }
     virtual uint16_t localCount() const { return 0; }
     virtual const ConstantValueVector*  constants() const { return nullptr; }
     virtual uint16_t formalParamCount() const { return 0; }
@@ -117,8 +120,8 @@ public:
     virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
-    uint32_t numProperties() const { return static_cast<int32_t>(_properties.size()); }
-    Atom propertyKeyforIndex(uint32_t i) const { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
+    virtual uint32_t numProperties() const override { return static_cast<int32_t>(_properties.size()); }
+    virtual Atom propertyKeyforIndex(uint32_t i) const override { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
     
 private:
     PropertyMap _properties;
@@ -174,7 +177,8 @@ CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    nativeObj = obj->property(Atom(SA::__nativeObject)).asNativeObject();
+    Mad<NativeObject> nobj = obj->property(Atom(SA::__nativeObject)).asNativeObject();
+    nativeObj = Mad<T>(nobj.raw());
     if (!nativeObj.valid()) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }

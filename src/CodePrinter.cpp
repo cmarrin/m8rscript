@@ -149,7 +149,7 @@ void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> f
     str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Object> func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -479,8 +479,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
                 break;
             }
             
-            // Make the assumption that this is a MaterObject
-            Mad<MaterObject> obj = value.asObject();
+            Mad<Object> obj = value.asObject();
             if (obj.valid()) {
                 _nestingLevel++;
                 s += "CLASS {\n";

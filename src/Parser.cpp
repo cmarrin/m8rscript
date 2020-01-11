@@ -858,8 +858,7 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
             uint32_t r = entry._reg;
             if (makeClosure) {
                 Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
-                Mad<Object> obj = v.asObject();
-                Mad<Function> func = (obj.valid() && obj->isFunction()) ? Mad<Function>(obj) : Mad<Function>();
+                Mad<Function> func = v.asFunction();
                 if (func.valid()) {
                     pop();
                     uint32_t dst = pushRegister();

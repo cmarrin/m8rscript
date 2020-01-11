@@ -343,12 +343,12 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     _openUpValues.erase(it, _openUpValues.end());
 }
 
-void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams)
+void ExecutionUnit::startFunction(Mad<Function> function, Mad<Object> thisObject, uint32_t nparams)
 {
     assert(_program.valid());
     assert(function.valid());
     
-    Mad<Object> prevFunction = _function;
+    Mad<Function> prevFunction = _function;
     _function =  function;
     assert(_function->code() && _function->code()->size());
 
@@ -548,7 +548,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 returnedValue = nparams ? _stack.top(1 - nparams) : Value();
                 _stack.pop(nparams);
             }
-            if (_program == _function) {
+            if (static_cast<Mad<Function>>(_program) == _function) {
                 // We've hit the end of the program
                 
                 if (!_stack.validateFrame(0, _program->localCount())) {

@@ -76,7 +76,7 @@ public:
 
     virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;
     
-    virtual const InstructionVector* code() const override { return _func->code(); }
+    const InstructionVector* code() const { return _func->code(); }
     virtual uint16_t localCount() const override { return _func->localCount(); }
     virtual const ConstantValueVector*  constants() const override { return _func->constants(); }
     virtual uint16_t formalParamCount() const override { return _func->formalParamCount(); }

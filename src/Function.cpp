@@ -36,7 +36,7 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
 {
-    eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams);
+    eu->startFunction(Mad<Function>(this), thisValue.asObject(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

@@ -112,7 +112,7 @@ private:
         return opFromCode(_currentAddr, imm);
     }
     
-    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
+    void startFunction(Mad<Function> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue runNextEvent();
 
     void printError(ROMString s, ...) const;
@@ -172,7 +172,7 @@ private:
     
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
+        CallRecord(uint32_t pc, uint32_t frame, Mad<Function> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -184,7 +184,7 @@ private:
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
         uint32_t _frame;
-        Mad<Object> _func;
+        Mad<Function> _func;
         Mad<Object> _thisObj;
         uint32_t _lineno;
     };
@@ -197,7 +197,7 @@ private:
     ExecutionStack _stack;
     
     Mad<Program> _program;
-    Mad<Object> _function;
+    Mad<Function> _function;
     Mad<Object> _this;
     uint32_t _localOffset = 0;
     uint16_t _formalParamCount = 0;

@@ -121,7 +121,7 @@ private:
     Vector<Value>& currentConstants() { assert(_functions.size()); return _functions.back()._constants; }
 
     void classStart() { _classes.push_back(Object::create<MaterObject>()); }
-    void classEnd() { pushK(Value(_classes.back())); _classes.pop_back(); }
+    void classEnd() { pushK(Value(static_cast<Mad<Object>>(_classes.back()))); _classes.pop_back(); }
     Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
         
     void pushK(StringLiteral::Raw value);
@@ -287,7 +287,7 @@ private:
 
     FunctionEntryVector _functions;
     
-    Vector<Mad<Object>> _classes;
+    Vector<Mad<MaterObject>> _classes;
 
     Scanner _scanner;
     Mad<Program> _program;

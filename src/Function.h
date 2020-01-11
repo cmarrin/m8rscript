@@ -38,7 +38,7 @@ public:
         }
     }
 
-    virtual const InstructionVector* code() const override { return &_code; }
+    const InstructionVector* code() const { return &_code; }
     void setCode(const Vector<uint8_t>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
 
     void setLocalCount(uint16_t size) { _localSize = size; }
