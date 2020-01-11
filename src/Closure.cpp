@@ -22,9 +22,8 @@ Closure::~Closure()
 
 void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisValue)
 {
-    assert(function.isFunction());
     _thisValue = thisValue;
-    _func = function.asObject();
+    _func = function.asCallable();
     assert(_func.valid());
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
@@ -32,7 +31,9 @@ void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisVa
 
         uint32_t index;
         uint16_t frame;
-        _func->upValue(i, index, frame);
+        if (!_func->upValue(i, index, frame)) {
+            continue;
+        }
         
         up->setStackIndex(eu->upValueStackIndex(index, frame - 1));
         eu->addOpenUpValue(up);
@@ -62,12 +63,12 @@ bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value
     return true;
 }
 
-CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (!thisValue) {
         thisValue = _thisValue;
     }
-    eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams);
+    eu->startFunction(Mad<Callable>(this), thisValue.asObject(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);
 }
 

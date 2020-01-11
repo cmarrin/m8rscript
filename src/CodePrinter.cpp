@@ -188,7 +188,6 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         return String();
     }
     
-    assert(func->isFunction());
     const Mad<Function> function = func;
     
     m8r::String outputString;
@@ -455,12 +454,12 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
             s += program->stringFromAtom(value.asIdValue()); 
             s += "\")"; 
             break;
-        case Value::Type::Function: {
+        case Value::Type::Callable: {
             if (abbreviated) {
                 s += "FUNCTION";
                 break;
             }
-            Mad<Function> func = value.asFunction();
+            Mad<Function> func = Mad<Function>(value.asCallable().raw());
             if (func.valid()) {
                 _nestingLevel++;
                 s += "\n";

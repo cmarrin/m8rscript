@@ -81,7 +81,7 @@ public:
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
     void addOpenUpValue(const Mad<UpValue> upValue) { _openUpValues.push_back(upValue); }
     
-    Mad<Object> currentFunction() const { return _function; }
+    Mad<Callable> currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
 
@@ -112,7 +112,7 @@ private:
         return opFromCode(_currentAddr, imm);
     }
     
-    void startFunction(Mad<Function> function, Mad<Object> thisObject, uint32_t nparams);
+    void startFunction(Mad<Callable> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue runNextEvent();
 
     void printError(ROMString s, ...) const;
@@ -172,7 +172,7 @@ private:
     
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Mad<Function> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
+        CallRecord(uint32_t pc, uint32_t frame, Mad<Callable> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -184,7 +184,7 @@ private:
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
         uint32_t _frame;
-        Mad<Function> _func;
+        Mad<Callable> _func;
         Mad<Object> _thisObj;
         uint32_t _lineno;
     };
@@ -197,7 +197,7 @@ private:
     ExecutionStack _stack;
     
     Mad<Program> _program;
-    Mad<Function> _function;
+    Mad<Callable> _function;
     Mad<Object> _this;
     uint32_t _localOffset = 0;
     uint16_t _formalParamCount = 0;

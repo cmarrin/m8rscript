@@ -43,7 +43,7 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
     
     Value ctor = proto.property(eu, Atom(SA::constructor));
     if (ctor) {
-        CallReturnValue retval = ctor.call(eu, objectValue, nparams, true);
+        CallReturnValue retval = ctor.call(eu, objectValue, nparams);
         // ctor should not return anything
         if (!retval.isReturnCount() || retval.returnCount() > 0) {
             return retval;
@@ -53,16 +53,17 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
+
 String Object::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {
         return eu->program()->stringFromAtom(typeName());
     }
     
-    Value callable = property(Atom(SA::toString));
+    Mad<Callable> callable = property(Atom(SA::toString)).asCallable();
     
-    if (callable) {
-        CallReturnValue retval = callable.call(eu, Value(Mad<Object>(this)), 0, true);
+    if (callable.valid()) {
+        CallReturnValue retval = callable->call(eu, Value(Mad<Object>(this)), 0);
         if (!retval.isReturnCount()) {
             return "";
         }
@@ -212,7 +213,12 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
     if (!callee) {
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
-    return callee.call(eu, Value(Mad<Object>(this)), nparams, false);
+    
+    Mad<Callable> callable = callee.asCallable();
+    if (!callable.valid()) {
+        return CallReturnValue(CallReturnValue::Error::CannotCall);
+    }
+    return callable->call(eu, Value(Mad<Object>(this)), nparams);
 }
 
 CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -330,16 +336,6 @@ bool MaterArray::setProperty(const Atom& prop, const Value& v, Value::SetPropert
     return false;
 }
 
-CallReturnValue MaterObject::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
-{
-    if (!ctor) {
-        // FIXME: Do we want to handle calling an object as a function, like JavaScript does?
-        return CallReturnValue(CallReturnValue::Error::ConstructorOnly);
-    }
-    
-    return Object::construct(Value(Mad<Object>(this)), eu, nparams);
-}
-
 ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constructor)
     : _constructor(constructor)
 {
@@ -394,7 +390,7 @@ void ObjectFactory::addProperty(SA sa, NativeFunction f)
 Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
     Value protoValue = Global::shared()->property(objectName);
-    CallReturnValue ret = protoValue.call(eu, Value(), nparams, true);
+    CallReturnValue ret = protoValue.call(eu, Value(), nparams);
     
     if (ret.isReturnCount() && ret.returnCount() > 0) {
         Value value = eu->stack().top(1 - ret.returnCount());

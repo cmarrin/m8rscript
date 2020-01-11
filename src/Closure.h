@@ -49,7 +49,7 @@ private:
     bool _destroyed : 1;
 };
 
-class Closure : public Object {
+class Closure : public Callable {
 public:
     Closure() { }
     virtual ~Closure();
@@ -74,9 +74,9 @@ public:
     
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor) override;
+    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams) override;
     
-    const InstructionVector* code() const { return _func->code(); }
+    virtual const InstructionVector* code() const override { return _func->code(); }
     virtual uint16_t localCount() const override { return _func->localCount(); }
     virtual const ConstantValueVector*  constants() const override { return _func->constants(); }
     virtual uint16_t formalParamCount() const override { return _func->formalParamCount(); }
@@ -88,7 +88,7 @@ public:
 private:
     Vector<Mad<UpValue>> _upValues;
 
-    Mad<Function> _func;
+    Mad<Callable> _func;
     Value _thisValue;
 };
 

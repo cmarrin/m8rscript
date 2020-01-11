@@ -28,6 +28,8 @@ using PropertyMap = Map<Atom, Value>;
 
 class Object {    
 public:
+    friend class MaterObject;
+    
     Object()
         :  _marked(true)
         , _hasGet(false)
@@ -67,22 +69,12 @@ public:
 
     bool hasGet() const { return _hasGet; }
     bool hasSet() const { return _hasSet; }
-    
-    // methods for Callable (m8rscript) objects
-    //virtual const InstructionVector* code() const { return nullptr; }
-    virtual uint16_t localCount() const { return 0; }
-    virtual const ConstantValueVector*  constants() const { return nullptr; }
-    virtual uint16_t formalParamCount() const { return 0; }
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
-    virtual Atom name() const { return Atom(); }
-    virtual bool isFunction() const { return false; }
-    
+        
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     Atom typeName() const { return _typeName; }
     void setTypeName(Atom name) { _typeName = name; }
-    
+
     static CallReturnValue construct(const Value& proto, ExecutionUnit*, uint32_t nparams);
 
 protected:
@@ -103,6 +95,24 @@ private:
     Atom _typeName;
 };
 
+class Callable : public Object {
+public:
+    Callable() { }
+    virtual ~Callable() { }
+    
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) = 0;
+    virtual const InstructionVector* code() const = 0;
+    virtual uint16_t localCount() const = 0;
+    virtual const ConstantValueVector*  constants() const = 0;
+    virtual uint16_t formalParamCount() const = 0;
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const = 0;
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) = 0;
+    virtual uint32_t upValueCount() const { return 0; }
+    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame) const { return false; }
+
+    virtual Atom name() const = 0;
+};
+
 class MaterObject : public Object {
 public:
     MaterObject() { }
@@ -118,11 +128,10 @@ public:
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(const Atom& prop) const override;
     virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
 
     virtual uint32_t numProperties() const override { return static_cast<int32_t>(_properties.size()); }
     virtual Atom propertyKeyforIndex(uint32_t i) const override { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
-    
+
 private:
     PropertyMap _properties;
 };

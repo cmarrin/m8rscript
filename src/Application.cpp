@@ -196,6 +196,9 @@ void Application::runLoop()
             system()->printf(ROMSTR("%s"), s.c_str());
         });
         system()->setListenerFunc([this](const char* line) {
+            if (!line) {
+                return;
+            }
             size_t size = strlen(line);
             if (line[size - 1] == '\n') {
                 size -= 1;

@@ -77,6 +77,7 @@ void ExecutionUnit::printError(CallReturnValue::Error error) const
         case CallReturnValue::Error::CannotConvertStringToNumber: errorString = ROMSTR("string cannot be converted"); break;
         case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
         case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
+        case CallReturnValue::Error::CannotConstruct: errorString = ROMSTR("cannot construct value of this type"); break;
         case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
         case CallReturnValue::Error::SyntaxErrors: errorString = ROMSTR("syntax errors"); break;
         case CallReturnValue::Error::ImportTimeout: errorString = ROMSTR("import() timeout"); break;
@@ -284,7 +285,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
     eventUnlock();
     
     if (haveEvent) {
-        CallReturnValue callReturnValue = func.call(this, Value(), nargs, false);
+        CallReturnValue callReturnValue = func.call(this, Value(), nargs);
                 
         // Callbacks don't return a value. Ignore it, but pop the stack
         if (callReturnValue.isReturnCount()) {
@@ -343,12 +344,12 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     _openUpValues.erase(it, _openUpValues.end());
 }
 
-void ExecutionUnit::startFunction(Mad<Function> function, Mad<Object> thisObject, uint32_t nparams)
+void ExecutionUnit::startFunction(Mad<Callable> function, Mad<Object> thisObject, uint32_t nparams)
 {
     assert(_program.valid());
     assert(function.valid());
     
-    Mad<Function> prevFunction = _function;
+    Mad<Callable> prevFunction = _function;
     _function =  function;
     assert(_function->code() && _function->code()->size());
 
@@ -436,7 +437,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
-        Mad<Function> func = it.asFunction();
+        Mad<Callable> func = it.asCallable();
         if (func.valid() && func->name()) {
             obj->setProperty(func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
         }
@@ -548,7 +549,7 @@ CallReturnValue ExecutionUnit::continueExecution()
                 returnedValue = nparams ? _stack.top(1 - nparams) : Value();
                 _stack.pop(nparams);
             }
-            if (static_cast<Mad<Function>>(_program) == _function) {
+            if (static_cast<Mad<Callable>>(_program) == _function) {
                 // We've hit the end of the program
                 
                 if (!_stack.validateFrame(0, _program->localCount())) {
@@ -873,11 +874,11 @@ CallReturnValue ExecutionUnit::continueExecution()
                 if (!rightValue) {
                     rightValue = Value(_this);
                 }
-                callReturnValue = leftValue.call(this, rightValue, uintValue, false);
+                callReturnValue = leftValue.call(this, rightValue, uintValue);
                 break;
             }
             case Op::NEW:
-                callReturnValue = leftValue.call(this, Value(), uintValue, true);
+                callReturnValue = leftValue.construct(this, uintValue);
                 break;
             case Op::CALLPROP:
                 name = regOrConst(rb).asIdValue();

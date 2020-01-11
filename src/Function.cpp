@@ -29,12 +29,12 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
         eu->stack().remove(1 - nparams);
         nparams--;
     
-        return call(eu, self, nparams, false);
+        return call(eu, self, nparams);
     }
     return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
 }
 
-CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams, bool ctor)
+CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     eu->startFunction(Mad<Function>(this), thisValue.asObject(), nparams);
     return CallReturnValue(CallReturnValue::Type::FunctionStart);

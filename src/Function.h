@@ -15,13 +15,11 @@
 
 namespace m8r {
 
-class Function : public MaterObject {
+class Function : public Callable {
 public:
     Function();
 
     virtual ~Function() { }
-
-    virtual bool isFunction() const override { return true; }
 
     virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : Object::toString(eu, false); }
         
@@ -32,19 +30,19 @@ public:
         if (isMarked()) {
             return;
         }
-        MaterObject::gcMark();
+        Object::gcMark();
         for (auto it : _constants) {
             it.gcMark();
         }
     }
 
-    const InstructionVector* code() const { return &_code; }
+    virtual const InstructionVector* code() const override { return &_code; }
     void setCode(const Vector<uint8_t>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
 
     void setLocalCount(uint16_t size) { _localSize = size; }
     virtual uint16_t localCount() const override { return _localSize; }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) override;
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) override;
 
     void setConstants(const Vector<Value>& constants) { bool retval = _constants.assign(constants); (void) retval; assert(retval); }
 
@@ -62,13 +60,14 @@ public:
         name = _upValues[i]._name;
     }
     
-    void upValue(uint32_t i, uint32_t& index, uint16_t& frame) const
+    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame) const override
     {
         index = _upValues[i]._index;
         frame = _upValues[i]._frame;
+        return true;
     }
     
-    uint32_t upValueCount() const { return static_cast<uint32_t>(_upValues.size()); }
+    virtual uint32_t upValueCount() const override { return static_cast<uint32_t>(_upValues.size()); }
 
     void setFormalParamCount(uint16_t count) { _formalParamCount = count; }
     virtual uint16_t formalParamCount() const override{ return _formalParamCount; }
