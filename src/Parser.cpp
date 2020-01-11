@@ -249,14 +249,6 @@ ConstantId Parser::addConstant(const Value& v)
     return r;
 }
 
-void Parser::pushK(StringLiteral::Raw s)
-{
-    if (nerrors()) return;
-    
-    ConstantId id = addConstant(Value(StringLiteral(s)));
-    _parseStack.pushConstant(id.raw());
-}
-
 void Parser::pushK(const char* s)
 {
     if (nerrors()) return;
@@ -276,13 +268,6 @@ void Parser::pushK(const Value& value)
 void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
 {
     if (nerrors()) return;
-    
-    // Add code to make this look like 'var name = function(...) ...'
-//    addVar(name);
-//    emitId(name, IdType::MustBeLocal);
-//    pushK(Value(func));
-//    emitMove();
-//    discardResult();
 
     addConstant(Value(func));
     func->setName(name);

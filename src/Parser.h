@@ -124,7 +124,6 @@ private:
     void classEnd() { pushK(Value(static_cast<Mad<Object>>(_classes.back()))); _classes.pop_back(); }
     Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
         
-    void pushK(StringLiteral::Raw value);
     void pushK(const char* value);
     void pushK(const Value& value);
     void pushThis();
