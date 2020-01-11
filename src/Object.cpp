@@ -214,11 +214,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
     
-    Mad<Object> obj = callee.asObject();
-    if (!obj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::CannotCall);
-    }
-    return obj->call(eu, Value(Mad<Object>(this)), nparams);
+    return callee.call(eu, Value(Mad<Object>(this)), nparams);
 }
 
 CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
