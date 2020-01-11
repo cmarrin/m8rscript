@@ -60,10 +60,10 @@ String Object::toString(ExecutionUnit* eu, bool typeOnly) const
         return eu->program()->stringFromAtom(typeName());
     }
     
-    Mad<Callable> callable = property(Atom(SA::toString)).asCallable();
+    Mad<Object> obj = property(Atom(SA::toString)).asObject();
     
-    if (callable.valid()) {
-        CallReturnValue retval = callable->call(eu, Value(Mad<Object>(this)), 0);
+    if (obj.valid()) {
+        CallReturnValue retval = obj->call(eu, Value(Mad<Object>(this)), 0);
         if (!retval.isReturnCount()) {
             return "";
         }
@@ -214,11 +214,11 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
         return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
     }
     
-    Mad<Callable> callable = callee.asCallable();
-    if (!callable.valid()) {
+    Mad<Object> obj = callee.asObject();
+    if (!obj.valid()) {
         return CallReturnValue(CallReturnValue::Error::CannotCall);
     }
-    return callable->call(eu, Value(Mad<Object>(this)), nparams);
+    return obj->call(eu, Value(Mad<Object>(this)), nparams);
 }
 
 CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)

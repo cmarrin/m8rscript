@@ -437,7 +437,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     
     // Get any constant functions
     for (auto it : *(function->constants())) {
-        Mad<Callable> func = it.asCallable();
+        Mad<Object> func = it.asObject();
         if (func.valid() && func->name()) {
             obj->setProperty(func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
         }

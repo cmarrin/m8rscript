@@ -26,7 +26,22 @@ using ConstantValueVector = FixedVector<ConstantValue>;
 using InstructionVector = FixedVector<uint8_t>;
 using PropertyMap = Map<Atom, Value>;
 
-class Object {    
+class Callable {
+public:
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
+    virtual const InstructionVector* code() const { return nullptr; }
+    virtual uint16_t localCount() const { return 0; }
+    virtual const ConstantValueVector*  constants() const { return nullptr; }
+    virtual uint16_t formalParamCount() const { return 0; }
+    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
+    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
+    virtual uint32_t upValueCount() const { return 0; }
+    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const { return false; }
+
+    virtual Atom name() const { return Atom(); }
+};
+
+class Object : public Callable {    
 public:
     friend class MaterObject;
     
@@ -61,7 +76,6 @@ public:
     virtual uint32_t numProperties() const { return 0; }
     virtual Atom propertyKeyforIndex(uint32_t i) const { return Atom(); }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams, bool ctor) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     
     void setMarked(bool b) { _marked = b; }
@@ -93,24 +107,6 @@ private:
     bool _hasSet : 1;
     bool _isDestroyed : 1;
     Atom _typeName;
-};
-
-class Callable : public Object {
-public:
-    Callable() { }
-    virtual ~Callable() { }
-    
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) = 0;
-    virtual const InstructionVector* code() const = 0;
-    virtual uint16_t localCount() const = 0;
-    virtual const ConstantValueVector*  constants() const = 0;
-    virtual uint16_t formalParamCount() const = 0;
-    virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const = 0;
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) = 0;
-    virtual uint32_t upValueCount() const { return 0; }
-    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame) const { return false; }
-
-    virtual Atom name() const = 0;
 };
 
 class MaterObject : public Object {

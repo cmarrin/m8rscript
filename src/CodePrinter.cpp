@@ -64,7 +64,7 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program) const
     return generateCodeString(program, program, "main", 0);
 }
 
-String CodePrinter::regString(const Mad<Program> program, const Mad<Function> function, uint32_t reg, bool up) const
+String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, uint32_t reg, bool up) const
 {
     if (up) {
         return String("U[") + String::toString(reg) + "]";
@@ -85,37 +85,37 @@ void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
     str += String(stringFromOp(op)) + "\n";
 }
 
-void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d) const
+void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + "\n";
 }
 
-void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s, true) + "\n";
 }
 
-void CodePrinter::generateURX(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateURX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d, true) + ", " + regString(program, function, s) + "\n";
 }
 
-void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s1, uint8_t s2) const
+void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s1, uint8_t s2) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
 }
 
-void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, int16_t n, bool annotation) const
+void CodePrinter::generateXN(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, int16_t n, bool annotation) const
 {
     preamble(str, addr);
     String target = String::toString(n);
@@ -129,7 +129,7 @@ void CodePrinter::generateXN(const Mad<Program> program, const Mad<Function> fun
     str += String(stringFromOp(op)) + " " + target + "\n";
 }
 
-void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n, bool annotation) const
+void CodePrinter::generateRN(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n, bool annotation) const
 {
     preamble(str, addr);
     String target = String::toString(n);
@@ -143,13 +143,13 @@ void CodePrinter::generateRN(const Mad<Program> program, const Mad<Function> fun
     str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + target + "\n";
 }
 
-void CodePrinter::generateCall(const Mad<Program> program, const Mad<Function> function, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const
+void CodePrinter::generateCall(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const
 {
     preamble(str, addr);
     str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Object> func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -187,9 +187,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     if (!func.valid()) {
         return String();
     }
-    
-    const Mad<Function> function = func;
-    
+        
     m8r::String outputString;
 
     _nestingLevel = nestingLevel;
@@ -211,13 +209,13 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     
     _nestingLevel++;
 
-    const uint8_t* code = &(function->code()->at(0));
+    const uint8_t* code = &(func->code()->at(0));
     Op op;
     uint8_t imm;
     
     // Annotate the code to add labels
     uint32_t uniqueID = 1;
-    const uint8_t* end = code + function->code()->size();
+    const uint8_t* end = code + func->code()->size();
     
     for (const uint8_t* p = code; ; ) {
         if (p >= end) {
@@ -247,13 +245,13 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     
     // Display the constants and up values
     // We don't show the first Constant, it is a dummy error value
-    if (function->constants()->size() > 1) {
+    if (func->constants()->size() > 1) {
         indentCode(outputString);
         outputString += "CONSTANTS:\n";
         _nestingLevel++;
 
-        for (uint8_t i = 1; i < function->constants()->size(); ++i) {
-            Value constant = function->constants()->at(ConstantId(i).raw());
+        for (uint8_t i = 1; i < func->constants()->size(); ++i) {
+            Value constant = func->constants()->at(ConstantId(i).raw());
             indentCode(outputString);
             outputString += "[" + String::toString(i) + "] = ";
             showConstant(program, outputString, constant);
@@ -263,18 +261,18 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         outputString += "\n";
     }
     
-    if (function->upValueCount()) {
+    if (func->upValueCount()) {
         indentCode(outputString);
         outputString += "UPVALUES:\n";
         _nestingLevel++;
 
-        for (uint8_t i = 0; i < function->upValueCount(); ++i) {
+        for (uint8_t i = 0; i < func->upValueCount(); ++i) {
             indentCode(outputString);
             outputString += "[" + String::toString(i) + "] = ";
             uint32_t index;
             uint16_t frame;
             Atom name;
-            function->upValue(i, index, frame, name);
+            func->upValue(i, index, frame, name);
             outputString += String("UP('") + program->stringFromAtom(name) + "':index=" + String::toString(index) + ", frame=" + String::toString(frame) + ")\n";
         }
         _nestingLevel--;
@@ -309,13 +307,13 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADFALSE:
     L_LOADNULL:
     L_LOADTHIS:
-        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
+        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_PUSH:
-        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
+        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_POP:
-        generateRXX(program, function, outputString, pc, op, byteFromCode(currentAddr));
+        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_POPX:
         generateXXX(outputString, pc, op);
@@ -324,16 +322,16 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_UMINUS: L_UNOT: L_UNEG: L_CLOSURE:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_APPENDELT:
-        generateRRX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADUP:
-        generateRUX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRUX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREUP:
-        generateURX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateURX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_STOREFK:
-        generateRRX(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
@@ -341,16 +339,16 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
     L_RET:
-        generateXN(program, function, outputString, pc, op, byteFromCode(currentAddr), false);
+        generateXN(program, func, outputString, pc, op, byteFromCode(currentAddr), false);
         DISPATCH;
     L_RETI:
-        generateXN(program, function, outputString, pc, op, imm, false);
+        generateXN(program, func, outputString, pc, op, imm, false);
         DISPATCH;
     L_JMP:
     {
         uint32_t targetAddr = sNFromCode(currentAddr);
         uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 3));
-        generateXN(program, function, outputString, id ?: pc, op, id, true);
+        generateXN(program, func, outputString, id ?: pc, op, id, true);
         DISPATCH;
     }
     L_JT: L_JF:
@@ -358,17 +356,17 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         uint8_t reg = byteFromCode(currentAddr);
         uint32_t targetAddr = sNFromCode(currentAddr);
         uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 4));
-        generateRN(program, function, outputString, id ?: pc, op, reg, id, true);
+        generateRN(program, func, outputString, id ?: pc, op, reg, id, true);
         DISPATCH;
     }
     L_CALL:
-        generateCall(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateCall(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_NEW:
-        generateRN(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
+        generateRN(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
         DISPATCH;
     L_CALLPROP:
-        generateCall(program, function, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateCall(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LINENO:
         _lineno = uNFromCode(currentAddr);
@@ -454,31 +452,29 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
             s += program->stringFromAtom(value.asIdValue()); 
             s += "\")"; 
             break;
-        case Value::Type::Callable: {
-            if (abbreviated) {
-                s += "FUNCTION";
+        case Value::Type::Object: {
+            Mad<Object> obj = value.asObject();
+            if (!obj.valid()) {
                 break;
             }
-            Mad<Function> func = Mad<Function>(value.asCallable().raw());
-            if (func.valid()) {
+            if (obj->code()) {
+                if (abbreviated) {
+                    s += "FUNCTION";
+                    break;
+                }
                 _nestingLevel++;
                 s += "\n";
-                String name = func->name() ? program->stringFromAtom(func->name()) : String("unnamed");
-                s += generateCodeString(program, func, name.c_str(), _nestingLevel);
+                String name = obj->name() ? program->stringFromAtom(obj->name()) : String("unnamed");
+                s += generateCodeString(program, obj, name.c_str(), _nestingLevel);
                 _nestingLevel--;
                 break;
             }
-            // FIXME: Show the address of the obj or something
-            s += "OBJ";
-            break;
-        }
-        case Value::Type::Object: {
+            
             if (abbreviated) {
                 s += "CLASS";
                 break;
             }
             
-            Mad<Object> obj = value.asObject();
             if (obj.valid()) {
                 _nestingLevel++;
                 s += "CLASS {\n";

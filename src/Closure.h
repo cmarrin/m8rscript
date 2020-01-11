@@ -49,7 +49,7 @@ private:
     bool _destroyed : 1;
 };
 
-class Closure : public Callable {
+class Closure : public Object {
 public:
     Closure() { }
     virtual ~Closure();
@@ -88,7 +88,7 @@ public:
 private:
     Vector<Mad<UpValue>> _upValues;
 
-    Mad<Callable> _func;
+    Mad<Object> _func;
     Value _thisValue;
 };
 

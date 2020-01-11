@@ -15,7 +15,7 @@
 
 namespace m8r {
 
-class Function : public Callable {
+class Function : public MaterObject {
 public:
     Function();
 
@@ -53,17 +53,11 @@ public:
     
     uint32_t addUpValue(uint32_t index, uint16_t frame, Atom name);
         
-    void upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const
+    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const override
     {
         index = _upValues[i]._index;
         frame = _upValues[i]._frame;
         name = _upValues[i]._name;
-    }
-    
-    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame) const override
-    {
-        index = _upValues[i]._index;
-        frame = _upValues[i]._frame;
         return true;
     }
     

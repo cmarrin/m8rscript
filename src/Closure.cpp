@@ -23,7 +23,7 @@ Closure::~Closure()
 void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisValue)
 {
     _thisValue = thisValue;
-    _func = function.asCallable();
+    _func = function.asObject();
     assert(_func.valid());
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
@@ -31,7 +31,8 @@ void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisVa
 
         uint32_t index;
         uint16_t frame;
-        if (!_func->upValue(i, index, frame)) {
+        Atom name;
+        if (!_func->upValue(i, index, frame, name)) {
             continue;
         }
         

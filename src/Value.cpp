@@ -22,7 +22,6 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
     }
     
     switch(type()) {
-        case Type::Callable:
         case Type::Object: {
             Mad<Object> obj = asObject();
             return obj.valid() ? obj->toString(eu) : String("null");
@@ -38,7 +37,6 @@ const char* Value::toStringPointer(ExecutionUnit* eu) const
     switch(type()) {
         case Type::None: return "undefined";
         default:
-        case Type::Callable:
         case Type::Object:
         case Type::Float:
         case Type::Integer: return "";
@@ -50,7 +48,7 @@ const char* Value::toStringPointer(ExecutionUnit* eu) const
         case Type::Id: return eu->program()->stringFromAtom(atomFromValue());
         case Type::Null: return "null";
         case Type::NativeObject: return "Native()"; // FIXME: Add formatted toString and show the address
-        case Type::NativeFunction: return "Callable()"; // FIXME: Add formatted toString and show the address
+        case Type::NativeFunction: return "NativeFunction()"; // FIXME: Add formatted toString and show the address
         case Type::StaticObject: return "StaticObject()"; // FIXME: Add formatted toString and show the address
     }
 }
@@ -58,7 +56,6 @@ const char* Value::toStringPointer(ExecutionUnit* eu) const
 Float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::Callable:
         case Type::Object: {
             Mad<Object> obj = asObject();
             Float f;
@@ -99,7 +96,6 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
 Atom Value::_toIdValue(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::Callable:
         case Type::Object: {
             Mad<Object> obj = asObject();
             return obj.valid() ? eu->program()->atomizeString(obj->toString(eu).c_str()) : Atom();
@@ -154,7 +150,6 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
                     case Type::None:            s = "UND()"; break;
                     case Type::Float:           s = "FLT()"; break;
                     case Type::Object:          s = "OBJ()"; break;
-                    case Type::Callable:        s = "FUN()"; break;
                     case Type::Integer:         s = "INT()"; break;
                     case Type::String:          s = "STR()"; break;
                     case Type::StringLiteral:   s = "LIT()"; break;
@@ -187,7 +182,6 @@ bool Value::isType(ExecutionUnit* eu, SA sa)
 const Value Value::property(const Atom& prop) const
 {
     switch(type()) {
-        case Type::Callable:
         case Type::Object: {
             Mad<Object> obj = asObject();
             return obj.valid() ? obj->property(prop) : Value();
@@ -273,10 +267,6 @@ bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, 
 
 CallReturnValue Value::construct(ExecutionUnit* eu, uint32_t nparams)
 {
-    Mad<Object> obj = asObject();
-    if (!obj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::CannotConstruct);
-    }
     return Object::construct(*this, eu, nparams);
 }
 
@@ -287,14 +277,13 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
         return asNativeFunction()(eu, thisValue, nparams);
     }
 
-    Mad<Callable> callable = asCallable();
-    return callable.valid() ? callable->call(eu, thisValue, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
+    Mad<Object> obj = asObject();
+    return obj.valid() ? obj->call(eu, thisValue, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
 }
 
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     switch(type()) {
-        case Type::Callable:
         case Type::Object: {
             Mad<Object> obj = asObject();
             return obj.valid() ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);

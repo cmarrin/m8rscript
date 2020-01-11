@@ -20,7 +20,6 @@ class StaticObject;
 class NativeObject;
 class MaterObject;
 class Object;
-class Callable;
 class Function;
 class ExecutionUnit;
 class Program;
@@ -120,13 +119,12 @@ public:
         NativeFunction = 2,
         StaticObject = 3,
         Object = 4,
-        Callable = 8,
-        Integer = 12,
-        String = 16,
-        StringLiteral = 20,
-        Id = 24,
-        Null = 28,
-        NativeObject = 32,
+        Integer = 8,
+        String = 12,
+        StringLiteral = 16,
+        Id = 20,
+        Null = 24,
+        NativeObject = 28,
     };
     
     void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
@@ -154,10 +152,7 @@ public:
     }
 
     explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    //explicit Value(Mad<const MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    //explicit Value(Mad<MaterObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<Callable> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Callable; }
-    explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Callable; }
+    explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
     explicit Value(Mad<String> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
     explicit Value(Mad<NativeObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }
 
@@ -186,8 +181,7 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Mad<Object> asObject() const { return (type() == Type::Object || type() == Type::Callable) ? objectFromValue() : Mad<Object>(); }
-    Mad<Callable> asCallable() const { return (type() == Type::Callable) ? callableFromValue() : Mad<Callable>(); }
+    Mad<Object> asObject() const { return (type() == Type::Object) ? objectFromValue() : Mad<Object>(); }
     Mad<String> asString() const { return (type() == Type::String) ? stringFromValue() : Mad<String>(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
@@ -210,7 +204,6 @@ public:
             case Type::None:            return false;
             case Type::String:          return asString().valid() && !asString()->empty();
             case Type::Object:          return asObject().valid();  
-            case Type::Callable:        return asCallable().valid();
             case Type::NativeObject:    return asNativeObject().valid();
             case Type::StaticObject:
             case Type::NativeFunction:  return _value._intptr != 0;
@@ -251,11 +244,10 @@ public:
     bool isId() const { return type() == Type::Id; }
     bool isNone() const { return type() == Type::None; }
     bool isObject() const { return type() == Type::Object; }
-    bool isCallable() const { return type() == Type::Callable; }
     bool isNativeObject() const { return type() == Type::NativeObject; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }
     bool isStaticObject() const { return type() == Type::StaticObject; }
-    bool isPointer() const { return isObject() || isCallable() || isNativeObject(); }
+    bool isPointer() const { return isObject() || isNativeObject(); }
 
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
@@ -293,7 +285,6 @@ private:
     inline StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
     inline const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
     inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
-    inline Mad<Callable> callableFromValue() const { return Mad<Callable>(_value._rawMad); }
 
     inline StringLiteral stringLiteralFromValue() const
     {
