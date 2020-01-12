@@ -300,28 +300,25 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         indentCode(outputString);
         outputString += "END\n";
         _nestingLevel--;
-        return outputString;  
+        return outputString;
     L_LOADLITA:
     L_LOADLITO:
     L_LOADTRUE:
     L_LOADFALSE:
     L_LOADNULL:
     L_LOADTHIS:
-        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
-        DISPATCH;
     L_PUSH:
-        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
-        DISPATCH;
     L_POP:
         generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
         DISPATCH;
     L_POPX:
         generateXXX(outputString, pc, op);
         DISPATCH;
-    L_MOVE: L_LOADREFK:
-    L_UMINUS: L_UNOT: L_UNEG: L_CLOSURE:
-    L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
+    L_MOVE: L_LOADREFK: L_STOREFK:
     L_APPENDELT:
+    L_UMINUS: L_UNOT: L_UNEG:
+    L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
+    L_CLOSURE:
         generateRRX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_LOADUP:
@@ -330,14 +327,13 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_STOREUP:
         generateURX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
-    L_STOREFK:
-        generateRRX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
-        DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
+        generateRRR(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        DISPATCH;
     L_RET:
         generateXN(program, func, outputString, pc, op, byteFromCode(currentAddr), false);
         DISPATCH;
@@ -386,22 +382,25 @@ struct CodeMap
 #define OP(op) { Op::op, #op },
 
 static CodeMap opcodes[] = {    
-    OP(RET)
-    OP(END)
+    OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) 
+    OP(LOADLITO) OP(LOADPROP) OP(LOADELT) OP(STOPROP) 
+    OP(STOELT) OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE)
+    OP(LOADFALSE) OP(LOADNULL) OP(PUSH) OP(POP) 
     
-    OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA) OP(LOADLITO)
-    OP(LOADPROP) OP(LOADELT) OP(STOPROP) OP(STOELT) OP(APPENDELT) OP(APPENDPROP)
-    OP(LOADTRUE) OP(LOADFALSE) OP(LOADNULL) OP(LOADTHIS) OP(LOADUP) OP(STOREUP)
-    OP(PUSH) OP(POP) OP(POPX) OP(RETI)
+    OP(LOR) OP(LAND) OP(OR) OP(AND) 
+    OP(XOR) OP(EQ) OP(NE) OP(LT) 
+    OP(LE) OP(GT) OP(GE) OP(SHL)
+    OP(SHR) OP(SAR) OP(ADD) OP(SUB) 
     
-    OP(LOR) OP(LAND) OP(OR) OP(AND) OP(XOR)
-    OP(EQ) OP(NE) OP(LT) OP(LE) OP(GT) OP(GE)
-    OP(SHL) OP(SHR) OP(SAR) 
-    OP(ADD) OP(SUB) OP(MUL) OP(DIV) OP(MOD) 
+    OP(MUL) OP(DIV) OP(MOD) OP(UMINUS)
+    OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC)
+    OP(POSTINC) OP(POSTDEC) OP(CALL) OP(NEW) 
+    OP(CALLPROP) OP(JMP) OP(JT) OP(JF) 
     
-    OP(UMINUS) OP(UNOT) OP(UNEG) OP(PREINC) OP(PREDEC) OP(POSTINC) OP(POSTDEC) 
+    OP(LINENO) OP(LOADTHIS) OP(LOADUP) OP(STOREUP)
+    OP(CLOSURE) OP(POPX) OP(RETI)
     
-    OP(CALL) OP(NEW) OP(CALLPROP) OP(JMP) OP(JT) OP(JF) OP(LINENO) OP(CLOSURE)
+    OP(END) OP(RET)
 };
 
 const char* CodePrinter::stringFromOp(Op op)
