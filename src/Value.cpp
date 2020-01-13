@@ -35,7 +35,7 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
 const char* Value::toStringPointer(ExecutionUnit* eu) const
 {
     switch(type()) {
-        case Type::None: return "undefined";
+        case Type::Undefined: return "undefined";
         default:
         case Type::Object:
         case Type::Float:
@@ -87,7 +87,7 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::StaticObject:
         case Type::Null:
             return Float();
-        case Type::None:
+        case Type::Undefined:
         default:
             return Float::nan();
     }
@@ -114,7 +114,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
         case Type::NativeObject:
         case Type::NativeFunction:
         case Type::StaticObject:
-        case Type::None:
+        case Type::Undefined:
         case Type::Null:
         default:
             return Atom();
@@ -147,7 +147,7 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
                 // return a string showing <type>(value)
                 Value val = eu->stack().top(nextParam++);
                 switch(val.type()) {
-                    case Type::None:            s = "UND()"; break;
+                    case Type::Undefined:       s = "UND()"; break;
                     case Type::Float:           s = "FLT()"; break;
                     case Type::Object:          s = "OBJ()"; break;
                     case Type::Integer:         s = "INT()"; break;
@@ -204,7 +204,7 @@ const Value Value::property(const Atom& prop) const
         case Type::Id:
         case Type::NativeObject:
         case Type::NativeFunction:
-        case Type::None:
+        case Type::Undefined:
         case Type::Null:
         default:
             break;
@@ -331,7 +331,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::Id:
         case Type::NativeObject:
         case Type::NativeFunction:
-        case Type::None:
+        case Type::Undefined:
         case Type::Null:
         default:
             return CallReturnValue(CallReturnValue::Error::CannotCall);

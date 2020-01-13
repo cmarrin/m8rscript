@@ -114,7 +114,7 @@ using NativeFunction = CallReturnValue(*)(ExecutionUnit*, Value thisValue, uint3
 class Value {
 public:    
     enum class Type : uint32_t {
-        None = 0,
+        Undefined = 0,
         Float = 1,
         NativeFunction = 2,
         StaticObject = 3,
@@ -130,7 +130,7 @@ public:
     void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
     void copy(const Value& other) { memcpy(_value._raw, other._value._raw, sizeof(_value._raw)); }
 
-    Value() { init(); _value._type = Type::None; }
+    Value() { init(); _value._type = Type::Undefined; }
     
     explicit Value(Float value) {
         _value._float = value.raw() & ~0x03;
@@ -171,7 +171,7 @@ public:
     bool operator==(const Value& other) { return _value._raw == other._value._raw; }
     bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
     
-    explicit operator bool() const { return type() != Type::None; }
+    explicit operator bool() const { return type() != Type::Undefined; }
 
     ~Value() { }
     
@@ -201,7 +201,7 @@ public:
         switch (type()) {
             default:
             case Type::Null:
-            case Type::None:            return false;
+            case Type::Undefined:       return false;
             case Type::String:          return asString().valid() && !asString()->empty();
             case Type::Object:          return asObject().valid();  
             case Type::NativeObject:    return asNativeObject().valid();
@@ -242,7 +242,7 @@ public:
     bool isFloat() const { return type() == Type::Float; }
     bool isNumber() const { return isInteger() || isFloat(); }
     bool isId() const { return type() == Type::Id; }
-    bool isNone() const { return type() == Type::None; }
+    bool isUndefined() const { return type() == Type::Undefined; }
     bool isObject() const { return type() == Type::Object; }
     bool isNativeObject() const { return type() == Type::NativeObject; }
     bool isNativeFunction() const { return type() == Type::NativeFunction; }

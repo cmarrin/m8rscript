@@ -432,7 +432,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
         case Value::Type::StaticObject: s += "StaticObject"; break;
         case Value::Type::NativeFunction: s += "NativeFunction"; break;
         case Value::Type::NativeObject: s += "NativeObject"; break;
-        case Value::Type::None: s += "NONE"; break;
+        case Value::Type::Undefined: s += "Undefined"; break;
         case Value::Type::Null: s += "Null"; break;
         case Value::Type::Float: s += "FLT(" + String::toString(value.asFloatValue()) + ")"; break;
         case Value::Type::Integer: s += "INT(" + String::toString(value.asIntValue()) + ")"; break;
