@@ -208,7 +208,7 @@ public:
     
     Id() { _value = Raw(NoId); }
     explicit Id(Raw raw) { _value._raw = raw._raw; }
-    Id(RawType raw) { _value._raw = raw; }
+    explicit Id(RawType raw) { _value._raw = raw; }
     Id(const Id& other) { _value._raw = other._value._raw; }
     Id(Id&& other) { _value._raw = other._value._raw; }
 
@@ -218,7 +218,7 @@ public:
     Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
     const Id& operator=(const Raw& other) { _value._raw = other._raw; return *this; }
     Id& operator=(Raw& other) { _value._raw = other._raw; return *this; }
-    operator bool() const { return _value._raw != NoId; }
+    explicit operator bool() const { return _value._raw != NoId; }
 
     int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
     bool operator==(const Id& other) const { return _value._raw == other._value._raw; }

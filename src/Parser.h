@@ -59,6 +59,21 @@ public:
     void endString() { _program->endStringLiteral(); }
     
 private:
+    class RegOrConst
+    {
+    public:
+        enum class Type { Reg, Constant };
+        
+        RegOrConst() { }
+        RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
+        RegOrConst(ConstantId id, Atom atom) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
+        
+    private:
+        uint8_t _reg = 0;
+        Type _type = Type::Reg;
+        Atom _atom;
+    };
+
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,
@@ -140,7 +155,7 @@ private:
     void emitMove();
     
     enum class DerefType { Prop, Elt };
-    uint32_t emitDeref(DerefType);
+    RegOrConst emitDeref(DerefType);
     void emitAppendElt();
     void emitAppendProp();
     void emitUnOp(Op op);
@@ -164,7 +179,7 @@ private:
         addCode(Instruction(Op::LINENO, lineno));
     }
     
-    void emitCallRet(Op value, int32_t thisReg, uint32_t count);
+    void emitCallRet(Op value, RegOrConst thisReg, uint32_t count);
     void addVar(const Atom& name) { _functions.back().addLocal(name); }
     
     void discardResult();
@@ -179,42 +194,41 @@ private:
     
     // Parse Stack manipulation and code generation
     
-    void emitCodeRRR(Op, uint8_t ra, uint8_t rb, uint8_t rc);
-    void emitCodeRR(Op, uint8_t ra, uint8_t rb);
-    void emitCodeR(Op, uint8_t rn);
+    void emitCodeRRR(Op, RegOrConst ra, RegOrConst rb, RegOrConst rc);
+    void emitCodeRR(Op, RegOrConst ra, RegOrConst rb);
+    void emitCodeR(Op, RegOrConst rn);
     void emitCodeRET(uint8_t nparams);
-    void emitCodeRSN(Op, uint8_t rn, int16_t n);
+    void emitCodeRSN(Op, RegOrConst rn, int16_t n);
     void emitCodeSN(Op, int16_t n);
     void emitCodeUN(Op, uint16_t n);
     void emitCode(Op);
 
     void reconcileRegisters(uint16_t localCount);
-
+    
     class ParseStack {
     public:
         enum class Type { Unknown, Local, Constant, Register, RefK, PropRef, EltRef, This, UpValue };
         
         ParseStack(Parser* parser) : _parser(parser) { }
         
-        uint32_t push(Type, uint32_t reg);
-        uint32_t pushRegister();
-        void pushConstant(uint32_t reg) { push(Type::Constant, reg); }
+        void push(Type, uint32_t reg, Atom = Atom());
+        RegOrConst pushRegister();
+        void pushConstant(ConstantId id, Atom atom = Atom()) { push(Type::Constant, id.raw(), atom); }
         void setIsValue(bool b) { _stack.top()._isValue = b; }
 
         void pop();
         void swap();
         
         Type topType() const { return empty() ? Type::Unknown : _stack.top()._type; }
-        uint32_t topReg() const { return empty() ? 0 : _stack.top()._reg; }
-        uint32_t topDerefReg() const { return empty() ? 0 : _stack.top()._derefReg; }
-        Atom topAtom() const { return empty() ? 0 : _stack.top()._atom; }
+        RegOrConst topReg() const { return empty() ? RegOrConst() : _stack.top()._reg; }
+        RegOrConst topDerefReg() const { return empty() ? RegOrConst() : _stack.top()._derefReg; }
         bool topIsValue() const { return empty() ? false : _stack.top()._isValue; }
         bool empty() const { return _stack.empty(); }
         void clear() { _stack.clear(); }
         
-        uint32_t bake(bool makeClosure = false);
+        RegOrConst bake(bool makeClosure = false);
         bool needsBaking() const { return _stack.top()._type == Type::PropRef || _stack.top()._type == Type::EltRef || _stack.top()._type == Type::RefK; }
-        void replaceTop(Type, uint32_t reg, uint32_t derefReg);
+        void replaceTop(Type, RegOrConst reg, RegOrConst derefReg);
         void dup() {
             Entry entry = _stack.top();
             _stack.push(entry);
@@ -225,25 +239,18 @@ private:
         struct Entry {
             
             Entry() { }
-            Entry(Type type, uint32_t reg, uint32_t derefReg = 0, bool isValue = false)
+            
+            Entry(Type type, RegOrConst reg, RegOrConst derefReg = RegOrConst())
                 : _type(type)
                 , _reg(reg)
                 , _derefReg(derefReg)
-                , _isValue(isValue)
-            { }
-            
-            void init()
             {
-                if (_type == Type::Constant || _type == Type::RefK) {
-                    _reg += MaxRegister + 1;
-                }
             }
             
-            Type _type;
-            uint32_t _reg;
-            uint32_t _derefReg;
-            bool _isValue;
-            Atom _atom;
+            Type _type = Type::Unknown;
+            RegOrConst _reg = 0;
+            RegOrConst _derefReg = 0;
+            bool _isValue = false;
         };
         
         Stack<Entry> _stack;

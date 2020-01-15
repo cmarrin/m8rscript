@@ -235,7 +235,7 @@ ConstantId Parser::addConstant(const Value& v)
 {
     if (currentConstants().size() >= std::numeric_limits<uint8_t>::max()) {
         printError(ROMSTR("TOO MANY CONSTANTS IN FUNCTION!\n"));
-        return ConstantId(0);
+        return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Undefined));
     }
     
     // See if it's a Builtin
@@ -270,7 +270,7 @@ void Parser::pushK(const char* s)
     if (nerrors()) return;
     
     ConstantId id = addConstant(Value(_program->addStringLiteral(s)));
-    _parseStack.pushConstant(id.raw());
+    _parseStack.pushConstant(id);
 }
 
 void Parser::pushK(const Value& value)
@@ -278,7 +278,7 @@ void Parser::pushK(const Value& value)
     if (nerrors()) return;
     
     ConstantId id = addConstant(value);
-    _parseStack.pushConstant(id.raw());
+    _parseStack.pushConstant(id, value.asIdValue());
 }
 
 void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
@@ -318,7 +318,7 @@ void Parser::emitId(const Atom& atom, IdType type)
             Mad<Object> func = currentConstants().at(ConstantId(i).raw()).asObject();
             if (func.valid()) {
                 if (func->name() == atom) {
-                    _parseStack.pushConstant(i);
+                    _parseStack.pushConstant(ConstantId(i + Function::builtinConstantOffset()));
                     return;
                 }
             }
@@ -359,7 +359,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     }
     
     ConstantId id = addConstant(Value(atom));
-    _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw());
+    _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw(), atom);
 }
 
 void Parser::emitMove()
@@ -764,11 +764,10 @@ void Parser::reconcileRegisters(uint16_t localCount)
     }
 }
 
-uint32_t Parser::ParseStack::push(ParseStack::Type type, uint32_t reg)
+void Parser::ParseStack::push(ParseStack::Type type, uint32_t reg, Atom atom)
 {
     assert(type != Type::Register);
-    _stack.push({ type, reg, 0 });
-    return reg;
+    _stack.push({ type, reg, atom });
 }
 
 uint32_t Parser::ParseStack::pushRegister()
@@ -778,7 +777,7 @@ uint32_t Parser::ParseStack::pushRegister()
     if (reg < entry._minReg) {
         entry._minReg = reg;
     }
-    _stack.push({ Type::Register, reg, 0 });
+    _stack.push({ Type::Register, reg });
     return reg;
 }
 

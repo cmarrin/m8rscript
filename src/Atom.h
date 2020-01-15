@@ -43,7 +43,7 @@ class Atom : public Id<uint16_t>
 public:
     Atom() { }
     Atom(SA sa) : Id(Id::Raw(static_cast<Atom::value_type>(sa))) { }
-    Atom(Atom::value_type value) : Id(Id::Raw(value)) { }
+    explicit Atom(Atom::value_type value) : Id(Id::Raw(value)) { }
 };
 
 class AtomTable {
