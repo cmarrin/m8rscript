@@ -59,21 +59,6 @@ public:
     void endString() { _program->endStringLiteral(); }
     
 private:
-    class RegOrConst
-    {
-    public:
-        enum class Type { Reg, Constant };
-        
-        RegOrConst() { }
-        RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
-        RegOrConst(ConstantId id, Atom atom) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
-        
-    private:
-        uint8_t _reg = 0;
-        Type _type = Type::Reg;
-        Atom _atom;
-    };
-
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,

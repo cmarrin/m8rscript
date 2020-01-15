@@ -536,6 +536,21 @@ private:
     }
 };
 
+class RegOrConst
+{
+public:
+    enum class Type { Reg, Constant };
+    
+    RegOrConst() { }
+    RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
+    RegOrConst(ConstantId id, Atom atom) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
+    
+private:
+    uint8_t _reg = 0;
+    Type _type = Type::Reg;
+    Atom _atom;
+};
+
 static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
 static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
 static inline uint8_t byteFromOp(Op op) { return static_cast<uint8_t>(op); }

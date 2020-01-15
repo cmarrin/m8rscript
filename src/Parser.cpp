@@ -113,7 +113,7 @@ void Parser::addMatchedJump(Op op, Label& label)
     
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
 
-    uint32_t reg = 0;
+    RegOrConst reg = 0;
     if (op != Op::JMP) {
         reg = _parseStack.bake();
         _parseStack.pop();
@@ -151,7 +151,7 @@ void Parser::jumpToLabel(Op op, Label& label)
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
     
-    uint32_t r = 0;
+    RegOrConst r;
     if (op != Op::JMP) {
         r = _parseStack.bake();
         _parseStack.pop();
@@ -164,13 +164,13 @@ void Parser::jumpToLabel(Op op, Label& label)
     }
 }
 
-void Parser::emitCodeRRR(Op op, uint8_t ra, uint8_t rb, uint8_t rc)
+void Parser::emitCodeRRR(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb, rc));
 }
 
-void Parser::emitCodeRR(Op op, uint8_t ra, uint8_t rb)
+void Parser::emitCodeRR(Op op, RegOrConst ra, RegOrConst rb)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb));
@@ -182,13 +182,13 @@ void Parser::emitCodeRET(uint8_t nparams)
     addCode(Instruction((nparams <= 3) ? Op::RETI : Op::RET, nparams));
 }
 
-void Parser::emitCodeR(Op op, uint8_t rn)
+void Parser::emitCodeR(Op op, RegOrConst rn)
 {
     emitLineNumber();
     addCode(Instruction(op, rn));
 }
 
-void Parser::emitCodeRSN(Op op, uint8_t rn, int16_t n)
+void Parser::emitCodeRSN(Op op, RegOrConst rn, int16_t n)
 {
     // Tbis Op is used for jumps, so we need to put the line number after
     addCode(Instruction(op, rn, n));
