@@ -536,21 +536,6 @@ private:
     }
 };
 
-class RegOrConst
-{
-public:
-    enum class Type { Reg, Constant };
-    
-    RegOrConst() { }
-    RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
-    RegOrConst(ConstantId id, Atom atom) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
-    
-private:
-    uint8_t _reg = 0;
-    Type _type = Type::Reg;
-    Atom _atom;
-};
-
 static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
 static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
 static inline uint8_t byteFromOp(Op op) { return static_cast<uint8_t>(op); }
@@ -584,67 +569,6 @@ static inline uint16_t uNFromCode(const uint8_t*& code)
     return n | static_cast<uint16_t>(byteFromCode(code));
 }
 static inline int16_t sNFromCode(const uint8_t*& code) { return static_cast<int16_t>(uNFromCode(code)); }
-
-class Instruction {
-public:
-    Instruction() { }
-    Instruction(Op op) { assert(OpInfo::size(op) == 0); init(op); }
-    Instruction(Op op, uint8_t ra) { init(op, ra); }
-    Instruction(Op op, uint8_t ra, uint8_t rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
-    Instruction(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
-    Instruction(Op op, uint8_t ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); }
-    Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); }
-    Instruction(Op op, uint16_t un) { assert(OpInfo::size(op) == 2); init(op, un); }
-    
-    bool haveRa() const { return _haveRa; }
-    bool haveRb() const { return _haveRb; }
-    bool haveRc() const { return _haveRc; }
-    bool haveN()  const { return _haveN; }
-    
-    Op op() const { return _op; }
-    uint8_t ra() const { return _ra; }
-    uint8_t rb() const { return _rb; }
-    uint8_t rc() const { return _rc; }
-    uint16_t n() const { return _n; }
-
-private:
-    void init(Op op) { _op = op; }
-    void init(Op op, uint8_t ra, uint8_t rb) {init(op, ra); _haveRb = true; _rb = rb; }
-    void init(Op op, uint8_t ra, uint8_t rb, uint8_t rc) { init(op, ra, rb); _haveRc = true; _rc = rc; }
-    void init(Op op, uint8_t ra, uint16_t n) { init(op, ra); _haveN = true; _n = n; }
-    void init(Op op, uint16_t n) {init(op); _haveN = true; _n = n; }
-
-    void init(Op op, uint8_t ra)
-    {
-        // The op might be immediate
-        if (OpInfo::imm(op)) {
-            assert(ra <= 3);
-            init(static_cast<Op>((byteFromOp(op, ra))));
-        } else {
-            init(op);
-            _haveRa = true;
-            _ra = ra;
-        }
-    }
-
-    union {
-        struct {
-            Op _op;
-            uint8_t _ra;
-            uint8_t _rb;
-            uint8_t _rc;
-        };
-        struct {
-            uint16_t ___;
-            uint16_t _n;
-        };
-    };
-    
-    bool _haveRa = false;
-    bool _haveRb = false;
-    bool _haveRc = false;
-    bool _haveN = false;
-};
 
 #undef DEC
 enum class Token : uint8_t {

@@ -371,7 +371,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     _parser->emitPush();
     _parser->emitId(Atom(SA::iterator), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::NEW, -1, 1);
+    _parser->emitCallRet(Op::NEW, Parser::RegOrConst(), 1);
     _parser->emitMove();
     _parser->discardResult();
     
@@ -379,7 +379,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     _parser->emitId(Atom(SA::done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::CALL, -1, 0);
+    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
 
     _parser->addMatchedJump(m8r::Op::JT, label);
 
@@ -393,7 +393,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     _parser->emitId(Atom(SA::next), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::CALL, -1, 0);
+    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
     _parser->discardResult();
 
     _parser->jumpToLabel(Op::JMP, label);
@@ -517,7 +517,7 @@ bool ParseEngine::jumpStatement()
             count = 1;
         }
         
-        _parser->emitCallRet(m8r::Op::RET, -1, count);
+        _parser->emitCallRet(m8r::Op::RET, Parser::RegOrConst(), count);
         expect(Token::Semicolon);
         return true;
     }
@@ -678,7 +678,7 @@ bool ParseEngine::leftHandSideExpression()
         return false;
     }
     
-    int32_t objectReg = -1;
+    Parser::RegOrConst objectReg = -1;
     while(1) {
         if (getToken() == Token::LParen) {
             retireToken();
@@ -714,7 +714,7 @@ bool ParseEngine::memberExpression()
             argCount = argumentList();
             expect(Token::RParen);
         }
-        _parser->emitCallRet(m8r::Op::NEW, -1, argCount);
+        _parser->emitCallRet(m8r::Op::NEW, Parser::RegOrConst(), argCount);
         return true;
     }
     

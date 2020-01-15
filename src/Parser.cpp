@@ -222,32 +222,37 @@ void Parser::addCode(Instruction inst)
         vec = &currentCode();
     }
     vec->push_back(static_cast<uint8_t>(inst.op()));
-    if (inst.haveRa()) vec->push_back(inst.ra());
-    if (inst.haveRb()) vec->push_back(inst.rb());
-    if (inst.haveRc()) vec->push_back(inst.rc());
+    if (inst.haveRa()) vec->push_back(inst.ra().index());
+    if (inst.haveRb()) vec->push_back(inst.rb().index());
+    if (inst.haveRc()) vec->push_back(inst.rc().index());
     if (inst.haveN()) {
         vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
         vec->push_back(static_cast<uint8_t>(inst.n()));
     }
 }
 
-ConstantId Parser::addConstant(const Value& v)
+Parser::RegOrConst Parser::addConstant(const Value& v)
 {
     if (currentConstants().size() >= std::numeric_limits<uint8_t>::max()) {
         printError(ROMSTR("TOO MANY CONSTANTS IN FUNCTION!\n"));
-        return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Undefined));
+        return RegOrConst();
     }
     
     // See if it's a Builtin
     switch (v.type()) {
-        case Value::Type::Id:           return ConstantId(static_cast<ConstantId::value_type>((v.asIdValue().raw() < 256) ? Function::BuiltinConstants::AtomShort : Function::BuiltinConstants::AtomLong));
-        case Value::Type::Null:         return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Null));
-        case Value::Type::Undefined:    return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Undefined));
+        case Value::Type::Id: {
+            ConstantId id = ConstantId(static_cast<ConstantId::value_type>((v.asIdValue().raw() < 256) ? Function::BuiltinConstants::AtomShort : Function::BuiltinConstants::AtomLong));
+            return RegOrConst(id, v.asIdValue());
+        }
+        case Value::Type::Null:
+            return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Null)));
+        case Value::Type::Undefined:
+            return RegOrConst();
         case Value::Type::Integer:
             if (v.asIntValue() == 0) {
-                return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int0));
+                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int0)));
             } else if (v.asIntValue() == 1) {
-                return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int1));
+                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int1)));
             } else {
                 break;
             }
@@ -269,16 +274,14 @@ void Parser::pushK(const char* s)
 {
     if (nerrors()) return;
     
-    ConstantId id = addConstant(Value(_program->addStringLiteral(s)));
-    _parseStack.pushConstant(id);
+    _parseStack.pushConstant(addConstant(Value(_program->addStringLiteral(s))));
 }
 
 void Parser::pushK(const Value& value)
 {
     if (nerrors()) return;
     
-    ConstantId id = addConstant(value);
-    _parseStack.pushConstant(id, value.asIdValue());
+    _parseStack.pushConstant(addConstant(value));
 }
 
 void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
@@ -358,8 +361,8 @@ void Parser::emitId(const Atom& atom, IdType type)
         return;
     }
     
-    ConstantId id = addConstant(Value(atom));
-    _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id.raw(), atom);
+    RegOrConst id = addConstant(Value(atom));
+    _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, id);
 }
 
 void Parser::emitMove()
@@ -368,7 +371,7 @@ void Parser::emitMove()
     
     // RefK needs to do a STOREFK TOS-1, TOS and then leave TOS-1 (the source) on the stack
     // All others need to do a save and leave TOS (the dest) on the stack
-    uint32_t srcReg = _parseStack.bake();
+    RegOrConst srcReg = _parseStack.bake();
     _parseStack.swap();
     ParseStack::Type dstType = _parseStack.topType();
     
@@ -395,7 +398,7 @@ void Parser::emitMove()
                 emitId(Atom(SA::setValue), IdType::NotLocal);
                 _parseStack.swap();
                 emitPush();
-                uint32_t objReg = emitDeref(DerefType::Prop);
+                RegOrConst objReg = emitDeref(DerefType::Prop);
                 emitCallRet(Op::CALL, objReg, 1);
                 discardResult();
                 return;
@@ -422,14 +425,14 @@ void Parser::emitMove()
     _parseStack.pop();
 }
 
-uint32_t Parser::emitDeref(DerefType type)
+Parser::RegOrConst Parser::emitDeref(DerefType type)
 {
     if (nerrors()) return 0;
     
     bool isValue = _parseStack.topIsValue();
-    uint32_t derefReg = _parseStack.bake();
+    RegOrConst derefReg = _parseStack.bake();
     _parseStack.swap();
-    uint32_t objectReg = _parseStack.bake();
+    RegOrConst objectReg = _parseStack.bake();
     _parseStack.swap();
     _parseStack.pop();
     _parseStack.replaceTop((type == DerefType::Prop) ? ParseStack::Type::PropRef : ParseStack::Type::EltRef, objectReg, derefReg);
@@ -468,9 +471,9 @@ void Parser::emitAppendElt()
     // tos-1 object to append to
     // tos value to store
     // leave object on tos
-    uint32_t srcReg = _parseStack.bake();
+    RegOrConst srcReg = _parseStack.bake();
     _parseStack.swap();
-    uint32_t objectReg = _parseStack.bake();
+    RegOrConst objectReg = _parseStack.bake();
     _parseStack.swap();
     _parseStack.pop();
     
@@ -485,13 +488,13 @@ void Parser::emitAppendProp()
     // tos-1 property on that object
     // tos value to store
     // leave object on tos
-    uint32_t srcReg = _parseStack.bake();
+    RegOrConst srcReg = _parseStack.bake();
     _parseStack.swap();
-    uint32_t propReg = _parseStack.bake();
+    RegOrConst propReg = _parseStack.bake();
     _parseStack.pop();
     _parseStack.pop();
     assert(!_parseStack.needsBaking());
-    uint32_t objectReg = _parseStack.topReg();
+    RegOrConst objectReg = _parseStack.topReg();
     
     emitCodeRRR(Op::APPENDPROP, objectReg, propReg, srcReg);
 }
@@ -505,12 +508,12 @@ void Parser::emitBinOp(Op op)
         return;
     }
     
-    uint32_t rightReg = _parseStack.bake();
+    RegOrConst rightReg = _parseStack.bake();
     _parseStack.swap();
-    uint32_t leftReg = _parseStack.bake();
+    RegOrConst leftReg = _parseStack.bake();
     _parseStack.pop();
     _parseStack.pop();
-    uint32_t dst = _parseStack.pushRegister();
+    RegOrConst dst = _parseStack.pushRegister();
 
     emitCodeRRR(op, dst, leftReg, rightReg);
 }
@@ -520,12 +523,12 @@ void Parser::emitCaseTest()
     if (nerrors()) return;
     
     // This is like emitBinOp(Op::EQ), but does not pop the left operand
-    uint32_t rightReg = _parseStack.bake();
+    RegOrConst rightReg = _parseStack.bake();
     _parseStack.swap();
-    uint32_t leftReg = _parseStack.bake();
+    RegOrConst leftReg = _parseStack.bake();
     _parseStack.swap();
     _parseStack.pop();
-    uint32_t dst = _parseStack.pushRegister();
+    RegOrConst dst = _parseStack.pushRegister();
 
     emitCodeRRR(Op::EQ, dst, leftReg, rightReg);
 }
@@ -535,19 +538,19 @@ void Parser::emitUnOp(Op op)
     if (nerrors()) return;
     
     if (op == Op::PREDEC || op == Op::PREINC || op == Op::POSTDEC || op == Op::POSTINC) {
-        uint32_t dst = _parseStack.pushRegister();
+        RegOrConst dst = _parseStack.pushRegister();
         _parseStack.swap();
         emitDup();
-        uint32_t srcReg = _parseStack.bake();
+        RegOrConst srcReg = _parseStack.bake();
         emitCodeRR(op, dst, srcReg);
         emitMove();
         _parseStack.pop();
         return;
     }
     
-    uint32_t srcReg = _parseStack.bake();
+    RegOrConst srcReg = _parseStack.bake();
     _parseStack.pop();
-    uint32_t dst = _parseStack.pushRegister();
+    RegOrConst dst = _parseStack.pushRegister();
     emitCodeRR(op, dst, srcReg);
 }
 
@@ -555,7 +558,7 @@ void Parser::emitLoadLit(bool array)
 {
     if (nerrors()) return;
     
-    uint32_t dst = _parseStack.pushRegister();
+    RegOrConst dst = _parseStack.pushRegister();
     emitCodeR(array ? Op::LOADLITA : Op::LOADLITO, dst);
 }
 
@@ -563,7 +566,7 @@ void Parser::emitPush()
 {
     if (nerrors()) return;
     
-    uint32_t src = _parseStack.bake(true);
+    RegOrConst src = _parseStack.bake(true);
     _parseStack.pop();
     
     emitCodeR(Op::PUSH, src);
@@ -573,7 +576,7 @@ void Parser::emitPop()
 {
     if (nerrors()) return;
     
-    uint32_t dst = _parseStack.pushRegister();
+    RegOrConst dst = _parseStack.pushRegister();
     emitCodeR(Op::POP, dst);
 }
 
@@ -588,15 +591,15 @@ void Parser::emitEnd()
     emitCode(Op::END);
 }
 
-void Parser::emitCallRet(Op op, int32_t thisReg, uint32_t nparams)
+void Parser::emitCallRet(Op op, RegOrConst thisReg, uint32_t nparams)
 {
     if (nerrors()) return;
     
     assert(nparams < MaxParams);
     assert(op == Op::CALL || op == Op::NEW || op == Op::RET);
     
-    uint32_t calleeReg = 0;
-    if (thisReg < 0) {
+    RegOrConst calleeReg = 0;
+    if (thisReg == RegOrConst()) {
         // This uses a dummy value for this
         thisReg = MaxRegister + 1;
     }
@@ -715,7 +718,7 @@ Mad<Function> Parser::functionEnd()
     // If this is a ctor, we need to return this, just in case
     if (_functions.back()._ctor) {
         pushThis();
-        emitCallRet(m8r::Op::RET, -1, 1);
+        emitCallRet(m8r::Op::RET, RegOrConst(), 1);
     }
     
     emitEnd();
@@ -764,13 +767,13 @@ void Parser::reconcileRegisters(uint16_t localCount)
     }
 }
 
-void Parser::ParseStack::push(ParseStack::Type type, uint32_t reg, Atom atom)
+void Parser::ParseStack::push(ParseStack::Type type, RegOrConst reg)
 {
     assert(type != Type::Register);
-    _stack.push({ type, reg, atom });
+    _stack.push({ type, reg });
 }
 
-uint32_t Parser::ParseStack::pushRegister()
+Parser::RegOrConst Parser::ParseStack::pushRegister()
 {
     FunctionEntry& entry = _parser->_functions.back();
     uint32_t reg = entry._nextReg--;
@@ -801,7 +804,7 @@ void Parser::ParseStack::swap()
     _stack.top(-1) = t;
 }
 
-uint32_t Parser::ParseStack::bake(bool makeClosure)
+Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
 {
     Entry entry = _stack.top();
     
@@ -818,24 +821,24 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
                 //
                 propRefToReg();
                 _parser->emitId(Atom(SA::getValue), Parser::IdType::NotLocal);
-                uint32_t objectReg = _parser->emitDeref(Parser::DerefType::Prop);
+                RegOrConst objectReg = _parser->emitDeref(Parser::DerefType::Prop);
                 _parser->emitCallRet(Op::CALL, objectReg, 0);
                 return _stack.top()._reg;
             } else {
                 pop();
-                uint32_t r = pushRegister();
+                RegOrConst r = pushRegister();
                 _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
                 return r;
             }
         }
         case Type::RefK: {
             pop();
-            uint32_t r = pushRegister();
+            RegOrConst r = pushRegister();
             if (entry._isValue) {
                 pushRegister();
                 _parser->emitId(Atom(SA::getValue), Parser::IdType::MightBeLocal);
                 _parser->emitMove();
-                _parser->emitCallRet(Op::CALL, -1, 0);
+                _parser->emitCallRet(Op::CALL, RegOrConst(), 0);
                 _parser->emitMove();
             } else {
                 _parser->emitCodeRR(Op::LOADREFK, r, entry._reg);
@@ -844,28 +847,27 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
         }
         case Type::This: {
             pop();
-            uint32_t r = pushRegister();
+            RegOrConst r = pushRegister();
             _parser->emitCodeR(Op::LOADTHIS, r);
             return r;
         }
         case Type::UpValue: {
             pop();
-            uint32_t r = pushRegister();
+            RegOrConst r = pushRegister();
             _parser->emitCodeRR(Op::LOADUP, r, entry._reg);
             return r;
         }
         case Type::Constant: {
-            uint32_t r = entry._reg;
+            RegOrConst r = entry._reg;
             if (makeClosure) {
-                uint8_t constantIndex = r - MaxRegister - 1 - Function::builtinConstantOffset();
-                Value v = _parser->currentConstants().at(constantIndex);
+                assert(!r.isReg());
+                Value v = _parser->currentConstants().at(r.index());
                 Mad<Object> func = v.asObject();
-                if (func.valid()) {
-                    pop();
-                    uint32_t dst = pushRegister();
-                    _parser->emitCodeRR(Op::CLOSURE, dst, r);
-                    r = dst;
-                }
+                assert(func.valid());
+                pop();
+                RegOrConst dst = pushRegister();
+                _parser->emitCodeRR(Op::CLOSURE, dst, r);
+                r = dst;
             }
             return r;
         }
@@ -879,7 +881,7 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
     }
 }
 
-void Parser::ParseStack::replaceTop(Type type, uint32_t reg, uint32_t derefReg)
+void Parser::ParseStack::replaceTop(Type type, RegOrConst reg, RegOrConst derefReg)
 {
     _stack.setTop({ type, reg, derefReg });
 }
@@ -887,8 +889,8 @@ void Parser::ParseStack::replaceTop(Type type, uint32_t reg, uint32_t derefReg)
 void Parser::ParseStack::propRefToReg()
 {
     assert(_stack.top()._type == Type::PropRef);
-    uint32_t r = _stack.top()._reg;
-    Type type = (r < _parser->_functions.back()._minReg) ? Type::Local : ((r <= MaxRegister) ? Type::Register : Type::Constant);
+    RegOrConst r = _stack.top()._reg;
+    Type type = r.isReg() ? ((r.index() < _parser->_functions.back()._minReg) ? Type::Local : Type::Register) : Type::Register;
     replaceTop(type, r, 0);
 }
 
