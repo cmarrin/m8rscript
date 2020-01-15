@@ -44,9 +44,6 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
     }
     _functions.emplace_back(parent, false);
     
-    // Place a dummy constant at index 0 as an error return value
-    currentConstants().push_back(Value());
-    
     while(1) {
         if (!p.statement()) {
             Scanner::TokenType type;
@@ -236,15 +233,34 @@ void Parser::addCode(Instruction inst)
 
 ConstantId Parser::addConstant(const Value& v)
 {
-    assert(currentConstants().size() < std::numeric_limits<uint8_t>::max());
+    if (currentConstants().size() >= std::numeric_limits<uint8_t>::max()) {
+        printError(ROMSTR("TOO MANY CONSTANTS IN FUNCTION!\n"));
+        return ConstantId(0);
+    }
+    
+    // See if it's a Builtin
+    switch (v.type()) {
+        case Value::Type::Id:           return ConstantId(static_cast<ConstantId::value_type>((v.asIdValue().raw() < 256) ? Function::BuiltinConstants::AtomShort : Function::BuiltinConstants::AtomLong));
+        case Value::Type::Null:         return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Null));
+        case Value::Type::Undefined:    return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Undefined));
+        case Value::Type::Integer:
+            if (v.asIntValue() == 0) {
+                return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int0));
+            } else if (v.asIntValue() == 1) {
+                return ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int1));
+            } else {
+                break;
+            }
+        default: break;
+    }
     
     for (ConstantId::value_type id = 0; id < currentConstants().size(); ++id) {
         if (currentConstants()[id] == v) {
-            return ConstantId(id);
+            return ConstantId(id + static_cast<ConstantId::value_type>(Function::BuiltinConstants::NumBuiltins));
         }
     }
     
-    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size()));
+    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size() + static_cast<ConstantId::value_type>(Function::BuiltinConstants::NumBuiltins)));
     currentConstants().push_back(v);
     return r;
 }
@@ -842,7 +858,8 @@ uint32_t Parser::ParseStack::bake(bool makeClosure)
         case Type::Constant: {
             uint32_t r = entry._reg;
             if (makeClosure) {
-                Value v = _parser->currentConstants().at(ConstantId(r - MaxRegister - 1).raw());
+                uint8_t constantIndex = r - MaxRegister - 1 - Function::builtinConstantOffset();
+                Value v = _parser->currentConstants().at(constantIndex);
                 Mad<Object> func = v.asObject();
                 if (func.valid()) {
                     pop();

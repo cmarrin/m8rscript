@@ -58,7 +58,7 @@ public:
     void addToString(char c) { _program->addToStringLiteral(c); }
     void endString() { _program->endStringLiteral(); }
     
-private:    
+private:
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,
@@ -207,6 +207,7 @@ private:
         Type topType() const { return empty() ? Type::Unknown : _stack.top()._type; }
         uint32_t topReg() const { return empty() ? 0 : _stack.top()._reg; }
         uint32_t topDerefReg() const { return empty() ? 0 : _stack.top()._derefReg; }
+        Atom topAtom() const { return empty() ? 0 : _stack.top()._atom; }
         bool topIsValue() const { return empty() ? false : _stack.top()._isValue; }
         bool empty() const { return _stack.empty(); }
         void clear() { _stack.clear(); }
@@ -229,6 +230,9 @@ private:
                 , _reg(reg)
                 , _derefReg(derefReg)
                 , _isValue(isValue)
+            { }
+            
+            void init()
             {
                 if (_type == Type::Constant || _type == Type::RefK) {
                     _reg += MaxRegister + 1;
@@ -239,6 +243,7 @@ private:
             uint32_t _reg;
             uint32_t _derefReg;
             bool _isValue;
+            Atom _atom;
         };
         
         Stack<Entry> _stack;

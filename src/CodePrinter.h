@@ -45,7 +45,7 @@ private:
     bool deref(Mad<Program>, Value&, const Value&);
     Atom propertyNameFromValue(Mad<Program>, const Value&);
 
-    m8r::String generateCodeString(const Mad<Program>, const Mad<Object>, const char* functionName, uint32_t nestingLevel) const;
+    m8r::String generateCodeString(const Mad<Program>, const Mad<Function>, const char* functionName, uint32_t nestingLevel) const;
 
     struct Annotation {
         uint32_t addr;

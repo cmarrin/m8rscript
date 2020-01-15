@@ -357,11 +357,15 @@ struct Label {
  
     <binop>RR   R[d], RK[s1], RK[s2]
  
-    <unop> ==>  UMINUS, UNOT, UNEG,                 ; (7)
-                PREINC, PREDEC, POSTINC, POSTDEC
-                
-    <unop>R     R[d], R[s]
- 
+    UMINUS      R[d], RK[s]
+    UNOT        R[d], RK[s]
+    UNEG        R[d], RK[s]
+
+    PREINC      R[d], R[s]
+    PREDEC      R[d], R[s]
+    POSTINC     R[d], R[s]
+    POSTDEC     R[d], R[s]
+
     CALL        RK[call], RK[this], NPARAMS
     NEW         RK[call], NPARAMS
     CALLPROP    RK[o], RK[p], NPARAMS
@@ -492,9 +496,9 @@ private:
             { Layout::ABCReg, 3 },   // DIV          R[d], RK[s1], RK[s2]
             { Layout::ABCReg, 3 },   // MOD          R[d], RK[s1], RK[s2]
             
-            { Layout::ABReg,  2 },   // UMINUS       R[d], R[s]
-            { Layout::ABReg,  2 },   // UNOT         R[d], R[s]
-            { Layout::ABReg,  2 },   // UNEG         R[d], R[s]
+            { Layout::ABReg,  2 },   // UMINUS       R[d], RK[s]
+            { Layout::ABReg,  2 },   // UNOT         R[d], RK[s]
+            { Layout::ABReg,  2 },   // UNEG         R[d], RK[s]
             { Layout::ABReg,  2 },   // PREINC       R[d], R[s]
             { Layout::ABReg,  2 },   // PREDEC       R[d], R[s]
             { Layout::ABReg,  2 },   // POSTINC      R[d], R[s]

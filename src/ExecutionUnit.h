@@ -154,16 +154,24 @@ private:
         }
         return _framePtr[r];
     }
-     
-    const Value& regOrConst(uint32_t r)
+    
+    
+    const Value regOrConst()
     {
+        uint32_t r = byteFromCode(_currentAddr);
         if (r > MaxRegister) {
-            return _constants[r - MaxRegister - 1];
+            r = r - MaxRegister - 1;
+            if (Function::shortSharedAtomConstant(r)) {
+                return Value(Atom(byteFromCode(_currentAddr)));
+            } else if (Function::longSharedAtomConstant(r)) {
+                return Value(Atom(uNFromCode(_currentAddr)));
+            } else {
+                Value value;
+                _function->constant(ConstantId(r - MaxRegister - 1), value);
+                return value;
+            }
         }
-        if (r >= _formalParamCount) {
-            return _framePtr[r + _localOffset];
-        }
-        return _framePtr[r];
+        return reg(r);
     }
     
     bool isConstant(uint32_t r) { return r > MaxRegister; }
@@ -206,7 +214,6 @@ private:
     uint32_t _codeSize;
     const uint8_t* _code = nullptr;
     const uint8_t* _currentAddr = nullptr;
-    const Value* _constants = nullptr;
     Value* _framePtr = nullptr;
     
     mutable uint32_t _nerrors = 0;

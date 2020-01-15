@@ -17,6 +17,16 @@ namespace m8r {
 
 class Function : public MaterObject {
 public:
+    enum class BuiltinConstants {
+        Undefined = 0,
+        Null = 1,
+        Int0 = 2,
+        Int1 = 3,
+        AtomShort = 4,  // Next byte is Atom Id (0-255)
+        AtomLong = 5,   // Next 2 bytes are Atom Id (Hi:Lo, 0-65535)
+        NumBuiltins = 6
+    };
+    
     Function();
 
     virtual ~Function() { }
@@ -46,8 +56,19 @@ public:
 
     void setConstants(const Vector<Value>& constants) { bool retval = _constants.assign(constants); (void) retval; assert(retval); }
 
-    virtual const ConstantValueVector*  constants() const override { return &_constants; }
+    void enumerateConstants(std::function<void(const Value&, const ConstantId&)> func)
+    {
+        for (uint8_t i = 0; i < _constants.size(); ++i) {
+            func(_constants[i], ConstantId(i));
+        }
+    }
     
+    virtual bool constant(ConstantId id, Value& value) const override;
+    
+    static uint8_t builtinConstantOffset() { return static_cast<uint8_t>(BuiltinConstants::NumBuiltins); }
+    static bool shortSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
+    static bool longSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
+
     void setName(const Atom s) { _name = s; }
     virtual Atom name() const override { return _name; }
     
@@ -91,7 +112,7 @@ private:
     uint16_t _formalParamCount = 0;
     InstructionVector _code;
     uint16_t _localSize = 0;
-    ConstantValueVector _constants;
+    FixedVector<Value> _constants;
     Atom _name;
 };
 

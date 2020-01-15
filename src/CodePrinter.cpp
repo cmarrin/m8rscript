@@ -74,7 +74,9 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
     }
     
     String s = String("K[") + String::toString(reg - MaxRegister - 1) + "](";
-    showConstant(program, s, function->constants()->at(ConstantId(reg - MaxRegister - 1).raw()), true);
+    Value value;
+    function->constant(ConstantId(reg - MaxRegister - 1), value);
+    showConstant(program, s, value, true);
     s += ")";
     return s;
 }
@@ -149,7 +151,7 @@ void CodePrinter::generateCall(const Mad<Program> program, const Mad<Object> fun
     str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
 }
 
-m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Object> func, const char* functionName, uint32_t nestingLevel) const
+m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
 {
     #undef OP
     #define OP(op) &&L_ ## op,
@@ -245,18 +247,22 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     
     // Display the constants and up values
     // We don't show the first Constant, it is a dummy error value
-    if (func->constants()->size() > 1) {
-        indentCode(outputString);
-        outputString += "CONSTANTS:\n";
-        _nestingLevel++;
-
-        for (uint8_t i = 1; i < func->constants()->size(); ++i) {
-            Value constant = func->constants()->at(ConstantId(i).raw());
+    bool first = true;
+    func->enumerateConstants([&](const Value& value, const ConstantId& id) {
+        if (first) {
             indentCode(outputString);
-            outputString += "[" + String::toString(i) + "] = ";
-            showConstant(program, outputString, constant);
-            outputString += "\n";
+            outputString += "CONSTANTS:\n";
+            _nestingLevel++;
+            first = false;
         }
+        
+        indentCode(outputString);
+        outputString += "[" + String::toString(id.raw()) + "] = ";
+        showConstant(program, outputString, value);
+        outputString += "\n";
+    });
+    
+    if (!first) {
         _nestingLevel--;
         outputString += "\n";
     }
@@ -464,7 +470,7 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
                 _nestingLevel++;
                 s += "\n";
                 String name = obj->name() ? program->stringFromAtom(obj->name()) : String("unnamed");
-                s += generateCodeString(program, obj, name.c_str(), _nestingLevel);
+                s += generateCodeString(program, Mad<Function>(obj.raw()), name.c_str(), _nestingLevel);
                 _nestingLevel--;
                 break;
             }

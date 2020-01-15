@@ -21,8 +21,6 @@ class ExecutionUnit;
 class Object;
 class Stream;
 
-using ConstantValue = Value;
-using ConstantValueVector = FixedVector<ConstantValue>;
 using InstructionVector = FixedVector<uint8_t>;
 using PropertyMap = Map<Atom, Value>;
 
@@ -31,7 +29,7 @@ public:
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
     virtual const InstructionVector* code() const { return nullptr; }
     virtual uint16_t localCount() const { return 0; }
-    virtual const ConstantValueVector*  constants() const { return nullptr; }
+    virtual bool constant(ConstantId, Value&) const { return false; }
     virtual uint16_t formalParamCount() const { return 0; }
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
     virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }

@@ -17,6 +17,27 @@ Function::Function()
 {
 }
 
+bool Function::constant(ConstantId id, Value& value) const
+{
+    switch(static_cast<BuiltinConstants>(id.raw())) {
+        case BuiltinConstants::Undefined: value = Value(); return true;
+        case BuiltinConstants::Null: value = Value::NullValue(); return true;
+        case BuiltinConstants::Int0: value = Value(0); return true;
+        case BuiltinConstants::Int1: value = Value(1); return true;
+        case BuiltinConstants::AtomShort:
+        case BuiltinConstants::AtomLong: return false; // Handled outside, should never get here
+        default: {
+            int32_t i = static_cast<int32_t>(id.raw()) - static_cast<int32_t>(BuiltinConstants::NumBuiltins);
+            if (i >= 0 && i < _constants.size()) {
+                value = _constants[i];
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
 CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
     if (prop == Atom(SA::call)) {
