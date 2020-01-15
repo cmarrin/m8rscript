@@ -65,14 +65,31 @@ private:
         enum class Type { Reg, Constant };
         
         RegOrConst() { }
-        RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
-        RegOrConst(ConstantId id, Atom atom = Atom()) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
+        explicit RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
+        explicit RegOrConst(ConstantId id, Atom atom = Atom()) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
         
         bool operator==(const RegOrConst& other) { return _reg == other._reg && _type == other._type && _atom == other._atom; }
         
         bool isReg() const { return _type == Type::Reg; }
         uint8_t index() const { return isReg() ? _reg : (_reg + MaxRegister + 1); }
-        
+        bool isShortAtom() const { return !isReg() && static_cast<Function::BuiltinConstants>(index()) == Function::BuiltinConstants::AtomShort; }
+        bool isLongAtom() const { return !isReg() && static_cast<Function::BuiltinConstants>(index()) == Function::BuiltinConstants::AtomLong; }
+        Atom atom() const { return _atom; }
+
+        void push(Vector<uint8_t>* vec)
+        {
+            vec->push_back(index());
+            if (isShortAtom()) {
+                uint16_t a = atom().raw();
+                assert(a < 256);
+                vec->push_back(static_cast<uint8_t>(a));
+            } else if (isLongAtom()) {
+                uint16_t a = atom().raw();
+                vec->push_back(static_cast<uint8_t>(a >> 8));
+                vec->push_back(static_cast<uint8_t>(a));
+            }
+        }
+
     private:
         uint8_t _reg = static_cast<uint8_t>(Function::BuiltinConstants::Undefined);
         Type _type = Type::Constant;
@@ -86,17 +103,20 @@ private:
         Instruction(Op op, RegOrConst ra) { init(op, ra); }
         Instruction(Op op, RegOrConst ra, RegOrConst rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
         Instruction(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
-        Instruction(Op op, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(params)); }
-        Instruction(Op op, RegOrConst ra, uint8_t params) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(params)); }
-        Instruction(Op op, RegOrConst ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); }
-        Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); }
-        Instruction(Op op, uint16_t un) { assert(OpInfo::size(op) == 2); init(op, un); }
+        Instruction(Op op, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(params)); _haveParams = true; }
+        Instruction(Op op, RegOrConst ra, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, ra, static_cast<uint16_t>(params)); _haveParams = true; }
+        Instruction(Op op, RegOrConst ra, RegOrConst rb, uint8_t params) { assert(OpInfo::size(op) == 3); init(op, ra, rb, static_cast<uint16_t>(params)); _haveParams = true; }
+        Instruction(Op op, RegOrConst ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); _haveSN = true; }
+        Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); _haveSN = true; }
+        Instruction(Op op, uint16_t un) { assert(OpInfo::size(op) == 2); init(op, un); _haveUN = true; }
         
         bool haveRa() const { return _haveRa; }
         bool haveRb() const { return _haveRb; }
         bool haveRc() const { return _haveRc; }
-        bool haveN()  const { return _haveN; }
-        
+        bool haveUN()  const { return _haveUN; }
+        bool haveSN()  const { return _haveSN; }
+        bool haveParams()  const { return _haveParams; }
+
         Op op() const { return _op; }
         RegOrConst ra() const { return _ra; }
         RegOrConst rb() const { return _rb; }
@@ -107,8 +127,9 @@ private:
         void init(Op op) { _op = op; }
         void init(Op op, RegOrConst ra, RegOrConst rb) {init(op, ra); _haveRb = true; _rb = rb; }
         void init(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc) { init(op, ra, rb); _haveRc = true; _rc = rc; }
-        void init(Op op, RegOrConst ra, uint16_t n) { init(op, ra); _haveN = true; _n = n; }
-        void init(Op op, uint16_t n) {init(op); _haveN = true; _n = n; }
+        void init(Op op, RegOrConst ra, RegOrConst rb, uint16_t n) { init(op, ra, rb); _n = n; }
+        void init(Op op, RegOrConst ra, uint16_t n) { init(op, ra); _n = n; }
+        void init(Op op, uint16_t n) {init(op); _n = n; }
 
         void init(Op op, RegOrConst ra)
         {
@@ -132,7 +153,9 @@ private:
         bool _haveRa = false;
         bool _haveRb = false;
         bool _haveRc = false;
-        bool _haveN = false;
+        bool _haveUN = false;
+        bool _haveSN = false;
+        bool _haveParams = false;
     };
 
     // The next 3 functions work together:
@@ -240,7 +263,7 @@ private:
         addCode(Instruction(Op::LINENO, lineno));
     }
     
-    void emitCallRet(Op value, RegOrConst thisReg, uint32_t count);
+    void emitCallRet(Op value, RegOrConst thisReg, uint8_t params);
     void addVar(const Atom& name) { _functions.back().addLocal(name); }
     
     void discardResult();
@@ -256,7 +279,9 @@ private:
     // Parse Stack manipulation and code generation
     
     void emitCodeRRR(Op, RegOrConst ra, RegOrConst rb, RegOrConst rc);
+    void emitCodeRRNParams(Op, RegOrConst ra, RegOrConst rb, uint8_t nparams);
     void emitCodeRR(Op, RegOrConst ra, RegOrConst rb);
+    void emitCodeRNParams(Op, RegOrConst ra, uint8_t nparams);
     void emitCodeR(Op, RegOrConst rn);
     void emitCodeRET(uint8_t nparams);
     void emitCodeRSN(Op, RegOrConst rn, int16_t n);
@@ -309,8 +334,8 @@ private:
             }
             
             Type _type = Type::Unknown;
-            RegOrConst _reg = 0;
-            RegOrConst _derefReg = 0;
+            RegOrConst _reg;
+            RegOrConst _derefReg;
             bool _isValue = false;
         };
         

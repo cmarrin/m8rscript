@@ -113,7 +113,7 @@ void Parser::addMatchedJump(Op op, Label& label)
     
     assert(op == Op::JMP || op == Op::JT || op == Op::JF);
 
-    RegOrConst reg = 0;
+    RegOrConst reg;
     if (op != Op::JMP) {
         reg = _parseStack.bake();
         _parseStack.pop();
@@ -170,10 +170,22 @@ void Parser::emitCodeRRR(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc)
     addCode(Instruction(op, ra, rb, rc));
 }
 
+void Parser::emitCodeRRNParams(Op op, RegOrConst ra, RegOrConst rb, uint8_t nparams)
+{
+    emitLineNumber();
+    addCode(Instruction(op, ra, rb, nparams));
+}
+
 void Parser::emitCodeRR(Op op, RegOrConst ra, RegOrConst rb)
 {
     emitLineNumber();
     addCode(Instruction(op, ra, rb));
+}
+
+void Parser::emitCodeRNParams(Op op, RegOrConst ra, uint8_t nparams)
+{
+    emitLineNumber();
+    addCode(Instruction(op, ra, nparams));
 }
 
 void Parser::emitCodeRET(uint8_t nparams)
@@ -221,12 +233,27 @@ void Parser::addCode(Instruction inst)
     } else {
         vec = &currentCode();
     }
+    
     vec->push_back(static_cast<uint8_t>(inst.op()));
-    if (inst.haveRa()) vec->push_back(inst.ra().index());
-    if (inst.haveRb()) vec->push_back(inst.rb().index());
-    if (inst.haveRc()) vec->push_back(inst.rc().index());
-    if (inst.haveN()) {
+    
+    if (inst.haveRa()) {
+        inst.ra().push(vec);
+    }
+
+    if (inst.haveRb()) {
+        inst.rb().push(vec);
+    }
+
+    if (inst.haveRc()) {
+        inst.rc().push(vec);
+    }
+    
+    if (inst.haveUN() || inst.haveSN()) {
         vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
+        vec->push_back(static_cast<uint8_t>(inst.n()));
+    }
+    
+    if (inst.haveParams()) {
         vec->push_back(static_cast<uint8_t>(inst.n()));
     }
 }
@@ -261,13 +288,13 @@ Parser::RegOrConst Parser::addConstant(const Value& v)
     
     for (ConstantId::value_type id = 0; id < currentConstants().size(); ++id) {
         if (currentConstants()[id] == v) {
-            return ConstantId(id + static_cast<ConstantId::value_type>(Function::BuiltinConstants::NumBuiltins));
+            return RegOrConst(ConstantId(id + Function::builtinConstantOffset()));
         }
     }
     
-    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size() + static_cast<ConstantId::value_type>(Function::BuiltinConstants::NumBuiltins)));
+    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size() + Function::builtinConstantOffset()));
     currentConstants().push_back(v);
-    return r;
+    return RegOrConst(r);
 }
 
 void Parser::pushK(const char* s)
@@ -295,7 +322,7 @@ void Parser::addNamedFunction(Mad<Function> func, const Atom& name)
 void Parser::pushThis()
 {
     if (nerrors()) return;
-    _parseStack.push(ParseStack::Type::This, 0);
+    _parseStack.push(ParseStack::Type::This, RegOrConst());
 }
 
 void Parser::pushTmp()
@@ -321,7 +348,7 @@ void Parser::emitId(const Atom& atom, IdType type)
             Mad<Object> func = currentConstants().at(ConstantId(i).raw()).asObject();
             if (func.valid()) {
                 if (func->name() == atom) {
-                    _parseStack.pushConstant(ConstantId(i + Function::builtinConstantOffset()));
+                    _parseStack.pushConstant(RegOrConst(ConstantId(i + Function::builtinConstantOffset())));
                     return;
                 }
             }
@@ -335,11 +362,11 @@ void Parser::emitId(const Atom& atom, IdType type)
             
             if (index >= 0) {
                 if (local) {
-                    _parseStack.push(ParseStack::Type::Local, static_cast<uint32_t>(index));
+                    _parseStack.push(ParseStack::Type::Local, RegOrConst(static_cast<uint32_t>(index)));
                     return;
                 }
                 
-                _parseStack.push(ParseStack::Type::UpValue, static_cast<uint32_t>(currentFunction()->addUpValue(index, frame, atom)));
+                _parseStack.push(ParseStack::Type::UpValue, RegOrConst(static_cast<uint32_t>(currentFunction()->addUpValue(index, frame, atom))));
                 return;
             }
             local = false;
@@ -356,7 +383,7 @@ void Parser::emitId(const Atom& atom, IdType type)
     }
     
     if (atom == Atom(SA::value)) {
-        _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, 0);
+        _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, RegOrConst());
         _parseStack.setIsValue(true);
         return;
     }
@@ -427,7 +454,7 @@ void Parser::emitMove()
 
 Parser::RegOrConst Parser::emitDeref(DerefType type)
 {
-    if (nerrors()) return 0;
+    if (nerrors()) return RegOrConst();
     
     bool isValue = _parseStack.topIsValue();
     RegOrConst derefReg = _parseStack.bake();
@@ -591,23 +618,22 @@ void Parser::emitEnd()
     emitCode(Op::END);
 }
 
-void Parser::emitCallRet(Op op, RegOrConst thisReg, uint32_t nparams)
+void Parser::emitCallRet(Op op, RegOrConst thisReg, uint8_t nparams)
 {
     if (nerrors()) return;
     
-    assert(nparams < MaxParams);
     assert(op == Op::CALL || op == Op::NEW || op == Op::RET);
     
-    RegOrConst calleeReg = 0;
+    RegOrConst calleeReg = RegOrConst();
     if (thisReg == RegOrConst()) {
         // This uses a dummy value for this
-        thisReg = MaxRegister + 1;
+        thisReg = RegOrConst();
     }
 
     if (op == Op::CALL) {
         // If tos is a PropRef or EltRef, emit CALLPROP with the object and property
         if (_parseStack.topType() == ParseStack::Type::PropRef || _parseStack.topType() == ParseStack::Type::EltRef) {
-            emitCodeRRR(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
+            emitCodeRRNParams(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
             _parseStack.pop();
             emitPop();
             return;
@@ -620,7 +646,7 @@ void Parser::emitCallRet(Op op, RegOrConst thisReg, uint32_t nparams)
         _parseStack.pop();
     } else {
         // If there is a return value, push it onto the runtime stack
-        for (uint32_t i = 0; i < nparams; ++i) {
+        for (uint8_t i = 0; i < nparams; ++i) {
             emitPush();
         }
     }
@@ -628,9 +654,9 @@ void Parser::emitCallRet(Op op, RegOrConst thisReg, uint32_t nparams)
     if (op == Op::RET) {
         emitCodeRET(nparams);
     } else if (op == Op::NEW) {
-        emitCodeRR(op, calleeReg, nparams);
+        emitCodeRNParams(op, calleeReg, nparams);
     } else {
-        emitCodeRRR(op, calleeReg, thisReg, nparams);
+        emitCodeRRNParams(op, calleeReg, thisReg, nparams);
     }
     
     if (op == Op::CALL || op == Op::NEW) {
@@ -780,8 +806,8 @@ Parser::RegOrConst Parser::ParseStack::pushRegister()
     if (reg < entry._minReg) {
         entry._minReg = reg;
     }
-    _stack.push({ Type::Register, reg });
-    return reg;
+    _stack.push({ Type::Register, RegOrConst(reg) });
+    return RegOrConst(reg);
 }
 
 void Parser::ParseStack::pop()
@@ -877,7 +903,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
         case Type::Unknown:
         default:
             assert(0);
-            return 0;
+            return RegOrConst();
     }
 }
 
@@ -891,6 +917,6 @@ void Parser::ParseStack::propRefToReg()
     assert(_stack.top()._type == Type::PropRef);
     RegOrConst r = _stack.top()._reg;
     Type type = r.isReg() ? ((r.index() < _parser->_functions.back()._minReg) ? Type::Local : Type::Register) : Type::Register;
-    replaceTop(type, r, 0);
+    replaceTop(type, r, RegOrConst());
 }
 

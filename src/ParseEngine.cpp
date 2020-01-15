@@ -506,7 +506,7 @@ bool ParseEngine::jumpStatement()
     }
     if (getToken() == Token::Return) {
         retireToken();
-        uint32_t count = 0;
+        uint8_t count = 0;
         if (expression()) {
             count = 1;
         }
@@ -678,14 +678,14 @@ bool ParseEngine::leftHandSideExpression()
         return false;
     }
     
-    Parser::RegOrConst objectReg = -1;
+    Parser::RegOrConst objectReg;
     while(1) {
         if (getToken() == Token::LParen) {
             retireToken();
             uint32_t argCount = argumentList();
             expect(Token::RParen);
             _parser->emitCallRet(m8r::Op::CALL, objectReg, argCount);
-            objectReg = -1;
+            objectReg = Parser::RegOrConst();
         } else if (getToken() == Token::LBracket) {
             retireToken();
             expression();
