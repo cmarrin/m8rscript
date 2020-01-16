@@ -887,13 +887,15 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
             RegOrConst r = entry._reg;
             if (makeClosure) {
                 assert(!r.isReg());
-                Value v = _parser->currentConstants().at(r.index());
+                Value v;
+                Function::constant(&(_parser->currentConstants().at(0)), _parser->currentConstants().size(), r.index(), v);
                 Mad<Object> func = v.asObject();
-                assert(func.valid());
-                pop();
-                RegOrConst dst = pushRegister();
-                _parser->emitCodeRR(Op::CLOSURE, dst, r);
-                r = dst;
+                if (func.valid()) {
+                    pop();
+                    RegOrConst dst = pushRegister();
+                    _parser->emitCodeRR(Op::CLOSURE, dst, r);
+                    r = dst;
+                }
             }
             return r;
         }

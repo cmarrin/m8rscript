@@ -167,7 +167,7 @@ private:
                 return Value(Atom(uNFromCode(_currentAddr)));
             } else {
                 Value value;
-                _function->constant(ConstantId(r - MaxRegister - 1), value);
+                _function->constant(r, value);
                 return value;
             }
         }

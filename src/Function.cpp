@@ -17,9 +17,15 @@ Function::Function()
 {
 }
 
-bool Function::constant(ConstantId id, Value& value) const
+bool Function::constant(const Value* constants, size_t numConstants, uint8_t reg, Value& value)
 {
-    switch(static_cast<BuiltinConstants>(id.raw())) {
+    if (reg <= MaxRegister) {
+        return false;
+    }
+    
+    reg -= MaxRegister + 1;
+    
+    switch(static_cast<BuiltinConstants>(reg)) {
         case BuiltinConstants::Undefined: value = Value(); return true;
         case BuiltinConstants::Null: value = Value::NullValue(); return true;
         case BuiltinConstants::Int0: value = Value(0); return true;
@@ -27,9 +33,9 @@ bool Function::constant(ConstantId id, Value& value) const
         case BuiltinConstants::AtomShort:
         case BuiltinConstants::AtomLong: return false; // Handled outside, should never get here
         default: {
-            int32_t i = static_cast<int32_t>(id.raw()) - static_cast<int32_t>(BuiltinConstants::NumBuiltins);
-            if (i >= 0 && i < _constants.size()) {
-                value = _constants[i];
+            int32_t i = reg - static_cast<int32_t>(BuiltinConstants::NumBuiltins);
+            if (i >= 0 && i < numConstants) {
+                value = constants[i];
                 return true;
             } else {
                 return false;

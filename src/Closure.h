@@ -78,7 +78,7 @@ public:
     
     virtual const InstructionVector* code() const override { return _func->code(); }
     virtual uint16_t localCount() const override { return _func->localCount(); }
-    virtual bool constant(ConstantId id, Value& value) const override { return _func->constant(id, value); }
+    virtual bool constant(uint8_t reg, Value& value) const override { return _func->constant(reg, value); }
     virtual uint16_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;

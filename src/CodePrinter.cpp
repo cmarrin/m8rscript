@@ -75,7 +75,7 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
     
     String s = String("K[") + String::toString(reg - MaxRegister - 1) + "](";
     Value value;
-    function->constant(ConstantId(reg - MaxRegister - 1), value);
+    function->constant(reg, value);
     showConstant(program, s, value, true);
     s += ")";
     return s;

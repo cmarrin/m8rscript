@@ -63,8 +63,9 @@ public:
         }
     }
     
-    virtual bool constant(ConstantId id, Value& value) const override;
-    
+    static bool constant(const Value* constants, size_t numConstants, uint8_t id, Value& value);
+    virtual bool constant(uint8_t reg, Value& value) const override { return constant( &(_constants.at(0)), _constants.size(), reg, value); }
+
     static uint8_t builtinConstantOffset() { return static_cast<uint8_t>(BuiltinConstants::NumBuiltins); }
     static bool shortSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
     static bool longSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
