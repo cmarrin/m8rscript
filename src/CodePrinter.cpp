@@ -59,13 +59,34 @@ void CodePrinter::preamble(String& s, uint32_t addr, bool indent) const
     }
 }
 
+uint8_t CodePrinter::regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant)
+{
+    uint32_t r = byteFromCode(code);
+    if (r <= MaxRegister) {
+        return r;
+    }
+
+    uint8_t constantIndex = r - MaxRegister - 1;
+    if (Function::shortSharedAtomConstant(constantIndex)) {
+        constant = Value(Atom(byteFromCode(code)));
+    } else if (Function::longSharedAtomConstant(r)) {
+        constant = Value(Atom(uNFromCode(code)));
+    } else {
+        func->constant(r, constant);
+    }
+    return r;
+}
+
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program) const
 {    
     return generateCodeString(program, program, "main", 0);
 }
 
-String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, uint32_t reg, bool up) const
+String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, const uint8_t*& code, bool up)
 {
+    Value value;
+    uint8_t reg = regOrConst(function, code, value);
+    
     if (up) {
         return String("U[") + String::toString(reg) + "]";
     }
@@ -73,9 +94,10 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
         return String("R[") + String::toString(reg) + "]";
     }
     
-    String s = String("K[") + String::toString(reg - MaxRegister - 1) + "](";
-    Value value;
-    function->constant(reg, value);
+    reg -= MaxRegister + 1;
+    
+    String s = String("K[") + String::toString(reg) + "](";
+    
     showConstant(program, s, value, true);
     s += ")";
     return s;
