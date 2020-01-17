@@ -158,16 +158,17 @@ void CodePrinter::generateJumpAddr(m8r::String& str, uint32_t addr, Op op, const
 {
     preamble(str, addr);
     int16_t targetAddr = sNFromCode(code);
-    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr - 4));
-    str += String(stringFromOp(op)) + " " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
+    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr));
+    str += String(stringFromOp(op)) + " " + ((id == 0) ? "[???]" : (String("LABEL[") + String::toString(id) + "]")) + "\n";
 }
 
 void CodePrinter::generateRJumpAddr(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
+    String regstr = regString(program, function, code);
     int16_t targetAddr = sNFromCode(code);
-    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr - 4));
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + "' " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
+    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr));
+    str += String(stringFromOp(op)) + " " + regstr + ", " + ((id == 0) ? "[???]" : (String("LABEL[") + String::toString(id) + "]")) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
@@ -267,6 +268,9 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
                 p += constantSize(byteFromCode(p));
             }
             if (OpInfo::cReg(op)) {
+                p += constantSize(byteFromCode(p));
+            }
+            if (OpInfo::dReg(op)) {
                 p += constantSize(byteFromCode(p));
             }
             if (OpInfo::params(op)) {

@@ -1,1 +1,5 @@
-print("Hello World\n");
+var i = 0;
+while (i < 3) {
+    print("Hello World\n");
+    i++;
+}

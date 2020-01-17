@@ -154,7 +154,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "/hello.m8r";
+    return "/sys/bin/hello.m8r";
 }
 
 bool Application::mountFileSystem()
