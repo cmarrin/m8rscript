@@ -28,17 +28,19 @@ public:
     m8r::String generateCodeString(const Mad<Program> program) const;
     
 private:
-    uint8_t regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant);
-    String regString(const Mad<Program>, const Mad<Object>, const uint8_t*& code, bool up = false);
+    uint8_t regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant) const;
+    String regString(const Mad<Program>, const Mad<Object>, const uint8_t*& code, bool up = false) const;
+    String regString(const Mad<Program>, const Mad<Object>, uint8_t r, const Value& constant, bool up = false) const;
     void generateXXX(m8r::String&, uint32_t addr, Op op) const;
     void generateRXX(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRRX(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRUX(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateURX(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRRR(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
-    void generateXN(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code, bool annotation) const;
-    void generateRN(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code, bool annotation) const;
-    void generateCall(const Mad<Program>, const Mad<Object>, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const;
+    void generateRParams(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
+    void generateRRParams(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
+    void generateJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
+    void generateRJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
  
     void showConstant(const Mad<Program>, m8r::String&, const Value&, bool abbreviated = false) const;
     Value* valueFromId(Atom, const Mad<Object>) const;

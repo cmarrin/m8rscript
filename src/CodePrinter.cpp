@@ -59,7 +59,7 @@ void CodePrinter::preamble(String& s, uint32_t addr, bool indent) const
     }
 }
 
-uint8_t CodePrinter::regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant)
+uint8_t CodePrinter::regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant) const
 {
     uint32_t r = byteFromCode(code);
     if (r <= MaxRegister) {
@@ -82,11 +82,15 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program) const
     return generateCodeString(program, program, "main", 0);
 }
 
-String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, const uint8_t*& code, bool up)
+String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, const uint8_t*& code, bool up) const
 {
-    Value value;
-    uint8_t reg = regOrConst(function, code, value);
-    
+    Value constant;
+    uint8_t r = regOrConst(function, code, constant);
+    return regString(program, function, r, constant, up);
+}
+
+String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, uint8_t reg, const Value& constant, bool up) const
+{
     if (up) {
         return String("U[") + String::toString(reg) + "]";
     }
@@ -98,7 +102,7 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
     
     String s = String("K[") + String::toString(reg) + "](";
     
-    showConstant(program, s, value, true);
+    showConstant(program, s, constant, true);
     s += ")";
     return s;
 }
@@ -109,68 +113,60 @@ void CodePrinter::generateXXX(m8r::String& str, uint32_t addr, Op op) const
     str += String(stringFromOp(op)) + "\n";
 }
 
-void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d) const
+void CodePrinter::generateRXX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + "\n";
 }
 
-void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateRRX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + "\n";
 }
 
-void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateRUX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s, true) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code, true) + "\n";
 }
 
-void CodePrinter::generateURX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s) const
+void CodePrinter::generateURX(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d, true) + ", " + regString(program, function, s) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code, true) + ", " + regString(program, function, code) + "\n";
 }
 
-void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, uint8_t s1, uint8_t s2) const
+void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + regString(program, function, s1) + ", " + regString(program, function, s2) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + ", " + regString(program, function, code) + "\n";
 }
 
-void CodePrinter::generateXN(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, int16_t n, bool annotation) const
+void CodePrinter::generateRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    String target = String::toString(n);
-    if (annotation) {
-        if (n == 0) {
-            target = "[???]";
-        } else {
-            target = "LABEL[" + target + "]";
-        }
-    }
-    str += String(stringFromOp(op)) + " " + target + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + String::toString(byteFromCode(code)) + "\n";
 }
 
-void CodePrinter::generateRN(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t d, int16_t n, bool annotation) const
+void CodePrinter::generateRRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    String target = String::toString(n);
-    if (annotation) {
-        if (n == 0) {
-            target = "[???]";
-        } else {
-            target = "LABEL[" + target + "]";
-        }
-    }
-    str += String(stringFromOp(op)) + " " + regString(program, function, d) + ", " + target + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + String::toString(byteFromCode(code)) + "\n";
 }
 
-void CodePrinter::generateCall(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, uint8_t rcall, uint8_t rthis, uint8_t nparams) const
+void CodePrinter::generateJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, rcall) + ", " + regString(program, function, rthis) + ", " + String::toString(nparams) + "\n";
+    int16_t n = sNFromCode(code);
+    str += String(stringFromOp(op)) + " " + ((n == 0) ? "[???]" : (String("LABEL[") + target + "]")) + "\n";
+}
+
+void generateRJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const
+{
+    preamble(str, addr);
+    int16_t n = sNFromCode(code);
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + "' " + ((n == 0) ? "[???]" : (String("LABEL[") + target + "]")) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
@@ -363,10 +359,12 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         generateRRR(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
         DISPATCH;
     L_RET:
-        generateXN(program, func, outputString, pc, op, byteFromCode(currentAddr), false);
+        preamble(outputString, pc);
+        str += String(stringFromOp(op)) + " " + String::toString(byteFromCode(currentAddr)) + "\n";
         DISPATCH;
     L_RETI:
-        generateXN(program, func, outputString, pc, op, imm, false);
+        preamble(outputString, pc);
+        str += String(stringFromOp(op)) + " " + String::toString(imm) + "\n";
         DISPATCH;
     L_JMP:
     {
