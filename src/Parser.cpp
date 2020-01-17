@@ -783,6 +783,7 @@ void Parser::reconcileRegisters(uint16_t localCount)
         Op op = static_cast<Op>(*p++ & 0x3f);
         
         if (OpInfo::aReg(op)) {
+            assert(*p <= MaxRegister);
             *p = regFromTempReg(*p, localCount);
             p += constantSize(*p) + 1;
         }
@@ -791,6 +792,11 @@ void Parser::reconcileRegisters(uint16_t localCount)
             p += constantSize(*p) + 1;
         }
         if (OpInfo::cReg(op)) {
+            *p = regFromTempReg(*p, localCount);
+            p += constantSize(*p) + 1;
+        }
+        if (OpInfo::dReg(op)) {
+            assert(*p <= MaxRegister);
             *p = regFromTempReg(*p, localCount);
             p += constantSize(*p) + 1;
         }

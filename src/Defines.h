@@ -424,23 +424,30 @@ public:
     static bool aReg(Op op) { return flagFromLayout(op, Flags::a); }
     static bool bReg(Op op) { return flagFromLayout(op, Flags::b); }
     static bool cReg(Op op) { return flagFromLayout(op, Flags::c); }
+    static bool dReg(Op op) { return flagFromLayout(op, Flags::d); }
     static bool imm(Op op) { return flagFromLayout(op, Flags::imm); }
     static bool params(Op op) { return flagFromLayout(op, Flags::P); }
     static bool number(Op op) { return flagFromLayout(op, Flags::N); }
 
 private:
     // Bits here are a(0x01), b(0x02), c(0x04), sn(0x08), un(0x10)
-    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, imm = 0x08, P = 0x10, N = 0x20 };
+    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, d = 0x08, imm = 0x10, P = 0x20, N = 0x40 };
+    
+    // Regs a and d must be registers (<= MaxRegister)
+    // Regs b and c can be reg or constant
     
     enum class Layout : uint8_t {
         None    = 0,
         A       = static_cast<uint8_t>(Flags::a),
+        B       = static_cast<uint8_t>(Flags::b),
         AB      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b),
+        AD      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::d),
+        BC      = static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
         ABC     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
         IMM     = static_cast<uint8_t>(Flags::imm),
         P       = static_cast<uint8_t>(Flags::P),
-        AP      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::P),
-        ABP     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::P),
+        BP      = static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::P),
+        BCP     = static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c) | static_cast<uint8_t>(Flags::P),
         N       = static_cast<uint8_t>(Flags::N),
         AN      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::N),
         ABN     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::N),
@@ -460,62 +467,62 @@ private:
     static const Entry& array(Op op)
     {
         static const Entry RODATA_ATTR _array[ ] = {
-/*0x00 */   { Layout::AB,  2 },   // MOVE         R[d], RK[s]
-            { Layout::AB,  2 },   // LOADREFK     R[d], RK[s]
-            { Layout::AB,  2 },   // STOREFK      RK[d], RK[s]
-            { Layout::A,   1 },   // LOADLITA     R[d]
-            { Layout::A,   1 },   // LOADLITO     R[d]
-            { Layout::ABC, 3 },   // LOADPROP     R[d], RK[o], K[p]
-            { Layout::ABC, 3 },   // LOADELT      R[d], RK[o], RK[e]
-            { Layout::ABC, 3 },   // STOPROP      R[o], K[p], RK[s]
-            { Layout::ABC, 3 },   // STOELT       R[o], RK[e], RK[s]
-            { Layout::AB,  2 },   // APPENDELT    R[d], RK[s]
-            { Layout::ABC, 3 },   // APPENDPROP   R[d], RK[p], RK[s]
-            { Layout::A,   1 },   // LOADTRUE     R[d]
-            { Layout::A,   1 },   // LOADFALSE    R[d]
-            { Layout::A,   1 },   // LOADNULL     R[d]
-            { Layout::A,   1 },   // PUSH         RK[s]
-            { Layout::A,   1 },   // POP          R[d]
-            
-/*0x10 */   { Layout::ABC, 3 },   // LOR          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // LAND         R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // OR           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // AND          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // XOR          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // EQ           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // NE           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // LT           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // LE           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // GT           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // GE           R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // SHL          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // SHR          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // SAR          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // ADD          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // SUB          R[d], RK[s1], RK[s2]
+/*0x00 */   { Layout::AB,   2 },   // MOVE         R[d], RK[s]
+            { Layout::AB,   2 },   // LOADREFK     R[d], RK[s]
+            { Layout::BC,   2 },   // STOREFK      RK[d], RK[s]
+            { Layout::A,    1 },   // LOADLITA     R[d]
+            { Layout::A,    1 },   // LOADLITO     R[d]
+            { Layout::ABC,  3 },   // LOADPROP     R[d], RK[o], K[p]
+            { Layout::ABC,  3 },   // LOADELT      R[d], RK[o], RK[e]
+            { Layout::ABC,  3 },   // STOPROP      R[o], K[p], RK[s]
+            { Layout::ABC,  3 },   // STOELT       R[o], RK[e], RK[s]
+            { Layout::AB,   2 },   // APPENDELT    R[d], RK[s]
+            { Layout::ABC,  3 },   // APPENDPROP   R[d], RK[p], RK[s]
+            { Layout::A,    1 },   // LOADTRUE     R[d]
+            { Layout::A,    1 },   // LOADFALSE    R[d]
+            { Layout::A,    1 },   // LOADNULL     R[d]
+            { Layout::B,    1 },   // PUSH         RK[s]
+            { Layout::A,    1 },   // POP          R[d]
              
-/*0x20 */   { Layout::ABC, 3 },   // MUL          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // DIV          R[d], RK[s1], RK[s2]
-            { Layout::ABC, 3 },   // MOD          R[d], RK[s1], RK[s2]
+/*0x10 */   { Layout::ABC,  3 },   // LOR          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // LAND         R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // OR           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // AND          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // XOR          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // EQ           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // NE           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // LT           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // LE           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // GT           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // GE           R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // SHL          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // SHR          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // SAR          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // ADD          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // SUB          R[d], RK[s1], RK[s2]
+              
+/*0x20 */   { Layout::ABC,  3 },   // MUL          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // DIV          R[d], RK[s1], RK[s2]
+            { Layout::ABC,  3 },   // MOD          R[d], RK[s1], RK[s2]
             
             { Layout::AB,   2 },   // UMINUS       R[d], RK[s]
             { Layout::AB,   2 },   // UNOT         R[d], RK[s]
             { Layout::AB,   2 },   // UNEG         R[d], RK[s]
-            { Layout::AB,   2 },   // PREINC       R[d], R[s]
-            { Layout::AB,   2 },   // PREDEC       R[d], R[s]
-            { Layout::AB,   2 },   // POSTINC      R[d], R[s]
-            { Layout::AB,   2 },   // POSTDEC      R[d], R[s]
+            { Layout::AD,   2 },   // PREINC       R[d], R[s]
+            { Layout::AD,   2 },   // PREDEC       R[d], R[s]
+            { Layout::AD,   2 },   // POSTINC      R[d], R[s]
+            { Layout::AD,   2 },   // POSTDEC      R[d], R[s]
  
-            { Layout::ABP,  3 },   // CALL         RK[call], RK[this], NPARAMS
-            { Layout::AP,   2 },   // NEW          RK[call], NPARAMS
-            { Layout::ABP,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
+            { Layout::BCP,  3 },   // CALL         RK[call], RK[this], NPARAMS
+            { Layout::BP,   2 },   // NEW          RK[call], NPARAMS
+            { Layout::BCP,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
             { Layout::N,    2 },   // JMP          SN
             { Layout::AN,   3 },   // JT           RK[s], SN
             { Layout::AN,   3 },   // JF           RK[s], SN
              
 /*0x30 */   { Layout::N,    2 },   // LINENO       UN
             { Layout::A,    1 },   // LOADTHIS     R[d]
-            { Layout::AB,   2 },   // LOADUP       R[d], U[s]
+            { Layout::AD,   2 },   // LOADUP       R[d], U[s]
             { Layout::AB,   2 },   // STOREUP      U[d], RK[s]
             { Layout::AB,   2 },   // CLOSURE      R[d], RK[s]
             { Layout::None, 0 },   // YIELD
