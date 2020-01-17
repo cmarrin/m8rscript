@@ -103,12 +103,12 @@ private:
         Instruction(Op op, RegOrConst ra) { init(op, ra); }
         Instruction(Op op, RegOrConst ra, RegOrConst rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
         Instruction(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
-        Instruction(Op op, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(params)); _haveParams = true; }
+        Instruction(Op op, uint8_t params) { assert(OpInfo::size(op) == 2 || (OpInfo::size(op) == 0 && OpInfo::imm(op))); init(op, static_cast<uint16_t>(params)); _haveParams = true; }
         Instruction(Op op, RegOrConst ra, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, ra, static_cast<uint16_t>(params)); _haveParams = true; }
         Instruction(Op op, RegOrConst ra, RegOrConst rb, uint8_t params) { assert(OpInfo::size(op) == 3); init(op, ra, rb, static_cast<uint16_t>(params)); _haveParams = true; }
         Instruction(Op op, RegOrConst ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); _haveSN = true; }
         Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); _haveSN = true; }
-        Instruction(Op op, uint16_t un) { assert(OpInfo::size(op) == 2); init(op, un); _haveUN = true; }
+        Instruction(Op op, uint16_t un) { init(op, un); _haveUN = true; }
         
         bool haveRa() const { return _haveRa; }
         bool haveRb() const { return _haveRb; }
