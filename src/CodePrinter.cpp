@@ -155,18 +155,20 @@ void CodePrinter::generateRRParams(const Mad<Program> program, const Mad<Object>
     str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + String::toString(byteFromCode(code)) + "\n";
 }
 
-void CodePrinter::generateJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
+void CodePrinter::generateJumpAddr(m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    int16_t n = sNFromCode(code);
-    str += String(stringFromOp(op)) + " " + ((n == 0) ? "[???]" : (String("LABEL[") + target + "]")) + "\n";
+    int16_t targetAddr = sNFromCode(code);
+    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr - 4));
+    str += String(stringFromOp(op)) + " " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
 }
 
-void generateRJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const
+void CodePrinter::generateRJumpAddr(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    int16_t n = sNFromCode(code);
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + "' " + ((n == 0) ? "[???]" : (String("LABEL[") + target + "]")) + "\n";
+    int16_t targetAddr = sNFromCode(code);
+    uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr - 4));
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + "' " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
@@ -333,7 +335,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADTHIS:
     L_PUSH:
     L_POP:
-        generateRXX(program, func, outputString, pc, op, byteFromCode(currentAddr));
+        generateRXX(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_POPX:
         generateXXX(outputString, pc, op);
@@ -343,52 +345,47 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_UMINUS: L_UNOT: L_UNEG:
     L_PREINC: L_PREDEC: L_POSTINC: L_POSTDEC:
     L_CLOSURE:
-        generateRRX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRX(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_LOADUP:
-        generateRUX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRUX(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_STOREUP:
-        generateURX(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateURX(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
     L_SHL: L_SHR: L_SAR:
     L_ADD: L_SUB: L_MUL: L_DIV: L_MOD:
-        generateRRR(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRR(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_RET:
         preamble(outputString, pc);
-        str += String(stringFromOp(op)) + " " + String::toString(byteFromCode(currentAddr)) + "\n";
+        outputString += String(stringFromOp(op)) + " " + String::toString(byteFromCode(currentAddr)) + "\n";
         DISPATCH;
     L_RETI:
         preamble(outputString, pc);
-        str += String(stringFromOp(op)) + " " + String::toString(imm) + "\n";
+        outputString += String(stringFromOp(op)) + " " + String::toString(imm) + "\n";
         DISPATCH;
     L_JMP:
     {
-        uint32_t targetAddr = sNFromCode(currentAddr);
-        uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 3));
-        generateXN(program, func, outputString, id ?: pc, op, id, true);
+        generateJumpAddr(outputString, pc, op, currentAddr);
         DISPATCH;
     }
     L_JT: L_JF:
     {
-        uint8_t reg = byteFromCode(currentAddr);
-        uint32_t targetAddr = sNFromCode(currentAddr);
-        uint32_t id = findAnnotation(static_cast<uint32_t>((currentAddr - code) + targetAddr - 4));
-        generateRN(program, func, outputString, id ?: pc, op, reg, id, true);
+        generateRJumpAddr(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     }
     L_CALL:
-        generateCall(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRParams(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_NEW:
-        generateRN(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), false);
+        generateRParams(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_CALLPROP:
-        generateCall(program, func, outputString, pc, op, byteFromCode(currentAddr), byteFromCode(currentAddr), byteFromCode(currentAddr));
+        generateRRParams(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
     L_LINENO:
         _lineno = uNFromCode(currentAddr);

@@ -39,7 +39,7 @@ private:
     void generateRRR(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRParams(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRRParams(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
-    void generateJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
+    void generateJumpAddr(m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
     void generateRJumpAddr(const Mad<Program>, const Mad<Object>, m8r::String&, uint32_t addr, Op op, const uint8_t*& code) const;
  
     void showConstant(const Mad<Program>, m8r::String&, const Value&, bool abbreviated = false) const;
