@@ -67,9 +67,9 @@ uint8_t CodePrinter::regOrConst(const Mad<Object> func, const uint8_t*& code, Va
     }
 
     uint8_t constantIndex = r - MaxRegister - 1;
-    if (Function::shortSharedAtomConstant(constantIndex)) {
+    if (shortSharedAtomConstant(constantIndex)) {
         constant = Value(Atom(byteFromCode(code)));
-    } else if (Function::longSharedAtomConstant(r)) {
+    } else if (longSharedAtomConstant(r)) {
         constant = Value(Atom(uNFromCode(code)));
     } else {
         func->constant(r, constant);
@@ -146,13 +146,13 @@ void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Object> func
 void CodePrinter::generateRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + String::toString(byteFromCode(code)) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + String::toString(byteFromCode(code)) + "\n";
 }
 
 void CodePrinter::generateRRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + String::toString(byteFromCode(code)) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + ", " + String::toString(byteFromCode(code)) + "\n";
 }
 
 void CodePrinter::generateJumpAddr(m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
@@ -254,14 +254,28 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
         if (op == Op::JT || op == Op::JF || op == Op::JMP) {
             if (op == Op::JT || op == Op::JF) {
-                p++;
+                p += constantSize(byteFromCode(p));
             }
 
             uint32_t addr = static_cast<uint32_t>((jumpAddr - code) + sNFromCode(p));
             Annotation annotation = { addr, uniqueID++ };
             annotations.push_back(annotation);
         } else {
-            p += OpInfo::size(op);
+            if (OpInfo::aReg(op)) {
+                p += constantSize(byteFromCode(p));
+            }
+            if (OpInfo::bReg(op)) {
+                p += constantSize(byteFromCode(p));
+            }
+            if (OpInfo::cReg(op)) {
+                p += constantSize(byteFromCode(p));
+            }
+            if (OpInfo::params(op)) {
+                p++;
+            }
+            if (OpInfo::number(op)) {
+                p += 2;
+            }
         }
     }
     

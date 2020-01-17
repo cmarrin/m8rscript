@@ -425,23 +425,25 @@ public:
     static bool bReg(Op op) { return flagFromLayout(op, Flags::b); }
     static bool cReg(Op op) { return flagFromLayout(op, Flags::c); }
     static bool imm(Op op) { return flagFromLayout(op, Flags::imm); }
+    static bool params(Op op) { return flagFromLayout(op, Flags::P); }
+    static bool number(Op op) { return flagFromLayout(op, Flags::N); }
 
 private:
     // Bits here are a(0x01), b(0x02), c(0x04), sn(0x08), un(0x10)
-    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, imm = 0x08 };
+    enum class Flags : uint8_t { None = 0, a = 0x01, b = 0x02, c = 0x04, imm = 0x08, P = 0x10, N = 0x20 };
     
-    static constexpr uint8_t layoutFromFlags(Flags x, Flags y = Flags::None, Flags z = Flags::None)
-    {
-        return static_cast<uint8_t>(x) | static_cast<uint8_t>(y) | static_cast<uint8_t>(z);
-    }
-
     enum class Layout : uint8_t {
         None    = 0,
-        AReg    = static_cast<uint8_t>(Flags::a),
-        BReg    = static_cast<uint8_t>(Flags::b),
-        ABReg   = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b),
-        ABCReg  = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
+        A       = static_cast<uint8_t>(Flags::a),
+        AB      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b),
+        ABC     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::c),
         IMM     = static_cast<uint8_t>(Flags::imm),
+        P       = static_cast<uint8_t>(Flags::P),
+        AP      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::P),
+        ABP     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::P),
+        N       = static_cast<uint8_t>(Flags::N),
+        AN      = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::N),
+        ABN     = static_cast<uint8_t>(Flags::a) | static_cast<uint8_t>(Flags::b) | static_cast<uint8_t>(Flags::N),
     };
     
     static bool flagFromLayout(Op op, Flags flag)
@@ -458,83 +460,112 @@ private:
     static const Entry& array(Op op)
     {
         static const Entry RODATA_ATTR _array[ ] = {
-/*0x00 */   { Layout::ABReg,  2 },   // MOVE         R[d], RK[s]
-            { Layout::ABReg,  2 },   // LOADREFK     R[d], RK[s]
-            { Layout::ABReg,  2 },   // STOREFK      RK[d], RK[s]
-            { Layout::AReg,   1 },   // LOADLITA     R[d]
-            { Layout::AReg,   1 },   // LOADLITO     R[d]
-            { Layout::ABCReg, 3 },   // LOADPROP     R[d], RK[o], K[p]
-            { Layout::ABCReg, 3 },   // LOADELT      R[d], RK[o], RK[e]
-            { Layout::ABCReg, 3 },   // STOPROP      R[o], K[p], RK[s]
-            { Layout::ABCReg, 3 },   // STOELT       R[o], RK[e], RK[s]
-            { Layout::ABReg,  2 },   // APPENDELT    R[d], RK[s]
-            { Layout::ABCReg, 3 },   // APPENDPROP   R[d], RK[p], RK[s]
-            { Layout::AReg,   1 },   // LOADTRUE     R[d]
-            { Layout::AReg,   1 },   // LOADFALSE    R[d]
-            { Layout::AReg,   1 },   // LOADNULL     R[d]
-            { Layout::AReg,   1 },   // PUSH         RK[s]
-            { Layout::AReg,   1 },   // POP          R[d]
+/*0x00 */   { Layout::AB,  2 },   // MOVE         R[d], RK[s]
+            { Layout::AB,  2 },   // LOADREFK     R[d], RK[s]
+            { Layout::AB,  2 },   // STOREFK      RK[d], RK[s]
+            { Layout::A,   1 },   // LOADLITA     R[d]
+            { Layout::A,   1 },   // LOADLITO     R[d]
+            { Layout::ABC, 3 },   // LOADPROP     R[d], RK[o], K[p]
+            { Layout::ABC, 3 },   // LOADELT      R[d], RK[o], RK[e]
+            { Layout::ABC, 3 },   // STOPROP      R[o], K[p], RK[s]
+            { Layout::ABC, 3 },   // STOELT       R[o], RK[e], RK[s]
+            { Layout::AB,  2 },   // APPENDELT    R[d], RK[s]
+            { Layout::ABC, 3 },   // APPENDPROP   R[d], RK[p], RK[s]
+            { Layout::A,   1 },   // LOADTRUE     R[d]
+            { Layout::A,   1 },   // LOADFALSE    R[d]
+            { Layout::A,   1 },   // LOADNULL     R[d]
+            { Layout::A,   1 },   // PUSH         RK[s]
+            { Layout::A,   1 },   // POP          R[d]
             
-/*0x10 */   { Layout::ABCReg, 3 },   // LOR          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // LAND         R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // OR           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // AND          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // XOR          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // EQ           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // NE           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // LT           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // LE           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // GT           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // GE           R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // SHL          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // SHR          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // SAR          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // ADD          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // SUB          R[d], RK[s1], RK[s2]
+/*0x10 */   { Layout::ABC, 3 },   // LOR          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // LAND         R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // OR           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // AND          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // XOR          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // EQ           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // NE           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // LT           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // LE           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // GT           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // GE           R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // SHL          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // SHR          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // SAR          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // ADD          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // SUB          R[d], RK[s1], RK[s2]
              
-/*0x20 */   { Layout::ABCReg, 3 },   // MUL          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // DIV          R[d], RK[s1], RK[s2]
-            { Layout::ABCReg, 3 },   // MOD          R[d], RK[s1], RK[s2]
+/*0x20 */   { Layout::ABC, 3 },   // MUL          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // DIV          R[d], RK[s1], RK[s2]
+            { Layout::ABC, 3 },   // MOD          R[d], RK[s1], RK[s2]
             
-            { Layout::ABReg,  2 },   // UMINUS       R[d], RK[s]
-            { Layout::ABReg,  2 },   // UNOT         R[d], RK[s]
-            { Layout::ABReg,  2 },   // UNEG         R[d], RK[s]
-            { Layout::ABReg,  2 },   // PREINC       R[d], R[s]
-            { Layout::ABReg,  2 },   // PREDEC       R[d], R[s]
-            { Layout::ABReg,  2 },   // POSTINC      R[d], R[s]
-            { Layout::ABReg,  2 },   // POSTDEC      R[d], R[s]
+            { Layout::AB,   2 },   // UMINUS       R[d], RK[s]
+            { Layout::AB,   2 },   // UNOT         R[d], RK[s]
+            { Layout::AB,   2 },   // UNEG         R[d], RK[s]
+            { Layout::AB,   2 },   // PREINC       R[d], R[s]
+            { Layout::AB,   2 },   // PREDEC       R[d], R[s]
+            { Layout::AB,   2 },   // POSTINC      R[d], R[s]
+            { Layout::AB,   2 },   // POSTDEC      R[d], R[s]
+ 
+            { Layout::ABP,  3 },   // CALL         RK[call], RK[this], NPARAMS
+            { Layout::AP,   2 },   // NEW          RK[call], NPARAMS
+            { Layout::ABP,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
+            { Layout::N,    2 },   // JMP          SN
+            { Layout::AN,   3 },   // JT           RK[s], SN
+            { Layout::AN,   3 },   // JF           RK[s], SN
+             
+/*0x30 */   { Layout::N,    2 },   // LINENO       UN
+            { Layout::A,    1 },   // LOADTHIS     R[d]
+            { Layout::AB,   2 },   // LOADUP       R[d], U[s]
+            { Layout::AB,   2 },   // STOREUP      U[d], RK[s]
+            { Layout::AB,   2 },   // CLOSURE      R[d], RK[s]
+            { Layout::None, 0 },   // YIELD
+            { Layout::None, 0 },   // POPX
+            { Layout::IMM,  0 },   // RETI
+            
+/*0x38 */   { Layout::None, 0 },   // unused
+            { Layout::None, 0 },   // unused
+            { Layout::None, 0 },   // unused
+            { Layout::None, 0 },   // unused
+/*0x3c */   { Layout::None, 0 },   // unused
 
-            { Layout::ABReg,  3 },   // CALL         RK[call], RK[this], NPARAMS
-            { Layout::AReg,   2 },   // NEW          RK[call], NPARAMS
-            { Layout::ABReg,  3 },   // CALLPROP     RK[o], RK[p], NPARAMS
-            { Layout::None,   2 },   // JMP          SN
-            { Layout::AReg,   3 },   // JT           RK[s], SN
-            { Layout::AReg,   3 },   // JF           RK[s], SN
-            
-/*0x30 */   { Layout::None,   2 },   // LINENO       UN
-            { Layout::AReg,   1 },   // LOADTHIS     R[d]
-            { Layout::AReg,   2 },   // LOADUP       R[d], U[s]
-            { Layout::BReg,   2 },   // STOREUP      U[d], RK[s]
-            { Layout::ABReg,  2 },   // CLOSURE      R[d], RK[s]
-            { Layout::None,   0 },   // YIELD
-            { Layout::None,   0 },   // POPX
-            { Layout::IMM,    0 },   // RETI
-            
-/*0x38 */   { Layout::None,   0 },   // unused
-            { Layout::None,   0 },   // unused
-            { Layout::None,   0 },   // unused
-            { Layout::None,   0 },   // unused
-/*0x3c */   { Layout::None,   0 },   // unused
-
-/*0x3d */   { Layout::None,   0 },   // END
-/*0x3e */   { Layout::None,   1 },   // RET          NPARAMS
-/*0x3f */   { Layout::None,   0 },   // UNKNOWN
+/*0x3d */   { Layout::None, 0 },   // END
+/*0x3e */   { Layout::P,    1 },   // RET          NPARAMS
+/*0x3f */   { Layout::None, 0 },   // UNKNOWN
         };
         
         assert(static_cast<uint8_t>(op) < sizeof(_array) / sizeof(Entry));
         return _array[static_cast<uint8_t>(op)];
     }
 };
+
+enum class BuiltinConstants {
+    Undefined = 0,
+    Null = 1,
+    Int0 = 2,
+    Int1 = 3,
+    AtomShort = 4,  // Next byte is Atom Id (0-255)
+    AtomLong = 5,   // Next 2 bytes are Atom Id (Hi:Lo, 0-65535)
+    NumBuiltins = 6
+};
+
+static inline uint8_t builtinConstantOffset() { return static_cast<uint8_t>(BuiltinConstants::NumBuiltins); }
+static inline bool shortSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
+static inline bool longSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
+
+static inline uint8_t constantSize(uint8_t reg)
+{
+    if (reg <= MaxRegister) {
+        return 0;
+    }
+    uint8_t index = reg - MaxRegister - 1;
+    if (shortSharedAtomConstant(index)) {
+        return 1;
+    }
+    if (longSharedAtomConstant(index)) {
+        return 2;
+    }
+    return 0;
+}
 
 static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
 static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }

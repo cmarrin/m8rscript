@@ -72,8 +72,8 @@ private:
         
         bool isReg() const { return _type == Type::Reg; }
         uint8_t index() const { return isReg() ? _reg : (_reg + MaxRegister + 1); }
-        bool isShortAtom() const { return !isReg() && static_cast<Function::BuiltinConstants>(_reg) == Function::BuiltinConstants::AtomShort; }
-        bool isLongAtom() const { return !isReg() && static_cast<Function::BuiltinConstants>(_reg) == Function::BuiltinConstants::AtomLong; }
+        bool isShortAtom() const { return !isReg() && static_cast<BuiltinConstants>(_reg) == BuiltinConstants::AtomShort; }
+        bool isLongAtom() const { return !isReg() && static_cast<BuiltinConstants>(_reg) == BuiltinConstants::AtomLong; }
         Atom atom() const { return _atom; }
 
         void push(Vector<uint8_t>* vec)
@@ -91,7 +91,7 @@ private:
         }
 
     private:
-        uint8_t _reg = static_cast<uint8_t>(Function::BuiltinConstants::Undefined);
+        uint8_t _reg = static_cast<uint8_t>(BuiltinConstants::Undefined);
         Type _type = Type::Constant;
         Atom _atom;
     };

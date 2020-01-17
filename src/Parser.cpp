@@ -268,18 +268,18 @@ Parser::RegOrConst Parser::addConstant(const Value& v)
     // See if it's a Builtin
     switch (v.type()) {
         case Value::Type::Id: {
-            ConstantId id = ConstantId(static_cast<ConstantId::value_type>((v.asIdValue().raw() < 256) ? Function::BuiltinConstants::AtomShort : Function::BuiltinConstants::AtomLong));
+            ConstantId id = ConstantId(static_cast<ConstantId::value_type>((v.asIdValue().raw() < 256) ? BuiltinConstants::AtomShort : BuiltinConstants::AtomLong));
             return RegOrConst(id, v.asIdValue());
         }
         case Value::Type::Null:
-            return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Null)));
+            return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(BuiltinConstants::Null)));
         case Value::Type::Undefined:
             return RegOrConst();
         case Value::Type::Integer:
             if (v.asIntValue() == 0) {
-                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int0)));
+                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(BuiltinConstants::Int0)));
             } else if (v.asIntValue() == 1) {
-                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(Function::BuiltinConstants::Int1)));
+                return RegOrConst(ConstantId(static_cast<ConstantId::value_type>(BuiltinConstants::Int1)));
             } else {
                 break;
             }
@@ -288,11 +288,11 @@ Parser::RegOrConst Parser::addConstant(const Value& v)
     
     for (ConstantId::value_type id = 0; id < currentConstants().size(); ++id) {
         if (currentConstants()[id] == v) {
-            return RegOrConst(ConstantId(id + Function::builtinConstantOffset()));
+            return RegOrConst(ConstantId(id + builtinConstantOffset()));
         }
     }
     
-    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size() + Function::builtinConstantOffset()));
+    ConstantId r(static_cast<ConstantId::value_type>(currentConstants().size() + builtinConstantOffset()));
     currentConstants().push_back(v);
     return RegOrConst(r);
 }
@@ -348,7 +348,7 @@ void Parser::emitId(const Atom& atom, IdType type)
             Mad<Object> func = currentConstants().at(ConstantId(i).raw()).asObject();
             if (func.valid()) {
                 if (func->name() == atom) {
-                    _parseStack.pushConstant(RegOrConst(ConstantId(i + Function::builtinConstantOffset())));
+                    _parseStack.pushConstant(RegOrConst(ConstantId(i + builtinConstantOffset())));
                     return;
                 }
             }
@@ -772,24 +772,34 @@ void Parser::reconcileRegisters(uint16_t localCount)
 {
     assert(currentCode().size());
     
-    for (int i = 0; i < currentCode().size(); ++i) {
-        Op op = opFromByte(currentCode()[i]);
-        uint8_t size = OpInfo::size(op);
+    uint8_t* code = &(currentCode()[0]);
+    const uint8_t* end = code + currentCode().size();
+
+    for (uint8_t* p = code; ; ) {
+        if (p >= end) {
+            return;
+        }
+
+        Op op = static_cast<Op>(*p++ & 0x3f);
         
         if (OpInfo::aReg(op)) {
-            assert(size >= 1);
-            currentCode()[i + 1] = regFromTempReg(currentCode()[i + 1], localCount);
+            *p = regFromTempReg(*p, localCount);
+            p += constantSize(*p) + 1;
         }
         if (OpInfo::bReg(op)) {
-            assert(size >= 2);
-            currentCode()[i + 2] = regFromTempReg(currentCode()[i + 2], localCount);
+            *p = regFromTempReg(*p, localCount);
+            p += constantSize(*p) + 1;
         }
         if (OpInfo::cReg(op)) {
-            assert(size >= 3);
-            currentCode()[i + 3] = regFromTempReg(currentCode()[i + 3], localCount);
+            *p = regFromTempReg(*p, localCount);
+            p += constantSize(*p) + 1;
         }
-        
-        i += size;
+        if (OpInfo::params(op)) {
+            p++;
+        }
+        if (OpInfo::number(op)) {
+            p += 2;
+        }
     }
 }
 
