@@ -66,8 +66,7 @@ uint8_t CodePrinter::regOrConst(const Mad<Object> func, const uint8_t*& code, Va
         return r;
     }
 
-    uint8_t constantIndex = r - MaxRegister - 1;
-    if (shortSharedAtomConstant(constantIndex)) {
+    if (shortSharedAtomConstant(r)) {
         constant = Value(Atom(byteFromCode(code)));
     } else if (longSharedAtomConstant(r)) {
         constant = Value(Atom(uNFromCode(code)));

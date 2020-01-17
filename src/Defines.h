@@ -549,19 +549,18 @@ enum class BuiltinConstants {
 };
 
 static inline uint8_t builtinConstantOffset() { return static_cast<uint8_t>(BuiltinConstants::NumBuiltins); }
-static inline bool shortSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
-static inline bool longSharedAtomConstant(uint8_t index) { return index == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
+static inline bool shortSharedAtomConstant(uint8_t reg) { return reg > MaxRegister && (reg - MaxRegister - 1) == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
+static inline bool longSharedAtomConstant(uint8_t reg) { return reg > MaxRegister && (reg - MaxRegister - 1) == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
 
 static inline uint8_t constantSize(uint8_t reg)
 {
     if (reg <= MaxRegister) {
         return 0;
     }
-    uint8_t index = reg - MaxRegister - 1;
-    if (shortSharedAtomConstant(index)) {
+    if (shortSharedAtomConstant(reg)) {
         return 1;
     }
-    if (longSharedAtomConstant(index)) {
+    if (longSharedAtomConstant(reg)) {
         return 2;
     }
     return 0;

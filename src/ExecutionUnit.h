@@ -159,19 +159,19 @@ private:
     const Value regOrConst()
     {
         uint32_t r = byteFromCode(_currentAddr);
-        if (r > MaxRegister) {
-            r = r - MaxRegister - 1;
-            if (shortSharedAtomConstant(r)) {
-                return Value(Atom(byteFromCode(_currentAddr)));
-            } else if (longSharedAtomConstant(r)) {
-                return Value(Atom(uNFromCode(_currentAddr)));
-            } else {
-                Value value;
-                _function->constant(r, value);
-                return value;
-            }
+        if (r <= MaxRegister) {
+            return reg(r);
         }
-        return reg(r);
+
+        if (shortSharedAtomConstant(r)) {
+            return Value(Atom(byteFromCode(_currentAddr)));
+        } else if (longSharedAtomConstant(r)) {
+            return Value(Atom(uNFromCode(_currentAddr)));
+        } else {
+            Value value;
+            _function->constant(r, value);
+            return value;
+        }
     }
     
     bool isConstant(uint32_t r) { return r > MaxRegister; }
