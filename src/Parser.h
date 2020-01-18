@@ -96,68 +96,6 @@ private:
         Atom _atom;
     };
 
-    class Instruction {
-    public:
-        Instruction() { }
-        Instruction(Op op) { assert(OpInfo::size(op) == 0); init(op); }
-        Instruction(Op op, RegOrConst ra) { init(op, ra); }
-        Instruction(Op op, RegOrConst ra, RegOrConst rb) { assert(OpInfo::size(op) == 2); init(op, ra, rb); }
-        Instruction(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc) { assert(OpInfo::size(op) == 3); init(op, ra, rb, rc); }
-        Instruction(Op op, uint8_t params) { assert(OpInfo::size(op) == 2 || (OpInfo::size(op) == 0 && OpInfo::imm(op))); init(op, static_cast<uint16_t>(params)); _haveParams = true; }
-        Instruction(Op op, RegOrConst ra, uint8_t params) { assert(OpInfo::size(op) == 2); init(op, ra, static_cast<uint16_t>(params)); _haveParams = true; }
-        Instruction(Op op, RegOrConst ra, RegOrConst rb, uint8_t params) { assert(OpInfo::size(op) == 3); init(op, ra, rb, static_cast<uint16_t>(params)); _haveParams = true; }
-        Instruction(Op op, RegOrConst ra, int16_t sn) { assert(OpInfo::size(op) == 3); init(op, ra, static_cast<uint16_t>(sn)); _haveSN = true; }
-        Instruction(Op op, int16_t sn) { assert(OpInfo::size(op) == 2); init(op, static_cast<uint16_t>(sn)); _haveSN = true; }
-        Instruction(Op op, uint16_t un) { init(op, un); _haveUN = true; }
-        
-        bool haveRa() const { return _haveRa; }
-        bool haveRb() const { return _haveRb; }
-        bool haveRc() const { return _haveRc; }
-        bool haveUN()  const { return _haveUN; }
-        bool haveSN()  const { return _haveSN; }
-        bool haveParams()  const { return _haveParams; }
-
-        Op op() const { return _op; }
-        RegOrConst ra() const { return _ra; }
-        RegOrConst rb() const { return _rb; }
-        RegOrConst rc() const { return _rc; }
-        uint16_t n() const { return _n; }
-
-    private:
-        void init(Op op) { _op = op; }
-        void init(Op op, RegOrConst ra, RegOrConst rb) {init(op, ra); _haveRb = true; _rb = rb; }
-        void init(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc) { init(op, ra, rb); _haveRc = true; _rc = rc; }
-        void init(Op op, RegOrConst ra, RegOrConst rb, uint16_t n) { init(op, ra, rb); _n = n; }
-        void init(Op op, RegOrConst ra, uint16_t n) { init(op, ra); _n = n; }
-        void init(Op op, uint16_t n) {init(op); _n = n; }
-
-        void init(Op op, RegOrConst ra)
-        {
-            // The op might be immediate
-            if (OpInfo::imm(op)) {
-                assert(ra.isReg() && ra.index() <= 3);
-                init(static_cast<Op>(byteFromOp(op, ra.index())));
-            } else {
-                init(op);
-                _haveRa = true;
-                _ra = ra;
-            }
-        }
-
-        Op _op;
-        RegOrConst _ra;
-        RegOrConst _rb;
-        RegOrConst _rc;
-        uint16_t _n;
-        
-        bool _haveRa = false;
-        bool _haveRb = false;
-        bool _haveRc = false;
-        bool _haveUN = false;
-        bool _haveSN = false;
-        bool _haveParams = false;
-    };
-
     // The next 3 functions work together:
     //
     // Label has a current location which is filled in by the label() call,
@@ -260,7 +198,7 @@ private:
             return;
         }
         _emittedLineNumber = lineno;
-        addCode(Instruction(Op::LINENO, lineno));
+        emitCode(Op::LINENO, lineno);
     }
     
     void emitCallRet(Op value, RegOrConst thisReg, uint8_t params);
@@ -272,22 +210,21 @@ private:
     const Scanner::TokenType& getTokenValue() { return _scanner.getTokenValue(); }
     void retireToken() { _scanner.retireToken(); }
     
-    void addCode(Instruction);
     RegOrConst addConstant(const Value& v);
 
     
-    // Parse Stack manipulation and code generation
+    void addCode(Op, RegOrConst, RegOrConst, RegOrConst, uint16_t n);
     
-    void emitCodeRRR(Op, RegOrConst ra, RegOrConst rb, RegOrConst rc);
-    void emitCodeRRNParams(Op, RegOrConst ra, RegOrConst rb, uint8_t nparams);
-    void emitCodeRR(Op, RegOrConst ra, RegOrConst rb);
-    void emitCodeRNParams(Op, RegOrConst ra, uint8_t nparams);
-    void emitCodeR(Op, RegOrConst rn);
-    void emitCodeRET(uint8_t nparams);
-    void emitCodeRSN(Op, RegOrConst rn, int16_t n);
-    void emitCodeSN(Op, int16_t n);
-    void emitCodeUN(Op, uint16_t n);
-    void emitCode(Op);
+    void emitCode(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc)   { addCode(op, ra, rb, rc, 0); }
+    void emitCode(Op op, RegOrConst ra, RegOrConst rb, uint8_t nparams) { addCode(op, ra, rb, RegOrConst(), nparams); }
+    void emitCode(Op op, RegOrConst ra, RegOrConst rb)                  { addCode(op, ra, rb, RegOrConst(), 0); }
+    void emitCode(Op op, RegOrConst ra, uint8_t nparams)                { addCode(op, ra, RegOrConst(), RegOrConst(), nparams); }
+    void emitCode(Op op, RegOrConst ra)                                 { addCode(op, ra, RegOrConst(), RegOrConst(), 0); }
+    void emitCode(Op op, uint8_t nparams)                               { addCode(op, RegOrConst(), RegOrConst(), RegOrConst(), nparams); }
+    void emitCode(Op op, RegOrConst ra, int16_t n)                      { addCode(op, ra, RegOrConst(), RegOrConst(), n); }
+    void emitCode(Op op, int16_t n)                                     { addCode(op, RegOrConst(), RegOrConst(), RegOrConst(), n); }
+    void emitCode(Op op, uint16_t n)                                    { addCode(op, RegOrConst(), RegOrConst(), RegOrConst(), n); }
+    void emitCode(Op op)                                                { addCode(op, RegOrConst(), RegOrConst(), RegOrConst(), 0); }
 
     void reconcileRegisters(uint16_t localCount);
     

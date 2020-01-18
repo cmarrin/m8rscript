@@ -121,9 +121,9 @@ void Parser::addMatchedJump(Op op, Label& label)
     // Emit opcode with a dummy address
     label.matchedAddr = static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
     if (op != Op::JMP) {
-        emitCodeRSN(op, reg, 0);
+        emitCode(op, reg, static_cast<int16_t>(0));
     } else {
-        emitCodeSN(op, 0);
+        emitCode(op, static_cast<int16_t>(0));
     }
 }
 
@@ -150,6 +150,10 @@ void Parser::jumpToLabel(Op op, Label& label)
     
     assert(op == Op::JMP || op == Op::JF || op == Op::JT);
     int32_t jumpAddr = label.label - static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
+
+    if (jumpAddr < -MaxJump || jumpAddr > MaxJump) {
+        printError(ROMSTR("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n"));
+    }
     
     RegOrConst r;
     if (op != Op::JMP) {
@@ -158,74 +162,18 @@ void Parser::jumpToLabel(Op op, Label& label)
     }
 
     if (op == Op::JMP) {
-        emitCodeSN(op, jumpAddr);
+        emitCode(op, static_cast<int16_t>(jumpAddr));
     } else {
-        emitCodeRSN(op, r, jumpAddr);
+        emitCode(op, r, static_cast<int16_t>(jumpAddr));
     }
 }
 
-void Parser::emitCodeRRR(Op op, RegOrConst ra, RegOrConst rb, RegOrConst rc)
+void Parser::addCode(Op op, RegOrConst reg0, RegOrConst reg1, RegOrConst reg2, uint16_t n)
 {
-    emitLineNumber();
-    addCode(Instruction(op, ra, rb, rc));
-}
-
-void Parser::emitCodeRRNParams(Op op, RegOrConst ra, RegOrConst rb, uint8_t nparams)
-{
-    emitLineNumber();
-    addCode(Instruction(op, ra, rb, nparams));
-}
-
-void Parser::emitCodeRR(Op op, RegOrConst ra, RegOrConst rb)
-{
-    emitLineNumber();
-    addCode(Instruction(op, ra, rb));
-}
-
-void Parser::emitCodeRNParams(Op op, RegOrConst ra, uint8_t nparams)
-{
-    emitLineNumber();
-    addCode(Instruction(op, ra, nparams));
-}
-
-void Parser::emitCodeRET(uint8_t nparams)
-{
-    emitLineNumber();
-    addCode(Instruction((nparams <= 3) ? Op::RETI : Op::RET, nparams));
-}
-
-void Parser::emitCodeR(Op op, RegOrConst rn)
-{
-    emitLineNumber();
-    addCode(Instruction(op, rn));
-}
-
-void Parser::emitCodeRSN(Op op, RegOrConst rn, int16_t n)
-{
-    // Tbis Op is used for jumps, so we need to put the line number after
-    addCode(Instruction(op, rn, n));
-    emitLineNumber();
-}
-
-void Parser::emitCodeSN(Op op, int16_t n)
-{
-    // Tbis Op is used for jumps, so we need to put the line number after
-    addCode(Instruction(op, n));
-    emitLineNumber();
-}
-
-void Parser::emitCodeUN(Op op, uint16_t n)
-{
-    addCode(Instruction(op, n));
-}
-
-void Parser::emitCode(Op op)
-{
-    addCode(Instruction(op));
-}
-
-void Parser::addCode(Instruction inst)
-{
+    if (op != Op::LINENO && op != Op::JF && op != Op::JT && op != Op::JMP) {
+        emitLineNumber();
+    }
+    
     Vector<uint8_t>* vec;
     if (_deferred) {
         assert(_deferredCodeBlocks.size() > 0);
@@ -234,27 +182,49 @@ void Parser::addCode(Instruction inst)
         vec = &currentCode();
     }
     
-    vec->push_back(static_cast<uint8_t>(inst.op()));
+    if (op == Op::RET && n <= 3) {
+        op = Op::RETI;
+        vec->push_back(static_cast<uint8_t>(op) | n);
+    } else {
+        vec->push_back(static_cast<uint8_t>(op));
+    }
     
-    if (inst.haveRa()) {
-        inst.ra().push(vec);
+    RegOrConst regs[4] = { reg0, reg1, reg2 };
+    uint8_t regIndex = 0;
+    
+    // aReg and dReg must be regs, bReg and cReg can be reg or constant
+    if (OpInfo::aReg(op)) {
+        assert(regs[regIndex].isReg());
+        regs[regIndex++].push(vec);
     }
 
-    if (inst.haveRb()) {
-        inst.rb().push(vec);
+    if (OpInfo::bReg(op)) {
+        regs[regIndex++].push(vec);
     }
 
-    if (inst.haveRc()) {
-        inst.rc().push(vec);
+    if (OpInfo::cReg(op)) {
+        regs[regIndex++].push(vec);
     }
     
-    if (inst.haveUN() || inst.haveSN()) {
-        vec->push_back(static_cast<uint8_t>(inst.n() >> 8));
-        vec->push_back(static_cast<uint8_t>(inst.n()));
+    if (OpInfo::dReg(op)) {
+        assert(regs[regIndex].isReg());
+        assert(regIndex < 3);
+        regs[regIndex++].push(vec);
     }
     
-    if (inst.haveParams()) {
-        vec->push_back(static_cast<uint8_t>(inst.n()));
+    assert(!OpInfo::number(op) || !OpInfo::params(op));
+
+    if (OpInfo::number(op)) {
+        vec->push_back(static_cast<uint8_t>(n >> 8));
+        vec->push_back(static_cast<uint8_t>(n));
+    }
+    
+    if (OpInfo::params(op)) {
+        vec->push_back(static_cast<uint8_t>(n));
+    }
+
+    if (op == Op::JF || op == Op::JT || op == Op::JMP) {
+        emitLineNumber();
     }
 }
 
@@ -430,20 +400,20 @@ void Parser::emitMove()
                 discardResult();
                 return;
             } else {
-                emitCodeRRR((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
+                emitCode((dstType == ParseStack::Type::PropRef) ? Op::STOPROP : Op::STOELT, _parseStack.topReg(), _parseStack.topDerefReg(), srcReg);
             }
             break;
         case ParseStack::Type::Local:
         case ParseStack::Type::Register:
-            emitCodeRR(Op::MOVE, _parseStack.topReg(), srcReg);
+            emitCode(Op::MOVE, _parseStack.topReg(), srcReg);
             break;
         case ParseStack::Type::RefK:
-            emitCodeRR(Op::STOREFK, _parseStack.topReg(), srcReg);
+            emitCode(Op::STOREFK, _parseStack.topReg(), srcReg);
             _parseStack.pop();
             assert(_parseStack.topReg() == srcReg);
             return;
         case ParseStack::Type::UpValue:
-            emitCodeRR(Op::STOREUP, _parseStack.topReg(), srcReg);
+            emitCode(Op::STOREUP, _parseStack.topReg(), srcReg);
             break;
         }
     }
@@ -504,7 +474,7 @@ void Parser::emitAppendElt()
     _parseStack.swap();
     _parseStack.pop();
     
-    emitCodeRR(Op::APPENDELT, objectReg, srcReg);
+    emitCode(Op::APPENDELT, objectReg, srcReg);
 }
 
 void Parser::emitAppendProp()
@@ -523,7 +493,7 @@ void Parser::emitAppendProp()
     assert(!_parseStack.needsBaking());
     RegOrConst objectReg = _parseStack.topReg();
     
-    emitCodeRRR(Op::APPENDPROP, objectReg, propReg, srcReg);
+    emitCode(Op::APPENDPROP, objectReg, propReg, srcReg);
 }
 
 void Parser::emitBinOp(Op op)
@@ -542,7 +512,7 @@ void Parser::emitBinOp(Op op)
     _parseStack.pop();
     RegOrConst dst = _parseStack.pushRegister();
 
-    emitCodeRRR(op, dst, leftReg, rightReg);
+    emitCode(op, dst, leftReg, rightReg);
 }
 
 void Parser::emitCaseTest()
@@ -557,7 +527,7 @@ void Parser::emitCaseTest()
     _parseStack.pop();
     RegOrConst dst = _parseStack.pushRegister();
 
-    emitCodeRRR(Op::EQ, dst, leftReg, rightReg);
+    emitCode(Op::EQ, dst, leftReg, rightReg);
 }
 
 void Parser::emitUnOp(Op op)
@@ -569,7 +539,7 @@ void Parser::emitUnOp(Op op)
         _parseStack.swap();
         emitDup();
         RegOrConst srcReg = _parseStack.bake();
-        emitCodeRR(op, dst, srcReg);
+        emitCode(op, dst, srcReg);
         emitMove();
         _parseStack.pop();
         return;
@@ -578,7 +548,7 @@ void Parser::emitUnOp(Op op)
     RegOrConst srcReg = _parseStack.bake();
     _parseStack.pop();
     RegOrConst dst = _parseStack.pushRegister();
-    emitCodeRR(op, dst, srcReg);
+    emitCode(op, dst, srcReg);
 }
 
 void Parser::emitLoadLit(bool array)
@@ -586,7 +556,7 @@ void Parser::emitLoadLit(bool array)
     if (nerrors()) return;
     
     RegOrConst dst = _parseStack.pushRegister();
-    emitCodeR(array ? Op::LOADLITA : Op::LOADLITO, dst);
+    emitCode(array ? Op::LOADLITA : Op::LOADLITO, dst);
 }
 
 void Parser::emitPush()
@@ -596,7 +566,7 @@ void Parser::emitPush()
     RegOrConst src = _parseStack.bake(true);
     _parseStack.pop();
     
-    emitCodeR(Op::PUSH, src);
+    emitCode(Op::PUSH, src);
 }
 
 void Parser::emitPop()
@@ -604,7 +574,7 @@ void Parser::emitPop()
     if (nerrors()) return;
     
     RegOrConst dst = _parseStack.pushRegister();
-    emitCodeR(Op::POP, dst);
+    emitCode(Op::POP, dst);
 }
 
 void Parser::emitEnd()
@@ -633,7 +603,7 @@ void Parser::emitCallRet(Op op, RegOrConst thisReg, uint8_t nparams)
     if (op == Op::CALL) {
         // If tos is a PropRef or EltRef, emit CALLPROP with the object and property
         if (_parseStack.topType() == ParseStack::Type::PropRef || _parseStack.topType() == ParseStack::Type::EltRef) {
-            emitCodeRRNParams(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
+            emitCode(Op::CALLPROP, _parseStack.topReg(), _parseStack.topDerefReg(), nparams);
             _parseStack.pop();
             emitPop();
             return;
@@ -652,11 +622,11 @@ void Parser::emitCallRet(Op op, RegOrConst thisReg, uint8_t nparams)
     }
     
     if (op == Op::RET) {
-        emitCodeRET(nparams);
+        emitCode(Op::RET, nparams);
     } else if (op == Op::NEW) {
-        emitCodeRNParams(op, calleeReg, nparams);
+        emitCode(op, calleeReg, nparams);
     } else {
-        emitCodeRRNParams(op, calleeReg, thisReg, nparams);
+        emitCode(op, calleeReg, thisReg, nparams);
     }
     
     if (op == Op::CALL || op == Op::NEW) {
@@ -869,7 +839,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
             } else {
                 pop();
                 RegOrConst r = pushRegister();
-                _parser->emitCodeRRR((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
+                _parser->emitCode((entry._type == Type::PropRef) ? Op::LOADPROP : Op::LOADELT, r, entry._reg, entry._derefReg);
                 return r;
             }
         }
@@ -883,20 +853,20 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
                 _parser->emitCallRet(Op::CALL, RegOrConst(), 0);
                 _parser->emitMove();
             } else {
-                _parser->emitCodeRR(Op::LOADREFK, r, entry._reg);
+                _parser->emitCode(Op::LOADREFK, r, entry._reg);
             }
             return r;
         }
         case Type::This: {
             pop();
             RegOrConst r = pushRegister();
-            _parser->emitCodeR(Op::LOADTHIS, r);
+            _parser->emitCode(Op::LOADTHIS, r);
             return r;
         }
         case Type::UpValue: {
             pop();
             RegOrConst r = pushRegister();
-            _parser->emitCodeRR(Op::LOADUP, r, entry._reg);
+            _parser->emitCode(Op::LOADUP, r, entry._reg);
             return r;
         }
         case Type::Constant: {
@@ -909,7 +879,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
                 if (func.valid()) {
                     pop();
                     RegOrConst dst = pushRegister();
-                    _parser->emitCodeRR(Op::CLOSURE, dst, r);
+                    _parser->emitCode(Op::CLOSURE, dst, r);
                     r = dst;
                 }
             }
