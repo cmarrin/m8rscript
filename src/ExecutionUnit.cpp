@@ -362,9 +362,10 @@ void ExecutionUnit::startFunction(Mad<Callable> function, Mad<Object> thisObject
         _this = _program;
     }
     
+    size_t stackSize = _stack.size() - nparams;
     uint16_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localCount());
     
-    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno });
+    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, stackSize });
     
     _framePtr =_stack.framePtr();
     updateCodePointer();
@@ -597,6 +598,14 @@ CallReturnValue ExecutionUnit::continueExecution()
             
             _lineno = callRecord._lineno;
             
+            if (callRecord._stackSize != _stack.size()) {
+                printError(ROMSTR("internal error. On function return stack has %d elements, should have %d"), _stack.size(), callRecord._stackSize);
+                _terminate = true;
+                _stack.clear();
+                GC::gc(true);
+                return CallReturnValue(CallReturnValue::Type::Terminated);
+            }
+
             _callRecords.pop_back();
         }
         

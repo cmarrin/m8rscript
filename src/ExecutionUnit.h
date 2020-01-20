@@ -180,13 +180,14 @@ private:
     
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Mad<Callable> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno)
+        CallRecord(uint32_t pc, uint32_t frame, Mad<Callable> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, size_t stackSize)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
             , _thisObj(thisObj)
             , _lineno(lineno)
+            , _stackSize(stackSize)
         { }
         
         uint32_t _pc : 23;
@@ -195,6 +196,7 @@ private:
         Mad<Callable> _func;
         Mad<Object> _thisObj;
         uint32_t _lineno;
+        size_t _stackSize = 0;
     };
     
     using EventValue = Value;
