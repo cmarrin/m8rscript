@@ -184,7 +184,7 @@ void Parser::addCode(Op op, RegOrConst reg0, RegOrConst reg1, RegOrConst reg2, u
     
     if (op == Op::RET && n <= 3) {
         op = Op::RETI;
-        vec->push_back(static_cast<uint8_t>(op) | n);
+        vec->push_back(static_cast<uint8_t>(op) | n << 6);
     } else {
         vec->push_back(static_cast<uint8_t>(op));
     }
