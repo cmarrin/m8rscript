@@ -66,7 +66,7 @@ private:
         
         RegOrConst() { }
         explicit RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
-        explicit RegOrConst(ConstantId id, Atom atom = Atom()) : _reg(id.raw()), _atom(atom), _type(Type::Constant) { assert(id.raw() <= MaxRegister); }
+        explicit RegOrConst(ConstantId id, Atom atom = Atom()) : _reg(id.raw()), _type(Type::Constant), _atom(atom) { assert(id.raw() <= MaxRegister); }
         
         bool operator==(const RegOrConst& other) { return _reg == other._reg && _type == other._type && _atom == other._atom; }
         
