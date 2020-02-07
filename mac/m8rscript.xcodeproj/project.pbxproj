@@ -54,20 +54,12 @@
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
 		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
-		497DC63523A5771A00748031 /* rtos.mk in Resources */ = {isa = PBXBuildFile; fileRef = 497DC63423A5771A00748031 /* rtos.mk */; };
-		497DC63723A5835200748031 /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497DC63623A5835100748031 /* m8rscript.cpp */; };
-		497DC63923A5849E00748031 /* sdkconfig in Resources */ = {isa = PBXBuildFile; fileRef = 497DC63823A5849E00748031 /* sdkconfig */; };
-		497DC63B23A585BB00748031 /* m8rscript.ino in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BD92390709C0094A6B4 /* m8rscript.ino */; };
-		497DC63E23A58A8000748031 /* component.mk in Resources */ = {isa = PBXBuildFile; fileRef = 497DC63D23A58A7F00748031 /* component.mk */; };
-		497DC64023A5BC9700748031 /* RtosSystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */; };
-		497DC64223A921FF00748031 /* partitions.csv in Resources */ = {isa = PBXBuildFile; fileRef = 497DC64123A921FF00748031 /* partitions.csv */; };
 		49846005238C60ED001F4FD4 /* Mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49846003238C60ED001F4FD4 /* Mac.cpp */; };
 		49846006238C60ED001F4FD4 /* Mac.h in Headers */ = {isa = PBXBuildFile; fileRef = 49846004238C60ED001F4FD4 /* Mac.h */; };
 		49884F07236CB25100C292EA /* StateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49884F06236CB25100C292EA /* StateMachine.h */; };
 		4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC2C1F03EBEB009F7ED5 /* Containers.cpp */; };
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
-		49956B3823AEC06F000DF8A9 /* RtosTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49956B3723AEC06F000DF8A9 /* RtosTaskManager.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
 		499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8DF2349B1BC00459451 /* Heartbeat.cpp */; };
 		499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E02349B1BC00459451 /* Heartbeat.h */; };
@@ -99,7 +91,6 @@
 		49BF3450236811BF001E5508 /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38D235392FF00DE0C42 /* spiffs.h */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
-		49C6041223A53A1F005F611D /* makeEspArduino.mk in Resources */ = {isa = PBXBuildFile; fileRef = 49C6041123A53A1F005F611D /* makeEspArduino.mk */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49CDE69A2386633900159439 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
@@ -974,8 +965,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				497DC63523A5771A00748031 /* rtos.mk in Resources */,
-				497DC64223A921FF00748031 /* partitions.csv in Resources */,
 				49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */,
 				49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */,
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
@@ -983,10 +972,7 @@
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
 				4970FD131DB04DDD00521DF1 /* download.png in Resources */,
 				493C9ED91D218F100062152D /* play.png in Resources */,
-				49C6041223A53A1F005F611D /* makeEspArduino.mk in Resources */,
-				497DC63923A5849E00748031 /* sdkconfig in Resources */,
 				49BDE1A523714DC000304BE8 /* mem in Resources */,
-				497DC63E23A58A8000748031 /* component.mk in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
@@ -1093,20 +1079,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49956B3823AEC06F000DF8A9 /* RtosTaskManager.cpp in Sources */,
 				49562F6F1D1D7A9C001AFAEE /* AppDelegate.m in Sources */,
 				491E2F8F236A52160054725E /* Telnet.cpp in Sources */,
 				49562F6A1D1D7A75001AFAEE /* main.m in Sources */,
 				49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */,
 				494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */,
-				497DC64023A5BC9700748031 /* RtosSystemInterface.cpp in Sources */,
-				497DC63B23A585BB00748031 /* m8rscript.ino in Sources */,
 				49263ABD23611DF0005CB9F9 /* StreamProto.cpp in Sources */,
 				4988DC761F0C296B009F7ED5 /* Device.mm in Sources */,
 				49562F701D1D7A9C001AFAEE /* Document.m in Sources */,
 				49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */,
 				49AD0A20209B534F00F86278 /* Simulator.mm in Sources */,
-				497DC63723A5835200748031 /* m8rscript.cpp in Sources */,
 				49F166F81DA7443100C07A1A /* SimulationView.m in Sources */,
 				494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */,
 				494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */,
