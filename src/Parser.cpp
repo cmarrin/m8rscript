@@ -691,9 +691,6 @@ void Parser::functionStart(bool ctor)
     
     Mad<Function> func = Object::create<Function>();
     _functions.emplace_back(func, ctor);
-    
-    // Place a dummy constant at index 0 as an error return value
-    currentConstants().push_back(Value());
 }
 
 void Parser::functionParamsEnd()
@@ -873,8 +870,13 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
             RegOrConst r = entry._reg;
             if (makeClosure) {
                 assert(!r.isReg());
+                int32_t index = r.index() - MaxRegister - 1 - builtinConstantOffset();
                 Value v;
-                Function::constant(&(_parser->currentConstants().at(0)), _parser->currentConstants().size(), r.index(), v);
+                
+                if (index >= 0) {
+                    v = _parser->currentConstants().at(index);
+                }
+
                 Mad<Object> func = v.asObject();
                 if (func.valid()) {
                     pop();

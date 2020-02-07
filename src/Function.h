@@ -53,8 +53,17 @@ public:
         }
     }
     
-    static bool constant(const Value* constants, size_t numConstants, uint8_t id, Value& value);
-    virtual bool constant(uint8_t reg, Value& value) const override { return constant( &(_constants.at(0)), _constants.size(), reg, value); }
+    static bool builtinConstant(uint8_t id, Value& value);
+    virtual bool constant(uint8_t reg, Value& value) const override
+    {
+        if (builtinConstant(reg, value)) {
+            return true;
+        }
+        
+        reg -= MaxRegister + 1;
+        value = _constants[reg - builtinConstantOffset()];
+        return true;
+    }
 
     void setName(const Atom s) { _name = s; }
     virtual Atom name() const override { return _name; }

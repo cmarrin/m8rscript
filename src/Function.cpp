@@ -17,9 +17,11 @@ Function::Function()
 {
 }
 
-bool Function::constant(const Value* constants, size_t numConstants, uint8_t reg, Value& value)
+bool Function::builtinConstant(uint8_t reg, Value& value)
 {
     if (reg <= MaxRegister) {
+        // Should never get here
+        assert(0);
         return false;
     }
     
@@ -31,16 +33,8 @@ bool Function::constant(const Value* constants, size_t numConstants, uint8_t reg
         case BuiltinConstants::Int0: value = Value(0); return true;
         case BuiltinConstants::Int1: value = Value(1); return true;
         case BuiltinConstants::AtomShort:
-        case BuiltinConstants::AtomLong: return false; // Handled outside, should never get here
-        default: {
-            int32_t i = reg - static_cast<int32_t>(BuiltinConstants::NumBuiltins);
-            if (i >= 0 && i < numConstants) {
-                value = constants[i];
-                return true;
-            } else {
-                return false;
-            }
-        }
+        case BuiltinConstants::AtomLong: assert(0); return false; // Handled outside, should never get here
+        default: return false;
     }
 }
 
