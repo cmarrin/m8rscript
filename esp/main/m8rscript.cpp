@@ -44,6 +44,8 @@ void m8r::heapInfo(void*& start, uint32_t& size)
     
     start = heapAddr;
     size = heapSize;
+
+    printf("\n*** heap start=%p, size=%d\n", start, size);
 }
 
 extern "C" void app_main()
