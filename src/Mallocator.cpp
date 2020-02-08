@@ -89,7 +89,7 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
         Header* header = asHeader(freeBlock);
         assert(header->nextBlock != freeBlock);
 
-        checkMemoryHeader(header, Header::Type::Free);
+        checkMemoryHeader(freeBlock, Header::Type::Free);
 
         if (header->sizeInBlocks >= blocksToAlloc) {
             if (blocksToAlloc == header->sizeInBlocks) {
@@ -182,7 +182,7 @@ void Mallocator::free(RawMad ptr, MemoryType type)
     uint16_t blocksToFree = blockSizeFromByteSize(size);
 
     // Check to make sure this is a valid block
-    checkMemoryHeader(asHeader(blockToFree), Header::Type::Allocated, blocksToFree);
+    checkMemoryHeader(blockToFree, Header::Type::Allocated, blocksToFree);
 
 #ifdef DEBUG_MEMORY_HEADER
     asHeader(blockToFree)->magic = Header::FREEMAGIC;
@@ -312,16 +312,14 @@ void Mallocator::checkConsistencyHelper()
         assert(header && (header->nextBlock == NoBlockId || block + header->sizeInBlocks < header->nextBlock));
 
         // Check to make sure this is a valid block
-        checkMemoryHeader(header, Header::Type::Free);
+        checkMemoryHeader(block, Header::Type::Free);
     }
     
 #ifdef DEBUG_MEMORY_HEADER
     // Check allocated blocks
     for (BlockId block = _firstAllocatedBlock; block != NoBlockId; block = asHeader(block)->nextBlock) {
-        Header* header = asHeader(block);
-
         // Check to make sure this is a valid block
-        checkMemoryHeader(header, Header::Type::Allocated);
+        checkMemoryHeader(block, Header::Type::Allocated);
     }
 #endif
 }
@@ -329,10 +327,12 @@ void Mallocator::checkConsistencyHelper()
 
 #ifdef DEBUG_MEMORY_HEADER
 
-void Mallocator::showMemoryHeaderError(Header* header, Header::Type type, int32_t blocksToFree) const
+void Mallocator::showMemoryHeaderError(BlockId block, Header::Type type, int32_t blocksToFree) const
 {
+    const Header* header = asHeader(block);
+
     if (type == Header::Type::Allocated) {
-        ::printf("***** Allocated Memory Header error at addr %p, memory type %d, name '%s'\n", header, static_cast<uint32_t>(header->memoryType), header->name);
+        ::printf("***** Allocated Memory Header error at block %d (%p), memory type %d, name '%s'\n", block, header, static_cast<uint32_t>(header->memoryType), header->name);
         if (header->magic != Header::ALLOCMAGIC) {
             ::printf("      expected ALLOCMAGIC, got 0x%08x\n", header->magic);
         }
@@ -343,7 +343,7 @@ void Mallocator::showMemoryHeaderError(Header* header, Header::Type type, int32_
             ::printf("      sizes don't match - allocation contains %d blocks, request to free %d blocks\n", header->sizeInBlocks, blocksToFree);
         }
     } else {
-        ::printf("***** Free Memory Header error at addr %p\n", header);
+        ::printf("***** Free Memory Header error at addr block %d (%p)\n", block, header);
         if (header->magic != Header::FREEMAGIC) {
             ::printf("      expected FREEMAGIC, got 0x%08x\n", header->magic);
         }

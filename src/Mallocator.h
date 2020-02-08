@@ -260,28 +260,30 @@ private:
     };
 
 #ifdef DEBUG_MEMORY_HEADER
-    void showMemoryHeaderError(Header*, Header::Type type, int32_t blocksToFree) const;
+    void showMemoryHeaderError(BlockId, Header::Type type, int32_t blocksToFree) const;
 
-    void checkMemoryHeader(Header* header, Header::Type type, int32_t blocksToFree = -1) const
+    void checkMemoryHeader(BlockId block, Header::Type type, int32_t blocksToFree = -1) const
     {
+        const Header* header = asHeader(block);
+        
         if (type == Header::Type::Allocated) {
             if (header->magic != Header::ALLOCMAGIC || header->type() != Header::Type::Allocated) {
-                showMemoryHeaderError(header, type, blocksToFree);
+                showMemoryHeaderError(block, type, blocksToFree);
                 return;
             }
             if (blocksToFree >= 0 && header->sizeInBlocks != blocksToFree) {
-                showMemoryHeaderError(header, type, blocksToFree);
+                showMemoryHeaderError(block, type, blocksToFree);
                 return;
             }
         } else {
             if (header->magic != Header::FREEMAGIC || header->type() != Header::Type::Free) {
-                showMemoryHeaderError(header, type, blocksToFree);
+                showMemoryHeaderError(block, type, blocksToFree);
                 return;
             }
         }
     }
 #else
-    void checkMemoryHeader(Header* header, Header::Type type, int32_t blocksToFree = -1) const { }
+    void checkMemoryHeader(BlockId, Header::Type type, int32_t blocksToFree = -1) const { }
 #endif
 
     Header* asHeader(BlockId b) { return reinterpret_cast<Header*>(_heapBase + (b * _memoryInfo.blockSize)); }
