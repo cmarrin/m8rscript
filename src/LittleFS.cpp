@@ -20,7 +20,6 @@ LittleFS::LittleFS()
 {
     memset(&_littleFileSystem, 0, sizeof(_littleFileSystem));
 
-    lfs_size_t blockSize = 256;
     lfs_size_t fsSize = FS::PhysicalSize;
 
     char* buffer = new char[BufferSize * 3];
@@ -28,8 +27,8 @@ LittleFS::LittleFS()
     memset(&_config, 0, sizeof(_config));
     _config.read_size = 64;
     _config.prog_size = 64;
-    _config.block_size =  blockSize;
-    _config.block_count = blockSize ? fsSize / blockSize: 0;
+    _config.block_size =  BlockSize;
+    _config.block_count = BlockSize ? fsSize / BlockSize: 0;
     _config.block_cycles = 16; // TODO - need better explanation
     _config.cache_size = 64;
     _config.lookahead_size = 64;
@@ -157,12 +156,13 @@ bool LittleFS::exists(const char* name) const
 
 uint32_t LittleFS::totalSize() const
 {
-    return 1000;
+    return static_cast<uint32_t>(_config.block_count * _config.block_size);
 }
 
 uint32_t LittleFS::totalUsed() const
 {
-    return 100;
+    lfs_ssize_t allocatedBlocks = lfs_fs_size(&_littleFileSystem);
+    return (allocatedBlocks < 0) ? 0 : (static_cast<uint32_t>(allocatedBlocks) * _config.block_size);
 }
 
 int32_t LittleFS::internalMount()
