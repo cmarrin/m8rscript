@@ -102,6 +102,22 @@ int ROMstrcmp(m8r::ROMString s1, const char* s2)
     return c1 - c2;
 }
 
+void m8r::heapInfo(void*& start, uint32_t& size)
+{
+    static void* heapAddr = nullptr;
+    static uint32_t heapSize = 0;
+    
+    if (!heapAddr) {
+        heapSize = heap_caps_get_free_size(MALLOC_CAP_8BIT) - 10000;
+        heapAddr = heap_caps_malloc(heapSize, MALLOC_CAP_8BIT);
+    }
+    
+    start = heapAddr;
+    size = heapSize;
+
+    printf("\n*** heap start=%p, size=%d\n", start, size);
+}
+
 void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)
 {
 }

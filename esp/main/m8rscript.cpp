@@ -21,61 +21,52 @@
 #include <unistd.h>
 #include <chrono>
 
-//#include "esp_spiffs.h"
-//#include <errno.h>
-//#include <fcntl.h>
-
-//esp_vfs_spiffs_conf_t conf = {
-//  .base_path = "/spiffs",
-//  .partition_label = NULL,
-//  .max_files = 5,
-//  .format_if_mount_failed = true
-//};
-//
-void m8r::heapInfo(void*& start, uint32_t& size)
-{
-    static void* heapAddr = nullptr;
-    static uint32_t heapSize = 0;
-    
-    if (!heapAddr) {
-        heapSize = heap_caps_get_free_size(MALLOC_CAP_8BIT) - 10000;
-        heapAddr = heap_caps_malloc(heapSize, MALLOC_CAP_8BIT);
-    }
-    
-    start = heapAddr;
-    size = heapSize;
-
-    printf("\n*** heap start=%p, size=%d\n", start, size);
-}
-
 extern "C" void app_main()
 {
     printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
 
-//    m8r::StringStream stream("print(\"Hello World\n\");");
-//    m8r::Mad<m8r::Task> task = m8r::Mad<m8r::Task>::create();
-//    task->init(stream);
-//    task->run([](m8r::TaskBase*) { 
-//        m8r::system()->printf(ROMSTR("******* Hello World task completed\n"));
-//    });    
-
     m8r::Application application(23);
     m8r::Application::mountFileSystem();
+    
+    // Test filesystem
+    m8r::String toPath("/foo");
+    m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
+    if (!toFile->valid()) {
+        printf("Error: unable to open '%s' for write - ", toPath.c_str());
+        m8r::Error::showError(toFile->error());
+        printf("\n");
+    } else {
+        toFile->write("Hello World", 11);
+        if (!toFile->valid()) {
+            printf("Error writing '%s' - ", toPath.c_str());
+            m8r::Error::showError(toFile->error());
+            printf("\n");
+        } else {
+            printf("Successfully wrote '%s'\n", toPath.c_str());
+        }
+        toFile->close();
+    }
 
-
-
-
-//    int fd = ::open("/spiffs/mrsh", O_RDONLY);
-//    printf("***** open: fd=%d, errno=%d\n", fd, errno);
-//    char buf[20];
-//    int result = ::read(fd, buf, 19);
-//    if (result >= 0) {
-//        buf[result] = '\0';
-//    }
-//    printf("***** read: result=%d, data='%s', errno=%d\n", result, buf, errno);
-//    ::close(fd);
-
-
+    toFile = m8r::Mad<m8r::File>(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read));
+    if (!toFile->valid()) {
+        printf("Error: unable to open '%s' for read - ", toPath.c_str());
+        m8r::Error::showError(toFile->error());
+        printf("\n");
+    } else {
+        char buf[12];
+        int32_t result = toFile->read(buf, 11);
+        if (!toFile->valid()) {
+            printf("Error reading '%s' - ", toPath.c_str());
+            m8r::Error::showError(toFile->error());
+            printf("\n");
+        } else if (result != 11) {
+            printf("Wrong number of bytes read from '%s', expected 11, got %d\n", toPath.c_str(), result);
+        } else {
+            buf[11] = '\0';
+            printf("Successfully read '%s' - '%s'\n", toPath.c_str(), buf);
+        }
+        toFile->close();
+    }
 
     const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
     m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
