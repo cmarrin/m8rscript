@@ -157,6 +157,21 @@ String Application::autostartFilename() const
     return "/sys/bin/hello.m8r";
 }
 
+static m8r::String prettySize(uint32_t size)
+{
+    m8r::String s;
+    
+    if (size < 1000) {
+        return String::toString(size) + ' ';
+    } else if (size < 1000000) {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000)) + " K";
+    } else if (size < 1000000000) {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000)) + " M";
+    } else {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000000)) + " G";
+    }
+}
+
 bool Application::mountFileSystem()
 {
     if (!system()->fileSystem()->mount()) {
@@ -176,16 +191,18 @@ bool Application::mountFileSystem()
             m8r::system()->printf(ROMSTR("FAILED.\n"));
         }
     }
-
-    if (m8r::system()->fileSystem()->mounted()) {
-        m8r::system()->printf(ROMSTR("Filesystem - total size:%d, used:%d\n"), m8r::system()->fileSystem()->totalSize(), m8r::system()->fileSystem()->totalUsed());
-    }
     return true;
 }
 
 void Application::runLoop()
 {
     system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
+    
+    if (m8r::system()->fileSystem()->mounted()) {
+        uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
+        uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
+        m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), prettySize(totalSize).c_str(), prettySize(totalUsed).c_str());
+    }
     
     // If autostart is on, run the main program
     String filename = autostartFilename();
