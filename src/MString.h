@@ -250,12 +250,19 @@ public:
     
     void reserve(uint16_t size) { ensureCapacity(size); }
     
-    static String toString(Float value);
+    static String toString(Float value, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
     static String toString(int32_t value);
     static String toString(uint32_t value);
     static bool toFloat(Float&, const char*, bool allowWhitespace = true);
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
+    
+    // Print passed size with K, M, or G suffix as needed
+    // There is a space between the number and the suffix. If no suffix there is just an ending space
+    // decimalDigits specifies the number of digits to the right of the decimal point. Value is
+    // rounded to this many digits. Trailing zeros are omitted. If there are no digits to the
+    // right of the dp, either because of rounding or decimalDigits = 0, the dp is omitted
+    static String prettySize(uint32_t size, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
     
     int32_t toInt() const
     {

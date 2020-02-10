@@ -124,8 +124,20 @@ void String::doEnsureCapacity(uint16_t size)
     _data = newData;
 }
 
-static int32_t intToString(Float::decompose_type x, char* str, int16_t dp)
+static int32_t intToString(Float::decompose_type x, char* str, int16_t dp, uint8_t decimalDigits)
 {
+    // Adjust x and dp for decimalDigits
+    if (dp > decimalDigits) {
+        int16_t exp = dp - decimalDigits;
+        while (exp-- > 1) {
+            x /= 10;
+        }
+        
+        // We've tossed all but one digit. Round and then toss it
+        x = (x + 5) / 10;
+        dp = decimalDigits;
+    }
+    
     int32_t i = 0;
     bool haveDP = false;
     
@@ -167,7 +179,7 @@ static int32_t intToString(Float::decompose_type x, char* str, int16_t dp)
     return i;
 }
 
-static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
+static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8_t decimalDigits)
 {
     if (value == 0) {
         buf[0] = '0';
@@ -177,7 +189,7 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
     }
     
     if (!exp) {
-        intToString(value, buf, 0);
+        intToString(value, buf, 0, decimalDigits);
         return true;
     }
 
@@ -196,20 +208,21 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp)
         exp = 0;
     }
     
-    int32_t i = intToString(value, buf, dp);
+    int32_t i = intToString(value, buf, dp, decimalDigits);
+    
     if (exp) {
         buf[i++] = 'e';
         if (exp < 0) {
             buf[i++] = '-';
             exp = -exp;
         }
-        intToString(exp, buf + i, 0);
+        intToString(exp, buf + i, 0, decimalDigits);
     }
     
     return true;
 }
 
-String String::toString(Float value)
+String String::toString(Float value, uint8_t decimalDigits)
 {
     //          sign    digits  dp      'e'     dp      exp     '\0'
     char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
@@ -219,9 +232,9 @@ String String::toString(Float value)
     if (mantissa < 0) {
         buf[0] = '-';
         mantissa = - mantissa;
-        ::toString(buf + 1, mantissa, exp);
+        ::toString(buf + 1, mantissa, exp, decimalDigits);
     } else {
-        ::toString(buf, mantissa, exp);
+        ::toString(buf, mantissa, exp, decimalDigits);
     }
     return String(buf);
 }
@@ -230,7 +243,7 @@ String String::toString(uint32_t value)
 {
     char buf[12];
     int16_t exp = 0;
-    ::toString(buf, value, exp);
+    ::toString(buf, value, exp, 0);
     return String(buf);
 }
 
@@ -297,6 +310,21 @@ bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
         return true;
     }
     return false;
+}
+
+String String::prettySize(uint32_t size, uint8_t decimalDigits)
+{
+    m8r::String s;
+    
+    if (size < 1000) {
+        return String::toString(size) + ' ';
+    } else if (size < 1000000) {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000), decimalDigits) + " K";
+    } else if (size < 1000000000) {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000), decimalDigits) + " M";
+    } else {
+        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000000), decimalDigits) + " G";
+    }
 }
 
 static inline char nibbleToHexChar(uint8_t b, bool upperCase)
