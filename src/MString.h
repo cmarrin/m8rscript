@@ -252,6 +252,7 @@ public:
     
     static String toString(Float value);
     static String toString(int32_t value);
+    static String toString(uint32_t value);
     static bool toFloat(Float&, const char*, bool allowWhitespace = true);
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);

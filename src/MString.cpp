@@ -223,21 +223,25 @@ String String::toString(Float value)
     } else {
         ::toString(buf, mantissa, exp);
     }
-    return m8r::String(buf);
+    return String(buf);
+}
+
+String String::toString(uint32_t value)
+{
+    char buf[12];
+    int16_t exp = 0;
+    ::toString(buf, value, exp);
+    return String(buf);
 }
 
 String String::toString(int32_t value)
 {
-    char buf[12];
-    int16_t exp = 0;
+    String s;
     if (value < 0) {
-        buf[0] = '-';
-        value = -value;
-        ::toString(buf + 1, value, exp);
+        return String('-') + toString(static_cast<uint32_t>(-value));
     } else {
-        ::toString(buf, value, exp);
+        return toString(static_cast<uint32_t>(value));
     }
-    return m8r::String(buf);
 }
 
 bool String::toFloat(Float& f, const char* s, bool allowWhitespace)
