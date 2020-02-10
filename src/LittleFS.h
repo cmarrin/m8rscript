@@ -108,6 +108,7 @@ private:
     void open(const char* name, FS::FileOpenMode);
 
     lfs_file_t _file;
+    struct lfs_file_config _config;
     char _buffer[LittleFS::BufferSize];
 };
 

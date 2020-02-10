@@ -219,10 +219,9 @@ static const int _fileModeMap[] = {
 
 void LittleFile::open(const char* name, FS::FileOpenMode mode)
 {
-    struct lfs_file_config defaults;
-    memset(&defaults, 0, sizeof(defaults));
-    defaults.buffer = _buffer;
-    lfs_error err = static_cast<lfs_error>(lfs_file_opencfg(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)], &defaults));
+    memset(&_config, 0, sizeof(_config));
+    _config.buffer = _buffer;
+    lfs_error err = static_cast<lfs_error>(lfs_file_opencfg(&LittleFS::_littleFileSystem, &_file, name, _fileModeMap[static_cast<int>(mode)], &_config));
     _error = LittleFS::mapLittleError(err);
     _mode = mode;
 }
