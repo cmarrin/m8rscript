@@ -22,7 +22,7 @@ static FILE* fsFile = nullptr;
 
 static int lfs_flash_read(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size) {
-    uint32_t addr = (block * 256) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off;
 
     if (!fsFile) {
         return LFS_ERR_INVAL;
@@ -41,7 +41,7 @@ static int lfs_flash_read(const struct lfs_config *c,
 
 static int lfs_flash_prog(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) {
-    uint32_t addr = (block * 256) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off;
     const uint8_t *src = reinterpret_cast<const uint8_t *>(buffer);
 
     if (!fsFile) {
@@ -60,8 +60,8 @@ static int lfs_flash_prog(const struct lfs_config *c,
 }
 
 static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block) {
-    uint32_t addr = (block * 256);
-    uint32_t size = 256;
+    uint32_t addr = (block * LittleFS::BlockSize);
+    uint32_t size = LittleFS::BlockSize;
 
     if (fseek(fsFile, addr, SEEK_SET)) {
         printf("******** MacLittleFS error seeking to sector %d on erase (%d): %s\n", addr, ferror(fsFile), strerror(ferror(fsFile)));

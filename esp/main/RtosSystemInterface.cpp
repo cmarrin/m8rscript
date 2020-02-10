@@ -172,14 +172,14 @@ m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
 static int lfs_flash_read(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size)
 {
-    uint32_t addr = (block * 256) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off;
     return spi_flash_read(addr, static_cast<uint8_t*>(dst), size) == 0 ? 0 : -1;
 }
 
 static int lfs_flash_write(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    uint32_t addr = (block * 256) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off;
     return (spi_flash_write(addr, buffer, size) == 0) ? 0 : -1;
 }
 
