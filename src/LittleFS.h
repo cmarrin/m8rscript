@@ -31,7 +31,7 @@ class LittleFS : public FS {
     
 public:
     static constexpr uint32_t BufferSize = 64;
-    static constexpr uint32_t BlockSize = 256;
+    static constexpr uint32_t BlockSize = 4096;
 
     LittleFS();
     virtual ~LittleFS();
