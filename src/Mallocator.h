@@ -208,8 +208,6 @@ protected:
     MemoryInfo _memoryInfo;
 
 private:
-    Mallocator() { init(); }
-
     using BlockId = RawMad;
 
     RawMad alloc(uint32_t size, MemoryType type, const char* valueType);

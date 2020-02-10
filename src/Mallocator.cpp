@@ -12,17 +12,6 @@
 
 using namespace m8r;
 
-void* operator new(size_t size)
-{
-    printf("================================ new %d\n", (int) size);
-    return ::malloc(size);
-}
-
-void operator delete(void* p) noexcept
-{
-    ::free(p);
-}
-
 Mallocator Mallocator::_mallocator;
 
 void Mallocator::init()
