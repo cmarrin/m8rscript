@@ -59,7 +59,7 @@ int main(int argc, char * argv[])
         FILE* fromFile = fopen(uploadFilename, "r");
         if (!fromFile) {
             fprintf(stderr, "Unable to open '%s' for upload, skipping\n", uploadFilename);
-        } else {
+        } else if (m8r::system()->fileSystem()) {
             m8r::Vector<m8r::String> parts = m8r::String(uploadFilename).split("/");
             m8r::String baseName = parts[parts.size() - 1];
             
@@ -112,6 +112,7 @@ int main(int argc, char * argv[])
                 }
             }
         }
+        fclose(fromFile);
     }
 
     m8r::Application application(port);
