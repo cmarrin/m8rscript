@@ -45,4 +45,4 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/Value.o \
     $(SRC_DIR)/slre.o \
     $(SRC_DIR)/littlefs/lfs.o \
-$(SRC_DIR)/littlefs/lfs_util.o \
+    $(SRC_DIR)/littlefs/lfs_util.o \
