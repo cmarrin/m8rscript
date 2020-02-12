@@ -20,3 +20,6 @@ spiffs.bin:
 
 upload_spiffs: spiffs.bin
 	$(ESPTOOLPY_WRITE_FLASH) 0x100000 build/spiffs.bin
+
+upload_fs:
+	$(ESPTOOLPY_WRITE_FLASH) 0x100000 ../m8rFSFile
