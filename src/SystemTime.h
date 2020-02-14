@@ -63,7 +63,7 @@ public:
         setUnits(units);
     }
     
-    operator bool() { return _value != 0; }
+    operator bool() { return us() != 0; }
     
     Duration operator - ()
     {
