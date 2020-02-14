@@ -27,11 +27,13 @@ static const char _Low[] ROMSTR_ATTR = "Low";
 static const char _MaxConnections[] ROMSTR_ATTR = "MaxConnections";
 static const char _None[] ROMSTR_ATTR = "None";
 static const char _Object[] ROMSTR_ATTR = "Object";
+static const char _Once[] ROMSTR_ATTR = "Once";
 static const char _Output[] ROMSTR_ATTR = "Output";
 static const char _OutputOpenDrain[] ROMSTR_ATTR = "OutputOpenDrain";
 static const char _PinMode[] ROMSTR_ATTR = "PinMode";
 static const char _ReceivedData[] ROMSTR_ATTR = "ReceivedData";
 static const char _Reconnected[] ROMSTR_ATTR = "Reconnected";
+static const char _Repeating[] ROMSTR_ATTR = "Repeating";
 static const char _RisingEdge[] ROMSTR_ATTR = "RisingEdge";
 static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
@@ -138,11 +140,13 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _MaxConnections,
     _None,
     _Object,
+    _Once,
     _Output,
     _OutputOpenDrain,
     _PinMode,
     _ReceivedData,
     _Reconnected,
+    _Repeating,
     _RisingEdge,
     _SentData,
     _TCP,

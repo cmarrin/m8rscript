@@ -32,11 +32,13 @@ Low
 MaxConnections
 None
 Object
+Once
 Output
 OutputOpenDrain
 PinMode
 ReceivedData 
 Reconnected 
+Repeating 
 RisingEdge
 SentData 
 Task
