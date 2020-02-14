@@ -535,6 +535,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             _stack.clear();
             _callRecords.clear();
             GC::gc(true);
+            _program.reset();
             return CallReturnValue(CallReturnValue::Type::Terminated);
         }
 
@@ -556,10 +557,12 @@ CallReturnValue ExecutionUnit::continueExecution()
                     _terminate = true;
                     _stack.clear();
                     GC::gc(true);
+                    _program.reset();
                     return CallReturnValue(CallReturnValue::Type::Terminated);
                 }
                 
                 GC::gc(true);
+                _program.reset();
                 return CallReturnValue(CallReturnValue::Type::Finished);
             }
             callReturnValue = CallReturnValue();
