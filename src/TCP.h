@@ -22,19 +22,14 @@ class TCP;
 
 // Native
 
-class TCPDelegate : public NativeObject {
-public:
-    virtual ~TCPDelegate() { }
-    
-    enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };
-    
-    virtual void TCPevent(TCP*, Event, int16_t connectionId, const char* data = nullptr, int16_t length = -1) = 0;
-};
-
 class TCP {
-    friend class MyEventTask;
+    friend class TCPProto;
     
 public:
+    enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };
+
+    using EventFunction = std::function<void(TCP*, Event, int16_t connectionId, const char* data, int16_t length)>;
+    
     static constexpr int MaxConnections = 4;
     static constexpr uint32_t DefaultTimeout = 7200;
      
@@ -45,14 +40,14 @@ public:
     virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
-    void init(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr())
+    void init(uint16_t port, IPAddr ip, EventFunction func)
     {
-        _delegate = delegate;
+        _eventFunction = func;
         _ip = ip;
         _port = port; 
     }
 
-    TCPDelegate* _delegate;
+    EventFunction _eventFunction;
     IPAddr _ip;
     uint16_t _port;
 };
@@ -66,45 +61,6 @@ public:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};
-
-class MyTCPDelegate : public TCPDelegate {
-public:
-    MyTCPDelegate() { }
-    virtual ~MyTCPDelegate();
-
-    void init(ExecutionUnit*, IPAddr ip, uint16_t port, const Value& func, const Value& parent);
-
-    virtual void gcMark() override
-    {
-        _func.gcMark();
-        _parent.gcMark();
-    }
-
-    void send(int16_t connectionId, const char* data, uint16_t size)
-    {
-        if (!_tcp.valid()) {
-            return;
-        }
-        _tcp->send(connectionId, data, size);
-    }
-
-    void disconnect(int16_t connectionId)
-    {
-        if (!_tcp.valid()) {
-            return;
-        }
-        _tcp->disconnect(connectionId);
-    }
-
-    // TCPDelegate overrides
-    virtual void TCPevent(TCP* tcp, Event, int16_t connectionId, const char* data, int16_t length) override;
-
-private:
-    Mad<TCP> _tcp;
-    Value _func;
-    Value _parent;
-    ExecutionUnit* _eu;
 };
 
 }

@@ -24,8 +24,8 @@ static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 
 static StaticObject::StaticProperty _props[] =
 {
-    { SA::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)) },
-    { SA::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)) },
+    { SA::ReceivedData, Value(static_cast<int32_t>(TCP::Event::ReceivedData)) },
+    { SA::SentData, Value(static_cast<int32_t>(TCP::Event::SentData)) },
 };
 
 UDPProto::UDPProto()

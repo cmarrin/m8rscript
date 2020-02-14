@@ -11,6 +11,7 @@
 
 #include "Containers.h"
 #include "IPAddr.h"
+#include "TCP.h"
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
@@ -23,8 +24,6 @@ namespace m8r {
 class GPIOInterface;
 class FS;
 class TaskManager;
-class TCP;
-class TCPDelegate;
 class UDP;
 class UDPDelegate;
 
@@ -55,7 +54,8 @@ public:
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
     virtual TaskManager* taskManager() = 0;
-    virtual Mad<TCP> createTCP(TCPDelegate* delegate, uint16_t port, IPAddr ip = IPAddr()) = 0;
+    virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction) = 0;
+    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) = 0;
     virtual Mad<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
 
     virtual void setDeviceName(const char*) = 0;

@@ -142,7 +142,12 @@ public:
     virtual GPIOInterface* gpio() override { return nullptr; }
     virtual TaskManager* taskManager() override { return &_taskManager; };
     
-    virtual Mad<TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
+    {
+        return Mad<TCP>();
+    }
+    
+    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) override
     {
         return Mad<TCP>();
     }

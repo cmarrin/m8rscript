@@ -37,10 +37,17 @@ public:
     virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
     virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
     
-    virtual m8r::Mad<m8r::TCP> createTCP(m8r::TCPDelegate* delegate, uint16_t port, m8r::IPAddr ip = m8r::IPAddr()) override
+    virtual m8r::Mad<m8r::TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction func) override
     {
         m8r::Mad<m8r::MacTCP> tcp = m8r::Mad<m8r::MacTCP>::create(m8r::MemoryType::Network);
-        tcp->init(delegate, port, ip);
+        tcp->init(port, ip, func);
+        return tcp;
+    }
+    
+    virtual m8r::Mad<m8r::TCP> createTCP(uint16_t port, TCP::EventFunction func) override
+    {
+        m8r::Mad<m8r::MacTCP> tcp = m8r::Mad<m8r::MacTCP>::create(m8r::MemoryType::Network);
+        tcp->init(port, IPAddr(), func);
         return tcp;
     }
     

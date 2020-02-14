@@ -20,22 +20,22 @@
 
 using namespace m8r;
 
-void MacTCP::init(TCPDelegate* delegate, uint16_t port, IPAddr ip)
+void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
 {
     _dispatchSemaphore = nullptr;
     
-    TCP::init(delegate, port, ip);
+    TCP::init(port, ip, func);
     _server = !ip;
     
     _socketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (_socketFD == -1) {
-        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "opening TCP socket", -1);
+        _eventFunction(this, Event::Error, errno, "opening TCP socket", -1);
         return;
     }
 
     int enable = 1;
     if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
-        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "opening TCP socket, setsockopt failed", -1);
+        _eventFunction(this, Event::Error, errno, "opening TCP socket, setsockopt failed", -1);
         return;
     }
     
@@ -54,14 +54,14 @@ void MacTCP::init(TCPDelegate* delegate, uint16_t port, IPAddr ip)
 
     if (_server) {
         if (bind(_socketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
-            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP bind failed");
+            _eventFunction(this, Event::Error, errno, "TCP bind failed");
             close(_socketFD);
             _socketFD = -1;
             return;
         }
       
         if (listen(_socketFD, MaxConnections) == -1) {
-            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP listen failed");
+            _eventFunction(this, Event::Error, errno, "TCP listen failed");
             close(_socketFD);
             _socketFD = -1;
             return;
