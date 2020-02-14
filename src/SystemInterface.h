@@ -56,7 +56,7 @@ public:
     virtual TaskManager* taskManager() = 0;
     virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction) = 0;
     virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) = 0;
-    virtual Mad<UDP> createUDP(UDPDelegate* delegate, uint16_t port) = 0;
+    virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) = 0;
 
     virtual void setDeviceName(const char*) = 0;
     

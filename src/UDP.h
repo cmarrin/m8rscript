@@ -23,15 +23,12 @@ class IPAddr;
 
 // Native
 
-class UDPDelegate {
+class UDP : public NativeObject {
 public:
     enum class Event { Disconnected, ReceivedData, SentData, Error };
-    
-    virtual void UDPevent(UDP*, Event, const char* data = nullptr, uint16_t length = 0) = 0;
-};
 
-class UDP {
-public:
+    using EventFunction = std::function<void(UDP*, Event, const char* data, int16_t length)>;
+    
     virtual ~UDP() { }
         
     static void joinMulticastGroup(IPAddr);
@@ -41,13 +38,13 @@ public:
     virtual void disconnect() = 0;
 
 protected:
-    void init(UDPDelegate* delegate, uint16_t port)
+    void init(uint16_t port, EventFunction func)
     {
-        _delegate = delegate;
+        _eventFunction = func;
         _port = port;  
     }
 
-    UDPDelegate* _delegate;
+    EventFunction _eventFunction;
     uint16_t _port;
 };
 
@@ -60,39 +57,6 @@ public:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};
-
-class MyUDPDelegate : public NativeObject, public UDPDelegate {
-public:
-    MyUDPDelegate() { }
-    virtual ~MyUDPDelegate() { }
-
-    void init(ExecutionUnit*, uint16_t port, const Value& func, const Value& parent);
-
-    void send(IPAddr ip, uint16_t port, const char* data, uint16_t size)
-    {
-        if (!_udp.valid()) {
-            return;
-        }
-        _udp->send(ip, port, data, size);
-    }
-    
-    void disconnect()
-    {
-        if (!_udp.valid()) {
-            return;
-        }
-        _udp->disconnect();
-    }
-
-    // UDPDelegate overrides
-    virtual void UDPevent(UDP* udp, Event, const char* data, uint16_t length) override;
-
-private:
-    Mad<UDP> _udp;
-    Value _func;
-    Value _parent;
-    ExecutionUnit* _eu = nullptr;
 };
 
 }

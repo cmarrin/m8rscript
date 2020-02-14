@@ -51,10 +51,10 @@ public:
         return tcp;
     }
     
-    virtual m8r::Mad<m8r::UDP> createUDP(m8r::UDPDelegate* delegate, uint16_t port) override
+    virtual m8r::Mad<m8r::UDP> createUDP(uint16_t port, UDP::EventFunction func) override
     {
         m8r::Mad<m8r::MacUDP> udp = m8r::Mad<m8r::MacUDP>::create(m8r::MemoryType::Network);
-        udp->init(delegate, port);
+        udp->init(port, func);
         return udp;
     }
 

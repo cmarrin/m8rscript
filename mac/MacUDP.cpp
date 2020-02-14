@@ -59,9 +59,9 @@ void UDP::leaveMulticastGroup(IPAddr addr)
 //	espconn_igmp_leave(&any, &mDNSmulticast);
 }
 
-void MacUDP::init(UDPDelegate* delegate, uint16_t port)
+void MacUDP::init(uint16_t port, EventFunction func)
 {
-    UDP::init(delegate, port);
+    UDP::init(port, func);
     
     _socketFD = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (_socketFD == -1) {
@@ -99,7 +99,7 @@ void MacUDP::init(UDPDelegate* delegate, uint16_t port)
                 if (result == 0 || errno == EINTR) {
                     // Disconnect
                     dispatch_sync(dispatch_get_main_queue(), ^{
-                        _delegate->UDPevent(this, UDPDelegate::Event::Disconnected);
+                        _eventFunction(this, UDP::Event::Disconnected, nullptr, -1);
                     });
                     close(_socketFD);
                     _socketFD = -1;
@@ -109,7 +109,7 @@ void MacUDP::init(UDPDelegate* delegate, uint16_t port)
                 return;
             }
             dispatch_sync(dispatch_get_main_queue(), ^{
-                _delegate->UDPevent(this, UDPDelegate::Event::ReceivedData, _receiveBuffer, result);
+                _eventFunction(this, UDP::Event::ReceivedData, _receiveBuffer, result);
             });
         }
     });
@@ -140,7 +140,7 @@ void MacUDP::send(IPAddr addr, uint16_t port, const char* data, uint16_t length)
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        _delegate->UDPevent(this, UDPDelegate::Event::SentData);
+        _eventFunction(this, UDP::Event::SentData, nullptr, -1);
     });
 }
 

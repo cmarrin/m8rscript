@@ -19,7 +19,7 @@ class MacUDP : public UDP {
 public:
     static constexpr int BufferSize = 1024;
 
-    void init(UDPDelegate*, uint16_t);
+    void init(uint16_t, EventFunction);
     virtual ~MacUDP();
     
     static void joinMulticastGroup(IPAddr);
