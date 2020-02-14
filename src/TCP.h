@@ -22,7 +22,8 @@ class TCP;
 
 // Native
 
-class TCP {
+class TCP : public NativeObject 
+{
     friend class TCPProto;
     
 public:

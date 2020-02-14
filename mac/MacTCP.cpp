@@ -54,14 +54,14 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
 
     if (_server) {
         if (bind(_socketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
-            _eventFunction(this, Event::Error, errno, "TCP bind failed");
+            _eventFunction(this, Event::Error, errno, "TCP bind failed", -1);
             close(_socketFD);
             _socketFD = -1;
             return;
         }
       
         if (listen(_socketFD, MaxConnections) == -1) {
-            _eventFunction(this, Event::Error, errno, "TCP listen failed");
+            _eventFunction(this, Event::Error, errno, "TCP listen failed", -1);
             close(_socketFD);
             _socketFD = -1;
             return;
@@ -70,9 +70,9 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
         memset(_clientSockets, 0, MaxConnections * sizeof(int));
     } else {
         if (connect(_socketFD, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "TCP connect failed");
+            _eventFunction(this, TCP::Event::Error, errno, "TCP connect failed", -1);
         } else {
-            _delegate->TCPevent(this, TCPDelegate::Event::Connected, 0);
+            _eventFunction(this, TCP::Event::Connected, 0, nullptr, -1);
         }
     }
 
@@ -112,7 +112,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                     
                     int clientSocket = accept(_socketFD, (struct sockaddr *)&sa, (socklen_t*)&addrlen);
                     if (clientSocket < 0) {
-                        _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "accept failed");
+                        _eventFunction(this, TCP::Event::Error, errno, "accept failed", -1);
                         continue;
                     }
                     printf("New connection , socket fd=%d, ip=%s, port=%d\n", clientSocket, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
@@ -128,11 +128,11 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                     
                     if (connectionId < 0) {
                         close(clientSocket);
-                        _delegate->TCPevent(this, TCPDelegate::Event::Error, -1, "Too many connections on port\n");
+                        _eventFunction(this, TCP::Event::Error, -1, "Too many connections on port\n", -1);
                         break;
                     }
                     
-                    _delegate->TCPevent(this, TCPDelegate::Event::Connected, connectionId);
+                    _eventFunction(this, TCP::Event::Connected, connectionId, nullptr, -1);
                 }
 
                 for (int& socket : _clientSockets) {
@@ -146,14 +146,14 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                             int addrlen;
                             getpeername(socket, (struct sockaddr*) &sa, (socklen_t*) &addrlen);
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
-                            _delegate->TCPevent(this, TCPDelegate::Event::Disconnected, connectionId);
+                            _eventFunction(this, TCP::Event::Disconnected, connectionId, nullptr, -1);
                             close(socket);
                             std::lock_guard<std::mutex> lock(_mutex);
                             socket = 0;
                         } else if (result < 0) {
-                            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "read error");
+                            _eventFunction(this, TCP::Event::Error, errno, "read error", -1);
                         } else {
-                            _delegate->TCPevent(this, TCPDelegate::Event::ReceivedData, connectionId, _receiveBuffer, result);
+                            _eventFunction(this, TCP::Event::ReceivedData, connectionId, _receiveBuffer, result);
                         }
                     }
                 }
@@ -162,15 +162,15 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 ssize_t result = read(_socketFD, _receiveBuffer, BufferSize - 1);
                 if (result == 0) {
                     // Disconnect
-                    _delegate->TCPevent(this, TCPDelegate::Event::Disconnected, 0);
+                    _eventFunction(this, TCP::Event::Disconnected, 0, nullptr, -1);
                     shutdown(_socketFD, SHUT_RDWR);
                     close(_socketFD);
                     _socketFD = -1;
                     break;
                 } else if (result < 0) {
-                    _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "read failed");
+                    _eventFunction(this, TCP::Event::Error, errno, "read failed", -1);
                 } else {
-                    _delegate->TCPevent(this, TCPDelegate::Event::ReceivedData, 0, _receiveBuffer, result);
+                    _eventFunction(this, TCP::Event::ReceivedData, 0, _receiveBuffer, result);
                 }
             }
         }
@@ -207,17 +207,17 @@ void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
         if (socket) {
             ssize_t result = ::send(socket, data, length, 0);
             if (result == -1) {
-                _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (server) failed");
+                _eventFunction(this, TCP::Event::Error, errno, "send (server) failed", -1);
             }
         }
     } else {
         ssize_t result = ::send(_socketFD, data, length, 0);
         if (result == -1) {
-            _delegate->TCPevent(this, TCPDelegate::Event::Error, errno, "send (client) faile");
+            _eventFunction(this, TCP::Event::Error, errno, "send (client) faile", -1);
         }
     }
     
-    _delegate->TCPevent(this, TCPDelegate::Event::SentData, connectionId);
+    _eventFunction(this, TCP::Event::SentData, connectionId, nullptr, -1);
 }
 
 void MacTCP::disconnect(int16_t connectionId)
@@ -229,5 +229,5 @@ void MacTCP::disconnect(int16_t connectionId)
     int socket = _clientSockets[connectionId];
     _clientSockets[connectionId] = 0;
     close(socket);
-    _delegate->TCPevent(this, TCPDelegate::Event::Disconnected, connectionId);
+    _eventFunction(this, TCP::Event::Disconnected, connectionId, nullptr, -1);
 }

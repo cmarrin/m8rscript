@@ -13,6 +13,7 @@
 //#include "Heartbeat.h"
 #include "SystemInterface.h"
 #include "Task.h"
+#include "Telnet.h"
 #include <functional>
 
 namespace m8r {
@@ -40,10 +41,19 @@ public:
     static bool mountFileSystem();
 
 private:
-    Mad<TCPDelegate> _shellSocket;
+    Mad<TCP> _shellSocket;
     
     //Heartbeat _heartbeat;
     Mad<Task> _autostartTask;
+
+    struct ShellEntry
+    {
+        ShellEntry() { }
+        Mad<Task> task;
+        Telnet telnet;
+    };
+    
+    ShellEntry _shells[TCP::MaxConnections];
 };
     
 }

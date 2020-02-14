@@ -70,8 +70,8 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         ipAddr[3] = ipAddrObject->element(eu, Value(3)).toIntValue(eu);
     }
 
-    Mad<TCP> tcp = Mad<TCP>::create();
-    tcp->init(port, ipAddr, [thisValue, eu, func](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length) {
+    Mad<TCP> tcp = system()->createTCP(port, ipAddr, 
+    [thisValue, eu, func](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length) {
         Value args[5];
         args[0] = thisValue;
         args[1] = Value(static_cast<int32_t>(event));
