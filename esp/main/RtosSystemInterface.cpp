@@ -27,6 +27,8 @@
 
 using namespace m8r;
 
+static constexpr uint32_t FSStart = 0x100000;
+
 void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len)
 {
     uint8_t* d = (uint8_t*) dst;
@@ -177,20 +179,20 @@ m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
 static int lfs_flash_read(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size)
 {
-    uint32_t addr = (block * LittleFS::BlockSize) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off + FSStart;
     return spi_flash_read(addr, static_cast<uint8_t*>(dst), size) == 0 ? 0 : -1;
 }
 
 static int lfs_flash_write(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    uint32_t addr = (block * LittleFS::BlockSize) + off;
+    uint32_t addr = (block * LittleFS::BlockSize) + off + FSStart;
     return (spi_flash_write(addr, buffer, size) == 0) ? 0 : -1;
 }
 
 static int lfs_flash_erase(const struct lfs_config *c, lfs_block_t block)
 {
-    return (spi_flash_erase_sector(block) == 0) ? 0 : -1;
+    return (spi_flash_erase_sector(block + (FSStart / LittleFS::BlockSize)) == 0) ? 0 : -1;
 }
 
 static int lfs_flash_sync(const struct lfs_config *c) {

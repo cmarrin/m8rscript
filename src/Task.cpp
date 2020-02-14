@@ -49,6 +49,9 @@ Task::~Task()
 
 bool Task::init(const char* filename)
 {
+    if (!system()->fileSystem()) {
+        return false;
+    }
     Mad<File> file = system()->fileSystem()->open(filename, FS::FileOpenMode::Read);
     if (!file->valid() ) {
         _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, file->error().description());
