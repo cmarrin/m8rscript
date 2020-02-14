@@ -119,15 +119,22 @@ CallReturnValue Task::execute()
     return _eu->continueExecution();
 }
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TaskProto::constructor },
     { SA::run, TaskProto::run },
 };
 
+static StaticObject::StaticProperty _props[] =
+{
+    { SA::Once, Value(static_cast<int32_t>(Task::Behavior::Once)) },
+    { SA::Repeating, Value(static_cast<int32_t>(Task::Behavior::Repeating)) },
+};
+
 TaskProto::TaskProto()
 {
-    setProperties(_props, sizeof(_props) / sizeof(StaticFunctionProperty));
+    setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
+    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
 }
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -195,7 +202,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     obj->setProperty(Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
     
     obj->setProperty(Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
-    obj->setProperty(Atom(SA::env), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::env), envValue, Value::SetPropertyType::AlwaysAdd);
     
     task->setConsoleListener(consoleListener);
 

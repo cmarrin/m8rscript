@@ -62,7 +62,9 @@ public:
         _value = (v << Shift);
         setUnits(units);
     }
-        
+    
+    operator bool() { return _value != 0; }
+    
     Duration operator - ()
     {
         Units u = units();

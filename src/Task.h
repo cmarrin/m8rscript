@@ -26,17 +26,22 @@ class TaskBase : public OrderedList<TaskBase, Time>::Item {
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
+    enum class Behavior { Once, Repeating };
+    
     ~TaskBase()
     {
         system()->taskManager()->terminate(this);
     }
     
-    void run(const FinishCallback& cb = nullptr, Duration duration = 0_sec)
+    void run(const FinishCallback& cb = nullptr, Duration duration = 0_sec, Behavior behavior = Behavior::Once)
     {
         _finishCB = cb;
+        _duration = (behavior == Behavior::Repeating) ? duration : 0_sec;
         system()->taskManager()->yield(this, duration);
     }
 
+    Duration duration() const { return _duration; }
+    
     void yield() { system()->taskManager()->yield(this); }
     void terminate() { system()->taskManager()->terminate(this); }
 
@@ -53,6 +58,7 @@ private:
     virtual CallReturnValue execute() = 0;
     
     FinishCallback _finishCB;
+    Duration _duration = 0_sec; // If any value other than 0, this is a repeating task
 };
 
 class Task : public NativeObject, public TaskBase {

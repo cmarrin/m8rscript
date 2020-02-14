@@ -55,8 +55,15 @@ void TaskManager::executeNextTask()
         yield(task, returnValue.msDelay());
     } else if (returnValue.isYield()) {
         yield(task);
-    } else if (returnValue.isFinished() || returnValue.isTerminated()) {
+    } else if (returnValue.isTerminated()) {
         task->finish();
+    } else if (returnValue.isFinished()) {
+        // If this is a repeating task, we want to restart
+        if (task->duration()) {
+            yield(task, task->duration());
+        } else {
+            task->finish();
+        }
     } else if (returnValue.isWaitForEvent()) {
         yield(task, TaskPollingRate);
     }
