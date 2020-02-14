@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Float.h"
 #include <cstdint>
 #include <limits>
 
@@ -62,6 +63,8 @@ public:
         _value = (v << Shift);
         setUnits(units);
     }
+    
+    Duration(Float value) { *this = Duration(value * Float(1000000)); }
     
     operator bool() { return us() != 0; }
     
