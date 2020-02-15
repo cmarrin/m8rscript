@@ -102,7 +102,9 @@ static const char _setPinMode[] ROMSTR_ATTR = "setPinMode";
 static const char _setValue[] ROMSTR_ATTR = "setValue";
 static const char _size[] ROMSTR_ATTR = "size";
 static const char _split[] ROMSTR_ATTR = "split";
+static const char _start[] ROMSTR_ATTR = "start";
 static const char _stat[] ROMSTR_ATTR = "stat";
+static const char _stop[] ROMSTR_ATTR = "stop";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
 static const char _toFloat[] ROMSTR_ATTR = "toFloat";
 static const char _toInt[] ROMSTR_ATTR = "toInt";
@@ -216,7 +218,9 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _setValue,
     _size,
     _split,
+    _start,
     _stat,
+    _stop,
     _stringify,
     _toFloat,
     _toInt,

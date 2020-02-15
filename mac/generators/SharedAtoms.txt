@@ -107,7 +107,9 @@ setPinMode
 setValue
 size
 split
+start
 stat
+stop
 stringify
 toFloat
 toInt
