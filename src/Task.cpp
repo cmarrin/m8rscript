@@ -131,7 +131,8 @@ static StaticObject::StaticProperty _props[] =
     { SA::Repeating, Value(static_cast<int32_t>(Task::Behavior::Repeating)) },
 };
 
-TaskProto::TaskProto()
+TaskProto::TaskProto(bool isTimer)
+    : _isTimer(isTimer)
 {
     setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
     setProperties(_props, sizeof(_props) / sizeof(StaticProperty));

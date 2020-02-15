@@ -24,7 +24,8 @@ TCPProto Global::_tcp;
 UDPProto Global::_udp;
 IPAddrProto Global::_ipAddr;
 Iterator Global::_iterator;
-TaskProto Global::_task;
+TaskProto Global::_task(false);
+TaskProto Global::_timer(true);
 FSProto Global::_fs;
 FileProto Global::_file;
 DirectoryProto Global::_directory;
@@ -56,6 +57,7 @@ static StaticObject::StaticObjectProperty RODATA2_ATTR _objectProps[] =
     { SA::IPAddr, &Global::_ipAddr },
     { SA::Iterator, &Global::_iterator },
     { SA::Task, &Global::_task },
+    { SA::Timer, &Global::_timer },
     { SA::FS, &Global::_fs },
     { SA::File, &Global::_file },
     { SA::Directory, &Global::_directory },

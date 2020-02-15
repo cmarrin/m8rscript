@@ -85,10 +85,13 @@ private:
 
 class TaskProto : public StaticObject {
 public:
-    TaskProto();
+    TaskProto(bool isTimer);
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue run(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    
+private:
+    bool _isTimer;
 };
 
 class NativeTask : public TaskBase {
