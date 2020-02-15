@@ -39,6 +39,7 @@ static const char _SentData[] ROMSTR_ATTR = "SentData";
 static const char _TCP[] ROMSTR_ATTR = "TCP";
 static const char _TCPProto[] ROMSTR_ATTR = "TCPProto";
 static const char _Task[] ROMSTR_ATTR = "Task";
+static const char _Timer[] ROMSTR_ATTR = "Timer";
 static const char _Trigger[] ROMSTR_ATTR = "Trigger";
 static const char _UDP[] ROMSTR_ATTR = "UDP";
 static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
@@ -152,6 +153,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _TCP,
     _TCPProto,
     _Task,
+    _Timer,
     _Trigger,
     _UDP,
     _UDPProto,
