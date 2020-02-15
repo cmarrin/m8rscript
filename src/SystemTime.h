@@ -64,7 +64,7 @@ public:
         setUnits(units);
     }
     
-    Duration(Float value) { *this = Duration(value * Float(1000000)); }
+    Duration(Float value) { *this = Duration(static_cast<int64_t>(value * Float(1000000))); }
     
     operator bool() { return us() != 0; }
     

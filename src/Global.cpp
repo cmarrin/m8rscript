@@ -78,8 +78,12 @@ CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t
 
 CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    uint32_t ms = eu->stack().top().toIntValue(eu);
-    return CallReturnValue(CallReturnValue::Type::MsDelay, ms);
+    Duration duration(eu->stack().top().toFloatValue(eu));
+    if (!duration) {
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    }
+    
+    return CallReturnValue(CallReturnValue::Type::MsDelay, duration.ms());
 }
 
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

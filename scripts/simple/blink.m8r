@@ -9,10 +9,10 @@ function blink()
 {
     GPIO.digitalWrite(2, true);
     print("Blink off\n");
-    delay(500);
+    delay(0.5);
     GPIO.digitalWrite(2, false);
     print("Blink on\n");
-    delay(500); // wait a bit
+    delay(0.5); // wait a bit
 }
 
 var count = 0;

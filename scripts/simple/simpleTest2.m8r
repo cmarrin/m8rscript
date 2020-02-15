@@ -33,10 +33,10 @@ function blink()
 {
     GPIO.digitalWrite(0x0002, GPIO.HIGH);
     Serial.print("Blink on\n");
-    System.delay(200);
+    System.delay(0.2);
     GPIO.digitalWrite(2, GPIO.LOW);
     Serial.print("Blink off\n");
-    System.delay(200); // wait a bit
+    System.delay(0.2); // wait a bit
 }
 
 var a = b * c + d * e;
