@@ -22,7 +22,6 @@ private:
     static constexpr uint32_t DownbeatMs = 50;
 
     bool _upbeat = false;
-    NativeTask _task;
 };
 
 }

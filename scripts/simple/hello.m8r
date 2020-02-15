@@ -23,9 +23,14 @@ function processLine(line)
     }
 }
 
+var t = new Timer(0.1, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
+t.start();
+
 var i = 0;
 while (i < 3) {
     print("Hello World\n");
     delay(0.5);
     i++;
 }
+
+delay(5);

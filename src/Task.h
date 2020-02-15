@@ -26,24 +26,15 @@ class TaskBase : public OrderedList<TaskBase, Time>::Item {
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
-    enum class Behavior { Once, Repeating };
-    
-    ~TaskBase()
+    virtual ~TaskBase()
     {
         system()->taskManager()->terminate(this);
     }
     
-    void run(const FinishCallback& cb = nullptr, Duration duration = 0_sec, Behavior behavior = Behavior::Once)
-    {
-        _finishCB = cb;
-        _duration = (behavior == Behavior::Repeating) ? duration : 0_sec;
-        system()->taskManager()->yield(this, duration);
-    }
-
-    Duration duration() const { return _duration; }
-    
-    void yield() { system()->taskManager()->yield(this); }
+    void yield(Duration duration) { system()->taskManager()->yield(this, duration); }
     void terminate() { system()->taskManager()->terminate(this); }
+    
+    virtual Duration duration() const { return 0_sec; }
 
     Error error() const { return _error; }
 
@@ -53,12 +44,9 @@ protected:
     Error _error = Error::Code::OK;
 
 private:
-    void finish();
+    virtual void finish() = 0;
     
     virtual CallReturnValue execute() = 0;
-    
-    FinishCallback _finishCB;
-    Duration _duration = 0_sec; // If any value other than 0, this is a repeating task
 };
 
 class Task : public NativeObject, public TaskBase {
@@ -70,6 +58,12 @@ public:
     bool init(const Stream&);
     bool init(const char* filename);
     
+    void run(const FinishCallback& cb = nullptr)
+    {
+        _finishCB = cb;
+        yield(0_sec);
+    }
+
     void receivedData(const String& data, KeyAction action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f);
@@ -77,35 +71,22 @@ public:
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     
+    virtual void finish() override { if (_finishCB) _finishCB(this); }
+
 private:
     virtual CallReturnValue execute() override;
 
     Mad<ExecutionUnit> _eu;    
+    
+    FinishCallback _finishCB;
 };
 
 class TaskProto : public StaticObject {
 public:
-    TaskProto(bool isTimer);
+    TaskProto();
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue run(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    
-private:
-    bool _isTimer;
-};
-
-class NativeTask : public TaskBase {
-public:
-    using Function = std::function<CallReturnValue()>;
-    
-    NativeTask() { }
-    NativeTask(Function f) : _f(f) { }
-
-protected:
-private:
-    virtual CallReturnValue execute() { return _f(); }
-
-    Function _f;
 };
 
 }

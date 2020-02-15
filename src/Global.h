@@ -17,6 +17,7 @@
 #include "Object.h"
 #include "SystemTime.h"
 #include "Task.h"
+#include "Timer.h"
 #include "TCP.h"
 
 namespace m8r {
@@ -35,7 +36,7 @@ public:
     static IPAddrProto _ipAddr;
     static Iterator _iterator;
     static TaskProto _task;
-    static TaskProto _timer;
+    static TimerProto _timer;
     static FSProto _fs;
     static FileProto _file;
     static DirectoryProto _directory;

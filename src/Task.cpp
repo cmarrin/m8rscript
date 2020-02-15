@@ -28,13 +28,6 @@
 
 using namespace m8r;
 
-void TaskBase::finish()
-{
-    if (_finishCB) {
-        _finishCB(this);
-    }
-}
-
 Task::Task()
 {
     _eu = Mad<ExecutionUnit>::create();
@@ -125,17 +118,9 @@ static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
     { SA::run, TaskProto::run },
 };
 
-static StaticObject::StaticProperty _props[] =
-{
-    { SA::Once, Value(static_cast<int32_t>(Task::Behavior::Once)) },
-    { SA::Repeating, Value(static_cast<int32_t>(Task::Behavior::Repeating)) },
-};
-
-TaskProto::TaskProto(bool isTimer)
-    : _isTimer(isTimer)
+TaskProto::TaskProto()
 {
     setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
-    setProperties(_props, sizeof(_props) / sizeof(StaticProperty));
 }
 
 CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -220,23 +205,9 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
 
 CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    // 3 forms of this call:
-    //
     //      1) run(function)
-    //                  - call function when task finishes
-    //
-    //      2) run(timeout, function)
-    //                  - Delay executing task until timeout expires, then behave like (1)
-    //
-    //      3) run(timeout, {Task.Once, Task.Repeating}, function)
-    //                  - Delay like in (2), but if Task.Repeating then after function is called
-    //                    wait for timeout seconds again then call function. Keep doing this until
-    //                    stopped
-    //
-    // In the case of (3), the task is executed on every repetition. When used as a repeating timer
-    // the Task is typically created with no file, so it will do nothing when it executes
     
-    if (nparams == 0 || nparams > 3) {
+    if (nparams > 1) {
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
@@ -247,32 +218,20 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     Value func;
-    Value timeoutValue;
-    bool repeating = false;
-    
     if (nparams == 1) {
         func = eu->stack().top(1 - nparams);
-    } else if (nparams == 2) {
-        timeoutValue = eu->stack().top(1 - nparams);
-        func = eu->stack().top(2 - nparams);
-    } else {
-        timeoutValue = eu->stack().top(1 - nparams);
-        repeating = eu->stack().top(2 - nparams).toIntValue(eu) == static_cast<int32_t>(Task::Behavior::Repeating);
-        func = eu->stack().top(3 - nparams);
     }
     
     // Store func so it doesn't get gc'ed
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetPropertyType::AddIfNeeded);
     
-    Duration timeout(timeoutValue.toFloatValue(eu));
-
     task->run([eu, func](TaskBase* task)
     {
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
             eu->fireEvent(func, Value(), &arg, 1);
         }
-    }, timeout, repeating ? Task::Behavior::Repeating : Task::Behavior::Once);
+    });
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
