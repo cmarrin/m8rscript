@@ -74,7 +74,7 @@ void MacUDP::init(uint16_t port, EventFunction func)
     }
 
     String queueName = "UDPSocketQueue-";
-    queueName += String::toString(_socketFD);
+    queueName += String(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
     
     struct sockaddr_in sa;

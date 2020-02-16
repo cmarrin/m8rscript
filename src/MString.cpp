@@ -222,7 +222,7 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8
     return true;
 }
 
-String String::toString(Float value, uint8_t decimalDigits)
+String::String(Float value, uint8_t decimalDigits)
 {
     //          sign    digits  dp      'e'     dp      exp     '\0'
     char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
@@ -236,24 +236,24 @@ String String::toString(Float value, uint8_t decimalDigits)
     } else {
         ::toString(buf, mantissa, exp, decimalDigits);
     }
-    return String(buf);
+    *this = String(buf);
 }
 
-String String::toString(uint32_t value)
+String::String(uint32_t value)
 {
     char buf[12];
     int16_t exp = 0;
     ::toString(buf, value, exp, 0);
-    return String(buf);
+    *this = String(buf);
 }
 
-String String::toString(int32_t value)
+String::String(int32_t value)
 {
     String s;
     if (value < 0) {
-        return String('-') + toString(static_cast<uint32_t>(-value));
+        *this = String('-') + String(static_cast<uint32_t>(-value));
     } else {
-        return toString(static_cast<uint32_t>(value));
+        *this = String(static_cast<uint32_t>(value));
     }
 }
 
@@ -317,13 +317,13 @@ String String::prettySize(uint32_t size, uint8_t decimalDigits)
     m8r::String s;
     
     if (size < 1000) {
-        return String::toString(size) + ' ';
+        return String(size) + ' ';
     } else if (size < 1000000) {
-        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000), decimalDigits) + " K";
+        return String(Float(static_cast<int32_t>(size)) / Float(1000), decimalDigits) + " K";
     } else if (size < 1000000000) {
-        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000), decimalDigits) + " M";
+        return String(Float(static_cast<int32_t>(size)) / Float(1000000), decimalDigits) + " M";
     } else {
-        return String::toString(Float(static_cast<int32_t>(size)) / Float(1000000000), decimalDigits) + " G";
+        return String(Float(static_cast<int32_t>(size)) / Float(1000000000), decimalDigits) + " G";
     }
 }
 
@@ -500,7 +500,7 @@ String String::vformat(const char* fmt, va_list args)
     String s = fformat(fmt, [&args](String::FormatType type, String& s) {
         switch(type) {
             case String::FormatType::Int:
-                s = String::toString(static_cast<int32_t>(va_arg(args, int)));
+                s = String(static_cast<int32_t>(va_arg(args, int)));
                 return;
             case String::FormatType::String:
                 s = String(va_arg(args, const char*));

@@ -53,10 +53,10 @@ IPAddr::IPAddr(const String& ipString)
 
 String IPAddr::toString() const
 {
-    return String::toString(_addr[0]) + "." +
-           String::toString(_addr[1]) + "." +
-           String::toString(_addr[2]) + "." +
-           String::toString(_addr[3]);
+    return String(_addr[0]) + "." +
+           String(_addr[1]) + "." +
+           String(_addr[2]) + "." +
+           String(_addr[3]);
 }
 
 CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

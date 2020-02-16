@@ -40,7 +40,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
     }
     
     String queueName = "TCPQueue-";
-    queueName += String::toString(_socketFD);
+    queueName += String(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
 
     struct sockaddr_in sa;

@@ -162,7 +162,7 @@ String Telnet::makeInputLine()
         s += "\e[";
         
         // TODO: Need to move all this string processing stuff to String class
-        s += String::toString(_position);
+        s += String(_position);
         s += "C";
     }
     return s;

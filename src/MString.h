@@ -82,6 +82,10 @@ public:
         _size = 2;
     }
     
+    String(Float value, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
+    String(int32_t value);
+    String(uint32_t value);
+
     ~String() { _data.destroy(); _destroyed = true; };
     
     String& operator=(ROMString other)
@@ -250,9 +254,6 @@ public:
     
     void reserve(uint16_t size) { ensureCapacity(size); }
     
-    static String toString(Float value, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
-    static String toString(int32_t value);
-    static String toString(uint32_t value);
     static bool toFloat(Float&, const char*, bool allowWhitespace = true);
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);

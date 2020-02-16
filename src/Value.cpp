@@ -26,8 +26,8 @@ m8r::String Value::toStringValue(ExecutionUnit* eu) const
             Mad<Object> obj = asObject();
             return obj.valid() ? obj->toString(eu) : String("null");
         }
-        case Type::Float: return String::toString(asFloatValue());
-        case Type::Integer: return String::toString(asIntValue());
+        case Type::Float: return String(asFloatValue());
+        case Type::Integer: return String(asIntValue());
         default: return String();
     }
 }
@@ -135,13 +135,13 @@ String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
     return String::fformat(format.c_str(), [eu, &nextParam](String::FormatType type, String& s) {
         switch(type) {
             case String::FormatType::Int:
-                s = String::toString(eu->stack().top(nextParam++).toIntValue(eu));
+                s = String(eu->stack().top(nextParam++).toIntValue(eu));
                 return;
             case String::FormatType::String:
                 s = eu->stack().top(nextParam++).toStringValue(eu);
                 return;
             case String::FormatType::Float:
-                s = String::toString(eu->stack().top(nextParam++).toFloatValue(eu));
+                s = String(eu->stack().top(nextParam++).toFloatValue(eu));
                 return;
             case String::FormatType::Ptr: {
                 // return a string showing <type>(value)

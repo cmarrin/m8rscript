@@ -35,7 +35,7 @@ void CodePrinter::preamble(String& s, uint32_t addr, bool indent) const
             ++_nestingLevel;
         }
         s += "LINENO[";
-        s += String::toString(_lineno);
+        s += String(_lineno);
         s += "]\n";
     }
     
@@ -52,7 +52,7 @@ void CodePrinter::preamble(String& s, uint32_t addr, bool indent) const
         ++_nestingLevel;
     }
     s += "LABEL[";
-    s += String::toString(uniqueID);
+    s += String(uniqueID);
     s += "]\n";
     if (indent) {
         indentCode(s);
@@ -91,15 +91,15 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
 String CodePrinter::regString(const Mad<Program> program, const Mad<Object> function, uint8_t reg, const Value& constant, bool up) const
 {
     if (up) {
-        return String("U[") + String::toString(reg) + "]";
+        return String("U[") + String(reg) + "]";
     }
     if (reg <= MaxRegister) {
-        return String("R[") + String::toString(reg) + "]";
+        return String("R[") + String(reg) + "]";
     }
     
     reg -= MaxRegister + 1;
     
-    String s = String("K[") + String::toString(reg) + "](";
+    String s = String("K[") + String(reg) + "](";
     
     showConstant(program, s, constant, true);
     s += ")";
@@ -145,13 +145,13 @@ void CodePrinter::generateRRR(const Mad<Program> program, const Mad<Object> func
 void CodePrinter::generateRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + String::toString(byteFromCode(code)) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + String(byteFromCode(code)) + "\n";
 }
 
 void CodePrinter::generateRRParams(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
 {
     preamble(str, addr);
-    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + ", " + String::toString(byteFromCode(code)) + "\n";
+    str += String(stringFromOp(op)) + " " + regString(program, function, code) + ", " + regString(program, function, code) + ", " + String(byteFromCode(code)) + "\n";
 }
 
 void CodePrinter::generateJumpAddr(m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
@@ -159,7 +159,7 @@ void CodePrinter::generateJumpAddr(m8r::String& str, uint32_t addr, Op op, const
     preamble(str, addr);
     int16_t targetAddr = sNFromCode(code);
     uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr));
-    str += String(stringFromOp(op)) + " " + ((id == 0) ? "[???]" : (String("LABEL[") + String::toString(id) + "]")) + "\n";
+    str += String(stringFromOp(op)) + " " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
 }
 
 void CodePrinter::generateRJumpAddr(const Mad<Program> program, const Mad<Object> function, m8r::String& str, uint32_t addr, Op op, const uint8_t*& code) const
@@ -168,7 +168,7 @@ void CodePrinter::generateRJumpAddr(const Mad<Program> program, const Mad<Object
     String regstr = regString(program, function, code);
     int16_t targetAddr = sNFromCode(code);
     uint32_t id = findAnnotation(static_cast<uint32_t>(addr + targetAddr));
-    str += String(stringFromOp(op)) + " " + regstr + ", " + ((id == 0) ? "[???]" : (String("LABEL[") + String::toString(id) + "]")) + "\n";
+    str += String(stringFromOp(op)) + " " + regstr + ", " + ((id == 0) ? "[???]" : (String("LABEL[") + String(id) + "]")) + "\n";
 }
 
 m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Mad<Function> func, const char* functionName, uint32_t nestingLevel) const
@@ -294,7 +294,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         }
         
         indentCode(outputString);
-        outputString += "[" + String::toString(id.raw()) + "] = ";
+        outputString += "[" + String(id.raw()) + "] = ";
         showConstant(program, outputString, value);
         outputString += "\n";
     });
@@ -311,12 +311,12 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
 
         for (uint8_t i = 0; i < func->upValueCount(); ++i) {
             indentCode(outputString);
-            outputString += "[" + String::toString(i) + "] = ";
+            outputString += "[" + String(i) + "] = ";
             uint32_t index;
             uint16_t frame;
             Atom name;
             func->upValue(i, index, frame, name);
-            outputString += String("UP('") + program->stringFromAtom(name) + "':index=" + String::toString(index) + ", frame=" + String::toString(frame) + ")\n";
+            outputString += String("UP('") + program->stringFromAtom(name) + "':index=" + String(index) + ", frame=" + String(frame) + ")\n";
         }
         _nestingLevel--;
         outputString += "\n";
@@ -379,11 +379,11 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
         DISPATCH;
     L_RET:
         preamble(outputString, pc);
-        outputString += String(stringFromOp(op)) + " " + String::toString(byteFromCode(currentAddr)) + "\n";
+        outputString += String(stringFromOp(op)) + " " + String(byteFromCode(currentAddr)) + "\n";
         DISPATCH;
     L_RETI:
         preamble(outputString, pc);
-        outputString += String(stringFromOp(op)) + " " + String::toString(imm) + "\n";
+        outputString += String(stringFromOp(op)) + " " + String(imm) + "\n";
         DISPATCH;
     L_JMP:
     {
@@ -474,8 +474,8 @@ void CodePrinter::showConstant(const Mad<Program> program, m8r::String& s, const
         case Value::Type::NativeObject: s += "NativeObject"; break;
         case Value::Type::Undefined: s += "Undefined"; break;
         case Value::Type::Null: s += "Null"; break;
-        case Value::Type::Float: s += "FLT(" + String::toString(value.asFloatValue()) + ")"; break;
-        case Value::Type::Integer: s += "INT(" + String::toString(value.asIntValue()) + ")"; break;
+        case Value::Type::Float: s += "FLT(" + String(value.asFloatValue()) + ")"; break;
+        case Value::Type::Integer: s += "INT(" + String(value.asIntValue()) + ")"; break;
         case Value::Type::String: s += "***String***"; break;
         case Value::Type::StringLiteral: {
             String lit = String(program->stringFromStringLiteral(value.asStringLiteralValue()));
