@@ -31,6 +31,10 @@ public:
         _duration = duration;
         _repeating = behavior == Behavior::Repeating;
         _cb = cb;
+
+#ifndef NDEBUG
+        _name = String::format("Task(%p)", this);
+#endif
         return true;
     }
     

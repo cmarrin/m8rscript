@@ -16,7 +16,7 @@
 
 #ifndef NDEBUG
 #ifdef __APPLE__
-#define PRINT_CODE
+//#define PRINT_CODE
 #endif
 #endif
 
@@ -53,7 +53,11 @@ bool Task::init(const char* filename)
     }
     
     bool ret = init(FileStream(file));
-    
+
+#ifndef NDEBUG
+    _name = String::format("Task:%s(%p)", filename, this);
+#endif
+
     if (file->error() != Error::Code::OK) {
         _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description());
     }
@@ -64,9 +68,10 @@ bool Task::init(const char* filename)
 
 bool Task::init(const Stream& stream)
 {
-#ifdef NO_PARSER_SUPPORT
-    return false;
-#else
+    #ifndef NDEBUG
+        _name = String::format("Task(%p)", this);
+    #endif
+
     // See if we can parse it
     ParseErrorList errorList;
     Parser parser;
@@ -89,7 +94,6 @@ bool Task::init(const Stream& stream)
         
     _eu->startExecution(parser.program());
     return true;
-#endif
 }
 
 void Task::receivedData(const String& data, KeyAction action)
@@ -179,7 +183,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     String path;
     if (!filename.empty()) {
-        FS::findPath(eu, filename, env);
+        path = FS::findPath(eu, filename, env);
     }
     
     Mad<Task> task = Mad<Task>::create();

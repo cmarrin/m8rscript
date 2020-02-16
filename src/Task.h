@@ -38,15 +38,23 @@ public:
 
     Error error() const { return _error; }
 
+#ifndef NDEBUG
+    const String& name() const { return _name; }
+#endif
+
 protected:
     TaskBase() { }
     
     Error _error = Error::Code::OK;
 
+#ifndef NDEBUG
+    String _name;
+#endif
+
 private:
     virtual void finish() = 0;
     
-    virtual CallReturnValue execute() = 0;
+    virtual CallReturnValue execute() = 0;    
 };
 
 class Task : public NativeObject, public TaskBase {
