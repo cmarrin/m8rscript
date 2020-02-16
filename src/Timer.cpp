@@ -50,7 +50,7 @@ TimerProto::TimerProto()
 CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // duration, {Once/Repeating}, callback
-    //              or
+    //          or
     // duration, callback
     
     if (nparams < 2 || nparams > 3) {
@@ -78,15 +78,18 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetPropertyType::AddIfNeeded);
     
     Mad<Timer> timer = Mad<Timer>::create();
-    timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [eu, func](TaskBase* task)
+    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetPropertyType::AlwaysAdd);
+
+    timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [timer, eu, func](TaskBase* task)
     {
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
             eu->fireEvent(func, Value(), &arg, 1);
+            if (timer->repeating()) {
+                timer->start();
+            }
         }
     });
-    
-    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -102,7 +105,8 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
     if (retval.error() != CallReturnValue::Error::Ok) {
         return retval;
     }
-    
+
+printf("***** Timer start:%p\n", timer.get());
     timer->start();
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
