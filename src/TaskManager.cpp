@@ -50,9 +50,8 @@ void TaskManager::executeNextTask()
     TaskBase* task = _list.front();
     _list.pop_front();
     
-uint64_t t = static_cast<uint64_t>(Time::now());
-uint64_t key = static_cast<uint64_t>(task->key());
-printf("***** executeNextTask: %lld - executing %p, key=%lld\n", t, task, key);
+printf("***** executeNextTask: t=%s - executing %s at %s\n", 
+        Time::now().toString().c_str(), task->name().c_str(), task->key().toString().c_str());
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {

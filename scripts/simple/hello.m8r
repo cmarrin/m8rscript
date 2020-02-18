@@ -23,14 +23,14 @@ function processLine(line)
     }
 }
 
-var t = new Timer(1, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
-t.start();
+//var t = new Timer(1, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
+//t.start();
 
 var i = 0;
 while (i < 10) {
     print("Hello World\n");
-    delay(5);
+    delay(1);
     i++;
 }
 
-delay(5);
+delay(1);

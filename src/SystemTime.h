@@ -15,6 +15,8 @@
 
 namespace m8r {
 
+class String;
+
 // A Duration is a 32 bit number representing time. The upper 30 bits
 // is an integer value. The lower 2 bits represents the units of the value:
 //
@@ -110,6 +112,19 @@ public:
         }
         return v;
     }
+    
+    Float toFloat() const
+    {
+        Float f(_value >> Shift);
+        switch (units()) {
+            case Units::us: f /= Float(1000); break;
+            case Units::sec: f *= Float(1000); break;
+            default: break;
+        }
+        return f;
+    }
+    
+    String toString(Duration::Units = Duration::Units::ms, uint8_t decimalDigits = 2) const;
 
 private:
     Units units() const { return static_cast<Units>(_value & UnitsMask); }
@@ -127,6 +142,20 @@ static inline Duration operator "" _sec(uint64_t v) { return Duration(v, Duratio
 class Time
 {
 public:
+    enum class DayOfWeek : uint8_t { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
+    
+    struct Elements
+    {
+        uint32_t us;
+        int16_t year;
+        int8_t month;
+        int8_t day;
+        int8_t hour;
+        int8_t minute;
+        int8_t second;
+        DayOfWeek dayOfWeek;
+    };
+    
     Time() { }
     Time(const Time& other) : _value(other) { }
 
@@ -149,6 +178,10 @@ public:
     bool operator>=(const Time& other) const { return _value >= other._value; }
     
     operator uint64_t () const { return _value; }
+
+    String toString() const;
+    
+    void elements(Elements&) const;
 
 private:
     Time(uint64_t t) : _value(t) { }
