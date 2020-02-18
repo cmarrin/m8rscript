@@ -127,27 +127,29 @@ public:
         NativeObject = 28,
     };
     
+    static constexpr auto ValueMask = 0x03;
+    
     void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
     void copy(const Value& other) { memcpy(_value._raw, other._value._raw, sizeof(_value._raw)); }
 
     Value() { init(); _value._type = Type::Undefined; }
     
     explicit Value(Float value) {
-        _value._float = value.raw() & ~0x03;
+        _value._float = value.raw() & ~ValueMask;
         _value._float |= static_cast<Float::decompose_type>(Type::Float);
     }
     
     explicit Value(NativeFunction value)
     {
         assert(value);
-        assert((reinterpret_cast<intptr_t>(value) & 0x03) == 0);
+        assert((reinterpret_cast<intptr_t>(value) & ValueMask) == 0);
         _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::NativeFunction);
     }
 
     explicit Value(StaticObject* value)
     {
         assert(value);
-        assert((reinterpret_cast<intptr_t>(value) & 0x03) == 0);
+        assert((reinterpret_cast<intptr_t>(value) & ValueMask) == 0);
         _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::StaticObject);
     }
 
@@ -175,7 +177,7 @@ public:
 
     ~Value() { }
     
-    Type type() const { return ((_value._float & 0x03) == 0) ? _value._type : static_cast<Type>(_value._float & 0x03); }
+    Type type() const { return ((_value._float & ValueMask) == 0) ? _value._type : static_cast<Type>(_value._float & ValueMask); }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -275,15 +277,19 @@ private:
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
 
-    inline Float floatFromValue() const { return Float(static_cast<Float::decompose_type>(_value._float & ~1)); }
+    inline Float floatFromValue() const
+    {
+        Float::Raw raw(_value._float & ~3);
+        return Float(raw);
+    }
     inline int32_t int32FromValue() const { return _value._int; }
     inline uint32_t uint32FromValue() const { return _value._int; }
     inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
     inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
     inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
-    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~0x03); }
-    inline StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
-    inline const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~0x03); }
+    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~ValueMask); }
+    inline StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
+    inline const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
     inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
 
     inline StringLiteral stringLiteralFromValue() const
@@ -301,7 +307,7 @@ private:
     // lowest 2 bits means you lose 2 bits of precision.
     union {
         uint8_t _raw[8];
-        Float::decompose_type _float;
+        Float::value_type _float;
         intptr_t _intptr;
         struct {
             // TODO: type needs to be in the low order bytes of Value
