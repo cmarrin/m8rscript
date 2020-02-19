@@ -21,11 +21,6 @@
 
 static constexpr uint32_t StaticPort = 2222;
 
-uint64_t m8r::SystemInterface::currentMicroseconds()
-{
-    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
-}
-
 void* m8r::SystemInterface::alloc(MemoryType type, size_t size)
 {
     return ::malloc(size);

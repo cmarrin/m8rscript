@@ -74,7 +74,6 @@ public:
     void runLoop();
 
 private:
-    static uint64_t currentMicroseconds();
     std::function<void(const char*)> _listenerFunc;
 };
 

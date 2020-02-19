@@ -11,12 +11,14 @@
 
 #include "SystemInterface.h"
 #include <ctime>
+#include <chrono>
 
 using namespace m8r;
 
 Time Time::now()
 {
-    return Time(SystemInterface::currentMicroseconds());
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    return Time(std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
 String Time::toString() const

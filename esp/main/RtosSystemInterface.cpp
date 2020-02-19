@@ -167,11 +167,6 @@ private:
 
 extern uint64_t g_esp_os_us;
 
-uint64_t m8r::SystemInterface::currentMicroseconds()
-{
-    return g_esp_os_us;
-}
-
 static RtosSystemInterface _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }

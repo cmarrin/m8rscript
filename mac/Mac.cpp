@@ -103,12 +103,6 @@ private:
     m8r::MacTaskManager _taskManager;
 };
 
-uint64_t m8r::SystemInterface::currentMicroseconds()
-{
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
-}
-
 void m8r::heapInfo(void*& start, uint32_t& size)
 {
     static char heap[HeapSize];
