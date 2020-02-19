@@ -41,6 +41,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/TaskManager.o \
     $(SRC_DIR)/TCP.o \
     $(SRC_DIR)/Telnet.o \
+    $(SRC_DIR)/Timer.o \
     $(SRC_DIR)/UDP.o \
     $(SRC_DIR)/Value.o \
     $(SRC_DIR)/slre.o \

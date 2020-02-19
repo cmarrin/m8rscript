@@ -10,6 +10,7 @@
 #include "SystemTime.h"
 
 #include "SystemInterface.h"
+#include <ctime>
 
 using namespace m8r;
 
@@ -32,7 +33,7 @@ void Time::elements(Elements& elts) const
     elts.us = static_cast<uint32_t>(_value % 1000000);
     time_t currentSeconds = static_cast<time_t>(_value / 1000000);
 
-    struct tm* timeStruct = gmtime(&currentSeconds);
+    struct tm* timeStruct = localtime(&currentSeconds);
     elts.year = timeStruct->tm_year;
     elts.month = timeStruct->tm_mon;
     elts.day = timeStruct->tm_mday;

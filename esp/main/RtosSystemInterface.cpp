@@ -154,7 +154,7 @@ public:
         return Mad<TCP>();
     }
     
-    virtual Mad<UDP> createUDP(UDPDelegate* delegate, uint16_t port) override
+    virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) override
     {
         return Mad<UDP>();
     }
