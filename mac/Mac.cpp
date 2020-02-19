@@ -105,7 +105,8 @@ private:
 
 uint64_t m8r::SystemInterface::currentMicroseconds()
 {
-    return static_cast<uint64_t>(std::clock() * 1000000 / CLOCKS_PER_SEC);
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
 }
 
 void m8r::heapInfo(void*& start, uint32_t& size)
