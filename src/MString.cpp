@@ -257,6 +257,12 @@ String::String(int32_t value)
     }
 }
 
+String::String(void* value)
+{
+    // Convert to a uint32_t. This will truncate the pointer on Mac
+    *this = String::format("0x%08x", static_cast<uint32_t>(reinterpret_cast<intptr_t>(value)));
+}
+
 bool String::toFloat(Float& f, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
@@ -510,9 +516,7 @@ String String::vformat(const char* fmt, va_list args)
                 //s = String::toString(Float(va_arg(args, double)));
                 return;
             case String::FormatType::Ptr: {
-                // TODO: Implement
-                va_arg(args, void*);
-                s = "*Not Implemented*";
+                s = String(va_arg(args, void*));
                 return;
             default:
                 s = "UNKNOWN";

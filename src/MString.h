@@ -82,9 +82,10 @@ public:
         _size = 2;
     }
     
-    String(Float value, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
-    String(int32_t value);
-    String(uint32_t value);
+    String(Float, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
+    String(int32_t);
+    String(uint32_t);
+    String(void*);
 
     ~String() { _data.destroy(); _destroyed = true; };
     
