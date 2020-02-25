@@ -7,7 +7,7 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Mac.h"
+#include "MacSystemInterface.h"
 
 #include "GPIOInterface.h"
 #include "MacTaskManager.h"
@@ -26,6 +26,11 @@ using namespace m8r;
 class MacSystemInterface : public m8r::SystemInterface
 {
 public:
+    MacSystemInterface()
+    {
+        srand(static_cast<uint32_t>(time(nullptr)));
+    }
+    
     virtual void vprintf(m8r::ROMString s, va_list args) const override
     {
         m8r::String ss(s);

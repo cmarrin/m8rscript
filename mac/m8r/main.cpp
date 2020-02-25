@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "Mac.h"
+#include "MacSystemInterface.h"
 #include "Application.h"
 
 static void usage(const char* name)
@@ -44,10 +44,7 @@ int main(int argc, char * argv[])
             default : break;
         }
     }
-    
-    // Seed the random number generator
-    srand(static_cast<uint32_t>(time(nullptr)));
-    
+        
     m8r::initMacFileSystem(fsFile);
     m8r::Application::mountFileSystem();
     
