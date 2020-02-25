@@ -17,7 +17,7 @@ using namespace m8r;
 
 Time Time::now()
 {
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     return Time(std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
