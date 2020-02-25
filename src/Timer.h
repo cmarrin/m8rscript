@@ -33,7 +33,7 @@ public:
         _cb = cb;
 
 #ifndef NDEBUG
-        _name = String::format("Task(%p)", this);
+        _name = String::format("Timer:%s %s(%p)", _duration.toString().c_str(), _repeating ? "repeating" : "once", this);
 #endif
         return true;
     }
