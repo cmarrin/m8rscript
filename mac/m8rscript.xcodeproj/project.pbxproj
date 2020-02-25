@@ -280,7 +280,7 @@
 		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
-		497DC63423A5771A00748031 /* rtos.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = rtos.mk; path = ../esp/rtos.mk; sourceTree = "<group>"; };
+		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497DC63623A5835100748031 /* m8rscript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = m8rscript.cpp; path = ../esp/main/m8rscript.cpp; sourceTree = "<group>"; };
 		497DC63823A5849E00748031 /* sdkconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sdkconfig; path = ../esp/sdkconfig; sourceTree = "<group>"; };
 		497DC63D23A58A7F00748031 /* component.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = component.mk; path = ../esp/main/component.mk; sourceTree = "<group>"; };
@@ -567,7 +567,7 @@
 				49956B3723AEC06F000DF8A9 /* RtosTaskManager.cpp */,
 				49956B3623AEC06F000DF8A9 /* RtosTaskManager.h */,
 				497DC63D23A58A7F00748031 /* component.mk */,
-				497DC63423A5771A00748031 /* rtos.mk */,
+				497DC63423A5771A00748031 /* Makefile */,
 				497DC63623A5835100748031 /* m8rscript.cpp */,
 				497DC63823A5849E00748031 /* sdkconfig */,
 			);
