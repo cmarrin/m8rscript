@@ -23,8 +23,8 @@ function processLine(line)
     }
 }
 
-//var t = new Timer(1, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
-//t.start();
+var t = new Timer(3, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
+t.start();
 
 var i = 0;
 while (i < 10) {
