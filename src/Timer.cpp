@@ -105,7 +105,6 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
-printf("***** Timer start:%p\n", timer.get());
     timer->start();
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
