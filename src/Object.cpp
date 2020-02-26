@@ -18,12 +18,6 @@
 
 using namespace m8r;
 
-void NativeObject::operator delete(void* p)
-{
-    Mad<NativeObject> mad(reinterpret_cast<NativeObject*>(p));
-    mad.destroy();
-}
-
 void Object::operator delete(void* p)
 {
     Mad<Object> mad(reinterpret_cast<Object*>(p));

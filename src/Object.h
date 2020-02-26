@@ -163,8 +163,6 @@ class ObjectFactory;
 class NativeObject {
 public:
     static MemoryType memoryType() { return MemoryType::Native; }
-
-    void operator delete(void* p);
     
     NativeObject() { }
     virtual ~NativeObject() { }
