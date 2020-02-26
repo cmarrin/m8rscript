@@ -180,8 +180,9 @@ void Application::runLoop()
             }
             _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
         });
-        _autostartTask->run([](m8r::TaskBase*) {
+        _autostartTask->run([this](m8r::TaskBase*) {
             m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
+            _autostartTask.destroy();
         });    
     }
     

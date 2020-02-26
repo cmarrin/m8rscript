@@ -38,6 +38,7 @@ Task::~Task()
 {
     GC::removeEU(_eu.raw());
     _eu.destroy(MemoryType::ExecutionUnit);
+    GC::gc();
 }
 
 bool Task::init(const char* filename)
