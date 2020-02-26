@@ -89,6 +89,13 @@ public:
 
     static CallReturnValue construct(const Value& proto, ExecutionUnit*, uint32_t nparams);
 
+    template<typename T>
+    Mad<T> getNative() const
+    {
+        Mad<NativeObject> nobj = property(Atom(SA::__nativeObject)).asNativeObject();
+        return Mad<T>(nobj.raw());
+    }
+
 protected:
     void setProto(const Value& val) { _proto = val; }
     Value proto() const { return _proto; }
@@ -169,22 +176,6 @@ public:
 
     virtual void gcMark() { }
 };
-
-template<typename T>
-CallReturnValue getNative(Mad<T>& nativeObj, ExecutionUnit* eu, Value thisValue)
-{
-    Mad<Object> obj = thisValue.asObject();
-    if (!obj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::MissingThis);
-    }
-    
-    Mad<NativeObject> nobj = obj->property(Atom(SA::__nativeObject)).asNativeObject();
-    nativeObj = Mad<T>(nobj.raw());
-    if (!nativeObj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
-    }
-    return CallReturnValue(CallReturnValue::Error::Ok);
-}
 
 class ObjectFactory {
 public:    
