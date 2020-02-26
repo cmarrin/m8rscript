@@ -100,10 +100,9 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Timer> timer;
-    CallReturnValue retval = getNative(timer, eu, thisValue);
-    if (retval.error() != CallReturnValue::Error::Ok) {
-        return retval;
+    Mad<Timer> timer = thisValue.isObject() ? thisValue.asObject()->getNative<Timer>() : Mad<Timer>();
+    if (!timer.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
 printf("***** Timer start:%p\n", timer.get());
@@ -118,12 +117,11 @@ CallReturnValue TimerProto::stop(ExecutionUnit* eu, Value thisValue, uint32_t np
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Timer> timer;
-    CallReturnValue retval = getNative(timer, eu, thisValue);
-    if (retval.error() != CallReturnValue::Error::Ok) {
-        return retval;
+    Mad<Timer> timer = thisValue.isObject() ? thisValue.asObject()->getNative<Timer>() : Mad<Timer>();
+    if (!timer.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     timer->stop();
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);

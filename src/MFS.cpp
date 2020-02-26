@@ -173,24 +173,22 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
 
 CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file;
-    CallReturnValue ret = getNative(file, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
+    if (!file.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     file->close();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file;
-    CallReturnValue ret = getNative(file, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
+    if (!file.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     // Params: size ==> return String with data
     // TODO: How do we do binary?
     if (nparams != 1) {
@@ -231,10 +229,9 @@ CallReturnValue FileProto::eof(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue FileProto::valid(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file;
-    CallReturnValue ret = getNative(file, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
+    if (!file.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
     eu->stack().push(Value(file->valid()));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);

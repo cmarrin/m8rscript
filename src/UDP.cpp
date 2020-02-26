@@ -87,10 +87,9 @@ CallReturnValue UDPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    Mad<UDP> udp;
-    CallReturnValue ret = getNative(udp, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<UDP> udp = thisValue.isObject() ? thisValue.asObject()->getNative<UDP>() : Mad<UDP>();
+    if (!udp.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
     String ipString = eu->stack().top(1 - nparams).toStringValue(eu);
@@ -111,12 +110,11 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    Mad<UDP> udp;
-    CallReturnValue ret = getNative(udp, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<UDP> udp = thisValue.isObject() ? thisValue.asObject()->getNative<UDP>() : Mad<UDP>();
+    if (!udp.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     udp->disconnect();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

@@ -215,12 +215,11 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Task> task;
-    CallReturnValue retval = getNative(task, eu, thisValue);
-    if (retval.error() != CallReturnValue::Error::Ok) {
-        return retval;
+    Mad<Task> task = thisValue.isObject() ? thisValue.asObject()->getNative<Task>() : Mad<Task>();
+    if (!task.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     Value func;
     if (nparams == 1) {
         func = eu->stack().top(1 - nparams);

@@ -109,10 +109,9 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    Mad<TCP> tcp;
-    CallReturnValue ret = getNative(tcp, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->getNative<TCP>() : Mad<TCP>();
+    if (!tcp.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
     int16_t connectionId = eu->stack().top(1 - nparams).toIntValue(eu);
@@ -130,12 +129,11 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    Mad<TCP> tcp;
-    CallReturnValue ret = getNative(tcp, eu, thisValue);
-    if (ret.error() != CallReturnValue::Error::Ok) {
-        return ret;
+    Mad<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->getNative<TCP>() : Mad<TCP>();
+    if (!tcp.valid()) {
+        return CallReturnValue(CallReturnValue::Error::InternalError);
     }
-    
+
     int16_t connectionId = nparams ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     tcp->disconnect(connectionId);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
