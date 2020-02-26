@@ -51,6 +51,8 @@ public:
     { }
     virtual ~Object() { _isDestroyed = true; }
     
+    static MemoryType memoryType() { return MemoryType::Object; }
+
     void operator delete(void* p);
     
     template<typename T>

@@ -367,22 +367,22 @@ inline void Mad<uint8_t>::destroy()
     Mallocator::shared()->deallocate(MemoryType::Character, *this);
 }
 
-template<>
-inline void Mad<Object>::destroy()
-{
-    if (!valid()) {
-        return;
-    }
-    Mallocator::shared()->deallocate(MemoryType::Object, *this);
-}
-
-template<>
-inline void Mad<NativeObject>::destroy()
-{
-    if (!valid()) {
-        return;
-    }
-    Mallocator::shared()->deallocate(MemoryType::Native, *this);
-}
+//template<>
+//inline void Mad<Object>::destroy()
+//{
+//    if (!valid()) {
+//        return;
+//    }
+//    Mallocator::shared()->deallocate(MemoryType::Object, *this);
+//}
+//
+//template<>
+//inline void Mad<NativeObject>::destroy()
+//{
+//    if (!valid()) {
+//        return;
+//    }
+//    Mallocator::shared()->deallocate(MemoryType::Native, *this);
+//}
 
 }
