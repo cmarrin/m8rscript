@@ -384,7 +384,7 @@ Token Scanner::scanNumber(TokenType& tokenValue)
     scanDigits(number, hex);
     if (scanFloat(number, exp)) {
         Float f(number, exp);
-        tokenValue.number = static_cast<Float::Raw>(f);
+        tokenValue.number = f.raw();
         return Token::Float;
     }
     assert(exp == 0);

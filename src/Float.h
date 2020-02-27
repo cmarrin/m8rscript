@@ -169,8 +169,8 @@ public:
     _Float operator%=(const _Float& other) { *this = *this % other; return *this; }
     
     _Float floor() const { _Float r; r._value._raw = _value._raw >> BinaryExponent << BinaryExponent; return r; }
-    operator int32_t() const { return static_cast<int32_t>(_value._raw >> BinaryExponent); }
-    operator int64_t() const { return static_cast<int64_t>(_value._raw >> BinaryExponent); }
+    explicit operator int32_t() const { return static_cast<int32_t>(_value._raw >> BinaryExponent); }
+    explicit operator int64_t() const { return static_cast<int64_t>(_value._raw >> BinaryExponent); }
 
     void decompose(decompose_type& mantissa, int16_t& exponent) const
     {        
