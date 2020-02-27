@@ -50,6 +50,8 @@ void TaskManager::executeNextTask()
     TaskBase* task = _list.front();
     _list.pop_front();
     
+    printf("***** executeNextTask: t=%s - executing %s at %s\n", 
+    Time::now().toString().c_str(), task->name().c_str(), task->key().toString().c_str());
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {
