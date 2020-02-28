@@ -164,11 +164,11 @@ void Application::runLoop()
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
     }
     
-    Thread([] {
-        printf("*** thread start\n");
+    Thread([](int foo) {
+        printf("*** thread start %d\n", foo);
         usleep(1000000);
         printf("*** thread end\n");
-    }).join();
+    }, 5).detach();
     
     // If autostart is on, run the main program
     String filename = autostartFilename();

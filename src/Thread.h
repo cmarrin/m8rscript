@@ -10,6 +10,7 @@
 #pragma once
 
 #include <pthread.h>
+#include <functional>
 
 namespace m8r {
 
@@ -20,6 +21,8 @@ public:
     template< class Function, class... Args > 
     explicit Thread( Function&& f, Args&&... args )
     {
+        _lambda = [f, args...] { f(args...); };
+        pthread_create(&_thread, nullptr, threadFunc, this);
     }
     
     Thread(Thread&& other) { _thread = other._thread; other._thread = pthread_t(); }
@@ -27,10 +30,20 @@ public:
         
     ~Thread() { }
     
-    void join() { }
+    void join() { pthread_join(_thread, nullptr); }
+    void detach() { pthread_detach(_thread); }
 
 private:
+    static void* threadFunc(void* data)
+    {
+        Thread* t = reinterpret_cast<Thread*>(data);
+        t->_lambda();
+        return nullptr;
+    }
+    
+    std::function<void()> _lambda;
     pthread_t _thread = pthread_t();
+    
 };
 
 }
