@@ -11,6 +11,8 @@
 
 #include "SystemInterface.h"
 #include "Telnet.h"
+#include <pthread.h>
+#include <unistd.h>
 
 #ifdef MONITOR_TRAFFIC
 #include <string>
@@ -152,6 +154,14 @@ bool Application::mountFileSystem()
     return true;
 }
 
+void *threadFunc(void *)
+{
+    printf("*** thread start\n");
+    usleep(1000000);
+    printf("*** thread end\n");
+    return nullptr;
+}
+
 void Application::runLoop()
 {
     system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
@@ -161,6 +171,10 @@ void Application::runLoop()
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
     }
+    
+    pthread_t t;
+    pthread_create(&t, nullptr, threadFunc, nullptr);
+    pthread_join(t, nullptr);
     
     // If autostart is on, run the main program
     String filename = autostartFilename();
