@@ -11,7 +11,7 @@
 
 #include "Containers.h"
 #include "SystemInterface.h"
-#include "TaskManager.h"
+#include "Thread.h"
 #include <cstdint>
 #include <functional>
 
@@ -21,18 +21,25 @@ class ExecutionUnit;
 class String;
 
 class TaskBase : public OrderedList<TaskBase, Time>::Item {
-    friend class TaskManager;
-    
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
     virtual ~TaskBase()
     {
-        system()->taskManager()->terminate(this);
+        terminate();
     }
     
-    void yield(Duration duration) { system()->taskManager()->yield(this, duration); }
-    void terminate() { system()->taskManager()->terminate(this); }
+    void run(const FinishCallback& cb = nullptr)
+    {
+        _finishCB = cb;
+        _thread = Thread([this] {
+            execute();
+            finish();
+        });
+        _thread.detach();
+    }
+
+    void terminate() { }
     
     virtual Duration duration() const { return 0_sec; }
 
@@ -52,9 +59,12 @@ protected:
 #endif
 
 private:
-    virtual void finish() = 0;
+    void finish() { if (_finishCB) _finishCB(this); }
+        
+    virtual CallReturnValue execute() = 0;
     
-    virtual CallReturnValue execute() = 0;    
+    Thread _thread;
+    FinishCallback _finishCB;
 };
 
 class Task : public NativeObject, public TaskBase {
@@ -66,27 +76,17 @@ public:
     bool init(const Stream&);
     bool init(const char* filename);
     
-    void run(const FinishCallback& cb = nullptr)
-    {
-        _finishCB = cb;
-        yield(0_sec);
-    }
-
     void receivedData(const String& data, KeyAction action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f);
     void setConsoleListener(Value func);
 
     const ExecutionUnit* eu() const { return _eu.get(); }
-    
-    virtual void finish() override { if (_finishCB) _finishCB(this); }
 
 private:
     virtual CallReturnValue execute() override;
 
     Mad<ExecutionUnit> _eu;    
-    
-    FinishCallback _finishCB;
 };
 
 class TaskProto : public StaticObject {

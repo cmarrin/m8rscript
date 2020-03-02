@@ -10,7 +10,6 @@ COMPONENT_EXTRA_INCLUDES :=
 COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_OBJS := m8rscript.o \
     RtosSystemInterface.o \
-    RtosTaskManager.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \
     $(SRC_DIR)/Base64.o \
@@ -38,7 +37,6 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/SystemInterface.o \
     $(SRC_DIR)/SystemTime.o \
     $(SRC_DIR)/Task.o \
-    $(SRC_DIR)/TaskManager.o \
     $(SRC_DIR)/TCP.o \
     $(SRC_DIR)/Telnet.o \
     $(SRC_DIR)/Timer.o \

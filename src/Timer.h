@@ -12,7 +12,6 @@
 #include "Containers.h"
 #include "SystemInterface.h"
 #include "Task.h"
-#include "TaskManager.h"
 #include <cstdint>
 #include <functional>
 
@@ -46,7 +45,7 @@ public:
     void start();
     void stop();
     
-    virtual void finish() override { if (_cb) _cb(this); }
+    virtual void finish() { if (_cb) _cb(this); }
 
 private:
     virtual CallReturnValue execute() override { return CallReturnValue(CallReturnValue::Type::Finished); }

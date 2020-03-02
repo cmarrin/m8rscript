@@ -23,7 +23,6 @@ namespace m8r {
 
 class GPIOInterface;
 class FS;
-class TaskManager;
 class UDP;
 class UDPDelegate;
 
@@ -53,7 +52,6 @@ public:
     
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
-    virtual TaskManager* taskManager() = 0;
     virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction) = 0;
     virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) = 0;
     virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) = 0;

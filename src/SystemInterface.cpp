@@ -9,12 +9,13 @@
 
 #include "SystemInterface.h"
 
-#include "TaskManager.h"
-#include <mutex>
+#include <unistd.h>
 
 using namespace m8r;
 
 void SystemInterface::runLoop()
 {
-    taskManager()->runLoop();
+    while(1) {
+        usleep(50000);
+    }
 }
