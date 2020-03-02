@@ -21,7 +21,7 @@ public:
     template< class Function, class... Args > 
     explicit Thread( Function&& f, Args&&... args )
     {
-        _lambda = [f, args...] { f(args...); };
+        _lambda = std::bind(std::forward<Function>(f), std::forward<Args>(args)...);
         pthread_create(&_thread, nullptr, threadFunc, this);
     }
     
