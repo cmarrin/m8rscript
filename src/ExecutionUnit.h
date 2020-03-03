@@ -37,7 +37,7 @@ public:
 
     void startExecution(Mad<Program>);
     
-    CallReturnValue continueExecution();
+    CallReturnValue continueExecution(bool eventOnly);
     
     CallReturnValue import(const Stream&, Value);
     
@@ -101,13 +101,11 @@ private:
             _terminate = true;
             return Op::END;
         }
-        if ((++checkCounter & 0xff) == 0) {
-            if (_terminate) {
-                return Op::END;
-            }
-            if (checkCounter == 0) {
-                return Op::YIELD;
-            }
+        if (!_eventQueue.empty()) {
+            return Op::YIELD;
+        }
+        if (_terminate) {
+            return Op::END;
         }
         return opFromCode(_currentAddr, imm);
     }

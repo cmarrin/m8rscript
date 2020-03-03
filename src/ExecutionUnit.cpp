@@ -446,7 +446,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue ExecutionUnit::continueExecution()
+CallReturnValue ExecutionUnit::continueExecution(bool eventOnly)
 {
     #undef OP
     #define OP(op) &&L_ ## op,

@@ -13,6 +13,7 @@
 #include "GC.h"
 #include "MStream.h"
 #include "Parser.h"
+#include <unistd.h>
 
 #ifndef NDEBUG
 #ifdef __APPLE__
@@ -114,7 +115,29 @@ void Task::setConsoleListener(Value func)
 
 CallReturnValue Task::execute()
 {
-    return _eu->continueExecution();
+    bool eventOnly = false;
+    while (1) {
+        CallReturnValue returnValue = _eu->continueExecution(eventOnly);
+        eventOnly = false;
+        if (returnValue.isMsDelay()) {
+            Duration duration = returnValue.msDelay();
+            Thread([duration] {
+                usleep(static_cast<useconds_t>(duration.us()));
+                
+                // FIXME: What do we do when the delay is over?
+            });
+        } else if (returnValue.isYield()) {
+            continue;
+        } else if (returnValue.isTerminated()) {
+            return returnValue;
+        } else if (returnValue.isFinished()) {
+            return returnValue;
+        } else if (returnValue.isWaitForEvent()) {
+            // FIXME: Rather than polling we should use a semaphore that opens when an event is present
+            usleep(10000);
+            eventOnly = true;
+        }
+    }
 }
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
