@@ -23,6 +23,7 @@
 #include "SystemInterface.h"
 #include "esp_system.h"
 #include "spi_flash.h"
+#include "freertos/FreeRTOS.h"
 
 using namespace m8r;
 
