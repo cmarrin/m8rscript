@@ -27,7 +27,7 @@ String Time::toString() const
     elements(elts);
     
     // For now just show h:m:s.ms
-    return String::format("%d:%02d:%02d.%d", elts.hour, elts.minute, elts.second, elts.us / 1000);
+    return String::format("%d:%02d:%02d.%03d", elts.hour, elts.minute, elts.second, elts.us / 1000);
 }
 
 void Time::elements(Elements& elts) const
