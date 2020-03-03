@@ -502,6 +502,10 @@ CallReturnValue ExecutionUnit::continueExecution(bool eventOnly)
     uint8_t imm;
     Op op = Op::UNKNOWN;
     
+    if (eventOnly) {
+        goto L_YIELD;
+    }
+    
     DISPATCH;
     
     L_LINENO:

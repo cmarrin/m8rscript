@@ -116,16 +116,17 @@ void Task::setConsoleListener(Value func)
 CallReturnValue Task::execute()
 {
     bool eventOnly = false;
+    bool waitingForDelay = false;
     while (1) {
-        CallReturnValue returnValue = _eu->continueExecution(eventOnly);
+        CallReturnValue returnValue = _eu->continueExecution(eventOnly || waitingForDelay);
         eventOnly = false;
         if (returnValue.isMsDelay()) {
             Duration duration = returnValue.msDelay();
-            Thread([duration] {
+            waitingForDelay = true;
+            Thread([duration, &waitingForDelay] {
                 usleep(static_cast<useconds_t>(duration.us()));
-                
-                // FIXME: What do we do when the delay is over?
-            });
+                waitingForDelay = false;
+            }).detach();
         } else if (returnValue.isYield()) {
             continue;
         } else if (returnValue.isTerminated()) {
