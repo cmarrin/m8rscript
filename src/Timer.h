@@ -30,7 +30,7 @@ public:
     {
         _duration = duration;
         _repeating = behavior == Behavior::Repeating;
-        _cb = cb;
+        run(cb);
 
 #ifndef NDEBUG
         _name = String::format("Timer:%s %s(%p)", _duration.toString().c_str(), _repeating ? "repeating" : "once", this);
@@ -45,15 +45,12 @@ public:
     
     void start();
     void stop();
-    
-    virtual void finish() override { if (_cb) _cb(this); }
 
 private:
     virtual CallReturnValue execute() override { return CallReturnValue(CallReturnValue::Type::Finished); }
     
     Duration _duration = 0_sec;
     bool _repeating = false;
-    FinishCallback _cb;
 };
 
 class TimerProto : public StaticObject {

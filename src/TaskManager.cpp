@@ -20,16 +20,16 @@ static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
 static Duration TaskPollingRate = 50_ms;
 
 
-void TaskManager::yield(TaskBase* newTask, Duration delay)
+void TaskManager::run(TaskBase* newTask)
 {
     Time now = Time::now();
-    if (delay > MaxTaskDelay) {
-        delay = MaxTaskDelay;
-    } else if (delay < MinTaskDelay) {
-        delay = Duration();
-    }
+//    if (delay > MaxTaskDelay) {
+//        delay = MaxTaskDelay;
+//    } else if (delay < MinTaskDelay) {
+//        delay = Duration();
+//    }
     
-    Time timeToFire = now + delay;
+    Time timeToFire = now;
     
     _list.insert(newTask, timeToFire);
     
@@ -55,15 +55,15 @@ void TaskManager::executeNextTask()
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {
-        yield(task, returnValue.msDelay());
+        //yield(task, returnValue.msDelay());
     } else if (returnValue.isYield()) {
-        yield(task);
+        //yield(task);
     } else if (returnValue.isTerminated()) {
         task->finish();
     } else if (returnValue.isFinished()) {
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
-        yield(task, TaskPollingRate);
+        //yield(task, TaskPollingRate);
     }
 }
 

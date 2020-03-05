@@ -29,7 +29,7 @@ protected:
     TaskManager() { }
     virtual ~TaskManager() { }
     
-    void yield(TaskBase*, Duration = Duration());
+    void run(TaskBase*);
     
     void terminate(TaskBase*);
     

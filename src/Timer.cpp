@@ -20,7 +20,7 @@ using namespace m8r;
 
 void Timer::start()
 {
-    yield(_duration);
+    //yield(_duration);
 }
 
 void Timer::stop()
