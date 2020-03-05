@@ -11,6 +11,7 @@
 
 #include "SystemInterface.h"
 #include "Task.h"
+#include "Thread.h"
 #include <cassert>
 
 using namespace m8r;
@@ -22,52 +23,42 @@ static Duration TaskPollingRate = 50_ms;
 
 void TaskManager::run(TaskBase* newTask)
 {
-    Time now = Time::now();
-//    if (delay > MaxTaskDelay) {
-//        delay = MaxTaskDelay;
-//    } else if (delay < MinTaskDelay) {
-//        delay = Duration();
-//    }
-    
-    Time timeToFire = now;
-    
-    _list.insert(newTask, timeToFire);
+    _readyList.push_back(newTask);
     
     readyToExecuteNextTask();
 }
 
 void TaskManager::terminate(TaskBase* task)
 {
-    _list.remove(task);
+    _readyList.remove(task);
+    _waitEventList.remove(task);
 }
 
 void TaskManager::executeNextTask()
 {
-    if (_list.empty()) {
+    if (!ready()) {
         return;
     }
     
-    TaskBase* task = _list.front();
-    _list.pop_front();
+    TaskBase* task = _readyList.front();
+    _readyList.erase(_readyList.begin());
     
-    printf("***** executeNextTask: t=%s - executing %s at %s\n", 
-    Time::now().toString().c_str(), task->name().c_str(), task->key().toString().c_str());
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isMsDelay()) {
-        //yield(task, returnValue.msDelay());
+        Duration duration = returnValue.msDelay();
+        Thread([this, task, duration] {
+            duration.sleep();
+            _readyList.push_back(task);
+            readyToExecuteNextTask();
+        }).detach();
     } else if (returnValue.isYield()) {
-        //yield(task);
+        _readyList.push_back(task);
     } else if (returnValue.isTerminated()) {
         task->finish();
     } else if (returnValue.isFinished()) {
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
-        //yield(task, TaskPollingRate);
+        _waitEventList.push_back(task);
     }
-}
-
-Time TaskManager::nextTimeToFire() const
-{
-    return _list.empty() ? Time::longestTime() : _list.front()->key();
 }

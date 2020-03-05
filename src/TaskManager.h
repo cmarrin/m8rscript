@@ -35,8 +35,7 @@ protected:
     
     void executeNextTask();
     
-    bool empty() const { return _list.empty(); }
-    Time nextTimeToFire() const;
+    bool ready() const { return !_readyList.empty(); }
     
 private:
     virtual void runLoop() = 0;
@@ -44,8 +43,8 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     
-    OrderedList<TaskBase, Time> _list;
-    bool _eventPosted = false;
+    Vector<TaskBase*> _readyList;
+    Vector<TaskBase*> _waitEventList;
 };
 
 }

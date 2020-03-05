@@ -21,7 +21,7 @@ MacTaskManager::MacTaskManager()
         while (true) {
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
-                if (empty()) {
+                if (!ready()) {
                     _eventCondition.wait(lock);
                     if (_terminating) {
                         break;
@@ -29,22 +29,7 @@ MacTaskManager::MacTaskManager()
                 }
             }
             
-            Duration durationToNextEvent = nextTimeToFire() - Time::now();
-            if (durationToNextEvent <= Duration()) {
-                executeNextTask();
-            } else {
-                std::cv_status status;
-                {
-                    std::unique_lock<std::mutex> lock(_eventMutex);
-                    status = _eventCondition.wait_for(lock, std::chrono::milliseconds(durationToNextEvent.ms()));
-                }
-                if (_terminating) {
-                    break;
-                }
-                if (status == std::cv_status::timeout) {
-                    executeNextTask();
-                }
-            }
+            executeNextTask();
         }
     });
     _eventThread.swap(thread);
