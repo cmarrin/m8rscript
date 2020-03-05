@@ -45,8 +45,8 @@ void TaskManager::executeNextTask()
     
     CallReturnValue returnValue = task->execute();
     
-    if (returnValue.isMsDelay()) {
-        Duration duration = returnValue.msDelay();
+    if (returnValue.isDelay()) {
+        Duration duration = returnValue.delay();
         Thread([this, task, duration] {
             duration.sleep();
             _readyList.push_back(task);

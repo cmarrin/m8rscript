@@ -83,7 +83,7 @@ CallReturnValue Global::delay(ExecutionUnit* eu, Value thisValue, uint32_t npara
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    return CallReturnValue(CallReturnValue::Type::MsDelay, duration.ms());
+    return CallReturnValue(CallReturnValue::Type::Delay, duration.ms());
 }
 
 CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

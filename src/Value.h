@@ -44,11 +44,11 @@ public:
     static constexpr int32_t TerminatedValue = 1002;
     static constexpr int32_t WaitForEventValue = 1003;
     static constexpr int32_t YieldValue = 1004;
-    static constexpr int32_t MaxMsDelay = 6000000;
+    static constexpr int32_t MaxDelay = 6000000;
 
     static constexpr int32_t ErrorValue = 2000;
     
-    enum class Type { ReturnCount = 0, MsDelay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Yield };
+    enum class Type { ReturnCount = 0, Delay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Yield };
     
     enum class Error {
         Ok,
@@ -76,8 +76,8 @@ public:
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
         switch(type) {
-            case Type::MsDelay:
-                 assert(value <= MaxMsDelay);
+            case Type::Delay:
+                 assert(value <= MaxDelay);
                  
                  // If a 0 delay was passed, handle this like a yield
                  _value = (value == 0) ? YieldValue : -value;
@@ -100,8 +100,8 @@ public:
     bool isWaitForEvent() const { return _value == WaitForEventValue; }
     bool isYield() const { return _value == YieldValue; }
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
-    bool isMsDelay() const { return _value < 0 && _value >= -MaxMsDelay; }
-    Duration msDelay() const { assert(isMsDelay()); return Duration(-_value, Duration::Units::ms); }
+    bool isDelay() const { return _value < 0 && _value >= -MaxDelay; }
+    Duration delay() const { assert(isDelay()); return Duration(-_value, Duration::Units::ms); }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
     Error error() const { return isError() ? static_cast<Error>(_value - ErrorValue) : Error::Error; }
 

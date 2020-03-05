@@ -250,7 +250,7 @@ void ExecutionUnit::receivedData(const String& data, KeyAction action)
     }
 }
 
-// This function will only ever return MSDelay, Yield, WaitForEvent and Error.
+// This function will only ever return Delay, Yield, WaitForEvent and Error.
 // everything else is handled
 CallReturnValue ExecutionUnit::runNextEvent()
 {
@@ -916,7 +916,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         _stack.pop(uintValue);
         _stack.push(returnedValue);
-        if (callReturnValue.isMsDelay() || callReturnValue.isWaitForEvent()) {
+        if (callReturnValue.isDelay() || callReturnValue.isWaitForEvent()) {
             goto L_CHECK_EVENTS;
         }
         DISPATCH;
