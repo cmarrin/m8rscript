@@ -10,7 +10,6 @@
 #include "SystemInterface.h"
 
 #include "TaskManager.h"
-#include <mutex>
 
 using namespace m8r;
 
