@@ -68,8 +68,8 @@ private:
             , _lambda(std::move(func))
         { }
             
-        std::function<void()> _lambda;
         Thread* _thread;
+        std::function<void()> _lambda;
     };
     
     static void* threadFunc(void* data)

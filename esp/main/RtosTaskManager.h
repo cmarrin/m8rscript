@@ -31,7 +31,7 @@ private:
     static void executionTask(void*);
 
     TaskHandle_t _task = nullptr;
-
+    bool _terminating = false;
 };
 
 }

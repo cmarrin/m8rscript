@@ -22,6 +22,7 @@ RtosTaskManager::RtosTaskManager()
 RtosTaskManager::~RtosTaskManager()
 {
     // TODO: Destroy task
+    _terminating = true;
 }
 
 void RtosTaskManager::readyToExecuteNextTask()
@@ -35,15 +36,14 @@ void RtosTaskManager::executionTask(void* param)
     while (1) {
         Duration durationToNextEvent = NextEventDelay;
 
-        if (!taskManager->empty()) {
-            Time now = Time::now();
-            durationToNextEvent = taskManager->nextTimeToFire() - now;
-            if (durationToNextEvent <= MinEventDuration) {
-                taskManager->executeNextTask();
-                continue;
+        if (!taskManager->ready()) {
+            xTaskNotifyWait(0, 0, nullptr, 50000 / portTICK_PERIOD_MS);
+            if (taskManager->_terminating) {
+                break;
             }
         }
-        xTaskNotifyWait(0, 0, nullptr, durationToNextEvent.ms() / portTICK_PERIOD_MS);
+        
+        taskManager->executeNextTask();
     }
 }
 
