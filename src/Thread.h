@@ -16,6 +16,35 @@
 
 namespace m8r {
 
+class Mutex
+{
+public:
+    Mutex() { pthread_mutex_init(&_m, nullptr); }
+    Mutex(const Mutex&) = delete;
+    ~Mutex() { pthread_mutex_destroy(&_m); }
+    
+    Mutex& operator=(const Mutex&) = delete;
+    
+    void lock() { pthread_mutex_lock(&_m); }
+    bool try_lock() { return pthread_mutex_trylock(&_m) == 0; }
+    void unlock() { pthread_mutex_unlock(&_m); }
+    
+private:
+    pthread_mutex_t _m = pthread_mutex_t();
+};
+
+template<typename M>
+class Lock
+{
+public:
+    Lock(M& m) : _mutex(m) { _mutex.lock(); }
+    Lock(const Lock&) = delete;
+    ~Lock() { _mutex.unlock(); }
+
+private:
+    M _mutex;
+};
+
 class Thread {
 public:
     Thread() = default;
