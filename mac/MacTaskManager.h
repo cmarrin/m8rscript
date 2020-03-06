@@ -10,8 +10,8 @@
 #pragma once
 
 #include "TaskManager.h"
+#include "Thread.h"
 #include <condition_variable>
-#include <thread>
 
 namespace m8r {
 
@@ -25,7 +25,7 @@ private:
     
     virtual void readyToExecuteNextTask() override;
     
-    std::thread _eventThread;
+    Thread _eventThread;
     std::condition_variable _eventCondition;
     std::mutex _eventMutex;
     bool _terminating = false;

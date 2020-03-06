@@ -72,7 +72,7 @@ namespace m8r {
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
     
-    #include <thread>
+    #include <mutex>
 
     static std::mutex _gcLockMutex;
     static std::mutex _mallocatorLockMutex;

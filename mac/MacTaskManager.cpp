@@ -12,12 +12,13 @@
 #include "Defines.h"
 #include "SystemInterface.h"
 #include <cassert>
+#include <mutex>
 
 using namespace m8r;
 
 MacTaskManager::MacTaskManager()
 {
-    std::thread thread([this]{
+    Thread thread([this]{
         while (true) {
             {
                 std::unique_lock<std::mutex> lock(_eventMutex);
@@ -57,6 +58,6 @@ void MacTaskManager::runLoop()
         size_t size = 0;
         getline(&buffer, &size, stdin);
         system()->receivedLine(buffer);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        this_thread::sleep_for(50_ms);
     }
 }
