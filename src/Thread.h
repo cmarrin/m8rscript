@@ -18,6 +18,8 @@ namespace m8r {
 
 class Mutex
 {
+    friend class Lock;
+    
 public:
     Mutex() { pthread_mutex_init(&_m, nullptr); }
     Mutex(const Mutex&) = delete;
@@ -33,16 +35,43 @@ private:
     pthread_mutex_t _m = pthread_mutex_t();
 };
 
-template<typename M>
 class Lock
 {
+    friend class Condition;
+    
 public:
-    Lock(M& m) : _mutex(m) { _mutex.lock(); }
+    Lock(Mutex& m) : _mutex(m) { _mutex.lock(); }
     Lock(const Lock&) = delete;
     ~Lock() { _mutex.unlock(); }
 
 private:
-    M _mutex;
+    pthread_mutex_t& mutex() const { return _mutex._m; }
+    Mutex& _mutex;
+};
+
+class Condition
+{
+public:
+    Condition() { pthread_cond_init(&_c, nullptr); }
+    Condition(const Condition&) = delete;
+    ~Condition() { pthread_cond_destroy(&_c); }
+    
+    void notify(bool all = false)
+    {
+        if (all) {
+            pthread_cond_broadcast(&_c);
+        } else {
+            pthread_cond_signal(&_c);
+        }
+    }
+    
+    void wait(Lock& lock)
+    {
+        pthread_cond_wait(&_c, &lock.mutex());
+    }
+    
+private:
+    pthread_cond_t _c;
 };
 
 class Thread {
