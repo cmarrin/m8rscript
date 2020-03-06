@@ -23,6 +23,7 @@
 
 #else
 
+#include "Thread.h"
 #include <array>
 #include <cstdarg>
 #include <cstdint>
@@ -72,11 +73,9 @@ namespace m8r {
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
     
-    #include <mutex>
-
-    static std::mutex _gcLockMutex;
-    static std::mutex _mallocatorLockMutex;
-    static std::mutex _eventLockMutex;
+    static m8r::Mutex _gcLockMutex;
+    static m8r::Mutex _mallocatorLockMutex;
+    static m8r::Mutex _eventLockMutex;
 
     static inline void gcLock()              { _gcLockMutex.lock(); }
     static inline void gcUnlock()            { _gcLockMutex.unlock(); }

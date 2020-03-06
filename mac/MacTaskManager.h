@@ -11,7 +11,6 @@
 
 #include "TaskManager.h"
 #include "Thread.h"
-#include <condition_variable>
 
 namespace m8r {
 
@@ -26,8 +25,8 @@ private:
     virtual void readyToExecuteNextTask() override;
     
     Thread _eventThread;
-    std::condition_variable _eventCondition;
-    std::mutex _eventMutex;
+    Condition _eventCondition;
+    Mutex _eventMutex;
     bool _terminating = false;
 };
 

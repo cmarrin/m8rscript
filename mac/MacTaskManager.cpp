@@ -12,7 +12,6 @@
 #include "Defines.h"
 #include "SystemInterface.h"
 #include <cassert>
-#include <mutex>
 
 using namespace m8r;
 
@@ -21,7 +20,7 @@ MacTaskManager::MacTaskManager()
     Thread thread([this]{
         while (true) {
             {
-                std::unique_lock<std::mutex> lock(_eventMutex);
+                Lock lock(_eventMutex);
                 if (!ready()) {
                     _eventCondition.wait(lock);
                     if (_terminating) {
@@ -33,7 +32,9 @@ MacTaskManager::MacTaskManager()
             executeNextTask();
         }
     });
+    thread.detach();
     _eventThread.swap(thread);
+    _eventThread.detach();
 }
 
 MacTaskManager::~MacTaskManager()
@@ -45,8 +46,8 @@ MacTaskManager::~MacTaskManager()
 
 void MacTaskManager::readyToExecuteNextTask()
 {
-    std::unique_lock<std::mutex> lock(_eventMutex);
-    _eventCondition.notify_all();
+    Lock lock(_eventMutex);
+    _eventCondition.notify(true);
 }
 
 void MacTaskManager::runLoop()

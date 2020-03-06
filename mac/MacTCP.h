@@ -12,7 +12,6 @@
 #include "TCP.h"
 
 #include <dispatch/dispatch.h>
-#include <mutex>
 
 namespace m8r {
 
@@ -34,7 +33,7 @@ private:
     dispatch_semaphore_t _dispatchSemaphore;
     char _receiveBuffer[BufferSize];
     int _clientSockets[MaxConnections];
-    std::mutex _mutex; // protection for _clientSockets
+    Mutex _mutex; // protection for _clientSockets
     bool _server;
 };
 
