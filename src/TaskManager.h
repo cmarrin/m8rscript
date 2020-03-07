@@ -11,6 +11,7 @@
 
 #include "SystemInterface.h"
 #include "SystemTime.h"
+#include "Thread.h"
 #include <cstdint>
 
 namespace m8r {
@@ -43,6 +44,7 @@ private:
     // Post an event now. When event occurs, call fireEvent
     virtual void readyToExecuteNextTask() = 0;
     
+    Mutex _mutex;
     Vector<TaskBase*> _readyList;
     Vector<TaskBase*> _waitEventList;
 };

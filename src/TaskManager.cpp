@@ -23,14 +23,19 @@ static Duration TaskPollingRate = 50_ms;
 
 void TaskManager::run(TaskBase* newTask)
 {
-    _readyList.push_back(newTask);
-    
+    {
+        Lock lock(_mutex);
+        _readyList.push_back(newTask);
+    }
     readyToExecuteNextTask();
 }
 
 void TaskManager::terminate(TaskBase* task)
 {
-    _readyList.remove(task);
+    {
+        Lock lock(_mutex);
+        _readyList.remove(task);
+    }
     _waitEventList.remove(task);
 }
 
@@ -40,8 +45,12 @@ void TaskManager::executeNextTask()
         return;
     }
     
-    TaskBase* task = _readyList.front();
-    _readyList.erase(_readyList.begin());
+    TaskBase* task;
+    {
+        Lock lock(_mutex);
+        task = _readyList.front();
+        _readyList.erase(_readyList.begin());
+    }
     
     CallReturnValue returnValue = task->execute();
     
@@ -49,11 +58,17 @@ void TaskManager::executeNextTask()
         Duration duration = returnValue.delay();
         Thread([this, task, duration] {
             duration.sleep();
-            _readyList.push_back(task);
+            {
+                Lock lock(_mutex);
+                _readyList.push_back(task);
+            }
             readyToExecuteNextTask();
         }).detach();
     } else if (returnValue.isYield()) {
-        _readyList.push_back(task);
+        {
+            Lock lock(_mutex);
+            _readyList.push_back(task);
+        }
     } else if (returnValue.isTerminated()) {
         task->finish();
     } else if (returnValue.isFinished()) {
