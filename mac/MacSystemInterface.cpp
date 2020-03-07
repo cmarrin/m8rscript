@@ -10,7 +10,7 @@
 #include "MacSystemInterface.h"
 
 #include "GPIOInterface.h"
-#include "MacTaskManager.h"
+#include "TaskManager.h"
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"
@@ -40,7 +40,6 @@ public:
     virtual void setDeviceName(const char*) override { }
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
-    virtual TaskManager* taskManager() override { return &_taskManager; };
     
     virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction func) override
     {
@@ -105,7 +104,6 @@ private:
 #else
     LittleFS _fileSystem;
 #endif
-    MacTaskManager _taskManager;
 };
 
 void m8r::heapInfo(void*& start, uint32_t& size)

@@ -20,10 +20,10 @@
 
 #include "Defines.h"
 #include "LittleFS.h"
-#include "RtosTaskManager.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
 #include "spi_flash.h"
+#include "freertos/FreeRTOS.h"
 
 using namespace m8r;
 
@@ -142,7 +142,6 @@ public:
     
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
-    virtual TaskManager* taskManager() override { return &_taskManager; };
     
     virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
     {
@@ -162,7 +161,6 @@ public:
 private:
 //    RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
-    RtosTaskManager _taskManager;
 };
 
 extern uint64_t g_esp_os_us;

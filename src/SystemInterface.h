@@ -11,6 +11,7 @@
 
 #include "Containers.h"
 #include "IPAddr.h"
+#include "TaskManager.h"
 #include "TCP.h"
 #include <cstring>
 #include <cstddef>
@@ -53,10 +54,11 @@ public:
     
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
-    virtual TaskManager* taskManager() = 0;
     virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction) = 0;
     virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) = 0;
     virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) = 0;
+    
+    TaskManager* taskManager() { return &_taskManager; };
 
     virtual void setDeviceName(const char*) = 0;
     
@@ -75,6 +77,7 @@ public:
 
 private:
     std::function<void(const char*)> _listenerFunc;
+    TaskManager _taskManager;
 };
 
 static inline SystemInterface* system() { return SystemInterface::get(); }
