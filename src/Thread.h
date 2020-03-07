@@ -80,11 +80,15 @@ public:
     
     using id = pthread_t;
 
-    template< class Function, class... Args > 
-    explicit Thread( Function&& f, Args&&... args )
+    template<class Function, class... Args> 
+    explicit Thread(uint32_t stackSize, Function&& f, Args&&... args )
     {
         auto storage = new ThreadStorage(this, std::move(std::bind(std::forward<Function>(f), std::forward<Args>(args)...)));
-        pthread_create(&_thread, nullptr, threadFunc, storage);
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_attr_setstacksize(&attr, stackSize);
+        pthread_create(&_thread, &attr, threadFunc, storage);
+        pthread_attr_destroy(&attr);
     }
     
     Thread(Thread&& other) { swap(other); }
@@ -111,7 +115,12 @@ public:
         return *this;
     }
 
-    void swap(Thread& other) { std::swap(_thread, other._thread); }
+    void swap(Thread& other)
+    {
+        pthread_t tmp = _thread;
+        _thread = other._thread;
+        other._thread = tmp;
+    }
         
     void join() { pthread_join(_thread, nullptr); }
     void detach() { pthread_detach(_thread); }

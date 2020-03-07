@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "SystemInterface.h"
+#include "Containers.h"
 #include "SystemTime.h"
 #include "Thread.h"
 #include <cstdint>
@@ -27,8 +27,8 @@ public:
 protected:
     static constexpr uint8_t MaxTasks = 8;
 
-    TaskManager() { }
-    virtual ~TaskManager() { }
+    TaskManager();
+    ~TaskManager();
     
     void run(TaskBase*);
     
@@ -39,14 +39,19 @@ protected:
     bool ready() const { return !_readyList.empty(); }
     
 private:
-    virtual void runLoop() = 0;
+    void runLoop();
 
     // Post an event now. When event occurs, call fireEvent
-    virtual void readyToExecuteNextTask() = 0;
+    void readyToExecuteNextTask();
     
     Mutex _mutex;
     Vector<TaskBase*> _readyList;
     Vector<TaskBase*> _waitEventList;
+
+    Thread _eventThread;
+    Condition _eventCondition;
+    Mutex _eventMutex;
+    bool _terminating = false;
 };
 
 }

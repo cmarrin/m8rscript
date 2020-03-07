@@ -18,9 +18,56 @@ using namespace m8r;
 
 static Duration MaxTaskDelay = Duration(6000000, Duration::Units::ms);
 static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
-static Duration TaskPollingRate = 50_ms;
+static Duration MainLoopSleepDelay = 50_ms;
+static constexpr uint32_t MainThreadSize = 4096;
+static constexpr uint32_t DelayThreadSize = 1024;
 
+TaskManager::TaskManager()
+{
+    Thread thread(MainThreadSize, [this]{
+        while (true) {
+            {
+                Lock lock(_eventMutex);
+                if (!ready()) {
+                    _eventCondition.wait(lock);
+                    if (_terminating) {
+                        break;
+                    }
+                }
+            }
+            
+            executeNextTask();
+        }
+    });
+    _eventThread.swap(thread);
+    _eventThread.detach();
+}
 
+TaskManager::~TaskManager()
+{
+    _terminating = true;
+    readyToExecuteNextTask();
+    _eventThread.join();
+}
+
+void TaskManager::readyToExecuteNextTask()
+{
+    Lock lock(_eventMutex);
+    _eventCondition.notify(true);
+}
+
+void TaskManager::runLoop()
+{
+    // The main thread has to keep running
+    while(1) {
+        // Check for key input
+//        char* buffer = nullptr;
+//        size_t size = 0;
+//        getline(&buffer, &size, stdin);
+//        system()->receivedLine(buffer);
+        this_thread::sleep_for(MainLoopSleepDelay);
+    }
+}
 void TaskManager::run(TaskBase* newTask)
 {
     {
@@ -56,7 +103,8 @@ void TaskManager::executeNextTask()
     
     if (returnValue.isDelay()) {
         Duration duration = returnValue.delay();
-        Thread([this, task, duration] {
+        printf("***** Delaying %s\n", duration.toString().c_str());
+        Thread(DelayThreadSize, [this, task, duration] {
             duration.sleep();
             {
                 Lock lock(_mutex);
