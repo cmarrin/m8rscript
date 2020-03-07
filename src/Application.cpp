@@ -174,7 +174,7 @@ void Application::runLoop()
     
     Thread(1024, [](int foo, String s) {
         printf("*** thread start %d %s\n", foo, s.c_str());
-        usleep(1000000);
+        (1_sec).sleep();
         printf("*** thread end\n");
     }, 5, "Hello there").detach();
     
