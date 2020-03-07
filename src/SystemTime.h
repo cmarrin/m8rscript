@@ -119,7 +119,7 @@ public:
         Float f(_value >> Shift);
         switch (units()) {
             case Units::us: f /= Float(1000000); break;
-            case Units::sec: f /= Float(1000); break;
+            case Units::ms: f /= Float(1000); break;
             default: break;
         }
         return f;
