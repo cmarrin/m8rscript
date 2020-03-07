@@ -34,8 +34,6 @@ void RtosTaskManager::executionTask(void* param)
 {
     RtosTaskManager* taskManager = reinterpret_cast<RtosTaskManager*>(param);
     while (1) {
-        Duration durationToNextEvent = NextEventDelay;
-
         if (!taskManager->ready()) {
             xTaskNotifyWait(0, 0, nullptr, 50000 / portTICK_PERIOD_MS);
             if (taskManager->_terminating) {
