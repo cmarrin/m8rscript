@@ -113,9 +113,7 @@ void m8r::heapInfo(void*& start, uint32_t& size)
     size = HeapSize;
 }
 
-static MacSystemInterface _gSystemInterface;
-
-SystemInterface* SystemInterface::get() { return &_gSystemInterface; }
+SystemInterface* SystemInterface::create() { return new MacSystemInterface(); }
 
 #ifdef USE_LITTLEFS
 void m8r::initMacFileSystem(const char* fsFile) { LittleFS::setHostFilename(fsFile); }

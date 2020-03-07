@@ -40,9 +40,8 @@ class SystemInterface  {
 public:
     friend class Time;
     
-    static SystemInterface* get();
+    static SystemInterface* create();
 
-	SystemInterface() { }
     virtual ~SystemInterface() { }
 
     void printf(ROMString fmt, ...) const
@@ -75,11 +74,14 @@ public:
 
     void runLoop();
 
+protected:
+    SystemInterface() { }
+
 private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
 };
 
-static inline SystemInterface* system() { return SystemInterface::get(); }
+SystemInterface* system();
 
 }

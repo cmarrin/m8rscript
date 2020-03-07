@@ -165,9 +165,7 @@ private:
 
 extern uint64_t g_esp_os_us;
 
-static RtosSystemInterface _gSystemInterface;
-
-m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
+SystemInterface* SystemInterface::create() { return new RtosSystemInterface(); }
 
 static int lfs_flash_read(const struct lfs_config *c,
     lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size)

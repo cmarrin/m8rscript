@@ -19,8 +19,15 @@
 #endif
 using namespace m8r;
 
+SystemInterface* Application::_system = nullptr;
+
+
 Application::Application(uint16_t port)
 {
+    if (!_system) {
+        _system = SystemInterface::create();
+    }
+
     Mad<TCP> socket = system()->createTCP(port, [this](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         switch(event) {
@@ -99,6 +106,7 @@ Application::Application(uint16_t port)
 Application::~Application()
 {
     _shellSocket.destroy();
+    delete _system;
 }
 
 Application::NameValidationType Application::validateBonjourName(const char* name)
@@ -164,7 +172,7 @@ void Application::runLoop()
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
     }
     
-    Thread([](int foo, String s) {
+    Thread(1024, [](int foo, String s) {
         printf("*** thread start %d %s\n", foo, s.c_str());
         usleep(1000000);
         printf("*** thread end\n");
