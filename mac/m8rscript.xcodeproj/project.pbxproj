@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -77,7 +76,6 @@
 		49BDE19E236C711B00304BE8 /* MString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BDE19C236C711B00304BE8 /* MString.cpp */; };
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
 		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
-		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
 		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
 		49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDA239185CB0094A6B4 /* LittleFS.cpp */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
@@ -203,9 +201,7 @@
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../src/LittleFS.cpp; sourceTree = "<group>"; };
-		490C1BDB239185CB0094A6B4 /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
 		490C1BDC239185CB0094A6B4 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../src/LittleFS.h; sourceTree = "<group>"; };
-		490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpiffsFS.cpp; path = ../src/SpiffsFS.cpp; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -252,10 +248,29 @@
 		49562F6C1D1D7A9C001AFAEE /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		49562F6D1D1D7A9C001AFAEE /* Document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
 		49562F6E1D1D7A9C001AFAEE /* Document.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
-		4961121923A44601002300CB /* spiffs_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_config.h; path = ../src/spiffs_config.h; sourceTree = "<group>"; };
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../src/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../src/CodePrinter.h; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
+		4978365C24141EEC005735D5 /* timing.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = timing.m8r; path = ../../scripts/timing/timing.m8r; sourceTree = "<group>"; };
+		4978365D24141EEC005735D5 /* timing-esp.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = "timing-esp.m8r"; path = "../../scripts/timing/timing-esp.m8r"; sourceTree = "<group>"; };
+		4978365E24141EEC005735D5 /* timing.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = timing.lua; path = ../../scripts/timing/timing.lua; sourceTree = "<group>"; };
+		4978365F24141EEC005735D5 /* timing.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../../scripts/timing/timing.js; sourceTree = "<group>"; };
+		4978366024141F10005735D5 /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TimeZoneDBClient.m8r; path = ../../scripts/examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
+		4978366124141F10005735D5 /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = NTPClient.m8r; path = ../../scripts/examples/NTPClient.m8r; sourceTree = "<group>"; };
+		4978366224141F27005735D5 /* TestClass.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClass.m8r; path = ../../scripts/tests/TestClass.m8r; sourceTree = "<group>"; };
+		4978366324141F28005735D5 /* TestLoop.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestLoop.m8r; path = ../../scripts/tests/TestLoop.m8r; sourceTree = "<group>"; };
+		4978366424141F28005735D5 /* TestUDPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestUDPSocket.m8r; path = ../../scripts/tests/TestUDPSocket.m8r; sourceTree = "<group>"; };
+		4978366524141F28005735D5 /* TestBase64.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestBase64.m8r; path = ../../scripts/tests/TestBase64.m8r; sourceTree = "<group>"; };
+		4978366624141F28005735D5 /* TestClosure.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClosure.m8r; path = ../../scripts/tests/TestClosure.m8r; sourceTree = "<group>"; };
+		4978366724141F28005735D5 /* TestTCPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestTCPSocket.m8r; path = ../../scripts/tests/TestTCPSocket.m8r; sourceTree = "<group>"; };
+		4978366824141F28005735D5 /* TestGibberish.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestGibberish.m8r; path = ../../scripts/tests/TestGibberish.m8r; sourceTree = "<group>"; };
+		4978366924141F28005735D5 /* TestIterator.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestIterator.m8r; path = ../../scripts/tests/TestIterator.m8r; sourceTree = "<group>"; };
+		4979403E24141E620042B86B /* simpleTest2.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleTest2.m8r; path = ../scripts/simple/simpleTest2.m8r; sourceTree = "<group>"; };
+		4979403F24141E630042B86B /* basic.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = basic.m8r; path = ../scripts/simple/basic.m8r; sourceTree = "<group>"; };
+		4979404024141E630042B86B /* hello.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = hello.m8r; path = ../scripts/simple/hello.m8r; sourceTree = "<group>"; };
+		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = blink.m8r; path = ../scripts/simple/blink.m8r; sourceTree = "<group>"; };
+		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleFunction.m8r; path = ../scripts/simple/simpleFunction.m8r; sourceTree = "<group>"; };
+		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleTest.m8r; path = ../scripts/simple/simpleTest.m8r; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -287,10 +302,6 @@
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../src/Error.h; sourceTree = "<group>"; };
 		49A39F1E234C513600F6A144 /* SystemTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemTime.h; path = ../src/SystemTime.h; sourceTree = "<group>"; };
 		49A39F2123509E5200F6A144 /* mrsh */ = {isa = PBXFileReference; lastKnownFileType = text; name = mrsh; path = ../scripts/mrsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
-		49A39F222350A1A600F6A144 /* timing */ = {isa = PBXFileReference; lastKnownFileType = folder; name = timing; path = ../scripts/timing; sourceTree = "<group>"; };
-		49A39F232350A1A700F6A144 /* simple */ = {isa = PBXFileReference; lastKnownFileType = folder; name = simple; path = ../scripts/simple; sourceTree = "<group>"; };
-		49A39F242350A1A700F6A144 /* tests */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tests; path = ../scripts/tests; sourceTree = "<group>"; };
-		49A39F252350A1A700F6A144 /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = examples; path = ../scripts/examples; sourceTree = "<group>"; };
 		49AB794B1DC143B700DE6332 /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskManager.cpp; path = ../src/TaskManager.cpp; sourceTree = "<group>"; };
 		49AB794C1DC143B700DE6332 /* TaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskManager.h; path = ../src/TaskManager.h; sourceTree = "<group>"; };
 		49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../src/ExecutionUnit.h; sourceTree = "<group>"; };
@@ -301,7 +312,6 @@
 		49BDE19C236C711B00304BE8 /* MString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MString.cpp; path = ../src/MString.cpp; sourceTree = "<group>"; };
 		49BDE19D236C711B00304BE8 /* MString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../src/MString.h; sourceTree = "<group>"; };
 		49BDE1A423714DC000304BE8 /* mem */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = mem; path = ../scripts/mem; sourceTree = "<group>"; };
-		49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacSpiffsFS.cpp; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateSharedAtoms.cpp; path = generators/generateSharedAtoms.cpp; sourceTree = "<group>"; };
@@ -421,12 +431,12 @@
 		4942EA891D0C86BB00E02088 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
-				49A39F252350A1A700F6A144 /* examples */,
-				49A39F232350A1A700F6A144 /* simple */,
-				49A39F242350A1A700F6A144 /* tests */,
-				49A39F222350A1A600F6A144 /* timing */,
 				49BDE1A423714DC000304BE8 /* mem */,
 				49A39F2123509E5200F6A144 /* mrsh */,
+				4979403D24141E4B0042B86B /* simple */,
+				4978365924141EBD005735D5 /* examples */,
+				4978365B24141ED3005735D5 /* timing */,
+				4978365A24141EC9005735D5 /* tests */,
 			);
 			name = scripts;
 			sourceTree = "<group>";
@@ -462,7 +472,6 @@
 				49846003238C60ED001F4FD4 /* MacSystemInterface.cpp */,
 				49846004238C60ED001F4FD4 /* MacSystemInterface.h */,
 				49BF344723680892001E5508 /* MacLittleFS.cpp */,
-				49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */,
 				49E1907D1DBAE2570030DC89 /* MacTCP.cpp */,
 				49E1907C1DBAE2570030DC89 /* MacTCP.h */,
 				49E1907A1DBAE2570030DC89 /* MacUDP.cpp */,
@@ -497,6 +506,54 @@
 				497DC63823A5849E00748031 /* sdkconfig */,
 			);
 			name = esprtos;
+			sourceTree = "<group>";
+		};
+		4978365924141EBD005735D5 /* examples */ = {
+			isa = PBXGroup;
+			children = (
+				4978366124141F10005735D5 /* NTPClient.m8r */,
+				4978366024141F10005735D5 /* TimeZoneDBClient.m8r */,
+			);
+			path = examples;
+			sourceTree = "<group>";
+		};
+		4978365A24141EC9005735D5 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				4978366524141F28005735D5 /* TestBase64.m8r */,
+				4978366224141F27005735D5 /* TestClass.m8r */,
+				4978366624141F28005735D5 /* TestClosure.m8r */,
+				4978366824141F28005735D5 /* TestGibberish.m8r */,
+				4978366924141F28005735D5 /* TestIterator.m8r */,
+				4978366324141F28005735D5 /* TestLoop.m8r */,
+				4978366724141F28005735D5 /* TestTCPSocket.m8r */,
+				4978366424141F28005735D5 /* TestUDPSocket.m8r */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		4978365B24141ED3005735D5 /* timing */ = {
+			isa = PBXGroup;
+			children = (
+				4978365D24141EEC005735D5 /* timing-esp.m8r */,
+				4978365F24141EEC005735D5 /* timing.js */,
+				4978365E24141EEC005735D5 /* timing.lua */,
+				4978365C24141EEC005735D5 /* timing.m8r */,
+			);
+			path = timing;
+			sourceTree = "<group>";
+		};
+		4979403D24141E4B0042B86B /* simple */ = {
+			isa = PBXGroup;
+			children = (
+				4979403F24141E630042B86B /* basic.m8r */,
+				4979404124141E630042B86B /* blink.m8r */,
+				4979404024141E630042B86B /* hello.m8r */,
+				4979404224141E630042B86B /* simpleFunction.m8r */,
+				4979404324141E630042B86B /* simpleTest.m8r */,
+				4979403E24141E620042B86B /* simpleTest2.m8r */,
+			);
+			name = simple;
 			sourceTree = "<group>";
 		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
@@ -668,9 +725,6 @@
 				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
-				4961121923A44601002300CB /* spiffs_config.h */,
-				490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */,
-				490C1BDB239185CB0094A6B4 /* SpiffsFS.h */,
 				49884F06236CB25100C292EA /* StateMachine.h */,
 				49263ABB23611DF0005CB9F9 /* StreamProto.cpp */,
 				49263ABC23611DF0005CB9F9 /* StreamProto.h */,
@@ -950,13 +1004,11 @@
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
-				49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */,
 				49263ABE23611DFC005CB9F9 /* StreamProto.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
-				490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */,
 				499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */,
