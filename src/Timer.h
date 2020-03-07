@@ -40,7 +40,6 @@ public:
     
     bool init(Duration duration, const FinishCallback& cb) { return init(duration, Behavior::Once, cb); }
     
-    virtual Duration duration() const override { return _duration; }
     Duration duration() const { return _duration; }
     bool repeating() const { return _repeating; }
     
