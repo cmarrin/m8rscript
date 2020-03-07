@@ -80,13 +80,6 @@
 		49BE1CF42350F4CD00BF6D9E /* MacSpiffsFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BE1CF32350F4CD00BF6D9E /* MacSpiffsFS.cpp */; };
 		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
 		49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDA239185CB0094A6B4 /* LittleFS.cpp */; };
-		49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED38E235392FF00DE0C42 /* spiffs_cache.c */; };
-		49BF344A236811BF001E5508 /* spiffs_check.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED390235392FF00DE0C42 /* spiffs_check.c */; };
-		49BF344C236811BF001E5508 /* spiffs_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED393235392FF00DE0C42 /* spiffs_gc.c */; };
-		49BF344D236811BF001E5508 /* spiffs_hydrogen.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */; };
-		49BF344E236811BF001E5508 /* spiffs_nucleus.c in Sources */ = {isa = PBXBuildFile; fileRef = 491ED394235392FF00DE0C42 /* spiffs_nucleus.c */; };
-		49BF344F236811BF001E5508 /* spiffs_nucleus.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED392235392FF00DE0C42 /* spiffs_nucleus.h */; };
-		49BF3450236811BF001E5508 /* spiffs.h in Headers */ = {isa = PBXBuildFile; fileRef = 491ED38D235392FF00DE0C42 /* spiffs.h */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
 		49CB61BB23F85256003C9AB0 /* Timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61B923F85255003C9AB0 /* Timer.h */; };
@@ -209,25 +202,14 @@
 /* Begin PBXFileReference section */
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
-		490C1BD92390709C0094A6B4 /* m8rscript.ino */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; name = m8rscript.ino; path = ../m8rscript/m8rscript.ino; sourceTree = "<group>"; };
 		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../src/LittleFS.cpp; sourceTree = "<group>"; };
 		490C1BDB239185CB0094A6B4 /* SpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpiffsFS.h; path = ../src/SpiffsFS.h; sourceTree = "<group>"; };
 		490C1BDC239185CB0094A6B4 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../src/LittleFS.h; sourceTree = "<group>"; };
 		490C1BDD239185CC0094A6B4 /* SpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpiffsFS.cpp; path = ../src/SpiffsFS.cpp; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../src/Telnet.h; sourceTree = "<group>"; };
-		491ED38D235392FF00DE0C42 /* spiffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs.h; path = ../src/spiffs/src/spiffs.h; sourceTree = "<group>"; };
-		491ED38E235392FF00DE0C42 /* spiffs_cache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_cache.c; path = ../src/spiffs/src/spiffs_cache.c; sourceTree = "<group>"; };
-		491ED390235392FF00DE0C42 /* spiffs_check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_check.c; path = ../src/spiffs/src/spiffs_check.c; sourceTree = "<group>"; };
-		491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_hydrogen.c; path = ../src/spiffs/src/spiffs_hydrogen.c; sourceTree = "<group>"; };
-		491ED392235392FF00DE0C42 /* spiffs_nucleus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spiffs_nucleus.h; path = ../src/spiffs/src/spiffs_nucleus.h; sourceTree = "<group>"; };
-		491ED393235392FF00DE0C42 /* spiffs_gc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_gc.c; path = ../src/spiffs/src/spiffs_gc.c; sourceTree = "<group>"; };
-		491ED394235392FF00DE0C42 /* spiffs_nucleus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spiffs_nucleus.c; path = ../src/spiffs/src/spiffs_nucleus.c; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		491ED3A52353EFE600DE0C42 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		4923672423733EEC0009963A /* umm_malloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = umm_malloc.cpp; path = ../src/umm/umm_malloc.cpp; sourceTree = "<group>"; };
-		4923672523733EEC0009963A /* umm_malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = umm_malloc.h; path = ../src/umm/umm_malloc.h; sourceTree = "<group>"; };
-		4923672623733EEC0009963A /* umm_malloc_cfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = umm_malloc_cfg.h; path = ../src/umm/umm_malloc_cfg.h; sourceTree = "<group>"; };
 		492396C51E711D12007AC0BF /* UDP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UDP.cpp; path = ../src/UDP.cpp; sourceTree = "<group>"; };
 		492396C91E711E47007AC0BF /* IPAddr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPAddr.h; path = ../src/IPAddr.h; sourceTree = "<group>"; };
 		4924FDB41DDBE7CD00883967 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../src/GPIO.h; sourceTree = "<group>"; };
@@ -256,7 +238,6 @@
 		4945A86F1EC3711D00559CD1 /* m8r */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8r; sourceTree = BUILT_PRODUCTS_DIR; };
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		4945DD831D5ACE12006945BC /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../src/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
@@ -275,8 +256,6 @@
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../src/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../src/CodePrinter.h; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
-		4979C6711DDB790D00180BC2 /* gdbstub */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdbstub; path = ../esp/gdbstub; sourceTree = "<group>"; };
-		497B449E1D469B3200BC1B57 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../esp/app; sourceTree = "<group>"; };
 		497B449F1D469BB000BC1B57 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
@@ -330,7 +309,6 @@
 		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = generators/SharedAtoms.txt; sourceTree = "<group>"; };
 		49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../src/SharedAtoms.cpp; sourceTree = "<group>"; };
 		49C406F11EB675B0001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../src/SharedAtoms.h; sourceTree = "<group>"; };
-		49C6041123A53A1F005F611D /* makeEspArduino.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = makeEspArduino.mk; path = ../esp/makeEspArduino.mk; sourceTree = "<group>"; };
 		49CB61B923F85255003C9AB0 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../src/Timer.h; sourceTree = "<group>"; };
 		49CB61BA23F85255003C9AB0 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../src/Timer.cpp; sourceTree = "<group>"; };
 		49CB61BD2409643B003C9AB0 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = ../src/Thread.cpp; sourceTree = "<group>"; };
@@ -433,36 +411,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		491ED38C235392D400DE0C42 /* spiffs */ = {
-			isa = PBXGroup;
-			children = (
-				491ED38E235392FF00DE0C42 /* spiffs_cache.c */,
-				491ED390235392FF00DE0C42 /* spiffs_check.c */,
-				491ED393235392FF00DE0C42 /* spiffs_gc.c */,
-				491ED391235392FF00DE0C42 /* spiffs_hydrogen.c */,
-				491ED394235392FF00DE0C42 /* spiffs_nucleus.c */,
-				491ED392235392FF00DE0C42 /* spiffs_nucleus.h */,
-				491ED38D235392FF00DE0C42 /* spiffs.h */,
-			);
-			name = spiffs;
-			sourceTree = "<group>";
-		};
 		491ED3A42353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXGroup;
 			children = (
 				491ED3A52353EFE600DE0C42 /* main.cpp */,
 			);
 			path = m8rtest;
-			sourceTree = "<group>";
-		};
-		4923672323733ECF0009963A /* umm */ = {
-			isa = PBXGroup;
-			children = (
-				4923672623733EEC0009963A /* umm_malloc_cfg.h */,
-				4923672423733EEC0009963A /* umm_malloc.cpp */,
-				4923672523733EEC0009963A /* umm_malloc.h */,
-			);
-			name = umm;
 			sourceTree = "<group>";
 		};
 		4942EA891D0C86BB00E02088 /* scripts */ = {
@@ -498,7 +452,7 @@
 			isa = PBXGroup;
 			children = (
 				49C406E91EB65A15001E4DEC /* generators */,
-				494D25891D32B2E6003755DB /* esp */,
+				494D25891D32B2E6003755DB /* esprtos */,
 			);
 			name = m8rscript;
 			sourceTree = "<group>";
@@ -531,29 +485,7 @@
 			name = "NSTextView+JSDExtensions";
 			sourceTree = "<group>";
 		};
-		494D25891D32B2E6003755DB /* esp */ = {
-			isa = PBXGroup;
-			children = (
-				497B449F1D469BB000BC1B57 /* Makefile */,
-				4979C6711DDB790D00180BC2 /* gdbstub */,
-				4945DD831D5ACE12006945BC /* core */,
-				497B449E1D469B3200BC1B57 /* app */,
-				497DC63C23A585CF00748031 /* esprtos */,
-				497DC63A23A5852300748031 /* Arduino */,
-			);
-			name = esp;
-			sourceTree = "<group>";
-		};
-		497DC63A23A5852300748031 /* Arduino */ = {
-			isa = PBXGroup;
-			children = (
-				490C1BD92390709C0094A6B4 /* m8rscript.ino */,
-				49C6041123A53A1F005F611D /* makeEspArduino.mk */,
-			);
-			name = Arduino;
-			sourceTree = "<group>";
-		};
-		497DC63C23A585CF00748031 /* esprtos */ = {
+		494D25891D32B2E6003755DB /* esprtos */ = {
 			isa = PBXGroup;
 			children = (
 				497DC64123A921FF00748031 /* partitions.csv */,
@@ -561,6 +493,7 @@
 				490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
 				497DC63D23A58A7F00748031 /* component.mk */,
+				497B449F1D469BB000BC1B57 /* Makefile */,
 				497DC63423A5771A00748031 /* Makefile */,
 				497DC63623A5835100748031 /* m8rscript.cpp */,
 				497DC63823A5849E00748031 /* sdkconfig */,
@@ -677,10 +610,8 @@
 		49E648071D00BEEC005F5059 /* libm8rscript */ = {
 			isa = PBXGroup;
 			children = (
-				4923672323733ECF0009963A /* umm */,
 				494BA1911D207AB700E72725 /* mac */,
 				49EED9862357971500831598 /* littlefs */,
-				491ED38C235392D400DE0C42 /* spiffs */,
 				49DD774A1D84DD7D00D7C374 /* Application.cpp */,
 				49DD774B1D84DD7D00D7C374 /* Application.h */,
 				49E6482C1D01F3CA005F5059 /* Atom.cpp */,
@@ -809,9 +740,7 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
-				49BF3450236811BF001E5508 /* spiffs.h in Headers */,
 				49EED98D2357971500831598 /* lfs.h in Headers */,
-				49BF344F236811BF001E5508 /* spiffs_nucleus.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1027,7 +956,6 @@
 				49263ABE23611DFC005CB9F9 /* StreamProto.cpp in Sources */,
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
-				49BF3449236811BF001E5508 /* spiffs_cache.c in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
 				490C1BE1239186420094A6B4 /* SpiffsFS.cpp in Sources */,
@@ -1050,13 +978,10 @@
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
-				49BF344C236811BF001E5508 /* spiffs_gc.c in Sources */,
 				49EED98E2357971500831598 /* lfs_util.c in Sources */,
 				497CAFC7237DF219000495B2 /* GC.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				49EED98B2357971500831598 /* lfs.c in Sources */,
-				49BF344A236811BF001E5508 /* spiffs_check.c in Sources */,
-				49BF344D236811BF001E5508 /* spiffs_hydrogen.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
@@ -1064,7 +989,6 @@
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
 				49CB61BF2409643B003C9AB0 /* Thread.cpp in Sources */,
-				49BF344E236811BF001E5508 /* spiffs_nucleus.c in Sources */,
 				49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
 				49846005238C60ED001F4FD4 /* MacSystemInterface.cpp in Sources */,
