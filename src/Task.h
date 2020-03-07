@@ -38,8 +38,6 @@ public:
     }
 
     void terminate() { system()->taskManager()->terminate(this); }
-    
-    virtual Duration duration() const { return 0_sec; }
 
     Error error() const { return _error; }
 
