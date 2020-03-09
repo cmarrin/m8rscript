@@ -18,28 +18,29 @@
 
 namespace m8r {
 
-class Timer : public NativeObject, public TaskBase {
+class Timer : public NativeObject {
 public:
     enum class Behavior { Once, Repeating };
 
+    using Callback = std::function<void(Timer*)>;
+
     Timer() { }
     
-    virtual ~Timer() { }
+    virtual ~Timer()
+    {
+        stop();
+    }
 
-    bool init(Duration duration, Behavior behavior, const FinishCallback& cb)
+    bool init(Duration duration, Behavior behavior, const Callback& cb)
     {
         _duration = duration;
         _repeating = behavior == Behavior::Repeating;
-        run(cb);
-
-#ifndef NDEBUG
-        _name = String::format("Timer:%s %s(%p)", _duration.toString().c_str(), _repeating ? "repeating" : "once", this);
-#endif
+        _cb = cb;
         return true;
     }
-    
-    bool init(Duration duration, const FinishCallback& cb) { return init(duration, Behavior::Once, cb); }
-    
+
+    bool init(Duration duration, const Callback& cb) { return init(duration, Behavior::Once, cb); }
+
     Duration duration() const { return _duration; }
     bool repeating() const { return _repeating; }
     
@@ -47,10 +48,10 @@ public:
     void stop();
 
 private:
-    virtual CallReturnValue execute() override { return CallReturnValue(CallReturnValue::Type::Finished); }
-    
     Duration _duration = 0_sec;
     bool _repeating = false;
+    Thread _thread;
+    Callback _cb;
 };
 
 class TimerProto : public StaticObject {

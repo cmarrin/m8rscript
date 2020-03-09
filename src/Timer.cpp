@@ -20,12 +20,27 @@ using namespace m8r;
 
 void Timer::start()
 {
-    //yield(_duration);
+    Thread thread(1024, [this] {
+        while(1) {
+            _duration.sleep();
+            if (_cb) {
+                _cb(this);
+            }
+            if (!_repeating) {
+                break;
+            }
+        }
+    });
+    
+    _thread.swap(thread);
+    _thread.detach();
 }
 
 void Timer::stop()
 {
-    terminate();
+    // FIXME: Need to be able to cancel the sleep
+    _repeating = false;
+    _thread.join();
 }
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
@@ -80,14 +95,10 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
     Mad<Timer> timer = Mad<Timer>::create();
     obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetPropertyType::AlwaysAdd);
 
-    timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [timer, eu, func](TaskBase* task)
+    timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [timer, eu, func](Timer*)
     {
         if (func) {
-            Value arg(static_cast<int32_t>(task->error().code()));
-            eu->fireEvent(func, Value(), &arg, 1);
-            if (timer->repeating()) {
-                timer->start();
-            }
+            eu->fireEvent(func, Value(), nullptr, 0);
         }
     });
 
