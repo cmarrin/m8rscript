@@ -97,6 +97,11 @@ bool Task::init(const Stream& stream)
     return true;
 }
 
+bool Task::hasEvents() const
+{
+    return eu()->hasEvents();
+}
+
 void Task::receivedData(const String& data, KeyAction action)
 {
     _eu->receivedData(data, action);

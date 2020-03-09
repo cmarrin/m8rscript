@@ -26,17 +26,13 @@ TaskManager::TaskManager()
 {
     Thread thread(MainThreadSize, [this]{
         while (true) {
-            {
-                Lock lock(_eventMutex);
-                if (!ready()) {
-                    _eventCondition.wait(lock);
-                    if (_terminating) {
-                        break;
-                    }
+            if (!executeNextTask()) {
+                Lock lock(_mutex);
+                _eventCondition.wait(lock);
+                if (_terminating) {
+                    break;
                 }
             }
-            
-            executeNextTask();
         }
     });
     _eventThread.swap(thread);
@@ -52,7 +48,7 @@ TaskManager::~TaskManager()
 
 void TaskManager::readyToExecuteNextTask()
 {
-    Lock lock(_eventMutex);
+    Lock lock(_mutex);
     _eventCondition.notify(true);
 }
 
@@ -72,7 +68,9 @@ void TaskManager::run(TaskBase* newTask)
 {
     {
         Lock lock(_mutex);
-        _readyList.push_back(newTask);
+        _list.push_back(newTask);
+        printf("run:State::Ready\n");
+        newTask->setState(Task::State::Ready);
     }
     readyToExecuteNextTask();
 }
@@ -81,47 +79,76 @@ void TaskManager::terminate(TaskBase* task)
 {
     {
         Lock lock(_mutex);
-        _readyList.remove(task);
+        _list.remove(task);
+        printf("terminate:State::Terminated\n");
+        task->setState(Task::State::Terminated);
     }
-    _waitEventList.remove(task);
 }
 
-void TaskManager::executeNextTask()
+bool TaskManager::executeNextTask()
 {
-    if (!ready()) {
-        return;
-    }
-    
+    printf("***** executeNextTask: enter\n");
     TaskBase* task;
     {
         Lock lock(_mutex);
-        task = _readyList.front();
-        _readyList.erase(_readyList.begin());
+        
+        // Find the next executable task
+        auto it = std::find_if(_list.begin(), _list.end(), [](TaskBase* task) {
+            return task->state() == Task::State::Ready || task->hasEvents();
+        });
+
+        if (it == _list.end()) {
+            printf("***** executeNextTask: exit false\n");
+            return false;
+        }
+        
+        task = *it;
+        
+        if (task->state() == Task::State::Ready) {
+            // Move the task to the end of the list to let other ready tasks run
+            _list.erase(it);
+            _list.push_back(task);
+        }
+    }
+    
+    if (task->state() != Task::State::Ready) {
+        printf("***** executeNextTask: task is %sready\n", (task->state() == Task::State::Ready) ? "" : "not ");
     }
     
     CallReturnValue returnValue = task->execute();
     
     if (returnValue.isDelay()) {
         Duration duration = returnValue.delay();
-        printf("***** Delaying %s\n", duration.toString().c_str());
+        printf("delay:State::WaitForEvent\n");
+        task->setState(Task::State::WaitingForEvent);
+        
         Thread(DelayThreadSize, [this, task, duration] {
             duration.sleep();
             {
                 Lock lock(_mutex);
-                _readyList.push_back(task);
+                printf("delay over:State::Ready\n");
+                task->setState(Task::State::Ready);
             }
             readyToExecuteNextTask();
         }).detach();
     } else if (returnValue.isYield()) {
-        {
-            Lock lock(_mutex);
-            _readyList.push_back(task);
-        }
+        // Yield is returned if we are still ready and want
+        // to run again or if we just processed events.
+        // In either case leave the task in the same state.
     } else if (returnValue.isTerminated()) {
+        printf("isTerminated:State::Terminated\n");
+        task->setState(Task::State::Terminated);
+        _list.remove(task);
         task->finish();
     } else if (returnValue.isFinished()) {
+        printf("isFinished:State::Terminated\n");
+        task->setState(Task::State::Terminated);
+        _list.remove(task);
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
-        _waitEventList.push_back(task);
+        printf("isWaitForEvent:State::WaitingForEvent\n");
+        task->setState(Task::State::WaitingForEvent);
     }
+    
+    return true;
 }

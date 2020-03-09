@@ -21,6 +21,7 @@ class TaskBase;
 class TaskManager {
     friend class SystemInterface;
     friend class TaskBase;
+    friend class ExecutionUnit;
 
 public:
 
@@ -34,10 +35,8 @@ protected:
     
     void terminate(TaskBase*);
     
-    void executeNextTask();
-    
-    bool ready() const { return !_readyList.empty(); }
-    
+    bool executeNextTask();
+
 private:
     void runLoop();
 
@@ -45,12 +44,10 @@ private:
     void readyToExecuteNextTask();
     
     Mutex _mutex;
-    Vector<TaskBase*> _readyList;
-    Vector<TaskBase*> _waitEventList;
+    Vector<TaskBase*> _list;
 
     Thread _eventThread;
     Condition _eventCondition;
-    Mutex _eventMutex;
     bool _terminating = false;
 };
 

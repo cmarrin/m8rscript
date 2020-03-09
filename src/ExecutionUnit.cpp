@@ -219,6 +219,9 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
     }
 
     eventUnlock();
+    
+    ::printf("***** fireEvent: readyToExecuteNextTask\n");
+    system()->taskManager()->readyToExecuteNextTask();
 }
 
 void ExecutionUnit::receivedData(const String& data, KeyAction action)

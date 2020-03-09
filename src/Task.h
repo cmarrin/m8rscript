@@ -26,6 +26,8 @@ class TaskBase {
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
+    enum class State { Ready, WaitingForEvent, Delaying, Terminated };
+    
     virtual ~TaskBase()
     {
         system()->taskManager()->terminate(this);
@@ -40,7 +42,9 @@ public:
     void terminate() { system()->taskManager()->terminate(this); }
 
     Error error() const { return _error; }
-
+    
+    virtual bool hasEvents() const { return false; }
+    
 #ifndef NDEBUG
     const String& name() const { return _name; }
 #endif
@@ -48,6 +52,9 @@ public:
 protected:
     TaskBase() { }
     
+    State state() const { return _state; }
+    void setState(State state) { _state = state; }
+
     Error _error = Error::Code::OK;
 
 #ifndef NDEBUG
@@ -60,6 +67,8 @@ private:
     virtual CallReturnValue execute() = 0;    
 
     FinishCallback _finishCB;
+    
+    State _state = State::Ready;
 };
 
 class Task : public NativeObject, public TaskBase {
@@ -78,6 +87,8 @@ public:
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     
+    virtual bool hasEvents() const override;
+
 private:
     virtual CallReturnValue execute() override;
 

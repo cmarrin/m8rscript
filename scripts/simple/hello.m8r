@@ -23,15 +23,32 @@ function processLine(line)
     }
 }
 
-var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
-t.start();
+function myDelay(t)
+{
+    var done = false;
+    printf("%%%%%%% myDelay start, t = %f\n", t);
+    var timer = new Timer(t, Timer.Once, function() {
+        done = true;
+        printf("%%%%%%% myDelay timer fired, done = %d\n", done);
+    });
+    
+    timer.start();
+    
+    while (!done) {
+        waitForEvent();
+        printf("%%%%%%% returned from waitForEvent, done = %d\n", done);
+    }
+}
 
+//var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
+//t.start();
+//
 var i = 0;
 while (i < 10) {
     print("Hello World\n");
-    delay(1);
+    myDelay(1);
     i++;
 }
 
 currentTime();
-delay(10);
+myDelay(10);
