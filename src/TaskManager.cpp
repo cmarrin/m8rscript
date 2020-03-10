@@ -20,7 +20,6 @@ static Duration MaxTaskDelay = Duration(6000000, Duration::Units::ms);
 static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
 static Duration MainLoopSleepDelay = 50_ms;
 static constexpr uint32_t MainThreadSize = 4096;
-static constexpr uint32_t DelayThreadSize = 1024;
 
 TaskManager::TaskManager()
 {
@@ -87,7 +86,6 @@ void TaskManager::terminate(TaskBase* task)
 
 bool TaskManager::executeNextTask()
 {
-    printf("***** executeNextTask: enter\n");
     TaskBase* task;
     {
         Lock lock(_mutex);
@@ -98,7 +96,6 @@ bool TaskManager::executeNextTask()
         });
 
         if (it == _list.end()) {
-            printf("***** executeNextTask: exit false\n");
             return false;
         }
         
@@ -111,27 +108,11 @@ bool TaskManager::executeNextTask()
         }
     }
     
-    if (task->state() != Task::State::Ready) {
-        printf("***** executeNextTask: task is %sready\n", (task->state() == Task::State::Ready) ? "" : "not ");
-    }
-    
     CallReturnValue returnValue = task->execute();
     
-    if (returnValue.isDelay()) {
-        Duration duration = returnValue.delay();
-        printf("delay:State::WaitForEvent\n");
-        task->setState(Task::State::WaitingForEvent);
-        
-        Thread(DelayThreadSize, [this, task, duration] {
-            duration.sleep();
-            {
-                Lock lock(_mutex);
-                printf("delay over:State::Ready\n");
-                task->setState(Task::State::Ready);
-            }
-            readyToExecuteNextTask();
-        }).detach();
-    } else if (returnValue.isYield()) {
+    assert(!returnValue.isDelay());
+    
+    if (returnValue.isYield()) {
         // Yield is returned if we are still ready and want
         // to run again or if we just processed events.
         // In either case leave the task in the same state.

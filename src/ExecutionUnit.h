@@ -95,6 +95,7 @@ public:
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
+    static constexpr uint32_t DelayThreadSize = 1024;
     
     Op dispatchNextOp(uint16_t& checkCounter, uint8_t& imm)
     {
@@ -199,6 +200,7 @@ private:
         Mad<Object> _thisObj;
         uint32_t _lineno;
         size_t _stackSize = 0;
+        bool _isDelayed = false;
     };
     
     using EventValue = Value;
