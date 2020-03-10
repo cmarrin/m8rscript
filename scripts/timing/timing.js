@@ -3,13 +3,14 @@
 //
 
 var a = [ ];
-var n = 2000;
+var n = 4000;
 a.length = n;
 
 var startTime = Date.now();
 
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
+        var f = 3;
         a[j] = j * (j + 1) / 2;
     }
 }
