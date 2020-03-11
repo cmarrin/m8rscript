@@ -68,7 +68,6 @@ void TaskManager::run(TaskBase* newTask)
     {
         Lock lock(_mutex);
         _list.push_back(newTask);
-        printf("run:State::Ready\n");
         newTask->setState(Task::State::Ready);
     }
     readyToExecuteNextTask();
@@ -79,7 +78,6 @@ void TaskManager::terminate(TaskBase* task)
     {
         Lock lock(_mutex);
         _list.remove(task);
-        printf("terminate:State::Terminated\n");
         task->setState(Task::State::Terminated);
     }
 }
@@ -113,21 +111,16 @@ bool TaskManager::executeNextTask()
     assert(!returnValue.isDelay());
     
     if (returnValue.isYield()) {
-        // Yield is returned if we are still ready and want
-        // to run again or if we just processed events.
-        // In either case leave the task in the same state.
+        task->setState(Task::State::Ready);
     } else if (returnValue.isTerminated()) {
-        printf("isTerminated:State::Terminated\n");
         task->setState(Task::State::Terminated);
         _list.remove(task);
         task->finish();
     } else if (returnValue.isFinished()) {
-        printf("isFinished:State::Terminated\n");
         task->setState(Task::State::Terminated);
         _list.remove(task);
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
-        printf("isWaitForEvent:State::WaitingForEvent\n");
         task->setState(Task::State::WaitingForEvent);
     }
     

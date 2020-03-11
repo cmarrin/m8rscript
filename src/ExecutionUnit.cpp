@@ -220,7 +220,6 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
 
     eventUnlock();
     
-    ::printf("***** fireEvent: readyToExecuteNextTask\n");
     system()->taskManager()->readyToExecuteNextTask();
 }
 
@@ -484,11 +483,6 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
     
-    const CallRecord& callRecord = _callRecords.back();
-    if (callRecord._isDelayed) {
-        return CallReturnValue(CallReturnValue::Type::WaitForEvent);
-    }
-
     GC::gc();
     
     uint16_t checkCounter = 0;
@@ -509,6 +503,10 @@ CallReturnValue ExecutionUnit::continueExecution()
     
     uint8_t imm;
     Op op = Op::UNKNOWN;
+    
+    if(!_eventQueue.empty()) {
+        goto L_YIELD;
+    }
     
     DISPATCH;
     
@@ -534,6 +532,7 @@ CallReturnValue ExecutionUnit::continueExecution()
             }
             return callReturnValue;
         }
+        
         return callReturnValue;
 
     L_RET:
@@ -889,28 +888,6 @@ CallReturnValue ExecutionUnit::continueExecution()
                     rightValue = Value(_this);
                 }
                 callReturnValue = leftValue.call(this, rightValue, uintValue);
-                
-                if (callReturnValue.isDelay()) {
-                    // For Delay, we spawn a thread which sleeps for the delay time.
-                    // Set the _isDelayed flag in the CallRecord and return 
-                    // CallReturnValue::Type::WaitForEvent. The next time
-                    // in if _isDelayed is still true then we need to continue waiting
-                    // and we return CallReturnValue::Type::WaitForEvent again.
-                    // When the thread is finished sleeping it sets _isDelayed = false
-                    // and calls readyToExecuteNextTask. The next time in we see 
-                    // _isDelayed == false and we proceed normally
-                    CallRecord& callRecord = _callRecords.back();
-                    callRecord._isDelayed = true;
-
-                    Thread(1024, [&callRecord, callReturnValue] {
-                        callReturnValue.delay().sleep();
-                        callRecord._isDelayed = false;
-                        system()->taskManager()->readyToExecuteNextTask();
-                    });
-                    
-                    return CallReturnValue(CallReturnValue::Type::WaitForEvent);
-                    
-                }
                 break;
             }
             case Op::NEW:

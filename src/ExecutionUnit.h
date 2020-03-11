@@ -200,7 +200,6 @@ private:
         Mad<Object> _thisObj;
         uint32_t _lineno;
         size_t _stackSize = 0;
-        bool _isDelayed = false;
     };
     
     using EventValue = Value;
