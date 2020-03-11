@@ -134,7 +134,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "/sys/bin/timing.m8r";
+    return "/sys/bin/hello.m8r";
 }
 
 bool Application::mountFileSystem()
@@ -171,12 +171,6 @@ void Application::runLoop()
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
     }
-    
-    Thread(1024, [](int foo, String s) {
-        printf("*** thread start %d %s\n", foo, s.c_str());
-        (1_sec).sleep();
-        printf("*** thread end\n");
-    }, 5, "Hello there").detach();
     
     // If autostart is on, run the main program
     String filename = autostartFilename();
