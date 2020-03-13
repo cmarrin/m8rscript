@@ -1,17 +1,14 @@
 function myDelay(t)
 {
-    var done = false;
-    printf("======== myDelay start, t = %f\n", t);
+    var done = [false];
     var timer = new Timer(t, Timer.Once, function() {
-        done = true;
-        printf("======== myDelay timer fired, done = %d\n", done);
+        done[0] = true;
     });
     
     timer.start();
     
-    while (!done) {
+    while (!done[0]) {
         waitForEvent();
-        printf("======== returned from waitForEvent, done = %d\n", done);
     }
 }
 
@@ -20,7 +17,7 @@ t.start();
 
 var i = 0;
 while (i < 10) {
-    print("Hello World\n");
+    printf("Hello World\n");
     myDelay(1);
     i++;
 }
