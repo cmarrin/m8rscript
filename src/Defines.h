@@ -327,7 +327,6 @@ struct Label {
     LOADREFK    R[d], RK[s]
     STOREFK     RK[d], RK[s]
     LOADUP      R[d], U[s]
-    STOREUP     U[d], RK[s]
     APPENDELT   R[d], RK[s]
  
     APPENDPROP  R[d], RK[p], RK[s]
@@ -407,11 +406,11 @@ enum class Op : uint8_t {
     POSTINC, POSTDEC, CALL, NEW,
     CALLPROP, JMP, JT, JF,
 
-    LINENO = 0x30, LOADTHIS, LOADUP, STOREUP,
+    LINENO = 0x30, LOADTHIS, LOADUP,
     CLOSURE, YIELD, POPX, RETI, 
     DELAY, DELAYWAIT,
     
-    // 0x3a - 0x3c open
+    // 0x39 - 0x3c open
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
@@ -526,14 +525,14 @@ private:
 /*0x30 */   { Layout::N,    2 },   // LINENO       UN
             { Layout::A,    1 },   // LOADTHIS     R[d]
             { Layout::AD,   2 },   // LOADUP       R[d], U[s]
-            { Layout::AB,   2 },   // STOREUP      U[d], RK[s]
             { Layout::AB,   2 },   // CLOSURE      R[d], RK[s]
             { Layout::None, 0 },   // YIELD
             { Layout::None, 0 },   // POPX
             { Layout::IMM,  0 },   // RETI
-            
-/*0x38 */   { Layout::A,    0 },   // DELAY
+            { Layout::A,    0 },   // DELAY
             { Layout::None, 0 },   // DELAYWAIT
+            
+/*0x39 */   { Layout::None, 0 },   // unused
             { Layout::None, 0 },   // unused
             { Layout::None, 0 },   // unused
 /*0x3c */   { Layout::None, 0 },   // unused

@@ -413,7 +413,7 @@ void Parser::emitMove()
             assert(_parseStack.topReg() == srcReg);
             return;
         case ParseStack::Type::UpValue:
-            emitCode(Op::STOREUP, _parseStack.topReg(), srcReg);
+            printError(ROMSTR("assignment to up-value not allowed, use boxed value instead"));
             break;
         }
     }

@@ -191,7 +191,7 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Ma
         /* 0x28 */ OP(POSTINC)  OP(POSTDEC)  OP(CALL)  OP(NEW)
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
-        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
+        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(UNKNOWN)
         /* 0x34 */ OP(CLOSURE) OP(UNKNOWN)  OP(POPX)  OP(RETI)
         /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
@@ -367,9 +367,6 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     L_LOADUP:
         generateRUX(program, func, outputString, pc, op, currentAddr);
         DISPATCH;
-    L_STOREUP:
-        generateURX(program, func, outputString, pc, op, currentAddr);
-        DISPATCH;
     L_LOADPROP: L_LOADELT: L_STOPROP: L_STOELT: L_APPENDPROP:
     L_LOR: L_LAND: L_OR: L_AND: L_XOR:
     L_EQ: L_NE: L_LT: L_LE: L_GT: L_GE:
@@ -437,7 +434,7 @@ static CodeMap opcodes[] = {
     OP(POSTINC) OP(POSTDEC) OP(CALL) OP(NEW) 
     OP(CALLPROP) OP(JMP) OP(JT) OP(JF) 
     
-    OP(LINENO) OP(LOADTHIS) OP(LOADUP) OP(STOREUP)
+    OP(LINENO) OP(LOADTHIS) OP(LOADUP)
     OP(CLOSURE) OP(POPX) OP(RETI)
     
     OP(END) OP(RET)

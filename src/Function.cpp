@@ -82,8 +82,3 @@ bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) cons
     value = eu->stack().at(eu->upValueStackIndex(_upValues[index]._index, _upValues[index]._frame));
     return true;
 }
-
-bool Function::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
-{
-    return false;
-}

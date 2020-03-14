@@ -83,7 +83,6 @@ public:
     void setFormalParamCount(uint16_t count) { _formalParamCount = count; }
     virtual uint16_t formalParamCount() const override{ return _formalParamCount; }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
-    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
 
 private:
     struct UpValueEntry {

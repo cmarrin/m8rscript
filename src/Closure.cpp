@@ -53,17 +53,6 @@ bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
     return true;
 }
 
-bool Closure::storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value)
-{
-    assert(index < _upValues.size() && _upValues.size() == _func->upValueCount());
-    if (_upValues[index]->closed()) {
-        _upValues[index]->value() = value;
-    } else {
-        eu->stack().at(_upValues[index]->stackIndex()) = value;
-    }
-    return true;
-}
-
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (!thisValue) {

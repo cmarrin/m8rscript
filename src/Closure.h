@@ -81,7 +81,6 @@ public:
     virtual bool constant(uint8_t reg, Value& value) const override { return _func->constant(reg, value); }
     virtual uint16_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
-    virtual bool storeUpValue(ExecutionUnit* eu, uint32_t index, const Value& value) override;
     
     virtual Atom name() const override { return _func->name(); }
 

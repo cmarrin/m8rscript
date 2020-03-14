@@ -32,7 +32,6 @@ public:
     virtual bool constant(uint8_t reg, Value&) const { return false; }
     virtual uint16_t formalParamCount() const { return 0; }
     virtual bool loadUpValue(ExecutionUnit*, uint32_t index, Value&) const { return false; }
-    virtual bool storeUpValue(ExecutionUnit*, uint32_t index, const Value&) { return false; }
     virtual uint32_t upValueCount() const { return 0; }
     virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const { return false; }
 

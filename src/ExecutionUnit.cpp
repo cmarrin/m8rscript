@@ -469,9 +469,9 @@ CallReturnValue ExecutionUnit::continueExecution()
         /* 0x28 */ OP(POSTINC)  OP(POSTDEC)  OP(CALL)  OP(NEW)
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
-        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(STOREUP)
-        /* 0x34 */ OP(CLOSURE) OP(YIELD)  OP(POPX)  OP(RETI)
-        /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
+        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP) OP(CLOSURE)
+        /* 0x34 */ OP(YIELD)  OP(POPX)  OP(RETI) OP(UNKNOWN)
+        /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN) 
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
  
@@ -685,11 +685,6 @@ CallReturnValue ExecutionUnit::continueExecution()
             printError(ROMSTR("unable to load upValue"));
         } else {
             setInFrame(ra, rightValue);
-        }
-        DISPATCH;
-    L_STOREUP:
-        if (!_function->storeUpValue(this, byteFromCode(_currentAddr), regOrConst())) {
-            printError(ROMSTR("unable to store upValue"));
         }
         DISPATCH;
     L_LOADLITA:
