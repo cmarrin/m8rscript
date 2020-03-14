@@ -3,13 +3,14 @@
 --
 
 local a = { }
-local n = 3000
+local n = 4000
 a.n = n
 
 local startTime = os.clock();
 
 for i = 0, n, 1 do
     for j = 0, n, 1 do
+        local f = 3;
         a[j] = j * (j + 1) / 2;
     end
 end

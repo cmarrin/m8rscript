@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstdint>
@@ -242,10 +243,21 @@ public:
     const T& front() const { return at(0); }
 
     // TODO: Make this more robust and destroy erased element
-    iterator erase(iterator pos) { return erase(pos, pos + 1); }
+    iterator erase(iterator pos)
+    {
+        if (pos == end()) {
+            return end();
+        }
+        
+        return erase(pos, pos + 1);
+    }
     
     iterator erase(iterator first, iterator last)
     {
+        if (first == end()) {
+            return end();
+        }
+        
         // end is one past the last element to erase
         if (first && first != end() && first < last) {
             if (last > end()) {
@@ -295,6 +307,16 @@ public:
         _size += numToInsert;
 
         return pos;
+    }
+    
+    bool remove(const T& element)
+    {
+        auto it = std::find(begin(), end(), element);
+        if (it == end()) {
+            return false;
+        }
+        erase(it);
+        return true;
     }
      
     void resize(uint16_t size)

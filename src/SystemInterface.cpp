@@ -9,10 +9,16 @@
 
 #include "SystemInterface.h"
 
+#include "Application.h"
+
 #include "TaskManager.h"
-#include <mutex>
 
 using namespace m8r;
+
+SystemInterface* m8r::system()
+{
+    return Application::system();
+}
 
 void SystemInterface::runLoop()
 {

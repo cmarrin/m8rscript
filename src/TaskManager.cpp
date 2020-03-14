@@ -11,63 +11,118 @@
 
 #include "SystemInterface.h"
 #include "Task.h"
+#include "Thread.h"
 #include <cassert>
 
 using namespace m8r;
 
 static Duration MaxTaskDelay = Duration(6000000, Duration::Units::ms);
 static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
-static Duration TaskPollingRate = 50_ms;
+static Duration MainLoopSleepDelay = 50_ms;
+static constexpr uint32_t MainThreadSize = 4096;
 
-
-void TaskManager::yield(TaskBase* newTask, Duration delay)
+TaskManager::TaskManager()
 {
-    Time now = Time::now();
-    if (delay > MaxTaskDelay) {
-        delay = MaxTaskDelay;
-    } else if (delay < MinTaskDelay) {
-        delay = Duration();
+    Thread thread(MainThreadSize, [this]{
+        while (true) {
+            if (!executeNextTask()) {
+                Lock lock(_mutex);
+                _eventCondition.wait(lock);
+                if (_terminating) {
+                    break;
+                }
+            }
+        }
+    });
+    _eventThread.swap(thread);
+    _eventThread.detach();
+}
+
+TaskManager::~TaskManager()
+{
+    _terminating = true;
+    readyToExecuteNextTask();
+    _eventThread.join();
+}
+
+void TaskManager::readyToExecuteNextTask()
+{
+    Lock lock(_mutex);
+    _eventCondition.notify(true);
+}
+
+void TaskManager::runLoop()
+{
+    // The main thread has to keep running
+    while(1) {
+        // Check for key input
+//        char* buffer = nullptr;
+//        size_t size = 0;
+//        getline(&buffer, &size, stdin);
+//        system()->receivedLine(buffer);
+        this_thread::sleep_for(MainLoopSleepDelay);
     }
-    
-    Time timeToFire = now + delay;
-    
-    _list.insert(newTask, timeToFire);
-    
+}
+void TaskManager::run(TaskBase* newTask)
+{
+    {
+        Lock lock(_mutex);
+        _list.push_back(newTask);
+        newTask->setState(Task::State::Ready);
+    }
     readyToExecuteNextTask();
 }
 
 void TaskManager::terminate(TaskBase* task)
 {
-    _list.remove(task);
+    {
+        Lock lock(_mutex);
+        _list.remove(task);
+        task->setState(Task::State::Terminated);
+    }
 }
 
-void TaskManager::executeNextTask()
+bool TaskManager::executeNextTask()
 {
-    if (_list.empty()) {
-        return;
+    TaskBase* task;
+    {
+        Lock lock(_mutex);
+        
+        // Find the next executable task
+        auto it = std::find_if(_list.begin(), _list.end(), [](TaskBase* task) {
+            return task->state() == Task::State::Ready || task->hasEvents();
+        });
+
+        if (it == _list.end()) {
+            return false;
+        }
+        
+        task = *it;
+        
+        if (task->state() == Task::State::Ready) {
+            // Move the task to the end of the list to let other ready tasks run
+            _list.erase(it);
+            _list.push_back(task);
+        }
     }
     
-    TaskBase* task = _list.front();
-    _list.pop_front();
-    
-    printf("***** executeNextTask: t=%s - executing %s at %s\n", 
-    Time::now().toString().c_str(), task->name().c_str(), task->key().toString().c_str());
     CallReturnValue returnValue = task->execute();
     
-    if (returnValue.isMsDelay()) {
-        yield(task, returnValue.msDelay());
-    } else if (returnValue.isYield()) {
-        yield(task);
+    assert(!returnValue.isDelay());
+    
+    if (returnValue.isYield()) {
+        task->setState(Task::State::Ready);
     } else if (returnValue.isTerminated()) {
+        task->setState(Task::State::Terminated);
+        _list.remove(task);
         task->finish();
     } else if (returnValue.isFinished()) {
+        task->setState(Task::State::Terminated);
+        _list.remove(task);
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
-        yield(task, TaskPollingRate);
+        task->setState(Task::State::WaitingForEvent);
     }
-}
-
-Time TaskManager::nextTimeToFire() const
-{
-    return _list.empty() ? Time::longestTime() : _list.front()->key();
+    
+    return true;
 }

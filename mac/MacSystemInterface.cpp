@@ -10,7 +10,7 @@
 #include "MacSystemInterface.h"
 
 #include "GPIOInterface.h"
-#include "MacTaskManager.h"
+#include "TaskManager.h"
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"
@@ -23,7 +23,7 @@
 
 using namespace m8r;
 
-class MacSystemInterface : public m8r::SystemInterface
+class MacSystemInterface : public SystemInterface
 {
 public:
     MacSystemInterface()
@@ -31,40 +31,39 @@ public:
         srand(static_cast<uint32_t>(time(nullptr)));
     }
     
-    virtual void vprintf(m8r::ROMString s, va_list args) const override
+    virtual void vprintf(ROMString s, va_list args) const override
     {
-        m8r::String ss(s);
+        String ss(s);
         ::vprintf(ss.c_str(), args);
     }
     
     virtual void setDeviceName(const char*) override { }
-    virtual m8r::FS* fileSystem() override { return &_fileSystem; }
-    virtual m8r::GPIOInterface* gpio() override { return &_gpio; }
-    virtual m8r::TaskManager* taskManager() override { return &_taskManager; };
+    virtual FS* fileSystem() override { return &_fileSystem; }
+    virtual GPIOInterface* gpio() override { return &_gpio; }
     
-    virtual m8r::Mad<m8r::TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction func) override
+    virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction func) override
     {
-        m8r::Mad<m8r::MacTCP> tcp = m8r::Mad<m8r::MacTCP>::create(m8r::MemoryType::Network);
+        Mad<MacTCP> tcp = Mad<MacTCP>::create(MemoryType::Network);
         tcp->init(port, ip, func);
         return tcp;
     }
     
-    virtual m8r::Mad<m8r::TCP> createTCP(uint16_t port, TCP::EventFunction func) override
+    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction func) override
     {
-        m8r::Mad<m8r::MacTCP> tcp = m8r::Mad<m8r::MacTCP>::create(m8r::MemoryType::Network);
+        Mad<MacTCP> tcp = Mad<MacTCP>::create(MemoryType::Network);
         tcp->init(port, IPAddr(), func);
         return tcp;
     }
     
-    virtual m8r::Mad<m8r::UDP> createUDP(uint16_t port, UDP::EventFunction func) override
+    virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction func) override
     {
-        m8r::Mad<m8r::MacUDP> udp = m8r::Mad<m8r::MacUDP>::create(m8r::MemoryType::Network);
+        Mad<MacUDP> udp = Mad<MacUDP>::create(MemoryType::Network);
         udp->init(port, func);
         return udp;
     }
 
 private:
-    class MyGPIOInterface : public m8r::GPIOInterface {
+    class MyGPIOInterface : public GPIOInterface {
     public:
         MyGPIOInterface() { }
         virtual ~MyGPIOInterface() { }
@@ -101,11 +100,10 @@ private:
     
     MyGPIOInterface _gpio;
 #ifndef USE_LITTLEFS
-    m8r::SpiffsFS _fileSystem;
+    SpiffsFS _fileSystem;
 #else
-    m8r::LittleFS _fileSystem;
+    LittleFS _fileSystem;
 #endif
-    m8r::MacTaskManager _taskManager;
 };
 
 void m8r::heapInfo(void*& start, uint32_t& size)
@@ -115,9 +113,7 @@ void m8r::heapInfo(void*& start, uint32_t& size)
     size = HeapSize;
 }
 
-static MacSystemInterface _gSystemInterface;
-
-m8r::SystemInterface* m8r::SystemInterface::get() { return &_gSystemInterface; }
+SystemInterface* SystemInterface::create() { return new MacSystemInterface(); }
 
 #ifdef USE_LITTLEFS
 void m8r::initMacFileSystem(const char* fsFile) { LittleFS::setHostFilename(fsFile); }

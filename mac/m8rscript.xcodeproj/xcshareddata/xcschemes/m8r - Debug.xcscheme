@@ -74,7 +74,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scripts/mrsh scripts/mem scripts/simple/hello.m8r"
+            argument = "scripts/mrsh scripts/mem scripts/simple/hello.m8r scripts/timing/timing.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

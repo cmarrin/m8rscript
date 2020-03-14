@@ -12,6 +12,7 @@
 #include "Float.h"
 #include <cstdint>
 #include <limits>
+#include <unistd.h>
 
 namespace m8r {
 
@@ -118,13 +119,21 @@ public:
         Float f(_value >> Shift);
         switch (units()) {
             case Units::us: f /= Float(1000000); break;
-            case Units::sec: f /= Float(1000); break;
+            case Units::ms: f /= Float(1000); break;
             default: break;
         }
         return f;
     }
     
     String toString(Duration::Units = Duration::Units::ms, uint8_t decimalDigits = 2) const;
+    
+    void sleep() const
+    {
+        if (ms() < 0) {
+            return;
+        }
+        usleep(static_cast<uint32_t>(us()));
+    }
 
 private:
     Units units() const { return static_cast<Units>(_value & UnitsMask); }

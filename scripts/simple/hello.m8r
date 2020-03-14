@@ -1,24 +1,13 @@
-function processLine(line)
+function myDelay(t)
 {
-    var components = line.split(" ");
-    var command = components.front;
-    components.pop_front();
-
-    var task = new Task(command, consoleListener, env);
-    if (task == null) {
-        printf("mrsh: %s: command not found\n", command);
-        return;
-    }
-
-    task.arguments = components;
-    task.env = env;
-    var taskStatus = { done : false, status : 0 };
-    task.run(function(exitCode) {
-        taskStatus.done = true;
-        taskStatus.status = exitCode;
+    var done = [false];
+    var timer = new Timer(t, Timer.Once, function() {
+        done[0] = true;
     });
-
-    while (!taskStatus.done) {
+    
+    timer.start();
+    
+    while (!done[0]) {
         waitForEvent();
     }
 }
@@ -28,10 +17,10 @@ t.start();
 
 var i = 0;
 while (i < 10) {
-    print("Hello World\n");
-    delay(1);
+    printf("Hello World\n");
+    myDelay(1);
     i++;
 }
 
 currentTime();
-delay(10);
+myDelay(10);

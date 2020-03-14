@@ -10,7 +10,6 @@ COMPONENT_EXTRA_INCLUDES :=
 COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_OBJS := m8rscript.o \
     RtosSystemInterface.o \
-    RtosTaskManager.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \
     $(SRC_DIR)/Base64.o \

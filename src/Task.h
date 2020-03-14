@@ -20,24 +20,31 @@ namespace m8r {
 class ExecutionUnit;
 class String;
 
-class TaskBase : public OrderedList<TaskBase, Time>::Item {
+class TaskBase {
     friend class TaskManager;
     
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
+    
+    enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
     virtual ~TaskBase()
     {
         system()->taskManager()->terminate(this);
     }
     
-    void yield(Duration duration) { system()->taskManager()->yield(this, duration); }
+    void run(const FinishCallback& cb = nullptr)
+    {
+        _finishCB = cb;
+        system()->taskManager()->run(this);
+    }
+
     void terminate() { system()->taskManager()->terminate(this); }
-    
-    virtual Duration duration() const { return 0_sec; }
 
     Error error() const { return _error; }
-
+    
+    virtual bool hasEvents() const { return false; }
+    
 #ifndef NDEBUG
     const String& name() const { return _name; }
 #endif
@@ -45,6 +52,9 @@ public:
 protected:
     TaskBase() { }
     
+    State state() const { return _state; }
+    void setState(State state) { _state = state; }
+
     Error _error = Error::Code::OK;
 
 #ifndef NDEBUG
@@ -52,9 +62,13 @@ protected:
 #endif
 
 private:
-    virtual void finish() = 0;
+    void finish() { if (_finishCB) _finishCB(this); }
     
     virtual CallReturnValue execute() = 0;    
+
+    FinishCallback _finishCB;
+    
+    State _state = State::Ready;
 };
 
 class Task : public NativeObject, public TaskBase {
@@ -66,12 +80,6 @@ public:
     bool init(const Stream&);
     bool init(const char* filename);
     
-    void run(const FinishCallback& cb = nullptr)
-    {
-        _finishCB = cb;
-        yield(0_sec);
-    }
-
     void receivedData(const String& data, KeyAction action);
 
     void setConsolePrintFunction(std::function<void(const String&)> f);
@@ -79,14 +87,12 @@ public:
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     
-    virtual void finish() override { if (_finishCB) _finishCB(this); }
+    virtual bool hasEvents() const override;
 
 private:
     virtual CallReturnValue execute() override;
 
     Mad<ExecutionUnit> _eu;    
-    
-    FinishCallback _finishCB;
 };
 
 class TaskProto : public StaticObject {

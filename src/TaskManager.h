@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "SystemInterface.h"
+#include "Containers.h"
 #include "SystemTime.h"
+#include "Thread.h"
 #include <cstdint>
 
 namespace m8r {
@@ -20,32 +21,34 @@ class TaskBase;
 class TaskManager {
     friend class SystemInterface;
     friend class TaskBase;
+    friend class ExecutionUnit;
 
 public:
 
 protected:
     static constexpr uint8_t MaxTasks = 8;
 
-    TaskManager() { }
-    virtual ~TaskManager() { }
+    TaskManager();
+    ~TaskManager();
     
-    void yield(TaskBase*, Duration = Duration());
+    void run(TaskBase*);
     
     void terminate(TaskBase*);
     
-    void executeNextTask();
-    
-    bool empty() const { return _list.empty(); }
-    Time nextTimeToFire() const;
-    
+    bool executeNextTask();
+
 private:
-    virtual void runLoop() = 0;
+    void runLoop();
 
     // Post an event now. When event occurs, call fireEvent
-    virtual void readyToExecuteNextTask() = 0;
+    void readyToExecuteNextTask();
     
-    OrderedList<TaskBase, Time> _list;
-    bool _eventPosted = false;
+    Mutex _mutex;
+    Vector<TaskBase*> _list;
+
+    Thread _eventThread;
+    Condition _eventCondition;
+    bool _terminating = false;
 };
 
 }

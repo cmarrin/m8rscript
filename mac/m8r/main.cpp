@@ -45,8 +45,9 @@ int main(int argc, char * argv[])
         }
     }
         
+    m8r::Application application(port);
     m8r::initMacFileSystem(fsFile);
-    m8r::Application::mountFileSystem();
+    application.mountFileSystem();
     
     // Upload files if present
     for (int i = optind; i < argc; ++i) {
@@ -112,7 +113,6 @@ int main(int argc, char * argv[])
         fclose(fromFile);
     }
 
-    m8r::Application application(port);
     application.runLoop();
 
     return 0;

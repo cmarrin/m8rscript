@@ -2,7 +2,7 @@
 // Timing test
 //
 
-var n = 3000;
+var n = 4000;
 var a = [ ];
 a.length = n;
 
@@ -11,7 +11,7 @@ var startTime = currentTime();
 for (var i = 0; i < n; ++i) {
     for (var j = 0; j < n; ++j) {
         var f = 3;
-        a[j] = f * j * (j + 1) / 2;
+        a[j] = j * (j + 1) / 2;
     }
 }
 

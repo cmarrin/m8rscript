@@ -23,6 +23,7 @@
 
 #else
 
+#include "Thread.h"
 #include <array>
 #include <cstdarg>
 #include <cstdint>
@@ -72,11 +73,9 @@ namespace m8r {
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
     
-    #include <thread>
-
-    static std::mutex _gcLockMutex;
-    static std::mutex _mallocatorLockMutex;
-    static std::mutex _eventLockMutex;
+    static m8r::Mutex _gcLockMutex;
+    static m8r::Mutex _mallocatorLockMutex;
+    static m8r::Mutex _eventLockMutex;
 
     static inline void gcLock()              { _gcLockMutex.lock(); }
     static inline void gcUnlock()            { _gcLockMutex.unlock(); }
@@ -370,6 +369,9 @@ struct Label {
     NEW         RK[call], NPARAMS
     CALLPROP    RK[o], RK[p], NPARAMS
     CLOSURE     R[d], RK[s]
+    
+    DELAY       RK[s]
+    DELAYWAIT
  
     JMP         SN
     JT          RK[s], SN
@@ -406,9 +408,10 @@ enum class Op : uint8_t {
     CALLPROP, JMP, JT, JF,
 
     LINENO = 0x30, LOADTHIS, LOADUP, STOREUP,
-    CLOSURE, YIELD, POPX, RETI,
+    CLOSURE, YIELD, POPX, RETI, 
+    DELAY, DELAYWAIT,
     
-    // 0x38 - 0x3c open
+    // 0x3a - 0x3c open
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
@@ -529,8 +532,8 @@ private:
             { Layout::None, 0 },   // POPX
             { Layout::IMM,  0 },   // RETI
             
-/*0x38 */   { Layout::None, 0 },   // unused
-            { Layout::None, 0 },   // unused
+/*0x38 */   { Layout::A,    0 },   // DELAY
+            { Layout::None, 0 },   // DELAYWAIT
             { Layout::None, 0 },   // unused
             { Layout::None, 0 },   // unused
 /*0x3c */   { Layout::None, 0 },   // unused
@@ -609,99 +612,100 @@ static inline int16_t sNFromCode(const uint8_t*& code) { return static_cast<int1
 
 #undef DEC
 enum class Token : uint8_t {
-    Break = 0x01,
-    Case = 0x02,
-    Class = 0x03,
+    Break       = 0x01,
+    Case        = 0x02,
+    Class       = 0x03,
     Constructor = 0x04,
-    Continue = 0x05,
-    Default = 0x06,
-    Delete = 0x07,
-    Do = 0x08,
-    Else = 0x09,
-    False = 0x0a,
-    For = 0x0b,
-    Function = 0x0c,
-    If = 0x0d,
-    New = 0x0e,
-    Null = 0x0f,
-    Return = 0x10,
-    Switch = 0x11,
-    This = 0x12,
-    True = 0x13,
-    Undefined = 0x14,
-    Var = 0x15,
-    While = 0x016,
+    Continue    = 0x05,
+    Default     = 0x06,
+    Delete      = 0x07,
+    Do          = 0x08,
+    Else        = 0x09,
+    False       = 0x0a,
+    For         = 0x0b,
+    Function    = 0x0c,
+    If          = 0x0d,
+    New         = 0x0e,
+    Null        = 0x0f,
+    Return      = 0x10,
+    Switch      = 0x11,
+    This        = 0x12,
+    True        = 0x13,
+    Undefined   = 0x14,
+    Var         = 0x15,
+    While       = 0x016,
     
-    Bang = '!',
-    Percent = '%',
-    Ampersand = '&',
-    LParen = '(',
-    RParen = ')',
-    Star = '*',
-    Plus = '+',
-    Comma = ',',
-    Minus = '-',
-    Period = '.',
-    Slash = '/',
+    Bang        = '!',
+    Percent     = '%',
+    Ampersand   = '&',
+    LParen      = '(',
+    RParen      = ')',
+    Star        = '*',
+    Plus        = '+',
+    Comma       = ',',
+    Minus       = '-',
+    Period      = '.',
+    Slash       = '/',
     
-    Colon = ':',
-    Semicolon = ';',
-    LT = '<',
-    STO = '=',
-    GT = '>',
-    Question = '?',
+    Colon       = ':',
+    Semicolon   = ';',
+    LT          = '<',
+    STO         = '=',
+    GT          = '>',
+    Question    = '?',
     
-    LBracket = '[',
-    RBracket = ']',
-    XOR = '^',
-    LBrace = '{',
-    OR = '|',
-    RBrace = '}',
-    Twiddle = '~',
+    LBracket    = '[',
+    RBracket    = ']',
+    XOR         = '^',
+    LBrace      = '{',
+    OR          = '|',
+    RBrace      = '}',
+    Twiddle     = '~',
     
-    SHRSTO = 0x80,
-    SARSTO = 0x81,
-    SHLSTO = 0x82,
-    ADDSTO = 0x83,
-    SUBSTO = 0x84,
-    MULSTO = 0x85,
-    DIVSTO = 0x86,
-    MODSTO = 0x87,
-    ANDSTO = 0x88,
-    XORSTO = 0x89,
-    ORSTO = 0x8a,
-    SHR = 0x8b,
-    SAR = 0x8c,
-    SHL = 0x8d,
-    INC = 0x8e,
-    DEC = 0x8f,
-    LAND = 0x90,
-    LOR = 0x91,
-    LE = 0x92,
-    GE = 0x93,
-    EQ = 0x94,
-    NE = 0x95,
+    SHRSTO      = 0x80,
+    SARSTO      = 0x81,
+    SHLSTO      = 0x82,
+    ADDSTO      = 0x83,
+    SUBSTO      = 0x84,
+    MULSTO      = 0x85,
+    DIVSTO      = 0x86,
+    MODSTO      = 0x87,
+    ANDSTO      = 0x88,
+    XORSTO      = 0x89,
+    ORSTO       = 0x8a,
+    SHR         = 0x8b,
+    SAR         = 0x8c,
+    SHL         = 0x8d,
+    INC         = 0x8e,
+    DEC         = 0x8f,
+    LAND        = 0x90,
+    LOR         = 0x91,
+    LE          = 0x92,
+    GE          = 0x93,
+    EQ          = 0x94,
+    NE          = 0x95,
     
-    Unknown = 0xc0,
-    Comment = 0xc1,
-    Whitespace = 0xc2,
+    Unknown     = 0xc0,
+    Comment     = 0xc1,
+    Whitespace  = 0xc2,
 
-    Float = 0xd0,
-    Identifier = 0xd1,
-    String = 0xd2,
-    Integer = 0xd3,
+    Float       = 0xd0,
+    Identifier  = 0xd1,
+    String      = 0xd2,
+    Integer     = 0xd3,
     
-    Expr = 0xe0,
-    PropertyAssignment = 0xe1,
-    Statement = 0xe2,
-    DuplicateDefault = 0xe3,
-    MissingVarDecl = 0xe4,
-    OneVarDeclAllowed = 0xe5,
-    ConstantValueRequired = 0xe6,
+    Expr        = 0xe0,
+    
+    PropertyAssignment      = 0xe1,
+    Statement               = 0xe2,
+    DuplicateDefault        = 0xe3,
+    MissingVarDecl          = 0xe4,
+    OneVarDeclAllowed       = 0xe5,
+    ConstantValueRequired   = 0xe6,
 
-    None = 0xfd,
-    Error = 0xfe,
-    EndOfFile = 0xff,
+    None        = 0xfd,
+    Error       = 0xfe,
+    EndOfFile   = 0xff,
 };
 
 static constexpr uint8_t MajorVersion = 0;

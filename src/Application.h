@@ -34,11 +34,13 @@ public:
     String autostartFilename() const;
 
     enum class NameValidationType { Ok, BadLength, InvalidChar };
-    static NameValidationType validateBonjourName(const char* name);
+    NameValidationType validateBonjourName(const char* name);
     
-    static const char* shellName() { return "/sys/bin/mrsh"; }
+    const char* shellName() { return "/sys/bin/mrsh"; }
     
-    static bool mountFileSystem();
+    bool mountFileSystem();
+    
+    static SystemInterface* system() { assert(_system); return _system; }
 
 private:
     Mad<TCP> _shellSocket;
@@ -54,6 +56,8 @@ private:
     };
     
     ShellEntry _shells[TCP::MaxConnections];
+    
+    static SystemInterface* _system;
 };
     
 }
