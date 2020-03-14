@@ -369,9 +369,6 @@ struct Label {
     CALLPROP    RK[o], RK[p], NPARAMS
     CLOSURE     R[d], RK[s]
     
-    DELAY       RK[s]
-    DELAYWAIT
- 
     JMP         SN
     JT          RK[s], SN
     JF          RK[s], SN
@@ -408,9 +405,8 @@ enum class Op : uint8_t {
 
     LINENO = 0x30, LOADTHIS, LOADUP,
     CLOSURE, YIELD, POPX, RETI, 
-    DELAY, DELAYWAIT,
     
-    // 0x39 - 0x3c open
+    // 0x37 - 0x3c open
 
     END = 0x3d, RET = 0x3e, UNKNOWN = 0x3f,
     
@@ -529,10 +525,10 @@ private:
             { Layout::None, 0 },   // YIELD
             { Layout::None, 0 },   // POPX
             { Layout::IMM,  0 },   // RETI
-            { Layout::A,    0 },   // DELAY
-            { Layout::None, 0 },   // DELAYWAIT
             
-/*0x39 */   { Layout::None, 0 },   // unused
+/*0x37 */   { Layout::None, 0 },   // unused
+            { Layout::None, 0 },   // unused
+            { Layout::None, 0 },   // unused
             { Layout::None, 0 },   // unused
             { Layout::None, 0 },   // unused
 /*0x3c */   { Layout::None, 0 },   // unused
