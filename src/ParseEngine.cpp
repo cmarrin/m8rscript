@@ -67,6 +67,18 @@ bool ParseEngine::expect(Token token, bool expected, const char* s)
     return expected;
 }
 
+void ParseEngine::program()
+{
+    while(1) {
+        if (!statement()) {
+            if (getToken() != Token::EndOfFile) {
+                _parser->expectedError(Token::EndOfFile);
+            }
+            break;
+        }
+    }
+}
+
 bool ParseEngine::statement()
 {
     while (1) {

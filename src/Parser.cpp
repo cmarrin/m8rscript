@@ -43,16 +43,7 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
         parent = _program;
     }
     _functions.emplace_back(parent, false);
-    
-    while(1) {
-        if (!p.statement()) {
-            Scanner::TokenType type;
-            if (_scanner.getToken(type) != Token::EndOfFile) {
-                expectedError(Token::EndOfFile);
-            }
-            break;
-        }
-    }
+    p.program();
     return functionEnd();
 }
 

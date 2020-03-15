@@ -22,6 +22,10 @@ class Value;
 //
 //  Class: ParseEngine
 //
+//  BNF:
+//
+//  program:
+//
 //  
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -33,10 +37,11 @@ public:
   	~ParseEngine()
   	{
     }
+    
+    // This assumes an enclosing function is in the function stack.
+    // All the top level statements are placed in that function
+    void program();
   
-    bool statement();
-    bool classContentsStatement();
-
 private:
     class OperatorInfo {
     public:
@@ -88,6 +93,9 @@ private:
     const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }
     void retireToken() { _parser->retireToken(); }
 
+    bool statement();
+
+    bool classContentsStatement();
     bool functionStatement();
     bool classStatement();
     bool compoundStatement();
