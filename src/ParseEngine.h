@@ -95,7 +95,6 @@ private:
 
     bool statement();
 
-    bool classContentsStatement();
     bool functionStatement();
     bool classStatement();
     bool compoundStatement();
@@ -103,7 +102,15 @@ private:
     bool switchStatement();
     bool iterationStatement();
     bool jumpStatement();
+    bool varStatement();
+    bool expressionStatement();
     
+    using CaseEntry = struct { Label toStatement; Label fromStatement; int32_t statementAddr; };
+
+    bool caseClause(Vector<CaseEntry>& cases, int32_t &defaultStatement, 
+                    Label& defaultFromStatementLabel, bool& haveDefault);
+
+    bool classContents();
     uint32_t variableDeclarationList();
     bool variableDeclaration();
     

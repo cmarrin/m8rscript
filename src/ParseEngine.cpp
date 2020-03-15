@@ -69,11 +69,8 @@ bool ParseEngine::expect(Token token, bool expected, const char* s)
 
 void ParseEngine::program()
 {
-    while(1) {
-        if (!statement()) {
-            if (getToken() != Token::EndOfFile) {
-                _parser->expectedError(Token::EndOfFile);
-            }
+    while(getToken() != Token::EndOfFile) {
+        if (!expect(Token::Statement, statement())) {
             break;
         }
     }
@@ -81,89 +78,10 @@ void ParseEngine::program()
 
 bool ParseEngine::statement()
 {
-    while (1) {
-        if (getToken() == Token::EndOfFile) {
-            return false;
-        }
-        if (getToken() == Token::Semicolon) {
-            retireToken();
-            return true;
-        }
-        if (functionStatement()) {
-            return true;
-        }
-        if (classStatement()) {
-            return true;
-        }
-        if (compoundStatement() || selectionStatement() ||
-            switchStatement() || iterationStatement() || jumpStatement()) {
-            return true;
-        }
-        if (getToken() == Token::Var) {
-            retireToken();
-            expect(Token::MissingVarDecl, variableDeclarationList() > 0);
-            expect(Token::Semicolon);
-            return true;
-        } else if (commaExpression()) {
-            _parser->discardResult();
-            expect(Token::Semicolon);
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-bool ParseEngine::classContentsStatement()
-{
-    if (getToken() == Token::EndOfFile) {
-        return false;
-    }
-    if (getToken() == Token::Function) {
-        retireToken();
-        Atom name = _parser->atomizeString(getTokenValue().str);
-        expect(Token::Identifier);
-        Mad<Function> f = functionExpression(false);
-        _parser->currentClass()->setProperty(name, Value(f));
-        return true;
-    }
-    if (getToken() == Token::Constructor) {
-        retireToken();
-        Mad<Function> f = functionExpression(true);
-        if (!f.valid()) {
-            return false;
-        }
-        _parser->currentClass()->setProperty(Atom(SA::constructor), Value(f));
-        return true;
-    }
-    if (getToken() == Token::Var) {
-        retireToken();
-
-        if (getToken() != Token::Identifier) {
-            return false;
-        }
-        Atom name = _parser->atomizeString(getTokenValue().str);
-        retireToken();
-        Value v = Value::NullValue();
-        if (getToken() == Token::STO) {
-            retireToken();
-            
-            switch(getToken()) {
-                case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
-                case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
-                case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
-                case Token::True: v = Value(true); retireToken(); break;
-                case Token::False: v = Value(false); retireToken(); break;
-                case Token::Null: v = Value::NullValue(); retireToken(); break;
-                case Token::Undefined: v = Value(); retireToken(); break;
-                default: expect(Token::ConstantValueRequired);
-            }
-        }
-        _parser->currentClass()->setProperty(name, v);
-        expect(Token::Semicolon);
-        return true;
-    }
-    return false;
+    return functionStatement() || classStatement() || 
+        compoundStatement() || selectionStatement() ||
+        switchStatement() || iterationStatement() || jumpStatement() ||
+        varStatement() || expressionStatement();
 }
 
 bool ParseEngine::functionStatement()
@@ -248,56 +166,19 @@ bool ParseEngine::switchStatement()
     commaExpression();
     expect(Token::RParen);
     expect(Token::LBrace);
-
-    typedef struct { Label toStatement; Label fromStatement; int32_t statementAddr; } CaseEntry;
-
-    Vector<CaseEntry> cases;
     
     // This pushes a deferral block onto the deferred stack.
     // We use resumeDeferred()/endDeferred() for each statement block
     int32_t deferredStatementStart = _parser->startDeferred();
     _parser->endDeferred();
     
+    Vector<CaseEntry> cases;
     int32_t defaultStatement = 0;
     Label defaultFromStatementLabel;
     bool haveDefault = false;
     
     while (true) {
-        if (getToken() == Token::Case || getToken() == Token::Default) {
-            bool isDefault = getToken() == Token::Default;
-            retireToken();
-
-            if (isDefault) {
-                expect(Token::DuplicateDefault, !haveDefault);
-                haveDefault = true;
-            } else {
-                commaExpression();
-                _parser->emitCaseTest();
-            }
-            
-            expect(Token::Colon);
-            
-            if (isDefault) {
-                defaultStatement = _parser->resumeDeferred();
-                statement();
-                defaultFromStatementLabel = _parser->label();
-                _parser->addMatchedJump(Op::JMP, defaultFromStatementLabel);
-                _parser->endDeferred();
-            } else {
-                CaseEntry entry;
-                entry.toStatement = _parser->label();
-                _parser->addMatchedJump(Op::JT, entry.toStatement);
-                entry.statementAddr = _parser->resumeDeferred();
-                if (statement()) {
-                    entry.fromStatement = _parser->label();
-                    _parser->addMatchedJump(Op::JMP, entry.fromStatement);
-                } else {
-                    entry.fromStatement.label = -1;
-                }
-                _parser->endDeferred();
-                cases.push_back(entry);
-            }
-        } else {
+        if (!caseClause(cases, defaultStatement, defaultFromStatementLabel, haveDefault)) {
             break;
         }
     }
@@ -334,77 +215,6 @@ bool ParseEngine::switchStatement()
     
     _parser->discardResult();
     return true;
-}
-
-void ParseEngine::forLoopCondAndIt()
-{
-    // On entry, we are at the semicolon before the cond expr
-    expect(Token::Semicolon);
-    Label label = _parser->label();
-    commaExpression(); // cond expr
-    _parser->addMatchedJump(m8r::Op::JF, label);
-    _parser->startDeferred();
-    expect(Token::Semicolon);
-    commaExpression(); // iterator
-    _parser->discardResult();
-    _parser->endDeferred();
-    expect(Token::RParen);
-    statement();
-
-    // resolve the continue statements
-    for (auto it : _continueStack.back()) {
-        _parser->matchJump(it);
-    }
-
-    _parser->emitDeferred();
-    _parser->jumpToLabel(Op::JMP, label);
-    _parser->matchJump(label);
-}
-
-void ParseEngine::forIteration(Atom iteratorName)
-{
-    // On entry we have the name of the iterator variable and the colon has been parsed.
-    // We need to parse the obj expression and then generate the equivalent of the following:
-    //
-    //      for (var it = new obj.iterator(obj); !it.done; it.next()) ...
-    //
-    if (iteratorName) {
-        _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    }
-    commaExpression();
-    expect(Token::RParen);
-
-    _parser->emitDup();
-    _parser->emitPush();
-    _parser->emitId(Atom(SA::iterator), Parser::IdType::NotLocal);
-    _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::NEW, Parser::RegOrConst(), 1);
-    _parser->emitMove();
-    _parser->discardResult();
-    
-    Label label = _parser->label();
-    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(Atom(SA::done), Parser::IdType::NotLocal);
-    _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
-
-    _parser->addMatchedJump(m8r::Op::JT, label);
-
-    statement();
-
-    // resolve the continue statements
-    for (auto it : _continueStack.back()) {
-        _parser->matchJump(it);
-    }
-
-    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(Atom(SA::next), Parser::IdType::NotLocal);
-    _parser->emitDeref(Parser::DerefType::Prop);
-    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
-    _parser->discardResult();
-
-    _parser->jumpToLabel(Op::JMP, label);
-    _parser->matchJump(label);
 }
 
 bool ParseEngine::iterationStatement()
@@ -529,6 +339,196 @@ bool ParseEngine::jumpStatement()
         return true;
     }
     return false;
+}
+
+bool ParseEngine::varStatement()
+{
+    if (getToken() != Token::Var) {
+        return false;
+    }
+    
+    retireToken();
+    expect(Token::MissingVarDecl, variableDeclarationList() > 0);
+    expect(Token::Semicolon);
+    return true;
+}
+
+bool ParseEngine::expressionStatement()
+{
+    if (!commaExpression()) {
+        return false;
+    }
+    
+    _parser->discardResult();
+    expect(Token::Semicolon);
+    return true;
+}
+
+bool ParseEngine::classContents()
+{
+    if (getToken() == Token::EndOfFile) {
+        return false;
+    }
+    if (getToken() == Token::Function) {
+        retireToken();
+        Atom name = _parser->atomizeString(getTokenValue().str);
+        expect(Token::Identifier);
+        Mad<Function> f = functionExpression(false);
+        _parser->currentClass()->setProperty(name, Value(f));
+        return true;
+    }
+    if (getToken() == Token::Constructor) {
+        retireToken();
+        Mad<Function> f = functionExpression(true);
+        if (!f.valid()) {
+            return false;
+        }
+        _parser->currentClass()->setProperty(Atom(SA::constructor), Value(f));
+        return true;
+    }
+    if (getToken() == Token::Var) {
+        retireToken();
+
+        if (getToken() != Token::Identifier) {
+            return false;
+        }
+        Atom name = _parser->atomizeString(getTokenValue().str);
+        retireToken();
+        Value v = Value::NullValue();
+        if (getToken() == Token::STO) {
+            retireToken();
+            
+            switch(getToken()) {
+                case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
+                case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
+                case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
+                case Token::True: v = Value(true); retireToken(); break;
+                case Token::False: v = Value(false); retireToken(); break;
+                case Token::Null: v = Value::NullValue(); retireToken(); break;
+                case Token::Undefined: v = Value(); retireToken(); break;
+                default: expect(Token::ConstantValueRequired);
+            }
+        }
+        _parser->currentClass()->setProperty(name, v);
+        expect(Token::Semicolon);
+        return true;
+    }
+    return false;
+}
+
+bool ParseEngine::caseClause(Vector<CaseEntry>& cases, 
+                             int32_t &defaultStatement, 
+                             Label& defaultFromStatementLabel, 
+                             bool& haveDefault)
+{
+    if (getToken() == Token::Case || getToken() == Token::Default) {
+        bool isDefault = getToken() == Token::Default;
+        retireToken();
+
+        if (isDefault) {
+            expect(Token::DuplicateDefault, !haveDefault);
+            haveDefault = true;
+        } else {
+            commaExpression();
+            _parser->emitCaseTest();
+        }
+        
+        expect(Token::Colon);
+        
+        if (isDefault) {
+            defaultStatement = _parser->resumeDeferred();
+            statement();
+            defaultFromStatementLabel = _parser->label();
+            _parser->addMatchedJump(Op::JMP, defaultFromStatementLabel);
+            _parser->endDeferred();
+        } else {
+            CaseEntry entry;
+            entry.toStatement = _parser->label();
+            _parser->addMatchedJump(Op::JT, entry.toStatement);
+            entry.statementAddr = _parser->resumeDeferred();
+            if (statement()) {
+                entry.fromStatement = _parser->label();
+                _parser->addMatchedJump(Op::JMP, entry.fromStatement);
+            } else {
+                entry.fromStatement.label = -1;
+            }
+            _parser->endDeferred();
+            cases.push_back(entry);
+        }
+        return true;
+    }
+    return false;
+}
+
+void ParseEngine::forLoopCondAndIt()
+{
+    // On entry, we are at the semicolon before the cond expr
+    expect(Token::Semicolon);
+    Label label = _parser->label();
+    commaExpression(); // cond expr
+    _parser->addMatchedJump(m8r::Op::JF, label);
+    _parser->startDeferred();
+    expect(Token::Semicolon);
+    commaExpression(); // iterator
+    _parser->discardResult();
+    _parser->endDeferred();
+    expect(Token::RParen);
+    statement();
+
+    // resolve the continue statements
+    for (auto it : _continueStack.back()) {
+        _parser->matchJump(it);
+    }
+
+    _parser->emitDeferred();
+    _parser->jumpToLabel(Op::JMP, label);
+    _parser->matchJump(label);
+}
+
+void ParseEngine::forIteration(Atom iteratorName)
+{
+    // On entry we have the name of the iterator variable and the colon has been parsed.
+    // We need to parse the obj expression and then generate the equivalent of the following:
+    //
+    //      for (var it = new obj.iterator(obj); !it.done; it.next()) ...
+    //
+    if (iteratorName) {
+        _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    }
+    commaExpression();
+    expect(Token::RParen);
+
+    _parser->emitDup();
+    _parser->emitPush();
+    _parser->emitId(Atom(SA::iterator), Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::NEW, Parser::RegOrConst(), 1);
+    _parser->emitMove();
+    _parser->discardResult();
+    
+    Label label = _parser->label();
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    _parser->emitId(Atom(SA::done), Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
+
+    _parser->addMatchedJump(m8r::Op::JT, label);
+
+    statement();
+
+    // resolve the continue statements
+    for (auto it : _continueStack.back()) {
+        _parser->matchJump(it);
+    }
+
+    _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
+    _parser->emitId(Atom(SA::next), Parser::IdType::NotLocal);
+    _parser->emitDeref(Parser::DerefType::Prop);
+    _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
+    _parser->discardResult();
+
+    _parser->jumpToLabel(Op::JMP, label);
+    _parser->matchJump(label);
 }
 
 uint32_t ParseEngine::variableDeclarationList()
@@ -700,7 +700,7 @@ bool ParseEngine::classExpression()
 {
     _parser->classStart();
     expect(Token::LBrace);
-    while(classContentsStatement()) { }
+    while(classContents()) { }
     expect(Token::RBrace);
     _parser->classEnd();
     return true;
