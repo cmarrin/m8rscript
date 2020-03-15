@@ -22,13 +22,71 @@ class Value;
 //
 //  Class: ParseEngine
 //
-//  BNF:
-//
-//  program:
-//
-//  
-//
 //////////////////////////////////////////////////////////////////////////////
+
+/*
+
+BNF:
+
+program:
+    { statement }
+
+statement:
+      functionStatement
+    | classStatement
+    | compoundStatement
+    | selectionStatement
+    | switchStatement
+    | iterationStatement
+    | jumpStatement
+    | varStatement
+    | expressionStatement
+  
+functionStatement:
+    "function" identifier functionExpression
+
+classStatement:
+    "class" identifier classExpression
+
+compoundStatement:
+    "{" { statement } "}"
+
+selectionStatement:
+    "if" "(" commaExpression ")" statement "else" statement
+
+switchStatement:
+    "switch" "(" commaExpression ")" "{" { caseClause } "}"
+    
+iterationStatement:
+      "while" "(" commaExpression ")" statement
+    | "do" statement "while" "(" commaExpression ")" ";"
+    | "for" "(" "var" identifier ":" commaExpression ")" statement
+    | "for" "(" "var" variableDeclarationList ";" commaExpression ";" commaExpression ")" statement
+    | "for" "(" commaExpression ":" commaExpression ")" statement
+    | "for" "(" commaExpression ";" commaExpression ";" commaExpression ")" statement
+
+jumpStatement:
+      "break" ";"
+    | "continue" ";"
+    | "return" commaExpression ";"
+
+varStatement:
+    "var" variableDeclarationList ";"
+    
+expressionStatement:
+    commaExpression ";"
+    
+identifier:
+
+functionExpression:
+
+classExpression: 
+
+commaExpression:
+
+variableDeclarationList:
+
+*/
 
 class ParseEngine  {
 public:
