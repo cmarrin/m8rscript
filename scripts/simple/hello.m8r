@@ -1,15 +1,8 @@
 function myDelay(t)
 {
     var done = [false];
-    var timer = new Timer(t, Timer.Once, function() {
-        done[0] = true;
-    });
-    
-    timer.start();
-    
-    while (!done[0]) {
-        waitForEvent();
-    }
+    (new Timer(t, Timer.Once, function() { done[0] = true; })).start();
+    while (!done[0]) { waitForEvent(); }
 }
 
 var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
