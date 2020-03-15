@@ -92,11 +92,6 @@ bool ParseEngine::statement()
             expect(Token::MissingVarDecl, variableDeclarationList() > 0);
             expect(Token::Semicolon);
             return true;
-        } else if (getToken() == Token::Delete) {
-            retireToken();
-            leftHandSideExpression();
-            expect(Token::Semicolon);
-            return true;
         } else if (expression()) {
             _parser->discardResult();
             expect(Token::Semicolon);
@@ -364,7 +359,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     if (iteratorName) {
         _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     }
-    leftHandSideExpression();
+    expression();
     expect(Token::RParen);
 
     _parser->emitDup();
@@ -560,7 +555,66 @@ bool ParseEngine::variableDeclaration()
     return true;
 }
 
-bool ParseEngine::arithmeticPrimary()
+uint32_t ParseEngine::argumentList()
+{
+    uint32_t i = 0;
+    
+    if (!arithmeticExpression()) {
+        return i;
+    }
+    _parser->emitPush();
+    ++i;
+    while (getToken() == Token::Comma) {
+        retireToken();
+        arithmeticExpression();
+        _parser->emitPush();
+        ++i;
+    }
+    return i;
+}
+
+bool ParseEngine::propertyAssignment()
+{
+    if (!propertyName()) {
+        return false;
+    }
+    return expect(Token::Colon) && expect(Token::Expr, expression());
+}
+
+bool ParseEngine::propertyName()
+{
+    switch(getToken()) {
+        case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
+        case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
+        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); return true;
+        case Token::Integer:
+            _parser->pushK(Value(getTokenValue().integer));
+            retireToken();
+            return true;
+        default: return false;
+    }
+}
+
+void ParseEngine::formalParameterList()
+{
+    if (getToken() != Token::Identifier) {
+        return;
+    }
+    while (1) {
+        _parser->functionAddParam(_parser->atomizeString(getTokenValue().str));
+        retireToken();
+        if (getToken() != Token::Comma) {
+            return;
+        }
+        retireToken();
+        if (getToken() != Token::Identifier) {
+            _parser->expectedError(Token::Identifier);
+            return;
+        }
+    }
+}
+
+bool ParseEngine::primaryExpression()
 {
     if (getToken() == Token::LParen) {
         retireToken();
@@ -568,193 +622,7 @@ bool ParseEngine::arithmeticPrimary()
         expect(Token::RParen);
         return true;
     }
-    
-    Op op;
-    switch(getToken()) {
-        case Token::INC: op = Op::PREINC; break;
-        case Token::DEC: op = Op::PREDEC; break;
-        case Token::Minus: op = Op::UMINUS; break;
-        case Token::Twiddle: op = Op::UNOT; break;
-        case Token::Bang: op = Op::UNEG; break;
-        default: op = Op::UNKNOWN; break;
-    }
-    
-    if (op != Op::UNKNOWN) {
-        retireToken();
-        arithmeticPrimary();
-        _parser->emitUnOp(op);
-        return true;
-    }
-    
-    if (!leftHandSideExpression()) {
-        return false;
-    }
-    switch(getToken()) {
-        case Token::INC: op = Op::POSTINC; break;
-        case Token::DEC: op = Op::POSTDEC; break;
-        default: op = Op::UNKNOWN; break;
-    }
-    
-    if (op != Op::UNKNOWN) {
-        retireToken();
-        _parser->emitUnOp(op);
-    }
-    return true;
-}
 
-bool ParseEngine::expression(uint8_t minPrec)
-{
-    if (!arithmeticPrimary()) {
-        return false;
-    }
-    
-    if (getToken() == Token::Question) {
-        // Test the value on TOS. If true leave the next value on the stack, otherwise leave the one after that
-        retireToken();
-
-        Label ifLabel = _parser->label();
-        Label elseLabel = _parser->label();
-        _parser->addMatchedJump(m8r::Op::JF, elseLabel);
-        _parser->pushTmp();
-        expression();
-        _parser->emitMove();
-        expect(Token::Colon);
-        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
-        _parser->matchJump(elseLabel);
-        expression();
-        _parser->emitMove();
-        _parser->matchJump(ifLabel);
-    }
-    
-    while(1) {
-        OperatorInfo* endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
-        OperatorInfo* it = std::find(_opInfos, endit, getToken());
-        if (it == endit || it->prec() < minPrec) {
-            break;
-        }
-        uint8_t nextMinPrec = (it->assoc() == OperatorInfo::Assoc::Left) ? (it->prec() + 1) : it->prec();
-        retireToken();
-        if (it->sto()) {
-            _parser->emitDup();
-        }
-    
-        // If the op is LAND or LOR we want to short circuit. Add logic
-        // here to jump over the next expression if TOS is false in the
-        // case of LAND or true in the case of LOR
-        if (it->op() == Op::LAND || it->op() == Op::LOR) {
-            _parser->emitDup();
-            Label passLabel = _parser->label();
-            Label skipLabel = _parser->label();
-            bool skipResult = it->op() != Op::LAND;
-            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
-            
-            if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
-                return false;
-            }
-            
-            _parser->emitBinOp(it->op());
-            _parser->addMatchedJump(Op::JMP, passLabel);
-            _parser->matchJump(skipLabel);
-            _parser->pushK(Value(skipResult));
-            _parser->emitMove();
-            _parser->matchJump(passLabel);
-        } else {
-            if (!expect(Token::Expr, expression(nextMinPrec), "right-hand side")) {
-                return false;
-            }
-            _parser->emitBinOp(it->op());
-        }
-        
-        if (it->sto()) {
-            _parser->emitMove();
-        }
-    }
-    return true;
-}
-
-bool ParseEngine::leftHandSideExpression()
-{
-    if (!memberExpression()) {
-        return false;
-    }
-    
-    Parser::RegOrConst objectReg;
-    while(1) {
-        if (getToken() == Token::LParen) {
-            retireToken();
-            uint32_t argCount = argumentList();
-            expect(Token::RParen);
-            _parser->emitCallRet(m8r::Op::CALL, objectReg, argCount);
-            objectReg = Parser::RegOrConst();
-        } else if (getToken() == Token::LBracket) {
-            retireToken();
-            expression();
-            expect(Token::RBracket);
-            objectReg = _parser->emitDeref(Parser::DerefType::Elt);
-        } else if (getToken() == Token::Period) {
-            retireToken();
-            Atom name = _parser->atomizeString(getTokenValue().str);
-            expect(Token::Identifier);
-            _parser->emitId(name, Parser::IdType::NotLocal);
-            objectReg = _parser->emitDeref(Parser::DerefType::Prop);
-        } else {
-            return true;
-        }
-    }
-}
-
-bool ParseEngine::memberExpression()
-{
-    if (getToken() == Token::New) {
-        retireToken();
-        memberExpression();
-        uint32_t argCount = 0;
-        if (getToken() == Token::LParen) {
-            retireToken();
-            argCount = argumentList();
-            expect(Token::RParen);
-        }
-        _parser->emitCallRet(m8r::Op::NEW, Parser::RegOrConst(), argCount);
-        return true;
-    }
-    
-    if (getToken() == Token::Function) {
-        retireToken();
-        Mad<Function> f = functionExpression(false);
-        if (!f.valid()) {
-            return false;
-        }
-        _parser->pushK(Value(f));
-        return true;
-    }
-    if (getToken() == Token::Class) {
-        retireToken();
-        classExpression();
-        return true;
-    }
-    return primaryExpression();
-}
-
-uint32_t ParseEngine::argumentList()
-{
-    uint32_t i = 0;
-    
-    if (!expression()) {
-        return i;
-    }
-    _parser->emitPush();
-    ++i;
-    while (getToken() == Token::Comma) {
-        retireToken();
-        expression();
-        _parser->emitPush();
-        ++i;
-    }
-    return i;
-}
-
-bool ParseEngine::primaryExpression()
-{
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
         case Token::This: _parser->pushThis(); retireToken(); break;
@@ -803,28 +671,6 @@ bool ParseEngine::primaryExpression()
     return true;
 }
 
-bool ParseEngine::propertyAssignment()
-{
-    if (!propertyName()) {
-        return false;
-    }
-    return expect(Token::Colon) && expect(Token::Expr, expression());
-}
-
-bool ParseEngine::propertyName()
-{
-    switch(getToken()) {
-        case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
-        case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
-        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); return true;
-        case Token::Integer:
-            _parser->pushK(Value(getTokenValue().integer));
-            retireToken();
-            return true;
-        default: return false;
-    }
-}
-
 Mad<Function> ParseEngine::functionExpression(bool ctor)
 {
     expect(Token::LParen);
@@ -848,22 +694,189 @@ bool ParseEngine::classExpression()
     return true;
 }
 
-void ParseEngine::formalParameterList()
+bool ParseEngine::objectExpression()
 {
-    if (getToken() != Token::Identifier) {
-        return;
-    }
-    while (1) {
-        _parser->functionAddParam(_parser->atomizeString(getTokenValue().str));
+    if (getToken() == Token::New) {
         retireToken();
-        if (getToken() != Token::Comma) {
-            return;
+        primaryExpression();
+        uint32_t argCount = 0;
+        if (getToken() == Token::LParen) {
+            retireToken();
+            argCount = argumentList();
+            expect(Token::RParen);
         }
+        _parser->emitCallRet(m8r::Op::NEW, Parser::RegOrConst(), argCount);
+        return true;
+    }
+    
+    if (getToken() == Token::Delete) {
         retireToken();
-        if (getToken() != Token::Identifier) {
-            _parser->expectedError(Token::Identifier);
-            return;
+        unaryExpression();
+        return true;
+    } 
+    
+    if (getToken() == Token::Function) {
+        retireToken();
+        Mad<Function> f = functionExpression(false);
+        if (!f.valid()) {
+            return false;
+        }
+        _parser->pushK(Value(f));
+        return true;
+    }
+    if (getToken() == Token::Class) {
+        retireToken();
+        classExpression();
+        return true;
+    }
+    return false;
+}
+
+bool ParseEngine::postfixExpression()
+{
+    if (!primaryExpression()) {
+        return false;
+    }
+
+    Parser::RegOrConst objectReg;
+    while(1) {
+        Token token = getToken();
+        
+        if (token == Token::INC || token == Token::DEC) {
+            retireToken();
+            _parser->emitUnOp((token == Token::INC) ? Op::POSTINC : Op::POSTDEC);
+        } else if (getToken() == Token::LParen) {
+            retireToken();
+            uint32_t argCount = argumentList();
+            expect(Token::RParen);
+            _parser->emitCallRet(m8r::Op::CALL, objectReg, argCount);
+            objectReg = Parser::RegOrConst();
+        } else if (getToken() == Token::LBracket) {
+            retireToken();
+            expression();
+            expect(Token::RBracket);
+            objectReg = _parser->emitDeref(Parser::DerefType::Elt);
+        } else if (getToken() == Token::Period) {
+            retireToken();
+            Atom name = _parser->atomizeString(getTokenValue().str);
+            expect(Token::Identifier);
+            _parser->emitId(name, Parser::IdType::NotLocal);
+            objectReg = _parser->emitDeref(Parser::DerefType::Prop);
+        } else {
+            return true;
         }
     }
 }
 
+bool ParseEngine::unaryExpression()
+{
+    if (objectExpression()) {
+        return true;
+    }
+    
+    if (postfixExpression()) {
+        return true;
+    }
+    
+    Op op;
+    switch(getToken()) {
+        case Token::INC: op = Op::PREINC; break;
+        case Token::DEC: op = Op::PREDEC; break;
+        case Token::Minus: op = Op::UMINUS; break;
+        case Token::Twiddle: op = Op::UNOT; break;
+        case Token::Bang: op = Op::UNEG; break;
+        default: op = Op::UNKNOWN; break;
+    }
+    
+    if (op == Op::UNKNOWN) {
+        return false;
+    }
+    
+    retireToken();
+    unaryExpression();
+    _parser->emitUnOp(op);
+    return true;
+}
+
+bool ParseEngine::arithmeticExpression(uint8_t minPrec)
+{
+    if (!unaryExpression()) {
+        return false;
+    }
+    
+    if (getToken() == Token::Question) {
+        // Test the value on TOS. If true leave the next value on the stack, otherwise leave the one after that
+        retireToken();
+
+        Label ifLabel = _parser->label();
+        Label elseLabel = _parser->label();
+        _parser->addMatchedJump(m8r::Op::JF, elseLabel);
+        _parser->pushTmp();
+        expression();
+        _parser->emitMove();
+        expect(Token::Colon);
+        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
+        _parser->matchJump(elseLabel);
+        expression();
+        _parser->emitMove();
+        _parser->matchJump(ifLabel);
+    }
+    
+    while(1) {
+        OperatorInfo* endit = _opInfos + sizeof(_opInfos) / sizeof(OperatorInfo);
+        OperatorInfo* it = std::find(_opInfos, endit, getToken());
+        if (it == endit || it->prec() < minPrec) {
+            break;
+        }
+        uint8_t nextMinPrec = (it->assoc() == OperatorInfo::Assoc::Left) ? (it->prec() + 1) : it->prec();
+        retireToken();
+        if (it->sto()) {
+            _parser->emitDup();
+        }
+    
+        // If the op is LAND or LOR we want to short circuit. Add logic
+        // here to jump over the next expression if TOS is false in the
+        // case of LAND or true in the case of LOR
+        if (it->op() == Op::LAND || it->op() == Op::LOR) {
+            _parser->emitDup();
+            Label passLabel = _parser->label();
+            Label skipLabel = _parser->label();
+            bool skipResult = it->op() != Op::LAND;
+            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
+            
+            if (!expect(Token::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+                return false;
+            }
+            
+            _parser->emitBinOp(it->op());
+            _parser->addMatchedJump(Op::JMP, passLabel);
+            _parser->matchJump(skipLabel);
+            _parser->pushK(Value(skipResult));
+            _parser->emitMove();
+            _parser->matchJump(passLabel);
+        } else {
+            if (!expect(Token::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+                return false;
+            }
+            _parser->emitBinOp(it->op());
+        }
+        
+        if (it->sto()) {
+            _parser->emitMove();
+        }
+    }
+    return true;
+}
+
+bool ParseEngine::expression()
+{
+    if (!arithmeticExpression()) {
+        return false;
+    }
+    while (getToken() == Token::Comma) {
+        if (!expect(Token::Expr, arithmeticExpression(), "expression")) {
+            return false;
+        }
+    }
+    return true;
+}

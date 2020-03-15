@@ -36,7 +36,6 @@ public:
   
     bool statement();
     bool classContentsStatement();
-    bool expression(uint8_t minPrec = 1);
 
 private:
     class OperatorInfo {
@@ -100,14 +99,6 @@ private:
     uint32_t variableDeclarationList();
     bool variableDeclaration();
     
-    bool arithmeticPrimary();
-    
-    bool leftHandSideExpression();
-    bool memberExpression();
-    bool primaryExpression();
-    
-    Mad<Function> functionExpression(bool ctor);
-    bool classExpression();
     uint32_t argumentList();
     void forLoopCondAndIt();
     void forIteration(Atom iteratorName);
@@ -115,6 +106,16 @@ private:
     bool propertyName();
     void formalParameterList();
     
+
+    bool primaryExpression();
+    Mad<Function> functionExpression(bool ctor);
+    bool classExpression();
+    bool objectExpression();
+    bool postfixExpression();
+    bool unaryExpression();
+    bool arithmeticExpression(uint8_t minPrec = 1);
+    bool expression();
+
     Parser* _parser;
     Token _currentToken = Token::None;
     Scanner::TokenType _currentTokenValue;
