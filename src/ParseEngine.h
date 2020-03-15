@@ -114,7 +114,7 @@ private:
     bool postfixExpression();
     bool unaryExpression();
     bool arithmeticExpression(uint8_t minPrec = 1);
-    bool expression();
+    bool commaExpression();
 
     Parser* _parser;
     Token _currentToken = Token::None;

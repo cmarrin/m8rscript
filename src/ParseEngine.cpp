@@ -92,7 +92,7 @@ bool ParseEngine::statement()
             expect(Token::MissingVarDecl, variableDeclarationList() > 0);
             expect(Token::Semicolon);
             return true;
-        } else if (expression()) {
+        } else if (commaExpression()) {
             _parser->discardResult();
             expect(Token::Semicolon);
             return true;
@@ -205,7 +205,7 @@ bool ParseEngine::selectionStatement()
     }
     retireToken();
     expect(Token::LParen);
-    expression();
+    commaExpression();
     
     Label ifLabel = _parser->label();
     Label elseLabel = _parser->label();
@@ -233,7 +233,7 @@ bool ParseEngine::switchStatement()
     }
     retireToken();
     expect(Token::LParen);
-    expression();
+    commaExpression();
     expect(Token::RParen);
     expect(Token::LBrace);
 
@@ -259,7 +259,7 @@ bool ParseEngine::switchStatement()
                 expect(Token::DuplicateDefault, !haveDefault);
                 haveDefault = true;
             } else {
-                expression();
+                commaExpression();
                 _parser->emitCaseTest();
             }
             
@@ -329,11 +329,11 @@ void ParseEngine::forLoopCondAndIt()
     // On entry, we are at the semicolon before the cond expr
     expect(Token::Semicolon);
     Label label = _parser->label();
-    expression(); // cond expr
+    commaExpression(); // cond expr
     _parser->addMatchedJump(m8r::Op::JF, label);
     _parser->startDeferred();
     expect(Token::Semicolon);
-    expression(); // iterator
+    commaExpression(); // iterator
     _parser->discardResult();
     _parser->endDeferred();
     expect(Token::RParen);
@@ -359,7 +359,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     if (iteratorName) {
         _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     }
-    expression();
+    commaExpression();
     expect(Token::RParen);
 
     _parser->emitDup();
@@ -409,7 +409,7 @@ bool ParseEngine::iterationStatement()
     if (type == Token::While) {
         expect(Token::LParen);
         Label label = _parser->label();
-        expression();
+        commaExpression();
         _parser->addMatchedJump(m8r::Op::JF, label);
         expect(Token::RParen);
         statement();
@@ -432,7 +432,7 @@ bool ParseEngine::iterationStatement()
 
         expect(Token::While);
         expect(Token::LParen);
-        expression();
+        commaExpression();
         _parser->jumpToLabel(m8r::Op::JT, label);
         expect(Token::RParen);
         expect(Token::Semicolon);
@@ -459,7 +459,7 @@ bool ParseEngine::iterationStatement()
                 forLoopCondAndIt();
             }
         } else {
-            if (expression()) {
+            if (commaExpression()) {
                 if (getToken() == Token::Colon) {
                     // for-in case with left hand expr
                     retireToken();
@@ -502,7 +502,7 @@ bool ParseEngine::jumpStatement()
     if (getToken() == Token::Return) {
         retireToken();
         uint8_t count = 0;
-        if (expression()) {
+        if (commaExpression()) {
             count = 1;
         }
         
@@ -546,7 +546,7 @@ bool ParseEngine::variableDeclaration()
     retireToken();
     _parser->emitId(name, Parser::IdType::MustBeLocal);
 
-    if (!expect(Token::Expr, expression(), "variable")) {
+    if (!expect(Token::Expr, arithmeticExpression(), "variable")) {
         return false;
     }
 
@@ -578,7 +578,7 @@ bool ParseEngine::propertyAssignment()
     if (!propertyName()) {
         return false;
     }
-    return expect(Token::Colon) && expect(Token::Expr, expression());
+    return expect(Token::Colon) && expect(Token::Expr, arithmeticExpression());
 }
 
 bool ParseEngine::propertyName()
@@ -618,7 +618,7 @@ bool ParseEngine::primaryExpression()
 {
     if (getToken() == Token::LParen) {
         retireToken();
-        expression();
+        commaExpression();
         expect(Token::RParen);
         return true;
     }
@@ -636,11 +636,11 @@ bool ParseEngine::primaryExpression()
         case Token::LBracket:
             retireToken();
             _parser->emitLoadLit(true);
-            if (expression()) {
+            if (arithmeticExpression()) {
                 _parser->emitAppendElt();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Token::Expr, expression(), "array element")) {
+                    if (!expect(Token::Expr, arithmeticExpression(), "array element")) {
                         break;
                     }
                     _parser->emitAppendElt();
@@ -753,7 +753,7 @@ bool ParseEngine::postfixExpression()
             objectReg = Parser::RegOrConst();
         } else if (getToken() == Token::LBracket) {
             retireToken();
-            expression();
+            commaExpression();
             expect(Token::RBracket);
             objectReg = _parser->emitDeref(Parser::DerefType::Elt);
         } else if (getToken() == Token::Period) {
@@ -812,12 +812,12 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
         Label elseLabel = _parser->label();
         _parser->addMatchedJump(m8r::Op::JF, elseLabel);
         _parser->pushTmp();
-        expression();
+        commaExpression();
         _parser->emitMove();
         expect(Token::Colon);
         _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
-        expression();
+        arithmeticExpression();
         _parser->emitMove();
         _parser->matchJump(ifLabel);
     }
@@ -868,7 +868,7 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
     return true;
 }
 
-bool ParseEngine::expression()
+bool ParseEngine::commaExpression()
 {
     if (!arithmeticExpression()) {
         return false;
