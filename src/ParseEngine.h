@@ -41,50 +41,198 @@ statement:
     | jumpStatement
     | varStatement
     | expressionStatement
+    ;
   
 functionStatement:
-    "function" identifier functionExpression
+    'function' identifier functionExpression ;
 
 classStatement:
-    "class" identifier classExpression
+    'class' identifier classExpression ;
 
 compoundStatement:
-    "{" { statement } "}"
+    '{' { statement } '}' ;
 
 selectionStatement:
-    "if" "(" commaExpression ")" statement "else" statement
+    'if' '(' commaExpression ')' statement 'else' statement ;
 
 switchStatement:
-    "switch" "(" commaExpression ")" "{" { caseClause } "}"
+    'switch' '(' commaExpression ')' '{' { caseClause } '}' ;
     
 iterationStatement:
-      "while" "(" commaExpression ")" statement
-    | "do" statement "while" "(" commaExpression ")" ";"
-    | "for" "(" "var" identifier ":" commaExpression ")" statement
-    | "for" "(" "var" variableDeclarationList ";" commaExpression ";" commaExpression ")" statement
-    | "for" "(" commaExpression ":" commaExpression ")" statement
-    | "for" "(" commaExpression ";" commaExpression ";" commaExpression ")" statement
-
+      'while' '(' commaExpression ')' statement
+    | 'do' statement 'while' '(' commaExpression ')' ';'
+    | 'for' '(' 'var' identifier ':' commaExpression ')' statement
+    | 'for' '(' 'var' variableDeclarationList ';' commaExpression ';' commaExpression ')' statement
+    | 'for' '(' commaExpression ':' commaExpression ')' statement
+    | 'for' '(' commaExpression ';' commaExpression ';' commaExpression ')' statement
+    ;
+    
 jumpStatement:
-      "break" ";"
-    | "continue" ";"
-    | "return" commaExpression ";"
-
+      'break' ';'
+    | 'continue' ';'
+    | 'return' commaExpression ';'
+    ;
+    
 varStatement:
-    "var" variableDeclarationList ";"
+    'var' variableDeclarationList ';' ;
     
 expressionStatement:
-    commaExpression ";"
+    commaExpression ';' ;
     
-identifier:
-
 functionExpression:
+    '(' formalParameterList ')' '{' { statement } '}' ;
 
-classExpression: 
+classExpression:
+    '{' { classContents } '}' ;
+
+primaryExpression:
+      '(' commaExpression ')'
+    | identifier
+    | 'this'
+    | float
+    | integer
+    | string
+    | boolean
+    | 'null'
+    | 'undefined'
+    | '[' ']'
+    | '[' arithmeticExpression { ',' arithmeticExpression } ']'
+    | '{' '}'
+    | '{' propertyAssignment { ',' propertyAssignment }
+    ;
+
+postfixExpression:
+      primaryExpression
+    | primaryExpression '++'
+    | primaryExpression '--'
+    | primaryExpression '(' argumentList ')'
+    | primaryExpression '[' commaExpression ']'
+    | primaryExpression '.' identifier
+    ;
+
+objectExpression:
+      'new' primaryExpression { '(' argumentList ')'
+    | 'delete' unaryExpression
+    | 'function' functionExpression
+    | 'class' classExpression
+    ;
+
+unaryExpression:
+      objectExpression
+    | postfixExpression
+    | '++' unaryExpression
+    | '--' unaryExpression
+    | '-' unaryExpression
+    | '~' unaryExpression
+    | '!' unaryExpression
+    ;
+    
+arithmeticExpression:
+      unaryExpression
+    | unaryExpression '?' commaExpression ':' arithmeticExpression
+    | unaryExpression operator arithmeticExpression
 
 commaExpression:
+    arithmeticExpression { ',' arithmeticExpression } ;
+
+formalParameterList:
+      (* empty *)
+    | identifier { ',' identifier }
+      ;
+
+propertyName:
+      identifier
+    | string
+    | float
+    | integer
+    ;
+      
+propertyAssignment:
+    propertyName ':' arithmeticExpression ;
+
+variableDeclaration:
+    identifier { '=' arithmeticExpression } ;
 
 variableDeclarationList:
+      (* empty *)
+    | variableDeclaration { ',' variableDeclaration }
+    ;
+
+argumentList:
+        (* empty *)
+      | arithmeticExpression { ',' arithmeticExpression }
+      ;
+
+classContents:
+      'function' identifier functionExpression
+    | 'constructor' functionExpression
+    | 'var' identifier { '=' (float | integer | string | boolean | 'null' | 'undefined')
+    ;
+    
+operator: (* operator   precedence   association *)
+               '='     (*   1          Right    *)
+    |          '+='    (*   1          Right    *)
+    |          '-='    (*   1          Right    *)
+    |          '*='    (*   1          Right    *)
+    |          '/='    (*   1          Right    *)
+    |          '%='    (*   1          Right    *)
+    |          '<<='   (*   1          Right    *)
+    |          '>>='   (*   1          Right    *)
+    |          '>>>='  (*   1          Right    *)
+    |          '&='    (*   1          Right    *)
+    |          '|='    (*   1          Right    *)
+    |          '^='    (*   1          Right    *)
+    |          '||'    (*   2          Left     *)
+    |          '&&'    (*   3          Left     *)
+    |          '|'     (*   4          Left     *)
+    |          '^'     (*   5          Left     *)
+    |          '&'     (*   6          Left     *)
+    |          '=='    (*   7          Left     *)
+    |          '!='    (*   7          Left     *)
+    |          '<'     (*   8          Left     *)
+    |          '>'     (*   8          Left     *)
+    |          '>='    (*   8          Left     *)
+    |          '<='    (*   8          Left     *)
+    |          '<<'    (*   9          Left     *)
+    |          '>>'    (*   9          Left     *)
+    |          '<<<'   (*   9          Left     *)
+    |          '+'     (*   10         Left     *)
+    |          '-'     (*   10         Left     *)
+    |          '*'     (*   11         Left     *)
+    |          '/'     (*   11         Left     *)
+    |          '%'     (*   11         Left     *)
+    ;
+    
+identifier: idFirst { idFirst | digit } ;
+ 
+float:
+      { digit } '.' { digit }
+    | { digit } ('e' | 'E') { '-' } dight { digit }
+    | { digit } '.' { digit } ('e' | 'E') { '-' } dight { digit }
+    ;
+    
+integer: digit { digit } ;
+ 
+string:
+      '\'' (* any character except '\''*) '\''
+    | '"' (* any character except '"'*) '"'
+ 
+boolean: 'true' | 'false' ;
+ 
+idFirst: letter | '$' '_' ;
+ 
+letter:
+      'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
+    | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N'
+    | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U'
+    | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b'
+    | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i'
+    | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p'
+    | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w'
+    | 'x' | 'y' | 'z'
+    ;
+    
+digit: '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
 
 */
 
