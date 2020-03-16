@@ -97,9 +97,9 @@ bool Task::init(const Stream& stream)
     return true;
 }
 
-bool Task::hasEvents() const
+bool Task::readyToRun() const
 {
-    return eu()->hasEvents();
+    return TaskBase::readyToRun() || eu()->readyToRun();
 }
 
 void Task::receivedData(const String& data, KeyAction action)

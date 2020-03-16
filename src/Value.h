@@ -78,9 +78,7 @@ public:
         switch(type) {
             case Type::Delay:
                  assert(value <= MaxDelay);
-                 
-                 // If a 0 delay was passed, handle this like a yield
-                 _value = (value == 0) ? YieldValue : -value;
+                 _value = (value == 0) ? -1 : -value;
                  break;
             case Type::ReturnCount: assert(value <= MaxReturnCount); _value = value; break;
              case Type::FunctionStart: _value = FunctionStartValue; break;

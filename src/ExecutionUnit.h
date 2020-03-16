@@ -38,6 +38,9 @@ public:
     void startExecution(Mad<Program>);
     
     CallReturnValue continueExecution();
+
+    void startDelay(Duration);
+    void continueDelay();
     
     CallReturnValue import(const Stream&, Value);
     
@@ -91,7 +94,10 @@ public:
     static Mad<String> createString(String&& other);
     static Mad<String> createString(const char* str, int32_t length = -1);
     
-    bool hasEvents() const { return !_eventQueue.empty(); }
+    bool readyToRun() const
+    {
+        return !_eventQueue.empty() || (executingDelay() && _delayComplete);
+    }
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
@@ -116,6 +122,7 @@ private:
     }
     
     void startFunction(Mad<Callable> function, Mad<Object> thisObject, uint32_t nparams);
+    CallReturnValue endFunction();
     CallReturnValue runNextEvent();
 
     void printError(ROMString s, ...) const;
@@ -128,9 +135,7 @@ private:
 
     void updateCodePointer()
     {
-        assert(_function->code());
-        _codeSize = _function->code()->size();
-        _code = &(_function->code()->front());
+        _code = _function.valid() ? &(_function->code()->front()) : nullptr;
         _currentAddr = _code;
     }
     
@@ -181,6 +186,14 @@ private:
 
     int compareValues(const Value& a, const Value& b);
     
+    bool executingDelay() const
+    {
+        if (_callRecords.empty()) {
+            return false;
+        }
+        return _callRecords.back()._executingDelay;
+    }
+    
     struct CallRecord {
         CallRecord() { }
         CallRecord(uint32_t pc, uint32_t frame, Mad<Callable> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, size_t stackSize)
@@ -200,6 +213,7 @@ private:
         Mad<Object> _thisObj;
         uint32_t _lineno;
         size_t _stackSize = 0;
+        bool _executingDelay = false;
     };
     
     using EventValue = Value;
@@ -216,7 +230,6 @@ private:
     uint16_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
 
-    uint32_t _codeSize;
     const uint8_t* _code = nullptr;
     const uint8_t* _currentAddr = nullptr;
     Value* _framePtr = nullptr;
@@ -226,6 +239,7 @@ private:
     
     EventValueVector _eventQueue;
     bool _executingEvent = false;
+    bool _delayComplete = false;
     uint32_t _numEventListeners = 0;
     
     uint32_t _lineno = 0;

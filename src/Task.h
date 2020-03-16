@@ -43,7 +43,7 @@ public:
 
     Error error() const { return _error; }
     
-    virtual bool hasEvents() const { return false; }
+    virtual bool readyToRun() const { return state() == State::Ready; }
     
 #ifndef NDEBUG
     const String& name() const { return _name; }
@@ -87,7 +87,7 @@ public:
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     
-    virtual bool hasEvents() const override;
+    virtual bool readyToRun() const override;
 
 private:
     virtual CallReturnValue execute() override;

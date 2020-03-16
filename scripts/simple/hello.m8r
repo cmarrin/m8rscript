@@ -1,19 +1,12 @@
-function myDelay(t)
-{
-    var done = [false];
-    (new Timer(t, Timer.Once, function() { done[0] = true; })).start();
-    while (!done[0]) { waitForEvent(); }
-}
-
 var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
 t.start();
 
 var i = 0;
 while (i < 10) {
     printf("Hello World\n");
-    myDelay(1);
+    delay(1);
     i++;
 }
 
 currentTime();
-myDelay(10);
+delay(10);

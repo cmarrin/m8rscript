@@ -90,7 +90,7 @@ bool TaskManager::executeNextTask()
         
         // Find the next executable task
         auto it = std::find_if(_list.begin(), _list.end(), [](TaskBase* task) {
-            return task->state() == Task::State::Ready || task->hasEvents();
+            return task->readyToRun();
         });
 
         if (it == _list.end()) {
@@ -108,8 +108,6 @@ bool TaskManager::executeNextTask()
     
     CallReturnValue returnValue = task->execute();
     
-    assert(!returnValue.isDelay());
-    
     if (returnValue.isYield()) {
         task->setState(Task::State::Ready);
     } else if (returnValue.isTerminated()) {
@@ -122,6 +120,8 @@ bool TaskManager::executeNextTask()
         task->finish();
     } else if (returnValue.isWaitForEvent()) {
         task->setState(Task::State::WaitingForEvent);
+    } else if (returnValue.isDelay()) {
+        task->setState(Task::State::Delaying);
     }
     
     return true;

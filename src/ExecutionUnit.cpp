@@ -16,6 +16,7 @@
 #include "Parser.h"
 #include "SystemInterface.h"
 #include "SystemTime.h"
+#include "Thread.h"
 
 using namespace m8r;
 
@@ -347,16 +348,14 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
 void ExecutionUnit::startFunction(Mad<Callable> function, Mad<Object> thisObject, uint32_t nparams)
 {
     assert(_program.valid());
-    assert(function.valid());
     
     Mad<Callable> prevFunction = _function;
     _function =  function;
-    assert(_function->code() && _function->code()->size());
 
-    _formalParamCount = _function->formalParamCount();
+    _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
     uint32_t prevActualParamCount = _actualParamCount;
     _actualParamCount = nparams;
-    _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
+    _localOffset = (_formalParamCount < _actualParamCount) ? (_actualParamCount - _formalParamCount) : 0;
     
     Mad<Object> prevThis = _this;
     _this = thisObject;
@@ -365,12 +364,79 @@ void ExecutionUnit::startFunction(Mad<Callable> function, Mad<Object> thisObject
     }
     
     size_t stackSize = _stack.size() - nparams;
-    uint16_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function->localCount());
+    uint16_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function.valid() ? _function->localCount() : 0);
     
     _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, stackSize });
     
     _framePtr =_stack.framePtr();
     updateCodePointer();
+}
+
+CallReturnValue ExecutionUnit::endFunction()
+{
+    uint32_t localsToPop = _function.valid() ? (_function->localCount() + _localOffset) : 0;
+     
+    // Get the call record entries from the call stack and pop it.
+    assert(!_callRecords.empty());
+    const CallRecord& callRecord = _callRecords.back();
+    
+    // Close any upValues that need it
+    closeUpValues(callRecord._frame);
+
+    Mad<Object> prevThis = _this;
+    
+    _actualParamCount = callRecord._paramCount;
+    _this = callRecord._thisObj;
+    assert(_this.valid());
+    _stack.restoreFrame(callRecord._frame, localsToPop);
+    _framePtr =_stack.framePtr();
+    
+    _function = callRecord._func;
+    updateCodePointer();
+    _currentAddr = _code + callRecord._pc;
+    
+    _lineno = callRecord._lineno;
+    
+    if (callRecord._stackSize != _stack.size()) {
+        printError(ROMSTR("internal error. On function return stack has %d elements, should have %d"), _stack.size(), callRecord._stackSize);
+        _terminate = true;
+        _stack.clear();
+        GC::gc(true);
+        return CallReturnValue(CallReturnValue::Type::Terminated);
+    }
+
+     _callRecords.pop_back();
+
+     _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
+     _localOffset = (_formalParamCount < _actualParamCount) ? (_actualParamCount - _formalParamCount) : 0;
+
+     return CallReturnValue(CallReturnValue::Type::Yield);
+}
+
+void ExecutionUnit::startDelay(Duration duration)
+{
+    _delayComplete = false;
+    
+    startFunction(Mad<Callable>(), Mad<Object>(), 0);
+    _callRecords.back()._executingDelay = true;
+    Thread(1024, [this, duration] {
+        duration.sleep();
+        eventLock();
+        _delayComplete = true;
+        eventUnlock();
+        system()->taskManager()->readyToExecuteNextTask();
+    }).detach();
+}
+
+void ExecutionUnit::continueDelay()
+{
+    eventLock();
+    if (_delayComplete) {
+        eventUnlock();
+        endFunction();
+        return;
+    }
+    eventUnlock();
 }
 
 static inline bool valuesAreInt(const Value& a, const Value& b)
@@ -496,13 +562,15 @@ CallReturnValue ExecutionUnit::continueExecution()
     Mad<Object> objectValue;
     Value returnedValue;
     CallReturnValue callReturnValue;
-    uint32_t localsToPop;
-    Mad<Object> prevThis;
     Atom prop;
     uint8_t ra, rb;
     
     uint8_t imm;
     Op op = Op::UNKNOWN;
+    
+    if (executingDelay()) {
+        continueDelay();
+    }
     
     if(!_eventQueue.empty()) {
         goto L_YIELD;
@@ -583,52 +651,21 @@ CallReturnValue ExecutionUnit::continueExecution()
         returnedValue = (callReturnValue.isReturnCount() && callReturnValue.returnCount() > 0) ? _stack.top(1 - callReturnValue.returnCount()) : Value();
         _stack.pop(callReturnValue.returnCount());
         
-        localsToPop = _function->localCount() + _localOffset;
-        
-        // Make a block so we can have a local var
-        {
-            // Get the call record entries from the call stack and pop it.
-            assert(!_callRecords.empty());
-            const CallRecord& callRecord = _callRecords.back();
-            
-            // Close any upValues that need it
-            closeUpValues(callRecord._frame);
-
-            prevThis = _this;
-            
-            _actualParamCount = callRecord._paramCount;
-            _this = callRecord._thisObj;
-            assert(_this.valid());
-            _stack.restoreFrame(callRecord._frame, localsToPop);
-            _framePtr =_stack.framePtr();
-            
-            _function = callRecord._func;
-            updateCodePointer();
-            _currentAddr = _code + callRecord._pc;
-            
-            _lineno = callRecord._lineno;
-            
-            if (callRecord._stackSize != _stack.size()) {
-                printError(ROMSTR("internal error. On function return stack has %d elements, should have %d"), _stack.size(), callRecord._stackSize);
-                _terminate = true;
-                _stack.clear();
-                GC::gc(true);
-                return CallReturnValue(CallReturnValue::Type::Terminated);
-            }
-
-            _callRecords.pop_back();
+        callReturnValue = endFunction();
+        if (callReturnValue.isTerminated()) {
+            return callReturnValue;
         }
         
-        assert(_function->code()->size());
-
-        _formalParamCount = _function->formalParamCount();
-        _localOffset = ((_formalParamCount < _actualParamCount) ? _actualParamCount : _formalParamCount) - _formalParamCount;
-
         // If we were executing an event don't push the return value
         if (_executingEvent) {
             _executingEvent = false;
         } else {
             _stack.push(returnedValue);
+        }
+        
+        if (executingDelay()) {
+            // Return Delay so we continue to delay.
+            return CallReturnValue(CallReturnValue::Type::Delay);
         }
         DISPATCH;
     L_MOVE:
@@ -918,8 +955,10 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         _stack.pop(uintValue);
         _stack.push(returnedValue);
-        if (callReturnValue.isDelay() || callReturnValue.isWaitForEvent()) {
-            goto L_CHECK_EVENTS;
+        
+        if (callReturnValue.isDelay()) {
+            startDelay(callReturnValue.delay());
+            return callReturnValue;
         }
         DISPATCH;
     }
