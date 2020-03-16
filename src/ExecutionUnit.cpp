@@ -382,8 +382,6 @@ CallReturnValue ExecutionUnit::endFunction()
     
     // Close any upValues that need it
     closeUpValues(callRecord._frame);
-
-    Mad<Object> prevThis = _this;
     
     _actualParamCount = callRecord._paramCount;
     _this = callRecord._thisObj;
@@ -588,7 +586,6 @@ CallReturnValue ExecutionUnit::continueExecution()
 
     L_YIELD:
         callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
-    L_CHECK_EVENTS:
         if (!_eventQueue.empty()) {
             callReturnValue = runNextEvent();
             if (callReturnValue.isError()) {
