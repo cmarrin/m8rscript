@@ -79,10 +79,16 @@ void ParseEngine::program()
 
 bool ParseEngine::statement()
 {
-    return functionStatement() || classStatement() || 
-        compoundStatement() || selectionStatement() ||
-        switchStatement() || iterationStatement() || jumpStatement() ||
-        varStatement() || expressionStatement();
+    if (functionStatement()) return true;
+    if (classStatement()) return true;
+    if (compoundStatement()) return true;
+    if (selectionStatement()) return true;
+    if (switchStatement()) return true;
+    if (iterationStatement()) return true;
+    if (jumpStatement()) return true;
+    if (varStatement()) return true;
+    if (expressionStatement()) return true;
+    return false;
 }
 
 bool ParseEngine::functionStatement()
