@@ -77,8 +77,6 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
         ipAddr[1] = b;
         ipAddr[2] = c;
         ipAddr[3] = d;
-    } else {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
     Mad<Object> thisObject = thisValue.asObject();
@@ -123,9 +121,8 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
     }
     
     eu->startEventListening();
-    Mad<Object> thisObject = thisValue.asObject();
             
-    IPAddr::lookupHostName(hostname.c_str(), [thisObject, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
+    IPAddr::lookupHostName(hostname.c_str(), [thisValue, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
         Mad<Object> obj = ObjectFactory::create(Atom(SA::IPAddr), eu, 0);
         obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
         obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
@@ -136,7 +133,7 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
         args[0] = Value(ExecutionUnit::createString(name));
         args[1] = Value(obj);
         
-        eu->fireEvent(funcValue, Value(thisObject), args, 2);
+        eu->fireEvent(funcValue, thisValue, args, 2);
         if (funcValue.asObject().valid()) {
             GC::removeStaticObject(funcValue.asObject().raw());
         }

@@ -380,7 +380,7 @@ void ObjectFactory::addProperty(SA sa, NativeFunction f)
 Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
 {
     Value protoValue = Global::shared()->property(objectName);
-    CallReturnValue ret = protoValue.call(eu, Value(), nparams);
+    CallReturnValue ret = protoValue.construct(eu, nparams);
     
     if (ret.isReturnCount() && ret.returnCount() > 0) {
         Value value = eu->stack().top(1 - ret.returnCount());
