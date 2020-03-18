@@ -99,10 +99,16 @@ String CodePrinter::regString(const Mad<Program> program, const Mad<Object> func
     
     reg -= MaxRegister + 1;
     
-    String s = String("K[") + String(reg) + "](";
+    String s = String("K[");
     
-    showConstant(program, s, constant, true);
-    s += ")";
+    if (reg < builtinConstantOffset()) {
+        showConstant(program, s, constant, true);
+        s += ']';
+    } else {
+        s += String(reg - builtinConstantOffset()) + "](";
+        showConstant(program, s, constant, true);
+        s += ")";
+    }
     return s;
 }
 
@@ -191,8 +197,8 @@ m8r::String CodePrinter::generateCodeString(const Mad<Program> program, const Ma
         /* 0x28 */ OP(POSTINC)  OP(POSTDEC)  OP(CALL)  OP(NEW)
         /* 0x2c */ OP(CALLPROP) OP(JMP)  OP(JT)  OP(JF)
 
-        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(UNKNOWN)
-        /* 0x34 */ OP(CLOSURE) OP(UNKNOWN)  OP(POPX)  OP(RETI)
+        /* 0x30 */ OP(LINENO)  OP(LOADTHIS)  OP(LOADUP)  OP(CLOSURE)
+        /* 0x34 */ OP(UNKNOWN) OP(POPX)  OP(RETI)  OP(UNKNOWN)
         /* 0x38 */ OP(UNKNOWN) OP(UNKNOWN)  OP(UNKNOWN)  OP(UNKNOWN)
         /* 0x3c */ OP(UNKNOWN) OP(END) OP(RET) OP(UNKNOWN)
     };
