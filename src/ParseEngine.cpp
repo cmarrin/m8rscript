@@ -396,27 +396,33 @@ bool ParseEngine::classContents()
     if (getToken() == Token::Var) {
         retireToken();
 
-        if (getToken() != Token::Identifier) {
-            return false;
-        }
-        Atom name = _parser->atomizeString(getTokenValue().str);
-        retireToken();
-        Value v = Value::NullValue();
-        if (getToken() == Token::STO) {
-            retireToken();
-            
-            switch(getToken()) {
-                case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
-                case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
-                case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
-                case Token::True: v = Value(true); retireToken(); break;
-                case Token::False: v = Value(false); retireToken(); break;
-                case Token::Null: v = Value::NullValue(); retireToken(); break;
-                case Token::Undefined: v = Value(); retireToken(); break;
-                default: expect(Token::ConstantValueRequired);
+        while (1) {
+            if (getToken() != Token::Identifier) {
+                return false;
             }
+            Atom name = _parser->atomizeString(getTokenValue().str);
+            retireToken();
+            Value v = Value::NullValue();
+            if (getToken() == Token::STO) {
+                retireToken();
+                
+                switch(getToken()) {
+                    case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
+                    case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
+                    case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
+                    case Token::True: v = Value(true); retireToken(); break;
+                    case Token::False: v = Value(false); retireToken(); break;
+                    case Token::Null: v = Value::NullValue(); retireToken(); break;
+                    case Token::Undefined: v = Value(); retireToken(); break;
+                    default: expect(Token::ConstantValueRequired);
+                }
+            }
+            _parser->currentClass()->setProperty(name, v);
+            if (getToken() != Token::Comma) {
+                break;
+            }
+            retireToken();
         }
-        _parser->currentClass()->setProperty(name, v);
         expect(Token::Semicolon);
         return true;
     }
@@ -857,20 +863,30 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
         // here to jump over the next expression if TOS is false in the
         // case of LAND or true in the case of LOR
         if (it->op() == Op::LAND || it->op() == Op::LOR) {
-            _parser->emitDup();
             Label passLabel = _parser->label();
-            Label skipLabel = _parser->label();
+            Label skipLabel1 = _parser->label();
+            Label skipLabel2 = _parser->label();
             bool skipResult = it->op() != Op::LAND;
-            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel);
+            
+            // If the TOS is false (if LAND) or true (if LOR) jump to the skip label
+            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel1);
             
             if (!expect(Token::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             
-            _parser->emitBinOp(it->op());
+            // If the TOS is false (if LAND) or true (if LOR) jump to the skip label            
+            _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel2);
+
+            // Test passed. We need to leave a true on the stack
+            _parser->pushTmp();
+            _parser->pushK(Value(1));
+            _parser->emitMove();
+            
             _parser->addMatchedJump(Op::JMP, passLabel);
-            _parser->matchJump(skipLabel);
-            _parser->pushK(Value(skipResult));
+            _parser->matchJump(skipLabel1);
+            _parser->matchJump(skipLabel2);
+            _parser->pushK(Value(0));
             _parser->emitMove();
             _parser->matchJump(passLabel);
         } else {
