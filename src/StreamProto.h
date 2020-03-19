@@ -13,9 +13,9 @@
 
 namespace m8r {
 
-class StreamProto : public ObjectFactory {
+class StreamProto : public StaticObject {
 public:
-    StreamProto(ObjectFactory* parent);
+    StreamProto();
 
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);

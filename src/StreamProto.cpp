@@ -11,12 +11,17 @@
 
 using namespace m8r;
 
-StreamProto::StreamProto(ObjectFactory* parent)
-    : ObjectFactory(SA::Array, parent, constructor)
+static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
-    addProperty(SA::eof, eof);
-    addProperty(SA::read, read);
-    addProperty(SA::write, write);
+    { SA::constructor, StreamProto::constructor },
+    { SA::eof, StreamProto::eof },
+    { SA::read, StreamProto::read },
+    { SA::write, StreamProto::write },
+};
+
+StreamProto::StreamProto()
+{
+    setProperties(_functionProps, sizeof(_functionProps) / sizeof(StaticFunctionProperty));
 }
 
 CallReturnValue StreamProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
