@@ -181,7 +181,7 @@ const Value MaterArray::element(ExecutionUnit* eu, const Value& elt) const
 bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
 {
     Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-    return setProperty(prop, value, Value::SetPropertyType::NeverAdd);
+    return setProperty(prop, value, append ? Value::SetPropertyType::AddIfNeeded : Value::SetPropertyType::NeverAdd);
 }
 
 bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
