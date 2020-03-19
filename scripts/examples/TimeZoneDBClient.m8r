@@ -17,14 +17,12 @@ class Clock
 	var _client;
 	
 	constructor(host, port) {
-        printf("****** 3\n");
 		if (port && port > 0 && port < 32768) {
 			_port = port;
 		}
 	}
 	
 	function fetchTime(func) {
-        printf("****** 4\n");
 		var eventFunc = function(socket, event, connectionId, dataValue) {
 			printf("TCP server got event %d\n", event);
 			switch(event) {
@@ -89,12 +87,9 @@ class Clock
 	}
 }
 
-printf("****** start\n");
 var current = new Clock();
-printf("****** 1\n");
 var done = [false];
 current.fetchTime(function() {
-    printf("****** 2\n");
 	var isPM = false;
 	var hr = current.hour;
 	if (hr > 12) {
