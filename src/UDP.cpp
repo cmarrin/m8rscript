@@ -18,6 +18,7 @@ using namespace m8r;
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
+    { SA::constructor, UDPProto::constructor },
     { SA::send, UDPProto::send },
     { SA::disconnect, UDPProto::disconnect },
 };
