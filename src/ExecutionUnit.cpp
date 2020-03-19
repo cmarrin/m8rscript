@@ -101,6 +101,8 @@ void ExecutionUnit::gcMark()
     }
     
     _program->gcMark();
+    _function->gcMark();
+    _this->gcMark();
 
     for (auto it : _eventQueue) {
         it.gcMark();
@@ -345,11 +347,11 @@ void ExecutionUnit::closeUpValues(uint32_t frame)
     _openUpValues.erase(it, _openUpValues.end());
 }
 
-void ExecutionUnit::startFunction(Mad<Callable> function, Mad<Object> thisObject, uint32_t nparams)
+void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams)
 {
     assert(_program.valid());
     
-    Mad<Callable> prevFunction = _function;
+    Mad<Object> prevFunction = _function;
     _function =  function;
 
     _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
@@ -415,7 +417,7 @@ void ExecutionUnit::startDelay(Duration duration)
 {
     _delayComplete = false;
     
-    startFunction(Mad<Callable>(), Mad<Object>(), 0);
+    startFunction(Mad<Object>(), Mad<Object>(), 0);
     _callRecords.back()._executingDelay = true;
     Thread(1024, [this, duration] {
         duration.sleep();
