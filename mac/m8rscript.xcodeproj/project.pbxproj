@@ -255,8 +255,8 @@
 		4978365D24141EEC005735D5 /* timing-esp.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = "timing-esp.m8r"; path = "../../scripts/timing/timing-esp.m8r"; sourceTree = "<group>"; };
 		4978365E24141EEC005735D5 /* timing.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = timing.lua; path = ../../scripts/timing/timing.lua; sourceTree = "<group>"; };
 		4978365F24141EEC005735D5 /* timing.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../../scripts/timing/timing.js; sourceTree = "<group>"; };
-		4978366024141F10005735D5 /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TimeZoneDBClient.m8r; path = ../../scripts/examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
-		4978366124141F10005735D5 /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = NTPClient.m8r; path = ../../scripts/examples/NTPClient.m8r; sourceTree = "<group>"; };
+		4978366024141F10005735D5 /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TimeZoneDBClient.m8r; path = ../scripts/examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
+		4978366124141F10005735D5 /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = NTPClient.m8r; path = ../scripts/examples/NTPClient.m8r; sourceTree = "<group>"; };
 		4978366224141F27005735D5 /* TestClass.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClass.m8r; path = ../../scripts/tests/TestClass.m8r; sourceTree = "<group>"; };
 		4978366324141F28005735D5 /* TestLoop.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestLoop.m8r; path = ../../scripts/tests/TestLoop.m8r; sourceTree = "<group>"; };
 		4978366424141F28005735D5 /* TestUDPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestUDPSocket.m8r; path = ../../scripts/tests/TestUDPSocket.m8r; sourceTree = "<group>"; };
