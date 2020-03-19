@@ -54,17 +54,25 @@ String Object::toString(ExecutionUnit* eu, bool typeOnly) const
         return eu->program()->stringFromAtom(typeName());
     }
     
-    Mad<Object> obj = property(Atom(SA::toString)).asObject();
+    Value value = property(Atom(SA::toString));
+    CallReturnValue retval(CallReturnValue::Error::PropertyDoesNotExist);
     
-    if (obj.valid()) {
-        CallReturnValue retval = obj->call(eu, Value(Mad<Object>(this)), 0);
-        if (!retval.isReturnCount()) {
-            return "";
-        }
-        Value stringValue = eu->stack().top(1 - retval.returnCount());
-        eu->stack().pop(retval.returnCount());
-        return stringValue.toStringValue(eu);
+    if (value.isObject()) {
+        retval = value.asObject()->call(eu, Value(Mad<Object>(this)), 0);
+    } else if (value.isNativeFunction()) {
+        retval = value.asNativeFunction()(eu, Value(Mad<Object>(this)), 0);
     }
+
+    if (!retval.isReturnCount()) {
+        return "";
+    }
+    Value stringValue = eu->stack().top(1 - retval.returnCount());
+    eu->stack().pop(retval.returnCount());
+    return stringValue.toStringValue(eu);
+
+
+
+
 
     return String();
 }
