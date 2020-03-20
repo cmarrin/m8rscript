@@ -32,6 +32,8 @@
 		4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
 		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
 		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
+		4948AEB024242CC90087EC5A /* NTPClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAE24242CC90087EC5A /* NTPClient.m8r */; };
+		4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */; };
 		494BA1A91D20B26100E72725 /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */; };
 		494BA1AA1D20B26100E72725 /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A61D20B26100E72725 /* NoodleLineNumberView.m */; };
 		494BA1AB1D20B26100E72725 /* NSTextView+JSDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 494BA1A81D20B26100E72725 /* NSTextView+JSDExtensions.m */; };
@@ -234,6 +236,8 @@
 		4945A86F1EC3711D00559CD1 /* m8r */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8r; sourceTree = BUILT_PRODUCTS_DIR; };
 		4945A8711EC3711D00559CD1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4945A87A1EC398B900559CD1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4948AEAE24242CC90087EC5A /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = NTPClient.m8r; path = examples/NTPClient.m8r; sourceTree = "<group>"; };
+		4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = TimeZoneDBClient.m8r; path = examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
 		494BA1981D207C3A00E72725 /* SystemInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemInterface.h; path = ../src/SystemInterface.h; sourceTree = "<group>"; };
 		494BA1A31D20B26100E72725 /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoodleLineNumberMarker.h; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.h"; sourceTree = "<group>"; };
 		494BA1A41D20B26100E72725 /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoodleLineNumberMarker.m; path = "NSTextView+JSDExtensions/NoodleLineNumberMarker.m"; sourceTree = "<group>"; };
@@ -255,8 +259,6 @@
 		4978365D24141EEC005735D5 /* timing-esp.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = "timing-esp.m8r"; path = "../../scripts/timing/timing-esp.m8r"; sourceTree = "<group>"; };
 		4978365E24141EEC005735D5 /* timing.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = timing.lua; path = ../../scripts/timing/timing.lua; sourceTree = "<group>"; };
 		4978365F24141EEC005735D5 /* timing.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../../scripts/timing/timing.js; sourceTree = "<group>"; };
-		4978366024141F10005735D5 /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TimeZoneDBClient.m8r; path = ../scripts/examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
-		4978366124141F10005735D5 /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = NTPClient.m8r; path = ../scripts/examples/NTPClient.m8r; sourceTree = "<group>"; };
 		4978366224141F27005735D5 /* TestClass.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClass.m8r; path = ../../scripts/tests/TestClass.m8r; sourceTree = "<group>"; };
 		4978366324141F28005735D5 /* TestLoop.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestLoop.m8r; path = ../../scripts/tests/TestLoop.m8r; sourceTree = "<group>"; };
 		4978366424141F28005735D5 /* TestUDPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestUDPSocket.m8r; path = ../../scripts/tests/TestUDPSocket.m8r; sourceTree = "<group>"; };
@@ -265,12 +267,12 @@
 		4978366724141F28005735D5 /* TestTCPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestTCPSocket.m8r; path = ../../scripts/tests/TestTCPSocket.m8r; sourceTree = "<group>"; };
 		4978366824141F28005735D5 /* TestGibberish.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestGibberish.m8r; path = ../../scripts/tests/TestGibberish.m8r; sourceTree = "<group>"; };
 		4978366924141F28005735D5 /* TestIterator.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestIterator.m8r; path = ../../scripts/tests/TestIterator.m8r; sourceTree = "<group>"; };
-		4979403E24141E620042B86B /* simpleTest2.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleTest2.m8r; path = ../scripts/simple/simpleTest2.m8r; sourceTree = "<group>"; };
-		4979403F24141E630042B86B /* basic.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = basic.m8r; path = ../scripts/simple/basic.m8r; sourceTree = "<group>"; };
-		4979404024141E630042B86B /* hello.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = hello.m8r; path = ../scripts/simple/hello.m8r; sourceTree = "<group>"; };
-		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = blink.m8r; path = ../scripts/simple/blink.m8r; sourceTree = "<group>"; };
-		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleFunction.m8r; path = ../scripts/simple/simpleFunction.m8r; sourceTree = "<group>"; };
-		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = simpleTest.m8r; path = ../scripts/simple/simpleTest.m8r; sourceTree = "<group>"; };
+		4979403E24141E620042B86B /* simpleTest2.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest2.m8r; sourceTree = "<group>"; };
+		4979403F24141E630042B86B /* basic.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = basic.m8r; sourceTree = "<group>"; };
+		4979404024141E630042B86B /* hello.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = hello.m8r; sourceTree = "<group>"; };
+		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = blink.m8r; sourceTree = "<group>"; };
+		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleFunction.m8r; sourceTree = "<group>"; };
+		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -431,14 +433,15 @@
 		4942EA891D0C86BB00E02088 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				4948AEAD24242CB70087EC5A /* examples */,
 				49BDE1A423714DC000304BE8 /* mem */,
 				49A39F2123509E5200F6A144 /* mrsh */,
 				4979403D24141E4B0042B86B /* simple */,
-				4978365924141EBD005735D5 /* examples */,
 				4978365B24141ED3005735D5 /* timing */,
 				4978365A24141EC9005735D5 /* tests */,
 			);
 			name = scripts;
+			path = ../scripts;
 			sourceTree = "<group>";
 		};
 		4945A8701EC3711D00559CD1 /* m8r */ = {
@@ -455,6 +458,15 @@
 				4945A87A1EC398B900559CD1 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4948AEAD24242CB70087EC5A /* examples */ = {
+			isa = PBXGroup;
+			children = (
+				4948AEAE24242CC90087EC5A /* NTPClient.m8r */,
+				4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */,
+			);
+			name = examples;
 			sourceTree = "<group>";
 		};
 		494BA1901D207A9B00E72725 /* m8rscript */ = {
@@ -508,15 +520,6 @@
 			name = esprtos;
 			sourceTree = "<group>";
 		};
-		4978365924141EBD005735D5 /* examples */ = {
-			isa = PBXGroup;
-			children = (
-				4978366124141F10005735D5 /* NTPClient.m8r */,
-				4978366024141F10005735D5 /* TimeZoneDBClient.m8r */,
-			);
-			path = examples;
-			sourceTree = "<group>";
-		};
 		4978365A24141EC9005735D5 /* tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -553,7 +556,7 @@
 				4979404324141E630042B86B /* simpleTest.m8r */,
 				4979403E24141E620042B86B /* simpleTest2.m8r */,
 			);
-			name = simple;
+			path = simple;
 			sourceTree = "<group>";
 		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
@@ -952,6 +955,7 @@
 				49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */,
 				49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */,
 				49DD77411D83E14B00D7C374 /* ReloadFiles3.png in Resources */,
+				4948AEB024242CC90087EC5A /* NTPClient.m8r in Resources */,
 				49DD773D1D83CEA400D7C374 /* upload.png in Resources */,
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
 				4970FD131DB04DDD00521DF1 /* download.png in Resources */,
@@ -961,6 +965,7 @@
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
 				49DD77491D84D94900D7C374 /* Simulate.png in Resources */,
+				4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */,
 				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,
 				4943BF531DC009CC00773D23 /* savebinary.png in Resources */,
