@@ -103,20 +103,21 @@ private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     static constexpr uint32_t DelayThreadSize = 1024;
     
-    Op dispatchNextOp(uint16_t& checkCounter, uint8_t& imm)
+    Op dispatchNextOp(uint8_t& imm)
     {
         if (_nerrors > MaxRunTimeErrrors) {
             tooManyErrors();
             _terminate = true;
             return Op::END;
         }
-        if ((++checkCounter & 0xff) == 0) {
-            if (_terminate) {
-                return Op::END;
-            }
-            if (checkCounter == 0) {
-                return Op::YIELD;
-            }
+        if (_terminate) {
+            return Op::END;
+        }
+        if (!_eventQueue.empty()) {
+            return Op::YIELD;
+        }
+        if (++_yieldCounter == 0) {
+            return Op::YIELD;
         }
         return opFromCode(_currentAddr, imm);
     }
@@ -240,6 +241,7 @@ private:
     EventValueVector _eventQueue;
     bool _executingEvent = false;
     bool _delayComplete = false;
+    uint8_t _yieldCounter = 0;
     uint32_t _numEventListeners = 0;
     
     uint32_t _lineno = 0;
