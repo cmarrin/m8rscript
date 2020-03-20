@@ -395,10 +395,11 @@ CallReturnValue ExecutionUnit::endFunction()
     updateCodePointer();
     _currentAddr = _code + callRecord._pc;
     
+    uint32_t oldLineno = _lineno;
     _lineno = callRecord._lineno;
     
     if (callRecord._stackSize != _stack.size()) {
-        printError(ROMSTR("internal error. On function return stack has %d elements, should have %d"), _stack.size(), callRecord._stackSize);
+        printError(ROMSTR("internal error. On function from line %d, return stack has %d elements, should have %d"), oldLineno, _stack.size(), callRecord._stackSize);
         _terminate = true;
         _stack.clear();
         GC::gc(true);
