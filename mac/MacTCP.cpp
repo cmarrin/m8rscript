@@ -192,32 +192,22 @@ MacTCP::~MacTCP()
     dispatch_release(_queue);
 }
 
-void MacTCP::send(int16_t connectionId, const char* data, uint16_t length)
+int32_t MacTCP::sendData(int16_t connectionId, const char* data, uint16_t length)
 {
     if (connectionId < 0 || connectionId >= MaxConnections) {
-        return;
+        return -1;
     }
     if (!length) {
         length = ::strlen(data);
     }
     
-    if (_server) {
+    int socket = 0;
+    {
         Lock lock(_mutex);
-        int socket = _clientSockets[connectionId];
-        if (socket) {
-            ssize_t result = ::send(socket, data, length, 0);
-            if (result == -1) {
-                _eventFunction(this, TCP::Event::Error, errno, "send (server) failed", -1);
-            }
-        }
-    } else {
-        ssize_t result = ::send(_socketFD, data, length, 0);
-        if (result == -1) {
-            _eventFunction(this, TCP::Event::Error, errno, "send (client) faile", -1);
-        }
+        socket = _server ? _clientSockets[connectionId] : _socketFD;
     }
-    
-    _eventFunction(this, TCP::Event::SentData, connectionId, nullptr, -1);
+
+    return static_cast<int32_t>(::send(socket, data, length, 0));
 }
 
 void MacTCP::disconnect(int16_t connectionId)

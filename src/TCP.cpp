@@ -17,6 +17,30 @@
 
 using namespace m8r;
 
+void TCP::send(int16_t connectionId, const char* data, uint16_t length)
+{
+    if (connectionId < 0 || connectionId >= MaxConnections) {
+        return;
+    }
+    if (!length) {
+        length = ::strlen(data);
+    }
+    
+    if (_server) {
+        int32_t result = sendData(connectionId, data, length);
+        if (result < 0) {
+            _eventFunction(this, TCP::Event::Error, connectionId, "send (server) failed", -1);
+        }
+    } else {
+        int32_t result = sendData(connectionId, data, length);
+        if (result < 0) {
+            _eventFunction(this, TCP::Event::Error, connectionId, "send (client) failed", -1);
+        }
+    }
+    
+    _eventFunction(this, TCP::Event::SentData, connectionId, data, length);
+}
+
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TCPProto::constructor },

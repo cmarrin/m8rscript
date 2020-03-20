@@ -21,20 +21,19 @@ public:
     
     virtual ~MacTCP();
     
-    virtual void send(int16_t connectionId, char c) override { send(connectionId, &c, 1); }
-    virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) override;
     virtual void disconnect(int16_t connectionId) override;
     
     void init(uint16_t port, IPAddr ip, EventFunction func);
 
 private:
+    virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) override;
+
     int _socketFD = -1;
     dispatch_queue_t _queue;
     dispatch_semaphore_t _dispatchSemaphore;
     char _receiveBuffer[BufferSize];
     int _clientSockets[MaxConnections];
     Mutex _mutex; // protection for _clientSockets
-    bool _server;
 };
 
 }

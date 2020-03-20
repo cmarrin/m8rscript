@@ -36,8 +36,8 @@ public:
      
     virtual ~TCP() { }
     
-    virtual void send(int16_t connectionId, char c) = 0;
-    virtual void send(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
+    void send(int16_t connectionId, const char* data, uint16_t length = 0);
+    
     virtual void disconnect(int16_t connectionId) = 0;
 
 protected:
@@ -48,9 +48,12 @@ protected:
         _port = port; 
     }
 
+    virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
+
     EventFunction _eventFunction;
     IPAddr _ip;
-    uint16_t _port;
+    uint16_t _port = 0;
+    bool _server = false;
 };
 
 // Object
