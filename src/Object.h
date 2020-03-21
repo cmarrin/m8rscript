@@ -44,8 +44,6 @@ public:
     
     Object()
         :  _marked(true)
-        , _hasGet(false)
-        , _hasSet(false)
         , _isDestroyed(false)
     { }
     virtual ~Object() { _isDestroyed = true; }
@@ -80,9 +78,6 @@ public:
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
 
-    bool hasGet() const { return _hasGet; }
-    bool hasSet() const { return _hasSet; }
-        
     static void gcMark(Object* obj) { if (obj) obj->setMarked(true); }
     
     Atom typeName() const { return _typeName; }
@@ -101,16 +96,11 @@ protected:
     void setProto(const Value& val) { _proto = val; }
     Value proto() const { return _proto; }
     
-    void setHasGet(bool b) { _hasGet = b; }
-    void setHasSet(bool b) { _hasSet = b; }
-    
     static void addToObjectStore(RawMad);
     
 private:
     Value _proto;
     bool _marked : 1;
-    bool _hasGet : 1;
-    bool _hasSet : 1;
     bool _isDestroyed : 1;
     Atom _typeName;
 };
