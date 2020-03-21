@@ -48,19 +48,44 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
 }
 
 
+Value Object::value(ExecutionUnit* eu) const
+{
+    Value propValue = property(Atom(SA::getValue));
+    CallReturnValue retval(CallReturnValue::Error::PropertyDoesNotExist);
+    
+    if (propValue.isObject()) {
+        retval = propValue.asObject()->call(eu, Value(Mad<Object>(this)), 0);
+    } else if (propValue.isNativeFunction()) {
+        retval = propValue.asNativeFunction()(eu, Value(Mad<Object>(this)), 0);
+    }
+
+    if (!retval.isReturnCount() || retval.returnCount() == 0) {
+        return Value();
+    }
+    Value v = eu->stack().top(1 - retval.returnCount());
+    eu->stack().pop(retval.returnCount());
+    return v;
+}
+
 String Object::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {
         return eu->program()->stringFromAtom(typeName());
     }
+
+    Value v = value(eu);
+    if (v) {
+        assert(!v.isObject());
+        return v.toStringValue(eu);
+    }
     
-    Value value = property(Atom(SA::toString));
+    Value propValue = property(Atom(SA::toString));
     CallReturnValue retval(CallReturnValue::Error::PropertyDoesNotExist);
     
-    if (value.isObject()) {
-        retval = value.asObject()->call(eu, Value(Mad<Object>(this)), 0);
-    } else if (value.isNativeFunction()) {
-        retval = value.asNativeFunction()(eu, Value(Mad<Object>(this)), 0);
+    if (propValue.isObject()) {
+        retval = propValue.asObject()->call(eu, Value(Mad<Object>(this)), 0);
+    } else if (propValue.isNativeFunction()) {
+        retval = propValue.asNativeFunction()(eu, Value(Mad<Object>(this)), 0);
     }
 
     if (!retval.isReturnCount()) {
@@ -69,9 +94,6 @@ String Object::toString(ExecutionUnit* eu, bool typeOnly) const
     Value stringValue = eu->stack().top(1 - retval.returnCount());
     eu->stack().pop(retval.returnCount());
     return stringValue.toStringValue(eu);
-
-
-
 
 
     return String();
