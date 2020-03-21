@@ -466,15 +466,34 @@ public:
         _stack.erase(begin() + size() + relative - 1);
     }
     
-    uint32_t setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
+    // This assumes the stack has actualParams pushed. So the new frame will be
+    // at the current stack position minus actualParams. And the new stack position
+    // will be after the formalParams plus the localSize. If actualParams is 
+    // less than formalParams, the difference will be pushed onto the stack as
+    // undefined values. So on exit, the values between the new frame and TOS will
+    // be actualParams, any extra params if formal > actual, and locals. Return
+    // the previous frame and number of values added to the stack so we can 
+    // pass these values to restoreFrame.
+    void setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize, uint32_t& prevFrame, uint32_t& localsAdded)
     {
-        uint32_t oldFrame = _frame;
+        prevFrame = _frame;
         _frame = static_cast<uint32_t>(size()) - actualParams;
         uint32_t temps = localSize - formalParams;
         uint32_t extraParams = (formalParams > actualParams) ? (formalParams - actualParams) : 0;
-        _stack.resize(size() + temps + extraParams);
-        return oldFrame;
+        localsAdded = temps + extraParams;
+        _stack.resize(size() + localsAdded);
     }
+    
+    void setLocalFrame(uint32_t formalParams, uint32_t actualParams, uint32_t localSize)
+    {
+        uint32_t prevFrame;
+        uint32_t localsAdded;
+        setLocalFrame(formalParams, actualParams, localSize, prevFrame, localsAdded);
+    }
+    
+    // Restore the frame to the passed value (presumably the value returned
+    // from a previous call to setLocalFrame). And pop the pass number of
+    // locals, which should restore the stack to the 
     void restoreFrame(uint32_t frame, uint32_t localsToPop)
     {
         assert(frame <= size() && frame <= _frame);

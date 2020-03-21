@@ -197,14 +197,14 @@ private:
     
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, size_t stackSize)
+        CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, uint32_t localsAdded)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
             , _func(func)
             , _thisObj(thisObj)
             , _lineno(lineno)
-            , _stackSize(stackSize)
+            , _localsAdded(localsAdded)
         { }
         
         uint32_t _pc : 23;
@@ -212,8 +212,8 @@ private:
         uint32_t _frame;
         Mad<Object> _func;
         Mad<Object> _thisObj;
-        uint32_t _lineno;
-        size_t _stackSize = 0;
+        uint32_t _lineno = 0;
+        uint32_t _localsAdded = 0;
         bool _executingDelay = false;
     };
     

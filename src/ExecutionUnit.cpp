@@ -358,6 +358,7 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
     uint32_t prevActualParamCount = _actualParamCount;
     _actualParamCount = nparams;
     _localOffset = (_formalParamCount < _actualParamCount) ? (_actualParamCount - _formalParamCount) : 0;
+    uint32_t localCount = _function.valid() ? _function->localCount() : 0;
     
     Mad<Object> prevThis = _this;
     _this = thisObject;
@@ -365,10 +366,11 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
         _this = _program;
     }
     
-    size_t stackSize = _stack.size() - nparams;
-    uint16_t prevFrame = _stack.setLocalFrame(_formalParamCount, _actualParamCount, _function.valid() ? _function->localCount() : 0);
+    uint32_t prevFrame;
+    uint32_t localsAdded;
+    _stack.setLocalFrame(_formalParamCount, _actualParamCount, localCount, prevFrame, localsAdded);
     
-    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, stackSize });
+    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, localsAdded });
     
     _framePtr =_stack.framePtr();
     updateCodePointer();
@@ -376,8 +378,6 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
 
 CallReturnValue ExecutionUnit::endFunction()
 {
-    uint32_t localsToPop = _function.valid() ? (_function->localCount() + _localOffset) : 0;
-     
     // Get the call record entries from the call stack and pop it.
     assert(!_callRecords.empty());
     const CallRecord& callRecord = _callRecords.back();
@@ -388,24 +388,16 @@ CallReturnValue ExecutionUnit::endFunction()
     _actualParamCount = callRecord._paramCount;
     _this = callRecord._thisObj;
     assert(_this.valid());
-    _stack.restoreFrame(callRecord._frame, localsToPop);
+
+    _stack.restoreFrame(callRecord._frame, callRecord._localsAdded);
     _framePtr =_stack.framePtr();
     
     _function = callRecord._func;
     updateCodePointer();
     _currentAddr = _code + callRecord._pc;
     
-    uint32_t oldLineno = _lineno;
     _lineno = callRecord._lineno;
     
-    if (callRecord._stackSize != _stack.size()) {
-        printError(ROMSTR("internal error. On function from line %d, return stack has %d elements, should have %d"), oldLineno, _stack.size(), callRecord._stackSize);
-        _terminate = true;
-        _stack.clear();
-        GC::gc(true);
-        return CallReturnValue(CallReturnValue::Type::Terminated);
-    }
-
      _callRecords.pop_back();
 
      _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
@@ -687,7 +679,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         if (!leftValue) {
             // We need to handle 'iterator' here because if the value is undefined and the property
             // is 'iterator' we need to supply the default iterator
-            if (prop == Atom(SA::iterator)) {
+            if (rightValue.asIdValue() == Atom(SA::iterator)) {
                 leftValue = Global::shared()->property(Atom(SA::Iterator));
             } else {
                 printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringPointer(this));
