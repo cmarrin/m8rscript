@@ -715,7 +715,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_STOELT:
-        if (!reg(byteFromCode(_currentAddr)).setElement(this, (leftValue = regOrConst()), regOrConst(), false)) {
+        if (!reg(byteFromCode(_currentAddr)).setElement(this, (leftValue = regOrConst()), regOrConst(), true)) {
             printError(ROMSTR("Element '%s' does not exist"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
