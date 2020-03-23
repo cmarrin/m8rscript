@@ -274,7 +274,7 @@ public:
             uint32_t numToDelete = static_cast<uint32_t>(last - first);
             if (last < end()) {
                 // move
-                memmove(first, first + numToDelete, numToDelete * sizeof(T));
+                memmove(first, first + numToDelete, (_size - numToDelete) * sizeof(T));
             }
             
             _size -= numToDelete;
