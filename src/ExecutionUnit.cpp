@@ -937,6 +937,15 @@ CallReturnValue ExecutionUnit::continueExecution()
                 break;
         }
         
+        if (callReturnValue.isWaitForEvent()) {
+            if (_executingEvent) {
+                printError(ROMSTR("waitForEvent() not allowed in event handler"));
+                _terminate = true;
+                return CallReturnValue(CallReturnValue::Type::Terminated);
+            }
+            return callReturnValue;
+        }
+        
         if (callReturnValue.isError()) {
             printError(callReturnValue.error());
         }

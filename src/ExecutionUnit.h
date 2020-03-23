@@ -113,7 +113,7 @@ private:
         if (_terminate) {
             return Op::END;
         }
-        if (!_eventQueue.empty()) {
+        if (!_eventQueue.empty() && !_executingEvent) {
             return Op::YIELD;
         }
         if (++_yieldCounter == 0) {
