@@ -212,22 +212,20 @@ void ExecutionUnit::startExecution(Mad<Program> program)
 
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
-    eventLock();
-#ifndef NDEBUG
-    checkEventQueueConsistency();
-#endif
-    
-    _eventQueue.push_back(func);
-    _eventQueue.push_back(thisValue);
-    _eventQueue.push_back(Value(nargs));
-    for (int i = 0; i < nargs; i++) {
-        _eventQueue.push_back(args[i]);
-    }
+    {
+        Lock lock(_eventQueueMutex);
+        
+        _eventQueue.push_back(func);
+        _eventQueue.push_back(thisValue);
+        _eventQueue.push_back(Value(nargs));
+        for (int i = 0; i < nargs; i++) {
+            _eventQueue.push_back(args[i]);
+        }
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
         checkEventQueueConsistency();
-    #endif
-    eventUnlock();
+#endif
+    }
     
     system()->taskManager()->readyToExecuteNextTask();
 }
@@ -272,32 +270,30 @@ CallReturnValue ExecutionUnit::runNextEvent()
     int32_t nargs = 0;
     bool haveEvent = false;
     
-    eventLock();
-    #ifndef NDEBUG
-        checkEventQueueConsistency();
-    #endif
+    {
+        Lock lock(_eventQueueMutex);
 
-    if (!_eventQueue.empty()) {
-        assert(_eventQueue.size() >= 3);
-        
-        haveEvent = true;
-        _executingEvent = true;
-        func = _eventQueue[0];
-        thisValue = _eventQueue[1];
-        nargs = _eventQueue[2].asIntValue();
-        assert(_eventQueue.size() >= 3 + nargs);
-        
-        for (int32_t i = 0; i < nargs; ++i) {
-            _stack.push(_eventQueue[3 + i]);
+        if (!_eventQueue.empty()) {
+            assert(_eventQueue.size() >= 3);
+            
+            haveEvent = true;
+            _executingEvent = true;
+            func = _eventQueue[0];
+            thisValue = _eventQueue[1];
+            nargs = _eventQueue[2].asIntValue();
+            assert(_eventQueue.size() >= 3 + nargs);
+            
+            for (int32_t i = 0; i < nargs; ++i) {
+                _stack.push(_eventQueue[3 + i]);
+            }
+            
+            _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
         }
-        
-        _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
-    }
 
-    #ifndef NDEBUG
+#ifndef NDEBUG
         checkEventQueueConsistency();
-    #endif
-    eventUnlock();
+#endif
+    }
     
     if (haveEvent) {
         CallReturnValue callReturnValue = func.call(this, Value(), nargs);
@@ -426,22 +422,23 @@ void ExecutionUnit::startDelay(Duration duration)
     _callRecords.back()._executingDelay = true;
     Thread(1024, [this, duration] {
         duration.sleep();
-        eventLock();
-        _delayComplete = true;
-        eventUnlock();
+        {
+            Lock lock(_eventQueueMutex);
+            _delayComplete = true;
+        }
         system()->taskManager()->readyToExecuteNextTask();
     }).detach();
 }
 
 void ExecutionUnit::continueDelay()
 {
-    eventLock();
+    _eventQueueMutex.lock();
     if (_delayComplete) {
-        eventUnlock();
+        _eventQueueMutex.unlock();
         endFunction();
         return;
     }
-    eventUnlock();
+    _eventQueueMutex.unlock();
 }
 
 static inline bool valuesAreInt(const Value& a, const Value& b)

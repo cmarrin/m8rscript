@@ -39,6 +39,7 @@ private:
     static uint32_t prevGCStrings;
     static uint8_t countSinceLastGC;
     static bool inGC;
+    static Mutex _mutex;
 };
     
 }

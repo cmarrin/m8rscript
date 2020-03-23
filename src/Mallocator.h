@@ -295,6 +295,8 @@ private:
 #endif
 
     static Mallocator _mallocator;
+    Mutex _mutex;
+
 };
 
 template<typename T>

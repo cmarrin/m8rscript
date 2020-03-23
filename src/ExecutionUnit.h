@@ -252,6 +252,8 @@ private:
     mutable bool _terminate = false;
     
     EventValueVector _eventQueue;
+    Mutex _eventQueueMutex;
+
     bool _executingEvent = false;
     bool _delayComplete = false;
     uint8_t _yieldCounter = 0;

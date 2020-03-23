@@ -20,10 +20,13 @@ void Mallocator::init()
         return;
     }
     
+    _mutex.lock();
+
     void* base;
     uint32_t size;
     heapInfo(base, size);
     if (base == nullptr) {
+        _mutex.unlock();
         return;
     }
     
@@ -37,6 +40,7 @@ void Mallocator::init()
     } else {
         // Exceeded maximum heap size of 1MB
         assert(0);
+        _mutex.unlock();
         return;
     }
     
@@ -55,6 +59,8 @@ void Mallocator::init()
     
     _firstFreeBlock = 0;
     _memoryInfo.freeSizeInBlocks = _memoryInfo.heapSizeInBlocks;
+
+    _mutex.unlock();
 }
 
 RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
@@ -64,6 +70,8 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     if (!_heapBase) {
         return NoRawMad;
     }
+
+    _mutex.lock();
 
     checkConsistency();
     assert(type != MemoryType::Unknown);
@@ -103,7 +111,7 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     }
     
     if (freeBlock == NoBlockId) {
-        mallocatorUnlock();
+        _mutex.unlock();
         return NoRawMad;
     }
     
@@ -115,7 +123,7 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     _memoryInfo.freeSizeInBlocks -= blocksToAlloc;
 
     if (allocatedBlock == NoBlockId) {
-        mallocatorUnlock();
+        _mutex.unlock();
         return NoBlockId;
     }
     
@@ -139,7 +147,8 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     
     checkConsistency();
 
-    mallocatorUnlock();
+    _mutex.unlock();
+
     return allocatedBlock;
 }
 
@@ -161,7 +170,7 @@ void Mallocator::free(RawMad ptr, MemoryType type)
         return;
     }
     
-    mallocatorLock();
+    _mutex.lock();
     checkConsistency();
     assert(type != MemoryType::Unknown);
 
@@ -272,7 +281,7 @@ void Mallocator::free(RawMad ptr, MemoryType type)
     _memoryInfo.allocationsByType[index].sizeInBlocks -= blocksToFree;
     checkConsistency();
 
-    mallocatorUnlock();
+    _mutex.unlock();
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)

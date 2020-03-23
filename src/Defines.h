@@ -73,17 +73,6 @@ namespace m8r {
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
     
-    static m8r::Mutex _gcLockMutex;
-    static m8r::Mutex _mallocatorLockMutex;
-    static m8r::Mutex _eventLockMutex;
-
-    static inline void gcLock()              { _gcLockMutex.lock(); }
-    static inline void gcUnlock()            { _gcLockMutex.unlock(); }
-    static inline void mallocatorLock()      { _mallocatorLockMutex.lock(); }
-    static inline void mallocatorUnlock()    { _mallocatorLockMutex.unlock(); }
-    static inline void eventLock()           { _eventLockMutex.lock(); }
-    static inline void eventUnlock()         { _eventLockMutex.unlock(); }
-
 static constexpr uint32_t HeapSize = 200000;
 #else
     #include <esp_attr.h>
@@ -118,15 +107,6 @@ static constexpr uint32_t HeapSize = 200000;
 
     template <typename T>
     static inline const char* typeName() { return ""; }
-
-    // What do we need to do here? ESP is a single threaded machine. The only issue is avoiding system
-    // interrupts. But do we need to worry about them interrupting these tasks? For now let's ingore it
-    static inline void gcLock() { /*noInterrupts();*/ }
-    static inline void gcUnlock() { /*interrupts();*/ }
-    static inline void mallocatorLock() { }
-    static inline void mallocatorUnlock() { }
-    static inline void eventLock() { }
-    static inline void eventUnlock() { }
 
 #endif
 
