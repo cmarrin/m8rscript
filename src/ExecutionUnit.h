@@ -195,6 +195,19 @@ private:
         return _callRecords.back()._executingDelay;
     }
     
+    void checkEventQueueConsistency()
+    {
+        int index = 0;
+        while (index < _eventQueue.size()) {
+            assert(_eventQueue.size() - index >= 3);
+            assert(_eventQueue[index + 2].isInteger());
+            int32_t nargs = _eventQueue[index + 2].asIntValue();
+            assert(_eventQueue.size() >= nargs + index + 3);
+            index += nargs + 3;
+        }
+        assert(index == _eventQueue.size());
+    }
+    
     struct CallRecord {
         CallRecord() { }
         CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, uint32_t localsAdded)

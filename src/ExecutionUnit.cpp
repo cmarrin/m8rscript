@@ -213,6 +213,9 @@ void ExecutionUnit::startExecution(Mad<Program> program)
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
     eventLock();
+#ifndef NDEBUG
+    checkEventQueueConsistency();
+#endif
     
     _eventQueue.push_back(func);
     _eventQueue.push_back(thisValue);
@@ -221,6 +224,9 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
         _eventQueue.push_back(args[i]);
     }
 
+    #ifndef NDEBUG
+        checkEventQueueConsistency();
+    #endif
     eventUnlock();
     
     system()->taskManager()->readyToExecuteNextTask();
@@ -267,6 +273,9 @@ CallReturnValue ExecutionUnit::runNextEvent()
     bool haveEvent = false;
     
     eventLock();
+    #ifndef NDEBUG
+        checkEventQueueConsistency();
+    #endif
 
     if (!_eventQueue.empty()) {
         assert(_eventQueue.size() >= 3);
@@ -285,6 +294,9 @@ CallReturnValue ExecutionUnit::runNextEvent()
         _eventQueue.erase(_eventQueue.begin(), _eventQueue.begin() + 3 + nargs);
     }
 
+    #ifndef NDEBUG
+        checkEventQueueConsistency();
+    #endif
     eventUnlock();
     
     if (haveEvent) {
