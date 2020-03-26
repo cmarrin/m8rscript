@@ -132,8 +132,6 @@ private:
     
     Value* valueFromId(Atom, const Object*) const;
 
-    m8r::String generateCodeString(const Mad<Program>, const Mad<Object>, const char* functionName, uint32_t nestingLevel) const;
-
     void updateCodePointer()
     {
         _code = _function.valid() ? &(_function->code()->front()) : nullptr;
