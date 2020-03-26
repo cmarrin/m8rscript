@@ -46,7 +46,7 @@ ROMString Error::description() const
         case Code::Mounted                  : return ROMSTR("Already Mounted");
         case Code::Corrupted                : return ROMSTR("Corrupted");
         case Code::OutOfMemory              : return ROMSTR("Out of Memory");
-        case Code::InternalError            : return ROMSTR("Internal Error");
+        case Code::InternalError            : return ROMSTR("Internal");
         default                             : return ROMSTR("*** INVALID CODE ***");
     }
 }
