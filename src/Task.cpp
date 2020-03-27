@@ -82,18 +82,20 @@ bool Task::init(const Stream& stream)
         errorList.swap(parser.syntaxErrors());
         _error = Error::Code::ParseError;
         return false;
-    } else {
+    }
+    
+    _eu->startExecution(parser.program());
 #ifdef PRINT_CODE
+    if (!parser.nerrors()) {
         CodePrinter codePrinter;
-        m8r::String codeString = codePrinter.generateCodeString(parser.program());
+        m8r::String codeString = codePrinter.generateCodeString(_eu.get());
         
         system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
         system()->printf(ROMSTR("%s"), codeString.c_str());
         system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
-#endif
     }
+#endif
         
-    _eu->startExecution(parser.program());
     return true;
 }
 
