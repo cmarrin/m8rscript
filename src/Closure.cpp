@@ -55,7 +55,7 @@ bool Closure::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const
 
 CallReturnValue Closure::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    if (!thisValue) {
+    if (_thisValue) {
         thisValue = _thisValue;
     }
     eu->startFunction(Mad<Object>(this), thisValue.asObject(), nparams);
