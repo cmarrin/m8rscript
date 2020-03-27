@@ -378,7 +378,8 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
     uint32_t localsAdded;
     _stack.setLocalFrame(_formalParamCount, _actualParamCount, localCount, prevFrame, localsAdded);
     
-    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, localsAdded });
+    // Add nparams to localsAdded so when we restore the frame we pop off the params, too
+    _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, localsAdded + nparams });
     
     _framePtr =_stack.framePtr();
     updateCodePointer();
@@ -406,10 +407,10 @@ CallReturnValue ExecutionUnit::endFunction()
     
     _lineno = callRecord._lineno;
     
-     _callRecords.pop_back();
+    _callRecords.pop_back();
 
-     _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
-     _localOffset = (_formalParamCount < _actualParamCount) ? (_actualParamCount - _formalParamCount) : 0;
+    _formalParamCount = _function.valid() ? _function->formalParamCount() : 0;
+    _localOffset = (_formalParamCount < _actualParamCount) ? (_actualParamCount - _formalParamCount) : 0;
 
      return CallReturnValue(CallReturnValue::Type::Yield);
 }
