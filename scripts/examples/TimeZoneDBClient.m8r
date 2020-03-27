@@ -13,25 +13,12 @@
 class Clock
 {
 	var _port = 80;
-    var _time;
 	var _client;
 	
 	constructor(host, port) {
 		if (port && port > 0 && port < 32768) {
 			_port = port;
 		}
-  
-        _time = {
-            year : 0, 
-            month : 0, 
-            day : 0, 
-            hour : 0, 
-            minute : 0, 
-            second : 0, 
-            dst : false, 
-            zone : ""
-        };
-
 	}
 	
 	function fetchTime(func) {
@@ -72,18 +59,20 @@ class Clock
 					var timeDateArray = timeDateString.split(" ", true);
 										
 					var dateArray = timeDateArray[0].split("-");
-					_time.year = toInt(dateArray[0]);
-					_time.month = toInt(dateArray[1]);
-					_time.day = toInt(dateArray[2]);
+                    var time = { };
+                    
+					time["year"] = toInt(dateArray[0]);
+					time["month"] = toInt(dateArray[1]);
+					time["day"] = toInt(dateArray[2]);
 					
 					var timeArray = timeDateArray[1].split(":");
-					_time.hour = toInt(timeArray[0]);
-					_time.minute = toInt(timeArray[1]);
-					_time.second = toInt(timeArray[2]);
+					time["hour"] = toInt(timeArray[0]);
+					time["minute"] = toInt(timeArray[1]);
+					time["second"] = toInt(timeArray[2]);
 					
-					_time.dst = toInt(json.dst) != 0;
-					_time.zone = json.abbreviation;
-					func();
+					time["dst"] = toInt(json.dst) != 0;
+					time["zone"] = json.abbreviation;
+					func(time);
 					_client = null;
 				}
 			}
@@ -101,17 +90,17 @@ class Clock
 
 var current = new Clock();
 var done = [false];
-current.fetchTime(function() {
+current.fetchTime(function(time) {
 	var isPM = false;
-	var hr = current.hour;
+	var hr = time.hour;
 	if (hr > 12) {
 		isPM = true;
 		hr -= 12;
 	}
 	printf("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
-		hr, current.minute, current.second, isPM ? "pm" : "am", current.zone,
-		current.month, current.day, current.year,
-		current.dst ? "" : " not");
+		hr, time.minute, time.second, isPM ? "pm" : "am", time.zone,
+		time.month, time.day, time.year,
+		time.dst ? "" : " not");
   
     done[0] = true;
 });
