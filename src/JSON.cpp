@@ -53,7 +53,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
             v = Value(mo);
             Value elementValue = value(eu, scanner);
             if (elementValue) {
-                v.setElement(eu, Value(), elementValue, true);
+                v.setElement(eu, Value(), elementValue, Value::SetType::AlwaysAdd);
                 while (scanner.getToken() == Token::Comma) {
                     scanner.retireToken();
                     elementValue = value(eu, scanner);
@@ -61,7 +61,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                         Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to add element to JSON Array"));
                         return Value();
                     }
-                    v.setElement(eu, Value(), elementValue, true);
+                    v.setElement(eu, Value(), elementValue, Value::SetType::AlwaysAdd);
                 }
             }
             if (scanner.getToken() != Token::RBracket) {
@@ -79,7 +79,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
             Value propertyKey;
             Value propertyValue;
             if (propertyAssignment(eu, scanner, propertyKey, propertyValue)) {
-                v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetPropertyType::AlwaysAdd);
+                v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
                 while (scanner.getToken() == Token::Comma) {
                     scanner.retireToken();
                     if (!propertyAssignment(eu, scanner, propertyKey, propertyValue)) {
@@ -90,7 +90,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                         return Value();
                     }
 
-                    v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetPropertyType::AlwaysAdd);
+                    v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
                 }
             }
             if (scanner.getToken() != Token::RBrace) {

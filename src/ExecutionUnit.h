@@ -74,7 +74,7 @@ public:
     void setConsoleListener(Value func)
     {
         if (_program.valid()) {
-            _program->setProperty(Atom(SA::consoleListener), func, Value::SetPropertyType::AddIfNeeded);
+            _program->setProperty(Atom(SA::consoleListener), func, Value::Value::SetType::AddIfNeeded);
         }
     }
 

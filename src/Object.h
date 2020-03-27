@@ -63,13 +63,13 @@ public:
     
     virtual const Value property(const Atom&) const { return Value(); }
     
-    virtual bool setProperty(const Atom& prop, const Value& value, Value::SetPropertyType = Value::SetPropertyType::AddIfNeeded) { return false; }
+    virtual bool setProperty(const Atom& prop, const Value& value, Value::Value::SetType = Value::Value::SetType::AddIfNeeded) { return false; }
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const { return property(elt.toIdValue(eu)); }
     
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType type)
     {
-        return setProperty(elt.toIdValue(eu), value, append ? Value::SetPropertyType::AlwaysAdd : Value::SetPropertyType::NeverAdd);
+        return setProperty(elt.toIdValue(eu), value, type);
     }
 
     virtual uint32_t numProperties() const { return 0; }
@@ -119,11 +119,11 @@ public:
     virtual void gcMark() override;
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType) override;
 
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(const Atom& prop) const override;
-    virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
+    virtual bool setProperty(const Atom& prop, const Value& v, Value::Value::SetType type = Value::Value::SetType::AddIfNeeded) override;
 
     virtual uint32_t numProperties() const override { return static_cast<int32_t>(_properties.size()); }
     virtual Atom propertyKeyforIndex(uint32_t i) const override { return (i < numProperties()) ? (_properties.begin() + i)->key : Atom(); }
@@ -142,11 +142,11 @@ public:
     virtual void gcMark() override;
     
     virtual const Value element(ExecutionUnit* eu, const Value& elt) const override;
-    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append) override;
+    virtual bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType) override;
 
     virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override;
     virtual const Value property(const Atom& prop) const override;
-    virtual bool setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type = Value::SetPropertyType::AddIfNeeded) override;
+    virtual bool setProperty(const Atom& prop, const Value& v, Value::Value::SetType type = Value::Value::SetType::AddIfNeeded) override;
     
     const Value& operator[](size_t i) const { assert(i < _array.size()); return _array[i]; };
     Value& operator[](size_t i) { assert(i < _array.size()); return _array[i]; };

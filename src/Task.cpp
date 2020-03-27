@@ -206,9 +206,9 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     
-    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
-    obj->setProperty(Atom(SA::arguments), Value::asValue(task), Value::SetPropertyType::AlwaysAdd);
-    obj->setProperty(Atom(SA::env), envValue, Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(task), Value::SetType::AlwaysAdd);
+    obj->setProperty(Atom(SA::arguments), Value::asValue(task), Value::SetType::AlwaysAdd);
+    obj->setProperty(Atom(SA::env), envValue, Value::SetType::AlwaysAdd);
     
     task->setConsoleListener(consoleListener);
 
@@ -234,7 +234,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     // Store func so it doesn't get gc'ed
-    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetPropertyType::AddIfNeeded);
+    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
     task->run([eu, func](TaskBase* task)
     {

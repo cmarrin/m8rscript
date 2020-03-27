@@ -222,7 +222,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
     return property(prop);
 }
 
-bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetPropertyType type)
+bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetType type)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();
@@ -258,11 +258,11 @@ const Value Value::element(ExecutionUnit* eu, const Value& elt) const
     return Value();
 }
 
-bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+bool Value::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, SetType type)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();
-    return obj.valid() ? obj->setElement(eu, elt, value, append) : false;
+    return obj.valid() ? obj->setElement(eu, elt, value, type) : false;
 }
 
 CallReturnValue Value::construct(ExecutionUnit* eu, uint32_t nparams)

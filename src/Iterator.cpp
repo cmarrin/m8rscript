@@ -51,8 +51,8 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
-    thisValue.setProperty(eu, Atom(SA::__object), Value(obj), Value::SetPropertyType::AlwaysAdd);
-    thisValue.setProperty(eu, Atom(SA::__index), Value(0), Value::SetPropertyType::AlwaysAdd);
+    thisValue.setProperty(eu, Atom(SA::__object), Value(obj), Value::SetType::AlwaysAdd);
+    thisValue.setProperty(eu, Atom(SA::__index), Value(0), Value::SetType::AlwaysAdd);
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -71,7 +71,7 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
-        if (!thisValue.setProperty(eu, Atom(SA::__index), Value(index), Value::SetPropertyType::NeverAdd)) {
+        if (!thisValue.setProperty(eu, Atom(SA::__index), Value(index), Value::SetType::NeverAdd)) {
             return CallReturnValue(CallReturnValue::Error::InternalError);
         }
     }
@@ -97,7 +97,7 @@ CallReturnValue Iterator::setValue(ExecutionUnit* eu, Value thisValue, uint32_t 
     Mad<Object> obj;
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
-        obj->setElement(eu, Value(index), eu->stack().top(1 - nparams), false);
+        obj->setElement(eu, Value(index), eu->stack().top(1 - nparams), Value::SetType::NeverAdd);
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

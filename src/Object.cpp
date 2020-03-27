@@ -208,24 +208,29 @@ const Value MaterArray::element(ExecutionUnit* eu, const Value& elt) const
     return (index >= 0 && index < _array.size()) ? _array[index] : Value();
 }
 
-bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType type)
 {
     Atom prop = eu->program()->atomizeString(elt.toStringValue(eu).c_str());
-    return setProperty(prop, value, append ? Value::SetPropertyType::AddIfNeeded : Value::SetPropertyType::NeverAdd);
+    return setProperty(prop, value, type);
 }
 
-bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, bool append)
+bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType type)
 {
-    if (append) {
+    if (type == Value::SetType::AlwaysAdd) {
         _array.push_back(value);
         _arrayNeedsGC |= value.needsGC();
         return true;
     }
     
     int32_t index = elt.toIntValue(eu);
-    if (index < 0 || index >= _array.size()) {
+    if ((index < 0 || index >= _array.size()) && (type == Value::SetType::NeverAdd)) {
         return false;
     }
+    
+    if (_array.size() <= index) {
+        _array.resize(index + 1);
+    }
+    
     _array[index] = value;
     _arrayNeedsGC |= value.needsGC();
     return true;
@@ -325,14 +330,14 @@ const Value MaterArray::property(const Atom& prop) const
     return Value();
 }
 
-bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
+bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetType type)
 {
     Value oldValue = property(prop);
     
-    if (oldValue && type == Value::SetPropertyType::AlwaysAdd) {
+    if (oldValue && type == Value::SetType::AlwaysAdd) {
         return false;
     }
-    if (!oldValue && type == Value::SetPropertyType::NeverAdd) {
+    if (!oldValue && type == Value::SetType::NeverAdd) {
         return false;
     }
 
@@ -347,7 +352,7 @@ bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetProper
     return true;
 }
 
-bool MaterArray::setProperty(const Atom& prop, const Value& v, Value::SetPropertyType type)
+bool MaterArray::setProperty(const Atom& prop, const Value& v, Value::SetType type)
 {
     if (prop == Atom(SA::length)) {
         _array.resize(v.asIntValue());

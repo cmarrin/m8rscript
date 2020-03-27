@@ -81,10 +81,10 @@ CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uin
     
     Mad<Object> thisObject = thisValue.asObject();
     if (thisObject.valid()) {
-        thisObject->setElement(eu, Value(0), Value(ipAddr[0]), true);
-        thisObject->setElement(eu, Value(1), Value(ipAddr[1]), true);
-        thisObject->setElement(eu, Value(2), Value(ipAddr[2]), true);
-        thisObject->setElement(eu, Value(3), Value(ipAddr[3]), true);
+        thisObject->setElement(eu, Value(0), Value(ipAddr[0]), Value::SetType::AlwaysAdd);
+        thisObject->setElement(eu, Value(1), Value(ipAddr[1]), Value::SetType::AlwaysAdd);
+        thisObject->setElement(eu, Value(2), Value(ipAddr[2]), Value::SetType::AlwaysAdd);
+        thisObject->setElement(eu, Value(3), Value(ipAddr[3]), Value::SetType::AlwaysAdd);
     }
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -124,10 +124,10 @@ CallReturnValue IPAddrProto::lookupHostname(ExecutionUnit* eu, Value thisValue, 
             
     IPAddr::lookupHostName(hostname.c_str(), [thisValue, eu, funcValue](const char* name, m8r::IPAddr ipaddr) {
         Mad<Object> obj = ObjectFactory::create(Atom(SA::IPAddr), eu, 0);
-        obj->setElement(eu, Value(0), Value(ipaddr[0]), true);
-        obj->setElement(eu, Value(1), Value(ipaddr[1]), true);
-        obj->setElement(eu, Value(2), Value(ipaddr[2]), true);
-        obj->setElement(eu, Value(3), Value(ipaddr[3]), true);
+        obj->setElement(eu, Value(0), Value(ipaddr[0]), Value::SetType::AlwaysAdd);
+        obj->setElement(eu, Value(1), Value(ipaddr[1]), Value::SetType::AlwaysAdd);
+        obj->setElement(eu, Value(2), Value(ipaddr[2]), Value::SetType::AlwaysAdd);
+        obj->setElement(eu, Value(3), Value(ipaddr[3]), Value::SetType::AlwaysAdd);
 
         Value args[2];
         args[0] = Value(ExecutionUnit::createString(name));

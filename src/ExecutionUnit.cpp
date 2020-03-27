@@ -126,7 +126,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     if (_this.valid()) {
         Value oldValue = _this->property(atom);
         if (oldValue) {
-            if (!_this->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
+            if (!_this->setProperty(atom, value, Value::SetType::AddIfNeeded)) {
                 printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
             }
             return;
@@ -136,7 +136,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     // See if it's in Program
     Value oldValue = _program->property(atom);
     if (oldValue) {
-        if (!_program->setProperty(atom, value, Value::SetPropertyType::AddIfNeeded)) {
+        if (!_program->setProperty(atom, value, Value::SetType::AddIfNeeded)) {
             printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
         }
         return;
@@ -508,7 +508,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     function->enumerateConstants([obj](const Value& value, const ConstantId& id) {
         Mad<Object> func = value.asObject();
         if (func.valid() && func->name()) {
-            obj->setProperty(func->name(), Value(func), Value::SetPropertyType::AlwaysAdd);
+            obj->setProperty(func->name(), Value(func), Value::SetType::AlwaysAdd);
         }
 
     });
@@ -699,7 +699,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(ra, leftValue);
         DISPATCH;
     L_STOPROP:
-        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetPropertyType::NeverAdd)) {
+        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::NeverAdd)) {
             printError(ROMSTR("Property '%s' does not exist"), leftValue.toStringPointer(this));
         }
         DISPATCH;
@@ -713,7 +713,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         }
         DISPATCH;
     L_STOELT:
-        if (!reg(byteFromCode(_currentAddr)).setElement(this, (leftValue = regOrConst()), regOrConst(), true)) {
+        if (!reg(byteFromCode(_currentAddr)).setElement(this, (leftValue = regOrConst()), regOrConst(), Value::SetType::AddIfNeeded)) {
             printError(ROMSTR("Element '%s' does not exist"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
@@ -734,12 +734,12 @@ CallReturnValue ExecutionUnit::continueExecution()
         setInFrame(byteFromCode(_currentAddr), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
-        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetPropertyType::AlwaysAdd)) {
+        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::AlwaysAdd)) {
             printError(ROMSTR("Property '%s' already exists for APPENDPROP"), leftValue.toStringPointer(this));
         }
         DISPATCH;
     L_APPENDELT:
-        if (!reg(byteFromCode(_currentAddr)).setElement(this, Value(), (leftValue = regOrConst()), true)) {
+        if (!reg(byteFromCode(_currentAddr)).setElement(this, Value(), (leftValue = regOrConst()), Value::SetType::AlwaysAdd)) {
             printError(ROMSTR("Can't append element '%s' to object"), leftValue.toStringValue(this).c_str());
         }
         DISPATCH;

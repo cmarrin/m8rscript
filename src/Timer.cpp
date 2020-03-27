@@ -90,10 +90,10 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
     }
     
     // Store func so it doesn't get gc'ed
-    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetPropertyType::AddIfNeeded);
+    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
     Mad<Timer> timer = Mad<Timer>::create();
-    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetType::AlwaysAdd);
 
     timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [timer, eu, func](Timer*)
     {
