@@ -13,13 +13,25 @@
 class Clock
 {
 	var _port = 80;
-	var year, month, day, hour, minute, second, dst, zone;
+    var _time;
 	var _client;
 	
 	constructor(host, port) {
 		if (port && port > 0 && port < 32768) {
 			_port = port;
 		}
+  
+        _time = {
+            year : 0, 
+            month : 0, 
+            day : 0, 
+            hour : 0, 
+            minute : 0, 
+            second : 0, 
+            dst : false, 
+            zone : ""
+        };
+
 	}
 	
 	function fetchTime(func) {
@@ -60,17 +72,17 @@ class Clock
 					var timeDateArray = timeDateString.split(" ", true);
 										
 					var dateArray = timeDateArray[0].split("-");
-					year = toInt(dateArray[0]);
-					month = toInt(dateArray[1]);
-					day = toInt(dateArray[2]);
+					_time.year = toInt(dateArray[0]);
+					_time.month = toInt(dateArray[1]);
+					_time.day = toInt(dateArray[2]);
 					
 					var timeArray = timeDateArray[1].split(":");
-					hour = toInt(timeArray[0]);
-					minute = toInt(timeArray[1]);
-					second = toInt(timeArray[2]);
+					_time.hour = toInt(timeArray[0]);
+					_time.minute = toInt(timeArray[1]);
+					_time.second = toInt(timeArray[2]);
 					
-					dst = toInt(json.dst) != 0;
-					zone = json.abbreviation;
+					_time.dst = toInt(json.dst) != 0;
+					_time.zone = json.abbreviation;
 					func();
 					_client = null;
 				}
