@@ -359,7 +359,7 @@ void Parser::emitMove()
     
     // RefK needs to do a STOREFK TOS-1, TOS and then leave TOS-1 (the source) on the stack
     // All others need to do a save and leave TOS (the dest) on the stack
-    RegOrConst srcReg = _parseStack.bake();
+    RegOrConst srcReg = _parseStack.bake(true);
     _parseStack.swap();
     ParseStack::Type dstType = _parseStack.topType();
     
@@ -852,7 +852,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
                 }
 
                 Mad<Object> func = v.asObject();
-                if (func.valid()) {
+                if (func.valid() && func->canMakeClosure()) {
                     pop();
                     RegOrConst dst = pushRegister();
                     _parser->emitCode(Op::CLOSURE, dst, r);

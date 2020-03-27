@@ -93,6 +93,8 @@ public:
         Mad<NativeObject> nobj = property(Atom(SA::__nativeObject)).asNativeObject();
         return Mad<T>(nobj.raw());
     }
+    
+    virtual bool canMakeClosure() const { return false; }
 
 protected:
     void setProto(const Value& val) { _proto = val; }

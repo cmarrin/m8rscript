@@ -84,6 +84,8 @@ public:
     virtual uint16_t formalParamCount() const override{ return _formalParamCount; }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
 
+    virtual bool canMakeClosure() const override { return true; }
+
 private:
     struct UpValueEntry {
         UpValueEntry() { }
