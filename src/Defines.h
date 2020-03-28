@@ -23,7 +23,6 @@
 
 #else
 
-#include "Thread.h"
 #include <array>
 #include <cstdarg>
 #include <cstdint>

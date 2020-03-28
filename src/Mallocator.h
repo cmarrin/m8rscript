@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Defines.h"
+#include "Thread.h"
 #include <cstdlib>
 #include <cstdint>
 #include <typeinfo>

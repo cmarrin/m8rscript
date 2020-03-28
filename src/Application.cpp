@@ -11,7 +11,6 @@
 
 #include "SystemInterface.h"
 #include "Telnet.h"
-#include "Thread.h"
 #include <unistd.h>
 
 #ifdef MONITOR_TRAFFIC

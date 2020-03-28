@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Defines.h"
+#include "Thread.h"
 
 namespace m8r {
 
