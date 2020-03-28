@@ -43,7 +43,15 @@ void Mallocator::init()
         _mutex.unlock();
         return;
     }
-    
+
+#ifdef __APPLE__
+#ifdef NDEBUG
+    // With optimizations turned on for Mac, it uses vector instructions
+    // which have a 16 byte alignment requirement. So force that here.
+    _memoryInfo.blockSize = 16;
+#endif
+#endif
+
     _heapBase = reinterpret_cast<char*>(base);
     _memoryInfo.heapSizeInBlocks = static_cast<uint16_t>(size / _memoryInfo.blockSize);
     
