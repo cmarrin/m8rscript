@@ -16,39 +16,66 @@
 
 using namespace m8r;
 
-static Duration MaxTaskDelay = Duration(6000000, Duration::Units::ms);
-static Duration MinTaskDelay = Duration(1, Duration::Units::ms);
 static Duration MainLoopSleepDelay = 50_ms;
 static constexpr uint32_t MainThreadSize = 4096;
 
+static Duration MaxTaskTimeSlice = 50_ms;
+static constexpr uint32_t TimeSliceThreadSize = 1024;
+
 TaskManager::TaskManager()
 {
-    Thread thread(MainThreadSize, [this]{
+    Thread mainThread(MainThreadSize, [this]{
         while (true) {
             if (!executeNextTask()) {
-                Lock lock(_mutex);
-                _eventCondition.wait(lock);
+                Lock lock(_mainMutex);
+                _mainCondition.wait(lock);
                 if (_terminating) {
                     break;
                 }
             }
         }
     });
-    _eventThread.swap(thread);
-    _eventThread.detach();
+    _mainThread.swap(mainThread);
+
+    // Setup a thread that will yield after MaxTaskTimeSlice seconds
+    Thread timeSliceThread(TimeSliceThreadSize, [this] {
+        while (!_terminating) {
+            {
+                Lock lock(_timeSliceMutex);
+                _timeSliceCondition.wait(lock);
+            }
+            MaxTaskTimeSlice.sleep();
+            requestYield();
+        }
+    });
+    _timeSliceThread.swap(timeSliceThread);
 }
 
 TaskManager::~TaskManager()
 {
     _terminating = true;
     readyToExecuteNextTask();
-    _eventThread.join();
+    _mainThread.join();
 }
 
 void TaskManager::readyToExecuteNextTask()
 {
-    Lock lock(_mutex);
-    _eventCondition.notify(true);
+    Lock lock(_mainMutex);
+    _mainCondition.notify(true);
+}
+
+void TaskManager::startTimeSliceTimer()
+{
+    Lock lock(_timeSliceMutex);
+    _timeSliceCondition.notify(true);
+}
+
+void TaskManager::requestYield()
+{
+    Lock lock(_mainMutex);
+    if (_currentTask) {
+        _currentTask->requestYield();
+    }
 }
 
 void TaskManager::runLoop()
@@ -66,7 +93,7 @@ void TaskManager::runLoop()
 void TaskManager::run(TaskBase* newTask)
 {
     {
-        Lock lock(_mutex);
+        Lock lock(_mainMutex);
         _list.push_back(newTask);
         newTask->setState(Task::State::Ready);
     }
@@ -76,7 +103,7 @@ void TaskManager::run(TaskBase* newTask)
 void TaskManager::terminate(TaskBase* task)
 {
     {
-        Lock lock(_mutex);
+        Lock lock(_mainMutex);
         _list.remove(task);
         task->setState(Task::State::Terminated);
     }
@@ -84,9 +111,8 @@ void TaskManager::terminate(TaskBase* task)
 
 bool TaskManager::executeNextTask()
 {
-    TaskBase* task;
     {
-        Lock lock(_mutex);
+        Lock lock(_mainMutex);
         
         // Find the next executable task
         auto it = std::find_if(_list.begin(), _list.end(), [](TaskBase* task) {
@@ -97,31 +123,29 @@ bool TaskManager::executeNextTask()
             return false;
         }
         
-        task = *it;
+        _currentTask = *it;
         
-        if (task->state() == Task::State::Ready) {
+        if (_currentTask->state() == Task::State::Ready) {
             // Move the task to the end of the list to let other ready tasks run
             _list.erase(it);
-            _list.push_back(task);
+            _list.push_back(_currentTask);
         }
     }
-    
-    CallReturnValue returnValue = task->execute();
+
+    startTimeSliceTimer();
+    CallReturnValue returnValue = _currentTask->execute();
     
     if (returnValue.isYield()) {
-        task->setState(Task::State::Ready);
-    } else if (returnValue.isTerminated()) {
-        task->setState(Task::State::Terminated);
-        _list.remove(task);
-        task->finish();
-    } else if (returnValue.isFinished()) {
-        task->setState(Task::State::Terminated);
-        _list.remove(task);
-        task->finish();
+        _currentTask->setState(Task::State::Ready);
+    } else if (returnValue.isTerminated() || returnValue.isFinished()) {
+        _currentTask->setState(Task::State::Terminated);
+        _list.remove(_currentTask);
+        _currentTask->finish();
+        _currentTask = nullptr;
     } else if (returnValue.isWaitForEvent()) {
-        task->setState(Task::State::WaitingForEvent);
+        _currentTask->setState(Task::State::WaitingForEvent);
     } else if (returnValue.isDelay()) {
-        task->setState(Task::State::Delaying);
+        _currentTask->setState(Task::State::Delaying);
     }
     
     return true;

@@ -98,28 +98,34 @@ public:
     {
         return !_eventQueue.empty() || (executingDelay() && _delayComplete);
     }
+    
+    void requestTerminate() const { _terminate = true; _checkForExceptions = true; }
+    void requestYield() const { _yield = true; _checkForExceptions = true; }
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     static constexpr uint32_t DelayThreadSize = 1024;
     
-    Op dispatchNextOp(uint8_t& imm)
+    Op checkForExceptions(uint8_t& imm)
     {
-        if (_nerrors > MaxRunTimeErrrors) {
-            tooManyErrors();
-            _terminate = true;
+        _checkForExceptions = false;
+        if (_terminate) {
+            _yield = false;
             return Op::END;
         }
-        if (_terminate) {
-            return Op::END;
+        if (_yield) {
+            _yield = false;
+            return Op::YIELD;
         }
         if (!_eventQueue.empty() && !_executingEvent) {
             return Op::YIELD;
         }
-        if (++_yieldCounter == 0) {
-            return Op::YIELD;
-        }
         return opFromCode(_currentAddr, imm);
+    }
+    
+    Op dispatchNextOp(uint8_t& imm)
+    {
+        return _checkForExceptions ? checkForExceptions(imm) : opFromCode(_currentAddr, imm);
     }
     
     void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
@@ -128,7 +134,6 @@ private:
 
     void printError(ROMString s, ...) const;
     void printError(CallReturnValue::Error) const;
-    void tooManyErrors() const;
     
     Value* valueFromId(Atom, const Object*) const;
 
@@ -247,14 +252,16 @@ private:
     Value* _framePtr = nullptr;
     
     mutable uint32_t _nerrors = 0;
-    mutable bool _terminate = false;
     
     EventValueVector _eventQueue;
     Mutex _eventQueueMutex;
 
     bool _executingEvent = false;
     bool _delayComplete = false;
-    uint8_t _yieldCounter = 0;
+    mutable bool _checkForExceptions = false;
+    mutable bool _terminate = false;
+    mutable bool _yield = false;
+    
     uint32_t _numEventListeners = 0;
     
     uint32_t _lineno = 0;

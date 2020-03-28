@@ -46,11 +46,6 @@ Mad<String> ExecutionUnit::createString(const char* str, int32_t length)
     return s;
 }
 
-void ExecutionUnit::tooManyErrors() const
-{
-    printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
-}
-
 void ExecutionUnit::printError(ROMString format, ...) const
 {
     va_list args;
@@ -58,7 +53,10 @@ void ExecutionUnit::printError(ROMString format, ...) const
     printf(ROMSTR("***** "));
 
     Error::vprintError(this, Error::Code::RuntimeError, _lineno, format, args);
-    ++_nerrors;
+    if (++_nerrors > MaxRunTimeErrrors) {
+        printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
+        requestTerminate();
+    }
 }
 
 void ExecutionUnit::printError(CallReturnValue::Error error) const
@@ -101,7 +99,9 @@ void ExecutionUnit::gcMark()
     }
     
     _program->gcMark();
-    _function->gcMark();
+    if (_function.valid()) {
+        _function->gcMark();
+    }
     _this->gcMark();
 
     for (auto it : _eventQueue) {
@@ -221,6 +221,8 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
         for (int i = 0; i < nargs; i++) {
             _eventQueue.push_back(args[i]);
         }
+        
+        _checkForExceptions = true;
 
 #ifndef NDEBUG
         checkEventQueueConsistency();
@@ -552,6 +554,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
     
+    _yield = false;
     GC::gc();
     
     uint32_t uintValue;
@@ -660,6 +663,10 @@ CallReturnValue ExecutionUnit::continueExecution()
         // If we were executing an event don't push the return value
         if (_executingEvent) {
             _executingEvent = false;
+            
+            // When we finish executing an event there may be another event pending.
+            // Tell the dispatcher to check for this
+            _checkForExceptions = true;
         } else {
             _stack.push(returnedValue);
         }

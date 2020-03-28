@@ -44,6 +44,7 @@ public:
     Error error() const { return _error; }
     
     virtual bool readyToRun() const { return state() == State::Ready; }
+    virtual void requestYield() const { }
     
 #ifndef NDEBUG
     const String& name() const { return _name; }
@@ -88,6 +89,7 @@ public:
     const ExecutionUnit* eu() const { return _eu.get(); }
     
     virtual bool readyToRun() const override;
+    virtual void requestYield() const override;
 
 private:
     virtual CallReturnValue execute() override;

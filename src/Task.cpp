@@ -104,6 +104,12 @@ bool Task::readyToRun() const
     return TaskBase::readyToRun() || eu()->readyToRun();
 }
 
+void Task::requestYield() const
+{
+    _eu->requestYield();
+}
+
+
 void Task::receivedData(const String& data, KeyAction action)
 {
     _eu->receivedData(data, action);

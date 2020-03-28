@@ -40,14 +40,20 @@ protected:
 private:
     void runLoop();
 
-    // Post an event now. When event occurs, call fireEvent
     void readyToExecuteNextTask();
+    void startTimeSliceTimer();
+    void requestYield();
     
-    Mutex _mutex;
     Vector<TaskBase*> _list;
+    
+    TaskBase* _currentTask = nullptr;
 
-    Thread _eventThread;
-    Condition _eventCondition;
+    Thread _mainThread;
+    Thread _timeSliceThread;
+    Condition _mainCondition;
+    Condition _timeSliceCondition;
+    Mutex _mainMutex;
+    Mutex _timeSliceMutex;
     bool _terminating = false;
 };
 
