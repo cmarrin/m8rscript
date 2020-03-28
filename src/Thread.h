@@ -123,7 +123,7 @@ public:
     }
         
     void join() { pthread_join(_thread, nullptr); }
-    void detach() { pthread_detach(_thread); }
+    void detach() { pthread_detach(_thread); _thread = pthread_t(); }
     void terminate() { pthread_cancel(_thread); }
     bool joinable() { return _thread != pthread_t(); }
 
@@ -143,6 +143,7 @@ private:
     {
         auto t = reinterpret_cast<ThreadStorage*>(data);
         t->_lambda();
+        pthread_exit(nullptr);
         t->_thread->_thread = pthread_t();
         delete t;
         return nullptr;
