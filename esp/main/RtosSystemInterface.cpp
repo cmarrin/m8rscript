@@ -20,6 +20,7 @@
 
 #include "Defines.h"
 #include "LittleFS.h"
+#include "RtosWifi.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
 #include "spi_flash.h"
@@ -161,6 +162,7 @@ public:
 private:
 //    RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
+    RtosWifi _wifi;
 };
 
 extern uint64_t g_esp_os_us;
