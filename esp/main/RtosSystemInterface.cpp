@@ -111,7 +111,7 @@ void m8r::heapInfo(void*& start, uint32_t& size)
     static uint32_t heapSize = 0;
     
     if (!heapAddr) {
-        heapSize = heap_caps_get_free_size(MALLOC_CAP_8BIT) - 10000;
+        heapSize = heap_caps_get_free_size(MALLOC_CAP_8BIT) - 30000;
         heapAddr = heap_caps_malloc(heapSize, MALLOC_CAP_8BIT);
     }
     
