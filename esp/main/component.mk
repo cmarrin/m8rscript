@@ -3,7 +3,7 @@
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 
-SRC_DIR := ../../src
+SRC_DIR := ../../lib/m8rscript/src
 
 COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_EXTRA_INCLUDES := 
