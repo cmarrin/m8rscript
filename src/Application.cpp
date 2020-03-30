@@ -23,6 +23,8 @@ SystemInterface* Application::_system = nullptr;
 
 Application::Application(uint16_t port)
 {
+    printf("***** creating Application\n");
+    
     if (!_system) {
         _system = SystemInterface::create();
     }
@@ -133,7 +135,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "/sys/bin/TimeZoneDBClient.m8r";
+    return "/sys/bin/timing-esp.m8r";
 }
 
 bool Application::mountFileSystem()

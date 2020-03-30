@@ -106,11 +106,9 @@ private:
 #endif
 };
 
-void m8r::heapInfo(void*& start, uint32_t& size)
+int32_t m8r::heapFreeSize()
 {
-    static char heap[HeapSize];
-    start = heap;
-    size = HeapSize;
+    return -1;
 }
 
 SystemInterface* SystemInterface::create() { return new MacSystemInterface(); }

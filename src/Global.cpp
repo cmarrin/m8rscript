@@ -234,8 +234,8 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     MemoryInfo info = Mallocator::shared()->memoryInfo();
     Mad<Object> obj = Object::create<MaterObject>();
     
-    uint32_t freeSize = info.freeSizeInBlocks * info.blockSize;
-    uint32_t allocatedSize = (info.heapSizeInBlocks - info.freeSizeInBlocks) * info.blockSize;
+    uint32_t freeSize = Mallocator::shared()->freeSize();
+    uint32_t allocatedSize = info.totalAllocatedBytes;
     obj->setProperty(eu->program()->atomizeString(ROMSTR("freeSize")),
                      Value(static_cast<int32_t>(freeSize)), Value::SetType::AlwaysAdd);
                      
@@ -248,7 +248,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     Mad<Object> allocationsByType = Object::create<MaterArray>();
     for (int i = 0; i < info.allocationsByType.size(); ++i) {
         Mad<Object> allocation = Object::create<MaterObject>();
-        uint32_t size = info.allocationsByType[i].sizeInBlocks * info.blockSize;
+        uint32_t size = info.allocationsByType[i].size;
         ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
         allocation->setProperty(eu->program()->atomizeString(ROMSTR("count")),
                          Value(static_cast<int32_t>(info.allocationsByType[i].count)), Value::SetType::AlwaysAdd);

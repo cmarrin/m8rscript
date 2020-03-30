@@ -93,16 +93,6 @@ private:
 #endif
 };
 
-void m8r::heapInfo(void*& start, uint32_t& size)
-{
-    static void* heap = nullptr;
-    if (!heap) {
-        heap = ::malloc(HeapSize);
-    }
-    start = heap;
-    size = HeapSize;
-}
-
 static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
 
 m8r::SystemInterface* m8r::SystemInterface::get() { return _gSystemInterface.get(); }

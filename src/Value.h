@@ -175,7 +175,7 @@ public:
 
     ~Value() { }
     
-    Type type() const { return ((_value._float & ValueMask) == 0) ? _value._type : static_cast<Type>(_value._float & ValueMask); }
+    Type type() const { return ((_value._intptr & ValueMask) == 0) ? _value._type : static_cast<Type>(_value._float & ValueMask); }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -304,7 +304,7 @@ private:
     // 8 byte aligned on Mac. So using the lowest 2 bits is safe. For float, using the
     // lowest 2 bits means you lose 2 bits of precision.
     union {
-        uint8_t _raw[8];
+        uint8_t _raw[sizeof(intptr_t) * 2];
         Float::value_type _float;
         intptr_t _intptr;
         struct {
@@ -322,7 +322,7 @@ private:
     } _value;
     
     // In order to fit everything, we have some requirements
-    static_assert(sizeof(_value) == 8, "Value must be 8 bytes");
+    static_assert(sizeof(_value) == (sizeof(intptr_t) * 2), "Value must be twice the size of intptr_t");
 };
 
 }

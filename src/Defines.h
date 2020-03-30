@@ -71,8 +71,6 @@ namespace m8r {
 
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
-    
-static constexpr uint32_t HeapSize = 200000;
 #else
     #include <esp_attr.h>
     
@@ -111,7 +109,7 @@ static constexpr uint32_t HeapSize = 200000;
 
 namespace m8r {
 
-void heapInfo(void*& start, uint32_t& size);
+int32_t heapFreeSize();
 
 static inline bool isdigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
@@ -210,10 +208,10 @@ private:
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
-using RawMad = uint16_t;
-static constexpr RawMad NoRawMad = std::numeric_limits<RawMad>::max();
+using RawMad = intptr_t;
+static constexpr RawMad NoRawMad = 0;
 
-enum class MemoryType : uint16_t {
+enum class MemoryType : uint8_t {
     Unknown,
     String,
     Character,
@@ -230,13 +228,11 @@ enum class MemoryType : uint16_t {
 struct MemoryInfo{
     struct Entry
     {
-        uint32_t sizeInBlocks = 0;
+        uint32_t size = 0;
         uint32_t count = 0;
     };
     
-    uint16_t heapSizeInBlocks = 0;
-    uint16_t freeSizeInBlocks = 0;
-    uint16_t blockSize = 4;
+    uint32_t totalAllocatedBytes = 0;
     uint16_t numAllocations = 0;
     std::array<Entry, static_cast<uint32_t>(MemoryType::NumTypes)> allocationsByType;
 };

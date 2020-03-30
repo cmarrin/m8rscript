@@ -68,7 +68,6 @@ extern "C" void app_main()
         toFile->close();
     }
 
-    const m8r::MemoryInfo& info = m8r::Mallocator::shared()->memoryInfo();
-    m8r::system()->printf(ROMSTR("Total heap: %d, free heap: %d\n"), info.heapSizeInBlocks * info.blockSize, info.freeSizeInBlocks * info.blockSize);
+    m8r::system()->printf(ROMSTR("Free heap: %d\n"), m8r::Mallocator::shared()->freeSize());
     application.runLoop();
 }
