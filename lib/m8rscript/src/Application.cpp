@@ -105,6 +105,41 @@ Application::Application(uint16_t port)
     });
     
     _shellSocket = socket;
+
+    mountFileSystem();
+
+    // Start things running
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
+    
+    if (m8r::system()->fileSystem() && m8r::system()->fileSystem()->mounted()) {
+        uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
+        uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
+        m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
+    }
+    
+    // If autostart is on, run the main program
+    String filename = autostartFilename();
+    if (filename) {
+        _autostartTask = Mad<Task>::create();
+        _autostartTask->init(filename.c_str());
+        _autostartTask->setConsolePrintFunction([](const String& s) {
+            system()->printf(ROMSTR("%s"), s.c_str());
+        });
+        system()->setListenerFunc([this](const char* line) {
+            if (!line) {
+                return;
+            }
+            size_t size = strlen(line);
+            if (line[size - 1] == '\n') {
+                size -= 1;
+            }
+            _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
+        });
+        _autostartTask->run([this](m8r::TaskBase*) {
+            m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
+            _autostartTask.destroy();
+        });    
+    }
 }
 
 Application::~Application()
@@ -166,39 +201,4 @@ bool Application::mountFileSystem()
     return true;
 }
 
-void Application::runLoop()
-{
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
-    
-    if (m8r::system()->fileSystem() && m8r::system()->fileSystem()->mounted()) {
-        uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
-        uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
-        m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1).c_str(), String::prettySize(totalUsed, 1).c_str());
-    }
-    
-    // If autostart is on, run the main program
-    String filename = autostartFilename();
-    if (filename) {
-        _autostartTask = Mad<Task>::create();
-        _autostartTask->init(filename.c_str());
-        _autostartTask->setConsolePrintFunction([](const String& s) {
-            system()->printf(ROMSTR("%s"), s.c_str());
-        });
-        system()->setListenerFunc([this](const char* line) {
-            if (!line) {
-                return;
-            }
-            size_t size = strlen(line);
-            if (line[size - 1] == '\n') {
-                size -= 1;
-            }
-            _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
-        });
-        _autostartTask->run([this](m8r::TaskBase*) {
-            m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
-            _autostartTask.destroy();
-        });    
-    }
-    
-    system()->runLoop();
 }

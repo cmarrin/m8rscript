@@ -26,7 +26,6 @@ extern "C" void app_main()
     printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
 
     m8r::Application application(23);
-    application.mountFileSystem();
     
     // Test filesystem
     m8r::String toPath("/foo");
