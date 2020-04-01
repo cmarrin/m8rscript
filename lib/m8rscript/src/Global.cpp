@@ -71,7 +71,7 @@ Global::Global()
 
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    uint64_t t = static_cast<uint64_t>(Time::now());
+    uint64_t t = Time::now().us();
     eu->stack().push(Value(Float(static_cast<Float::value_type>(t), -6)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }

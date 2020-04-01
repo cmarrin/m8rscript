@@ -166,7 +166,7 @@ public:
     };
     
     Time() { }
-    Time(const Time& other) : _value(other) { }
+    Time(const Time& other) : _value(other.us()) { }
 
     static Time now();
     static Time longestTime() { return Time(std::numeric_limits<uint64_t>::max()); }
@@ -186,8 +186,8 @@ public:
     bool operator>(const Time& other)  const { return _value > other._value; }
     bool operator>=(const Time& other) const { return _value >= other._value; }
     
-    operator uint64_t () const { return _value; }
-
+    uint64_t us() const { return _value; }
+    
     String toString() const;
     
     void elements(Elements&) const;
