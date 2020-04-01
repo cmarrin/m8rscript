@@ -6,6 +6,8 @@ var n = 200;
 var a = [ ];
 a.length = n;
 
+print("\n\nTiming test: " + n + " squared iterations\n");
+
 var startTime = currentTime();
 
 for (var i = 0; i < n; ++i) {
@@ -16,7 +18,4 @@ for (var i = 0; i < n; ++i) {
 }
 
 var t = currentTime() - startTime;
-println("Run time: " + (t * 1000.) + "ms");
-
-println("a[100] = " + a[100]);
-
+print("Run time: " + (t * 1000.) + "ms\n\n");
