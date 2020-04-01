@@ -72,7 +72,10 @@ namespace m8r {
     template <typename T>
     static inline const char* typeName() { return typeid(T).name(); }
 #else
+
+#ifndef ARDUINO
     #include <esp_attr.h>
+#endif
     
     #ifndef __STRINGIFY
     #define __STRINGIFY(a) #a
