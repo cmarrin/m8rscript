@@ -119,7 +119,6 @@ class RtosSystemInterface : public SystemInterface
 public:
     RtosSystemInterface()
     {
-        srand(esp_random());
     }
     
     virtual void vprintf(ROMString fmt, va_list args) const override

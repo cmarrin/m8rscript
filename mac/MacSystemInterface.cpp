@@ -28,7 +28,6 @@ class MacSystemInterface : public SystemInterface
 public:
     MacSystemInterface()
     {
-        srand(static_cast<uint32_t>(time(nullptr)));
     }
     
     virtual void vprintf(ROMString s, va_list args) const override

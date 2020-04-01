@@ -24,7 +24,10 @@ SystemInterface* Application::_system = nullptr;
 Application::Application(uint16_t port)
 {
     printf("***** creating Application\n");
-    
+
+    // Seed the random number generator
+    srand(static_cast<unsigned>(Time::now().us()));
+
     if (!_system) {
         _system = SystemInterface::create();
     }
