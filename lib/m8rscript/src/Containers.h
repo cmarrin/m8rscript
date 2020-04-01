@@ -552,6 +552,12 @@ public:
     using iterator = typename MapList::iterator;
     using const_iterator = typename MapList::const_iterator;
 
+    Pair& back() { return _list.back(); }
+    const Pair& back() const { return _list.back(); }
+    
+    Pair& front() { return _list.front(); }
+    const Pair& front() const { return _list.front(); }
+
     const_iterator find(const Key& key) const
     {
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
@@ -586,6 +592,8 @@ public:
         }
         return { begin() + result, placed };
     }
+    
+    iterator erase(iterator it) { return _list.erase(it); }
     
     iterator begin() { return _list.begin(); }
     const_iterator begin() const { return _list.begin(); }
