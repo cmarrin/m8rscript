@@ -205,7 +205,7 @@ private:
             assert(_eventQueue.size() - index >= 3);
             assert(_eventQueue[index + 2].isInteger());
             int32_t nargs = _eventQueue[index + 2].asIntValue();
-            assert(_eventQueue.size() >= nargs + index + 3);
+            assert(static_cast<int>(_eventQueue.size()) >= nargs + index + 3);
             index += nargs + 3;
         }
         assert(index == _eventQueue.size());
