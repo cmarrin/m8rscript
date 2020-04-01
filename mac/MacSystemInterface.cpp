@@ -14,6 +14,9 @@
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 #ifndef USE_LITTLEFS
 #include "SpiffsFS.h"
@@ -36,6 +39,22 @@ public:
         ::vprintf(ss.c_str(), args);
     }
     
+    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    {
+        std::thread([this, duration, cb] {
+            std::unique_lock<std::mutex> lock(_mutex);
+            if (_cond.wait_for(lock, std::chrono::microseconds(duration.us())) == std::cv_status::timeout) {
+                cb();
+            }
+        }).detach();
+    }
+    
+    virtual void stopTimer() override
+    {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _cond.notify_all();
+    }
+
     virtual void setDeviceName(const char*) override { }
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
@@ -103,6 +122,9 @@ private:
 #else
     LittleFS _fileSystem;
 #endif
+
+    std::condition_variable _cond;
+    std::mutex _mutex;
 };
 
 int32_t m8r::heapFreeSize()

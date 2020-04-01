@@ -68,5 +68,5 @@ extern "C" void app_main()
     }
 
     m8r::system()->printf(ROMSTR("Free heap: %d\n"), m8r::Mallocator::shared()->freeSize());
-    application.runLoop();
+    application.runOneIteration();
 }

@@ -20,27 +20,13 @@ using namespace m8r;
 
 void Timer::start()
 {
-    Thread thread(1024, [this] {
-        while(1) {
-            _duration.sleep();
-            if (_cb) {
-                _cb(this);
-            }
-            if (!_repeating) {
-                break;
-            }
-        }
-    });
-    
-    _thread.swap(thread);
-    _thread.detach();
+    _timeToFire = Time::now() + _duration;
+    system()->taskManager()->addTimer(this);
 }
 
 void Timer::stop()
 {
-    // FIXME: Need to be able to cancel the sleep
-    _repeating = false;
-    _thread.join();
+    system()->taskManager()->removeTimer(this);
 }
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =

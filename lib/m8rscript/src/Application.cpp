@@ -201,7 +201,7 @@ bool Application::mountFileSystem()
     return true;
 }
 
-void Application::runLoop()
+void Application::runOneIteration()
 {    
-    system()->runLoop();
+    system()->runOneIteration();
 }

@@ -20,7 +20,7 @@ SystemInterface* m8r::system()
     return Application::system();
 }
 
-void SystemInterface::runLoop()
+void SystemInterface::runOneIteration()
 {
-    taskManager()->runLoop();
+    taskManager()->runOneIteration();
 }
