@@ -26,7 +26,6 @@ uint32_t GC::prevGCObjects = 0;
 uint32_t GC::prevGCStrings = 0;
 uint8_t GC::countSinceLastGC = 0;
 bool GC::inGC = false;
-Mutex GC::_mutex;
 
 void GC::gc(bool force)
 {
@@ -37,14 +36,12 @@ void GC::gc(bool force)
     force = true;
     
     inGC = true;
-    _mutex.lock();
     bool didFullCycle = gcState == GCState::ClearMarkedObj;
     while (1) {
         switch(gcState) {
             case GCState::ClearMarkedObj:
                 if (!force && _objectStore.size() - prevGCObjects < MaxGCObjectDiff && _stringStore.size() - prevGCStrings < MaxGCStringDiff && ++countSinceLastGC < MaxCountSinceLastGC) {
                     inGC = false;
-                    _mutex.unlock();
                     return;
                 }
                 for (RawMad& it : _objectStore) {
@@ -101,7 +98,6 @@ void GC::gc(bool force)
                 
                 if (!force || didFullCycle) {
                     inGC = false;
-                    _mutex.unlock();
                     return;
                 }
                 didFullCycle = true;
@@ -114,7 +110,6 @@ void GC::gc(bool force)
         }
     }
     inGC = false;
-    _mutex.unlock();
 }
 
 namespace m8r {

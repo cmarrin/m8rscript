@@ -119,7 +119,6 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                     int16_t connectionId = -1;
                     for (int& socket : _clientSockets) {
                         if (!socket) {
-                            Lock lock(_mutex);
                             socket = clientSocket;
                             connectionId = &socket - _clientSockets;
                             break;
@@ -148,7 +147,6 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
                             _eventFunction(this, TCP::Event::Disconnected, connectionId, nullptr, -1);
                             close(socket);
-                            Lock lock(_mutex);
                             socket = 0;
                         } else if (result < 0) {
                             _eventFunction(this, TCP::Event::Error, errno, "read error", -1);
@@ -203,7 +201,6 @@ int32_t MacTCP::sendData(int16_t connectionId, const char* data, uint16_t length
     
     int socket = 0;
     {
-        Lock lock(_mutex);
         socket = _server ? _clientSockets[connectionId] : _socketFD;
     }
 

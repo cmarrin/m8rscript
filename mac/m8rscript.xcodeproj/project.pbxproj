@@ -85,8 +85,6 @@
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
 		49CB61BB23F85256003C9AB0 /* Timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61B923F85255003C9AB0 /* Timer.h */; };
 		49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB61BA23F85255003C9AB0 /* Timer.cpp */; };
-		49CB61BF2409643B003C9AB0 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB61BD2409643B003C9AB0 /* Thread.cpp */; };
-		49CB61C02409643B003C9AB0 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61BE2409643B003C9AB0 /* Thread.h */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49CDE69A2386633900159439 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
@@ -324,8 +322,6 @@
 		49C406F11EB675B0001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../lib/m8rscript/src/SharedAtoms.h; sourceTree = "<group>"; };
 		49CB61B923F85255003C9AB0 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../lib/m8rscript/src/Timer.h; sourceTree = "<group>"; };
 		49CB61BA23F85255003C9AB0 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../lib/m8rscript/src/Timer.cpp; sourceTree = "<group>"; };
-		49CB61BD2409643B003C9AB0 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = ../lib/m8rscript/src/Thread.cpp; sourceTree = "<group>"; };
-		49CB61BE2409643B003C9AB0 /* Thread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
 		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../lib/m8rscript/src/IPAddr.cpp; sourceTree = "<group>"; };
 		49D5FD331E2D9D89001AF5C8 /* TCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCP.cpp; path = ../lib/m8rscript/src/TCP.cpp; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -746,8 +742,6 @@
 				491E2F8E236A52160054725E /* Telnet.h */,
 				49E190781DB99E270030DC89 /* TCP.h */,
 				49D5FD331E2D9D89001AF5C8 /* TCP.cpp */,
-				49CB61BE2409643B003C9AB0 /* Thread.h */,
-				49CB61BD2409643B003C9AB0 /* Thread.cpp */,
 				49CB61B923F85255003C9AB0 /* Timer.h */,
 				49CB61BA23F85255003C9AB0 /* Timer.cpp */,
 				49E190791DB99E270030DC89 /* UDP.h */,
@@ -790,7 +784,6 @@
 				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
-				49CB61C02409643B003C9AB0 /* Thread.h in Headers */,
 				49A6A9F02430F31C004D457C /* RtosWifi.h in Headers */,
 				49A39F20234C513600F6A144 /* SystemTime.h in Headers */,
 				499AE8E6234A625100459451 /* Task.h in Headers */,
@@ -1047,7 +1040,6 @@
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
-				49CB61BF2409643B003C9AB0 /* Thread.cpp in Sources */,
 				49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
 				49846005238C60ED001F4FD4 /* MacSystemInterface.cpp in Sources */,
@@ -1192,6 +1184,7 @@
 		494D25501D2E9055003755DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;
@@ -1205,6 +1198,7 @@
 		494D25511D2E9055003755DB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;

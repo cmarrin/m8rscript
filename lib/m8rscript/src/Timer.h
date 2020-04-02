@@ -43,6 +43,14 @@ public:
     bool repeating() const { return _repeating; }
     Time timeToFire() const { return _timeToFire; }
     
+    void setDuration(Duration d)
+    {
+        if (running()) {
+            return;
+        }
+        _duration = d;
+    }
+    
     friend bool operator<(const Timer& l, const Timer& r) { return l.timeToFire() < r.timeToFire(); }
     
     void start();
@@ -51,7 +59,10 @@ public:
     bool running() const { return _running; }
     uint32_t fireCount() const { return _fireCount; }
     
-    void fire() { _cb(this); }
+    void fire() {
+        stop();
+        _cb(this);
+    }
 
 private:
     Duration _duration = 0_sec;

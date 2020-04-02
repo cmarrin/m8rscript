@@ -43,6 +43,11 @@ void TaskManager::startTimeSliceTimer()
     _timeSliceTimer->start();
 }
 
+void TaskManager::stopTimeSliceTimer()
+{
+    _timeSliceTimer->stop();
+}
+
 void TaskManager::requestYield()
 {
     if (_currentTask) {
@@ -78,7 +83,7 @@ bool TaskManager::executeNextTask()
     Time currentTime = Time::now();
     
     while (1) {
-        if (!_timerList.empty() && _timerList.front()->timeToFire() >= currentTime) {
+        if (!_timerList.empty() && _timerList.front()->timeToFire() <= currentTime) {
             auto timer = _timerList.front();
             _timerList.erase(_timerList.begin());
             timer->fire();
@@ -106,6 +111,7 @@ bool TaskManager::executeNextTask()
 
     startTimeSliceTimer();
     CallReturnValue returnValue = _currentTask->execute();
+    stopTimeSliceTimer();
     
     if (returnValue.isYield()) {
         _currentTask->setState(Task::State::Ready);

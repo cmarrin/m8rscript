@@ -33,7 +33,6 @@ private:
     dispatch_semaphore_t _dispatchSemaphore;
     char _receiveBuffer[BufferSize];
     int _clientSockets[MaxConnections];
-    Mutex _mutex; // protection for _clientSockets
 };
 
 }

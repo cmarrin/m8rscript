@@ -11,7 +11,6 @@
 
 #include "Containers.h"
 #include "SystemTime.h"
-#include "Thread.h"
 #include <cstdint>
 
 namespace m8r {
@@ -47,6 +46,7 @@ private:
 
     void readyToExecuteNextTask();
     void startTimeSliceTimer();
+    void stopTimeSliceTimer();
     void requestYield();
     
     void restartTimer();
