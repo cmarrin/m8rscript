@@ -32,6 +32,30 @@
 #include <limits>
 #include <cstring>
 
+// Debugging
+static inline void DBG_PRINT(const char* type, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    printf("===== %s: ", type);
+    vprintf(fmt, args);
+    printf("\n");
+}
+
+#ifdef DEBUG_TIMERS 
+    #define DBG_TIMERS(fmt, ...) DBG_PRINT("TMR", fmt, ##__VA_ARGS__)
+#else
+    #define DBG_TIMERS(fmt, ...)
+#endif
+
+// FIXME: Doing this allows things like 2s and 3.5ms.
+// But they are in units of chrono::duration, so we need to make a convervsion
+// between that and our Duration class. Then we can get rid of operator""_sec
+// and friends.
+//#include <chrono>
+//
+//using namespace std::chrono_literals;
+
 namespace m8r {
     class ROMString
     {

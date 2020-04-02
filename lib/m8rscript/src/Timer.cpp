@@ -21,11 +21,14 @@ using namespace m8r;
 void Timer::start()
 {
     _timeToFire = Time::now() + _duration;
+    DBG_TIMERS("start timer (%p): now=%s, duration=%s, fire=%s",
+                this, Time::now().toString().c_str(), _duration.toString().c_str(), _timeToFire.toString().c_str());
     system()->taskManager()->addTimer(this);
 }
 
 void Timer::stop()
 {
+    DBG_TIMERS("stop timer (%p)", this);
     system()->taskManager()->removeTimer(this);
 }
 

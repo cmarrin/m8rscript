@@ -86,6 +86,10 @@ bool TaskManager::executeNextTask()
         if (!_timerList.empty() && _timerList.front()->timeToFire() <= currentTime) {
             auto timer = _timerList.front();
             _timerList.erase(_timerList.begin());
+            DBG_TIMERS("firing timer: duration=%s, now=%s, timeToFire=%s", 
+                        timer->duration().toString().c_str(), 
+                        currentTime.toString().c_str(), 
+                        timer->timeToFire().toString().c_str());
             timer->fire();
         } else {
             break;
@@ -147,6 +151,7 @@ void TaskManager::removeTimer(Timer* timer)
 void TaskManager::restartTimer()
 {
     if (!_timerList.empty()) {
+        DBG_TIMERS("restartTimer: duration=%s", (_timerList[0]->timeToFire() - Time::now()).toString().c_str());
         system()->startTimer(_timerList[0]->timeToFire() - Time::now(), [this] {
             requestYield();
         });
