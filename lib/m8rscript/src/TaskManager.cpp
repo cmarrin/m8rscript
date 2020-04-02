@@ -137,7 +137,9 @@ void TaskManager::addTimer(Timer* timer)
 {
     system()->stopTimer();
     _timerList.push_back(timer);
-    std::sort(_timerList.begin(), _timerList.end());
+    std::sort(_timerList.begin(), _timerList.end(), [](const Timer* a, const Timer* b) {
+        return a->timeToFire() < b->timeToFire();
+    });
     restartTimer();
 }
 

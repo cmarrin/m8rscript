@@ -50,9 +50,7 @@ public:
         }
         _duration = d;
     }
-    
-    friend bool operator<(const Timer& l, const Timer& r) { return l.timeToFire() < r.timeToFire(); }
-    
+
     void start();
     void stop();
     
