@@ -42,6 +42,7 @@ static inline void DBG_PRINT(const char* type, const char* fmt, ...)
     printf("\n");
 }
 
+//#define DEBUG_TIMERS
 #ifdef DEBUG_TIMERS 
     #define DBG_TIMERS(fmt, ...) DBG_PRINT("TMR", fmt, ##__VA_ARGS__)
 #else
