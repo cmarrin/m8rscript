@@ -55,7 +55,6 @@ public:
     void stop();
     
     bool running() const { return _running; }
-    uint32_t fireCount() const { return _fireCount; }
     
     void fire() {
         stop();
@@ -68,7 +67,6 @@ private:
     Callback _cb;
     bool _repeating = false;
     bool _running = false;
-    uint32_t _fireCount = 0;
 };
 
 class TimerProto : public StaticObject {

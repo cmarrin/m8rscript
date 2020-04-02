@@ -23,12 +23,14 @@ void Timer::start()
     _timeToFire = Time::now() + _duration;
     DBG_TIMERS("start timer (%p): now=%s, duration=%s, fire=%s",
                 this, Time::now().toString().c_str(), _duration.toString().c_str(), _timeToFire.toString().c_str());
+    _running = true;
     system()->taskManager()->addTimer(this);
 }
 
 void Timer::stop()
 {
     DBG_TIMERS("stop timer (%p)", this);
+    _running = false;
     system()->taskManager()->removeTimer(this);
 }
 
