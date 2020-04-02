@@ -56,10 +56,7 @@ public:
     
     bool running() const { return _running; }
     
-    void fire() {
-        stop();
-        _cb(this);
-    }
+    void fire();
 
 private:
     Duration _duration = 0_sec;

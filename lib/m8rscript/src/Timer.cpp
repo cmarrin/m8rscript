@@ -34,6 +34,16 @@ void Timer::stop()
     system()->taskManager()->removeTimer(this);
 }
 
+void Timer::fire()
+{
+    stop();
+    _cb(this);
+    if (_repeating) {
+        start();
+    }
+}
+
+
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TimerProto::constructor },
