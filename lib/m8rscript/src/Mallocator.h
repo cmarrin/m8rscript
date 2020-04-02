@@ -83,13 +83,13 @@ class Mad
 public:
     Mad() { }
     
-    explicit Mad(RawMad raw) : _raw(raw) { }
+    explicit Mad(RawMad raw) : _raw(reinterpret_cast<T*>(raw)) { }
     
-    explicit Mad(const T* addr) { _raw = reinterpret_cast<RawMad>(addr); }
+    explicit Mad(const T* addr) { _raw = const_cast<T*>(addr); }
     
     Mad(const Mad& other) { *this = other; }
     
-    RawMad raw() const { return _raw; }
+    RawMad raw() const { return reinterpret_cast<RawMad>(_raw); }
 
     T* get() const { return reinterpret_cast<T*>(_raw); }
     T& operator*() const { return *get(); }
@@ -97,7 +97,7 @@ public:
 
     bool operator==(const Mad& other) const { return _raw == other._raw; }
 
-    bool valid() const { return _raw != Mad<T>().raw(); }
+    bool valid() const { return _raw != nullptr; }
     
     template <typename U>
     operator Mad<U>() const
@@ -125,7 +125,7 @@ public:
     static Mad<T> create() { return create(T::memoryType(), 1); }
 
 private:
-    RawMad _raw = NoRawMad;
+    T* _raw = nullptr;
     
     void destroyHelper(MemoryType, bool destruct);
 };    
