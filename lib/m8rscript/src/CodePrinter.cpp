@@ -81,14 +81,14 @@ m8r::String CodePrinter::generateCodeString(const ExecutionUnit* eu) const
     return generateCodeString(eu, eu->program(), "main");
 }
 
-String CodePrinter::regString(const ExecutionUnit* eu, const Mad<Object> function, const uint8_t*& code, bool up) const
+m8r::String CodePrinter::regString(const ExecutionUnit* eu, const Mad<Object> function, const uint8_t*& code, bool up) const
 {
     Value constant;
     uint8_t r = regOrConst(function, code, constant);
     return regString(eu, function, r, constant, up);
 }
 
-String CodePrinter::regString(const ExecutionUnit* eu, const Mad<Object> function, uint8_t reg, const Value& constant, bool up) const
+m8r::String CodePrinter::regString(const ExecutionUnit* eu, const Mad<Object> function, uint8_t reg, const Value& constant, bool up) const
 {
     if (up) {
         return String("U[") + String(reg) + "]";
@@ -141,7 +141,7 @@ void CodePrinter::advanceAddr(Op op, const uint8_t*& code) const
     }
 }
 
-String CodePrinter::generateCodeString(const ExecutionUnit* eu, const Mad<Function> func, const char* functionName) const
+m8r::String CodePrinter::generateCodeString(const ExecutionUnit* eu, const Mad<Function> func, const char* functionName) const
 {
     String outputString;
     const Mad<Program> program = eu->program();
@@ -485,10 +485,10 @@ void CodePrinter::indentCode(m8r::String& s) const
     }
 }
 
-static String escapeString(const String& s)
+static m8r::String escapeString(const m8r::String& s)
 {
-    Vector<String> array = s.split("\n");
-    return String::join(array, "\\n");
+    Vector<m8r::String> array = s.split("\n");
+    return m8r::String::join(array, "\\n");
 }
 
 void CodePrinter::showConstant(const ExecutionUnit* eu, m8r::String& s, const Value& value, bool abbreviated) const
@@ -544,7 +544,7 @@ void CodePrinter::showConstant(const ExecutionUnit* eu, m8r::String& s, const Va
                 s += "CLASS {\n";
                 uint32_t count = obj->numProperties();
 
-                for (int32_t i = 0; i < count; ++i) {
+                for (uint32_t i = 0; i < count; ++i) {
                     Atom name = obj->propertyKeyforIndex(i);
                     if (name) {
                         Value v = obj->property(name);

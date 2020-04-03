@@ -136,7 +136,7 @@ Value JSON::parse(ExecutionUnit* eu, const String& json)
     return v;
 }
 
-String JSON::stringify(ExecutionUnit* eu, const Value v)
+m8r::String JSON::stringify(ExecutionUnit* eu, const Value v)
 {
     return String();
 }

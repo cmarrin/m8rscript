@@ -42,7 +42,7 @@ Application::Application(uint16_t port)
                 _shells[connectionId].task->setConsolePrintFunction([&](const String& s) {
                     // Break it up into lines. We need to insert '\r'
                     Vector<String> v = s.split("\n");
-                    for (int i = 0; i < v.size(); ++i) {
+                    for (uint32_t i = 0; i < v.size(); ++i) {
                         if (!v[i].empty()) {
                             _shellSocket->send(connectionId, v[i].c_str(), v[i].size());
                         }
@@ -170,7 +170,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     return NameValidationType::Ok;
 }
 
-String Application::autostartFilename() const
+m8r::String Application::autostartFilename() const
 {
     // Look for it in config first
     return "/sys/bin/hello.m8r";

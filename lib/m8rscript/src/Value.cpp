@@ -121,7 +121,7 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
-String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
+m8r::String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
 {
     // thisValue is the format string
     String format = formatValue.toStringValue(eu);
@@ -243,8 +243,7 @@ const Value Value::element(ExecutionUnit* eu, const Value& elt) const
             // Must be a string literal
             const char* s = eu->program()->stringFromStringLiteral(asStringLiteralValue());
             if (s) {
-                size_t size = strlen(s);
-                if (size > index && index >= 0) {
+                if (static_cast<int32_t>(strlen(s)) > index && index >= 0) {
                     return Value(static_cast<int32_t>((s[index])));
                 }
             }

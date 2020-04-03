@@ -78,7 +78,7 @@ void Telnet::handleBackspace()
         _position--;
         _line.erase(_line.begin() + _position);
 
-        if (_position == _line.size()) {
+        if (_position == static_cast<int32_t>(_line.size())) {
             // At the end of line. Do the simple thing
             _toChannel = "\x08 \x08";
         } else {
@@ -89,7 +89,7 @@ void Telnet::handleBackspace()
 
 void Telnet::handleAddChar()
 {
-    if (_position == _line.size()) {
+    if (_position == static_cast<int32_t>(_line.size())) {
         // At end of line, do the simple thing
         _line.push_back(_currentChar);
         _position++;
@@ -122,7 +122,7 @@ void Telnet::handleCSICommand()
             }
             break;
         case 'C': // Cursor forward
-            if (_position < _line.size() - 1) {
+            if (_position < static_cast<int32_t>(_line.size()) - 1) {
                 _position++;
                 _toChannel = "\e[C";
             }
@@ -130,7 +130,7 @@ void Telnet::handleCSICommand()
         case '~':
             switch(_csiParam) {
                 case '3': // Delete forward
-                    if (_position < _line.size() - 1) {
+                    if (_position < static_cast<int32_t>(_line.size()) - 1) {
                         _line.erase(_line.begin() + _position);
                         _toChannel = makeInputLine();
                     }
@@ -153,7 +153,7 @@ void Telnet::handleSendLine()
     _currentAction = KeyAction::NewLine;
 }
 
-String Telnet::makeInputLine()
+m8r::String Telnet::makeInputLine()
 {
     String s = "\e[1000D\e[0K";
     s += String::join(_line);

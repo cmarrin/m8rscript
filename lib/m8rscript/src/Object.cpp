@@ -67,7 +67,7 @@ Value Object::value(ExecutionUnit* eu) const
     return v;
 }
 
-String Object::toString(ExecutionUnit* eu, bool typeOnly) const
+m8r::String Object::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     if (typeOnly) {
         return eu->program()->stringFromAtom(typeName());
@@ -110,7 +110,7 @@ MaterObject::~MaterObject()
     }
 }
 
-String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
+m8r::String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     String s = Object::toString(eu, typeOnly);
     if (!s.empty()) {
@@ -146,7 +146,7 @@ String MaterObject::toString(ExecutionUnit* eu, bool typeOnly) const
     return s;
 }
 
-String MaterArray::toString(ExecutionUnit* eu, bool typeOnly) const
+m8r::String MaterArray::toString(ExecutionUnit* eu, bool typeOnly) const
 {
     String s = Object::toString(eu, typeOnly);
     if (!s.empty()) {
@@ -205,7 +205,7 @@ const Value MaterObject::element(ExecutionUnit* eu, const Value& elt) const
 const Value MaterArray::element(ExecutionUnit* eu, const Value& elt) const
 {
     int32_t index = elt.toIntValue(eu);
-    return (index >= 0 && index < _array.size()) ? _array[index] : Value();
+    return (index >= 0 && index < static_cast<int32_t>(_array.size())) ? _array[index] : Value();
 }
 
 bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType type)
@@ -223,11 +223,11 @@ bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& va
     }
     
     int32_t index = elt.toIntValue(eu);
-    if ((index < 0 || index >= _array.size()) && (type == Value::SetType::NeverAdd)) {
+    if ((index < 0 || index >= static_cast<int32_t>(_array.size())) && (type == Value::SetType::NeverAdd)) {
         return false;
     }
     
-    if (_array.size() <= index) {
+    if (static_cast<int32_t>(_array.size()) <= index) {
         _array.resize(index + 1);
     }
     

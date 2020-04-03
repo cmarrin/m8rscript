@@ -20,7 +20,7 @@ Time Time::now()
     return Time(std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
-String Time::toString() const
+m8r::String Time::toString() const
 {
     Elements elts;
     elements(elts);
@@ -44,7 +44,7 @@ void Time::elements(Elements& elts) const
     elts.dayOfWeek = static_cast<DayOfWeek>(timeStruct->tm_wday);
 }
 
-String Duration::toString(Duration::Units units, uint8_t decimalDigits) const
+m8r::String Duration::toString(Duration::Units units, uint8_t decimalDigits) const
 {
     Float f = toFloat();
     switch(units) {

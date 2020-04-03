@@ -36,7 +36,7 @@ ExecutionUnit::~ExecutionUnit()
 }
 
 
-Mad<String> ExecutionUnit::createString(const String& other)
+Mad<m8r::String> ExecutionUnit::createString(const m8r::String& other)
 {
     Mad<String> s = Mad<String>::create();
     *(s.get()) = other;
@@ -44,17 +44,17 @@ Mad<String> ExecutionUnit::createString(const String& other)
     return s;
 }
 
-Mad<String> ExecutionUnit::createString(String&& other)
+Mad<m8r::String> ExecutionUnit::createString(m8r::String&& other)
 {
-    Mad<String> s = Mad<String>::create();
+    Mad<m8r::String> s = Mad<m8r::String>::create();
     *(s.get()) = other;
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
 }
 
-Mad<String> ExecutionUnit::createString(const char* str, int32_t length)
+Mad<m8r::String> ExecutionUnit::createString(const char* str, int32_t length)
 {
-    Mad<String> s = Mad<String>::create();
+    Mad<m8r::String> s = Mad<m8r::String>::create();
     *(s.get()) = String(str, length);
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
@@ -293,7 +293,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
             func = _eventQueue[0];
             thisValue = _eventQueue[1];
             nargs = _eventQueue[2].asIntValue();
-            assert(_eventQueue.size() >= 3 + nargs);
+            assert(static_cast<int32_t>(_eventQueue.size()) >= 3 + nargs);
             
             for (int32_t i = 0; i < nargs; ++i) {
                 _stack.push(_eventQueue[3 + i]);
@@ -997,7 +997,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
 }
 
-String ExecutionUnit::debugString(uint16_t index)
+m8r::String ExecutionUnit::debugString(uint16_t index)
 {
     return _program->stringFromAtom(Atom(index));
 }
