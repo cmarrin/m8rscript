@@ -80,7 +80,6 @@
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
 		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
 		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
-		49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 490C1BDA239185CB0094A6B4 /* LittleFS.cpp */; };
 		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
 		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
 		49CB61BB23F85256003C9AB0 /* Timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61B923F85255003C9AB0 /* Timer.h */; };
@@ -102,6 +101,9 @@
 		49DD77491D84D94900D7C374 /* Simulate.png in Resources */ = {isa = PBXBuildFile; fileRef = 49DD77481D84D94900D7C374 /* Simulate.png */; };
 		49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DD774A1D84DD7D00D7C374 /* Application.cpp */; };
 		49DD774D1D84DD7D00D7C374 /* Application.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DD774B1D84DD7D00D7C374 /* Application.h */; };
+		49E45E342437FEDE00295291 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49E45E2B2437FED600295291 /* lfs_util.c */; };
+		49E45E352437FEE200295291 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49E45E2D2437FED600295291 /* lfs.c */; };
+		49E45E362437FEE800295291 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E45E2E2437FED600295291 /* LittleFS.cpp */; };
 		49E5AB551D981D6100C6988D /* FileBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49E5AB541D981D6100C6988D /* FileBrowser.xib */; };
 		49E5AB581D981DDB00C6988D /* FileBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB571D981DDB00C6988D /* FileBrowser.m */; };
 		49E5AB5E1D98C00600C6988D /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 49E5AB5C1D98C00600C6988D /* FastSocket.m */; };
@@ -111,10 +113,6 @@
 		49E987182365CEF000C17CB6 /* Mallocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E987162365CEF000C17CB6 /* Mallocator.cpp */; };
 		49E987192365CEF000C17CB6 /* Mallocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49E987172365CEF000C17CB6 /* Mallocator.h */; };
 		49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E9871A2365F63000C17CB6 /* SystemTime.cpp */; };
-		49EED98B2357971500831598 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49EED9872357971500831598 /* lfs.c */; };
-		49EED98C2357971500831598 /* lfs_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 49EED9882357971500831598 /* lfs_util.h */; };
-		49EED98D2357971500831598 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49EED9892357971500831598 /* lfs.h */; };
-		49EED98E2357971500831598 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49EED98A2357971500831598 /* lfs_util.c */; };
 		49F166F71DA7443100C07A1A /* SimulationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49F166F41DA7443100C07A1A /* SimulationView.xib */; };
 		49F166F81DA7443100C07A1A /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 49F166F51DA7443100C07A1A /* SimulationView.m */; };
 		49F463331E0DD05E004EF625 /* MGSFragaria.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F463321E0DD05E004EF625 /* MGSFragaria.framework */; };
@@ -201,8 +199,6 @@
 /* Begin PBXFileReference section */
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
-		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../lib/m8rscript/src/LittleFS.cpp; sourceTree = "<group>"; };
-		490C1BDC239185CB0094A6B4 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../lib/m8rscript/src/LittleFS.h; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -346,6 +342,12 @@
 		49E1907B1DBAE2570030DC89 /* MacUDP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacUDP.h; sourceTree = "<group>"; };
 		49E1907C1DBAE2570030DC89 /* MacTCP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTCP.h; sourceTree = "<group>"; };
 		49E1907D1DBAE2570030DC89 /* MacTCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTCP.cpp; sourceTree = "<group>"; };
+		49E45E2B2437FED600295291 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../../littlefs/lfs_util.c; sourceTree = "<group>"; };
+		49E45E2C2437FED600295291 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../../littlefs/lfs.h; sourceTree = "<group>"; };
+		49E45E2D2437FED600295291 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../../littlefs/lfs.c; sourceTree = "<group>"; };
+		49E45E2E2437FED600295291 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../../littlefs/LittleFS.cpp; sourceTree = "<group>"; };
+		49E45E2F2437FED600295291 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LittleFS.h; path = ../../littlefs/LittleFS.h; sourceTree = "<group>"; };
+		49E45E302437FED700295291 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs_util.h; path = ../../littlefs/lfs_util.h; sourceTree = "<group>"; };
 		49E5AB541D981D6100C6988D /* FileBrowser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FileBrowser.xib; sourceTree = "<group>"; };
 		49E5AB561D981DDB00C6988D /* FileBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileBrowser.h; sourceTree = "<group>"; };
 		49E5AB571D981DDB00C6988D /* FileBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileBrowser.m; sourceTree = "<group>"; };
@@ -365,10 +367,6 @@
 		49E987162365CEF000C17CB6 /* Mallocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Mallocator.cpp; path = ../lib/m8rscript/src/Mallocator.cpp; sourceTree = "<group>"; };
 		49E987172365CEF000C17CB6 /* Mallocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mallocator.h; path = ../lib/m8rscript/src/Mallocator.h; sourceTree = "<group>"; };
 		49E9871A2365F63000C17CB6 /* SystemTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SystemTime.cpp; path = ../lib/m8rscript/src/SystemTime.cpp; sourceTree = "<group>"; };
-		49EED9872357971500831598 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../../lib/m8rscript/src/littlefs/lfs.c; sourceTree = "<group>"; };
-		49EED9882357971500831598 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs_util.h; path = ../../lib/m8rscript/src/littlefs/lfs_util.h; sourceTree = "<group>"; };
-		49EED9892357971500831598 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../../lib/m8rscript/src/littlefs/lfs.h; sourceTree = "<group>"; };
-		49EED98A2357971500831598 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../../lib/m8rscript/src/littlefs/lfs_util.c; sourceTree = "<group>"; };
 		49F166F41DA7443100C07A1A /* SimulationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SimulationView.xib; sourceTree = "<group>"; };
 		49F166F51DA7443100C07A1A /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		49F166F61DA7443100C07A1A /* SimulationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
@@ -704,8 +702,6 @@
 				49F4633C1E1873D6004EF625 /* Iterator.h */,
 				49E8262E1E95EB0100E416C4 /* JSON.cpp */,
 				49E8262F1E95EB0100E416C4 /* JSON.h */,
-				490C1BDA239185CB0094A6B4 /* LittleFS.cpp */,
-				490C1BDC239185CB0094A6B4 /* LittleFS.h */,
 				49E987162365CEF000C17CB6 /* Mallocator.cpp */,
 				49E987172365CEF000C17CB6 /* Mallocator.h */,
 				49E9871123628AE600C17CB6 /* MFS.cpp */,
@@ -755,10 +751,12 @@
 		49EED9862357971500831598 /* littlefs */ = {
 			isa = PBXGroup;
 			children = (
-				49EED9872357971500831598 /* lfs.c */,
-				49EED9882357971500831598 /* lfs_util.h */,
-				49EED9892357971500831598 /* lfs.h */,
-				49EED98A2357971500831598 /* lfs_util.c */,
+				49E45E2B2437FED600295291 /* lfs_util.c */,
+				49E45E302437FED700295291 /* lfs_util.h */,
+				49E45E2D2437FED600295291 /* lfs.c */,
+				49E45E2C2437FED600295291 /* lfs.h */,
+				49E45E2E2437FED600295291 /* LittleFS.cpp */,
+				49E45E2F2437FED600295291 /* LittleFS.h */,
 			);
 			name = littlefs;
 			path = ../src/littlefs;
@@ -773,7 +771,6 @@
 			files = (
 				497CAFC8237DF219000495B2 /* GC.h in Headers */,
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
-				49EED98C2357971500831598 /* lfs_util.h in Headers */,
 				49846006238C60ED001F4FD4 /* MacSystemInterface.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49884F07236CB25100C292EA /* StateMachine.h in Headers */,
@@ -792,7 +789,6 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
-				49EED98D2357971500831598 /* lfs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1002,7 +998,6 @@
 			files = (
 				49E987182365CEF000C17CB6 /* Mallocator.cpp in Sources */,
 				49E9871223628AE600C17CB6 /* MFS.cpp in Sources */,
-				49BE70AE23C692BC005F6F92 /* LittleFS.cpp in Sources */,
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
@@ -1010,6 +1005,7 @@
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
+				49E45E352437FEE200295291 /* lfs.c in Sources */,
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
 				49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */,
@@ -1017,7 +1013,9 @@
 				49BDE19E236C711B00304BE8 /* MString.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
+				49E45E342437FEDE00295291 /* lfs_util.c in Sources */,
 				492396C71E711D12007AC0BF /* UDP.cpp in Sources */,
+				49E45E362437FEE800295291 /* LittleFS.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
@@ -1030,10 +1028,8 @@
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
-				49EED98E2357971500831598 /* lfs_util.c in Sources */,
 				497CAFC7237DF219000495B2 /* GC.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
-				49EED98B2357971500831598 /* lfs.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
@@ -1184,7 +1180,7 @@
 		494D25501D2E9055003755DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;
@@ -1198,7 +1194,7 @@
 		494D25511D2E9055003755DB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = default;
 				EXECUTABLE_PREFIX = lib;
