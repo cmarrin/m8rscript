@@ -37,7 +37,7 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
 
 std::function<void()> _timerCB;
 
-void ICACHE_RAM_ATTR onTimerISR()
+static void ICACHE_RAM_ATTR onTimerISR()
 {
     _timerCB();
 }
@@ -57,7 +57,7 @@ public:
     
     virtual void setDeviceName(const char* name) { }
     
-    virtual FS* fileSystem() override { return nullptr /*&_fileSystem*/; }
+    virtual m8r::FS* fileSystem() override { return nullptr /*&_fileSystem*/; }
     virtual GPIOInterface* gpio() override { return nullptr; }
     
     virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
