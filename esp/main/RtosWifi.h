@@ -19,7 +19,6 @@ public:
     RtosWifi();
 
 private:
-    wifi_init_config_t _initConfig;
     bool _inited = false;
 };
 
