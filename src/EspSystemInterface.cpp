@@ -20,7 +20,8 @@
 
 #include "Defines.h"
 #include "SystemInterface.h"
-#include "Esp.h"
+#include <Esp.h>
+#include <ESP8266WiFi.h>
 
 using namespace m8r;
 
@@ -47,7 +48,22 @@ class EspSystemInterface : public SystemInterface
 public:
     EspSystemInterface()
     {
-    }
+        Serial.println();
+        Serial.println();
+        Serial.print("Connecting to ");
+        Serial.println("marrin");
+        WiFi.mode(WIFI_STA);
+        WiFi.begin("marrin", "orion741");
+        while (WiFi.status() != WL_CONNECTED) {
+            delay(500);
+            Serial.print(".");
+        }
+
+        Serial.println("");
+        Serial.println("WiFi connected");
+        Serial.println("IP address: ");
+        Serial.println(WiFi.localIP());
+}
     
     virtual void vprintf(ROMString fmt, va_list args) const override
     {
