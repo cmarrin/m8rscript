@@ -47,6 +47,7 @@ public:
         NotAFile,
         InvalidFileName,
         FSNotFormatted,
+        NoFS,
         NoSpace,
         MountFailed,
         NotMounted,

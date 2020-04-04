@@ -40,6 +40,7 @@ ROMString Error::description() const
         case Code::NotAFile                 : return ROMSTR("Not A File");
         case Code::InvalidFileName          : return ROMSTR("Invalid Filename");
         case Code::FSNotFormatted           : return ROMSTR("Fs Not Formatted");
+        case Code::NoFS                     : return ROMSTR("Fs Not Present");
         case Code::NoSpace                  : return ROMSTR("No Space Left");
         case Code::MountFailed              : return ROMSTR("Mount Failed");
         case Code::NotMounted               : return ROMSTR("Not Mounted");
