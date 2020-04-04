@@ -5,6 +5,8 @@
 
 SRC_DIR := ../../lib/m8rscript/src
 
+CXXFLAGS += -std=c++14
+
 COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_EXTRA_INCLUDES := 
 COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs

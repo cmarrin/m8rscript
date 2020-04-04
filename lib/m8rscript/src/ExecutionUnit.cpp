@@ -20,7 +20,7 @@
 
 using namespace m8r;
 
-static const Duration EvalDurationMax = 2_sec;
+static const Duration EvalDurationMax = 2s;
 
 Mad<String> ExecutionUnit::createString(const String& other)
 {

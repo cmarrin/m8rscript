@@ -48,7 +48,7 @@ public:
     void stop();
 
 private:
-    Duration _duration = 0_sec;
+    Duration _duration = 0s;
     bool _repeating = false;
     Thread _thread;
     Callback _cb;
