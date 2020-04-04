@@ -43,13 +43,17 @@ Task::~Task()
 
 bool Task::init(const char* filename)
 {
-    if (!system()->fileSystem()) {
-        return false;
+    Error error(Error::Code::NoFS);
+    Mad<File> file;
+
+    if (system()->fileSystem()) {
+        file = system()->fileSystem()->open(filename, FS::FileOpenMode::Read);
+        error = file->error();
     }
-    Mad<File> file = system()->fileSystem()->open(filename, FS::FileOpenMode::Read);
-    if (!file->valid() ) {
-        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, file->error().description());
-        _error = Error::Code::FileNotFound;
+
+    if (error != Error::Code::OK) {
+        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, error.description());
+        _error = error;
         return false;
     }
     
