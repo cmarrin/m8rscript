@@ -1,4 +1,9 @@
 #include <Arduino.h>
+
+#ifndef NDEBUG
+#include <GDBStub.h>
+#endif
+
 #include "Application.h"
 #include <chrono>
 
@@ -9,7 +14,12 @@ m8r::Application* _application = nullptr;
 
 void setup()
 {
-    Serial.begin(74880);
+    Serial.begin(115200);
+
+#ifndef NDEBUG
+    gdbstub_init();
+#endif    
+
     pinMode(LED_BUILTIN, OUTPUT);
 
     _application = new m8r::Application(23);
