@@ -13,7 +13,7 @@
 
 using namespace m8r;
 
-ROMString Error::description() const
+m8r::String Error::description() const
 {
     switch(code()) {
         case Code::OK                       : return ROMSTR("OK");
@@ -54,12 +54,12 @@ ROMString Error::description() const
 
 void Error::showError(const ExecutionUnit* eu, Code code)
 {
-    ROMString codeString = Error(code).description();
+    String codeString = Error(code).description();
     
     if (eu) {
-        eu->printf(codeString);
+        eu->printf(ROMSTR("%s"), codeString);
     } else {
-        system()->printf(codeString);
+        system()->printf(ROMSTR("%s"), codeString);
     }
 }
 
