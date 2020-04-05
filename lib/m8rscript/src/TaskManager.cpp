@@ -16,8 +16,8 @@
 
 using namespace m8r;
 
-static Duration MainLoopSleepDelay = 50_ms;
-static Duration MaxTaskTimeSlice = 50_ms;
+static Duration MainLoopSleepDelay = 50ms;
+static Duration MaxTaskTimeSlice = 50ms;
 
 TaskManager::TaskManager()
 {

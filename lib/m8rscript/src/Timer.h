@@ -59,7 +59,7 @@ public:
     void fire();
 
 private:
-    Duration _duration = 0_sec;
+    Duration _duration = 0s;
     Time _timeToFire; // Set when Timer is started
     Callback _cb;
     bool _repeating = false;

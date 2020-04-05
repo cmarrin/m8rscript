@@ -57,6 +57,10 @@ static inline void DBG_PRINT(const char* type, const char* fmt, ...)
 //
 //using namespace std::chrono_literals;
 
+#include <chrono>
+
+using namespace std::chrono_literals;
+
 namespace m8r {
     class ROMString
     {

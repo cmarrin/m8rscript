@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Defines.h"
 #include "Float.h"
 #include <cstdint>
 #include <limits>
@@ -69,6 +70,10 @@ public:
     
     Duration(Float value) { *this = Duration(static_cast<int64_t>(value * Float(1000000))); }
     
+    Duration(std::chrono::microseconds value) { *this = value; }
+    Duration(std::chrono::milliseconds value) { *this = value; }
+    Duration(std::chrono::seconds value) { *this = value; }
+    
     operator bool() { return us() != 0; }
     
     Duration operator - ()
@@ -79,6 +84,24 @@ public:
         return *this;
     }
     
+    Duration& operator=(std::chrono::microseconds value)
+    {
+        *this = Duration(value.count());
+        return *this;
+    }
+    
+    Duration& operator=(std::chrono::milliseconds value)
+    {
+        *this = Duration(Duration(std::chrono::duration_cast<std::chrono::microseconds>(value)));
+        return *this;
+    }
+    
+    Duration& operator=(std::chrono::seconds value)
+    {
+        *this = Duration(Duration(std::chrono::duration_cast<std::chrono::microseconds>(value)));
+        return *this;
+    }
+
     Duration operator+(const Duration& other) const { return Duration(us() + other.us()); }
     Duration operator-(const Duration& other) const { return Duration(us() - other.us()); }
 
@@ -141,10 +164,6 @@ private:
     
     int32_t _value = 0;
 };
-
-static inline Duration operator ""  _ms(uint64_t v) { return Duration(v, Duration::Units::ms); }
-static inline Duration operator ""  _us(uint64_t v) { return Duration(v, Duration::Units::us); }
-static inline Duration operator "" _sec(uint64_t v) { return Duration(v, Duration::Units::sec); }
 
 // A Time value is an absolute time starting when the system started.
 

@@ -19,13 +19,13 @@
 
 using namespace m8r;
 
-static const Duration EvalDurationMax = 2_sec;
+static const Duration EvalDurationMax = 2s;
 
 ExecutionUnit::ExecutionUnit()
     : _stack(20)
 {
     _delayTimer = Mad<Timer>::create();
-    _delayTimer->init(0_sec, Timer::Behavior::Once, [this](Timer*) {
+    _delayTimer->init(0s, Timer::Behavior::Once, [this](Timer*) {
         _delayComplete = true;
     });
 }
