@@ -109,8 +109,9 @@ Application::Application(uint16_t port)
     mountFileSystem();
 
     // Start things running
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
-    
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
+    system()->printf(ROMSTR("Free heap: %d\n\n"), m8r::Mallocator::shared()->freeSize());
+
     if (m8r::system()->fileSystem() && m8r::system()->fileSystem()->mounted()) {
         uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
