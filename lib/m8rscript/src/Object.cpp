@@ -18,10 +18,9 @@
 
 using namespace m8r;
 
-void Object::operator delete(void* p)
+void operator delete(void* p, std::size_t) throw()
 {
-    Mad<Object> mad(reinterpret_cast<Object*>(p));
-    mad.destroy();
+    ::free(p);
 }
 
 void Object::addToObjectStore(RawMad obj)
