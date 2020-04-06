@@ -23,6 +23,11 @@ void operator delete(void* p, std::size_t) throw()
     ::free(p);
 }
 
+void operator delete[](void* p, std::size_t) throw()
+{
+    ::free(p);
+}
+
 void Object::addToObjectStore(RawMad obj)
 {
     GC::addToStore<MemoryType::Object>(obj);
