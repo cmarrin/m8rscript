@@ -48,6 +48,7 @@ class EspSystemInterface : public SystemInterface
 public:
     EspSystemInterface()
     {
+        delay(500);
         Serial.println();
         Serial.println();
         Serial.print("Connecting to ");
