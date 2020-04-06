@@ -57,9 +57,9 @@ void Error::showError(const ExecutionUnit* eu, Code code)
     String codeString = Error(code).description();
     
     if (eu) {
-        eu->printf(ROMSTR("%s"), codeString);
+        eu->printf(ROMSTR("%s"), codeString.c_str());
     } else {
-        system()->printf(ROMSTR("%s"), codeString);
+        system()->printf(ROMSTR("%s"), codeString.c_str());
     }
 }
 

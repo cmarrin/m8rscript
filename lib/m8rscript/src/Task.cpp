@@ -64,7 +64,7 @@ bool Task::init(const char* filename)
 #endif
 
     if (file->error() != Error::Code::OK) {
-        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description());
+        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description().c_str());
     }
         
     file.destroy(MemoryType::Native);
