@@ -32,6 +32,23 @@
 #include <limits>
 #include <cstring>
 
+// Debugging
+static inline void DBG_PRINT(const char* type, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    printf("===== %s: ", type);
+    vprintf(fmt, args);
+    printf("\n");
+}
+
+//#define DEBUG_TIMERS
+#ifdef DEBUG_TIMERS 
+    #define DBG_TIMERS(fmt, ...) DBG_PRINT("TMR", fmt, ##__VA_ARGS__)
+#else
+    #define DBG_TIMERS(fmt, ...)
+#endif
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -77,36 +94,28 @@ namespace m8r {
     static inline const char* typeName() { return typeid(T).name(); }
 #else
 
-#ifndef ARDUINO
-    #include <esp_attr.h>
-#endif
+#include <Arduino.h>
+#include <pgmspace.h>
     
-    #ifndef __STRINGIFY
-    #define __STRINGIFY(a) #a
-    #endif
-    #define RODATA_ATTR _SECTION_ATTR_IMPL(".rodata2", __COUNTER__) 
-    #define RODATA2_ATTR _SECTION_ATTR_IMPL(".rodata2", __COUNTER__)
-    #define ROMSTR_ATTR
-    #define FLASH_ATTR
-    #define ICACHE_FLASH_ATTR
-//    #define FLASH_ATTR   __attribute__((section(".irom0.text")))
-//    #define RAM_ATTR     __attribute__((section(".iram.text")))
-//    #define RODATA_ATTR  __attribute__((section(".irom.text"))) __attribute__((aligned(4)))
-//    #define RODATA2_ATTR  __attribute__((section(".irom2.text"))) __attribute__((aligned(4)))
-//    #define ROMSTR_ATTR  __attribute__((section(".irom.text.romstr"))) __attribute__((aligned(4)))
+    #define ROMSTR_ATTR PROGMEM
+    #define RODATA_ATTR PROGMEM 
+    #define RODATA2_ATTR PROGMEM
 
-    size_t ROMstrlen(m8r::ROMString s);
-    void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len);
-    char* ROMCopyString(char* dst, m8r::ROMString src);
-    m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
-    int ROMstrcmp(m8r::ROMString s1, const char* s2);
+    static inline size_t ROMstrlen(m8r::ROMString s) { return strlen_P(s.value()); }
+    static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy_P(dst, src.value(), len); }
+    static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy_P(dst, src.value()); return dst + ROMstrlen(src); }
+    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp_P(s1.value(), s2); }
 
-    #define ROMSTR(s) m8r::ROMString(__extension__({static const char __c[] ROMSTR_ATTR = (s); &__c[0];}))
-
-    static inline uint8_t FLASH_ATTR readRomByte(m8r::ROMString addr)
+    static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
     {
-        uint32_t bytes = *(uint32_t*)((uint32_t)(addr.value()) & ~3);
-        return ((uint8_t*)&bytes)[(uint32_t)(addr.value()) & 3];
+        return m8r::ROMString(strstr_P(s1.value(), s2));
+    }
+
+    #define ROMSTR(s) m8r::ROMString(PSTR(s))
+
+    static inline uint8_t readRomByte(m8r::ROMString addr)
+    {
+        return pgm_read_byte(addr.value());
     }
 
     template <typename T>

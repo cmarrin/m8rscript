@@ -11,17 +11,18 @@
 
 #include "Containers.h"
 #include "SystemTime.h"
-#include "Thread.h"
 #include <cstdint>
 
 namespace m8r {
 
 class TaskBase;
+class Timer;
 
 class TaskManager {
     friend class SystemInterface;
     friend class TaskBase;
     friend class ExecutionUnit;
+    friend class Timer;
 
 public:
 
@@ -36,24 +37,26 @@ protected:
     void terminate(TaskBase*);
     
     bool executeNextTask();
+    
+    void addTimer(Timer*);
+    void removeTimer(Timer*);
 
 private:
-    void runLoop();
+    void runOneIteration();
 
     void readyToExecuteNextTask();
     void startTimeSliceTimer();
+    void stopTimeSliceTimer();
     void requestYield();
     
+    void restartTimer();
+    
     Vector<TaskBase*> _list;
+    Vector<Timer*> _timerList;
     
     TaskBase* _currentTask = nullptr;
 
-    Thread _mainThread;
-    Thread _timeSliceThread;
-    Condition _mainCondition;
-    Condition _timeSliceCondition;
-    Mutex _mainMutex;
-    Mutex _timeSliceMutex;
+    Mad<Timer> _timeSliceTimer;
     bool _terminating = false;
 };
 

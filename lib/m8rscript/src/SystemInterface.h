@@ -63,6 +63,9 @@ public:
     
     virtual void vprintf(ROMString, va_list) const = 0;
     
+    virtual void startTimer(Duration, std::function<void()>) = 0;
+    virtual void stopTimer() = 0;
+    
     void receivedLine(const char* line)
     {
         if(_listenerFunc) {
@@ -72,7 +75,7 @@ public:
     
     void setListenerFunc(std::function<void(const char*)> func) { _listenerFunc = func; }
 
-    void runLoop();
+    void runOneIteration();
 
 protected:
     SystemInterface() { }

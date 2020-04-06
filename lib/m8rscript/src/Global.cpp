@@ -192,7 +192,7 @@ CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }
     
-    for (int32_t i = 0; i < eu->argumentCount(); ++i) {
+    for (int32_t i = 0; i < static_cast<int32_t>(eu->argumentCount()); ++i) {
         array->setElement(eu, Value(i), eu->argument(i), Value::SetType::AlwaysAdd);
     }
     eu->stack().push(Value(array));
@@ -246,7 +246,7 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetType::AlwaysAdd);
                      
     Mad<Object> allocationsByType = Object::create<MaterArray>();
-    for (int i = 0; i < info.allocationsByType.size(); ++i) {
+    for (uint32_t i = 0; i < info.allocationsByType.size(); ++i) {
         Mad<Object> allocation = Object::create<MaterObject>();
         uint32_t size = info.allocationsByType[i].size;
         ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));

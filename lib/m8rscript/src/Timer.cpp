@@ -20,28 +20,29 @@ using namespace m8r;
 
 void Timer::start()
 {
-    Thread thread(1024, [this] {
-        while(1) {
-            _duration.sleep();
-            if (_cb) {
-                _cb(this);
-            }
-            if (!_repeating) {
-                break;
-            }
-        }
-    });
-    
-    _thread.swap(thread);
-    _thread.detach();
+    _timeToFire = Time::now() + _duration;
+    DBG_TIMERS("start timer (%p): now=%s, duration=%s, fire=%s",
+                this, Time::now().toString().c_str(), _duration.toString().c_str(), _timeToFire.toString().c_str());
+    _running = true;
+    system()->taskManager()->addTimer(this);
 }
 
 void Timer::stop()
 {
-    // FIXME: Need to be able to cancel the sleep
-    _repeating = false;
-    _thread.join();
+    DBG_TIMERS("stop timer (%p)", this);
+    _running = false;
+    system()->taskManager()->removeTimer(this);
 }
+
+void Timer::fire()
+{
+    stop();
+    _cb(this);
+    if (_repeating) {
+        start();
+    }
+}
+
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {

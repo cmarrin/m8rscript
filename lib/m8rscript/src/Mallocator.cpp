@@ -16,8 +16,6 @@ Mallocator Mallocator::_mallocator;
 
 RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
 {
-    _mutex.lock();
-
     assert(type != MemoryType::Unknown);
     
     RawMad allocatedBlock = reinterpret_cast<RawMad>(::malloc(size));
@@ -27,7 +25,6 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     _memoryInfo.totalAllocatedBytes += size;
 
     if (allocatedBlock == NoRawMad) {
-        _mutex.unlock();
         return NoRawMad;
     }
     
@@ -35,8 +32,6 @@ RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
     
     _memoryInfo.allocationsByType[index].count++;
     _memoryInfo.allocationsByType[index].size += size;
-
-    _mutex.unlock();
 
     return allocatedBlock;
 }
@@ -46,7 +41,6 @@ void Mallocator::free(RawMad ptr, MemoryType type)
     // FIXME: How do we get the size? Pass it in?
     uint32_t size = 0;
     
-    _mutex.lock();
     assert(type != MemoryType::Unknown);
 
     ::free(reinterpret_cast<void*>(ptr));
@@ -61,8 +55,6 @@ void Mallocator::free(RawMad ptr, MemoryType type)
     
     assert(_memoryInfo.allocationsByType[index].size >= size);
     _memoryInfo.allocationsByType[index].size -= size;
-
-    _mutex.unlock();
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)

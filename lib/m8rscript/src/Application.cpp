@@ -42,7 +42,7 @@ Application::Application(uint16_t port)
                 _shells[connectionId].task->setConsolePrintFunction([&](const String& s) {
                     // Break it up into lines. We need to insert '\r'
                     Vector<String> v = s.split("\n");
-                    for (int i = 0; i < v.size(); ++i) {
+                    for (uint32_t i = 0; i < v.size(); ++i) {
                         if (!v[i].empty()) {
                             _shellSocket->send(connectionId, v[i].c_str(), v[i].size());
                         }
@@ -109,8 +109,9 @@ Application::Application(uint16_t port)
     mountFileSystem();
 
     // Start things running
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
-    
+    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
+    system()->printf(ROMSTR("Free heap: %d\n\n"), m8r::Mallocator::shared()->freeSize());
+
     if (m8r::system()->fileSystem() && m8r::system()->fileSystem()->mounted()) {
         uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
@@ -170,7 +171,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     return NameValidationType::Ok;
 }
 
-String Application::autostartFilename() const
+m8r::String Application::autostartFilename() const
 {
     // Look for it in config first
     return "/sys/bin/hello.m8r";
@@ -201,7 +202,7 @@ bool Application::mountFileSystem()
     return true;
 }
 
-void Application::runLoop()
+void Application::runOneIteration()
 {    
-    system()->runLoop();
+    system()->runOneIteration();
 }

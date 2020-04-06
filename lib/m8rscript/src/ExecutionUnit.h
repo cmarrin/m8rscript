@@ -30,8 +30,8 @@ public:
     
     static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
 
-    ExecutionUnit() : _stack(20) { }
-    ~ExecutionUnit() { }
+    ExecutionUnit();
+    ~ExecutionUnit();
     
     void gcMark();
 
@@ -96,7 +96,7 @@ public:
     
     bool readyToRun() const
     {
-        return !_eventQueue.empty() || (executingDelay() && _delayComplete);
+        return !_eventQueue.empty() || !executingDelay();
     }
     
     void requestTerminate() const { _terminate = true; _checkForExceptions = true; }
@@ -193,19 +193,19 @@ private:
     bool executingDelay() const
     {
         if (_callRecords.empty()) {
-            return false;
+            return !_delayComplete;
         }
-        return _callRecords.back()._executingDelay;
+        return (_callRecords.empty() ? true : _callRecords.back()._executingDelay) && !_delayComplete;
     }
     
     void checkEventQueueConsistency()
     {
-        int index = 0;
+        uint32_t index = 0;
         while (index < _eventQueue.size()) {
             assert(_eventQueue.size() - index >= 3);
             assert(_eventQueue[index + 2].isInteger());
             int32_t nargs = _eventQueue[index + 2].asIntValue();
-            assert(static_cast<int>(_eventQueue.size()) >= nargs + index + 3);
+            assert(static_cast<int32_t>(_eventQueue.size()) >= nargs + static_cast<int32_t>(index) + 3);
             index += nargs + 3;
         }
         assert(index == _eventQueue.size());
@@ -254,7 +254,6 @@ private:
     mutable uint32_t _nerrors = 0;
     
     EventValueVector _eventQueue;
-    Mutex _eventQueueMutex;
 
     bool _executingEvent = false;
     bool _delayComplete = false;
@@ -270,6 +269,8 @@ private:
     
     std::function<void(const String&)> _consolePrintFunction;
     Value _consoleListener;
+    
+    Mad<Timer> _delayTimer;
 };
 
 }

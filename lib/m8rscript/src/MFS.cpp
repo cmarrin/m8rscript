@@ -298,7 +298,7 @@ CallReturnValue DirectoryProto::next(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static bool makePathString(String& fullPath, const String& filename, const String& path, const String& home, const String& cwd)
+static bool makePathString(m8r::String& fullPath, const m8r::String& filename, const m8r::String& path, const m8r::String& home, const m8r::String& cwd)
 {
     if (home.front() != '/' || cwd.front() != '/') {
         return false;
@@ -329,7 +329,7 @@ static bool makePathString(String& fullPath, const String& filename, const Strin
     return true;
 }
 
-String FS::findPath(ExecutionUnit* eu, const String& filename, const Mad<Object>& env)
+m8r::String FS::findPath(ExecutionUnit* eu, const m8r::String& filename, const Mad<Object>& env)
 {
     String fullPath;
     Value paths = env->property(eu->program()->atomizeString("PATH"));

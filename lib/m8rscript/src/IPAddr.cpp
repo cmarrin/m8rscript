@@ -16,16 +16,16 @@
 
 using namespace m8r;
 
-static bool toIPAddr(const String& ipString, IPAddr& ip)
+static bool toIPAddr(const m8r::String& ipString, IPAddr& ip)
 {
-    Vector<String> array = ipString.split(".");
+    Vector<m8r::String> array = ipString.split(".");
     if (array.size() != 4) {
         return false;
     }
     
     for (uint32_t i = 0; i < 4; ++i) {
         uint32_t v;
-        if (!String::toUInt(v, array[i].c_str(), false) || v > 255) {
+        if (!m8r::String::toUInt(v, array[i].c_str(), false) || v > 255) {
             return false;
         }
         ip[i] = static_cast<uint8_t>(v);
@@ -51,7 +51,7 @@ IPAddr::IPAddr(const String& ipString)
     toIPAddr(ipString, *this);
 }
 
-String IPAddr::toString() const
+m8r::String IPAddr::toString() const
 {
     return String(_addr[0]) + "." +
            String(_addr[1]) + "." +

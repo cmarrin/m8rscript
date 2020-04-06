@@ -16,13 +16,27 @@
 #include "Parser.h"
 #include "SystemInterface.h"
 #include "SystemTime.h"
-#include "Thread.h"
 
 using namespace m8r;
 
 static const Duration EvalDurationMax = 2s;
 
-Mad<String> ExecutionUnit::createString(const String& other)
+ExecutionUnit::ExecutionUnit()
+    : _stack(20)
+{
+    _delayTimer = Mad<Timer>::create();
+    _delayTimer->init(0s, Timer::Behavior::Once, [this](Timer*) {
+        _delayComplete = true;
+    });
+}
+
+ExecutionUnit::~ExecutionUnit()
+{
+
+}
+
+
+Mad<m8r::String> ExecutionUnit::createString(const m8r::String& other)
 {
     Mad<String> s = Mad<String>::create();
     *(s.get()) = other;
@@ -30,17 +44,17 @@ Mad<String> ExecutionUnit::createString(const String& other)
     return s;
 }
 
-Mad<String> ExecutionUnit::createString(String&& other)
+Mad<m8r::String> ExecutionUnit::createString(m8r::String&& other)
 {
-    Mad<String> s = Mad<String>::create();
+    Mad<m8r::String> s = Mad<m8r::String>::create();
     *(s.get()) = other;
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
 }
 
-Mad<String> ExecutionUnit::createString(const char* str, int32_t length)
+Mad<m8r::String> ExecutionUnit::createString(const char* str, int32_t length)
 {
-    Mad<String> s = Mad<String>::create();
+    Mad<m8r::String> s = Mad<m8r::String>::create();
     *(s.get()) = String(str, length);
     GC::addToStore<MemoryType::String>(s.raw());
     return s;
@@ -213,8 +227,6 @@ void ExecutionUnit::startExecution(Mad<Program> program)
 void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs)
 {
     {
-        Lock lock(_eventQueueMutex);
-        
         _eventQueue.push_back(func);
         _eventQueue.push_back(thisValue);
         _eventQueue.push_back(Value(nargs));
@@ -273,8 +285,6 @@ CallReturnValue ExecutionUnit::runNextEvent()
     bool haveEvent = false;
     
     {
-        Lock lock(_eventQueueMutex);
-
         if (!_eventQueue.empty()) {
             assert(_eventQueue.size() >= 3);
             
@@ -283,7 +293,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
             func = _eventQueue[0];
             thisValue = _eventQueue[1];
             nargs = _eventQueue[2].asIntValue();
-            assert(_eventQueue.size() >= 3 + nargs);
+            assert(static_cast<int32_t>(_eventQueue.size()) >= 3 + nargs);
             
             for (int32_t i = 0; i < nargs; ++i) {
                 _stack.push(_eventQueue[3 + i]);
@@ -420,28 +430,19 @@ CallReturnValue ExecutionUnit::endFunction()
 void ExecutionUnit::startDelay(Duration duration)
 {
     _delayComplete = false;
-    
-    startFunction(Mad<Object>(), Mad<Object>(), 0);
-    _callRecords.back()._executingDelay = true;
-    Thread(1024, [this, duration] {
-        duration.sleep();
-        {
-            Lock lock(_eventQueueMutex);
-            _delayComplete = true;
-        }
-        system()->taskManager()->readyToExecuteNextTask();
-    }).detach();
+    if (!_callRecords.empty()) {
+        _callRecords.back()._executingDelay = true;
+    }
+    _delayTimer->setDuration(duration);
+    _delayTimer->start();
 }
 
 void ExecutionUnit::continueDelay()
 {
-    _eventQueueMutex.lock();
     if (_delayComplete) {
-        _eventQueueMutex.unlock();
         endFunction();
         return;
     }
-    _eventQueueMutex.unlock();
 }
 
 static inline bool valuesAreInt(const Value& a, const Value& b)
@@ -996,7 +997,7 @@ CallReturnValue ExecutionUnit::continueExecution()
         DISPATCH;
 }
 
-String ExecutionUnit::debugString(uint16_t index)
+m8r::String ExecutionUnit::debugString(uint16_t index)
 {
     return _program->stringFromAtom(Atom(index));
 }

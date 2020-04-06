@@ -26,11 +26,6 @@ public:
 
     Timer() { }
     
-    virtual ~Timer()
-    {
-        stop();
-    }
-
     bool init(Duration duration, Behavior behavior, const Callback& cb)
     {
         _duration = duration;
@@ -39,19 +34,36 @@ public:
         return true;
     }
 
-    bool init(Duration duration, const Callback& cb) { return init(duration, Behavior::Once, cb); }
+    virtual ~Timer()
+    {
+        stop();
+    }
 
     Duration duration() const { return _duration; }
     bool repeating() const { return _repeating; }
+    Time timeToFire() const { return _timeToFire; }
     
+    void setDuration(Duration d)
+    {
+        if (running()) {
+            return;
+        }
+        _duration = d;
+    }
+
     void start();
     void stop();
+    
+    bool running() const { return _running; }
+    
+    void fire();
 
 private:
     Duration _duration = 0s;
-    bool _repeating = false;
-    Thread _thread;
+    Time _timeToFire; // Set when Timer is started
     Callback _cb;
+    bool _repeating = false;
+    bool _running = false;
 };
 
 class TimerProto : public StaticObject {

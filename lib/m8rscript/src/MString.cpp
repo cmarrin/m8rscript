@@ -15,7 +15,7 @@
 
 using namespace m8r;
 
-String& String::erase(uint16_t pos, uint16_t len)
+m8r::String& m8r::String::erase(uint16_t pos, uint16_t len)
 {
     if (pos >= _size - 1) {
         return *this;
@@ -28,7 +28,7 @@ String& String::erase(uint16_t pos, uint16_t len)
     return *this;
 }
 
-String String::slice(int32_t start, int32_t end) const
+m8r::String m8r::String::slice(int32_t start, int32_t end) const
 {
     int32_t sz = static_cast<int32_t>(size());
     if (start < 0) {
@@ -46,7 +46,7 @@ String String::slice(int32_t start, int32_t end) const
     return String(_data.get() + start, end - start);
 }
 
-String String::trim() const
+m8r::String m8r::String::trim() const
 {
     if (_size < 2 || !_data.valid()) {
         return String();
@@ -63,7 +63,7 @@ String String::trim() const
     return String(s, static_cast<int32_t>(l));
 }
 
-Vector<String> String::split(const String& separator, bool skipEmpty) const
+Vector<m8r::String> m8r::String::split(const m8r::String& separator, bool skipEmpty) const
 {
     Vector<String> array;
     char* p = _data.get();
@@ -80,7 +80,7 @@ Vector<String> String::split(const String& separator, bool skipEmpty) const
     return array;
 }
 
-String String::join(const Vector<String>& array, const String& separator)
+m8r::String m8r::String::join(const Vector<m8r::String>& array, const m8r::String& separator)
 {
     String s;
     bool first = true;
@@ -95,7 +95,7 @@ String String::join(const Vector<String>& array, const String& separator)
     return s;
 }
 
-String String::join(const Vector<char>& array)
+m8r::String m8r::String::join(const Vector<char>& array)
 {
     String s;
     s.ensureCapacity(array.size());
@@ -104,7 +104,7 @@ String String::join(const Vector<char>& array)
     }
     return s;
 }
-void String::doEnsureCapacity(uint16_t size)
+void m8r::String::doEnsureCapacity(uint16_t size)
 {
     _capacity = _capacity ? _capacity * 2 : 1;
     if (_capacity < size) {
@@ -222,7 +222,7 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8
     return true;
 }
 
-String::String(Float value, uint8_t decimalDigits)
+m8r::String::String(Float value, uint8_t decimalDigits)
 {
     //          sign    digits  dp      'e'     dp      exp     '\0'
     char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
@@ -239,7 +239,7 @@ String::String(Float value, uint8_t decimalDigits)
     *this = String(buf);
 }
 
-String::String(uint32_t value)
+m8r::String::String(uint32_t value)
 {
     char buf[12];
     int16_t exp = 0;
@@ -247,7 +247,7 @@ String::String(uint32_t value)
     *this = String(buf);
 }
 
-String::String(int32_t value)
+m8r::String::String(int32_t value)
 {
     String s;
     if (value < 0) {
@@ -257,13 +257,13 @@ String::String(int32_t value)
     }
 }
 
-String::String(void* value)
+m8r::String::String(void* value)
 {
     // Convert to a uint32_t. This will truncate the pointer on Mac
     *this = String::format("0x%08x", static_cast<uint32_t>(reinterpret_cast<intptr_t>(value)));
 }
 
-bool String::toFloat(Float& f, const char* s, bool allowWhitespace)
+bool m8r::String::toFloat(Float& f, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
     Scanner scanner(&stream);
@@ -284,7 +284,7 @@ bool String::toFloat(Float& f, const char* s, bool allowWhitespace)
     return false;
 }
 
-bool String::toInt(int32_t& i, const char* s, bool allowWhitespace)
+bool m8r::String::toInt(int32_t& i, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
     Scanner scanner(&stream);
@@ -305,7 +305,7 @@ bool String::toInt(int32_t& i, const char* s, bool allowWhitespace)
     return false;
 }
 
-bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
+bool m8r::String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
     Scanner scanner(&stream);
@@ -318,7 +318,7 @@ bool String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
     return false;
 }
 
-String String::prettySize(uint32_t size, uint8_t decimalDigits)
+m8r::String m8r::String::prettySize(uint32_t size, uint8_t decimalDigits)
 {
     m8r::String s;
     
@@ -384,7 +384,7 @@ static void toInteger(char* result, bool zeroFill, int32_t width, char type, uin
     strcpy(result, p);
 }
 
-String String::fformat(const char* fmt, std::function<void(FormatType, String&)> func)
+m8r::String m8r::String::fformat(const char* fmt, std::function<void(FormatType, String&)> func)
 {
     if (!fmt || fmt[0] == '\0') {
         return String();
@@ -501,7 +501,7 @@ String String::fformat(const char* fmt, std::function<void(FormatType, String&)>
     }
 }
 
-String String::vformat(const char* fmt, va_list args)
+m8r::String m8r::String::vformat(const char* fmt, va_list args)
 {
     String s = fformat(fmt, [&args](String::FormatType type, String& s) {
         switch(type) {
@@ -527,7 +527,7 @@ String String::vformat(const char* fmt, va_list args)
     return s;
 }
 
-String String::vformat(ROMString romfmt, va_list args)
+m8r::String m8r::String::vformat(ROMString romfmt, va_list args)
 {
     return vformat(String(romfmt).c_str(), args);
 }

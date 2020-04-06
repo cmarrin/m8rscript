@@ -112,7 +112,9 @@ int main(int argc, char * argv[])
         fclose(fromFile);
     }
 
-    application.runLoop();
+    while (true) {
+        application.runOneIteration();
+    }
 
     return 0;
 }

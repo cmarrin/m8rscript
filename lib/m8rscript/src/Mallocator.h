@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Defines.h"
-#include "Thread.h"
 #include <cstdlib>
 #include <cstdint>
 #include <typeinfo>
@@ -171,7 +170,6 @@ private:
     void free(RawMad, MemoryType type);
         
     static Mallocator _mallocator;
-    Mutex _mutex;
 
 };
 

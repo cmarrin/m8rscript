@@ -49,8 +49,6 @@ public:
     virtual ~Object() { _isDestroyed = true; }
     
     static MemoryType memoryType() { return MemoryType::Object; }
-
-    void operator delete(void* p);
     
     template<typename T>
     static Mad<T> create() { Mad<T> obj = Mad<T>::create(MemoryType::Object); addToObjectStore(obj.raw()); return obj; }
