@@ -86,9 +86,9 @@ public:
         return Mad<TCP>();
     }
     
-    virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) override
+    virtual Mad<m8r::UDP> createUDP(uint16_t port, m8r::UDP::EventFunction) override
     {
-        return Mad<UDP>();
+        return Mad<m8r::UDP>();
     }
 
     virtual void startTimer(Duration duration, std::function<void()> cb) override
