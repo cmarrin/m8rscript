@@ -12,5 +12,3 @@ mem 0x40140000 0x5fffffff ro cache
 mem 0x60000000 0x60001fff rw
 set serial baud 115200
 file .pio/build/d1_mini/firmware.elf
-target remote /dev/cu.usbserial-2430
-
