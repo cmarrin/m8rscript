@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
+
 #ifndef NDEBUG
 #include <GDBStub.h>
 #endif
@@ -14,13 +17,12 @@ m8r::Application* _application = nullptr;
 
 void setup()
 {
+    delay(500);
     Serial.begin(115200);
 
 #ifndef NDEBUG
     gdbstub_init();
 #endif    
-
-    pinMode(LED_BUILTIN, OUTPUT);
 
     _application = new m8r::Application(23);
 }
