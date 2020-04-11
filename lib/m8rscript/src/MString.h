@@ -264,7 +264,7 @@ public:
     // decimalDigits specifies the number of digits to the right of the decimal point. Value is
     // rounded to this many digits. Trailing zeros are omitted. If there are no digits to the
     // right of the dp, either because of rounding or decimalDigits = 0, the dp is omitted
-    static String prettySize(uint32_t size, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
+    static String prettySize(uint32_t size, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max(), bool binary = false);
     
     int32_t toInt() const
     {

@@ -318,18 +318,19 @@ bool m8r::String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
     return false;
 }
 
-m8r::String m8r::String::prettySize(uint32_t size, uint8_t decimalDigits)
+m8r::String m8r::String::prettySize(uint32_t size, uint8_t decimalDigits, bool binary)
 {
     m8r::String s;
+    int32_t multiplier = binary ? 1024 : 1000;
     
-    if (size < 1000) {
+    if (static_cast<int32_t>(size) < multiplier) {
         return String(size) + ' ';
-    } else if (size < 1000000) {
-        return String(Float(static_cast<int32_t>(size)) / Float(1000), decimalDigits) + " K";
-    } else if (size < 1000000000) {
-        return String(Float(static_cast<int32_t>(size)) / Float(1000000), decimalDigits) + " M";
+    } else if (static_cast<int32_t>(size) < multiplier * multiplier) {
+        return String(Float(static_cast<int32_t>(size)) / Float(multiplier), decimalDigits) + " K";
+    } else if (static_cast<int32_t>(size) < multiplier * multiplier * multiplier) {
+        return String(Float(static_cast<int32_t>(size)) / Float(multiplier * multiplier), decimalDigits) + " M";
     } else {
-        return String(Float(static_cast<int32_t>(size)) / Float(1000000000), decimalDigits) + " G";
+        return String(Float(static_cast<int32_t>(size)) / Float(multiplier * multiplier * multiplier), decimalDigits) + " G";
     }
 }
 
