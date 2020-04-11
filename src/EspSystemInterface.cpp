@@ -20,9 +20,11 @@
 
 
 #include "Defines.h"
+#include "MFS.h"
 #include "SystemInterface.h"
 #include <Esp.h>
 #include <ESP8266WiFi.h>
+#include <LittleFS.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>
@@ -47,6 +49,138 @@ static void ICACHE_RAM_ATTR onTimerISR()
 {
     _timerCB();
 }
+
+class EspFile: public m8r::File
+{
+    friend class EspFS;
+
+public:
+    virtual void close() override
+    {
+        if (_file) {
+            _file.close();
+        }
+    }
+
+    virtual int32_t read(char* buf, uint32_t size) override
+    {
+        return _file ? _file.readBytes(buf, size) : -1;
+    }
+
+    virtual int32_t write(const char* buf, uint32_t size) override
+    {
+        return _file ? _file.write(buf, size) : -1;
+    }
+
+    virtual  bool seek(int32_t offset, SeekWhence whence = SeekWhence::Set) override
+    {
+        auto w = SeekSet;
+        if (whence == SeekWhence::Cur) {
+            w = SeekCur;
+        } else if (whence == SeekWhence::End) {
+            w = SeekEnd;
+        }
+        return _file ? _file.seek(offset, w) : false;
+    }
+
+    virtual int32_t tell() const override { return _file ? _file.position() : -1; }
+    virtual int32_t size() const override { return _file ? _file.size() : -1; }
+
+private:
+    ::File _file;
+};
+
+class EspFS : public m8r::FS
+{
+public:
+    EspFS()
+    {
+        LittleFSConfig config;
+        config.setAutoFormat(false);
+        LittleFS.setConfig(config);
+    }
+
+    virtual ~EspFS() { }
+
+    virtual bool mount() override
+    {
+        if (!LittleFS.begin()) {
+            _error = Error::Code::FSNotFormatted;
+            return false;
+        }
+        return true;
+    }
+
+    virtual bool mounted() const override { FSInfo info; return LittleFS.info(info); }
+    virtual void unmount() override { LittleFS.end(); }
+    virtual bool format() override
+    {
+        if (!LittleFS.format()) {
+            _error = Error::Code::MountFailed;
+            return false;
+        }
+        return true;
+        return LittleFS.format();
+    }
+    
+    virtual bool makeDirectory(const char* name) override { return LittleFS.mkdir(name); }
+    virtual bool remove(const char* name) override { return LittleFS.remove(name); }
+    virtual bool rename(const char* src, const char* dst) override { return LittleFS.rename(src, dst); }
+    virtual bool exists(const char* name) const override { return LittleFS.exists(name); }
+    
+    virtual uint32_t totalSize() const override
+    { 
+        FSInfo info;
+        if (!LittleFS.info(info)) {
+            return 0;
+        }
+        return info.totalBytes;
+    }
+
+    virtual uint32_t totalUsed() const override
+    { 
+        FSInfo info;
+        if (!LittleFS.info(info)) {
+            return 0;
+        }
+        return info.usedBytes;
+    }
+
+    virtual Mad<m8r::File> open(const char* name, FileOpenMode mode) override
+    {
+        const char* m = "r";
+        switch (mode) {
+            case FileOpenMode::Read: m = "r"; break;
+            case FileOpenMode::ReadUpdate: m = "r+"; break;
+            case FileOpenMode::Write: m = "w"; break;
+            case FileOpenMode::WriteUpdate: m = "w+"; break;
+            case FileOpenMode::Append: m = "a"; break;
+            case FileOpenMode::AppendUpdate: m = "a+"; break;
+            case FileOpenMode::Create: m = "w+"; break;
+        }
+
+        // Create mode is like w+ if the file doesn't exist, and like r+ if it does
+        if (mode == FileOpenMode::Create && LittleFS.exists(name)) {
+            m = "r+";
+        }
+        Mad<EspFile> file = Mad<EspFile>::create(MemoryType::Native);
+        file->_file = LittleFS.open(name, m);
+        if (!file->_file) {
+            file->_error = Error::Code::FileNotFound;
+        } else {
+            file->_error = Error::Code::OK;
+            file->_type = m8r::File::Type::File;
+            file->_mode = mode;
+        }
+        return file;
+    }
+
+    virtual Mad<Directory> openDirectory(const char* name) override
+    {
+        // FIXME: Implement
+        return Mad<Directory>();
+    }
+};
 
 class EspSystemInterface : public SystemInterface
 {
@@ -79,7 +213,7 @@ public:
     
     virtual void setDeviceName(const char* name) { }
     
-    virtual m8r::FS* fileSystem() override { return nullptr /*&_fileSystem*/; }
+    virtual m8r::FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return nullptr; }
     
     virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
@@ -99,6 +233,7 @@ public:
 
     virtual void startTimer(Duration duration, std::function<void()> cb) override
     {
+        _timerCB = cb;
         timer1_attachInterrupt(onTimerISR);
         timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE);
         timer1_write(duration.us());
@@ -154,6 +289,7 @@ private:
     bool _enteredConfigMode = false;
     bool _enableNetwork = false;
 	
+    EspFS _fileSystem;
 //    RtosGPIOInterface _gpio;
 };
 
