@@ -71,7 +71,8 @@ class FS {
     friend class File;
     
 public:
-    static constexpr uint32_t PhysicalSize = 3 * 1024 * 1024;
+    // Arduino layout has 24KB after the filesystem for EEPROM, rfcal and wifi settings
+    static constexpr uint32_t PhysicalSize = (3 * 1024 * 1024) - (24 * 1024);
     
     // Supprted open modes:
     //
