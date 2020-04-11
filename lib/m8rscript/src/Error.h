@@ -46,6 +46,7 @@ public:
         NotADirectory,
         NotAFile,
         InvalidFileName,
+        FormatFailed,
         FSNotFormatted,
         NoFS,
         NoSpace,

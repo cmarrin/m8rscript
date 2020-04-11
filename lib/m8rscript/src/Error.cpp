@@ -40,6 +40,7 @@ m8r::String Error::description() const
         case Code::NotAFile                 : return ROMSTR("Not A File");
         case Code::InvalidFileName          : return ROMSTR("Invalid Filename");
         case Code::FSNotFormatted           : return ROMSTR("Filesystem Not Formatted");
+        case Code::FormatFailed             : return ROMSTR("Filesystem Format Failed");
         case Code::NoFS                     : return ROMSTR("No Filesystem Found");
         case Code::NoSpace                  : return ROMSTR("No Space Left");
         case Code::MountFailed              : return ROMSTR("Mount Failed");
