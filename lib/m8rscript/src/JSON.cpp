@@ -58,14 +58,16 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                     scanner.retireToken();
                     elementValue = value(eu, scanner);
                     if (!elementValue) {
-                        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to add element to JSON Array"));
+                        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                                     ROMSTR("unable to add element to JSON Array")).c_str());
                         return Value();
                     }
                     v.setElement(eu, Value(), elementValue, Value::SetType::AlwaysAdd);
                 }
             }
             if (scanner.getToken() != Token::RBracket) {
-                Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("missing ']' in JSON Array"));
+                eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                             ROMSTR("missing ']' in JSON Array")).c_str());
                 return Value();
             }
             scanner.retireToken();
@@ -86,7 +88,8 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                         break;
                     }
                     if (!propertyValue) {
-                        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("invalid property value in JSON Object"));
+                        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                                     ROMSTR("invalid property value in JSON Object")).c_str());
                         return Value();
                     }
 
@@ -94,7 +97,8 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                 }
             }
             if (scanner.getToken() != Token::RBrace) {
-                Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("missing '}' in JSON Object"));
+                eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                             ROMSTR("missing '}' in JSON Object")).c_str());
                 return Value();
             }
             scanner.retireToken();
@@ -109,14 +113,16 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
 bool JSON::propertyAssignment(ExecutionUnit* eu, Scanner& scanner, Value& key, Value& v)
 {
     if (scanner.getToken() != Token::String) {
-        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("JSON property name must be a string"));
+        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                     ROMSTR("JSON property name must be a string")).c_str());
         return false;
     }
     
     key = Value(ExecutionUnit::createString(scanner.getTokenValue().str));
     scanner.retireToken();
     if (scanner.getToken() != Token::Colon) {
-        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("missing ':' in JSON Object"));
+        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                     ROMSTR("missing ':' in JSON Object")).c_str());
         return false;
     }
     scanner.retireToken();
@@ -130,7 +136,8 @@ Value JSON::parse(ExecutionUnit* eu, const String& json)
     Scanner scanner(&stream);
     Value v = value(eu, scanner);
     if (scanner.getToken() != Token::EndOfFile) {
-        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("invalid token in JSON string"));
+        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(), 
+                                     ROMSTR("invalid token in JSON string")).c_str());
         return Value();
     }
     return v;

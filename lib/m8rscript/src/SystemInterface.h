@@ -44,6 +44,8 @@ public:
 
     virtual ~SystemInterface() { }
 
+    void print(const char* s) { printf(ROMSTR("%s"), s); }
+    
     void printf(ROMString fmt, ...) const
     {
         va_list args;
