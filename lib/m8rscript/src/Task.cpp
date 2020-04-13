@@ -52,7 +52,7 @@ bool Task::init(const char* filename)
     }
 
     if (error != Error::Code::OK) {
-        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, error.description().c_str());
+        _eu->print(Error::formatError(error.code(), ROMSTR("Unable to open '%s' for execution"), filename).c_str());
         _error = error;
         return false;
     }
@@ -64,7 +64,7 @@ bool Task::init(const char* filename)
 #endif
 
     if (file->error() != Error::Code::OK) {
-        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description().c_str());
+        _eu->print(Error::formatError(file->error().code(), ROMSTR("Error reading '%s'"), filename).c_str());
     }
         
     file.destroy(MemoryType::Native);
@@ -212,7 +212,8 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     }
     
     if (task->error() != Error::Code::OK) {
-        Error::printError(eu, Error::Code::RuntimeError, eu->lineno(), ROMSTR("unable to load task '%s'"), filename.c_str());;
+        eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(),
+                                     ROMSTR("unable to load task '%s'"), filename.c_str()).c_str());
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     

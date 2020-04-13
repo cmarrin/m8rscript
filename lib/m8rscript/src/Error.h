@@ -71,20 +71,15 @@ public:
     friend bool operator!=(Error::Code b, const Error& a) { return a._code != b; }
 
     Code code() const { return _code; }
-    
-    String description() const;
-    
-    static void showError(Error error) { showError(error.code()); }
-    static void showError(Code code) { showError(nullptr, code); }
-    static void showError(const ExecutionUnit* eu, Error error) { showError(eu, error.code()); }
-    static void showError(const ExecutionUnit*, Code);
-
-    static void printError(const ExecutionUnit*, Code code, ROMString format = ROMString(), ...);
-    static void printError(const ExecutionUnit*, Code, int32_t lineno, ROMString format = ROMString(), ...);
-    static void vprintError(const ExecutionUnit*, Code, ROMString format, va_list);
-    static void vprintError(const ExecutionUnit*, Code, int32_t lineno, ROMString format, va_list);
+        
+    static String formatError(Code code, ROMString format = ROMString(), ...);
+    static String formatError(Code, int32_t lineno, ROMString format = ROMString(), ...);
+    static String vformatError(Code, ROMString format, va_list);
+    static String vformatError(Code, int32_t lineno, ROMString format, va_list);
 
 private:
+    static ROMString description(Code);
+
     Code _code = Code::OK;
 };
 

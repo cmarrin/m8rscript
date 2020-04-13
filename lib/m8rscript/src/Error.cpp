@@ -9,13 +9,11 @@
 
 #include "Error.h"
 
-#include "ExecutionUnit.h"
-
 using namespace m8r;
 
-m8r::String Error::description() const
+ROMString Error::description(Code code)
 {
-    switch(code()) {
+    switch(code) {
         case Code::OK                       : return ROMSTR("OK");
         case Code::Unknown                  : return ROMSTR("Unknown");
         case Code::Write                    : return ROMSTR("Write");
@@ -53,54 +51,39 @@ m8r::String Error::description() const
     }
 }
 
-void Error::showError(const ExecutionUnit* eu, Code code)
-{
-    String codeString = Error(code).description();
-    
-    if (eu) {
-        eu->printf(ROMSTR("%s"), codeString.c_str());
-    } else {
-        system()->printf(ROMSTR("%s"), codeString.c_str());
-    }
-}
-
-void Error::printError(const ExecutionUnit* eu, Code code, ROMString format, ...)
-{
-    if (!format.valid()) {
-        showError(eu, code);
-        eu->printf(ROMSTR("\n"));
-        return;
-    }
-    
-    va_list args;
-    va_start(args, format);
-    vprintError(eu, code, format, args);
-}
-
-void Error::printError(const ExecutionUnit* eu, Code code, int32_t lineno, ROMString format, ...)
+String Error::formatError(Code code, ROMString format, ...)
 {
     va_list args;
     va_start(args, format);
-    vprintError(eu, code, lineno, format, args);
+    return vformatError(code, format, args);
 }
 
-void Error::vprintError(const ExecutionUnit* eu, Code code, ROMString format, va_list args)
+String Error::formatError(Code code, int32_t lineno, ROMString format, ...)
 {
-    vprintError(eu, code, 0, format, args);
+    va_list args;
+    va_start(args, format);
+    return vformatError(code, lineno, format, args);
 }
 
-void Error::vprintError(const ExecutionUnit* eu, Code code, int32_t lineno, ROMString format, va_list args)
+String Error::vformatError(Code code, ROMString format, va_list args)
 {
-    showError(eu, code);
-    eu->printf(ROMSTR(" Error"));
+    return vformatError(code, 0, format, args);
+}
+
+String Error::vformatError(Code code, int32_t lineno, ROMString format, va_list args)
+{
+    String s(description(code));
+    s += String(ROMSTR(" Error: "));
     if (!format.valid()) {
-        return;
+        return s;
     }
-    eu->printf(ROMSTR(": "));
-    eu->vprintf(format, args);
+
+    s += String(ROMSTR(": "));
+    s += String::vformat(String(format).c_str(), args);
     if (lineno > 0) {
-        eu->printf(ROMSTR(" on line %d"), lineno);
+        s += String(ROMSTR(" on line ")) + String(lineno);
     }
-    eu->printf(ROMSTR("\n"));
+    s += String(ROMSTR("\n"));
+    return s;
 }
 

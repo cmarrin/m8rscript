@@ -9,6 +9,8 @@
 
 #include "Terminal.h"
 
+#include "ExecutionUnit.h"
+
 #include <unistd.h>
 
 #ifdef MONITOR_TRAFFIC
@@ -43,7 +45,7 @@ Terminal::Terminal(uint16_t port, const char* command)
                 
                 _shells[connectionId].task->init(_command.c_str());
                 if (_shells[connectionId].task->error().code() != Error::Code::OK) {
-                    Error::printError(_shells[connectionId].task->eu(), _shells[connectionId].task->error().code());
+                    _shells[connectionId].task->eu()->print(Error::formatError(_shells[connectionId].task->error().code()).c_str());
                     _shells[connectionId].task = Mad<Task>();
                     _socket->disconnect(connectionId);
                 } else {
