@@ -10,27 +10,19 @@
 #pragma once
 
 #include "Task.h"
+#include "TCPServer.h"
 #include "Telnet.h"
 
 namespace m8r {
 
-class Terminal {
+class Terminal : public TCPServer {
 public:
     Terminal(uint16_t port, const char* command);
-    ~Terminal();
 
 private:
-    Mad<TCP> _socket;
-
-    struct Entry
-    {
-        Entry() { }
-        Mad<Task> task;
-        Telnet telnet;
-    };
-    
-    Entry _shells[TCP::MaxConnections];
     String _command;
+
+    Telnet _telnets[TCP::MaxConnections];
 };
     
 }

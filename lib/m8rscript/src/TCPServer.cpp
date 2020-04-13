@@ -17,10 +17,11 @@
 
 using namespace m8r;
 
-TCPServer::TCPServer(uint16_t port, CreateTaskFunction func)
-    : _createTaskFunction(func)
+TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::EventFunction eventFunction)
+    : _createTaskFunction(createTaskFunction)
+    , _eventFunction(eventFunction)
 {
-    Mad<TCP> socket = system()->createTCP(port, [this](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
+    Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         switch(event) {
             case TCP::Event::Connected:
@@ -42,18 +43,20 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction func)
                 });
                 
                 if (_connections[connectionId].task->error().code() != Error::Code::OK) {
-                    Error::printError(_connections[connectionId].task->eu(), _connections[connectionId].task->error().code());
                     _connections[connectionId].task = Mad<Task>();
+                    _connections[connectionId].task->print(Error::formatError(_connections[connectionId].task->error().code()).c_str());
                     _socket->disconnect(connectionId);
                 } else {
-                    _socket->send(connectionId, _connections[connectionId].telnet.init().c_str());
+                    // Give subclass a whack at the connection event before starting to run the task
+                    // so it can do init, etc.
+                    _eventFunction(tcp, event, connectionId, data, length);
                     
                     // Run the task
                     _connections[connectionId].task->run([connectionId, this](TaskBase*)
                     {
                         // On return from finished task, drop the connection
                         _socket->disconnect(connectionId);
-                        _connections[connectionId].task.destroy();
+                        _connections[connectionId].task.destroy(MemoryType::Native);
                         _connections[connectionId].task = Mad<Task>();
                     });
                 }
@@ -61,27 +64,13 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction func)
             case TCP::Event::Disconnected:
                 if (_connections[connectionId].task.valid()) {
                     _connections[connectionId].task->terminate();
-                    _connections[connectionId].task.destroy();
+                    _connections[connectionId].task.destroy(MemoryType::Native);
                     _connections[connectionId].task = Mad<Task>();
                 }
                 break;
             case TCP::Event::ReceivedData:
                 if (_connections[connectionId].task.valid()) {
-                    // Receiving characters. Pass them through Telnet
-                    String toChannel, toClient;
-                    for (int16_t i = 0; i < length; ++i) {
-                        if (!data[i]) {
-                            break;
-                        }
-                        KeyAction action = _connections[connectionId].telnet.receive(data[i], toChannel, toClient);
-                    
-                        if (!toClient.empty() || action != KeyAction::None) {
-                            _connections[connectionId].task->receivedData(toClient, action);
-                        }
-                        if (!toChannel.empty()) {
-                            _socket->send(connectionId, toChannel.c_str(), toChannel.size());
-                        }
-                    }
+                    _eventFunction(tcp, event, connectionId, data, length);
                 }
                 break;
             case TCP::Event::SentData:
@@ -94,7 +83,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction func)
     _socket = socket;
 }
 
-Terminal::~Terminal()
+TCPServer::~TCPServer()
 {
     _socket.destroy();
 }

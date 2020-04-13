@@ -121,20 +121,33 @@ public:
 
     Telnet();
     
+    void reset()
+    {
+        _verb = Verb::None;
+        _line.clear();
+        _position = 0;
+        _escapeParam = '\0';
+        _toChannel.clear();
+        _toClient.clear();
+        _currentChar = '\0';
+        _currentAction = KeyAction::None;
+        _csiParam = '\0';
+    }
+    
     template<typename T>
-    String makeCommand(T v)
+    static String makeCommand(T v)
     {
         return String(static_cast<char>(v));
     }
 
     template<typename T, typename... Args>
-    String makeCommand(T first, Args... args)
+    static String makeCommand(T first, Args... args)
     {
         return String(static_cast<char>(first)) + makeCommand(args...);
     }
     
     // Return the init string to be sent to the Channel
-    String init()
+    static String makeInitString()
     {
         return makeCommand(
             Command::IAC, Command::WILL, Command::ECHO,

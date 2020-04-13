@@ -70,6 +70,7 @@ StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable(_stateEntri
 Telnet::Telnet()
     : _stateMachine(this, &_stateTable)
 {
+    reset();
 }
 
 void Telnet::handleBackspace()

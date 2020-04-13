@@ -17,10 +17,10 @@ class TCPServer {
 public:
     using CreateTaskFunction = std::function<Mad<TaskBase>()>;
     
-    TCPServer(uint16_t port, CreateTaskFunction);
+    TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
     ~TCPServer();
 
-private:
+protected:
     Mad<TCP> _socket;
 
     struct Connection
@@ -32,6 +32,7 @@ private:
     Connection _connections[TCP::MaxConnections];
     
     CreateTaskFunction _createTaskFunction;
+    TCP::EventFunction _eventFunction;
 };
     
 }
