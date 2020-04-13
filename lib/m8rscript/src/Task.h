@@ -46,6 +46,15 @@ public:
     virtual bool readyToRun() const { return state() == State::Ready; }
     virtual void requestYield() const { }
     
+    virtual void setConsolePrintFunction(std::function<void(const String&)> f) { }
+    
+    virtual void printError(Error error, ROMString format = ROMString(), ...)
+    {
+        va_list args;
+        va_start(args, format);
+        system()->printf(ROMSTR("%s"), Error::vformatError(error.code(), format, args).c_str());
+    }
+
 #ifndef NDEBUG
     const String& name() const { return _name; }
 #endif
@@ -83,7 +92,7 @@ public:
     
     void receivedData(const String& data, KeyAction action);
 
-    void setConsolePrintFunction(std::function<void(const String&)> f);
+    virtual void setConsolePrintFunction(std::function<void(const String&)> f) override;
     void setConsoleListener(Value func);
 
     const ExecutionUnit* eu() const { return _eu.get(); }

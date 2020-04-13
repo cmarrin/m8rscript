@@ -15,6 +15,8 @@
 		49079BA4244247EE000FAF22 /* lfs_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9E244247EE000FAF22 /* lfs_util.h */; };
 		49079BA724437F0F000FAF22 /* Terminal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA524437F0F000FAF22 /* Terminal.cpp */; };
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
+		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
+		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -210,6 +212,8 @@
 		49079B9E244247EE000FAF22 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs_util.h; sourceTree = "<group>"; };
 		49079BA524437F0F000FAF22 /* Terminal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Terminal.cpp; path = ../lib/m8rscript/src/Terminal.cpp; sourceTree = "<group>"; };
 		49079BA624437F0F000FAF22 /* Terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Terminal.h; path = ../lib/m8rscript/src/Terminal.h; sourceTree = "<group>"; };
+		49079BA9244384B1000FAF22 /* TCPServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TCPServer.cpp; path = ../lib/m8rscript/src/TCPServer.cpp; sourceTree = "<group>"; };
+		49079BAA244384B1000FAF22 /* TCPServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TCPServer.h; path = ../lib/m8rscript/src/TCPServer.h; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
@@ -753,6 +757,8 @@
 				49CB61B923F85255003C9AB0 /* Timer.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
+				49079BA9244384B1000FAF22 /* TCPServer.cpp */,
+				49079BAA244384B1000FAF22 /* TCPServer.h */,
 			);
 			name = libm8rscript;
 			sourceTree = "<group>";
@@ -785,6 +791,7 @@
 				49079BA4244247EE000FAF22 /* lfs_util.h in Headers */,
 				49884F07236CB25100C292EA /* StateMachine.h in Headers */,
 				49079BA3244247EE000FAF22 /* LittleFS.h in Headers */,
+				49079BAC244384B1000FAF22 /* TCPServer.h in Headers */,
 				49CB61BB23F85256003C9AB0 /* Timer.h in Headers */,
 				49079BA0244247EE000FAF22 /* lfs.h in Headers */,
 				49BDE19F236C711B00304BE8 /* MString.h in Headers */,
@@ -1026,6 +1033,7 @@
 				49BDE19E236C711B00304BE8 /* MString.cpp in Sources */,
 				492BA3D71E15849C00242DA8 /* GPIO.cpp in Sources */,
 				49A3286C1D35BDC50006D0FE /* Error.cpp in Sources */,
+				49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */,
 				49079B9F244247EE000FAF22 /* lfs_util.c in Sources */,
 				492396C71E711D12007AC0BF /* MUDP.cpp in Sources */,
 				49079BA2244247EE000FAF22 /* LittleFS.cpp in Sources */,
