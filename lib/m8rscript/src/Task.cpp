@@ -103,6 +103,15 @@ bool Task::init(const Stream& stream)
     return true;
 }
 
+void Task::print(const char* s) const
+{
+    if (_eu.valid()) {
+        _eu->print(s);
+    } else {
+        TaskBase::print(s);
+    }
+}
+
 bool Task::readyToRun() const
 {
     return TaskBase::readyToRun() || eu()->readyToRun();

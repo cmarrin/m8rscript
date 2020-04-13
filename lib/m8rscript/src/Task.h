@@ -48,11 +48,9 @@ public:
     
     virtual void setConsolePrintFunction(std::function<void(const String&)> f) { }
     
-    virtual void printError(Error error, ROMString format = ROMString(), ...)
+    virtual void print(const char* s) const
     {
-        va_list args;
-        va_start(args, format);
-        system()->printf(ROMSTR("%s"), Error::vformatError(error.code(), format, args).c_str());
+        system()->print(s);
     }
 
 #ifndef NDEBUG
@@ -94,6 +92,8 @@ public:
 
     virtual void setConsolePrintFunction(std::function<void(const String&)> f) override;
     void setConsoleListener(Value func);
+
+    virtual void print(const char* s) const override;
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     
