@@ -15,7 +15,7 @@ namespace m8r {
 
 class TCPServer {
 public:
-    using CreateTaskFunction = std::function<Mad<Task>()>;
+    using CreateTaskFunction = std::function<std::shared_ptr<TaskBase>()>;
     
     TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
     ~TCPServer();
@@ -28,7 +28,7 @@ protected:
     struct Connection
     {
         Connection() { }
-        Mad<Task> task;
+        std::shared_ptr<TaskBase> task;
     };
     
     Connection _connections[TCP::MaxConnections];

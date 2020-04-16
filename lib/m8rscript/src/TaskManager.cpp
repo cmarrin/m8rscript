@@ -60,7 +60,7 @@ void TaskManager::runOneIteration()
     // See if there's anything to be done
     executeNextTask();
 }
-void TaskManager::run(TaskBase* newTask, FinishCallback cb)
+void TaskManager::run(const std::shared_ptr<TaskBase>& newTask, FinishCallback cb)
 {
     {
         newTask->_finishCB = cb;
@@ -70,7 +70,7 @@ void TaskManager::run(TaskBase* newTask, FinishCallback cb)
     readyToExecuteNextTask();
 }
 
-void TaskManager::terminate(TaskBase* task)
+void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
 {
     {
         _list.remove(task);
@@ -98,7 +98,7 @@ bool TaskManager::executeNextTask()
     }
     
     // Find the next executable task
-    auto it = std::find_if(_list.begin(), _list.end(), [](TaskBase* task) {
+    auto it = std::find_if(_list.begin(), _list.end(), [](std::shared_ptr<TaskBase> task) {
         return task->readyToRun();
     });
 

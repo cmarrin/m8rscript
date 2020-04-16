@@ -44,8 +44,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 
                 if (_connections[connectionId].task->error().code() != Error::Code::OK) {
                     _connections[connectionId].task->print(Error::formatError(_connections[connectionId].task->error().code()).c_str());
-                    _connections[connectionId].task.destroy(MemoryType::Native);
-                    _connections[connectionId].task = Mad<Task>();
+                    _connections[connectionId].task.reset();
                     _socket->disconnect(connectionId);
                 } else {
                     // Give subclass a whack at the connection event before starting to run the task
@@ -53,24 +52,22 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                     _eventFunction(tcp, event, connectionId, data, length);
                     
                     // Run the task
-                    system()->taskManager()->run(_connections[connectionId].task.get(), [connectionId, this](TaskBase*)
+                    system()->taskManager()->run(_connections[connectionId].task, [connectionId, this](TaskBase*)
                     {
                         // On return from finished task, drop the connection
                         _socket->disconnect(connectionId);
-                        _connections[connectionId].task.destroy(MemoryType::Native);
-                        _connections[connectionId].task = Mad<Task>();
+                        _connections[connectionId].task.reset();
                     });
                 }
                 break;
             case TCP::Event::Disconnected:
-                if (_connections[connectionId].task.valid()) {
-                    system()->taskManager()->terminate(_connections[connectionId].task.get());
-                    _connections[connectionId].task.destroy(MemoryType::Native);
-                    _connections[connectionId].task = Mad<Task>();
+                if (_connections[connectionId].task) {
+                    system()->taskManager()->terminate(_connections[connectionId].task);
+                    _connections[connectionId].task.reset();
                 }
                 break;
             case TCP::Event::ReceivedData:
-                if (_connections[connectionId].task.valid()) {
+                if (_connections[connectionId].task) {
                     _eventFunction(tcp, event, connectionId, data, length);
                 }
                 break;

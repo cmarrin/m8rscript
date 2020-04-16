@@ -26,10 +26,7 @@ class TaskBase {
 public:
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
-    virtual ~TaskBase()
-    {
-        system()->taskManager()->terminate(this);
-    }
+    virtual ~TaskBase() { }
     
     Error error() const { return _error; }
     
@@ -73,8 +70,9 @@ private:
 class Task : public NativeObject, public TaskBase {
 public:
     Task();
-    
     virtual ~Task();
+    
+    static std::shared_ptr<Task> create() { return std::make_shared<Task>(); }
     
     bool load(const Stream&);
     bool load(const char* filename);

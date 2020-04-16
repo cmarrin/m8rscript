@@ -23,7 +23,7 @@ Terminal::Terminal(uint16_t port, const char* command)
     : TCPServer(port,
     [this]()
     {
-        Mad<Task> task = Mad<Task>::create(MemoryType::Native);
+        std::shared_ptr<Task> task = Task::create();
         task->load(_command.c_str());
         return task;
     },
@@ -36,7 +36,7 @@ Terminal::Terminal(uint16_t port, const char* command)
                 _socket->send(connectionId, _telnets[connectionId].makeInitString().c_str());
                 break;
             case TCP::Event::ReceivedData:
-                if (_connections[connectionId].task.valid()) {
+                if (_connections[connectionId].task) {
                     // Receiving characters. Pass them through Telnet
                     String toChannel, toClient;
                     for (int16_t i = 0; i < length; ++i) {

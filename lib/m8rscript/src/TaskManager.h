@@ -27,8 +27,8 @@ class TaskManager {
 public:
     using FinishCallback = std::function<void(TaskBase*)>;
     
-    void run(TaskBase*, FinishCallback);
-    void terminate(TaskBase*);
+    void run(const std::shared_ptr<TaskBase>&, FinishCallback);
+    void terminate(const std::shared_ptr<TaskBase>&);
     
 protected:
     static constexpr uint8_t MaxTasks = 8;
@@ -51,10 +51,10 @@ private:
     
     void restartTimer();
     
-    Vector<TaskBase*> _list;
+    Vector<std::shared_ptr<TaskBase>> _list;
     Vector<Timer*> _timerList;
     
-    TaskBase* _currentTask = nullptr;
+    std::shared_ptr<TaskBase> _currentTask;
 
     Mad<Timer> _timeSliceTimer;
     bool _terminating = false;

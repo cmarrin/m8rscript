@@ -82,6 +82,12 @@ public:
     
     Atom typeName() const { return _typeName; }
     void setTypeName(Atom name) { _typeName = name; }
+    
+    template<typename T>
+    void setNativeObject(const std::shared_ptr<T> obj) { _nativeObject = std::static_pointer_cast<NativeObject>(obj); }
+
+    template<typename T>
+    std::shared_ptr<T> nativeObject() const { return std::static_pointer_cast<T>(_nativeObject); }
 
     static CallReturnValue construct(const Value& proto, ExecutionUnit*, uint32_t nparams);
 
@@ -105,6 +111,7 @@ private:
     bool _marked : 1;
     bool _isDestroyed : 1;
     Atom _typeName;
+    std::shared_ptr<NativeObject> _nativeObject;
 };
 
 class MaterObject : public Object {

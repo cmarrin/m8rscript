@@ -213,7 +213,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         path = FS::findPath(eu, filename, env);
     }
     
-    Mad<Task> task = Mad<Task>::create();
+    std::shared_ptr<Task> task = Task::create();
     task->setConsolePrintFunction(eu->consolePrintFunction());
 
     if (!filename.empty()) {
@@ -226,8 +226,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     
-    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(task), Value::SetType::AlwaysAdd);
-    obj->setProperty(Atom(SA::arguments), Value::asValue(task), Value::SetType::AlwaysAdd);
+    obj->setNativeObject(task);
     obj->setProperty(Atom(SA::env), envValue, Value::SetType::AlwaysAdd);
     
     task->setConsoleListener(consoleListener);
@@ -243,8 +242,8 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Task> task = thisValue.isObject() ? thisValue.asObject()->getNative<Task>() : Mad<Task>();
-    if (!task.valid()) {
+    std::shared_ptr<Task> task = thisValue.isObject() ? thisValue.asObject()->nativeObject<Task>() : nullptr;
+    if (!task) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
@@ -256,7 +255,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     // Store func so it doesn't get gc'ed
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
-    system()->taskManager()->run(task.get(), [eu, func](TaskBase* task)
+    system()->taskManager()->run(task, [eu, func](TaskBase* task)
     {
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
