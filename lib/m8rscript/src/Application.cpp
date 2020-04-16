@@ -50,7 +50,7 @@ Application::Application(uint16_t port)
     String filename = autostartFilename();
     if (filename) {
         _autostartTask = Mad<Task>::create();
-        _autostartTask->init(filename.c_str());
+        _autostartTask->load(filename.c_str());
         _autostartTask->setConsolePrintFunction([](const String& s) {
             system()->printf(ROMSTR("%s"), s.c_str());
         });

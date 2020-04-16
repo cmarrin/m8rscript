@@ -76,8 +76,8 @@ public:
     
     virtual ~Task();
     
-    bool init(const Stream&);
-    bool init(const char* filename);
+    bool load(const Stream&);
+    bool load(const char* filename);
     
     virtual void receivedData(const String& data, KeyAction action) override;
 

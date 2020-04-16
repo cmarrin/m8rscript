@@ -24,7 +24,7 @@ Terminal::Terminal(uint16_t port, const char* command)
     [this]()
     {
         Mad<Task> task = Mad<Task>::create(MemoryType::Native);
-        task->init(_command.c_str());
+        task->load(_command.c_str());
         return task;
     },
     [this](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
