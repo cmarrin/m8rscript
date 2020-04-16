@@ -39,6 +39,13 @@ public:
     void send(int16_t connectionId, const char* data, uint16_t length = 0);
     
     virtual void disconnect(int16_t connectionId) = 0;
+    
+    void addEvent(Event event, int16_t connectionId, const char* data, int32_t length = -1)
+    {
+        _events.push_back({ event, connectionId, String(data, length) });
+    }
+    
+    virtual void handleEvents();
 
 protected:
     void init(uint16_t port, IPAddr ip, EventFunction func)
@@ -54,6 +61,15 @@ protected:
     IPAddr _ip;
     uint16_t _port = 0;
     bool _server = false;
+
+    struct EventEntry
+    {
+        Event event = Event::Error;
+        int16_t connectionId = -1;
+        String data;
+    };
+    
+    Vector<EventEntry> _events;
 };
 
 // Object

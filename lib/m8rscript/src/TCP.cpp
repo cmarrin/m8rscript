@@ -163,3 +163,11 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
     tcp->disconnect(connectionId);
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+
+void TCP::handleEvents()
+{
+    for (auto it : _events) {
+        _eventFunction(this, it.event, it.connectionId, it.data.size() ? &(it.data[0]) : nullptr, it.data.size());
+    }
+    _events.clear();
+}

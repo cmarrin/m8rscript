@@ -15,10 +15,12 @@ namespace m8r {
 
 class TCPServer {
 public:
-    using CreateTaskFunction = std::function<Mad<TaskBase>()>;
+    using CreateTaskFunction = std::function<Mad<Task>()>;
     
     TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
     ~TCPServer();
+    
+    void handleEvents() { _socket->handleEvents(); }
 
 protected:
     Mad<TCP> _socket;
@@ -26,7 +28,7 @@ protected:
     struct Connection
     {
         Connection() { }
-        Mad<TaskBase> task;
+        Mad<Task> task;
     };
     
     Connection _connections[TCP::MaxConnections];

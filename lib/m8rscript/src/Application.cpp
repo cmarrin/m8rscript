@@ -126,6 +126,7 @@ bool Application::mountFileSystem()
 }
 
 void Application::runOneIteration()
-{    
+{
+    _terminal->handleEvents();
     system()->runOneIteration();
 }

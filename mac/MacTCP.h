@@ -25,8 +25,12 @@ public:
     
     void init(uint16_t port, IPAddr ip, EventFunction func);
 
+    virtual void handleEvents() override;
+
 private:
     virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) override;
+    
+    void handleEvent(Event, int16_t connectionId, const char* data, uint16_t length);
 
     int _socketFD = -1;
     std::thread _thread;

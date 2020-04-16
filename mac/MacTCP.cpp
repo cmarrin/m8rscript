@@ -27,13 +27,19 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
     
     _socketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (_socketFD == -1) {
-        _eventFunction(this, Event::Error, errno, "opening TCP socket", -1);
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            addEvent(TCP::Event::Error, errno, "opening TCP socket");
+        }
         return;
     }
 
     int enable = 1;
     if (setsockopt(_socketFD, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
-        _eventFunction(this, Event::Error, errno, "opening TCP socket, setsockopt failed", -1);
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            addEvent(TCP::Event::Error, errno, "opening TCP socket, setsockopt failed");
+        }
         return;
     }
     
@@ -51,14 +57,20 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
 
     if (_server) {
         if (bind(_socketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
-            _eventFunction(this, Event::Error, errno, "TCP bind failed", -1);
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                addEvent(TCP::Event::Error, errno, "TCP bind failed");
+            }
             close(_socketFD);
             _socketFD = -1;
             return;
         }
       
         if (listen(_socketFD, MaxConnections) == -1) {
-            _eventFunction(this, Event::Error, errno, "TCP listen failed", -1);
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                addEvent(TCP::Event::Error, errno, "TCP listen failed");
+            }
             close(_socketFD);
             _socketFD = -1;
             return;
@@ -67,9 +79,15 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
         memset(_clientSockets, 0, MaxConnections * sizeof(int));
     } else {
         if (connect(_socketFD, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-            _eventFunction(this, TCP::Event::Error, errno, "TCP connect failed", -1);
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                addEvent(TCP::Event::Error, errno, "TCP connect failed");
+            }
         } else {
-            _eventFunction(this, TCP::Event::Connected, 0, nullptr, -1);
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                addEvent(TCP::Event::Connected, 0, nullptr);
+            }
         }
     }
 
@@ -108,7 +126,10 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                     
                     int clientSocket = accept(_socketFD, (struct sockaddr *)&sa, (socklen_t*)&addrlen);
                     if (clientSocket < 0) {
-                        _eventFunction(this, TCP::Event::Error, errno, "accept failed", -1);
+                        {
+                            std::unique_lock<std::mutex> lock(_mutex);
+                            addEvent(TCP::Event::Error, errno, "accept failed");
+                        }
                         continue;
                     }
                     printf("New connection , socket fd=%d, ip=%s, port=%d\n", clientSocket, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
@@ -123,11 +144,17 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                     
                     if (connectionId < 0) {
                         close(clientSocket);
-                        _eventFunction(this, TCP::Event::Error, -1, "Too many connections on port\n", -1);
+                        {
+                            std::unique_lock<std::mutex> lock(_mutex);
+                            addEvent(TCP::Event::Error, -1, "Too many connections on port");
+                        }
                         break;
                     }
                     
-                    _eventFunction(this, TCP::Event::Connected, connectionId, nullptr, -1);
+                    {
+                        std::unique_lock<std::mutex> lock(_mutex);
+                        addEvent(TCP::Event::Connected, connectionId, nullptr);
+                    }
                 }
 
                 for (int& socket : _clientSockets) {
@@ -141,13 +168,23 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                             int addrlen;
                             getpeername(socket, (struct sockaddr*) &sa, (socklen_t*) &addrlen);
                             printf("Host disconnected, ip=%s, port=%d\n" , inet_ntoa(sa.sin_addr) , ntohs(sa.sin_port));
-                            _eventFunction(this, TCP::Event::Disconnected, connectionId, nullptr, -1);
+                            {
+                                std::unique_lock<std::mutex> lock(_mutex);
+                                addEvent(TCP::Event::Disconnected, connectionId, nullptr);
+                            }
+
                             close(socket);
                             socket = 0;
                         } else if (result < 0) {
-                            _eventFunction(this, TCP::Event::Error, errno, "read error", -1);
+                            {
+                                std::unique_lock<std::mutex> lock(_mutex);
+                                addEvent(TCP::Event::Error, errno, "read error");
+                            }
                         } else {
-                            _eventFunction(this, TCP::Event::ReceivedData, connectionId, _receiveBuffer, result);
+                            {
+                                std::unique_lock<std::mutex> lock(_mutex);
+                                addEvent(TCP::Event::ReceivedData, connectionId, _receiveBuffer, static_cast<int32_t>(result));
+                            }
                         }
                     }
                 }
@@ -156,15 +193,24 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 ssize_t result = read(_socketFD, _receiveBuffer, BufferSize - 1);
                 if (result == 0) {
                     // Disconnect
-                    _eventFunction(this, TCP::Event::Disconnected, 0, nullptr, -1);
+                    {
+                        std::unique_lock<std::mutex> lock(_mutex);
+                        addEvent(TCP::Event::Disconnected, 0, nullptr);
+                    }
                     shutdown(_socketFD, SHUT_RDWR);
                     close(_socketFD);
                     _socketFD = -1;
                     break;
                 } else if (result < 0) {
-                    _eventFunction(this, TCP::Event::Error, errno, "read failed", -1);
+                    {
+                        std::unique_lock<std::mutex> lock(_mutex);
+                        addEvent(TCP::Event::Error, errno, "read failed");
+                    }
                 } else {
-                    _eventFunction(this, TCP::Event::ReceivedData, 0, _receiveBuffer, result);
+                    {
+                        std::unique_lock<std::mutex> lock(_mutex);
+                        addEvent(TCP::Event::ReceivedData, 0, _receiveBuffer, static_cast<int32_t>(result));
+                    }
                 }
             }
         }
@@ -210,5 +256,14 @@ void MacTCP::disconnect(int16_t connectionId)
     int socket = _clientSockets[connectionId];
     _clientSockets[connectionId] = 0;
     close(socket);
-    _eventFunction(this, TCP::Event::Disconnected, connectionId, nullptr, -1);
+    {
+        std::unique_lock<std::mutex> lock(_mutex);
+        addEvent(TCP::Event::Disconnected, connectionId, nullptr);
+    }
+}
+
+void MacTCP::handleEvents()
+{
+    std::unique_lock<std::mutex> lock(_mutex);
+    TCP::handleEvents();
 }
