@@ -53,7 +53,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                     _eventFunction(tcp, event, connectionId, data, length);
                     
                     // Run the task
-                    _connections[connectionId].task->run([connectionId, this](TaskBase*)
+                    system()->taskManager()->run(_connections[connectionId].task.get(), [connectionId, this](TaskBase*)
                     {
                         // On return from finished task, drop the connection
                         _socket->disconnect(connectionId);
@@ -64,7 +64,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 break;
             case TCP::Event::Disconnected:
                 if (_connections[connectionId].task.valid()) {
-                    _connections[connectionId].task->terminate();
+                    system()->taskManager()->terminate(_connections[connectionId].task.get());
                     _connections[connectionId].task.destroy(MemoryType::Native);
                     _connections[connectionId].task = Mad<Task>();
                 }

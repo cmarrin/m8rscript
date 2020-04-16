@@ -24,8 +24,6 @@ class TaskBase {
     friend class TaskManager;
     
 public:
-    using FinishCallback = std::function<void(TaskBase*)>;
-    
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
     virtual ~TaskBase()
@@ -33,14 +31,6 @@ public:
         system()->taskManager()->terminate(this);
     }
     
-    void run(FinishCallback cb = nullptr)
-    {
-        _finishCB = std::move(cb);
-        system()->taskManager()->run(this);
-    }
-
-    void terminate() { system()->taskManager()->terminate(this); }
-
     Error error() const { return _error; }
     
     virtual bool readyToRun() const { return state() == State::Ready; }
@@ -75,7 +65,7 @@ private:
     
     virtual CallReturnValue execute() = 0;    
 
-    FinishCallback _finishCB;
+    TaskManager::FinishCallback _finishCB;
     
     State _state = State::Ready;
 };

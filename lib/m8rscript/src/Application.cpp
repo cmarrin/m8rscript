@@ -64,7 +64,7 @@ Application::Application(uint16_t port)
             }
             _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
         });
-        _autostartTask->run([this](m8r::TaskBase*) {
+        system()->taskManager()->run(_autostartTask.get(), [this](m8r::TaskBase*) {
             m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
             _autostartTask.destroy();
         });    

@@ -60,9 +60,10 @@ void TaskManager::runOneIteration()
     // See if there's anything to be done
     executeNextTask();
 }
-void TaskManager::run(TaskBase* newTask)
+void TaskManager::run(TaskBase* newTask, FinishCallback cb)
 {
     {
+        newTask->_finishCB = cb;
         _list.push_back(newTask);
         newTask->setState(Task::State::Ready);
     }

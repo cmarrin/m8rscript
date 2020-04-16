@@ -25,16 +25,16 @@ class TaskManager {
     friend class Timer;
 
 public:
-
+    using FinishCallback = std::function<void(TaskBase*)>;
+    
+    void run(TaskBase*, FinishCallback);
+    void terminate(TaskBase*);
+    
 protected:
     static constexpr uint8_t MaxTasks = 8;
 
     TaskManager();
     ~TaskManager();
-    
-    void run(TaskBase*);
-    
-    void terminate(TaskBase*);
     
     bool executeNextTask();
     

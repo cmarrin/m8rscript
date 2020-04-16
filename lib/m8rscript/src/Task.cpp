@@ -256,7 +256,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     // Store func so it doesn't get gc'ed
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
-    task->run([eu, func](TaskBase* task)
+    system()->taskManager()->run(task.get(), [eu, func](TaskBase* task)
     {
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));
