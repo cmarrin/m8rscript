@@ -22,8 +22,6 @@ using namespace m8r;
 
 void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
 {
-    _dispatchSemaphore = nullptr;
-    
     TCP::init(port, ip, func);
     _server = !ip;
     
@@ -41,7 +39,6 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
     
     String queueName = "TCPQueue-";
     queueName += String(_socketFD);
-    _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
 
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof sa);
@@ -76,8 +73,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
         }
     }
 
-    _dispatchSemaphore = dispatch_semaphore_create(0);
-    dispatch_async(_queue, ^() {
+    std::thread dispatchThread([this, sa] {
         fd_set readfds;
         int maxsd;
         
@@ -172,8 +168,9 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 }
             }
         }
-        dispatch_semaphore_signal(_dispatchSemaphore);
     });
+
+    _thread = std::move(dispatchThread);
 }
 
 MacTCP::~MacTCP()
@@ -184,10 +181,7 @@ MacTCP::~MacTCP()
             close(socket);
         }
     }
-    if (_dispatchSemaphore) {
-        dispatch_semaphore_wait(_dispatchSemaphore, DISPATCH_TIME_FOREVER);
-    }
-    dispatch_release(_queue);
+    _thread.join();
 }
 
 int32_t MacTCP::sendData(int16_t connectionId, const char* data, uint16_t length)
