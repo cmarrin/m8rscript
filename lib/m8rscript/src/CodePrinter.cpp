@@ -522,13 +522,15 @@ void CodePrinter::showConstant(const ExecutionUnit* eu, m8r::String& s, const Va
                 break;
             }
             if (obj->code()) {
+                String name = obj->name() ? eu->program()->stringFromAtom(obj->name()) : String("unnamed");
                 if (abbreviated) {
-                    s += "FUNCTION";
+                    s += "FUNCTION<";
+                    s += name;
+                    s += ">";
                     break;
                 }
                 _nestingLevel++;
                 s += "\n";
-                String name = obj->name() ? eu->program()->stringFromAtom(obj->name()) : String("unnamed");
                 s += generateCodeString(eu, Mad<Function>(obj.raw()), name.c_str());
                 _nestingLevel--;
                 break;
