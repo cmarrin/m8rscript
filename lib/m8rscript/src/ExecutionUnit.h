@@ -57,7 +57,7 @@ public:
 
     void receivedData(const String&, KeyAction);
 
-    void setConsolePrintFunction(std::function<void(const String&)> f) { _consolePrintFunction = f; }
+    void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
     const std::function<void(const String&)>& consolePrintFunction() const { return _consolePrintFunction; }
     
     void vprintf(ROMString, va_list) const;
