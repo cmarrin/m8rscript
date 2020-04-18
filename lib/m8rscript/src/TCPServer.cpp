@@ -28,7 +28,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 _connections[connectionId].task = _createTaskFunction();
                 
                 // Set the print function to send the printed string out the TCP channel
-                _connections[connectionId].task->setConsolePrintFunction([&](const String& s) {
+                _connections[connectionId].task->setConsolePrintFunction([this, connectionId](const String& s) {
                     // Break it up into lines. We need to insert '\r'
                     Vector<String> v = s.split("\n");
                     for (uint32_t i = 0; i < v.size(); ++i) {
