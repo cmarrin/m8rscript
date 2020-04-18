@@ -81,6 +81,10 @@ void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
 bool TaskManager::executeNextTask()
 {
     // Check timers
+    if (_timerList.empty() && _list.empty()) {
+        return false;
+    }
+    
     Time currentTime = Time::now();
     
     while (1) {
