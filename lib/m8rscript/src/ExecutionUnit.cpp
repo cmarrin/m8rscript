@@ -946,6 +946,9 @@ CallReturnValue ExecutionUnit::continueExecution()
                 _terminate = true;
                 return CallReturnValue(CallReturnValue::Type::Terminated);
             }
+
+            // Push a dummy return value so it can be popped when we continue
+            _stack.push(Value());
             return callReturnValue;
         }
         
