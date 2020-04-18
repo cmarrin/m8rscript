@@ -206,7 +206,6 @@ void ExecutionUnit::startExecution(Mad<Program> program)
     _function =  _program;
     _this = program;
     _stack.setLocalFrame(0, 0, _function->localCount());
-    _framePtr =_stack.framePtr();
 
     _localOffset = 0;
     _formalParamCount = 0;
@@ -393,7 +392,6 @@ void ExecutionUnit::startFunction(Mad<Object> function, Mad<Object> thisObject, 
     // Add nparams to localsAdded so when we restore the frame we pop off the params, too
     _callRecords.push_back({ static_cast<uint32_t>(_currentAddr - _code), prevFrame, prevFunction, prevThis, prevActualParamCount, _lineno, localsAdded + nparams });
     
-    _framePtr =_stack.framePtr();
     updateCodePointer();
 }
 
@@ -411,7 +409,6 @@ CallReturnValue ExecutionUnit::endFunction()
     assert(_this.valid());
 
     _stack.restoreFrame(callRecord._frame, callRecord._localsAdded);
-    _framePtr =_stack.framePtr();
     
     _function = callRecord._func;
     updateCodePointer();

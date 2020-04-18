@@ -513,10 +513,11 @@ public:
     void setTop(const T& value) { _stack.back() = value; }
     bool empty() const { return _stack.empty(); }
 
-    const T* framePtr() const { return &at(_frame); }
-    T* framePtr() { return (_frame < size()) ? &at(_frame) : nullptr; }
     uint32_t frame() const { return _frame; }
-    
+
+    const T& atFrame(size_t i) const { return at(_frame + i); }
+    T& atFrame(size_t i) { return at(_frame + i); }
+
     const T& at(size_t i) const { return _stack[i]; }
     T& at(size_t i) { return _stack[i]; }
     

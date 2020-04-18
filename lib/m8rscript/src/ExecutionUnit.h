@@ -150,10 +150,9 @@ private:
     {
         assert(r <= MaxRegister);
         if (r >= _formalParamCount) {
-            _framePtr[r + _localOffset] = v;
-        } else {
-            _framePtr[r] = v;
+            r += _localOffset;
         }
+        _stack.atFrame(r) = v;
     }
     
     void closeUpValues(uint32_t frame);
@@ -162,9 +161,9 @@ private:
     {
         assert(r <= MaxRegister);
         if (r >= _formalParamCount) {
-            return _framePtr[r + _localOffset];
+            r += _localOffset;
         }
-        return _framePtr[r];
+        return _stack.atFrame(r);
     }
     
     
@@ -249,7 +248,6 @@ private:
 
     const uint8_t* _code = nullptr;
     const uint8_t* _currentAddr = nullptr;
-    Value* _framePtr = nullptr;
     
     mutable uint32_t _nerrors = 0;
     
