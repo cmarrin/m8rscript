@@ -254,7 +254,7 @@ private:
     EventValueVector _eventQueue;
 
     bool _executingEvent = false;
-    bool _delayComplete = false;
+    bool _delayComplete = true;
     mutable bool _checkForExceptions = false;
     mutable bool _terminate = false;
     mutable bool _yield = false;
