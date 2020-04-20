@@ -227,6 +227,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     }
     
     obj->setNativeObject(task);
+    obj->setProperty(Atom(SA::arguments), Value::NullValue(), Value::SetType::AlwaysAdd);
     obj->setProperty(Atom(SA::env), envValue, Value::SetType::AlwaysAdd);
     
     task->setConsoleListener(consoleListener);
