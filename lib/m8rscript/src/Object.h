@@ -13,6 +13,7 @@
 #include "Defines.h"
 #include "Value.h"
 #include <algorithm>
+#include <memory>
 
 namespace m8r {
 

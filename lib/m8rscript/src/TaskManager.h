@@ -12,6 +12,7 @@
 #include "Containers.h"
 #include "SystemTime.h"
 #include <cstdint>
+#include <memory>
 
 namespace m8r {
 

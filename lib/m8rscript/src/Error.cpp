@@ -51,26 +51,26 @@ ROMString Error::description(Code code)
     }
 }
 
-String Error::formatError(Code code, ROMString format, ...)
+m8r::String Error::formatError(Code code, ROMString format, ...)
 {
     va_list args;
     va_start(args, format);
     return vformatError(code, format, args);
 }
 
-String Error::formatError(Code code, int32_t lineno, ROMString format, ...)
+m8r::String Error::formatError(Code code, int32_t lineno, ROMString format, ...)
 {
     va_list args;
     va_start(args, format);
     return vformatError(code, lineno, format, args);
 }
 
-String Error::vformatError(Code code, ROMString format, va_list args)
+m8r::String Error::vformatError(Code code, ROMString format, va_list args)
 {
     return vformatError(code, 0, format, args);
 }
 
-String Error::vformatError(Code code, int32_t lineno, ROMString format, va_list args)
+m8r::String Error::vformatError(Code code, int32_t lineno, ROMString format, va_list args)
 {
     String s(description(code));
     s += String(ROMSTR(" Error: "));

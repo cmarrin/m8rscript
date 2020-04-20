@@ -32,15 +32,11 @@ void setup()
     m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
 
     if (!toFile->valid()) {
-        Serial.printf("Error: unable to open '%s' for write - ", toPath.c_str());
-        m8r::Error::showError(toFile->error());
-        Serial.printf("\n");
+        Serial.print(m8r::Error::formatError(toFile->error().code(), ROMSTR("unable to open '%s' for write"), toPath.c_str()).c_str());
     } else {
         toFile->write("Hello World", 11);
         if (!toFile->valid()) {
-            Serial.printf("Error writing '%s' - ", toPath.c_str());
-            m8r::Error::showError(toFile->error());
-            Serial.printf("\n");
+            Serial.print(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error writing '%s'"), toPath.c_str()).c_str());
         } else {
             Serial.printf("Successfully wrote '%s'\n", toPath.c_str());
         }
@@ -49,16 +45,12 @@ void setup()
 
     toFile = m8r::Mad<m8r::File>(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read));
     if (!toFile->valid()) {
-        Serial.printf("Error: unable to open '%s' for read - ", toPath.c_str());
-        m8r::Error::showError(toFile->error());
-        Serial.printf("\n");
+        Serial.print(m8r::Error::formatError(toFile->error().code(), ROMSTR("unable to open '%s' for read"), toPath.c_str()).c_str());
     } else {
         char buf[12];
         int32_t result = toFile->read(buf, 11);
         if (!toFile->valid()) {
-            Serial.printf("Error reading '%s' - ", toPath.c_str());
-            m8r::Error::showError(toFile->error());
-            Serial.printf("\n");
+            Serial.print(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error reading '%s'"), toPath.c_str()).c_str());
         } else if (result != 11) {
             Serial.printf("Wrong number of bytes read from '%s', expected 11, got %d\n", toPath.c_str(), result);
         } else {
