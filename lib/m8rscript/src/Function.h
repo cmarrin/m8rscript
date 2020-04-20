@@ -30,7 +30,7 @@ public:
         if (isMarked()) {
             return;
         }
-        Object::gcMark();
+        MaterObject::gcMark();
         for (auto it : _constants) {
             it.gcMark();
         }
