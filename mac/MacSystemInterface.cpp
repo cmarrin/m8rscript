@@ -21,7 +21,7 @@
 #ifndef USE_LITTLEFS
 #include "SpiffsFS.h"
 #else
-#include "LittleFS.h"
+#include "MLittleFS.h"
 #endif
 
 using namespace m8r;

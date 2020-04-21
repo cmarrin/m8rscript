@@ -7,7 +7,7 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "LittleFS.h"
+#include "MLittleFS.h"
 
 #include "lfs.h"
 #include <errno.h>

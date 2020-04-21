@@ -10,8 +10,8 @@
 		49079B9F244247EE000FAF22 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B99244247EE000FAF22 /* lfs_util.c */; };
 		49079BA0244247EE000FAF22 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9A244247EE000FAF22 /* lfs.h */; };
 		49079BA1244247EE000FAF22 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B9B244247EE000FAF22 /* lfs.c */; };
-		49079BA2244247EE000FAF22 /* LittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079B9C244247EE000FAF22 /* LittleFS.cpp */; };
-		49079BA3244247EE000FAF22 /* LittleFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9D244247EE000FAF22 /* LittleFS.h */; };
+		49079BA2244247EE000FAF22 /* MLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079B9C244247EE000FAF22 /* MLittleFS.cpp */; };
+		49079BA3244247EE000FAF22 /* MLittleFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9D244247EE000FAF22 /* MLittleFS.h */; };
 		49079BA4244247EE000FAF22 /* lfs_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9E244247EE000FAF22 /* lfs_util.h */; };
 		49079BA724437F0F000FAF22 /* Terminal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA524437F0F000FAF22 /* Terminal.cpp */; };
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
@@ -204,12 +204,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		49079B99244247EE000FAF22 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs_util.c; sourceTree = "<group>"; };
-		49079B9A244247EE000FAF22 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs.h; sourceTree = "<group>"; };
-		49079B9B244247EE000FAF22 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs.c; sourceTree = "<group>"; };
-		49079B9C244247EE000FAF22 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LittleFS.cpp; sourceTree = "<group>"; };
-		49079B9D244247EE000FAF22 /* LittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LittleFS.h; sourceTree = "<group>"; };
-		49079B9E244247EE000FAF22 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs_util.h; sourceTree = "<group>"; };
+		49079B99244247EE000FAF22 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../lib/m8rscript/src/littlefs/lfs_util.c; sourceTree = "<group>"; };
+		49079B9A244247EE000FAF22 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../lib/m8rscript/src/littlefs/lfs.h; sourceTree = "<group>"; };
+		49079B9B244247EE000FAF22 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../lib/m8rscript/src/littlefs/lfs.c; sourceTree = "<group>"; };
+		49079B9C244247EE000FAF22 /* MLittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MLittleFS.cpp; path = ../lib/m8rscript/src/littlefs/MLittleFS.cpp; sourceTree = "<group>"; };
+		49079B9D244247EE000FAF22 /* MLittleFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MLittleFS.h; path = ../lib/m8rscript/src/littlefs/MLittleFS.h; sourceTree = "<group>"; };
+		49079B9E244247EE000FAF22 /* lfs_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs_util.h; path = ../lib/m8rscript/src/littlefs/lfs_util.h; sourceTree = "<group>"; };
 		49079BA524437F0F000FAF22 /* Terminal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Terminal.cpp; path = ../lib/m8rscript/src/Terminal.cpp; sourceTree = "<group>"; };
 		49079BA624437F0F000FAF22 /* Terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Terminal.h; path = ../lib/m8rscript/src/Terminal.h; sourceTree = "<group>"; };
 		49079BA9244384B1000FAF22 /* TCPServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TCPServer.cpp; path = ../lib/m8rscript/src/TCPServer.cpp; sourceTree = "<group>"; };
@@ -770,8 +770,8 @@
 				49079B9E244247EE000FAF22 /* lfs_util.h */,
 				49079B9B244247EE000FAF22 /* lfs.c */,
 				49079B9A244247EE000FAF22 /* lfs.h */,
-				49079B9C244247EE000FAF22 /* LittleFS.cpp */,
-				49079B9D244247EE000FAF22 /* LittleFS.h */,
+				49079B9C244247EE000FAF22 /* MLittleFS.cpp */,
+				49079B9D244247EE000FAF22 /* MLittleFS.h */,
 			);
 			name = littlefs;
 			path = ../littlefs;
@@ -790,7 +790,7 @@
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49079BA4244247EE000FAF22 /* lfs_util.h in Headers */,
 				49884F07236CB25100C292EA /* StateMachine.h in Headers */,
-				49079BA3244247EE000FAF22 /* LittleFS.h in Headers */,
+				49079BA3244247EE000FAF22 /* MLittleFS.h in Headers */,
 				49079BAC244384B1000FAF22 /* TCPServer.h in Headers */,
 				49CB61BB23F85256003C9AB0 /* Timer.h in Headers */,
 				49079BA0244247EE000FAF22 /* lfs.h in Headers */,
@@ -1036,7 +1036,7 @@
 				49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */,
 				49079B9F244247EE000FAF22 /* lfs_util.c in Sources */,
 				492396C71E711D12007AC0BF /* MUDP.cpp in Sources */,
-				49079BA2244247EE000FAF22 /* LittleFS.cpp in Sources */,
+				49079BA2244247EE000FAF22 /* MLittleFS.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
