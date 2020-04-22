@@ -106,10 +106,7 @@ namespace m8r {
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy_P(dst, src.value()); return dst + ROMstrlen(src); }
     static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp_P(s1.value(), s2); }
 
-    static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
-    {
-        return m8r::ROMString(strstr_P(s1.value(), s2));
-    }
+    m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
 
     #define ROMSTR(s) m8r::ROMString(PSTR(s))
 

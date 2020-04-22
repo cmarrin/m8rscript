@@ -45,6 +45,36 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
 {
 }
 
+m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
+{
+    int i, j;
+
+    if (!s1.valid() || s2 == nullptr) {
+        return m8r::ROMString();
+    }
+
+    for( i = 0; ; i++) {
+        char c1 = readRomByte(s1 + i);
+        if (c1 == '\0') {
+            return m8r::ROMString();
+        }
+        
+        char c2 = *s2;
+        if (c1 == c2) {
+            for (j = i; ; j++) {
+                c2 = *(s2 + (j - i));
+                if (c2 == '\0') {
+                    return m8r::ROMString(s1 + i);
+                }
+                c1 = readRomByte(s1 + j);
+                if (c1 != c2) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 std::function<void()> _timerCB;
 
 static void ICACHE_RAM_ATTR onTimerISR()
