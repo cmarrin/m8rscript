@@ -20,7 +20,12 @@ public:
     TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
     ~TCPServer();
     
-    void handleEvents() { _socket->handleEvents(); }
+    void handleEvents()
+    {
+        if (_socket.valid()) {
+            _socket->handleEvents();
+        }
+    }
 
 protected:
     Mad<TCP> _socket;
