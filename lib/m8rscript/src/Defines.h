@@ -104,7 +104,7 @@ namespace m8r {
     static inline size_t ROMstrlen(m8r::ROMString s) { return strlen_P(s.value()); }
     static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy_P(dst, src.value(), len); }
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy_P(dst, src.value()); return dst + ROMstrlen(src); }
-    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp_P(s1.value(), s2); }
+    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp_P(s2, s1.value()); }
 
     m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
 
@@ -450,7 +450,7 @@ private:
         uint8_t size;
     };
 
-    static const Entry& array(Op op)
+    static const Entry array(Op op)
     {
         static const Entry RODATA_ATTR _array[ ] = {
 /*0x00 */   { Layout::AB,   2 },   // MOVE         R[d], RK[s]
@@ -527,7 +527,14 @@ private:
         };
         
         assert(static_cast<uint8_t>(op) < sizeof(_array) / sizeof(Entry));
-        return _array[static_cast<uint8_t>(op)];
+        
+        Entry e;
+        const Entry* ep = &(_array[static_cast<uint8_t>(op)]);
+        uint8_t c = readRomByte(ROMString(reinterpret_cast<const char*>(&(ep->size))));
+        e.size = c;
+        c = readRomByte(ROMString(reinterpret_cast<const char*>(&(ep->layout))));
+        e.layout = static_cast<Layout>(c);
+        return e;
     }
 };
 

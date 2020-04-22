@@ -21,7 +21,7 @@ static int32_t binarySearch(const char** names, uint16_t nelts, const char* valu
     while (first <= last)
     {
         int32_t middle = (first + last) / 2;
-        int result = strcmp(names[middle], value);
+        int result = ROMstrcmp(ROMString(names[middle]), value);
         if (result == 0) {
             return middle;
         } else if (result > 0) {
@@ -108,7 +108,7 @@ Atom AtomTable::findAtom(const char* s) const
     uint16_t nelts;
     const char** sharedAtomTable = sharedAtoms(nelts);
     int32_t result = binarySearch(sharedAtomTable, nelts, s);
-    if (result >= 0) {
+   if (result >= 0) {
         return Atom(static_cast<Atom::value_type>(result));
     }
     
