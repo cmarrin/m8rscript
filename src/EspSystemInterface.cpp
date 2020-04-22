@@ -23,6 +23,7 @@
 #include "littlefs/MLittleFS.h"
 #include "MFS.h"
 #include "SystemInterface.h"
+#include "EspGPIOInterface.h"
 #include <Esp.h>
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
@@ -101,7 +102,7 @@ public:
     virtual void setDeviceName(const char* name) { }
     
     virtual m8r::FS* fileSystem() override { return &_fileSystem; }
-    virtual GPIOInterface* gpio() override { return nullptr; }
+    virtual GPIOInterface* gpio() override { return &_gpio; }
     
     virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
     {
@@ -177,7 +178,7 @@ private:
     bool _enableNetwork = false;
 	
     m8r::LittleFS _fileSystem;
-//    RtosGPIOInterface _gpio;
+    EspGPIOInterface _gpio;
 };
 
 extern uint64_t g_esp_os_us;
