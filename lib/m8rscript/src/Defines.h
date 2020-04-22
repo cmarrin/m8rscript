@@ -104,7 +104,7 @@ namespace m8r {
     static inline size_t ROMstrlen(m8r::ROMString s) { return strlen_P(s.value()); }
     static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy_P(dst, src.value(), len); }
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy_P(dst, src.value()); return dst + ROMstrlen(src); }
-    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp_P(s2, s1.value()); }
+    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return -strcmp_P(s2, s1.value()); }
 
     m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
 
