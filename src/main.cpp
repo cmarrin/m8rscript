@@ -3,8 +3,11 @@
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 
+#define USE_GDB_STUB 0
+#if USE_GDB_STUB != 0
 #ifndef NDEBUG
-#include <GDBStub.h>
+//#include <GDBStub.h>
+#endif
 #endif
 
 #include "Application.h"
@@ -20,9 +23,20 @@ void setup()
     delay(500);
     Serial.begin(115200);
 
+#if USE_GDB_STUB != 0
 #ifndef NDEBUG
-    gdbstub_init();
-#endif    
+    //gdbstub_init();
+#endif
+#else
+    rst_info* resetInfo = ESP.getResetInfoPtr();
+    if (resetInfo->reason == REASON_EXCEPTION_RST) {
+        Serial.printf("***** reset due to expception, hanging...\n");
+        while (1) {
+            delay(1000);
+            ESP.wdtFeed();
+        }
+    }
+#endif
 
     _application = new m8r::Application(23);
 
