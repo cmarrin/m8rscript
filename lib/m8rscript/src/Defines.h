@@ -81,7 +81,7 @@ namespace m8r {
     #define ROMSTR_ATTR
     #define FLASH_ATTR
     #define ICACHE_FLASH_ATTR
-    static inline uint8_t readRomByte(m8r::ROMString addr) { return *(addr.value()); }
+    static inline uint8_t readRomByte(const char* addr) { return *addr; }
     static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy(dst, src.value(), len); }
     static inline size_t ROMstrlen(m8r::ROMString s) { return strlen(s.value()); }
     static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2) { return m8r::ROMString(strstr(s1.value(), s2)); }
@@ -110,15 +110,14 @@ namespace m8r {
 
     #define ROMSTR(s) m8r::ROMString(PSTR(s))
 
-    static inline uint8_t readRomByte(m8r::ROMString addr)
-    {
-        return pgm_read_byte(addr.value());
-    }
+    static inline uint8_t readRomByte(const char* addr) { return pgm_read_byte(addr); }
 
     template <typename T>
     static inline const char* typeName() { return ""; }
 
 #endif
+
+static inline uint8_t readRomByte(m8r::ROMString addr) { return readRomByte(addr.value()); }
 
 namespace m8r {
 

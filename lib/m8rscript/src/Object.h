@@ -199,28 +199,42 @@ protected:
     NativeFunction _constructor;
 };
 
+static inline SA saFromROM(const SA* sa)
+{
+    return static_cast<SA>(readRomByte(reinterpret_cast<const char*>(sa)));
+}
+
 class StaticObject
 {
 public:
     struct StaticProperty
     {
-        bool operator==(const Atom& atom) const { return name == atom; }
-        Atom name;
-        Value value;
+        SA name() const { return saFromROM(&_name); }
+        Value value() const { return _value; }
+
+        bool operator==(const Atom& atom) const { return Atom(name()) == atom; }
+        SA _name;
+        Value _value;
     };
     
     struct StaticFunctionProperty
     {
-        SA name;
-        NativeFunction func;
+        SA name() const { return saFromROM(&_name); }
+        NativeFunction func() const { return _func; }
+        
+        SA _name;
+        NativeFunction _func;
     };
 
     static_assert(std::is_pod<StaticFunctionProperty>::value, "StaticFunctionProperty must be pod");
 
     struct StaticObjectProperty
     {
-        SA name;
-        StaticObject* obj;
+        SA name() const { return saFromROM(&_name); }
+        StaticObject* obj() const { return _obj; }
+        
+        SA _name;
+        StaticObject* _obj;
     };
 
     static_assert(std::is_pod<StaticObjectProperty>::value, "StaticObjectProperty must be pod");
@@ -235,17 +249,17 @@ public:
     Value property(const Atom& name)
     {
         auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, 
-                               [name](const StaticFunctionProperty& p) { return name == Atom(p.name); });
+                               [name](const StaticFunctionProperty& p) { return name == Atom(p.name()); });
         if (it != _functionProperties + _functionPropertiesCount) {
-            return Value(it->func);
+            return Value(it->func());
         }
         auto it2 = std::find_if(_objectProperties, _objectProperties + _objectPropertiesCount,
-                                [name](const StaticObjectProperty& p) { return name == Atom(p.name); });
+                                [name](const StaticObjectProperty& p) { return name == Atom(p.name()); });
         if (it2 != _objectProperties + _objectPropertiesCount) {
-            return Value(it2->obj);
+            return Value(it2->obj());
         }
         auto it3 = std::find(_properties, _properties + _propertiesCount, name);
-        return (it3 == _properties + _propertiesCount) ? Value() : it3->value;
+        return (it3 == _properties + _propertiesCount) ? Value() : it3->value();
     }
     
     void setProperties(StaticProperty* props, size_t count)
