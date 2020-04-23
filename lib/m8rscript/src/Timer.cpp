@@ -20,8 +20,8 @@ using namespace m8r;
 
 Timer::Timer(Duration duration, Behavior behavior, const Callback& cb)
     : _duration(duration)
-    , _repeating(behavior == Behavior::Repeating)
     , _cb(cb)
+    , _repeating(behavior == Behavior::Repeating)
 {
 }
 

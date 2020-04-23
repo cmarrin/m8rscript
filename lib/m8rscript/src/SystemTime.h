@@ -56,7 +56,7 @@ public:
     
     operator bool() { return us() != 0; }
     
-    constexpr Duration operator - ()
+    Duration operator - ()
     {
         Units u = units();
         _value = -(_value & ~UnitsMask);
@@ -142,7 +142,7 @@ public:
     }
 
 private:
-    Units units() const { return static_cast<Units>(_value & UnitsMask); }
+    constexpr Units units() const { return static_cast<Units>(_value & UnitsMask); }
     void setUnits(Units u) { _value = (_value & ~UnitsMask) | static_cast<int32_t>(u); }
     
     int32_t _value = 0;
