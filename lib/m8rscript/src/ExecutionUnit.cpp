@@ -19,8 +19,6 @@
 
 using namespace m8r;
 
-static const Duration EvalDurationMax = 2s;
-
 ExecutionUnit::ExecutionUnit()
     : _stack(20)
 {
@@ -34,7 +32,6 @@ ExecutionUnit::~ExecutionUnit()
 {
 
 }
-
 
 Mad<m8r::String> ExecutionUnit::createString(const m8r::String& other)
 {

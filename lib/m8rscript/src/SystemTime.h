@@ -38,45 +38,25 @@ public:
     
     enum class Units { us = 0, ms = 1, sec = 2, none = 3 };
 
-    Duration() { }
-    Duration(int64_t value, Units units = Units::none)
+    constexpr Duration() { }
+    constexpr Duration(const Duration& other) { _value = other._value; }
+    constexpr Duration(Duration&& other) { _value = other._value; }
+    
+    constexpr Duration(int64_t value)
     {
-        if (units == Units::none) {
-            // Select the best units
-            bool sign = value < 0;
-            if (sign) {
-                value = -value;
-            }
-            if (value < MaxValue) {
-                units = Units::us;
-            } else {
-                value /= 1000;
-                if (value < MaxValue) {
-                    units = Units::ms;
-                } else {
-                    value /= 1000;
-                    units = Units::sec;
-                }
-            }
-            if (sign) {
-                value = -value;
-            }
-        }
-        
         int32_t v = (value > MaxValue) ? MaxValue : static_cast<int32_t>(value);
         _value = (v << Shift);
-        setUnits(units);
     }
     
     Duration(Float value) { *this = Duration(static_cast<int64_t>(value * Float(1000000))); }
     
-    Duration(std::chrono::microseconds value) { *this = value; }
-    Duration(std::chrono::milliseconds value) { *this = value; }
-    Duration(std::chrono::seconds value) { *this = value; }
+    constexpr Duration(std::chrono::microseconds value) { *this = value; }
+    constexpr Duration(std::chrono::milliseconds value) { *this = value; }
+    constexpr Duration(std::chrono::seconds value) { *this = value; }
     
     operator bool() { return us() != 0; }
     
-    Duration operator - ()
+    constexpr Duration operator - ()
     {
         Units u = units();
         _value = -(_value & ~UnitsMask);
@@ -84,19 +64,22 @@ public:
         return *this;
     }
     
-    Duration& operator=(std::chrono::microseconds value)
+    constexpr Duration& operator=(const Duration& other) { _value = other._value; return *this; }
+    constexpr Duration& operator=(Duration&& other) { _value = other._value; return *this; }
+    
+    constexpr Duration& operator=(std::chrono::microseconds value)
     {
         *this = Duration(value.count());
         return *this;
     }
     
-    Duration& operator=(std::chrono::milliseconds value)
+    constexpr Duration& operator=(std::chrono::milliseconds value)
     {
         *this = Duration(Duration(std::chrono::duration_cast<std::chrono::microseconds>(value)));
         return *this;
     }
     
-    Duration& operator=(std::chrono::seconds value)
+    constexpr Duration& operator=(std::chrono::seconds value)
     {
         *this = Duration(Duration(std::chrono::duration_cast<std::chrono::microseconds>(value)));
         return *this;
@@ -193,7 +176,7 @@ public:
     friend Time operator+(const Time& t, const Duration& d) { return Time(t._value + d.us()); }
     friend Time operator+(const Duration& d, const Time& t) { return Time(t._value + d.us()); }
     friend Time operator-(const Time& t, const Duration& d) { return Time(t._value - d.us()); }
-    friend Duration operator-(const Time& t1, const Time& t2) { return Duration(t1._value - t2._value, Duration::Units::us); }
+    friend Duration operator-(const Time& t1, const Time& t2) { return Duration(t1._value - t2._value); }
 
     Time operator+=(const Duration& other) { *this = *this + other; return *this; }
     Time operator-=(const Duration& other) { *this = *this - other; return *this; }

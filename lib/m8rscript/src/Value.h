@@ -99,9 +99,14 @@ public:
     bool isYield() const { return _value == YieldValue; }
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
     bool isDelay() const { return _value < 0 && _value >= -MaxDelay; }
-    Duration delay() const { assert(isDelay()); return Duration(-_value, Duration::Units::ms); }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
     Error error() const { return isError() ? static_cast<Error>(_value - ErrorValue) : Error::Error; }
+
+    Duration delay() const
+    {
+        assert(isDelay());
+        return Duration(static_cast<int64_t>(-_value) * 1000);
+    }
 
 private:
     int32_t _value = 0;
