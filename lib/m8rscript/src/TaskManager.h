@@ -11,13 +11,13 @@
 
 #include "Containers.h"
 #include "SystemTime.h"
+#include "Timer.h"
 #include <cstdint>
 #include <memory>
 
 namespace m8r {
 
 class TaskBase;
-class Timer;
 
 class TaskManager {
     friend class SystemInterface;
@@ -57,7 +57,7 @@ private:
     
     std::shared_ptr<TaskBase> _currentTask;
 
-    Mad<Timer> _timeSliceTimer;
+    std::shared_ptr<Timer> _timeSliceTimer;
     bool _terminating = false;
 };
 

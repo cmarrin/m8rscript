@@ -18,6 +18,13 @@
 
 using namespace m8r;
 
+Timer::Timer(Duration duration, Behavior behavior, const Callback& cb)
+    : _duration(duration)
+    , _repeating(behavior == Behavior::Repeating)
+    , _cb(cb)
+{
+}
+
 void Timer::start()
 {
     _timeToFire = Time::now() + _duration;
@@ -93,15 +100,18 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
     // Store func so it doesn't get gc'ed
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
-    Mad<Timer> timer = Mad<Timer>::create();
-    obj->setProperty(Atom(SA::__nativeObject), Value::asValue(timer), Value::SetType::AlwaysAdd);
-
-    timer->init(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, [timer, eu, func](Timer*)
-    {
-        if (func) {
-            eu->fireEvent(func, Value(), nullptr, 0);
+    std::shared_ptr<Timer> timer = Timer::create(
+        duration, 
+        repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once, 
+        [eu, func](Timer*)
+        {
+            if (func) {
+                eu->fireEvent(func, Value(), nullptr, 0);
+            }
         }
-    });
+    );
+    
+    obj->setNativeObject(timer);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -112,8 +122,8 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Timer> timer = thisValue.isObject() ? thisValue.asObject()->getNative<Timer>() : Mad<Timer>();
-    if (!timer.valid()) {
+    std::shared_ptr<Timer> timer = thisValue.isObject() ? thisValue.asObject()->nativeObject<Timer>() : nullptr;
+    if (!timer) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 
@@ -128,8 +138,8 @@ CallReturnValue TimerProto::stop(ExecutionUnit* eu, Value thisValue, uint32_t np
         return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
     }
     
-    Mad<Timer> timer = thisValue.isObject() ? thisValue.asObject()->getNative<Timer>() : Mad<Timer>();
-    if (!timer.valid()) {
+    std::shared_ptr<Timer> timer = thisValue.isObject() ? thisValue.asObject()->nativeObject<Timer>() : nullptr;
+    if (!timer) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
 

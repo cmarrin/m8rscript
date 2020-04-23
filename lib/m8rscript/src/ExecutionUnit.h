@@ -268,7 +268,7 @@ private:
     std::function<void(const String&)> _consolePrintFunction;
     Value _consoleListener;
     
-    Mad<Timer> _delayTimer;
+    std::shared_ptr<Timer> _delayTimer;
 };
 
 }

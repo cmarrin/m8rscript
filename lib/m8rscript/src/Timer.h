@@ -9,10 +9,7 @@
 
 #pragma once
 
-#include "Containers.h"
-#include "SystemInterface.h"
-#include "Task.h"
-#include "TaskManager.h"
+#include "Object.h"
 #include <cstdint>
 #include <functional>
 
@@ -23,20 +20,17 @@ public:
     enum class Behavior { Once, Repeating };
 
     using Callback = std::function<void(Timer*)>;
-
-    Timer() { }
     
-    bool init(Duration duration, Behavior behavior, const Callback& cb)
-    {
-        _duration = duration;
-        _repeating = behavior == Behavior::Repeating;
-        _cb = cb;
-        return true;
-    }
+    Timer(Duration duration, Behavior behavior, const Callback& cb);
 
     virtual ~Timer()
     {
         stop();
+    }
+
+    static std::shared_ptr<Timer> create(Duration duration, Behavior behavior, const Callback& cb)
+    {
+        return std::make_shared<Timer>(duration, behavior, cb);
     }
 
     Duration duration() const { return _duration; }

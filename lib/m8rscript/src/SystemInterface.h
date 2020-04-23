@@ -85,6 +85,8 @@ protected:
 private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
+    
+    std::shared_ptr<Timer> _heartbeat;
 };
 
 SystemInterface* system();

@@ -22,8 +22,7 @@ using namespace m8r;
 ExecutionUnit::ExecutionUnit()
     : _stack(20)
 {
-    _delayTimer = Mad<Timer>::create();
-    _delayTimer->init(0s, Timer::Behavior::Once, [this](Timer*) {
+    _delayTimer = Timer::create(0s, Timer::Behavior::Once, [this](Timer*) {
         _delayComplete = true;
     });
 }

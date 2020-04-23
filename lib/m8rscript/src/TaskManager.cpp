@@ -20,8 +20,8 @@ static Duration MaxTaskTimeSlice = 50ms;
 
 TaskManager::TaskManager()
 {
-    _timeSliceTimer = Mad<Timer>::create();
-    _timeSliceTimer->init(MaxTaskTimeSlice, Timer::Behavior::Once, [this](Timer*) {
+    _timeSliceTimer = Timer::create(MaxTaskTimeSlice, Timer::Behavior::Once, [this](Timer*)
+    {
         requestYield();
     });
 }
