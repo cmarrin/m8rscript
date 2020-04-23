@@ -10,10 +10,12 @@
 #include "SystemInterface.h"
 
 #include "Application.h"
-
+#include "GPIOInterface.h"
 #include "TaskManager.h"
 
 using namespace m8r;
+
+static constexpr Duration DefaultHeartOnTime = 10ms;
 
 SystemInterface* m8r::system()
 {
@@ -24,3 +26,30 @@ void SystemInterface::runOneIteration()
 {
     taskManager()->runOneIteration();
 }
+
+void SystemInterface::setHeartrate(Duration rate, Duration ontime)
+{
+    if (ontime == Duration()) {
+        ontime = DefaultHeartOnTime;
+    }
+    
+    if (!_heartbeat) {
+        gpio()->setPinMode(2, m8r::GPIOInterface::PinMode::Output);
+        _heartbeat = Timer::create(rate, Timer::Behavior::Once, [this](Timer*)
+        {
+            gpio()->digitalWrite(2, _heartOn);
+            _heartOn = !_heartOn;
+            _heartbeat->setDuration(_heartOn ? _heartOnTime : _heartrate);
+            _heartbeat->start();
+        });
+    }
+
+    _heartrate = rate;
+    _heartOnTime = ontime;
+    _heartbeat->stop();
+    
+    // Set the initial duration to something short so we fire right away and set everything up
+    _heartbeat->setDuration(1us);
+    _heartbeat->start();
+}
+

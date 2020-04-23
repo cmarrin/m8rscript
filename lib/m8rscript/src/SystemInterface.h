@@ -78,6 +78,8 @@ public:
     void setListenerFunc(std::function<void(const char*)> func) { _listenerFunc = func; }
 
     void runOneIteration();
+    
+    void setHeartrate(Duration rate, Duration ontime = Duration());
 
 protected:
     SystemInterface() { }
@@ -87,6 +89,9 @@ private:
     TaskManager _taskManager;
     
     std::shared_ptr<Timer> _heartbeat;
+    Duration _heartrate;
+    Duration _heartOnTime;
+    bool _heartOn = false;
 };
 
 SystemInterface* system();

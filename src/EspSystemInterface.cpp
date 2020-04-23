@@ -90,7 +90,7 @@ public:
     {
         delay(500);
 
-        //startNetwork();
+        startNetwork();
     }
     
     virtual void vprintf(ROMString fmt, va_list args) const override
