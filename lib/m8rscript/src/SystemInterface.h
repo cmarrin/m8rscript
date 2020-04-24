@@ -65,8 +65,9 @@ public:
     
     virtual void vprintf(ROMString, va_list) const = 0;
     
-    virtual void startTimer(Duration, std::function<void()>) = 0;
-    virtual void stopTimer() = 0;
+    // Return timer ID, -1 if can't start a timer
+    virtual int8_t startTimer(Duration, std::function<void()>) = 0;
+    virtual void stopTimer(int8_t id) = 0;
     
     void receivedLine(const char* line)
     {

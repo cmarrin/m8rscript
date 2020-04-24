@@ -139,7 +139,8 @@ bool TaskManager::executeNextTask()
 
 void TaskManager::addTimer(Timer* timer)
 {
-    system()->stopTimer();
+    system()->stopTimer(_timerId);
+    _timerId = -1;
     _timerList.push_back(timer);
     std::sort(_timerList.begin(), _timerList.end(), [](const Timer* a, const Timer* b) {
         return a->timeToFire() < b->timeToFire();
@@ -149,7 +150,7 @@ void TaskManager::addTimer(Timer* timer)
 
 void TaskManager::removeTimer(Timer* timer)
 {
-    system()->stopTimer();
+    system()->stopTimer(_timerId);
     _timerList.remove(timer);
     restartTimer();
 }
@@ -158,7 +159,7 @@ void TaskManager::restartTimer()
 {
     if (!_timerList.empty()) {
         DBG_TIMERS("restartTimer: duration=%s", (_timerList[0]->timeToFire() - Time::now()).toString().c_str());
-        system()->startTimer(_timerList[0]->timeToFire() - Time::now(), [this] {
+        _timerId = system()->startTimer(_timerList[0]->timeToFire() - Time::now(), [this] {
             requestYield();
         });
     }

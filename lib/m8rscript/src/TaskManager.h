@@ -54,6 +54,7 @@ private:
     
     Vector<std::shared_ptr<TaskBase>> _list;
     Vector<Timer*> _timerList;
+    int8_t _timerId = -1;
     
     std::shared_ptr<TaskBase> _currentTask;
 

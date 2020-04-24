@@ -26,6 +26,8 @@
 
 using namespace m8r;
 
+static constexpr int NumTimers = 8;
+
 class MacSystemInterface : public SystemInterface
 {
 public:
@@ -39,20 +41,43 @@ public:
         ::vprintf(ss.c_str(), args);
     }
     
-    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    virtual int8_t startTimer(Duration duration, std::function<void()> cb) override
     {
-        std::thread([this, duration, cb] {
-            std::unique_lock<std::mutex> lock(_mutex);
-            if (_cond.wait_for(lock, std::chrono::microseconds(duration.us())) == std::cv_status::timeout) {
+        int8_t id = -1;
+        
+        for (int i = 0; i < NumTimers; ++i) {
+            if (!_timers[i].running) {
+                id = i;
+                break;
+            }
+        }
+        
+        if (id < 0) {
+            return id;
+        }
+        
+        _timers[id]. running = true;
+        
+        std::thread([this, id, duration, cb] {
+            std::unique_lock<std::mutex> lock(_timers[id].mutex);
+            if (_timers[id].cond.wait_for(lock, std::chrono::microseconds(duration.us())) == std::cv_status::timeout) {
                 cb();
+                _timers[id].running = false;
             }
         }).detach();
+        
+        return id;
     }
     
-    virtual void stopTimer() override
+    virtual void stopTimer(int8_t id) override
     {
-        std::unique_lock<std::mutex> lock(_mutex);
-        _cond.notify_all();
+        if (id < 0 || id >= NumTimers || !_timers[id].running) {
+            return;
+        }
+        
+        std::unique_lock<std::mutex> lock(_timers[id].mutex);
+        _timers[id].cond.notify_all();
+        _timers[id].running = false;
     }
 
     virtual void setDeviceName(const char*) override { }
@@ -123,8 +148,13 @@ private:
     LittleFS _fileSystem;
 #endif
 
-    std::condition_variable _cond;
-    std::mutex _mutex;
+    struct TimerEntry
+    {
+        bool running = false;
+        std::condition_variable cond;
+        std::mutex mutex;
+    };
+    TimerEntry _timers[NumTimers];
 };
 
 int32_t m8r::heapFreeSize()

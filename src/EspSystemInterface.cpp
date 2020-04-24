@@ -36,6 +36,7 @@ using namespace m8r;
 
 static constexpr const char* ConfigPortalName = "m8rscript";
 static constexpr uint32_t FSStart = 0x100000;
+static constexpr int NumTimers = 8;
 
 int32_t m8r::heapFreeSize()
 {
@@ -76,23 +77,15 @@ m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
     }
 }
 
-std::function<void()> _timerCB;
-
-static void ICACHE_RAM_ATTR onTimerISR()
-{
-    _timerCB();
-}
-
 class EspSystemInterface : public SystemInterface
 {
-public:
-    EspSystemInterface()
+public:    
+    virtual void init() override
     {
         delay(500);
-
         startNetwork();
     }
-    
+
     virtual void vprintf(ROMString fmt, va_list args) const override
     {
         m8r::String s = m8r::String::vformat(fmt, args);
@@ -119,18 +112,47 @@ public:
         return Mad<m8r::UDP>();
     }
 
-    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    static void timerFunc(void* arg)
     {
-        _timerCB = cb;
-        timer1_attachInterrupt(onTimerISR);
-        timer1_enable(TIM_DIV16, TIM_EDGE, TIM_SINGLE);
-        timer1_write(duration.us());
+        TimerEntry* t = reinterpret_cast<TimerEntry*>(arg);
+        t->cb();
+        t->running = false;
+    }
+
+    virtual int8_t startTimer(Duration duration, std::function<void()> cb) override
+    {
+        int8_t id = -1;
+        
+        for (int i = 0; i < NumTimers; ++i) {
+            if (!_timers[i].running) {
+                id = i;
+                break;
+            }
+        }
+        
+        if (id < 0) {
+            return id;
+        }
+        
+        _timers[id].running = true;
+        _timers[id].cb = std::move(cb);
+        
+        os_timer_disarm(&(_timers[id].timer));
+        os_timer_setfn(&(_timers[id].timer), timerFunc, &(_timers[id]));
+        os_timer_arm(&(_timers[id].timer), duration.ms(), false);
+
+        return id;
     }
     
-    virtual void stopTimer() override
+    virtual void stopTimer(int8_t id) override
     {
-        timer1_disable();
-    }
+        if (id < 0 || id >= NumTimers || !_timers[id].running) {
+            return;
+        }
+        
+        os_timer_disarm(&(_timers[id].timer));
+        _timers[id].running = false;
+}
 
 private:
 	void startNetwork()
@@ -179,6 +201,14 @@ private:
 	
     m8r::LittleFS _fileSystem;
     EspGPIOInterface _gpio;
+
+    struct TimerEntry
+    {
+        bool running = false;
+        os_timer_t timer;
+        std::function<void()> cb;
+    };
+    TimerEntry _timers[NumTimers];
 };
 
 extern uint64_t g_esp_os_us;
