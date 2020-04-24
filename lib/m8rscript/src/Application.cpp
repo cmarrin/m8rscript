@@ -30,6 +30,8 @@ Application::Application(uint16_t port)
     _system = SystemInterface::create();
     
     system()->setHeartrate(1s);
+    
+    system()->init();
 
     _terminal = std::make_unique<Terminal>(port, shellName());
 

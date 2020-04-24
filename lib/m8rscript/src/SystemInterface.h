@@ -43,6 +43,8 @@ public:
     static SystemInterface* create();
 
     virtual ~SystemInterface() { }
+    
+    virtual void init() { }
 
     void print(const char* s) { printf(ROMSTR("%s"), s); }
     
