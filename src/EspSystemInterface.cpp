@@ -82,7 +82,6 @@ class EspSystemInterface : public SystemInterface
 public:    
     virtual void init() override
     {
-        delay(500);
         startNetwork();
     }
 
@@ -157,6 +156,8 @@ public:
 private:
 	void startNetwork()
 	{
+        system()->setHeartrate(500ms);
+
         delay(500);
         WiFi.mode(WIFI_STA);
         delay(500);
@@ -169,6 +170,7 @@ private:
 		
 		wifiManager.setAPCallback([this](WiFiManager* wifiManager) {
 			Serial.printf("Entered config mode:ip=%s, ssid='%s'\n", WiFi.softAPIP().toString().c_str(), wifiManager->getConfigPortalSSID().c_str());
+            system()->setHeartrate(200ms);
 			_enteredConfigMode = true;
 		});
 
@@ -186,6 +188,7 @@ private:
 
         WiFi.mode(WIFI_STA);
         WiFiMode_t currentMode = WiFi.getMode();
+        system()->setHeartrate(1s);
 		Serial.printf("Wifi connected, Mode=%s, IP=%s\n", wifiManager.getModeString(currentMode).c_str(), WiFi.localIP().toString().c_str());
 	
 		_enableNetwork = true;

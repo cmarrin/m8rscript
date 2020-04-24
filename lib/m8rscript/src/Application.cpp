@@ -33,6 +33,8 @@ Application::Application(uint16_t port)
     
     system()->init();
 
+    system()->setHeartrate(3s);
+
     _terminal = std::make_unique<Terminal>(port, shellName());
 
     mountFileSystem();
