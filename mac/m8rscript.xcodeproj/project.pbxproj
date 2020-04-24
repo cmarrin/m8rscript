@@ -72,8 +72,6 @@
 		4988DC761F0C296B009F7ED5 /* Device.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4988DC741F0C296B009F7ED5 /* Device.mm */; };
 		49899B9B1EA570DE003B334B /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49899B981EA56A6E003B334B /* Closure.cpp */; };
 		4998DB4F1D21671000E2F776 /* Run.png in Resources */ = {isa = PBXBuildFile; fileRef = 4998DB4E1D21671000E2F776 /* Run.png */; };
-		499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8DF2349B1BC00459451 /* Heartbeat.cpp */; };
-		499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E02349B1BC00459451 /* Heartbeat.h */; };
 		499AE8E5234A625100459451 /* Task.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8E3234A625100459451 /* Task.cpp */; };
 		499AE8E6234A625100459451 /* Task.h in Headers */ = {isa = PBXBuildFile; fileRef = 499AE8E4234A625100459451 /* Task.h */; };
 		499AE8E8234A667D00459451 /* SystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 499AE8E7234A667D00459451 /* SystemInterface.cpp */; };
@@ -306,8 +304,6 @@
 		498ACA761D17503C0039E1CD /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../lib/m8rscript/src/ParseEngine.cpp; sourceTree = "<group>"; };
 		498ACA771D17503C0039E1CD /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../lib/m8rscript/src/ParseEngine.h; sourceTree = "<group>"; };
 		4998DB4E1D21671000E2F776 /* Run.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Run.png; sourceTree = "<group>"; };
-		499AE8DF2349B1BC00459451 /* Heartbeat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Heartbeat.cpp; path = ../lib/m8rscript/src/Heartbeat.cpp; sourceTree = "<group>"; };
-		499AE8E02349B1BC00459451 /* Heartbeat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Heartbeat.h; path = ../lib/m8rscript/src/Heartbeat.h; sourceTree = "<group>"; };
 		499AE8E3234A625100459451 /* Task.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Task.cpp; path = ../lib/m8rscript/src/Task.cpp; sourceTree = "<group>"; };
 		499AE8E4234A625100459451 /* Task.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Task.h; path = ../lib/m8rscript/src/Task.h; sourceTree = "<group>"; };
 		499AE8E7234A667D00459451 /* SystemInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SystemInterface.cpp; path = ../lib/m8rscript/src/SystemInterface.cpp; sourceTree = "<group>"; };
@@ -705,8 +701,6 @@
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
 				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				492BA3D81E15944000242DA8 /* GPIOInterface.h */,
-				499AE8DF2349B1BC00459451 /* Heartbeat.cpp */,
-				499AE8E02349B1BC00459451 /* Heartbeat.h */,
 				49CB74301E7F3028007A4805 /* IPAddr.cpp */,
 				492396C91E711E47007AC0BF /* IPAddr.h */,
 				49F4633B1E1873D6004EF625 /* Iterator.cpp */,
@@ -797,7 +791,6 @@
 				49BDE19F236C711B00304BE8 /* MString.h in Headers */,
 				49263ABF23611DFC005CB9F9 /* StreamProto.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
-				499AE8E22349B1BC00459451 /* Heartbeat.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				49A6A9F02430F31C004D457C /* RtosWifi.h in Headers */,
@@ -1038,7 +1031,6 @@
 				492396C71E711D12007AC0BF /* MUDP.cpp in Sources */,
 				49079BA2244247EE000FAF22 /* MLittleFS.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
-				499AE8E12349B1BC00459451 /* Heartbeat.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				49CDE69A2386633900159439 /* Iterator.cpp in Sources */,
 				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
