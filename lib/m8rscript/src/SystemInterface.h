@@ -86,10 +86,12 @@ protected:
     SystemInterface() { }
 
 private:
+    void startHeartbeat();
+    
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
-    std::shared_ptr<Timer> _heartbeat;
+    int8_t _heartbeatId = -1;
     Duration _heartrate;
     Duration _heartOnTime;
     bool _heartOn = false;
