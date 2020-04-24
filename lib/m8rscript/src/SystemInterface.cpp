@@ -15,7 +15,7 @@
 
 using namespace m8r;
 
-static constexpr Duration DefaultHeartOnTime = 10ms;
+static constexpr Duration DefaultHeartOnTime = 1ms;
 
 SystemInterface* m8r::system()
 {
@@ -34,10 +34,11 @@ void SystemInterface::setHeartrate(Duration rate, Duration ontime)
     }
     
     if (!_heartbeat) {
-        gpio()->setPinMode(2, m8r::GPIOInterface::PinMode::Output);
+        gpio()->digitalWrite(gpio()->builtinLED(), true);
+        gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
         _heartbeat = Timer::create(rate, Timer::Behavior::Once, [this](Timer*)
         {
-            gpio()->digitalWrite(2, _heartOn);
+            gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
             _heartOn = !_heartOn;
             _heartbeat->setDuration(_heartOn ? _heartOnTime : _heartrate);
             _heartbeat->start();
