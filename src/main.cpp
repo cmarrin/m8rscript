@@ -74,15 +74,6 @@ void setup()
         }
         toFile->close();
     }
-
-    m8r::system()->gpio()->setPinMode(2, m8r::GPIOInterface::PinMode::Output);
-    m8r::system()->gpio()->digitalWrite(2, false);
-    delay(500);
-    m8r::system()->gpio()->digitalWrite(2, true);
-    delay(500);
-    m8r::system()->gpio()->digitalWrite(2, false);
-    delay(500);
-    m8r::system()->gpio()->digitalWrite(2, true);
 }
 
 void loop()
