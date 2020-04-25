@@ -44,6 +44,18 @@ void EspTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 }
             }
         }
+
+        for (int i = 0; i < MaxConnections; i++) {
+            while (_clients[i].available()) {
+                uint8_t buf[100];
+                int size = _clients[i].read(buf, 100);
+                if (size < 0) {
+                    addEvent(TCP::Event::Error, size, "read error");
+                } else {
+                    addEvent(TCP::Event::ReceivedData, i, reinterpret_cast<const char*>(buf), size);
+                }
+            }
+        }
     });
 }
 
