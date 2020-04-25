@@ -24,6 +24,7 @@
 #include "MFS.h"
 #include "SystemInterface.h"
 #include "EspGPIOInterface.h"
+#include "EspTCP.h"
 #include <Esp.h>
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
@@ -96,14 +97,18 @@ public:
     virtual m8r::FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
     
-    virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
+    virtual Mad<TCP> createTCP(uint16_t port, IPAddr ip, TCP::EventFunction func) override
     {
-        return Mad<TCP>();
+        Mad<EspTCP> tcp = Mad<EspTCP>::create(MemoryType::Network);
+        tcp->init(port, ip, func);
+        return tcp;
     }
     
-    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) override
+    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction func) override
     {
-        return Mad<TCP>();
+        Mad<EspTCP> tcp = Mad<EspTCP>::create(MemoryType::Network);
+        tcp->init(port, IPAddr(), func);
+        return tcp;
     }
     
     virtual Mad<m8r::UDP> createUDP(uint16_t port, m8r::UDP::EventFunction) override
@@ -195,10 +200,7 @@ private:
 		Serial.printf("Wifi connected, Mode=%s, IP=%s\n", wifiManager.getModeString(currentMode).c_str(), WiFi.localIP().toString().c_str());
 	
 		_enableNetwork = true;
-		//_blinker.setRate(ConnectedRate);
-
 		delay(500);
-		//_stateMachine.sendInput(Input::Connected);
 	}
 
     bool _needsNetworkReset = false;
