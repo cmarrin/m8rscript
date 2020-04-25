@@ -41,7 +41,7 @@ public:
         ::vprintf(ss.c_str(), args);
     }
     
-    virtual int8_t startTimer(Duration duration, std::function<void()> cb) override
+    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
     {
         int8_t id = -1;
         
@@ -58,11 +58,24 @@ public:
         
         _timers[id]. running = true;
         
-        std::thread([this, id, duration, cb] {
-            std::unique_lock<std::mutex> lock(_timers[id].mutex);
-            if (_timers[id].cond.wait_for(lock, std::chrono::microseconds(duration.us())) == std::cv_status::timeout) {
-                cb();
-                _timers[id].running = false;
+        std::thread([this, id, duration, repeat, cb] {
+            while (1) {
+                {
+                    std::unique_lock<std::mutex> lock(_timers[id].mutex);
+                    if (_timers[id].cond.wait_for(lock, std::chrono::microseconds(duration.us())) != std::cv_status::timeout) {
+                        // Timer stopped
+                        _timers[id].running = false;
+                        break;
+                    }
+                    
+                    cb();
+                    if (repeat) {
+                        continue;
+                    } else {
+                        _timers[id].running = false;
+                        break;
+                    }
+                }
             }
         }).detach();
         

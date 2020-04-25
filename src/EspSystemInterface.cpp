@@ -115,10 +115,12 @@ public:
     {
         TimerEntry* t = reinterpret_cast<TimerEntry*>(arg);
         t->cb();
-        t->running = false;
+        if (!t->repeat) {
+            t->running = false;
+        }
     }
 
-    virtual int8_t startTimer(Duration duration, std::function<void()> cb) override
+    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
     {
         int8_t id = -1;
         
@@ -134,11 +136,12 @@ public:
         }
         
         _timers[id].running = true;
+        _timers[id].repeat = repeat;
         _timers[id].cb = std::move(cb);
         
         os_timer_disarm(&(_timers[id].timer));
         os_timer_setfn(&(_timers[id].timer), timerFunc, &(_timers[id]));
-        os_timer_arm(&(_timers[id].timer), duration.ms(), false);
+        os_timer_arm(&(_timers[id].timer), duration.ms(), repeat);
 
         return id;
     }
@@ -208,6 +211,7 @@ private:
     struct TimerEntry
     {
         bool running = false;
+        bool repeat = false;
         os_timer_t timer;
         std::function<void()> cb;
     };

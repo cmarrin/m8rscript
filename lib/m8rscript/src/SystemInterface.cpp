@@ -29,7 +29,7 @@ void SystemInterface::runOneIteration()
 
 void SystemInterface::startHeartbeat()
 {
-    _heartbeatId = startTimer(_heartOn ? _heartOnTime : _heartrate, [this] {
+    _heartbeatId = startTimer(_heartOn ? _heartOnTime : _heartrate, false, [this] {
         gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
         _heartOn = !_heartOn;
         startHeartbeat();
