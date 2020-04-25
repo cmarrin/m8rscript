@@ -266,3 +266,18 @@ void MacTCP::handleEvents()
     std::unique_lock<std::mutex> lock(_mutex);
     TCP::handleEvents();
 }
+
+IPAddr MacTCP::clientIPAddr(int16_t connectionId) const
+{
+    if (connectionId < 0 || connectionId > MaxConnections || !_clientSockets[connectionId]) {
+        return IPAddr();
+    }
+    
+    struct sockaddr_in addr;
+    socklen_t len;
+    if (getsockname(_clientSockets[connectionId], reinterpret_cast<sockaddr*>(&addr), &len) != 0) {
+        return IPAddr();
+    }
+    
+    return IPAddr(inet_ntoa(addr.sin_addr));
+}

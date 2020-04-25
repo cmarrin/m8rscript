@@ -83,3 +83,19 @@ void EspTCP::handleEvents()
 {
     TCP::handleEvents();
 }
+
+IPAddr EspTCP::clientIPAddr(int16_t connectionId) const
+{
+    if (connectionId < 0 || connectionId > MaxConnections) {
+        return IPAddr();
+    }
+
+    // Given that the designers of the WiFiClient class don't know how to write code
+    // I need to const cast-away here
+    WiFiClient* client = const_cast<WiFiClient*>(&(_clients[connectionId]));
+    if (!*client) {
+        return IPAddr();
+    }
+    
+    return IPAddr(client->localIP());
+}

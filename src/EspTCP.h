@@ -27,6 +27,8 @@ public:
 
     virtual void handleEvents() override;
 
+    virtual IPAddr clientIPAddr(int16_t connectionId) const override;
+
 private:
     virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) override;
     

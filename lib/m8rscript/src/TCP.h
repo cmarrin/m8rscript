@@ -50,6 +50,8 @@ public:
     IPAddr ipAddr() const { return _ip; }
     uint16_t port() const { return _port; }
 
+    virtual IPAddr clientIPAddr(int16_t connectionId) const = 0;
+
 protected:
     void init(uint16_t port, IPAddr ip, EventFunction func)
     {
