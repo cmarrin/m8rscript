@@ -47,6 +47,9 @@ public:
     
     virtual void handleEvents();
 
+    IPAddr ipAddr() const { return _ip; }
+    uint16_t port() const { return _port; }
+
 protected:
     void init(uint16_t port, IPAddr ip, EventFunction func)
     {
