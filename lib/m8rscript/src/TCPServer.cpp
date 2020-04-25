@@ -23,8 +23,17 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
 {
     Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
+        system()->printf(ROMSTR("******** TCPServer got event %d, connectionId = %d\n"), static_cast<int>(event), connectionId);
+
+        if (connectionId < 0 || connectionId >= TCP::MaxConnections) {
+            system()->printf(ROMSTR("******** TCPServer Internal Error: Invalid connectionId = %d\n"), connectionId);
+            _socket->disconnect(connectionId);
+            return;
+        }
+
         switch(event) {
             case TCP::Event::Connected:
+                system()->printf(ROMSTR("TCPServer: new connection, connectionId=%d, ip=%s, port=%d\n"), connectionId, tcp->ipAddr().toString().c_str(), tcp->port());
                 _connections[connectionId].task = _createTaskFunction();
                 
                 // Set the print function to send the printed string out the TCP channel
@@ -73,6 +82,8 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 break;
             case TCP::Event::SentData:
                 break;
+            case TCP::Event::Error:
+                system()->printf(ROMSTR("******** TCPServer Error for connectionId = %d (%s)\n"), connectionId, data);
             default:
                 break;
         }
