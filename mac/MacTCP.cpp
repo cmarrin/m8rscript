@@ -23,7 +23,6 @@ using namespace m8r;
 void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
 {
     TCP::init(port, ip, func);
-    _server = !ip;
     
     _socketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (_socketFD == -1) {

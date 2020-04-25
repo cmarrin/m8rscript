@@ -56,6 +56,7 @@ protected:
         _eventFunction = func;
         _ip = ip;
         _port = port; 
+        _server = !ip;
     }
 
     virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) = 0;
