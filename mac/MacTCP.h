@@ -11,7 +11,7 @@
 
 #include "TCP.h"
 
-#include <dispatch/dispatch.h>
+#include <thread>
 
 namespace m8r {
 
@@ -29,8 +29,8 @@ private:
     virtual int32_t sendData(int16_t connectionId, const char* data, uint16_t length = 0) override;
 
     int _socketFD = -1;
-    dispatch_queue_t _queue;
-    dispatch_semaphore_t _dispatchSemaphore;
+    std::thread _thread;
+    std::mutex _mutex;
     char _receiveBuffer[BufferSize];
     int _clientSockets[MaxConnections];
     Mutex _mutex; // protection for _clientSockets
