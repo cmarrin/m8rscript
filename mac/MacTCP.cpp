@@ -73,7 +73,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
         }
     }
 
-    std::thread dispatchThread([this, sa] {
+    Thread dispatchThread(1024, [this, sa] {
         fd_set readfds;
         int maxsd;
         
