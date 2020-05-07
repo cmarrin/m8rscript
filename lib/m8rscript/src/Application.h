@@ -10,11 +10,9 @@
 #pragma once
 
 #include "ExecutionUnit.h"
-//#include "Heartbeat.h"
 #include "SystemInterface.h"
 #include "Task.h"
-#include "Telnet.h"
-#include <functional>
+#include "Terminal.h"
 
 namespace m8r {
 
@@ -22,8 +20,6 @@ class Program;
 class Error;
 class ExecutionUnit;
 class FS;
-class Shell;
-class TCP;
 
 class Application {
 public:
@@ -43,20 +39,9 @@ public:
     static SystemInterface* system() { assert(_system); return _system; }
 
 private:
-    Mad<TCP> _shellSocket;
-    
-    //Heartbeat _heartbeat;
     Mad<Task> _autostartTask;
+    std::unique_ptr<Terminal> _terminal;
 
-    struct ShellEntry
-    {
-        ShellEntry() { }
-        Mad<Task> task;
-        Telnet telnet;
-    };
-    
-    ShellEntry _shells[TCP::MaxConnections];
-    
     static SystemInterface* _system;
 };
     

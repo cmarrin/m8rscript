@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49079BA724437F0F000FAF22 /* Terminal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA524437F0F000FAF22 /* Terminal.cpp */; };
+		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -201,6 +203,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		49079BA524437F0F000FAF22 /* Terminal.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Terminal.cpp; path = ../lib/m8rscript/src/Terminal.cpp; sourceTree = "<group>"; };
+		49079BA624437F0F000FAF22 /* Terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Terminal.h; path = ../lib/m8rscript/src/Terminal.h; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		490C1BDA239185CB0094A6B4 /* LittleFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LittleFS.cpp; path = ../lib/m8rscript/src/LittleFS.cpp; sourceTree = "<group>"; };
@@ -742,10 +746,12 @@
 				499AE8E4234A625100459451 /* Task.h */,
 				49AB794B1DC143B700DE6332 /* TaskManager.cpp */,
 				49AB794C1DC143B700DE6332 /* TaskManager.h */,
+				49D5FD331E2D9D89001AF5C8 /* TCP.cpp */,
+				49E190781DB99E270030DC89 /* TCP.h */,
 				491E2F8D236A52160054725E /* Telnet.cpp */,
 				491E2F8E236A52160054725E /* Telnet.h */,
-				49E190781DB99E270030DC89 /* TCP.h */,
-				49D5FD331E2D9D89001AF5C8 /* TCP.cpp */,
+				49079BA524437F0F000FAF22 /* Terminal.cpp */,
+				49079BA624437F0F000FAF22 /* Terminal.h */,
 				49CB61BE2409643B003C9AB0 /* Thread.h */,
 				49CB61BD2409643B003C9AB0 /* Thread.cpp */,
 				49CB61B923F85255003C9AB0 /* Timer.h */,
@@ -798,6 +804,7 @@
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
+				49079BA824437F0F000FAF22 /* Terminal.h in Headers */,
 				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
 				49EED98D2357971500831598 /* lfs.h in Headers */,
 			);
@@ -1039,6 +1046,7 @@
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
 				49EED98E2357971500831598 /* lfs_util.c in Sources */,
 				497CAFC7237DF219000495B2 /* GC.cpp in Sources */,
+				49079BA724437F0F000FAF22 /* Terminal.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				49EED98B2357971500831598 /* lfs.c in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
