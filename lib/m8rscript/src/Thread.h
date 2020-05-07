@@ -155,7 +155,7 @@ private:
 namespace this_thread {
     
     inline Thread::id get_id() { return pthread_self(); }
-    inline void yield() { Duration d = 1_us; d.sleep(); }
+    inline void yield() { Duration(1us).sleep(); }
     inline void sleep_for(Duration d) { d.sleep(); }
     inline void sleep_until(Time t) { sleep_for(t - Time::now()); }
 }

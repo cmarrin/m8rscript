@@ -32,6 +32,10 @@
 #include <limits>
 #include <cstring>
 
+#include <chrono>
+
+using namespace std::chrono_literals;
+
 namespace m8r {
     class ROMString
     {

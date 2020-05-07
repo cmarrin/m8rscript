@@ -16,10 +16,10 @@
 
 using namespace m8r;
 
-static Duration MainLoopSleepDelay = 50_ms;
+static Duration MainLoopSleepDelay = 50ms;
 static constexpr uint32_t MainThreadSize = 4096;
 
-static Duration MaxTaskTimeSlice = 50_ms;
+static Duration MaxTaskTimeSlice = 50ms;
 static constexpr uint32_t TimeSliceThreadSize = 1024;
 
 TaskManager::TaskManager()
