@@ -35,7 +35,7 @@ public:
     
     void run(FinishCallback cb = nullptr)
     {
-        _finishCB = cb;
+        _finishCB = std::move(cb);
         system()->taskManager()->run(this);
     }
 
