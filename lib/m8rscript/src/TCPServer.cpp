@@ -43,8 +43,9 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 });
                 
                 if (_connections[connectionId].task->error().code() != Error::Code::OK) {
-                    _connections[connectionId].task = Mad<Task>();
                     _connections[connectionId].task->print(Error::formatError(_connections[connectionId].task->error().code()).c_str());
+                    _connections[connectionId].task.destroy(MemoryType::Native);
+                    _connections[connectionId].task = Mad<Task>();
                     _socket->disconnect(connectionId);
                 } else {
                     // Give subclass a whack at the connection event before starting to run the task
