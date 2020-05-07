@@ -10,19 +10,29 @@
 #pragma once
 
 #include "Task.h"
-#include "TCPServer.h"
-#include "Telnet.h"
 
 namespace m8r {
 
-class Terminal : public TCPServer {
+class TCPServer {
 public:
-    Terminal(uint16_t port, const char* command);
+    using CreateTaskFunction = std::function<Mad<TaskBase>()>;
+    
+    TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
+    ~TCPServer();
 
-private:
-    String _command;
+protected:
+    Mad<TCP> _socket;
 
-    Telnet _telnets[TCP::MaxConnections];
+    struct Connection
+    {
+        Connection() { }
+        Mad<TaskBase> task;
+    };
+    
+    Connection _connections[TCP::MaxConnections];
+    
+    CreateTaskFunction _createTaskFunction;
+    TCP::EventFunction _eventFunction;
 };
     
 }

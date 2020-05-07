@@ -33,7 +33,7 @@ public:
         system()->taskManager()->terminate(this);
     }
     
-    void run(const FinishCallback& cb = nullptr)
+    void run(FinishCallback cb = nullptr)
     {
         _finishCB = cb;
         system()->taskManager()->run(this);
@@ -46,6 +46,14 @@ public:
     virtual bool readyToRun() const { return state() == State::Ready; }
     virtual void requestYield() const { }
     
+    virtual void receivedData(const String& data, KeyAction action) { }
+    virtual void setConsolePrintFunction(std::function<void(const String&)> f) { }
+    
+    virtual void print(const char* s) const
+    {
+        system()->print(s);
+    }
+
 #ifndef NDEBUG
     const String& name() const { return _name; }
 #endif
@@ -81,10 +89,12 @@ public:
     bool init(const Stream&);
     bool init(const char* filename);
     
-    void receivedData(const String& data, KeyAction action);
+    virtual void receivedData(const String& data, KeyAction action) override;
 
-    void setConsolePrintFunction(std::function<void(const String&)> f);
+    virtual void setConsolePrintFunction(std::function<void(const String&)> f) override;
     void setConsoleListener(Value func);
+
+    virtual void print(const char* s) const override;
 
     const ExecutionUnit* eu() const { return _eu.get(); }
     

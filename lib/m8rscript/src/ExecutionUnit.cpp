@@ -52,7 +52,7 @@ void ExecutionUnit::printError(ROMString format, ...) const
     va_start(args, format);
     printf(ROMSTR("***** "));
 
-    Error::vprintError(this, Error::Code::RuntimeError, _lineno, format, args);
+    print(Error::vformatError(Error::Code::RuntimeError, _lineno, format, args).c_str());
     if (++_nerrors > MaxRunTimeErrrors) {
         printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
         requestTerminate();

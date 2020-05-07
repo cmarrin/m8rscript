@@ -113,11 +113,7 @@ bool Application::mountFileSystem()
         if (system()->fileSystem()->lastError().code() == Error::Code::FSNotFormatted) {
             m8r::system()->printf(ROMSTR("Filessytem not present, formatting...\n"));
         } else {
-            system()->printf(ROMSTR("ERROR: Filesystem mount failed: "));
-            
-            Error::showError(system()->fileSystem()->lastError().code());
-            
-            system()->printf(ROMSTR("\n"));
+            system()->print(Error::formatError(system()->fileSystem()->lastError().code(), ROMSTR("Filesystem mount failed")).c_str());
             return false;
         }
         if (m8r::system()->fileSystem()->format()) {

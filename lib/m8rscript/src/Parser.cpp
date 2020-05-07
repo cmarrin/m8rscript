@@ -52,7 +52,7 @@ void Parser::printError(ROMString format, ...)
     va_list args;
     va_start(args, format);
     _eu->printf(ROMSTR("***** "));
-    Error::vprintError(_eu, Error::Code::ParseError, _scanner.lineno(), format, args);
+    _eu->print(Error::vformatError(Error::Code::ParseError, _scanner.lineno(), format, args).c_str());
     va_end(args);
     
     va_start(args, format);
