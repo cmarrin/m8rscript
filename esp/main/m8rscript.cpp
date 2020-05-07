@@ -31,15 +31,11 @@ extern "C" void app_main()
     m8r::String toPath("/foo");
     m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
     if (!toFile->valid()) {
-        printf("Error: unable to open '%s' for write - ", toPath.c_str());
-        m8r::Error::showError(toFile->error());
-        printf("\n");
+        printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error: unable to open '%s' for write"), toPath.c_str()).c_str());
     } else {
         toFile->write("Hello World", 11);
         if (!toFile->valid()) {
-            printf("Error writing '%s' - ", toPath.c_str());
-            m8r::Error::showError(toFile->error());
-            printf("\n");
+            printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error writing '%s'"), toPath.c_str()).c_str());
         } else {
             printf("Successfully wrote '%s'\n", toPath.c_str());
         }
@@ -48,16 +44,12 @@ extern "C" void app_main()
 
     toFile = m8r::Mad<m8r::File>(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read));
     if (!toFile->valid()) {
-        printf("Error: unable to open '%s' for read - ", toPath.c_str());
-        m8r::Error::showError(toFile->error());
-        printf("\n");
+        printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error: unable to open '%s' for read"), toPath.c_str()).c_str());
     } else {
         char buf[12];
         int32_t result = toFile->read(buf, 11);
         if (!toFile->valid()) {
-            printf("Error reading '%s' - ", toPath.c_str());
-            m8r::Error::showError(toFile->error());
-            printf("\n");
+            printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error reading '%s'"), toPath.c_str()).c_str());
         } else if (result != 11) {
             printf("Wrong number of bytes read from '%s', expected 11, got %d\n", toPath.c_str(), result);
         } else {
