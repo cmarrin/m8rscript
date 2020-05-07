@@ -52,7 +52,7 @@ bool Task::init(const char* filename)
     }
 
     if (error != Error::Code::OK) {
-        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, error.description());
+        _eu->printf(ROMSTR("***** Unable to open '%s' for execution: %s\n"), filename, error.description().c_str());
         _error = error;
         return false;
     }
@@ -64,7 +64,7 @@ bool Task::init(const char* filename)
 #endif
 
     if (file->error() != Error::Code::OK) {
-        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description());
+        _eu->printf(ROMSTR("***** Error reading '%s': %s\n"), filename, file->error().description().c_str());
     }
         
     file.destroy(MemoryType::Native);

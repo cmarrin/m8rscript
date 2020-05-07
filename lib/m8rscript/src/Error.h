@@ -71,7 +71,7 @@ public:
 
     Code code() const { return _code; }
     
-    ROMString description() const;
+    String description() const;
     
     static void showError(Error error) { showError(error.code()); }
     static void showError(Code code) { showError(nullptr, code); }
