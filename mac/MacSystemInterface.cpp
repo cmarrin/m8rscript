@@ -14,9 +14,7 @@
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"
-#include <condition_variable>
-#include <mutex>
-#include <thread>
+#include "Thread.h"
 
 #ifndef USE_LITTLEFS
 #include "SpiffsFS.h"
@@ -58,11 +56,11 @@ public:
         
         _timers[id]. running = true;
         
-        std::thread([this, id, duration, repeat, cb] {
+        Thread(512, [this, id, duration, repeat, cb] {
             while (1) {
                 {
-                    std::unique_lock<std::mutex> lock(_timers[id].mutex);
-                    if (_timers[id].cond.wait_for(lock, std::chrono::microseconds(duration.us())) != std::cv_status::timeout) {
+                    Lock lock(_timers[id].mutex);
+                    if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
                         // Timer stopped
                         _timers[id].running = false;
                         break;
@@ -88,8 +86,8 @@ public:
             return;
         }
         
-        std::unique_lock<std::mutex> lock(_timers[id].mutex);
-        _timers[id].cond.notify_all();
+        Lock lock(_timers[id].mutex);
+        _timers[id].cond.notify(true);
         _timers[id].running = false;
     }
 
@@ -164,8 +162,8 @@ private:
     struct TimerEntry
     {
         bool running = false;
-        std::condition_variable cond;
-        std::mutex mutex;
+        Condition cond;
+        Mutex mutex;
     };
     TimerEntry _timers[NumTimers];
 };

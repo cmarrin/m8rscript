@@ -52,6 +52,8 @@ private:
 class Condition
 {
 public:
+    enum class WaitResult { TimedOut, Notified };
+    
     Condition() { pthread_cond_init(&_c, nullptr); }
     Condition(const Condition&) = delete;
     ~Condition() { pthread_cond_destroy(&_c); }
@@ -68,6 +70,20 @@ public:
     void wait(Lock& lock)
     {
         pthread_cond_wait(&_c, &lock.mutex());
+    }
+    
+    WaitResult waitFor(Lock& lock, Duration duration)
+    {
+        struct timespec ts;
+        uint64_t t = Time::now().us() + duration.us();
+        ts.tv_sec = t / 1000000;
+        ts.tv_nsec = (t % 1000000) * 1000;
+        while (1) {
+            int result = pthread_cond_timedwait(&_c, &lock.mutex(), &ts);
+            if (result == 0 || result == ETIMEDOUT) {
+                return (result == 0) ? WaitResult::Notified : WaitResult::TimedOut;
+            }
+        }
     }
     
 private:
