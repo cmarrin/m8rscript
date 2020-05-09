@@ -14,7 +14,7 @@ using namespace m8r;
 
 Mallocator Mallocator::_mallocator;
 
-RawMad Mallocator::alloc(uint32_t size, MemoryType type, const char* valueType)
+RawMad Mallocator::alloc(uint32_t size, MemoryType type)
 {
     assert(type != MemoryType::Unknown);
     

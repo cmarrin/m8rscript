@@ -19,7 +19,7 @@
  */
 
 #include "Defines.h"
-#include "LittleFS.h"
+#include "MLittleFS.h"
 #include "RtosWifi.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
@@ -29,81 +29,6 @@
 using namespace m8r;
 
 static constexpr uint32_t FSStart = 0x100000;
-
-void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len)
-{
-    uint8_t* d = (uint8_t*) dst;
-    while (len--) {
-        *d++ = readRomByte(src);
-        src += 1;
-    }
-    return dst;
-}
-
-char* ROMCopyString(char* dst, m8r::ROMString src)
-{
-    char c;
-    while ((c = (char) readRomByte(src))) {
-        *dst++ = c;
-        src += 1;
-    }
-    *dst = '\0';
-    return dst;
-}
-
-size_t ROMstrlen(m8r::ROMString s)
-{
-    m8r::ROMString p = s;
-    for ( ; readRomByte(p) != '\0'; p += 1) ;
-    return (size_t) (p.value() - s.value());
-}
-
-m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
-{
-    int i, j;
-
-    if (!s1.valid() || s2 == nullptr) {
-        return m8r::ROMString();
-    }
-
-    for( i = 0; ; i++) {
-        char c1 = readRomByte(s1 + i);
-        if (c1 == '\0') {
-            return m8r::ROMString();
-        }
-        
-        char c2 = *s2;
-        if (c1 == c2) {
-            for (j = i; ; j++) {
-                c2 = *(s2 + (j - i));
-                if (c2 == '\0') {
-                    return m8r::ROMString(s1 + i);
-                }
-                c1 = readRomByte(s1 + j);
-                if (c1 != c2) {
-                    break;
-                }
-            }
-        }
-    }
-}
-
-int ROMstrcmp(m8r::ROMString s1, const char* s2)
-{
-    uint8_t c1;
-    uint8_t c2;
-    for (int32_t i = 0; ; i++) {
-        c1 = readRomByte(s1+i);
-        c2 = s2[i];
-        if (c1 != c2) {
-            break;
-        }
-        if (c1 == '\0') {
-            return 0;
-        }
-    }
-    return c1 - c2;
-}
 
 int32_t m8r::heapFreeSize()
 {

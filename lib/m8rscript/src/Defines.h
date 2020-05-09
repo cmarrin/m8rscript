@@ -75,7 +75,7 @@ namespace m8r {
     };
 }
 
-#ifdef __APPLE__
+#ifndef ARDUINO
     #define RODATA_ATTR
     #define RODATA2_ATTR
     #define ROMSTR_ATTR
@@ -89,9 +89,6 @@ namespace m8r {
 
     static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
     #define ROMSTR(s) m8r::ROMString(s)
-
-    template <typename T>
-    static inline const char* typeName() { return typeid(T).name(); }
 #else
 
 #include <Arduino.h>
@@ -111,10 +108,6 @@ namespace m8r {
     #define ROMSTR(s) m8r::ROMString(PSTR(s))
 
     static inline uint8_t readRomByte(const char* addr) { return pgm_read_byte(addr); }
-
-    template <typename T>
-    static inline const char* typeName() { return ""; }
-
 #endif
 
 static inline uint8_t readRomByte(m8r::ROMString addr) { return readRomByte(addr.value()); }

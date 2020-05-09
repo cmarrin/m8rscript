@@ -136,7 +136,7 @@ public:
     template<typename T>
     Mad<T> allocate(MemoryType type, uint16_t nElements)
     {
-        return Mad<T>(alloc(static_cast<uint32_t>(nElements) * sizeof(T), type, typeName<T>()));
+        return Mad<T>(alloc(static_cast<uint32_t>(nElements) * sizeof(T), type));
     }
     
     template<typename T>
@@ -166,7 +166,7 @@ protected:
     MemoryInfo _memoryInfo;
 
 private:
-    RawMad alloc(uint32_t size, MemoryType type, const char* valueType);
+    RawMad alloc(uint32_t size, MemoryType type);
     void free(RawMad, MemoryType type);
         
     static Mallocator _mallocator;
