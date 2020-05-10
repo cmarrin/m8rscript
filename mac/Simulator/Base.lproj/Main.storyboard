@@ -715,31 +715,25 @@
                             </stackView>
                             <box fixedFrame="YES" title="Hardware" translatesAutoresizingMaskIntoConstraints="NO" id="tIJ-G2-jUQ">
                                 <rect key="frame" x="-3" y="178" width="486" height="92"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <view key="contentView" id="r6m-DA-jOd">
                                     <rect key="frame" x="3" y="3" width="480" height="74"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mR9-JN-XpF">
-                                            <rect key="frame" x="16" y="7" width="38" height="16"/>
+                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qg9-j4-hvf">
+                                            <rect key="frame" x="20" y="20" width="59" height="42"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" title="LED 1" id="JGB-2y-fVC">
+                                            <buttonCell key="cell" type="square" title="LED 1" alternateTitle="LED 1" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="above" alignment="center" alternateImage="green-led-on-md" refusesFirstResponder="YES" state="on" inset="2" id="oit-Xq-tCJ">
+                                                <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9jC-4O-u1B">
-                                            <rect key="frame" x="18" y="37" width="30" height="28"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="p1C-Ot-3yd"/>
-                                        </imageView>
+                                            </buttonCell>
+                                        </button>
                                     </subviews>
                                 </view>
                             </box>
                             <box fixedFrame="YES" title="Console" translatesAutoresizingMaskIntoConstraints="NO" id="cFD-VS-cIY">
                                 <rect key="frame" x="-3" y="-4" width="486" height="178"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <view key="contentView" id="VdG-Av-doK">
                                     <rect key="frame" x="3" y="3" width="480" height="160"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -797,4 +791,8 @@
             <point key="canvasLocation" x="474" y="463"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="green-led-off-md" width="20" height="20"/>
+        <image name="green-led-on-md" width="20" height="20"/>
+    </resources>
 </document>

@@ -17,6 +17,12 @@
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
 		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
+		491A75F024677ADA00CA38D1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A75EF24677ADA00CA38D1 /* AppDelegate.swift */; };
+		491A75F224677ADA00CA38D1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A75F124677ADA00CA38D1 /* ViewController.swift */; };
+		491A75F424677ADC00CA38D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 491A75F324677ADC00CA38D1 /* Assets.xcassets */; };
+		491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 491A75F524677ADD00CA38D1 /* Main.storyboard */; };
+		491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FE24677EF600CA38D1 /* green-led-off-md.png */; };
+		491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FF24677EF600CA38D1 /* green-led-on-md.png */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -214,6 +220,15 @@
 		49079BAA244384B1000FAF22 /* TCPServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TCPServer.h; path = ../lib/m8rscript/src/TCPServer.h; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
+		491A75ED24677ADA00CA38D1 /* Simulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Simulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		491A75EF24677ADA00CA38D1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		491A75F124677ADA00CA38D1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		491A75F324677ADC00CA38D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		491A75F624677ADD00CA38D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		491A75F824677ADD00CA38D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		491A75F924677ADD00CA38D1 /* Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Simulator.entitlements; sourceTree = "<group>"; };
+		491A75FE24677EF600CA38D1 /* green-led-off-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-off-md.png"; sourceTree = "<group>"; };
+		491A75FF24677EF600CA38D1 /* green-led-on-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-on-md.png"; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -383,6 +398,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		491A75EA24677ADA00CA38D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		491ED3A02353EFE600DE0C42 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -425,6 +447,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		491A75EE24677ADA00CA38D1 /* Simulator */ = {
+			isa = PBXGroup;
+			children = (
+				491A75FD24677B4900CA38D1 /* Images */,
+				491A75EF24677ADA00CA38D1 /* AppDelegate.swift */,
+				491A75F124677ADA00CA38D1 /* ViewController.swift */,
+				491A75F324677ADC00CA38D1 /* Assets.xcassets */,
+				491A75F524677ADD00CA38D1 /* Main.storyboard */,
+				491A75F824677ADD00CA38D1 /* Info.plist */,
+				491A75F924677ADD00CA38D1 /* Simulator.entitlements */,
+			);
+			path = Simulator;
+			sourceTree = "<group>";
+		};
+		491A75FD24677B4900CA38D1 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				491A75FE24677EF600CA38D1 /* green-led-off-md.png */,
+				491A75FF24677EF600CA38D1 /* green-led-on-md.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
 		491ED3A42353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXGroup;
 			children = (
@@ -652,6 +697,7 @@
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				49D9B8191D1C854700724911 /* m8rsim */,
+				491A75EE24677ADA00CA38D1 /* Simulator */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
 			);
@@ -665,6 +711,7 @@
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
+				491A75ED24677ADA00CA38D1 /* Simulator.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -808,6 +855,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		491A75EC24677ADA00CA38D1 /* Simulator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 491A75FC24677ADD00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */;
+			buildPhases = (
+				491A75E924677ADA00CA38D1 /* Sources */,
+				491A75EA24677ADA00CA38D1 /* Frameworks */,
+				491A75EB24677ADA00CA38D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Simulator;
+			productName = Simulator;
+			productReference = 491A75ED24677ADA00CA38D1 /* Simulator.app */;
+			productType = "com.apple.product-type.application";
+		};
 		491ED3A22353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */;
@@ -904,10 +968,14 @@
 		49E647E01D00B68F005F5059 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0800;
+				LastSwiftUpdateCheck = 1140;
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
+					491A75EC24677ADA00CA38D1 = {
+						CreatedOnToolsVersion = 11.4.1;
+						ProvisioningStyle = Automatic;
+					};
 					491ED3A22353EFE600DE0C42 = {
 						CreatedOnToolsVersion = 11.0;
 						ProvisioningStyle = Automatic;
@@ -949,11 +1017,23 @@
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
+				491A75EC24677ADA00CA38D1 /* Simulator */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		491A75EB24677ADA00CA38D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */,
+				491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */,
+				491A75F424677ADC00CA38D1 /* Assets.xcassets in Resources */,
+				491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		49D9B8161D1C854700724911 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -989,6 +1069,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		491A75E924677ADA00CA38D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				491A75F224677ADA00CA38D1 /* ViewController.swift in Sources */,
+				491A75F024677ADA00CA38D1 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		491ED39F2353EFE600DE0C42 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1105,6 +1194,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		491A75F524677ADD00CA38D1 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				491A75F624677ADD00CA38D1 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		49D9B81E1D1C854700724911 /* Document.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1124,6 +1221,56 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		491A75FA24677ADD00CA38D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = Simulator/Simulator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Simulator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.Simulator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		491A75FB24677ADD00CA38D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = Simulator/Simulator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Simulator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.Simulator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		491ED3A82353EFE600DE0C42 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1396,6 +1543,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		491A75FC24677ADD00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				491A75FA24677ADD00CA38D1 /* Debug */,
+				491A75FB24677ADD00CA38D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
