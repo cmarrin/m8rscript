@@ -31,17 +31,49 @@ public:
             return false;
         }
         _pinMode[pin] = mode;
+
+        _pinIO = (_pinIO & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
+        _pinChanged |= (1 << pin);
+
         return true;
     }
     
-    virtual bool digitalRead(uint8_t pin) const = 0;
-    virtual void digitalWrite(uint8_t pin, bool level) = 0;
-    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) = 0;
+    virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) { }
+
+    virtual bool digitalRead(uint8_t pin) const
+    {
+        return _pinState & (1 << pin);
+    }
+    
+    virtual void digitalWrite(uint8_t pin, bool level)
+    {
+        if (pin > 16) {
+            return;
+        }
+        if (level) {
+            _pinState |= (1 << pin);
+        } else {
+            _pinState &= ~(1 << pin);
+        }
+        _pinChanged |= (1 << pin);
+    }
     
     uint8_t builtinLED() const { return LED; }
     
+    void getState(uint32_t& value, uint32_t& change)
+    {
+        value = _pinState;
+        change = _pinChanged;
+        _pinChanged = 0;
+    }
+    
 private:
     PinMode _pinMode[PinCount];
+
+    // 0 = input, 1 = output
+    uint32_t _pinIO = 0;
+    uint32_t _pinState = 0;
+    uint32_t _pinChanged = 0;
 };
 
 }

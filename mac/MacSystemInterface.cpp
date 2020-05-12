@@ -117,42 +117,7 @@ public:
     }
 
 private:
-    class MyGPIOInterface : public GPIOInterface {
-    public:
-        MyGPIOInterface() { }
-        virtual ~MyGPIOInterface() { }
-
-        virtual bool setPinMode(uint8_t pin, PinMode mode) override
-        {
-            ::printf("*** setPinMode(%d, %d)\n", pin, static_cast<uint32_t>(mode));
-            _pinio = (_pinio & ~(1 << pin)) | ((mode == PinMode::Output) ? (1 << pin) : 0);
-            return true;
-        }
-        
-        virtual bool digitalRead(uint8_t pin) const override
-        {
-            ::printf("*** digitalRead(%d) ==> %s\n", pin, (_pinstate & (1 << pin)) ? "true" : "false");
-            return _pinstate & (1 << pin);
-        }
-        
-        virtual void digitalWrite(uint8_t pin, bool level) override
-        {
-            if (pin > 16) {
-                return;
-            }
-            _pinstate = (_pinstate & ~(1 << pin)) | (level ? (1 << pin) : 0);
-            ::printf("*** digitalWrite(%d, %s)\n", pin, level ? "true" : "false");
-        }
-        
-        virtual void onInterrupt(uint8_t pin, Trigger, std::function<void(uint8_t pin)> = { }) override { }
-        
-    private:
-        // 0 = input, 1 = output
-        uint32_t _pinio = 0;
-        uint32_t _pinstate = 0;
-    };
-    
-    MyGPIOInterface _gpio;
+    GPIOInterface _gpio;
 #ifndef USE_LITTLEFS
     SpiffsFS _fileSystem;
 #else
