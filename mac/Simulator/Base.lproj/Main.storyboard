@@ -689,6 +689,15 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <toolbar key="toolbar" implicitIdentifier="495820F2-CB7E-415B-851E-92640B2B522A" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="cwC-0n-8nQ">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="TUB-nH-uQk"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Jsp-BW-q4M"/>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="Jsp-BW-q4M"/>
+                            </defaultToolbarItems>
+                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
                         </connections>
@@ -706,51 +715,52 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Simulator" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="388"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" fixedFrame="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OIT-x7-Icc">
-                                <rect key="frame" x="0.0" y="256" width="38" height="14"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            </stackView>
-                            <box fixedFrame="YES" title="Hardware" translatesAutoresizingMaskIntoConstraints="NO" id="tIJ-G2-jUQ">
-                                <rect key="frame" x="-3" y="178" width="486" height="92"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <box fixedFrame="YES" borderType="bezel" title="Hardware" translatesAutoresizingMaskIntoConstraints="NO" id="tIJ-G2-jUQ">
+                                <rect key="frame" x="-3" y="307" width="486" height="81"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <view key="contentView" id="r6m-DA-jOd">
-                                    <rect key="frame" x="3" y="3" width="480" height="74"/>
+                                    <rect key="frame" x="3" y="3" width="480" height="63"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qg9-j4-hvf">
-                                            <rect key="frame" x="20" y="20" width="59" height="42"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="square" title="LED 1" alternateTitle="LED 1" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="above" alignment="center" alternateImage="green-led-on-md" refusesFirstResponder="YES" state="on" inset="2" id="oit-Xq-tCJ">
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="Qg9-j4-hvf">
+                                            <rect key="frame" x="20" y="17" width="34" height="41"/>
+                                            <buttonCell key="cell" type="square" title="LED 1" alternateTitle="LED 1" bezelStyle="shadowlessSquare" image="green-led-off-md" imagePosition="below" alignment="center" alternateImage="green-led-on-md" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="oit-Xq-tCJ">
                                                 <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="message" size="11"/>
                                             </buttonCell>
                                         </button>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Qg9-j4-hvf" secondAttribute="trailing" constant="20" symbolic="YES" id="3jh-wO-2a0"/>
+                                        <constraint firstItem="Qg9-j4-hvf" firstAttribute="leading" secondItem="r6m-DA-jOd" secondAttribute="leading" constant="20" symbolic="YES" id="8Os-Hc-GcY"/>
+                                        <constraint firstItem="Qg9-j4-hvf" firstAttribute="top" secondItem="r6m-DA-jOd" secondAttribute="top" constant="5" id="A3m-nQ-AFS"/>
+                                        <constraint firstAttribute="bottom" secondItem="Qg9-j4-hvf" secondAttribute="bottom" constant="17" id="vN5-nY-xRg"/>
+                                    </constraints>
                                 </view>
                             </box>
                             <box fixedFrame="YES" title="Console" translatesAutoresizingMaskIntoConstraints="NO" id="cFD-VS-cIY">
-                                <rect key="frame" x="-3" y="-4" width="486" height="178"/>
+                                <rect key="frame" x="-3" y="-4" width="486" height="307"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <view key="contentView" id="VdG-Av-doK">
-                                    <rect key="frame" x="3" y="3" width="480" height="160"/>
+                                    <rect key="frame" x="3" y="3" width="480" height="289"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YSb-JT-abn">
-                                            <rect key="frame" x="0.0" y="0.0" width="480" height="160"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="480" height="289"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="czU-ne-YVk">
-                                                <rect key="frame" x="0.0" y="0.0" width="465" height="160"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="465" height="289"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="0Fb-8p-cuz">
-                                                        <rect key="frame" x="0.0" y="0.0" width="465" height="160"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="465" height="289"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="465" height="160"/>
+                                                        <size key="minSize" width="465" height="289"/>
                                                         <size key="maxSize" width="614" height="10000000"/>
                                                         <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     </textView>
@@ -761,7 +771,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="UWx-mf-P1D">
-                                                <rect key="frame" x="465" y="0.0" width="15" height="160"/>
+                                                <rect key="frame" x="465" y="0.0" width="15" height="289"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
@@ -770,23 +780,11 @@
                             </box>
                         </subviews>
                     </view>
+                    <connections>
+                        <outlet property="LED1" destination="Qg9-j4-hvf" id="k2K-tE-YSe"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <toolbar implicitIdentifier="09D11707-F4A3-4FD5-970E-AC5832E91C2B" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="cwC-0n-8nQ">
-                    <allowedToolbarItems>
-                        <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="0gT-z6-pOX"/>
-                        <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="dvS-ZH-xFp"/>
-                        <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="19d-GP-PHJ"/>
-                        <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="TUB-nH-uQk"/>
-                        <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Jsp-BW-q4M"/>
-                    </allowedToolbarItems>
-                    <defaultToolbarItems>
-                        <toolbarItem reference="0gT-z6-pOX"/>
-                        <toolbarItem reference="dvS-ZH-xFp"/>
-                        <toolbarItem reference="Jsp-BW-q4M"/>
-                        <toolbarItem reference="19d-GP-PHJ"/>
-                    </defaultToolbarItems>
-                </toolbar>
             </objects>
             <point key="canvasLocation" x="474" y="463"/>
         </scene>

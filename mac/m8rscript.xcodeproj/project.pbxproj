@@ -23,6 +23,9 @@
 		491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 491A75F524677ADD00CA38D1 /* Main.storyboard */; };
 		491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FE24677EF600CA38D1 /* green-led-off-md.png */; };
 		491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FF24677EF600CA38D1 /* green-led-on-md.png */; };
+		491A76052468470B00CA38D1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491A76032468470B00CA38D1 /* main.cpp */; };
+		491A76082468491300CA38D1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
+		491A760B246A1C8200CA38D1 /* m8rFSFile in Resources */ = {isa = PBXBuildFile; fileRef = 491A760A246A1C8200CA38D1 /* m8rFSFile */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -132,6 +135,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		491A7606246848BB00CA38D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 494D254D1D2E9055003755DB;
+			remoteInfo = m8rscript;
+		};
 		491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -229,6 +239,10 @@
 		491A75F924677ADD00CA38D1 /* Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Simulator.entitlements; sourceTree = "<group>"; };
 		491A75FE24677EF600CA38D1 /* green-led-off-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-off-md.png"; sourceTree = "<group>"; };
 		491A75FF24677EF600CA38D1 /* green-led-on-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-on-md.png"; sourceTree = "<group>"; };
+		491A76022468470B00CA38D1 /* Simulator-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Simulator-Bridging-Header.h"; sourceTree = "<group>"; };
+		491A76032468470B00CA38D1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
+		491A760A246A1C8200CA38D1 /* m8rFSFile */ = {isa = PBXFileReference; lastKnownFileType = file; name = m8rFSFile; path = ../../m8rFSFile; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -402,6 +416,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				491A76082468491300CA38D1 /* libm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,6 +465,7 @@
 		491A75EE24677ADA00CA38D1 /* Simulator */ = {
 			isa = PBXGroup;
 			children = (
+				491A760A246A1C8200CA38D1 /* m8rFSFile */,
 				491A75FD24677B4900CA38D1 /* Images */,
 				491A75EF24677ADA00CA38D1 /* AppDelegate.swift */,
 				491A75F124677ADA00CA38D1 /* ViewController.swift */,
@@ -457,6 +473,8 @@
 				491A75F524677ADD00CA38D1 /* Main.storyboard */,
 				491A75F824677ADD00CA38D1 /* Info.plist */,
 				491A75F924677ADD00CA38D1 /* Simulator.entitlements */,
+				491A76032468470B00CA38D1 /* main.cpp */,
+				491A76022468470B00CA38D1 /* Simulator-Bridging-Header.h */,
 			);
 			path = Simulator;
 			sourceTree = "<group>";
@@ -796,6 +814,7 @@
 				49079BAA244384B1000FAF22 /* TCPServer.h */,
 				49079BA524437F0F000FAF22 /* Terminal.cpp */,
 				49079BA624437F0F000FAF22 /* Terminal.h */,
+				491A7609246886E800CA38D1 /* Thread.h */,
 				49CB61BA23F85255003C9AB0 /* Timer.cpp */,
 				49CB61B923F85255003C9AB0 /* Timer.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
@@ -866,6 +885,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				491A7607246848BB00CA38D1 /* PBXTargetDependency */,
 			);
 			name = Simulator;
 			productName = Simulator;
@@ -974,6 +994,7 @@
 				TargetAttributes = {
 					491A75EC24677ADA00CA38D1 = {
 						CreatedOnToolsVersion = 11.4.1;
+						LastSwiftMigration = 1140;
 						ProvisioningStyle = Automatic;
 					};
 					491ED3A22353EFE600DE0C42 = {
@@ -1030,6 +1051,7 @@
 				491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */,
 				491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */,
 				491A75F424677ADC00CA38D1 /* Assets.xcassets in Resources */,
+				491A760B246A1C8200CA38D1 /* m8rFSFile in Resources */,
 				491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1075,6 +1097,7 @@
 			files = (
 				491A75F224677ADA00CA38D1 /* ViewController.swift in Sources */,
 				491A75F024677ADA00CA38D1 /* AppDelegate.swift in Sources */,
+				491A76052468470B00CA38D1 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1176,6 +1199,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		491A7607246848BB00CA38D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 494D254D1D2E9055003755DB /* m8rscript */;
+			targetProxy = 491A7606246848BB00CA38D1 /* PBXContainerItemProxy */;
+		};
 		491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* m8rscript */;
@@ -1227,6 +1255,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
@@ -1239,9 +1268,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.Simulator;
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rscript;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "Simulator/Simulator-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -1253,6 +1283,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
@@ -1264,8 +1295,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.Simulator;
+				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rscript;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Simulator/Simulator-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 			};
