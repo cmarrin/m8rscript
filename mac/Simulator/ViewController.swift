@@ -11,6 +11,7 @@ import Cocoa
 class ViewController: NSViewController {
 
     @IBOutlet weak var LED1: NSButton!
+    @IBOutlet var Console: NSTextView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +36,15 @@ class ViewController: NSViewController {
         
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
             m8rRunOneIteration()
+            
+            var value: UInt32 = 0
+            var change: UInt32 = 0
+            m8rGetGPIOState(&value, &change)
+            if ((change & 0x04) != 0) {
+                self.LED1.state = ((value & 0x04) != 0) ? NSControl.StateValue.off : NSControl.StateValue.on
+            }
+            
+            self.Console.textStorage?.append(NSAttributedString(string: String(cString:m8rGetConsoleString())));
         }
     }
 

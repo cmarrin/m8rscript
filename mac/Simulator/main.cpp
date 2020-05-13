@@ -13,12 +13,16 @@
 
 extern "C" {
 
-m8r::Application* application = nullptr;
+static m8r::Application* application = nullptr;
+
+static m8r::String consoleString; 
 
 void m8rInitialize(const char* fsFile)
 {
     if (!application) {
-        m8r::initMacFileSystem(fsFile);
+        m8r::initMacSystemInterface(fsFile, [](const char* s) {
+            consoleString += s;
+        });
         application = new m8r::Application(800);
     }
 }
@@ -32,7 +36,8 @@ void m8rRunOneIteration()
 
 const char* m8rGetConsoleString()
 {
-    return "";
+    m8r::String s = std::move(consoleString);
+    return s.c_str();
 }
 
 void m8rGetGPIOState(uint32_t* value, uint32_t* change)

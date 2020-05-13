@@ -781,6 +781,7 @@
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="Console" destination="0Fb-8p-cuz" id="Gfd-SC-Bgj"/>
                         <outlet property="LED1" destination="Qg9-j4-hvf" id="k2K-tE-YSe"/>
                     </connections>
                 </viewController>
