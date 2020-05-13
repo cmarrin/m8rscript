@@ -46,7 +46,7 @@ public:
     
     virtual void init() { }
 
-    void print(const char* s) { printf(ROMSTR("%s"), s); }
+    virtual void print(const char* s) const = 0;
     
     void printf(ROMString fmt, ...) const
     {
@@ -54,6 +54,8 @@ public:
         va_start(args, fmt);
         vprintf(fmt, args);
     }
+
+    void vprintf(ROMString fmt, va_list) const;
     
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
@@ -64,9 +66,7 @@ public:
     TaskManager* taskManager() { return &_taskManager; };
 
     virtual void setDeviceName(const char*) = 0;
-    
-    virtual void vprintf(ROMString, va_list) const = 0;
-    
+        
     // Return timer ID, -1 if can't start a timer
     virtual int8_t startTimer(Duration, bool repeat, std::function<void()>) = 0;
     virtual void stopTimer(int8_t id) = 0;

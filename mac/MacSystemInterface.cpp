@@ -24,6 +24,8 @@
 
 using namespace m8r;
 
+static ConsoleCB _consoleCB;
+
 static constexpr int NumTimers = 8;
 
 class MacSystemInterface : public SystemInterface
@@ -33,10 +35,13 @@ public:
     {
     }
     
-    virtual void vprintf(ROMString s, va_list args) const override
+    virtual void print(const char* s) const override
     {
-        String ss(s);
-        ::vprintf(ss.c_str(), args);
+        if (_consoleCB) {
+            _consoleCB(s);
+        } else {
+            ::printf("%s", s);
+        }
     }
     
     virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
