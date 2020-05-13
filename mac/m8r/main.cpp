@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
         }
     }
         
-    m8r::initMacFileSystem(fsFile);
+    m8r::initMacSystemInterface(fsFile, [](const char* s) { ::printf("%s", s); });
     m8r::Application application(port);
     
     // Upload files if present

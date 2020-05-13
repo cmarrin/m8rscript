@@ -9,8 +9,11 @@
 
 #pragma once
 
+#include <functional>
+
 namespace m8r {
 
-void initMacFileSystem(const char* fsFile);
+using ConsoleCB = std::function<void(const char*)>;
+void initMacSystemInterface(const char* fsFile, ConsoleCB);
 
 }

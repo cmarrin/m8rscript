@@ -145,8 +145,9 @@ int32_t m8r::heapFreeSize()
 
 SystemInterface* SystemInterface::create() { return new MacSystemInterface(); }
 
-#ifdef USE_LITTLEFS
-void m8r::initMacFileSystem(const char* fsFile) { LittleFS::setHostFilename(fsFile); }
-#else
-void m8r::initMacFileSystem(const char* fsFile) { SpiffsFS::setHostFilename(fsFile); }
-#endif
+void m8r::initMacSystemInterface(const char* fsFile, ConsoleCB cb)
+{
+    _consoleCB = cb;
+    LittleFS::setHostFilename(fsFile);
+    
+}
