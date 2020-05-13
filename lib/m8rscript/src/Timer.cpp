@@ -25,8 +25,13 @@ Timer::Timer(Duration duration, Behavior behavior, const Callback& cb)
 {
 }
 
-void Timer::start()
+void Timer::start(Duration duration)
 {
+    stop();
+    if (duration) {
+        _duration = duration;
+    }
+    
     _timeToFire = Time::now() + _duration;
     DBG_TIMERS("start timer (%p): now=%s, duration=%s, fire=%s",
                 this, Time::now().toString().c_str(), _duration.toString().c_str(), _timeToFire.toString().c_str());

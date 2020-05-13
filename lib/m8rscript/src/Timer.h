@@ -45,7 +45,7 @@ public:
         _duration = d;
     }
 
-    void start();
+    void start(Duration = Duration());
     void stop();
     
     bool running() const { return _running; }

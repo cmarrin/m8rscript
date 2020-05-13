@@ -93,7 +93,7 @@ private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
-    int8_t _heartbeatId = -1;
+    std::shared_ptr<Timer> _heartbeatTimer;
     Duration _heartrate;
     Duration _heartOnTime;
     bool _heartOn = false;
