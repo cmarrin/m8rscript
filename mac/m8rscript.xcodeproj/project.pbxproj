@@ -17,15 +17,10 @@
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
 		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
-		491A75F024677ADA00CA38D1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A75EF24677ADA00CA38D1 /* AppDelegate.swift */; };
-		491A75F224677ADA00CA38D1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A75F124677ADA00CA38D1 /* ViewController.swift */; };
-		491A75F424677ADC00CA38D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 491A75F324677ADC00CA38D1 /* Assets.xcassets */; };
-		491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 491A75F524677ADD00CA38D1 /* Main.storyboard */; };
-		491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FE24677EF600CA38D1 /* green-led-off-md.png */; };
-		491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */ = {isa = PBXBuildFile; fileRef = 491A75FF24677EF600CA38D1 /* green-led-on-md.png */; };
-		491A76052468470B00CA38D1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491A76032468470B00CA38D1 /* main.cpp */; };
-		491A76082468491300CA38D1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
-		491A760B246A1C8200CA38D1 /* m8rFSFile in Resources */ = {isa = PBXBuildFile; fileRef = 491A760A246A1C8200CA38D1 /* m8rFSFile */; };
+		491A7619246E470500CA38D1 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 491A7618246E470400CA38D1 /* main.mm */; };
+		491A761C246EDB9D00CA38D1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761B246EDB9D00CA38D1 /* AppKit.framework */; };
+		491A761E246EDBB400CA38D1 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
+		491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 491A761F246EDCDA00CA38D1 /* WebView.mm */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -135,13 +130,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		491A7606246848BB00CA38D1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = m8rscript;
-		};
 		491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -166,6 +154,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		491A760E246E45BE00CA38D1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		491ED3A12353EFE600DE0C42 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -230,19 +227,14 @@
 		49079BAA244384B1000FAF22 /* TCPServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TCPServer.h; path = ../lib/m8rscript/src/TCPServer.h; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
-		491A75ED24677ADA00CA38D1 /* Simulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Simulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		491A75EF24677ADA00CA38D1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		491A75F124677ADA00CA38D1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		491A75F324677ADC00CA38D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		491A75F624677ADD00CA38D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		491A75F824677ADD00CA38D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		491A75F924677ADD00CA38D1 /* Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Simulator.entitlements; sourceTree = "<group>"; };
-		491A75FE24677EF600CA38D1 /* green-led-off-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-off-md.png"; sourceTree = "<group>"; };
-		491A75FF24677EF600CA38D1 /* green-led-on-md.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green-led-on-md.png"; sourceTree = "<group>"; };
-		491A76022468470B00CA38D1 /* Simulator-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Simulator-Bridging-Header.h"; sourceTree = "<group>"; };
-		491A76032468470B00CA38D1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
-		491A760A246A1C8200CA38D1 /* m8rFSFile */ = {isa = PBXFileReference; lastKnownFileType = file; name = m8rFSFile; path = ../../m8rFSFile; sourceTree = "<group>"; };
+		491A7610246E45BE00CA38D1 /* Simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simulator; sourceTree = BUILT_PRODUCTS_DIR; };
+		491A7617246E45FD00CA38D1 /* webview_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webview_impl.h; sourceTree = "<group>"; };
+		491A7618246E470400CA38D1 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		491A761B246EDB9D00CA38D1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		491A761D246EDBB400CA38D1 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		491A761F246EDCDA00CA38D1 /* WebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebView.mm; sourceTree = "<group>"; };
+		491A7621246EDD4B00CA38D1 /* WebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -412,11 +404,12 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		491A75EA24677ADA00CA38D1 /* Frameworks */ = {
+		491A760D246E45BE00CA38D1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				491A76082468491300CA38D1 /* libm8rscript.a in Frameworks */,
+				491A761E246EDBB400CA38D1 /* WebKit.framework in Frameworks */,
+				491A761C246EDB9D00CA38D1 /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,30 +455,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		491A75EE24677ADA00CA38D1 /* Simulator */ = {
+		491A7611246E45BE00CA38D1 /* Simulator */ = {
 			isa = PBXGroup;
 			children = (
-				491A760A246A1C8200CA38D1 /* m8rFSFile */,
-				491A75FD24677B4900CA38D1 /* Images */,
-				491A75EF24677ADA00CA38D1 /* AppDelegate.swift */,
-				491A75F124677ADA00CA38D1 /* ViewController.swift */,
-				491A75F324677ADC00CA38D1 /* Assets.xcassets */,
-				491A75F524677ADD00CA38D1 /* Main.storyboard */,
-				491A75F824677ADD00CA38D1 /* Info.plist */,
-				491A75F924677ADD00CA38D1 /* Simulator.entitlements */,
-				491A76032468470B00CA38D1 /* main.cpp */,
-				491A76022468470B00CA38D1 /* Simulator-Bridging-Header.h */,
+				491A7618246E470400CA38D1 /* main.mm */,
+				491A7617246E45FD00CA38D1 /* webview_impl.h */,
+				491A761F246EDCDA00CA38D1 /* WebView.mm */,
+				491A7621246EDD4B00CA38D1 /* WebView.h */,
 			);
 			path = Simulator;
-			sourceTree = "<group>";
-		};
-		491A75FD24677B4900CA38D1 /* Images */ = {
-			isa = PBXGroup;
-			children = (
-				491A75FE24677EF600CA38D1 /* green-led-off-md.png */,
-				491A75FF24677EF600CA38D1 /* green-led-on-md.png */,
-			);
-			path = Images;
 			sourceTree = "<group>";
 		};
 		491ED3A42353EFE600DE0C42 /* m8rtest */ = {
@@ -521,6 +499,8 @@
 		4945A8791EC398B900559CD1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				491A761D246EDBB400CA38D1 /* WebKit.framework */,
+				491A761B246EDB9D00CA38D1 /* AppKit.framework */,
 				4945A87A1EC398B900559CD1 /* Foundation.framework */,
 			);
 			name = Frameworks;
@@ -715,7 +695,7 @@
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				49D9B8191D1C854700724911 /* m8rsim */,
-				491A75EE24677ADA00CA38D1 /* Simulator */,
+				491A7611246E45BE00CA38D1 /* Simulator */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
 			);
@@ -729,7 +709,7 @@
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
-				491A75ED24677ADA00CA38D1 /* Simulator.app */,
+				491A7610246E45BE00CA38D1 /* Simulator */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -874,23 +854,22 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		491A75EC24677ADA00CA38D1 /* Simulator */ = {
+		491A760F246E45BE00CA38D1 /* Simulator */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 491A75FC24677ADD00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */;
+			buildConfigurationList = 491A7614246E45BE00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */;
 			buildPhases = (
-				491A75E924677ADA00CA38D1 /* Sources */,
-				491A75EA24677ADA00CA38D1 /* Frameworks */,
-				491A75EB24677ADA00CA38D1 /* Resources */,
+				491A760C246E45BE00CA38D1 /* Sources */,
+				491A760D246E45BE00CA38D1 /* Frameworks */,
+				491A760E246E45BE00CA38D1 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				491A7607246848BB00CA38D1 /* PBXTargetDependency */,
 			);
 			name = Simulator;
 			productName = Simulator;
-			productReference = 491A75ED24677ADA00CA38D1 /* Simulator.app */;
-			productType = "com.apple.product-type.application";
+			productReference = 491A7610246E45BE00CA38D1 /* Simulator */;
+			productType = "com.apple.product-type.tool";
 		};
 		491ED3A22353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXNativeTarget;
@@ -992,9 +971,8 @@
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
-					491A75EC24677ADA00CA38D1 = {
+					491A760F246E45BE00CA38D1 = {
 						CreatedOnToolsVersion = 11.4.1;
-						LastSwiftMigration = 1140;
 						ProvisioningStyle = Automatic;
 					};
 					491ED3A22353EFE600DE0C42 = {
@@ -1038,24 +1016,12 @@
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
-				491A75EC24677ADA00CA38D1 /* Simulator */,
+				491A760F246E45BE00CA38D1 /* Simulator */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		491A75EB24677ADA00CA38D1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				491A760024677EF600CA38D1 /* green-led-off-md.png in Resources */,
-				491A760124677EF600CA38D1 /* green-led-on-md.png in Resources */,
-				491A75F424677ADC00CA38D1 /* Assets.xcassets in Resources */,
-				491A760B246A1C8200CA38D1 /* m8rFSFile in Resources */,
-				491A75F724677ADD00CA38D1 /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		49D9B8161D1C854700724911 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1091,13 +1057,12 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		491A75E924677ADA00CA38D1 /* Sources */ = {
+		491A760C246E45BE00CA38D1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				491A75F224677ADA00CA38D1 /* ViewController.swift in Sources */,
-				491A75F024677ADA00CA38D1 /* AppDelegate.swift in Sources */,
-				491A76052468470B00CA38D1 /* main.cpp in Sources */,
+				491A7619246E470500CA38D1 /* main.mm in Sources */,
+				491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1199,11 +1164,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		491A7607246848BB00CA38D1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* m8rscript */;
-			targetProxy = 491A7606246848BB00CA38D1 /* PBXContainerItemProxy */;
-		};
 		491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* m8rscript */;
@@ -1222,14 +1182,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		491A75F524677ADD00CA38D1 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				491A75F624677ADD00CA38D1 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		49D9B81E1D1C854700724911 /* Document.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1249,57 +1201,36 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		491A75FA24677ADD00CA38D1 /* Debug */ = {
+		491A7615246E45BE00CA38D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = Simulator/Simulator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Simulator/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rscript;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OBJC_BRIDGING_HEADER = "Simulator/Simulator-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		491A75FB24677ADD00CA38D1 /* Release */ = {
+		491A7616246E45BE00CA38D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = Simulator/Simulator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Simulator/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rscript;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Simulator/Simulator-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -1575,11 +1506,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		491A75FC24677ADD00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */ = {
+		491A7614246E45BE00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				491A75FA24677ADD00CA38D1 /* Debug */,
-				491A75FB24677ADD00CA38D1 /* Release */,
+				491A7615246E45BE00CA38D1 /* Debug */,
+				491A7616246E45BE00CA38D1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
