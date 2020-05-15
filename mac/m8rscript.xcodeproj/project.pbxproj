@@ -17,10 +17,11 @@
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
 		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
-		491A7619246E470500CA38D1 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 491A7618246E470400CA38D1 /* main.mm */; };
+		491A7619246E470500CA38D1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491A7618246E470400CA38D1 /* main.cpp */; };
 		491A761C246EDB9D00CA38D1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761B246EDB9D00CA38D1 /* AppKit.framework */; };
 		491A761E246EDBB400CA38D1 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
 		491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 491A761F246EDCDA00CA38D1 /* WebView.mm */; };
+		491A7623246EFC6B00CA38D1 /* index.html in CopyFiles */ = {isa = PBXBuildFile; fileRef = 491A7622246EF95A00CA38D1 /* index.html */; };
 		491E2F8F236A52160054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
@@ -156,12 +157,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		491A760E246E45BE00CA38D1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = usr/share/man/man1;
+			dstSubfolderSpec = 7;
 			files = (
+				491A7623246EFC6B00CA38D1 /* index.html in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		491ED3A12353EFE600DE0C42 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -230,11 +232,12 @@
 		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
 		491A7610246E45BE00CA38D1 /* Simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		491A7617246E45FD00CA38D1 /* webview_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webview_impl.h; sourceTree = "<group>"; };
-		491A7618246E470400CA38D1 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		491A7618246E470400CA38D1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		491A761B246EDB9D00CA38D1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		491A761D246EDBB400CA38D1 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		491A761F246EDCDA00CA38D1 /* WebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebView.mm; sourceTree = "<group>"; };
 		491A7621246EDD4B00CA38D1 /* WebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
+		491A7622246EF95A00CA38D1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -458,10 +461,11 @@
 		491A7611246E45BE00CA38D1 /* Simulator */ = {
 			isa = PBXGroup;
 			children = (
-				491A7618246E470400CA38D1 /* main.mm */,
+				491A7618246E470400CA38D1 /* main.cpp */,
 				491A7617246E45FD00CA38D1 /* webview_impl.h */,
 				491A761F246EDCDA00CA38D1 /* WebView.mm */,
 				491A7621246EDD4B00CA38D1 /* WebView.h */,
+				491A7622246EF95A00CA38D1 /* index.html */,
 			);
 			path = Simulator;
 			sourceTree = "<group>";
@@ -1061,7 +1065,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				491A7619246E470500CA38D1 /* main.mm in Sources */,
+				491A7619246E470500CA38D1 /* main.cpp in Sources */,
 				491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

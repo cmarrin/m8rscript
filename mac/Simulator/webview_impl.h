@@ -1,3 +1,12 @@
+/*-------------------------------------------------------------------------
+    This source file is a part of m8rscript
+    For the latest info, see http:www.marrin.org/
+    Copyright (c) 2018-2019, Chris Marrin
+    All rights reserved.
+    Use of this source code is governed by the MIT license that can be
+    found in the LICENSE file.
+-------------------------------------------------------------------------*/
+
 #include <functional>
 #include <string>
 #import <Cocoa/Cocoa.h>
@@ -32,48 +41,53 @@ type="text/javascript"></script></body>
 */
 
 namespace wv {
-using String = std::string;
-
 class WebView {
   using jscb = std::function<void(WebView &, std::string &)>;
 
 public:
-  WebView(int width, int height, bool resizable, bool debug, String title,
-          String url = DEFAULT_URL)
-      : width(width), height(height), resizable(resizable), debug(debug),
-        title(title), url(url) {}
-  int init();                      // Initialize webview
-  void setCallback(jscb callback); // JS callback
-  void setTitle(String t);         // Set title of window
-  void setFullscreen(bool fs);     // Set fullscreen
-  void setBgColor(uint8_t r, uint8_t g, uint8_t b,
+    WebView(int width, int height, bool resizable, bool debug, const std::string& title, const std::string& html = "")
+        : width(width)
+        , height(height)
+        , resizable(resizable)
+        , debug(debug)
+        , _title(title)
+        , _html(html)
+    {
+    }
+    
+    int init();                      // Initialize webview
+    void setCallback(jscb callback); // JS callback
+    void setTitle(const std::string& t);         // Set title of window
+    void setFullscreen(bool fs);     // Set fullscreen
+    void setBgColor(uint8_t r, uint8_t g, uint8_t b,
                   uint8_t a); // Set background color
-  bool run();                 // Main loop
-  void navigate(String u);    // Navigate to URL
-  void preEval(String js);    // Eval JS before page loads
-  void eval(String js);       // Eval JS
-  void css(String css);       // Inject CSS
-  void exit();                // Stop loop
+    bool run();                 // Main loop
+    void navigate(const std::string& u);    // Navigate to URL
+    void preEval(const std::string& js);    // Eval JS before page loads
+    void eval(const std::string& js);       // Eval JS
+    void css(const std::string& css);       // Inject CSS
+    void exit();                // Stop loop
 
 private:
-  // Properties for init
-  int width;
-  int height;
-  bool resizable;
-  bool fullscreen = false;
-  bool debug;
-  String title;
-  String url;
+    // Properties for init
+    int width;
+    int height;
+    bool resizable;
+    bool fullscreen = false;
+    bool debug;
+    std::string _title;
+    std::string _html;
+    std::string _url;
 
-  jscb js_callback;
-  bool init_done = false; // Finished running init
-  uint8_t bgR = 255, bgG = 255, bgB = 255, bgA = 255;
+    jscb js_callback;
+    bool init_done = false; // Finished running init
+    uint8_t bgR = 255, bgG = 255, bgB = 255, bgA = 255;
 
-  String inject = "window.external={invoke:arg=>window.webkit.messageHandlers.webview.postMessage(arg)};";
-  bool should_exit = false; // Close window
-  //NSAutoreleasePool *pool;
-  NSWindow *window;
-  WKWebView *webview;
+    std::string inject = "window.external={invoke:arg=>window.webkit.messageHandlers.webview.postMessage(arg)};";
+    bool should_exit = false; // Close window
+    //NSAutoreleasePool *pool;
+    NSWindow *window;
+    WKWebView *webview;
 };
 
 int WebView::init() {
@@ -165,21 +179,22 @@ int WebView::init() {
   // Done initialization, set properties
   init_done = true;
 
-  setTitle(title);
+  setTitle(_title);
   if (fullscreen) {
     setFullscreen(true);
   }
   setBgColor(bgR, bgG, bgB, bgA);
-  navigate(url);
+  
+  [webview loadHTMLString:[NSString stringWithUTF8String:_html.c_str()] baseURL: NULL];
 
   return 0;
 }
 
 void WebView::setCallback(jscb callback) { js_callback = callback; }
 
-void WebView::setTitle(std::string t) {
+void WebView::setTitle(const std::string& t) {
   if (!init_done) {
-    title = t;
+    _title = t;
   } else {
     [window setTitle:[NSString stringWithUTF8String:t.c_str()]];
   }
@@ -219,12 +234,12 @@ bool WebView::run() {
     [NSApp sendEvent:event];
   }
 
-  return should_exit;
+  return !should_exit;
 }
 
-void WebView::navigate(std::string u) {
+void WebView::navigate(const std::string& u) {
   if (!init_done) {
-    url = u;
+    _url = u;
   } else {
     [webview
         loadRequest:[NSURLRequest
@@ -234,14 +249,17 @@ void WebView::navigate(std::string u) {
   }
 }
 
-void WebView::preEval(std::string js) { inject += "(()=>{" + js + "})()"; }
-
-void WebView::eval(std::string js) {
-  [webview evaluateJavaScript:[NSString stringWithUTF8String:js.c_str()]
-            completionHandler:nil];
+void WebView::preEval(const std::string& js)
+{
+    inject += "(()=>{" + js + "})()";
 }
 
-void WebView::css(std::string css) {
+void WebView::eval(const std::string& js)
+{
+    [webview evaluateJavaScript:[NSString stringWithUTF8String:js.c_str()] completionHandler:nil];
+}
+
+void WebView::css(const std::string& css) {
   eval(R"js(
     (
       function (css) {

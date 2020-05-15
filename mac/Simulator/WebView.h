@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <string>
+
 // This is the interface to webview_impl
 
 namespace Sim {
@@ -16,8 +18,13 @@ namespace Sim {
 class WebView
 {
 public:
-    WebView();
+    WebView(int width, int height, const std::string& title, const std::string& html);
     ~WebView();
+    
+    bool run();
+    
+private:
+    void* _webView = nullptr;
 };
 
 }

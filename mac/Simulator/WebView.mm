@@ -12,17 +12,28 @@
 
 using namespace Sim;
 
-Sim::WebView::WebView()
+static inline wv::WebView* webView(void* wv)
 {
-    wv::WebView w { 800, 600, true, true, "WebView", "http://www.google.com" };
+    return reinterpret_cast<wv::WebView*>(wv);
+}
 
-    if (w.init() == -1) {
-        return; // Error
+Sim::WebView::WebView(int width, int height, const std::string& title, const std::string& html)
+{
+    wv::WebView* w = new wv::WebView(width, height, true, true, title.c_str(), html.c_str());
+    _webView = w;
+
+    if (w->init() == -1) {
+        delete w;
+        _webView = nullptr;
+        return;
     }
-
-    while (w.run() == 0) { }
 }
 
 Sim::WebView::~WebView() 
 {
+}
+
+bool Sim::WebView::run()
+{
+    return webView(_webView)->run();
 }
