@@ -1,0 +1,181 @@
+/*-------------------------------------------------------------------------
+    This source file is a part of m8rscript
+    For the latest info, see http:www.marrin.org/
+    Copyright (c) 2018-2019, Chris Marrin
+    All rights reserved.
+    Use of this source code is governed by the MIT license that can be
+    found in the LICENSE file.
+-------------------------------------------------------------------------*/
+
+#include <functional>
+#include <string>
+#import <Cocoa/Cocoa.h>
+#import <Webkit/Webkit.h>
+#include <objc/objc-runtime.h>
+
+// ObjC declarations may only appear in global scope
+@interface WindowDelegate : NSObject <NSWindowDelegate, WKScriptMessageHandler>
+@end
+
+@implementation WindowDelegate
+- (void)userContentController:(WKUserContentController *)userContentController
+      didReceiveScriptMessage:(WKScriptMessage *)scriptMessage {
+}
+@end
+
+constexpr auto DEFAULT_URL =
+    "data:text/"
+    "html,%3C%21DOCTYPE%20html%3E%0A%3Chtml%20lang=%22en%22%3E%0A%3Chead%3E%"
+    "3Cmeta%20charset=%22utf-8%22%3E%3Cmeta%20http-equiv=%22X-UA-Compatible%22%"
+    "20content=%22IE=edge%22%3E%3C%2Fhead%3E%0A%3Cbody%3E%3Cdiv%20id=%22app%22%"
+    "3E%3C%2Fdiv%3E%3Cscript%20type=%22text%2Fjavascript%22%3E%3C%2Fscript%3E%"
+    "3C%2Fbody%3E%0A%3C%2Fhtml%3E";
+
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible"
+content="IE=edge"></head> <body><div id="app"></div><script
+type="text/javascript"></script></body>
+</html>
+*/
+
+namespace wv {
+class WebView {
+  using jscb = std::function<void(WebView &, std::string &)>;
+
+public:
+    WebView(int width, int height, bool resizable, bool debug, const std::string& title)
+        : width(width)
+        , height(height)
+        , resizable(resizable)
+        , debug(debug)
+        , _title(title)
+    {
+    }
+    
+    int init();                      // Initialize webview
+    void setCallback(jscb callback); // JS callback
+    void setTitle(const std::string& t);         // Set title of window
+    void setFullscreen(bool fs);     // Set fullscreen
+    void setBgColor(uint8_t r, uint8_t g, uint8_t b,
+                  uint8_t a); // Set background color
+    bool run();                 // Main loop
+    void navigate(const std::string& u);    // Navigate to URL
+    void preEval(const std::string& js);    // Eval JS before page loads
+    void eval(const std::string& js);       // Eval JS
+    void css(const std::string& css);       // Inject CSS
+    void exit();                // Stop loop
+
+private:
+    // Properties for init
+    int width;
+    int height;
+    bool resizable;
+    bool fullscreen = false;
+    bool debug;
+    std::string _title;
+    std::string _url;
+
+    jscb js_callback;
+    bool init_done = false; // Finished running init
+    uint8_t bgR = 255, bgG = 255, bgB = 255, bgA = 255;
+
+    std::string inject = "window.external={invoke:arg=>window.webkit.messageHandlers.webview.postMessage(arg)};";
+    bool should_exit = false; // Close window
+    //NSAutoreleasePool *pool;
+    NSWindow *window;
+    WKWebView *webview;
+};
+
+void WebView::setCallback(jscb callback) { js_callback = callback; }
+
+void WebView::setTitle(const std::string& t) {
+  if (!init_done) {
+    _title = t;
+  } else {
+    [window setTitle:[NSString stringWithUTF8String:t.c_str()]];
+  }
+}
+
+void WebView::setFullscreen(bool fs) {
+  if (!init_done) {
+    fullscreen = fs;
+  } else if (fs) {
+    // TODO: replace toggle with set
+    [window toggleFullScreen:nil];
+  } else {
+    [window toggleFullScreen:nil];
+  }
+}
+
+void WebView::setBgColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+  if (!init_done) {
+    bgR = r;
+    bgG = g;
+    bgB = b;
+    bgA = a;
+  } else {
+    [window setBackgroundColor:[NSColor colorWithCalibratedRed:r / 255.0
+                                                         green:g / 255.0
+                                                          blue:b / 255.0
+                                                         alpha:a / 255.0]];
+  }
+}
+
+bool WebView::run() {
+  NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                      untilDate:[NSDate distantFuture]
+                                         inMode:NSDefaultRunLoopMode
+                                        dequeue:true];
+  if (event) {
+    [NSApp sendEvent:event];
+  }
+
+  return !should_exit;
+}
+
+void WebView::navigate(const std::string& u) {
+  if (!init_done) {
+    _url = u;
+  } else {
+    [webview
+        loadRequest:[NSURLRequest
+                        requestWithURL:
+                            [NSURL URLWithString:[NSString stringWithUTF8String:
+                                                               u.c_str()]]]];
+  }
+}
+
+void WebView::preEval(const std::string& js)
+{
+    inject += "(()=>{" + js + "})()";
+}
+
+void WebView::eval(const std::string& js)
+{
+    [webview evaluateJavaScript:[NSString stringWithUTF8String:js.c_str()] completionHandler:nil];
+}
+
+void WebView::css(const std::string& css) {
+  eval(R"js(
+    (
+      function (css) {
+        if (document.styleSheets.length === 0) {
+          var s = document.createElement('style');
+          s.type = 'text/css';
+          document.head.appendChild(s);
+        }
+        document.styleSheets[0].insertRule(css);
+      }
+    )(')js" +
+       css + "')");
+}
+
+void WebView::exit() {
+  // Distinguish window closing with app exiting
+  should_exit = true;
+  [NSApp terminate:nil];
+}
+
+} // namespace wv

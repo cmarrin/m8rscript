@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<!--
+-------------------------------------------------------------------------
+    This source file is a part of m8rscript
+    For the latest info, see http:www.marrin.org/
+    Copyright (c) 2018-2019, Chris Marrin
+    All rights reserved.
+    Use of this source code is governed by the MIT license that can be
+    found in the LICENSE file.
+-------------------------------------------------------------------------
+-->
+
+<html>
+    <head>
+        <style>
+            #hw-outer {
+            }
+            #hw-inner {
+                height: 100px;
+                background-color: grey;
+                border: 2px solid black;
+                border-radius: 5px;
+            }
+            .led-inner {
+                width: 20px;
+                height: 20px;
+                border: 2px solid black;
+                background-size: 100%;
+            }
+            .led-off {
+                background-image: url("green-led-off-md.png");
+            }
+            .led-on {
+                background-image: url("green-led-on-md.png");
+            }
+            #Console {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div id="hw-outer">
+            Hardware
+            <div id="hw-inner">
+                <div class="led-outer">
+                    <div id="LED1" class="led-inner led-on"></div>
+                    LED1
+                </div>
+            </div>
+        </div>
+        <div id="ConsoleOuter">
+            Console
+            <div id="ConsoleInner">
+                <textarea id="Console">Hello World
+                </textarea>
+            </div>
+        </div>
+    </body>
+</html>
