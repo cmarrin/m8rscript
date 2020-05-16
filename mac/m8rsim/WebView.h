@@ -34,6 +34,9 @@ public:
     virtual void eval(const std::string& js) = 0;
     virtual void css(const std::string& css) = 0;
     virtual void exit() = 0;
+    
+    virtual std::string pathForResource(const std::string& name, const std::string& suffix) = 0;
+    virtual std::string homeDirectory() = 0;
 
 protected:
     bool _resizable = true;
