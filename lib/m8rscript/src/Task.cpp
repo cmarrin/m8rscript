@@ -51,7 +51,7 @@ bool Task::load(const char* filename)
         error = file->error();
     }
 
-    if (error != Error::Code::OK) {
+    if (error) {
         _eu->print(Error::formatError(error.code(), ROMSTR("Unable to open '%s' for execution"), filename).c_str());
         _error = error;
         return false;
