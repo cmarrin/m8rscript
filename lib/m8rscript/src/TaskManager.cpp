@@ -54,10 +54,10 @@ void TaskManager::requestYield()
     }
 }
 
-void TaskManager::runOneIteration()
+bool TaskManager::runOneIteration()
 {
     // See if there's anything to be done
-    executeNextTask();
+    return executeNextTask();
 }
 void TaskManager::run(const std::shared_ptr<TaskBase>& newTask, FinishCallback cb)
 {

@@ -128,8 +128,8 @@ bool Application::mountFileSystem()
     return true;
 }
 
-void Application::runOneIteration()
+bool Application::runOneIteration()
 {
     _terminal->handleEvents();
-    system()->runOneIteration();
+    return system()->runOneIteration();
 }

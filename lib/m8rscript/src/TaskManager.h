@@ -43,7 +43,7 @@ protected:
     void removeTimer(Timer*);
 
 private:
-    void runOneIteration();
+    bool runOneIteration();
 
     void readyToExecuteNextTask();
     void startTimeSliceTimer();

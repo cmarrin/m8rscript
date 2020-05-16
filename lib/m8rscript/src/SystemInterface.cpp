@@ -27,9 +27,9 @@ void SystemInterface::vprintf(ROMString fmt, va_list args) const
     print(String::vformat(fmt, args).c_str());
 }
 
-void SystemInterface::runOneIteration()
+bool SystemInterface::runOneIteration()
 {
-    taskManager()->runOneIteration();
+    return taskManager()->runOneIteration();
 }
 
 void SystemInterface::startHeartbeat()

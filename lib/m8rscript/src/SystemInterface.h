@@ -80,7 +80,7 @@ public:
     
     void setListenerFunc(std::function<void(const char*)> func) { _listenerFunc = func; }
 
-    void runOneIteration();
+    bool runOneIteration();
     
     void setHeartrate(Duration rate, Duration ontime = Duration());
 

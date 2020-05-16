@@ -26,7 +26,7 @@ public:
     Application(uint16_t port);
     ~Application();
         
-    void runOneIteration();
+    bool runOneIteration();
     String autostartFilename() const;
 
     enum class NameValidationType { Ok, BadLength, InvalidChar };
