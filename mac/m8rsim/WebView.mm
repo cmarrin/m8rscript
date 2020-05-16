@@ -38,6 +38,8 @@ public:
     virtual void eval(const std::string& js) override;
     virtual void css(const std::string& css) override;
     virtual void exit() override;
+    virtual std::string pathForResource(const std::string& name, const std::string& suffix) override;
+    virtual std::string homeDirectory() override;
 
 private:
     NSWindow* _window;
@@ -201,6 +203,18 @@ void WebViewImpl::exit()
     // Distinguish window closing with app exiting
     _shouldExit = true;
     [NSApp terminate:nil];
+}
+
+std::string WebViewImpl::pathForResource(const std::string& name, const std::string& suffix)
+{
+    NSString* path = [[NSBundle mainBundle] pathForResource: [NSString stringWithUTF8String:name.c_str()] 
+                                                     ofType: [NSString stringWithUTF8String:suffix.c_str()]];
+    return std::string(path ? [path cStringUsingEncoding:NSUTF8StringEncoding] : "");
+}
+
+std::string WebViewImpl::homeDirectory()
+{
+    return std::string([NSHomeDirectory() cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 Sim::WebView* Sim::WebView::create(int width, int height, bool resizable, bool debug, const std::string& title)
