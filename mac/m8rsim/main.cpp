@@ -23,10 +23,24 @@ static m8r::Application* application = nullptr;
 static constexpr m8r::Duration ExecutionLoopIdleDelay = 2ms;
 static constexpr m8r::Duration HeartOnTime = 100ms;
 
+static void escape(std::string& s)
+{
+    while (1) {
+        size_t pos = s.find_first_of("\n");
+        if (pos == std::string::npos) {
+            return;
+        }
+        s.replace(pos, 1, "\\n");
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Create GUI WebPage
     Sim::WebView* wv = Sim::WebView::create(800, 600, false, true, "m8rScript Simulator");
+
+    std::mutex evalMutex;
+    std::string evalString;
 
     // Init m8rscript
     if (!application) {
@@ -48,16 +62,18 @@ int main(int argc, char **argv)
             source.close();
         }
         
-        m8r::initMacSystemInterface(destFile.c_str(), [](const char* s) {
-            //consoleString += s;
-            ::printf("%s", s);
+        m8r::initMacSystemInterface(destFile.c_str(), [&evalMutex, &evalString](const char* s) {
+            std::lock_guard<std::mutex> lock(evalMutex);
+            std::string ss(s);
+            escape(ss);
+            evalString += std::string("document.getElementById('Console').value += '");
+            evalString += ss;
+            evalString += "';";
         });
         application = new m8r::Application(800);
     }
     
     m8r::system()->setDefaultHeartOnTime(HeartOnTime);
-    std::mutex evalMutex;
-    std::string evalString;
 
     std::thread([wv, &evalMutex, &evalString] {
         while (1) {
@@ -85,7 +101,6 @@ int main(int argc, char **argv)
             s = std::move(evalString);
         }
         if (!s.empty()) {
-            printf("%s\n", s.c_str());
             wv->eval(s);
         }
     }
