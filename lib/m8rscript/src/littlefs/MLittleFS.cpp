@@ -104,7 +104,11 @@ bool LittleFS::format()
 Mad<File> LittleFS::open(const char* name, FileOpenMode mode)
 {
     Mad<LittleFile> file = Mad<LittleFile>::create(MemoryType::Native);
-    file->open(name, mode);
+    if (_error) {
+        file->_error = _error;
+    } else {
+        file->open(name, mode);
+    }
     return file;
 }
 
