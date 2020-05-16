@@ -40,14 +40,19 @@
                 height: 100%;
             }
         </style>
+        <script>
+            function loadComplete()
+            {
+            }
+        </script>
     </head>
     
-    <body>
+    <body onload="loadComplete()">
         <div id="hw-outer">
             Hardware
             <div id="hw-inner">
                 <div class="led-outer">
-                    <div id="LED1" class="led-inner led-on"></div>
+                    <div id="LED1" class="led-inner led-off"></div>
                     LED1
                 </div>
             </div>

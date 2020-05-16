@@ -15,9 +15,13 @@
 #include <fstream>
 #include <streambuf>
 #include <thread>
+#include <mutex>
 #include <unistd.h>
 
 static m8r::Application* application = nullptr;
+
+static constexpr m8r::Duration ExecutionLoopIdleDelay = 2ms;
+static constexpr m8r::Duration HeartOnTime = 100ms;
 
 int main(int argc, char **argv)
 {
@@ -50,24 +54,41 @@ int main(int argc, char **argv)
         });
         application = new m8r::Application(800);
     }
+    
+    m8r::system()->setDefaultHeartOnTime(HeartOnTime);
+    std::mutex evalMutex;
+    std::string evalString;
 
-    std::thread([wv] {
+    std::thread([wv, &evalMutex, &evalString] {
         while (1) {
             bool busy = application->runOneIteration();
             
             uint32_t value, change;
             m8r::system()->gpio()->getState(value, change);
             if ((change & 0x04) != 0) {
-                // turn on LED if value & 0x04 is not zero
+                // turn on LED if value & 0x04 is zero
+                std::lock_guard<std::mutex> lock(evalMutex);
+                evalString += std::string("document.getElementById('LED1').className = 'led-inner led-");
+                evalString += std::string((value & 0x04) ? "off" : "on") + "';"; 
             }
             
             if (!busy) {
-                usleep(10000);
+                usleep(static_cast<uint32_t>(ExecutionLoopIdleDelay.us()));
             }
         }
     }).detach();
 
-    while (wv->run()) { }
+    while (wv->run()) {
+        std::string s;
+        {
+            std::lock_guard<std::mutex> lock(evalMutex);
+            s = std::move(evalString);
+        }
+        if (!s.empty()) {
+            printf("%s\n", s.c_str());
+            wv->eval(s);
+        }
+    }
     
     return 0;
 }
