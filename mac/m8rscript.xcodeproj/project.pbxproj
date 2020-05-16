@@ -17,11 +17,6 @@
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
 		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
-		491A7619246E470500CA38D1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491A7618246E470400CA38D1 /* main.cpp */; };
-		491A761C246EDB9D00CA38D1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761B246EDB9D00CA38D1 /* AppKit.framework */; };
-		491A761E246EDBB400CA38D1 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
-		491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 491A761F246EDCDA00CA38D1 /* WebView.mm */; };
-		491A7623246EFC6B00CA38D1 /* index.html in CopyFiles */ = {isa = PBXBuildFile; fileRef = 491A7622246EF95A00CA38D1 /* index.html */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
@@ -215,14 +210,8 @@
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
-		491A7610246E45BE00CA38D1 /* Simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simulator; sourceTree = BUILT_PRODUCTS_DIR; };
-		491A7617246E45FD00CA38D1 /* webview_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webview_impl.h; sourceTree = "<group>"; };
-		491A7618246E470400CA38D1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		491A761B246EDB9D00CA38D1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		491A761D246EDBB400CA38D1 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		491A761F246EDCDA00CA38D1 /* WebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebView.mm; sourceTree = "<group>"; };
-		491A7621246EDD4B00CA38D1 /* WebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
-		491A7622246EF95A00CA38D1 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		491E2F8D236A52160054725E /* Telnet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Telnet.cpp; path = ../lib/m8rscript/src/Telnet.cpp; sourceTree = "<group>"; };
 		491E2F8E236A52160054725E /* Telnet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Telnet.h; path = ../lib/m8rscript/src/Telnet.h; sourceTree = "<group>"; };
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -370,15 +359,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		491A760D246E45BE00CA38D1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				491A761E246EDBB400CA38D1 /* WebKit.framework in Frameworks */,
-				491A761C246EDB9D00CA38D1 /* AppKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		491ED3A02353EFE600DE0C42 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -422,18 +402,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		491A7611246E45BE00CA38D1 /* Simulator */ = {
-			isa = PBXGroup;
-			children = (
-				491A7618246E470400CA38D1 /* main.cpp */,
-				491A7617246E45FD00CA38D1 /* webview_impl.h */,
-				491A761F246EDCDA00CA38D1 /* WebView.mm */,
-				491A7621246EDD4B00CA38D1 /* WebView.h */,
-				491A7622246EF95A00CA38D1 /* index.html */,
-			);
-			path = Simulator;
-			sourceTree = "<group>";
-		};
 		491ED3A42353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXGroup;
 			children = (
@@ -617,7 +585,6 @@
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				49D9B8191D1C854700724911 /* m8rsim */,
-				491A7611246E45BE00CA38D1 /* Simulator */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
 			);
@@ -631,7 +598,6 @@
 				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
-				491A7610246E45BE00CA38D1 /* Simulator */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -776,23 +742,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		491A760F246E45BE00CA38D1 /* Simulator */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 491A7614246E45BE00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */;
-			buildPhases = (
-				491A760C246E45BE00CA38D1 /* Sources */,
-				491A760D246E45BE00CA38D1 /* Frameworks */,
-				491A760E246E45BE00CA38D1 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Simulator;
-			productName = Simulator;
-			productReference = 491A7610246E45BE00CA38D1 /* Simulator */;
-			productType = "com.apple.product-type.tool";
-		};
 		491ED3A22353EFE600DE0C42 /* m8rtest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */;
@@ -893,10 +842,6 @@
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
-					491A760F246E45BE00CA38D1 = {
-						CreatedOnToolsVersion = 11.4.1;
-						ProvisioningStyle = Automatic;
-					};
 					491ED3A22353EFE600DE0C42 = {
 						CreatedOnToolsVersion = 11.0;
 						ProvisioningStyle = Automatic;
@@ -938,7 +883,6 @@
 				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
-				491A760F246E45BE00CA38D1 /* Simulator */,
 			);
 		};
 /* End PBXProject section */
@@ -976,15 +920,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		491A760C246E45BE00CA38D1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				491A7619246E470500CA38D1 /* main.cpp in Sources */,
-				491A7620246EDCDA00CA38D1 /* WebView.mm in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		491ED39F2353EFE600DE0C42 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1395,15 +1330,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		491A7614246E45BE00CA38D1 /* Build configuration list for PBXNativeTarget "Simulator" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				491A7615246E45BE00CA38D1 /* Debug */,
-				491A7616246E45BE00CA38D1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
