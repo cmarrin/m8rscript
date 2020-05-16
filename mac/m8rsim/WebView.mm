@@ -136,7 +136,7 @@ WebViewImpl::~WebViewImpl()
 bool WebViewImpl::run()
 {
     NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                        untilDate:[NSDate distantFuture]
+                                        untilDate:[NSDate dateWithTimeIntervalSinceNow: 0.002]
                                            inMode:NSDefaultRunLoopMode
                                           dequeue:true];
     if (event) {
