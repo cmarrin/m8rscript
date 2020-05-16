@@ -83,6 +83,7 @@ public:
     bool runOneIteration();
     
     void setHeartrate(Duration rate, Duration ontime = Duration());
+    void setDefaultHeartOnTime(Duration ontime);
 
 protected:
     SystemInterface() { }
@@ -96,6 +97,7 @@ private:
     std::shared_ptr<Timer> _heartbeatTimer;
     Duration _heartrate;
     Duration _heartOnTime;
+    Duration _defaultHeartOnTime;
     bool _heartOn = false;
 };
 

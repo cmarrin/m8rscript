@@ -51,7 +51,7 @@ void SystemInterface::startHeartbeat()
 void SystemInterface::setHeartrate(Duration rate, Duration ontime)
 {
     if (ontime == Duration()) {
-        ontime = DefaultHeartOnTime;
+        ontime = _defaultHeartOnTime ?: DefaultHeartOnTime;
     }
     
     if (!_heartbeatTimer) {
@@ -64,3 +64,8 @@ void SystemInterface::setHeartrate(Duration rate, Duration ontime)
     startHeartbeat();
 }
 
+void SystemInterface::setDefaultHeartOnTime(Duration ontime)
+{
+    _defaultHeartOnTime = ontime;
+    setHeartrate(_heartrate);
+}
