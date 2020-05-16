@@ -62,7 +62,7 @@ public:
     Error(const Error::Code& code) : _code(code) { }
     ~Error() { }
     
-    operator bool () const { return _code == Code::OK; }
+    operator bool () const { return _code != Code::OK; }
     Error& operator= (const Error::Code& code) { _code = code; return *this; }
     
     friend bool operator==(const Error& a, Error::Code b) { return a._code == b; }
