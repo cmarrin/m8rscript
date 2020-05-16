@@ -14,6 +14,7 @@
 
 #include <fstream>
 #include <streambuf>
+#include <thread>
 #include <unistd.h>
 
 static m8r::Application* application = nullptr;
@@ -50,73 +51,23 @@ int main(int argc, char **argv)
         application = new m8r::Application(800);
     }
 
-    while (wv->run()) {
-        application->runOneIteration();
-        
-        uint32_t value, change;
-        m8r::system()->gpio()->getState(value, change);
-        if ((change & 0x04) != 0) {
-            // turn on LED if value & 0x04 is not zero
-        }
-    }
-    
-    delete wv;
-    return 0;
-}
-
-
-
-
-
-
-
-#if 0
-
-
-class ViewController: NSViewController {
-
-    @IBOutlet weak var LED1: NSButton!
-    @IBOutlet var Console: NSTextView!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        LED1.state = NSControl.StateValue.on
-
-        
-        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
-            m8rRunOneIteration()
+    std::thread([wv] {
+        while (1) {
+            bool busy = application->runOneIteration();
             
-            var value: UInt32 = 0
-            var change: UInt32 = 0
-            m8rGetGPIOState(&value, &change)
+            uint32_t value, change;
+            m8r::system()->gpio()->getState(value, change);
             if ((change & 0x04) != 0) {
-                self.LED1.state = ((value & 0x04) != 0) ? NSControl.StateValue.off : NSControl.StateValue.on
+                // turn on LED if value & 0x04 is not zero
             }
             
-            self.Console.textStorage?.append(NSAttributedString(string: String(cString:m8rGetConsoleString())));
+            if (!busy) {
+                usleep(10000);
+            }
         }
-    }
+    }).detach();
 
-    override var representedObject: Any? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-
-
-
-
-
-
-static m8r::Application* application = nullptr;
-
-static m8r::String consoleString; 
-
-const char* m8rGetConsoleString()
-{
-    m8r::String s = std::move(consoleString);
-    return s.c_str();
+    while (wv->run()) { }
+    
+    return 0;
 }
-
-#endif
