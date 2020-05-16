@@ -266,7 +266,6 @@
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
 		497139BC246F50860025CC4D /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		497139BD246F50860025CC4D /* WebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
-		497139BE246F50860025CC4D /* webview_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webview_impl.h; sourceTree = "<group>"; };
 		497139BF246F50860025CC4D /* WebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebView.mm; sourceTree = "<group>"; };
 		4978365C24141EEC005735D5 /* timing.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = timing.m8r; path = ../../scripts/timing/timing.m8r; sourceTree = "<group>"; };
 		4978365D24141EEC005735D5 /* timing-esp.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = "timing-esp.m8r"; path = "../../scripts/timing/timing-esp.m8r"; sourceTree = "<group>"; };
@@ -575,7 +574,6 @@
 			isa = PBXGroup;
 			children = (
 				497139BC246F50860025CC4D /* index.html */,
-				497139BE246F50860025CC4D /* webview_impl.h */,
 				497139BD246F50860025CC4D /* WebView.h */,
 				497139BF246F50860025CC4D /* WebView.mm */,
 				49562F691D1D7A75001AFAEE /* main.cpp */,

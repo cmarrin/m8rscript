@@ -32,8 +32,10 @@ int main(int argc, char **argv)
 //    
 //    html.assign((std::istreambuf_iterator<char>(t)),
 //            std::istreambuf_iterator<char>());
-    Sim::WebView wv(800, 600, "m8rScript Simulator");
+    Sim::WebView* wv = Sim::WebView::create(800, 600, false, true, "m8rScript Simulator");
     
-    while (wv.run()) { }
+    while (wv->run()) { }
+    
+    delete wv;
     return 0;
 }

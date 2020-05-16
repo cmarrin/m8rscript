@@ -9,22 +9,40 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
-
-// This is the interface to webview_impl
 
 namespace Sim {
 
 class WebView
 {
 public:
-    WebView(int width, int height, const std::string& title);
-    ~WebView();
+    using jscb = std::function<void(WebView &, std::string &)>;
+
+    static WebView* create(int width, int height, bool resizable, bool debug, const std::string& title);
     
-    bool run();
+    virtual ~WebView() { }
     
-private:
-    void* _webView = nullptr;
+    void setCallback(jscb callback) { _jscb = callback; }
+    
+    virtual bool run() = 0;
+    
+    virtual void setTitle(const std::string& t) = 0;
+    virtual void setFullscreen(bool fs) = 0;
+    virtual void navigate(const std::string& u) = 0;
+    virtual void preEval(const std::string& js) = 0;
+    virtual void eval(const std::string& js) = 0;
+    virtual void css(const std::string& css) = 0;
+    virtual void exit() = 0;
+
+protected:
+    bool _resizable = true;
+    bool _debug = false;
+
+    jscb _jscb;
+
+    std::string _inject = "window.external={invoke:arg=>window.webkit.messageHandlers.webview.postMessage(arg)};";
+    bool _shouldExit = false;
 };
 
 }
