@@ -11,6 +11,7 @@
 
 #include "SystemTime.h"
 
+#include <errno.h>
 #include <pthread.h>
 #include <functional>
 

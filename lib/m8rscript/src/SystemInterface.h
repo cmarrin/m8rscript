@@ -13,6 +13,7 @@
 #include "IPAddr.h"
 #include "TaskManager.h"
 #include "TCP.h"
+#include "Thread.h"
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
@@ -40,6 +41,8 @@ class SystemInterface  {
 public:
     friend class Time;
     
+    static constexpr int NumTimers = 8;
+
     static SystemInterface* create();
 
     virtual ~SystemInterface() { }
@@ -68,8 +71,8 @@ public:
     virtual void setDeviceName(const char*) = 0;
         
     // Return timer ID, -1 if can't start a timer
-    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>) = 0;
-    virtual void stopTimer(int8_t id) = 0;
+    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>);
+    virtual void stopTimer(int8_t id);
     
     void receivedLine(const char* line)
     {
@@ -94,6 +97,14 @@ private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
+    struct TimerEntry
+    {
+        bool running = false;
+        Condition cond;
+        Mutex mutex;
+    };
+    TimerEntry _timers[NumTimers];
+
     std::shared_ptr<Timer> _heartbeatTimer;
     Duration _heartrate;
     Duration _heartOnTime;

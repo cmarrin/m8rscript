@@ -14,7 +14,6 @@
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"
-#include "Thread.h"
 
 #ifndef USE_LITTLEFS
 #include "SpiffsFS.h"
@@ -25,8 +24,6 @@
 using namespace m8r;
 
 static ConsoleCB _consoleCB;
-
-static constexpr int NumTimers = 8;
 
 class MacSystemInterface : public SystemInterface
 {
@@ -44,58 +41,6 @@ public:
         }
     }
     
-    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
-    {
-        int8_t id = -1;
-        
-        for (int i = 0; i < NumTimers; ++i) {
-            if (!_timers[i].running) {
-                id = i;
-                break;
-            }
-        }
-        
-        if (id < 0) {
-            return id;
-        }
-        
-        _timers[id]. running = true;
-        
-        Thread(512, [this, id, duration, repeat, cb] {
-            while (1) {
-                {
-                    Lock lock(_timers[id].mutex);
-                    if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
-                        // Timer stopped
-                        _timers[id].running = false;
-                        break;
-                    }
-                    
-                    cb();
-                    if (repeat) {
-                        continue;
-                    } else {
-                        _timers[id].running = false;
-                        break;
-                    }
-                }
-            }
-        }).detach();
-        
-        return id;
-    }
-    
-    virtual void stopTimer(int8_t id) override
-    {
-        if (id < 0 || id >= NumTimers || !_timers[id].running) {
-            return;
-        }
-        
-        Lock lock(_timers[id].mutex);
-        _timers[id].cond.notify(true);
-        _timers[id].running = false;
-    }
-
     virtual void setDeviceName(const char*) override { }
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
@@ -128,14 +73,6 @@ private:
 #else
     LittleFS _fileSystem;
 #endif
-
-    struct TimerEntry
-    {
-        bool running = false;
-        Condition cond;
-        Mutex mutex;
-    };
-    TimerEntry _timers[NumTimers];
 };
 
 int32_t m8r::heapFreeSize()

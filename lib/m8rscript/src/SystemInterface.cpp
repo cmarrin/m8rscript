@@ -32,6 +32,58 @@ bool SystemInterface::runOneIteration()
     return taskManager()->runOneIteration();
 }
 
+int8_t SystemInterface::startTimer(Duration duration, bool repeat, std::function<void()> cb)
+{
+    int8_t id = -1;
+    
+    for (int i = 0; i < NumTimers; ++i) {
+        if (!_timers[i].running) {
+            id = i;
+            break;
+        }
+    }
+    
+    if (id < 0) {
+        return id;
+    }
+    
+    _timers[id]. running = true;
+    
+    Thread(512, [this, id, duration, repeat, cb] {
+        while (1) {
+            {
+                Lock lock(_timers[id].mutex);
+                if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
+                    // Timer stopped
+                    _timers[id].running = false;
+                    break;
+                }
+                
+                cb();
+                if (repeat) {
+                    continue;
+                } else {
+                    _timers[id].running = false;
+                    break;
+                }
+            }
+        }
+    }).detach();
+    
+    return id;
+}
+
+void SystemInterface::stopTimer(int8_t id)
+{
+    if (id < 0 || id >= NumTimers || !_timers[id].running) {
+        return;
+    }
+    
+    Lock lock(_timers[id].mutex);
+    _timers[id].cond.notify(true);
+    _timers[id].running = false;
+}
+
 void SystemInterface::startHeartbeat()
 {
     if (!_heartbeatTimer) {
