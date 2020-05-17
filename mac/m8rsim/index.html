@@ -14,7 +14,14 @@
 <html>
     <head>
         <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+            }
             #hw-outer {
+                padding: 4px;
             }
             #hw-inner {
                 height: 100px;
@@ -22,11 +29,23 @@
                 border: 2px solid black;
                 border-radius: 5px;
             }
+            .led-outer {
+                text-align: center;
+                padding: 5px;
+            }
             .led-inner {
+                width: 50px;
+                padding: 2px;
+            }
+            .led-bitmap {
                 width: 20px;
                 height: 20px;
-                border: 2px solid black;
+                margin: 0 auto;
                 background-size: 100%;
+            }
+            .led-text {
+                margin: 0 auto;
+                width: 100%;
             }
             .led-off {
                 background-image: url("green-led-off-md.png");
@@ -34,10 +53,24 @@
             .led-on {
                 background-image: url("green-led-on-md.png");
             }
+            .console-outer {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 135px;
+                bottom: 0;
+            }
             #Console {
                 position: absolute;
-                width: 100%;
-                height: 100%;
+                left: 5px;
+                right: 5px;
+                top: 20px;
+                bottom: 5px;
+                font-family: "Monaco", monospace;
+                font-size: 9pt;
+                color: #30f030;
+                background-color: black;
+                resize: none;
             }
         </style>
         <script>
@@ -52,16 +85,18 @@
             Hardware
             <div id="hw-inner">
                 <div class="led-outer">
-                    <div id="LED1" class="led-inner led-off"></div>
-                    LED1
+                    <div class="led-inner">
+                        <div id="LED1" class="led-bitmap led-off"></div>
+                    </div>
+                    <div class="led-inner">
+                        <span class="led-text">LED1</div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="ConsoleOuter">
+        <div class="console-outer">
             Console
-            <div id="ConsoleInner">
-                <textarea id="Console"></textarea>
-            </div>
+            <textarea id="Console"></textarea>
         </div>
     </body>
 </html>

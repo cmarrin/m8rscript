@@ -84,7 +84,7 @@ int main(int argc, char **argv)
             if ((change & 0x04) != 0) {
                 // turn on LED if value & 0x04 is zero
                 std::lock_guard<std::mutex> lock(evalMutex);
-                evalString += std::string("document.getElementById('LED1').className = 'led-inner led-");
+                evalString += std::string("document.getElementById('LED1').className = 'led-bitmap led-");
                 evalString += std::string((value & 0x04) ? "off" : "on") + "';"; 
             }
             
