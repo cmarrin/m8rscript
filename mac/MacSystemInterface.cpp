@@ -15,11 +15,7 @@
 #include "MacUDP.h"
 #include "SystemInterface.h"
 
-#ifndef USE_LITTLEFS
-#include "SpiffsFS.h"
-#else
 #include "MLittleFS.h"
-#endif
 
 using namespace m8r;
 
@@ -68,11 +64,7 @@ public:
 
 private:
     GPIOInterface _gpio;
-#ifndef USE_LITTLEFS
-    SpiffsFS _fileSystem;
-#else
     LittleFS _fileSystem;
-#endif
 };
 
 int32_t m8r::heapFreeSize()

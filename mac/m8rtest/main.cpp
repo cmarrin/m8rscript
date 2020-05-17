@@ -19,11 +19,7 @@
 #include "MacUDP.h"
 #include "SystemInterface.h"
 
-#ifndef USE_LITTLEFS
-#include "SpiffsFS.h"
-#else
 #include "LittleFS.h"
-#endif
 
 class MySystemInterface : public m8r::SystemInterface
 {
@@ -86,11 +82,7 @@ private:
     };
     
     MyGPIOInterface _gpio;
-#ifndef USE_LITTLEFS
-    m8r::SpiffsFS _fileSystem;
-#else
     m8r::LittleFS _fileSystem;
-#endif
 };
 
 static std::unique_ptr<m8r::SystemInterface> _gSystemInterface;
