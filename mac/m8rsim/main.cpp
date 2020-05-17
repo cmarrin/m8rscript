@@ -37,7 +37,7 @@ static void escape(std::string& s)
 int main(int argc, char **argv)
 {
     // Create GUI WebPage
-    Sim::WebView* wv = Sim::WebView::create(800, 600, false, true, "m8rScript Simulator");
+    Sim::WebView* wv = Sim::WebView::create(800, 600, true, true, "m8rScript Simulator");
 
     std::mutex evalMutex;
     std::string evalString;
