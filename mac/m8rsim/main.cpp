@@ -79,8 +79,11 @@ int main(int argc, char **argv)
         while (1) {
             bool busy = application->runOneIteration();
             
-            uint32_t value, change;
-            m8r::system()->gpio()->getState(value, change);
+            uint32_t value = 0;
+            uint32_t change = 0;
+            if (m8r::system()->gpio()) {
+                m8r::system()->gpio()->getState(value, change);
+            }
             if ((change & 0x04) != 0) {
                 // turn on LED if value & 0x04 is zero
                 std::lock_guard<std::mutex> lock(evalMutex);

@@ -41,6 +41,10 @@ GPIO::GPIO()
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
+    if (!system()->gpio()) {
+        return CallReturnValue(CallReturnValue::Error::Unimplemented);
+    }
+    
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     GPIOInterface::PinMode mode = (nparams >= 2) ? static_cast<GPIOInterface::PinMode>(eu->stack().top(2 - nparams).toIntValue(eu)) : GPIOInterface::PinMode::Input;
     system()->gpio()->setPinMode(pin, mode);
@@ -49,6 +53,10 @@ CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t np
 
 CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
+    if (!system()->gpio()) {
+        return CallReturnValue(CallReturnValue::Error::Unimplemented);
+    }
+    
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     bool level = (nparams >= 2) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
     system()->gpio()->digitalWrite(pin, level);

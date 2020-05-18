@@ -88,7 +88,9 @@ void SystemInterface::startHeartbeat()
 {
     if (!_heartbeatTimer) {
         _heartbeatTimer = Timer::create(0s, Timer::Behavior::Once, [this](Timer*) {
-            gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
+            if (gpio()) {
+                gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
+            }
             _heartOn = !_heartOn;
             _heartbeatTimer->start(_heartOn ? _heartOnTime : _heartrate);
         });
@@ -107,8 +109,10 @@ void SystemInterface::setHeartrate(Duration rate, Duration ontime)
     }
     
     if (!_heartbeatTimer) {
-        gpio()->digitalWrite(gpio()->builtinLED(), true);
-        gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
+        if (gpio()) {
+            gpio()->digitalWrite(gpio()->builtinLED(), true);
+            gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
+        }
     }
 
     _heartrate = rate;
