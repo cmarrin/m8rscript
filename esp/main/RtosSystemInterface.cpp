@@ -46,10 +46,9 @@ public:
     {
     }
     
-    virtual void vprintf(ROMString fmt, va_list args) const override
+    virtual void print(const char* s) const override
     {
-        m8r::String s = m8r::String::vformat(fmt, args);
-        ::printf(s.c_str());
+        ::printf("%s", s);
     }
     
     virtual void setDeviceName(const char* name) { }
