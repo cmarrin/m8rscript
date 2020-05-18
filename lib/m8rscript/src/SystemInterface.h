@@ -104,6 +104,7 @@ private:
         Mutex mutex;
     };
     TimerEntry _timers[NumTimers];
+    Mutex _timerMutex;
 
     std::shared_ptr<Timer> _heartbeatTimer;
     Duration _heartrate;
