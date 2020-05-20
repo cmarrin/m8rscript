@@ -39,7 +39,6 @@ public:
         }
     }
     
-
     virtual void startTimer(Duration duration, bool repeat, std::function<void()> cb) override
     {
         stopTimer();
