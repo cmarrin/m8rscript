@@ -158,7 +158,7 @@ void TaskManager::restartTimer()
 {
     if (!_timerList.empty()) {
         DBG_TIMERS("restartTimer: duration=%s", (_timerList[0]->timeToFire() - Time::now()).toString().c_str());
-        system()->startTimer(_timerList[0]->timeToFire() - Time::now(), false, [this] {
+        system()->startTimer(_timerList[0]->timeToFire() - Time::now(), [this] {
             requestYield();
         });
     }

@@ -39,13 +39,13 @@ public:
         }
     }
     
-    virtual void startTimer(Duration duration, bool repeat, std::function<void()> cb) override
+    virtual void startTimer(Duration duration, std::function<void()> cb) override
     {
         stopTimer();
         Lock lock(_timerMutex);
         _timerRunning = true;
         
-        Thread(1024, [this, duration, repeat, cb] {
+        Thread(1024, [this, duration, cb] {
             while (1) {
                 {
                     Lock lock(_timerMutex);
@@ -61,12 +61,8 @@ public:
                     }
                     
                     cb();
-                    if (repeat) {
-                        continue;
-                    } else {
-                        _timerRunning = false;
-                        break;
-                    }
+                    _timerRunning = false;
+                    break;
                 }
             }
         }).detach();
