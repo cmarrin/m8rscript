@@ -40,8 +40,6 @@ class UDPDelegate;
 class SystemInterface  {
 public:
     friend class Time;
-    
-    static constexpr int NumTimers = 8;
 
     static SystemInterface* create();
 
@@ -71,8 +69,8 @@ public:
     virtual void setDeviceName(const char*) = 0;
         
     // Return timer ID, -1 if can't start a timer
-    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>);
-    virtual void stopTimer(int8_t id);
+    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>) = 0;
+    virtual void stopTimer(int8_t id) = 0;
     
     void receivedLine(const char* line)
     {
@@ -97,15 +95,6 @@ private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
-    struct TimerEntry
-    {
-        bool running = false;
-        Condition cond;
-        Mutex mutex;
-    };
-    TimerEntry _timers[NumTimers];
-    Mutex _timerMutex;
-
     std::shared_ptr<Timer> _heartbeatTimer;
     Duration _heartrate;
     Duration _heartOnTime;
