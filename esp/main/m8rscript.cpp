@@ -9,6 +9,7 @@
 -------------------------------------------------------------------------*/
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 
@@ -60,5 +61,9 @@ extern "C" void app_main()
     }
 
     m8r::system()->printf(ROMSTR("Free heap: %d\n"), m8r::Mallocator::shared()->freeSize());
-    application.runOneIteration();
+
+    while (true) {
+        application.runOneIteration();
+        vTaskDelay(1);
+    }
 }
