@@ -25,7 +25,7 @@
 #include "esp_system.h"
 #include "spi_flash.h"
 #include "freertos/FreeRTOS.h"
-
+#include "freertos/timers.h"
 using namespace m8r;
 
 static constexpr uint32_t FSStart = 0x100000;
@@ -42,8 +42,24 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
 class RtosSystemInterface : public SystemInterface
 {
 public:
+    static void timerCallback(TimerHandle_t handle)
+    {
+        RtosSystemInterface* sys = reinterpret_cast<RtosSystemInterface*>(pvTimerGetTimerID(handle));
+        if (sys->_timerCallback) {
+            sys->_timerCallback();
+        }
+    }
+    
     RtosSystemInterface()
     {
+        // Create the timer with a dummy timeout value
+        _timerHandle = xTimerCreate("SysT", pdMS_TO_TICKS(1), pdFALSE, this, timerCallback);
+    }
+    
+    ~RtosSystemInterface()
+    {
+        stopTimer();
+        xTimerDelete(_timerHandle, 100);
     }
     
     virtual void print(const char* s) const override
@@ -71,10 +87,26 @@ public:
         return Mad<UDP>();
     }
 
+    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    {
+        stopTimer();
+        _timerCallback = std::move(cb);
+        xTimerChangePeriod(_timerHandle, pdMS_TO_TICKS(duration.ms()), 0);
+    }
+
+    virtual void stopTimer() override
+    {
+        xTimerStop(_timerHandle, 100);
+    }
+
 private:
 //    RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
     RtosWifi _wifi;
+    
+    TimerHandle_t _timerHandle = 0;
+    std::function<void()> _timerCallback;
+    
 };
 
 extern uint64_t g_esp_os_us;
