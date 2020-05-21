@@ -35,8 +35,13 @@ static esp_err_t eventHandler(void* ctx, system_event_t* event)
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED: {
         system_event_sta_disconnected_t *disconnected = &event->event_info.disconnected;
-        printf("&&&&&SYSTEM_EVENT_STA_DISCONNECTED, ssid:%s, ssid_len:%d, bssid:" MACSTR ", reason:%d\n", \
+        printf("&&&&&SYSTEM_EVENT_STA_DISCONNECTED, ssid:%s, ssid_len:%d, bssid:" MACSTR ", reason:%d\n",
                    disconnected->ssid, disconnected->ssid_len, MAC2STR(disconnected->bssid), disconnected->reason);
+                   
+        if (disconnected->reason == WIFI_REASON_MIC_FAILURE) {
+            // Try to restart on message integrity check error
+            esp_wifi_connect();
+        }
 //        if (disconnected->reason == WIFI_REASON_BASIC_RATE_NOT_SUPPORT) {
 //            /*Switch to 802.11 bgn mode */
 //            esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCAL_11B | WIFI_PROTOCAL_11G | WIFI_PROTOCAL_11N);
