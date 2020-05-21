@@ -17,6 +17,7 @@
 		49079BA824437F0F000FAF22 /* Terminal.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BA624437F0F000FAF22 /* Terminal.h */; };
 		49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49079BA9244384B1000FAF22 /* TCPServer.cpp */; };
 		49079BAC244384B1000FAF22 /* TCPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079BAA244384B1000FAF22 /* TCPServer.h */; };
+		49087CFF2476F8FC00CA752A /* core in Resources */ = {isa = PBXBuildFile; fileRef = 49087CFE2476F8FC00CA752A /* core */; };
 		491E2F90236A55890054725E /* Telnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491E2F8D236A52160054725E /* Telnet.cpp */; };
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
@@ -198,6 +199,9 @@
 		49079BA624437F0F000FAF22 /* Terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Terminal.h; path = ../lib/m8rscript/src/Terminal.h; sourceTree = "<group>"; };
 		49079BA9244384B1000FAF22 /* TCPServer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TCPServer.cpp; path = ../lib/m8rscript/src/TCPServer.cpp; sourceTree = "<group>"; };
 		49079BAA244384B1000FAF22 /* TCPServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TCPServer.h; path = ../lib/m8rscript/src/TCPServer.h; sourceTree = "<group>"; };
+		49087CFC2476F3B200CA752A /* RtosGPIOInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtosGPIOInterface.cpp; path = ../esp/main/RtosGPIOInterface.cpp; sourceTree = "<group>"; };
+		49087CFD2476F3B200CA752A /* RtosGPIOInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtosGPIOInterface.h; path = ../esp/main/RtosGPIOInterface.h; sourceTree = "<group>"; };
+		49087CFE2476F8FC00CA752A /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
@@ -448,6 +452,7 @@
 		494BA1901D207A9B00E72725 /* m8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				49087CFE2476F8FC00CA752A /* core */,
 				49C406E91EB65A15001E4DEC /* generators */,
 				494D25891D32B2E6003755DB /* esprtos */,
 			);
@@ -471,6 +476,8 @@
 		494D25891D32B2E6003755DB /* esprtos */ = {
 			isa = PBXGroup;
 			children = (
+				49087CFC2476F3B200CA752A /* RtosGPIOInterface.cpp */,
+				49087CFD2476F3B200CA752A /* RtosGPIOInterface.h */,
 				490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */,
 				490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
@@ -902,6 +909,7 @@
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				49DD77451D8467C100D7C374 /* DeleteFile.png in Resources */,
 				49DD77491D84D94900D7C374 /* Simulate.png in Resources */,
+				49087CFF2476F8FC00CA752A /* core in Resources */,
 				4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */,
 				49DD77471D84689100D7C374 /* AddFile.png in Resources */,
 				49D9B8221D1C854700724911 /* Assets.xcassets in Resources */,

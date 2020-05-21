@@ -20,6 +20,7 @@
 
 #include "Defines.h"
 #include "MLittleFS.h"
+#include "RtosGPIOInterface.h"
 #include "RtosWifi.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
@@ -70,7 +71,7 @@ public:
     virtual void setDeviceName(const char* name) { }
     
     virtual FS* fileSystem() override { return &_fileSystem; }
-    virtual GPIOInterface* gpio() override { return nullptr; }
+    virtual GPIOInterface* gpio() override { return &_gpio; }
     
     virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
     {
@@ -100,7 +101,7 @@ public:
     }
 
 private:
-//    RtosGPIOInterface _gpio;
+    RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
     RtosWifi _wifi;
     

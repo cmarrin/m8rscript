@@ -11,6 +11,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_EXTRA_INCLUDES := 
 COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_OBJS := m8rscript.o \
+    RtosGPIOInterface.o \
     RtosSystemInterface.o \
     RtosWifi.o \
     $(SRC_DIR)/Application.o \

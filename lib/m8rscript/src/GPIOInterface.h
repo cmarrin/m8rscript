@@ -19,10 +19,15 @@ public:
     static constexpr uint8_t LED = 2;
     static constexpr uint8_t PinCount = 17;
     
-    enum class PinMode { Output, OutputOpenDrain, Input, InputPullup, InputPulldown };
+    enum class PinMode { Invalid, Output, OutputOpenDrain, Input, InputPullup, InputPulldown };
     enum class Trigger { None, RisingEdge, FallingEdge, BothEdges, Low, High };
     
-    GPIOInterface() { }
+    GPIOInterface()
+    {
+        for (auto& p : _pinMode) {
+            p = PinMode::Invalid;
+        }
+    }
     virtual ~GPIOInterface() { }
     
     virtual bool setPinMode(uint8_t pin, PinMode mode = PinMode::Input)
@@ -65,6 +70,14 @@ public:
         value = _pinState;
         change = _pinChanged;
         _pinChanged = 0;
+    }
+    
+    PinMode pinMode(uint8_t pin)
+    {
+        if (pin >= PinCount) {
+            return PinMode::Invalid;
+        }
+        return _pinMode[pin];
     }
     
 private:
