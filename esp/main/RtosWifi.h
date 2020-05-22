@@ -10,6 +10,7 @@
 #pragma once
 
 #include "esp_wifi.h"
+#include "freertos/event_groups.h"
 
 namespace m8r {
 
@@ -19,7 +20,10 @@ public:
     RtosWifi();
 
 private:
+    static esp_err_t eventHandler(void* ctx, system_event_t*);
+
     bool _inited = false;
+    EventGroupHandle_t _eventGroup;
 };
 
 }

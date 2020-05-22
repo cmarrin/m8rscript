@@ -14,39 +14,47 @@
 
 using namespace m8r;
 
-static esp_err_t eventHandler(void* ctx, system_event_t* event)
+static constexpr int IPV4_GOTIP_BIT = BIT0;
+
+esp_err_t RtosWifi::eventHandler(void* ctx, system_event_t* event)
 {
+    RtosWifi* self = reinterpret_cast<RtosWifi*>(ctx);
+    
     switch(event->event_id) {
     case SYSTEM_EVENT_STA_START:
         esp_wifi_connect();
         break;
     case SYSTEM_EVENT_STA_GOT_IP:
-        printf("&&&&& got ip:%s\n", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+        xEventGroupSetBits(self->_eventGroup, IPV4_GOTIP_BIT);
+        printf("***** got ip:%s\n", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-        printf("&&&&& station:" MACSTR " join, AID=%d\n",
+        printf("***** station:" MACSTR " join, AID=%d\n",
                  MAC2STR(event->event_info.sta_connected.mac),
                  event->event_info.sta_connected.aid);
         break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-        printf("&&&&& station:" MACSTR "leave, AID=%d\n",
+        printf("***** station:" MACSTR "leave, AID=%d\n",
                  MAC2STR(event->event_info.sta_disconnected.mac),
                  event->event_info.sta_disconnected.aid);
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED: {
         system_event_sta_disconnected_t *disconnected = &event->event_info.disconnected;
-        printf("&&&&&SYSTEM_EVENT_STA_DISCONNECTED, ssid:%s, ssid_len:%d, bssid:" MACSTR ", reason:%d\n",
-                   disconnected->ssid, disconnected->ssid_len, MAC2STR(disconnected->bssid), disconnected->reason);
+        printf("***** WiFi disconnected, ssid:%s, ssid_len:%d, bssid:" MACSTR ", reason:%d\n",
+            disconnected->ssid, disconnected->ssid_len, MAC2STR(disconnected->bssid), disconnected->reason);
                    
         if (disconnected->reason == WIFI_REASON_MIC_FAILURE) {
             // Try to restart on message integrity check error
-            esp_wifi_connect();
+            printf("      Disconnect because of message integrity check failure.\n");
         }
-//        if (disconnected->reason == WIFI_REASON_BASIC_RATE_NOT_SUPPORT) {
-//            /*Switch to 802.11 bgn mode */
-//            esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCAL_11B | WIFI_PROTOCAL_11G | WIFI_PROTOCAL_11N);
-//        }
-//        esp_wifi_connect();
+        else if (disconnected->reason == WIFI_REASON_BASIC_RATE_NOT_SUPPORT) {
+            /*Switch to 802.11 bgn mode */
+            printf("      Disconnect because of unsupported rate, switching to lower rate.\n");
+            esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCAL_11B | WIFI_PROTOCAL_11G | WIFI_PROTOCAL_11N);
+        }
+        printf("      Attempting to reconnect...\n");
+        esp_wifi_connect();
+        xEventGroupClearBits(self->_eventGroup, IPV4_GOTIP_BIT);
         break;
     }
     default:
@@ -58,7 +66,8 @@ static esp_err_t eventHandler(void* ctx, system_event_t* event)
 RtosWifi::RtosWifi()
 {
     tcpip_adapter_init();
-    ESP_ERROR_CHECK(esp_event_loop_init(eventHandler, NULL));
+    _eventGroup = xEventGroupCreate();
+    ESP_ERROR_CHECK(esp_event_loop_init(eventHandler, this));
 
     wifi_init_config_t initConfig;
     
@@ -92,4 +101,9 @@ RtosWifi::RtosWifi()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &config));
     ESP_ERROR_CHECK(esp_wifi_start());
+    
+    // Wait for IP address
+    printf("***** Waiting for WiFi to connect...\n");
+    xEventGroupWaitBits(_eventGroup, IPV4_GOTIP_BIT, false, true, portMAX_DELAY);
+    printf("***** ... WiFi connected.\n");
 }
