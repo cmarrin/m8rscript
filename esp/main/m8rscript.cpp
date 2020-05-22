@@ -18,52 +18,26 @@
 #include "Mallocator.h"
 #include "MStream.h"
 #include "SystemInterface.h"
+#include "SystemTime.h"
 
 #include <unistd.h>
 #include <chrono>
 
+static m8r::Duration MainTaskSleepDuration = 10ms;
+
+static void mainTask(void* data)
+{
+    m8r::Application* application = reinterpret_cast<m8r::Application*>(data);
+    while(1) {
+        application->runOneIteration();
+        vTaskDelay(pdMS_TO_TICKS(MainTaskSleepDuration.ms()));
+    }
+}
+
 extern "C" void app_main()
 {
-    printf("\n*** m8rscript v%d.%d - %s\n\n", m8r::MajorVersion, m8r::MinorVersion, __TIMESTAMP__);
+    m8r::Application* application = new m8r::Application(23);
 
-    m8r::Application application(23);
-    
-    // Test filesystem
-    m8r::String toPath("/foo");
-    m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
-    if (!toFile->valid()) {
-        printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error: unable to open '%s' for write"), toPath.c_str()).c_str());
-    } else {
-        toFile->write("Hello World", 11);
-        if (!toFile->valid()) {
-            printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error writing '%s'"), toPath.c_str()).c_str());
-        } else {
-            printf("Successfully wrote '%s'\n", toPath.c_str());
-        }
-        toFile->close();
-    }
-
-    toFile = m8r::Mad<m8r::File>(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Read));
-    if (!toFile->valid()) {
-        printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error: unable to open '%s' for read"), toPath.c_str()).c_str());
-    } else {
-        char buf[12];
-        int32_t result = toFile->read(buf, 11);
-        if (!toFile->valid()) {
-            printf(m8r::Error::formatError(toFile->error().code(), ROMSTR("Error reading '%s'"), toPath.c_str()).c_str());
-        } else if (result != 11) {
-            printf("Wrong number of bytes read from '%s', expected 11, got %d\n", toPath.c_str(), result);
-        } else {
-            buf[11] = '\0';
-            printf("Successfully read '%s' - '%s'\n", toPath.c_str(), buf);
-        }
-        toFile->close();
-    }
-
-    m8r::system()->printf(ROMSTR("Free heap: %d\n"), m8r::Mallocator::shared()->freeSize());
-
-    while (true) {
-        application.runOneIteration();
-        vTaskDelay(1);
-    }
+    TaskHandle_t handle = nullptr;
+    xTaskCreate(mainTask, "mainTask", 8192, application, tskIDLE_PRIORITY, &handle);
 }
