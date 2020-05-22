@@ -202,6 +202,8 @@
 		49087CFC2476F3B200CA752A /* RtosGPIOInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtosGPIOInterface.cpp; path = ../esp/main/RtosGPIOInterface.cpp; sourceTree = "<group>"; };
 		49087CFD2476F3B200CA752A /* RtosGPIOInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtosGPIOInterface.h; path = ../esp/main/RtosGPIOInterface.h; sourceTree = "<group>"; };
 		49087CFE2476F8FC00CA752A /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../esp/core; sourceTree = "<group>"; };
+		49087D002477388800CA752A /* RtosTCP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtosTCP.cpp; path = ../esp/main/RtosTCP.cpp; sourceTree = "<group>"; };
+		49087D012477388800CA752A /* RtosTCP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtosTCP.h; path = ../esp/main/RtosTCP.h; sourceTree = "<group>"; };
 		490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtosSpiffsFS.h; path = ../esp/main/RtosSpiffsFS.h; sourceTree = "<group>"; };
 		490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtosSpiffsFS.cpp; path = ../esp/main/RtosSpiffsFS.cpp; sourceTree = "<group>"; };
 		491A7609246886E800CA38D1 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../lib/m8rscript/src/Thread.h; sourceTree = "<group>"; };
@@ -481,6 +483,8 @@
 				490BA29923A9B45000D9A4F0 /* RtosSpiffsFS.cpp */,
 				490BA29823A9B45000D9A4F0 /* RtosSpiffsFS.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
+				49087D002477388800CA752A /* RtosTCP.cpp */,
+				49087D012477388800CA752A /* RtosTCP.h */,
 				49A6A9ED2430F31C004D457C /* RtosWifi.cpp */,
 				49A6A9EE2430F31C004D457C /* RtosWifi.h */,
 				497DC63D23A58A7F00748031 /* component.mk */,

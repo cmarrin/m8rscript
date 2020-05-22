@@ -13,6 +13,7 @@ COMPONENT_SRCDIRS := . $(SRC_DIR) $(SRC_DIR)/littlefs
 COMPONENT_OBJS := m8rscript.o \
     RtosGPIOInterface.o \
     RtosSystemInterface.o \
+    RtosTCP.o \
     RtosWifi.o \
     $(SRC_DIR)/Application.o \
     $(SRC_DIR)/Atom.o \

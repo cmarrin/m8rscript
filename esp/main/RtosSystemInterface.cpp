@@ -21,6 +21,7 @@
 #include "Defines.h"
 #include "MLittleFS.h"
 #include "RtosGPIOInterface.h"
+#include "RtosTCP.h"
 #include "RtosWifi.h"
 #include "SystemInterface.h"
 #include "esp_system.h"
@@ -73,14 +74,18 @@ public:
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
     
-    virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction) override
+    virtual Mad<TCP> createTCP(uint16_t port, m8r::IPAddr ip, TCP::EventFunction func) override
     {
-        return Mad<TCP>();
+        Mad<RtosTCP> tcp = Mad<RtosTCP>::create(MemoryType::Network);
+        tcp->init(port, ip, func);
+        return tcp;
     }
     
-    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction) override
+    virtual Mad<TCP> createTCP(uint16_t port, TCP::EventFunction func) override
     {
-        return Mad<TCP>();
+        Mad<RtosTCP> tcp = Mad<RtosTCP>::create(MemoryType::Network);
+        tcp->init(port, IPAddr(), func);
+        return tcp;
     }
     
     virtual Mad<UDP> createUDP(uint16_t port, UDP::EventFunction) override
