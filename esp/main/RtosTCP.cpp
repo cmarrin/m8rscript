@@ -41,29 +41,26 @@ void RtosTCP::clientTask()
 
 void RtosTCP::serverTask()
 {
-    char rx_buffer[128];
-    char addr_str[128];
-    int addr_family;
-    int ip_protocol;
-
-    struct sockaddr_in destAddr;
-    destAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    destAddr.sin_family = AF_INET;
-    destAddr.sin_port = htons(_port);
-    addr_family = AF_INET;
-    ip_protocol = IPPROTO_IP;
-    inet_ntoa_r(destAddr.sin_addr, addr_str, sizeof(addr_str) - 1);
-
-    _socketFD = socket(addr_family, SOCK_STREAM, ip_protocol);
+    _socketFD = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (_socketFD < 0) {
         ESP_LOGE("TCP", "Unable to create socket: errno %d", errno);
+        addEvent(TCP::Event::Error, errno, "opening TCP socket");
         return;
     }
     ESP_LOGI("TCP", "Socket created");
 
-    int err = bind(_socketFD, (struct sockaddr *)&destAddr, sizeof(destAddr));
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof sa);
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(_port);
+    sa.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int err = bind(_socketFD, (struct sockaddr *)&sa, sizeof(sa));
     if (err != 0) {
         ESP_LOGE("TCP", "Socket unable to bind: errno %d", errno);
+        addEvent(TCP::Event::Error, errno, "TCP bind failed");
+        close(_socketFD);
+        _socketFD = -1;
         return;
     }
     ESP_LOGI("TCP", "Socket bound");
@@ -71,6 +68,9 @@ void RtosTCP::serverTask()
     err = listen(_socketFD, 1);
     if (err != 0) {
         ESP_LOGE("TCP", "Error occured during listen: errno %d", errno);
+        addEvent(TCP::Event::Error, errno, "TCP listen failed");
+        close(_socketFD);
+        _socketFD = -1;
         return;
     }
     ESP_LOGI("TCP", "Socket listening");
@@ -104,16 +104,15 @@ void RtosTCP::serverTask()
             ESP_LOGE("TCP", "Select failed: error=%d", errno);
             continue;
         }
-
-        struct sockaddr_in sourceAddr;
         
         if (FD_ISSET(_socketFD, &readfds)) {
             // We have an incoming connection
-            uint addrLen = sizeof(sourceAddr);
-            int clientSocket = accept(_socketFD, (struct sockaddr *)&sourceAddr, &addrLen);
+            uint addrLen = sizeof(sa);
+            int clientSocket = accept(_socketFD, (struct sockaddr *)&sa, &addrLen);
             if (clientSocket < 0) {
                 ESP_LOGE("TCP", "Unable to accept connection: errno %d", errno);
-                break;
+                addEvent(TCP::Event::Error, errno, "accept failed");
+                continue;
             }
 
             int16_t connectionId = -1;
@@ -131,7 +130,7 @@ void RtosTCP::serverTask()
                 break;
             }
         
-            ESP_LOGI("TCP", "New connection: id=%d, socket fd=%d, ip=%s, port=%d", connectionId, _clientSockets[connectionId], inet_ntoa(sourceAddr.sin_addr), ntohs(sourceAddr.sin_port));
+            ESP_LOGI("TCP", "New connection: id=%d, socket fd=%d, ip=%s, port=%d", connectionId, _clientSockets[connectionId], inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
             addEvent(TCP::Event::Connected, connectionId, nullptr);
         }
         
@@ -140,27 +139,20 @@ void RtosTCP::serverTask()
                 // Something came in on this client socket
                 int16_t connectionId = &socket - _clientSockets;
                         
-                int len = recv(_clientSockets[connectionId], rx_buffer, sizeof(rx_buffer) - 1, 0);
-                if (len < 0) {
-                    // Error occured during receiving
-                    ESP_LOGE("TCP", "recv failed: id=%d, socket=%d, len=%d, errno=%d", connectionId, _clientSockets[connectionId], len, errno);
-                    addEvent(TCP::Event::Error, errno, "read error");
-                }
-                else if (len == 0) {
+                ssize_t result = read(socket, _receiveBuffer, BufferSize - 1);
+                if (result == 0) {
                     // Connection closed
                     ESP_LOGI("TCP", "Connection closed");
                     addEvent(TCP::Event::Disconnected, connectionId, nullptr);
                     close(socket);
                     socket = InvalidFD;
+                } else if (result < 0) {
+                    // Error occured during receiving
+                    ESP_LOGE("TCP", "read failed: id=%d, socket=%d, len=%d, errno=%d", connectionId, _clientSockets[connectionId], result, errno);
+                    addEvent(TCP::Event::Error, errno, "read error");
                 }
                 else {
-                    // Data received
-                    inet_ntoa_r(((struct sockaddr_in *)&sourceAddr)->sin_addr.s_addr, addr_str, sizeof(addr_str) - 1);
-
-                    rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string
-                    ESP_LOGI("TCP", "Received %d bytes from %s:", len, addr_str);
-                    ESP_LOGI("TCP", "%s", rx_buffer);
-                    addEvent(TCP::Event::ReceivedData, connectionId, rx_buffer, static_cast<int32_t>(len));
+                    addEvent(TCP::Event::ReceivedData, connectionId, _receiveBuffer, static_cast<int32_t>(result));
                 }
             }
         }
