@@ -42,9 +42,6 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
         return;
     }
     
-    String queueName = "TCPQueue-";
-    queueName += String(_socketFD);
-
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof sa);
     sa.sin_family = AF_INET;
