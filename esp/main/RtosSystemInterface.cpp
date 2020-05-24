@@ -56,6 +56,8 @@ public:
     {
         // Create the timer with a dummy timeout value
         _timerHandle = xTimerCreate("SysT", pdMS_TO_TICKS(1), pdFALSE, this, timerCallback);
+        
+        _wifi.start();
     }
     
     ~RtosSystemInterface()

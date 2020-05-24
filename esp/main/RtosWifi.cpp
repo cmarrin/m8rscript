@@ -63,7 +63,7 @@ esp_err_t RtosWifi::eventHandler(void* ctx, system_event_t* event)
     return ESP_OK;
 }
 
-RtosWifi::RtosWifi()
+void RtosWifi::start()
 {
     tcpip_adapter_init();
     _eventGroup = xEventGroupCreate();

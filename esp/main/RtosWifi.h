@@ -17,7 +17,8 @@ namespace m8r {
 class RtosWifi
 {
 public:
-    RtosWifi();
+    RtosWifi() { }
+    void start();
 
 private:
     static esp_err_t eventHandler(void* ctx, system_event_t*);
