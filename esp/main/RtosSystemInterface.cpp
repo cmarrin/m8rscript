@@ -26,8 +26,6 @@
 #include "SystemInterface.h"
 #include "esp_system.h"
 #include "spi_flash.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/timers.h"
 using namespace m8r;
 
 static constexpr uint32_t FSStart = 0x100000;
@@ -54,16 +52,12 @@ public:
     
     RtosSystemInterface()
     {
-        // Create the timer with a dummy timeout value
-        _timerHandle = xTimerCreate("SysT", pdMS_TO_TICKS(1), pdFALSE, this, timerCallback);
-        
         _wifi.start();
     }
     
     ~RtosSystemInterface()
     {
         stopTimer();
-        xTimerDelete(_timerHandle, 100);
     }
     
     virtual void print(const char* s) const override
@@ -95,16 +89,31 @@ public:
         return Mad<UDP>();
     }
 
+    static void timerFunc(void* arg)
+    {
+        RtosSystemInterface* self = reinterpret_cast<RtosSystemInterface*>(arg);
+        self->_timerRunning = false;
+        self->_timerCallback();
+    }
+
     virtual void startTimer(Duration duration, std::function<void()> cb) override
     {
         stopTimer();
         _timerCallback = std::move(cb);
-        xTimerChangePeriod(_timerHandle, pdMS_TO_TICKS(duration.ms()), 0);
+        
+        os_timer_disarm(&_timerHandle);
+        os_timer_setfn(&_timerHandle, timerFunc, this);
+        os_timer_arm(&_timerHandle, duration.ms(), false);
+        _timerRunning = true;
     }
-
+    
     virtual void stopTimer() override
     {
-        xTimerStop(_timerHandle, 100);
+        if (!_timerRunning) {
+            return;
+        }
+        os_timer_disarm(&_timerHandle);
+        _timerRunning = false;
     }
 
 private:
@@ -112,9 +121,9 @@ private:
     LittleFS _fileSystem;
     RtosWifi _wifi;
     
-    TimerHandle_t _timerHandle = 0;
+    os_timer_t _timerHandle;
     std::function<void()> _timerCallback;
-    
+    bool _timerRunning = false;
 };
 
 extern uint64_t g_esp_os_us;
