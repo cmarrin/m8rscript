@@ -13,7 +13,6 @@
 #include "IPAddr.h"
 #include "TaskManager.h"
 #include "TCP.h"
-#include "Thread.h"
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
@@ -95,7 +94,7 @@ private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
-    std::shared_ptr<Timer> _heartbeatTimer;
+    int8_t _heartbeatId = -1;
     Duration _heartrate;
     Duration _heartOnTime;
     Duration _defaultHeartOnTime;

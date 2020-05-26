@@ -11,6 +11,7 @@
 
 #include "GPIOInterface.h"
 #include "TaskManager.h"
+#include "Thread.h"
 #include "MacTCP.h"
 #include "MacUDP.h"
 #include "SystemInterface.h"

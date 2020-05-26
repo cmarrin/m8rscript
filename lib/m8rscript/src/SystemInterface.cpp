@@ -34,20 +34,11 @@ bool SystemInterface::runOneIteration()
 
 void SystemInterface::startHeartbeat()
 {
-    if (!_heartbeatTimer) {
-        _heartbeatTimer = Timer::create(0s, Timer::Behavior::Once, [this](Timer*) {
-            if (gpio()) {
-                gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
-            }
-            _heartOn = !_heartOn;
-            _heartbeatTimer->start(_heartOn ? _heartOnTime : _heartrate);
-        });
-    }
-    
-    _heartOn = false;
-    if (_heartrate) {
-        _heartbeatTimer->start(_heartrate);
-    }
+    _heartbeatId = startTimer(_heartOn ? _heartOnTime : _heartrate, false, [this] {
+        gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
+        _heartOn = !_heartOn;
+        startHeartbeat();
+    });
 }
 
 void SystemInterface::setHeartrate(Duration rate, Duration ontime)
@@ -56,13 +47,14 @@ void SystemInterface::setHeartrate(Duration rate, Duration ontime)
         ontime = _defaultHeartOnTime ?: DefaultHeartOnTime;
     }
     
-    if (!_heartbeatTimer) {
-        if (gpio()) {
-            gpio()->digitalWrite(gpio()->builtinLED(), true);
-            gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
-        }
+    if (_heartbeatId < 0) {
+        gpio()->digitalWrite(gpio()->builtinLED(), true);
+        gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
+    } else {
+        stopTimer(_heartbeatId);
     }
 
+    _heartbeatId = -1;
     _heartrate = rate;
     _heartOnTime = ontime;
     startHeartbeat();
