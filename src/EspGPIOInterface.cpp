@@ -34,6 +34,7 @@ bool EspGPIOInterface::setPinMode(uint8_t pin, PinMode mode)
 
     uint8_t m = INPUT;
     switch (mode) {
+        case PinMode::Invalid:
         case PinMode::Output: m = OUTPUT; break;
         case PinMode::OutputOpenDrain: m = OUTPUT_OPEN_DRAIN; break;
         case PinMode::Input: m = INPUT; break;
@@ -43,7 +44,7 @@ bool EspGPIOInterface::setPinMode(uint8_t pin, PinMode mode)
         case PinMode::InputPulldown: m = INPUT_PULLUP; break;
     }
     
-    pinMode(pin, m);
+    ::pinMode(pin, m);
     return true;
 }
 
