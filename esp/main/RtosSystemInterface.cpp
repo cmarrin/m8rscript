@@ -29,6 +29,7 @@
 using namespace m8r;
 
 static constexpr uint32_t FSStart = 0x100000;
+static constexpr int NumTimers = 8;
 
 int32_t m8r::heapFreeSize()
 {
@@ -42,14 +43,6 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
 class RtosSystemInterface : public SystemInterface
 {
 public:
-    static void timerCallback(TimerHandle_t handle)
-    {
-        RtosSystemInterface* sys = reinterpret_cast<RtosSystemInterface*>(pvTimerGetTimerID(handle));
-        if (sys->_timerCallback) {
-            sys->_timerCallback();
-        }
-    }
-    
     RtosSystemInterface()
     {
         _wifi.start();
@@ -57,7 +50,6 @@ public:
     
     ~RtosSystemInterface()
     {
-        stopTimer();
     }
     
     virtual void print(const char* s) const override
@@ -88,42 +80,65 @@ public:
     {
         return Mad<UDP>();
     }
-
+    
     static void timerFunc(void* arg)
     {
-        RtosSystemInterface* self = reinterpret_cast<RtosSystemInterface*>(arg);
-        self->_timerRunning = false;
-        self->_timerCallback();
+        TimerEntry* t = reinterpret_cast<TimerEntry*>(arg);
+        t->cb();
+        if (!t->repeat) {
+            t->running = false;
+        }
     }
 
-    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
     {
-        stopTimer();
-        _timerCallback = std::move(cb);
+        int8_t id = -1;
         
-        os_timer_disarm(&_timerHandle);
-        os_timer_setfn(&_timerHandle, timerFunc, this);
-        os_timer_arm(&_timerHandle, duration.ms(), false);
-        _timerRunning = true;
+        for (int i = 0; i < NumTimers; ++i) {
+            if (!_timers[i].running) {
+                id = i;
+                break;
+            }
+        }
+        
+        if (id < 0) {
+            return id;
+        }
+        
+        _timers[id].running = true;
+        _timers[id].repeat = repeat;
+        _timers[id].cb = std::move(cb);
+        
+        os_timer_disarm(&(_timers[id].timer));
+        os_timer_setfn(&(_timers[id].timer), timerFunc, &(_timers[id]));
+        os_timer_arm(&(_timers[id].timer), duration.ms(), repeat);
+
+        return id;
     }
     
-    virtual void stopTimer() override
+    virtual void stopTimer(int8_t id) override
     {
-        if (!_timerRunning) {
+        if (id < 0 || id >= NumTimers || !_timers[id].running) {
             return;
         }
-        os_timer_disarm(&_timerHandle);
-        _timerRunning = false;
-    }
+        
+        os_timer_disarm(&(_timers[id].timer));
+        _timers[id].running = false;
+}
 
 private:
     RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
     RtosWifi _wifi;
     
-    os_timer_t _timerHandle;
-    std::function<void()> _timerCallback;
-    bool _timerRunning = false;
+    struct TimerEntry
+    {
+        bool running = false;
+        bool repeat = false;
+        os_timer_t timer;
+        std::function<void()> cb;
+    };
+    TimerEntry _timers[NumTimers];
 };
 
 extern uint64_t g_esp_os_us;
