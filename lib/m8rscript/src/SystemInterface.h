@@ -69,8 +69,8 @@ public:
     virtual void setDeviceName(const char*) = 0;
         
     // Return timer ID, -1 if can't start a timer
-    virtual void startTimer(Duration, std::function<void()>) { }
-    virtual void stopTimer() { }
+    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>) { return -1; }
+    virtual void stopTimer(int8_t id) { }
     
     void receivedLine(const char* line)
     {

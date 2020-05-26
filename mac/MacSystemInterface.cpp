@@ -39,40 +39,68 @@ public:
         }
     }
     
-    virtual void startTimer(Duration duration, std::function<void()> cb) override
+    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
     {
-        stopTimer();
-        Lock lock(_timerMutex);
-        _timerRunning = true;
+        int8_t id = -1;
         
-        Thread(1024, [this, duration, cb] {
+        {
+            Lock lock(_timerMutex);
+            for (int i = 0; i < NumTimers; ++i) {
+                if (!_timers[i].running) {
+                    id = i;
+                    break;
+                }
+            }
+            
+            if (id < 0) {
+                return id;
+            }
+        
+            _timers[id]. running = true;
+        }
+        
+        Thread(1024, [this, id, duration, repeat, cb] {
             while (1) {
                 {
-                    Lock lock(_timerMutex);
-                    if (!_timerRunning) {
+                    Lock lock(_timers[id].mutex);
+                    if (!_timers[id].running) {
                         // We've been stopped
                         return;
                     }
                     
-                    if (_timerCond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
+                    if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
                         // Timer stopped
-                        _timerRunning = false;
+                        _timers[id].running = false;
                         break;
                     }
                     
                     cb();
-                    _timerRunning = false;
-                    break;
+                    if (repeat) {
+                        continue;
+                    } else {
+                        _timers[id].running = false;
+                        break;
+                    }
                 }
             }
         }).detach();
+        
+        return id;
     }
 
-    virtual void stopTimer() override
+    virtual void stopTimer(int8_t id) override
     {
-        Lock lock(_timerMutex);
-        _timerCond.notify(true);
-        _timerRunning = false;
+        {
+            Lock lock(_timerMutex);
+
+            if (id < 0 || id >= NumTimers || !_timers[id].running) {
+                return;
+            }
+        }
+        
+        Lock lock(_timers[id].mutex);
+        _timers[id].cond.notify(true);
+        _timers[id].running = false;
     }
 
     virtual void setDeviceName(const char*) override { }
@@ -104,8 +132,13 @@ private:
     GPIOInterface _gpio;
     LittleFS _fileSystem;
 
-    bool _timerRunning = false;
-    Condition _timerCond;
+    struct TimerEntry
+    {
+        bool running = false;
+        Condition cond;
+        Mutex mutex;
+    };
+    TimerEntry _timers[NumTimers];
     Mutex _timerMutex;
 };
 
