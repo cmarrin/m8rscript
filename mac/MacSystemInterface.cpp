@@ -47,7 +47,7 @@ public:
         {
             Lock lock(_timerMutex);
             for (int i = 0; i < NumTimers; ++i) {
-                if (!_timers[i].running) {
+                if (!_timers[i].allocated) {
                     id = i;
                     break;
                 }
@@ -57,7 +57,8 @@ public:
                 return id;
             }
         
-            _timers[id]. running = true;
+            _timers[id].running = true;
+            _timers[id].allocated = true;
         }
         
         Thread(1024, [this, id, duration, repeat, cb] {
@@ -66,7 +67,7 @@ public:
                     Lock lock(_timers[id].mutex);
                     if (!_timers[id].running) {
                         // We've been stopped
-                        return;
+                        break;
                     }
                     
                     if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
@@ -84,6 +85,7 @@ public:
                     }
                 }
             }
+            _timers[id].allocated = false;
         }).detach();
         
         return id;
@@ -136,6 +138,7 @@ private:
     struct TimerEntry
     {
         bool running = false;
+        bool allocated = false;
         Condition cond;
         Mutex mutex;
     };
