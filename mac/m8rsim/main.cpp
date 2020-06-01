@@ -42,40 +42,42 @@ int main(int argc, char **argv)
     std::mutex evalMutex;
     std::string evalString;
 
-    // Init m8rscript
-    if (!application) {
-        // Copy the filesystem to the home directory so it's writable
-        std::string fsFile = wv->pathForResource("m8rFSFile", "");
-        std::string destFile = wv->homeDirectory() + "/m8rFSFile";
-        
-        if (!fsFile.empty()) {
-            std::ifstream source(fsFile, std::ios::binary);
+    std::thread([wv, &evalMutex, &evalString] {
+        usleep(500000);
+
+        // Init m8rscript
+        if (!application) {
+            // Copy the filesystem to the home directory so it's writable
+            std::string fsFile = wv->pathForResource("m8rFSFile", "");
+            std::string destFile = wv->homeDirectory() + "/m8rFSFile";
             
-            if (!source.is_open()) {
-                ::printf("***** failed to open '%s': %s\n", fsFile.c_str(), strerror(errno));
-            } else {
-                std::ofstream dest(destFile, std::ios::binary);
-                dest << source.rdbuf();
-                dest.close();
+            if (!fsFile.empty()) {
+                std::ifstream source(fsFile, std::ios::binary);
+                
+                if (!source.is_open()) {
+                    ::printf("***** failed to open '%s': %s\n", fsFile.c_str(), strerror(errno));
+                } else {
+                    std::ofstream dest(destFile, std::ios::binary);
+                    dest << source.rdbuf();
+                    dest.close();
+                }
+                
+                source.close();
             }
             
-            source.close();
+            m8r::initMacSystemInterface(destFile.c_str(), [&evalMutex, &evalString](const char* s) {
+                std::lock_guard<std::mutex> lock(evalMutex);
+                std::string ss(s);
+                escape(ss);
+                evalString += std::string("document.getElementById('Console').value += '");
+                evalString += ss;
+                evalString += "';";
+            });
+            application = new m8r::Application(800);
         }
         
-        m8r::initMacSystemInterface(destFile.c_str(), [&evalMutex, &evalString](const char* s) {
-            std::lock_guard<std::mutex> lock(evalMutex);
-            std::string ss(s);
-            escape(ss);
-            evalString += std::string("document.getElementById('Console').value += '");
-            evalString += ss;
-            evalString += "';";
-        });
-        application = new m8r::Application(800);
-    }
-    
-    m8r::system()->setDefaultHeartOnTime(HeartOnTime);
+        m8r::system()->setDefaultHeartOnTime(HeartOnTime);
 
-    std::thread([wv, &evalMutex, &evalString] {
         while (1) {
             bool busy = application->runOneIteration();
             
