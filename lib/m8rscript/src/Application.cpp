@@ -104,7 +104,7 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
 m8r::String Application::autostartFilename() const
 {
     // Look for it in config first
-    return "/sys/bin/hello.m8r";
+    return "/sys/bin/mrsh";
 }
 
 bool Application::mountFileSystem()

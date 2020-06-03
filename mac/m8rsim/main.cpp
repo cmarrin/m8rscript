@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 static m8r::Application* application = nullptr;
+static bool controlState = false;
 
 static constexpr m8r::Duration ExecutionLoopIdleDelay = 2ms;
 static constexpr m8r::Duration HeartOnTime = 100ms;
@@ -40,6 +41,46 @@ int main(int argc, char **argv)
     Sim::WebView* wv = Sim::WebView::create(800, 600, true, true, "m8rScript Simulator");
     wv->setCallback([](Sim::WebView&, std::string& s)
     {
+        m8r::Vector<m8r::String> v = m8r::String(s.c_str()).split(":");
+        if (v.size() != 2) {
+            return;
+        }
+        if (v[0] == "onkeydown") {
+            if (v[1].size() == 1) {
+                // This is a single char. Is it ^C
+                if (v[1] == "c") {
+                    application->receivedData("", m8r::KeyAction::Interrupt);
+                } else if (application) {
+                    application->receivedData(v[1], m8r::KeyAction::None);
+                }
+            } else {
+                // Command
+                m8r::KeyAction action = m8r::KeyAction::None;
+                if (v[1] == "Enter") {
+                    action = m8r::KeyAction::NewLine;
+                } else if (v[1] == "Backspace") {
+                    action = m8r::KeyAction::Backspace;
+                } else if (v[1] == "Delete") {
+                    action = m8r::KeyAction::Delete;
+                } else if (v[1] == "ArrowUp") {
+                    action = m8r::KeyAction::UpArrow;
+                } else if (v[1] == "ArrowDown") {
+                    action = m8r::KeyAction::DownArrow;
+                } else if (v[1] == "ArrowRight") {
+                    action = m8r::KeyAction::RightArrow;
+                } else if (v[1] == "ArrowLeft") {
+                    action = m8r::KeyAction::LeftArrow;
+                } else if (v[1] == "Control") {
+                    controlState = true;
+                }
+            }
+        } else if (v[0] == "onkeyup") {
+            // Record state of Control key so we can handle ^C
+            if (v[1] == "Control") {
+                controlState = false;
+            }
+        }
+        
         ::printf("******** returned: %s\n", s.c_str());
     });
     
@@ -77,7 +118,7 @@ int main(int argc, char **argv)
                 evalString += ss;
                 evalString += "';";
             });
-            application = new m8r::Application(800);
+            application = new m8r::Application(23);
         }
         
         m8r::system()->setDefaultHeartOnTime(HeartOnTime);

@@ -28,6 +28,13 @@ public:
         
     bool runOneIteration();
     String autostartFilename() const;
+    
+    void receivedData(const String& data, KeyAction action)
+    {
+        if (_autostartTask) {
+            _autostartTask->receivedData(data, action);
+        }
+    }
 
     enum class NameValidationType { Ok, BadLength, InvalidChar };
     NameValidationType validateBonjourName(const char* name);
