@@ -77,10 +77,19 @@
             function loadComplete()
             {
             }
+            
+            function sendExternalEvent(event, name)
+            {
+                window.external.invoke(name + ":" + event.key);
+                event.stopPropagation();
+                event.preventDefault();
+            }
         </script>
     </head>
     
-    <body onload="loadComplete()">
+    <body onload="loadComplete()"
+          onkeydown="sendExternalEvent(event, 'onkeydown')"
+          onkeyup="sendExternalEvent(event, 'onkeyup')">
         <div id="hw-outer">
             Hardware
             <div id="hw-inner">

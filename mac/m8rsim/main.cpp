@@ -38,7 +38,11 @@ int main(int argc, char **argv)
 {
     // Create GUI WebPage
     Sim::WebView* wv = Sim::WebView::create(800, 600, true, true, "m8rScript Simulator");
-
+    wv->setCallback([](Sim::WebView&, std::string& s)
+    {
+        ::printf("******** returned: %s\n", s.c_str());
+    });
+    
     std::mutex evalMutex;
     std::string evalString;
 
