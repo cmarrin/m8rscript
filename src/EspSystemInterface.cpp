@@ -161,13 +161,29 @@ public:
 }
 
 private:
+    void turnWiFiOn()
+    {
+        wifi_fpm_do_wakeup();
+        wifi_fpm_close();
+        wifi_set_opmode(STATION_MODE);
+        wifi_station_connect();
+    }
+
+    void turnWiFiOff()
+    {
+        wifi_station_disconnect();
+        wifi_set_opmode(NULL_MODE);
+        wifi_set_sleep_type(MODEM_SLEEP_T);
+        wifi_fpm_open();
+        wifi_fpm_do_sleep(0xFFFFFFF);
+    }
+
 	void startNetwork()
 	{
         system()->setHeartrate(500ms);
 
-        delay(500);
-        WiFi.mode(WIFI_STA);
-        delay(500);
+        Serial.print("Starting WiFi");
+
 		WiFiManager wifiManager;
 
 		if (_needsNetworkReset) {
@@ -199,7 +215,6 @@ private:
 		Serial.printf("Wifi connected, Mode=%s, IP=%s\n", wifiManager.getModeString(currentMode).c_str(), WiFi.localIP().toString().c_str());
 	
 		_enableNetwork = true;
-		delay(500);
 	}
 
     bool _needsNetworkReset = false;
