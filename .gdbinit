@@ -1,3 +1,4 @@
+set history save on
 set remote hardware-breakpoint-limit 1
 set remote hardware-watchpoint-limit 1
 set remote interrupt-on-connect on

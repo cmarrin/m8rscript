@@ -3,10 +3,10 @@
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 
-#define USE_GDB_STUB 0
+#define USE_GDB_STUB 1
 #if USE_GDB_STUB != 0
 #ifndef NDEBUG
-//#include <GDBStub.h>
+#include <GDBStub.h>
 #endif
 #endif
 
@@ -26,12 +26,12 @@ void setup()
 
 #if USE_GDB_STUB != 0
 #ifndef NDEBUG
-    //gdbstub_init();
+    gdbstub_init();
 #endif
 #else
     rst_info* resetInfo = ESP.getResetInfoPtr();
     if (resetInfo->reason == REASON_EXCEPTION_RST) {
-        Serial.printf("***** reset due to expception, hanging...\n");
+        Serial.printf("***** reset due to exception, hanging...\n");
         while (1) {
             delay(1000);
             ESP.wdtFeed();
