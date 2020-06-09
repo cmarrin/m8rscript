@@ -427,34 +427,6 @@ private:
     }
 };
 
-enum class BuiltinConstants {
-    Undefined = 0,
-    Null = 1,
-    Int0 = 2,
-    Int1 = 3,
-    AtomShort = 4,  // Next byte is Atom Id (0-255)
-    AtomLong = 5,   // Next 2 bytes are Atom Id (Hi:Lo, 0-65535)
-    NumBuiltins = 6
-};
-
-static inline uint8_t builtinConstantOffset() { return static_cast<uint8_t>(BuiltinConstants::NumBuiltins); }
-static inline bool shortSharedAtomConstant(uint8_t reg) { return reg > MaxRegister && (reg - MaxRegister - 1) == static_cast<uint8_t>(BuiltinConstants::AtomShort); }
-static inline bool longSharedAtomConstant(uint8_t reg) { return reg > MaxRegister && (reg - MaxRegister - 1) == static_cast<uint8_t>(BuiltinConstants::AtomLong); }
-
-static inline uint8_t constantSize(uint8_t reg)
-{
-    if (reg <= MaxRegister) {
-        return 0;
-    }
-    if (shortSharedAtomConstant(reg)) {
-        return 1;
-    }
-    if (longSharedAtomConstant(reg)) {
-        return 2;
-    }
-    return 0;
-}
-
 static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
 static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
 static inline uint8_t byteFromOp(Op op) { return static_cast<uint8_t>(op); }

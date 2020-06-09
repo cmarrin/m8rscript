@@ -18,8 +18,6 @@
 namespace m8r {
 
 class Parser;
-class Function;
-class Program;
 
 using ExecutionStack = Stack<Value>;
 
