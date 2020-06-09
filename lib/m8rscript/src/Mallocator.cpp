@@ -8,6 +8,8 @@
 -------------------------------------------------------------------------*/
 
 #include "Mallocator.h"
+
+#include "SystemInterface.h"
 #include <cstdio>
 
 using namespace m8r;
@@ -55,6 +57,17 @@ void Mallocator::free(RawMad ptr, MemoryType type)
     
     assert(_memoryInfo.allocationsByType[index].size >= size);
     _memoryInfo.allocationsByType[index].size -= size;
+}
+
+uint32_t Mallocator::freeSize() const
+{
+    int32_t size = SystemInterface::heapFreeSize();
+    if (size >= 0) {
+        return size;
+    }
+    
+    // This is the Mac, make an estimate
+    return (_memoryInfo.totalAllocatedBytes > 80000) ? 0 : 80000 - _memoryInfo.totalAllocatedBytes;
 }
 
 ROMString Mallocator::stringFromMemoryType(MemoryType type)

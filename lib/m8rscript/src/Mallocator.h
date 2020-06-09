@@ -149,16 +149,7 @@ public:
 
     const MemoryInfo& memoryInfo() const { return _memoryInfo; }
     
-    uint32_t freeSize() const
-    {
-        int32_t size = heapFreeSize();
-        if (size >= 0) {
-            return size;
-        }
-        
-        // This is the Mac, make an estimate
-        return (_memoryInfo.totalAllocatedBytes > 80000) ? 0 : 80000 - _memoryInfo.totalAllocatedBytes;
-    }
+    uint32_t freeSize() const;
 
     static ROMString stringFromMemoryType(MemoryType);
 

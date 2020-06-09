@@ -84,6 +84,9 @@ public:
     
     void setHeartrate(Duration rate, Duration ontime = Duration());
     void setDefaultHeartOnTime(Duration ontime);
+    
+    static int32_t heapFreeSize();
+
 
 protected:
     SystemInterface() { }

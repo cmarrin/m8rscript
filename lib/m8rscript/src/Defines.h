@@ -9,13 +9,6 @@
 
 #pragma once
 
-// This allows umm to be turned off just for Mac. It should never be turned off for ESP
-#ifdef __APPLE__
-#define USE_UMM
-#else
-#define USE_UMM
-#endif
-
 // Do this so we can present defines for malloc/free for c files
 #ifndef __cplusplus
 
@@ -54,8 +47,6 @@ static inline void DBG_PRINT(const char* type, const char* fmt, ...)
 using namespace std::chrono_literals;
 
 namespace m8r {
-
-int32_t heapFreeSize();
 
 static inline bool isdigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }

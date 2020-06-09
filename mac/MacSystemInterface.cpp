@@ -146,7 +146,7 @@ private:
     Mutex _timerMutex;
 };
 
-int32_t m8r::heapFreeSize()
+int32_t SystemInterface::heapFreeSize()
 {
     return -1;
 }

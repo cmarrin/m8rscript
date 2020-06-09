@@ -31,11 +31,6 @@ using namespace m8r;
 static constexpr uint32_t FSStart = 0x100000;
 static constexpr int NumTimers = 8;
 
-int32_t m8r::heapFreeSize()
-{
-    return heap_caps_get_free_size(MALLOC_CAP_8BIT);
-}
-
 void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)
 {
 }
@@ -140,6 +135,11 @@ private:
     };
     TimerEntry _timers[NumTimers];
 };
+
+int32_t SystemInterface::heapFreeSize()
+{
+    return heap_caps_get_free_size(MALLOC_CAP_8BIT);
+}
 
 extern uint64_t g_esp_os_us;
 

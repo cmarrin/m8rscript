@@ -39,11 +39,6 @@ static constexpr const char* ConfigPortalName = "m8rscript";
 static constexpr uint32_t FSStart = 0x100000;
 static constexpr int NumTimers = 8;
 
-int32_t m8r::heapFreeSize()
-{
-    return static_cast<int32_t>(ESP.getFreeHeap());
-}
-
 void IPAddr::lookupHostName(const char* name, std::function<void (const char* name, IPAddr)> func)
 {
 }
@@ -233,6 +228,11 @@ private:
     };
     TimerEntry _timers[NumTimers];
 };
+
+int32_t SystemInterface::heapFreeSize()
+{
+    return static_cast<int32_t>(ESP.getFreeHeap());
+}
 
 extern uint64_t g_esp_os_us;
 
