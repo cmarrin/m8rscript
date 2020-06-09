@@ -77,6 +77,35 @@ class Object;
 #define DEBUG_MEMORY_HEADER
 #endif
 
+using RawMad = intptr_t;
+static constexpr RawMad NoRawMad = 0;
+
+enum class MemoryType : uint8_t {
+    Unknown,
+    String,
+    Character,
+    Object,
+    ExecutionUnit,
+    Native,
+    Vector,
+    UpValue,
+    Network,
+    Fixed,
+    NumTypes
+};
+
+struct MemoryInfo{
+    struct Entry
+    {
+        uint32_t size = 0;
+        uint32_t count = 0;
+    };
+    
+    uint32_t totalAllocatedBytes = 0;
+    uint16_t numAllocations = 0;
+    std::array<Entry, static_cast<uint32_t>(MemoryType::NumTypes)> allocationsByType;
+};
+
 template<typename T>
 class Mad
 {
