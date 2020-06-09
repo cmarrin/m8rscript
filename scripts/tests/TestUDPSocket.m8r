@@ -5,19 +5,19 @@
 var server = new UDP(8080, function(event, dataValue) {
 	switch(event) {
 		case UDP.Disconnected: {
-			printf("UDP disconnected\n");
+			print("UDP disconnected\n");
 		}
 		
 		case UDP.ReceivedData: {
-			printf("UDP received data: %s\n", dataValue);
+			print("UDP received data: " + dataValue + "\n");
 		}
 		
 		case UDP.SentData: {
-			printf("UDP sent data\n");
+			print("UDP sent data\n");
 		}			
 		
 		default: {
-			printf("UDP fired. event=%d\n", event);
+			print("UDP fired. event=%d\n", event);
 		}
 	}
 });

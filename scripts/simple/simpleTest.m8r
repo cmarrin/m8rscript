@@ -13,17 +13,17 @@ var strings = [
 ];
 
 for (var s : strings) {
-	printf("JSON.parse(\"%s\") ==> '%s'\n", s.value, JSON.parse(s.value));
+	println("JSON.parse(\"" + s.value + "\") ==> '" + JSON.parse(s.value));
 }
 
-printf("3.14 * 6 * 6 = %f\n", 3.14 * 6 * 6);
+println("3.14 * 6 * 6 = " + 3.14 * 6 * 6);
 var f = function(a) { return a + n; };
 
 var o = { n : 3 };
 println("Test Function.call (s/b 8): " + f.call(o, 5));
 
 for (var i = 0; i < 4; ++i) {
-	printf("Ternary operator test: the value %d is %s\n", i, ((i & 1) == 0) ? "even" : "odd");
+	println("Ternary operator test: the value " + i + " is " + ((i & 1) == 0) ? "even" : "odd");
 } 
 
 var f1;
@@ -41,7 +41,7 @@ f1 = toFloat("123e5");
 println("'123e5' converts to ", f1);
 f1 = toFloat("123.45e5");
 println("'123.45e5' converts to ", f1);
-printf("Here is a number: %1.25d and a string: '%2.1s'\n", 5, "hello");
+println("Here is a number: " + 5 + " and a string: " + "hello");
 
 function add()
 {
@@ -94,5 +94,5 @@ for (var i = 0; i < 1000; ++i) {
 }
 
 IPAddr.lookupHostname("time.nist.gov", function(name, ip) {
-	printf("***** hostname:'%s', ip:%s, my ip:%d.%d.%d.%d\n", name, ip, IPAddr[0], IPAddr[1], IPAddr[2], IPAddr[3]);
+	println("***** hostname:'" + name + "', ip:" + ip + ", my ip:" + IPAddr);
 });

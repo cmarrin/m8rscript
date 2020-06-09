@@ -28,14 +28,14 @@ class Clock
 	
 	function fetchTime(func) {
 		var eventFunc = function(socket, event, connectionId, dataValue) {
-			printf("TCP server got event %d\n", event);
+			println("TCP server got event " + event);
 			switch(event) {
 				case TCP.Error: {
-					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+					println("***** TCP Error: " + dataValue + ", error=" + connectionId);
 				}
 				case TCP.ReceivedData: {
 					dataValue = dataValue.trim();
-					printf("Received DAYTIME string: '%s'\n", dataValue);
+					println("Received DAYTIME string: " + dataValue);
 					var array = dataValue.split(" ", true);
 					
 					var dateArray = array[1].split("-");
@@ -55,9 +55,9 @@ class Clock
 		};
 		
 		IPAddr.lookupHostname(_host, function(name, ip) {
-			printf("Looked up %s, got %s\n", name, ip);
+			println("Looked up " + name + ", got " + ip);
 			if (ip) {
-				printf("Creating TCP server to port %d\n", _port);
+				println("Creating TCP server to port " + _port);
 				_server = new TCP(ip, _port, eventFunc);
 			}
 		});
@@ -72,10 +72,13 @@ current.fetchTime(function() {
 		isPM = true;
 		hr -= 12;
 	}
-	printf("\nIt is currently %d:%02d:%02d%s UCT on %d/%d/%d. It is%s daylight savings time\n\n",
-		hr, current.minute, current.second, isPM ? "pm" : "am",
-		current.month, current.day, current.year,
-		current.dst ? "" : " not");
+ 
+    // FIXME: Need formatting
+	//printf("\nIt is currently %d:%02d:%02d%s UCT on %d/%d/%d. It is%s daylight savings time\n\n",
+	println("\nIt is currently " + hr + ":" + current.minute + ":" + current.second + 
+            (current.second, isPM ? "pm" : "am") + " UCT on " + 
+            current.month + "/" + current.day + "/" + current.year + 
+            ". It is" + (current.dst ? "" : " not") + " daylight savings time\n");
 });
 		
 		

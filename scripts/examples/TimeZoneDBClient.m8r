@@ -23,10 +23,10 @@ class Clock
 	
 	function fetchTime(func) {
 		var eventFunc = function(socket, event, connectionId, dataValue) {
-			printf("TCP server got event %d\n", event);
+			println("TCP server got event " + event);
 			switch(event) {
 				case TCP.Error: {
-					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+					println("***** TCP Error: " + dataValue + ", error=" + connectionId);
 				}
 				case TCP.Connected: {
     				socket.send(0, "GET /v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America%2FLos_Angeles HTTP/1.0\r\n");
@@ -48,10 +48,10 @@ class Clock
 						}
 					}
 					if (!found) {
-						printf("***** Error: Did not find JSON string\n");
+						println("***** Error: Did not find JSON string");
 					} else {
 						var json = JSON.parse(jsonString);
-						printf("Result: %s\n", json);
+						println("Result: " + json);
 					}
 					
 					var json = JSON.parse(jsonString);
@@ -79,9 +79,9 @@ class Clock
 		};
 		
 		IPAddr.lookupHostname("api.timezonedb.com", function(name, ip) {
-			printf("Looked up %s, got %s\n", name, ip);
+			println("Looked up " + name + ", got " + ip);
 			if (ip) {
-				printf("Connecting to %s:%d\n", ip, _port);
+				println("Connecting to " + ip + ":" + _port);
 				_client = new TCP(ip, _port, eventFunc);
 			}
 		});
@@ -97,7 +97,7 @@ current.fetchTime(function(time) {
 		isPM = true;
 		hr -= 12;
 	}
-	printf("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
+	println("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
 		hr, time.minute, time.second, isPM ? "pm" : "am", time.zone,
 		time.month, time.day, time.year,
 		time.dst ? "" : " not");

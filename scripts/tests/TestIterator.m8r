@@ -14,36 +14,36 @@ class Iterator {
 
 obj2.iterator = Iterator;
 
-printf("1) Hand crafted iterator\n");
-printf("    Original array: %s\n", obj2);
+println("1) Hand crafted iterator");
+println("    Original array: " + obj2);
 for (var it : obj2) {
 var it;
 	it.value *= 2;
 }
-printf("    Array doubled : %s\n", obj2);
+println("    Array doubled : " + obj2);
 
 var obj = [ 1, 2, 3 ];
 
-printf("\n2) Double array object\n");
-printf("    Original array: %s\n", obj);
+println("\n2) Double array object");
+println("    Original array: " + obj);
 for (var it : obj) {
 	it.value *= 2;
 }
-printf("    Array doubled : %s\n", obj);
+println("    Array doubled : " + obj);
 
 var n = 0;
 for (var it : obj) {
 	n += it.value;
 }
 
-printf("\n3)  Iterate array using implicit iteration: total (s/b) 12) = %d\n", n);
+println("\n3)  Iterate array using implicit iteration: total (s/b) 12) = " + n);
 
 var n = 0;
 for (var it = new Iterator(obj); !it.done(); it.next()) {
 	n += it.value;
 }
 
-printf("3a) Same test using Iterator object: total (s/b) 12) = %d\n", n);
+println("3a) Same test using Iterator object: total (s/b) 12) = " + n);
 
 var n = 0;
 var it;
@@ -51,4 +51,4 @@ for (it = new Iterator(obj); !it.done(); it.next()) {
 	n += it.value;
 }
 
-printf("3b) Same test with iterator value defined outside for loop: total (s/b) 12) = %d\n", n);
+println("3b) Same test with iterator value defined outside for loop: total (s/b) 12) = " + n);

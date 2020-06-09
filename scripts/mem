@@ -11,16 +11,17 @@
 //
 
 var info = meminfo();
-printf("meminfo: freeSize = %d, allocatedSize = %d, numAllocations = %d\n",
-    info.freeSize, info.allocatedSize, info.numAllocations);
+println("meminfo: freeSize = "  + info.freeSize + 
+          ", allocatedSize = "  + info.allocatedSize + 
+          ", numAllocations = " + info.numAllocations);
 
 for (var i = 0; i < info.allocationsByType.length; ++i) {
     var item = info.allocationsByType[i];
-    printf("         Allocated %3d %s items, total size = %d", item.count, item.type, item.size);
+    print("         Allocated " + item.count + " " + item.type + " items, total size = " + item.size);
     if (item.count > 0) {
-        printf(", avg = %d\n", item.size / item.count);
+        println(", avg = " + (item.size / item.count));
     } else {
-        printf("\n");
+        println();
     }
 }
 

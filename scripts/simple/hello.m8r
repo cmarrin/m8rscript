@@ -1,9 +1,9 @@
-var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
+var t = new Timer(2.5, Timer.Repeating, function() { println("******* Timer Fired"); });
 t.start();
 
 var i = 0;
 while (i < 10) {
-    printf("Hello World\n");
+    println("Hello World");
     delay(1);
     i++;
 }

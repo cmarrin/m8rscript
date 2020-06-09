@@ -10,19 +10,7 @@
 // mrsh - m8rscript shell
 //
 
-//var b = "world";
-//function bar(a)
-//{
-//    return function(c) {
-//        printf("%s %s %s\n", a, c, b);
-//    };
-//}
-//
-//var f = bar("Goodbye");
-//f("cruel");
-//
-
-printf("m8rscript shell v 1.0\n\n");
+println("m8rscript shell v 1.0\n");
 
 var env = { PATH : [ "/sys/bin" ], CWD : "/home", HOME : "/home/cmarrin" };
 var done = [ false ];
@@ -32,7 +20,7 @@ var lines = [ ];
 consoleListener = function(line, action)
 {
     if (action == "intr") {
-        printf("\n^C\n");
+        println("\n^C");
         done[0] = true;
     } else {
         lines.push_back(line);
@@ -42,7 +30,7 @@ consoleListener = function(line, action)
 
 function showPrompt()
 {
-    printf("[%s:1] > ", env.CWD);
+    print("[" + env.CWD + ":1] > ");
 }
 
 function processLine(line)
@@ -53,7 +41,7 @@ function processLine(line)
 
     var task = new Task(command, consoleListener, env);
     if (task == null) {
-        printf("mrsh: %s: command not found\n", command);
+        println("mrsh: " + command + ": command not found");
         return;
     }
 

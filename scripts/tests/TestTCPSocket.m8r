@@ -5,24 +5,24 @@
 var server = new TCP(8080, function(socket, event, connectionId, dataValue) {
 	switch(event) {
 		case TCP.Connected: {
-			printf("TCP connected. ConnectionId=%d\n", connectionId);
+			println("TCP connected. ConnectionId=" + connectionId");
     		socket.send(connectionId, "Hello there!\nPlease enter some text:");
    		}
 		
 		case TCP.Disconnected: {
-			printf("TCP disconnected. ConnectionId=%d\n", connectionId);
+			println("TCP disconnected. ConnectionId=" + connectionId);
 		}
 		
 		case TCP.ReceivedData: {
-			printf("TCP received data on connection %d: %s\n", connectionId, dataValue);
+			println("TCP received data on connection " + connectionId + " : " + dataValue);
 		}
 		
 		case TCP.SentData: {
-			printf("TCP sent data to connection %d\n", connectionId);
+			println("TCP sent data to connection " + connectionId);
 		}			
 		
 		default: {
-			printf("TCP fired. event=%d\n", event);
+			println("TCP fired. event=" + event);
 		}
 	}
 });

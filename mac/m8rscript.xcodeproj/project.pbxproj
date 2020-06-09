@@ -260,12 +260,12 @@
 		4978365D24141EEC005735D5 /* timing-esp.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = "timing-esp.m8r"; path = "../../scripts/timing/timing-esp.m8r"; sourceTree = "<group>"; };
 		4978365E24141EEC005735D5 /* timing.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = timing.lua; path = ../../scripts/timing/timing.lua; sourceTree = "<group>"; };
 		4978365F24141EEC005735D5 /* timing.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = timing.js; path = ../../scripts/timing/timing.js; sourceTree = "<group>"; };
-		4978366224141F27005735D5 /* TestClass.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClass.m8r; path = ../../scripts/tests/TestClass.m8r; sourceTree = "<group>"; };
+		4978366224141F27005735D5 /* TestClass.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestClass.m8r; path = ../../scripts/tests/TestClass.m8r; sourceTree = "<group>"; };
 		4978366324141F28005735D5 /* TestLoop.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestLoop.m8r; path = ../../scripts/tests/TestLoop.m8r; sourceTree = "<group>"; };
 		4978366424141F28005735D5 /* TestUDPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestUDPSocket.m8r; path = ../../scripts/tests/TestUDPSocket.m8r; sourceTree = "<group>"; };
-		4978366524141F28005735D5 /* TestBase64.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestBase64.m8r; path = ../../scripts/tests/TestBase64.m8r; sourceTree = "<group>"; };
-		4978366624141F28005735D5 /* TestClosure.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestClosure.m8r; path = ../../scripts/tests/TestClosure.m8r; sourceTree = "<group>"; };
-		4978366724141F28005735D5 /* TestTCPSocket.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestTCPSocket.m8r; path = ../../scripts/tests/TestTCPSocket.m8r; sourceTree = "<group>"; };
+		4978366524141F28005735D5 /* TestBase64.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestBase64.m8r; path = ../../scripts/tests/TestBase64.m8r; sourceTree = "<group>"; };
+		4978366624141F28005735D5 /* TestClosure.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestClosure.m8r; path = ../../scripts/tests/TestClosure.m8r; sourceTree = "<group>"; };
+		4978366724141F28005735D5 /* TestTCPSocket.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestTCPSocket.m8r; path = ../../scripts/tests/TestTCPSocket.m8r; sourceTree = "<group>"; };
 		4978366824141F28005735D5 /* TestGibberish.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; name = TestGibberish.m8r; path = ../../scripts/tests/TestGibberish.m8r; sourceTree = "<group>"; };
 		4978366924141F28005735D5 /* TestIterator.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = TestIterator.m8r; path = ../../scripts/tests/TestIterator.m8r; sourceTree = "<group>"; };
 		4979403E24141E620042B86B /* simpleTest2.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest2.m8r; sourceTree = "<group>"; };

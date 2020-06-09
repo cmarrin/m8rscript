@@ -12,7 +12,7 @@ class MyClass
 	}
 	
 	function doSomething(x) {
-		printf("1) Simple class test: _myVar (s/b 6) = %d, x (s/b 'Hello') = %s\n", _myVar, x);
+		println("1) Simple class test: _myVar (s/b 6) = " + _myVar + ", x (s/b 'Hello') = " + x);
 	}
 }
 
@@ -31,4 +31,4 @@ class Circle
 }
 
 var myCircle = new Circle(6);
-printf("2) Test of Circle class: myCircle(6) area (s/b 113.09724) = %f\n", myCircle.area());
+println("2) Test of Circle class: myCircle(6) area (s/b 113.09724) = " + myCircle.area());
