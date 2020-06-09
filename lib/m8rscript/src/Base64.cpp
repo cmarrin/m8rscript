@@ -62,7 +62,7 @@ int Base64::decode(uint16_t in_len, const char *in, uint16_t out_len, unsigned c
 		unsigned char ch;
 		if(isspace(in[ii])) continue;
 		if(in[ii]=='=') break; /* stop at = */
-		ch = readRomByte(base64dec_tab + static_cast<unsigned>(in[ii]));
+		ch = ROMString::readByte(base64dec_tab + static_cast<unsigned>(in[ii]));
 		if(ch==255) break; /* stop at a parse error */
 		v=(v<<6)|ch;
 		rem+=6;
@@ -94,13 +94,13 @@ int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, c
 		while(rem>=6) {
 			rem-=6;
 			if(io>=out_len) return -1; /* truncation is failure */
-			out[io++] = readRomByte(base64enc_tab + ((v >> rem) & 63));
+			out[io++] = ROMString::readByte(base64enc_tab + ((v >> rem) & 63));
 		}
 	}
 	if(rem) {
 		v<<=(6-rem);
 		if(io>=out_len) return -1; /* truncation is failure */
-		out[io++]=readRomByte(base64enc_tab + (v & 63));
+		out[io++] = ROMString::readByte(base64enc_tab + (v & 63));
 	}
 	while(io&3) {
 		if(io>=out_len) return -1; /* truncation is failure */

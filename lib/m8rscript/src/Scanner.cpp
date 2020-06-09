@@ -61,12 +61,12 @@ static ROMString keywordString(_keywordString);
 Token Scanner::scanKeyword(const char* s)
 {
     int32_t len = static_cast<int32_t>(strlen(s));
-    ROMString result = ROMstrstr(keywordString, s);
-    if (!result.valid() || readRomByte(result + len) >= 0x20 || readRomByte(result - 1) >= 0x20) {
+    ROMString result = ROMString::strstr(keywordString, s);
+    if (!result.valid() || ROMString::readByte(result + len) >= 0x20 || ROMString::readByte(result - 1) >= 0x20) {
         return Token::Unknown;
     }
     
-    return static_cast<Token>(readRomByte(result - 1));
+    return static_cast<Token>(ROMString::readByte(result - 1));
 }
 
 Token Scanner::scanString(char terminal)

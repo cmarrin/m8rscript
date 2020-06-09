@@ -48,7 +48,7 @@ void IPAddr::lookupHostName(const char* name, std::function<void (const char* na
 {
 }
 
-m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
+m8r::ROMString ROMString::strstr(m8r::ROMString s1, const char* s2)
 {
     int i, j;
 
@@ -57,7 +57,7 @@ m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
     }
 
     for( i = 0; ; i++) {
-        char c1 = readRomByte(s1 + i);
+        char c1 = ROMString::readByte(s1 + i);
         if (c1 == '\0') {
             return m8r::ROMString();
         }
@@ -69,7 +69,7 @@ m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2)
                 if (c2 == '\0') {
                     return m8r::ROMString(s1 + i);
                 }
-                c1 = readRomByte(s1 + j);
+                c1 = ROMString::readByte(s1 + j);
                 if (c1 != c2) {
                     break;
                 }

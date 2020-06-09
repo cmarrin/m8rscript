@@ -37,7 +37,7 @@ private:
     
     static PinEntry getPinEntry(uint8_t pin)
     {
-        return { readRomByte(ROMString(&(_pins[pin * 2]))), readRomByte(ROMString(&(_pins[pin * 2 + 1]))) };
+        return { ROMString::readByte(ROMString(&(_pins[pin * 2]))), ROMString::readByte(ROMString(&(_pins[pin * 2 + 1]))) };
     }
     
     static const uint8_t _pins[PinCount * 2];

@@ -274,6 +274,7 @@
 		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = blink.m8r; sourceTree = "<group>"; };
 		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleFunction.m8r; sourceTree = "<group>"; };
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
+		497B4A59248FDFA800CCBA41 /* ROMString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ROMString.h; path = ../lib/m8rscript/src/ROMString.h; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -665,6 +666,7 @@
 				49E648191D00C088005F5059 /* Parser.h */,
 				4942EA821D070C9B00E02088 /* Program.cpp */,
 				4942EA7F1D07009E00E02088 /* Program.h */,
+				497B4A59248FDFA800CCBA41 /* ROMString.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */,

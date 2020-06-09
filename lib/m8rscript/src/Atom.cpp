@@ -21,7 +21,7 @@ static int32_t binarySearch(const char** names, uint16_t nelts, const char* valu
     while (first <= last)
     {
         int32_t middle = (first + last) / 2;
-        int result = ROMstrcmp(ROMString(names[middle]), value);
+        int result = ROMString::strcmp(ROMString(names[middle]), value);
         if (result == 0) {
             return middle;
         } else if (result > 0) {
@@ -72,13 +72,13 @@ AtomTable::AtomTable()
 
 Atom AtomTable::atomizeString(ROMString romstr) const
 {
-    uint16_t len = ROMstrlen(romstr);
+    uint16_t len = ROMString::strlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
 
     Mad<char> s = Mad<char>::create(len + 1);
-    ROMCopyString(s.get(), romstr);
+    ROMString::strcpy(s.get(), romstr);
     Atom atom = atomizeString(s.get());
     s.destroy();
     return atom;

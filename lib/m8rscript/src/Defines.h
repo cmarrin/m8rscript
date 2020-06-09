@@ -29,6 +29,8 @@
 #include <cassert>
 #include <limits>
 #include <cstring>
+#include "ROMString.h"
+
 
 // Debugging
 static inline void DBG_PRINT(const char* type, const char* fmt, ...)
@@ -50,65 +52,6 @@ static inline void DBG_PRINT(const char* type, const char* fmt, ...)
 #include <chrono>
 
 using namespace std::chrono_literals;
-
-namespace m8r {
-    class ROMString
-    {
-    public:
-        ROMString() { }
-        explicit ROMString(const char* s) : _value(s) { }
-        explicit ROMString(const uint8_t* s) : _value(reinterpret_cast<const char*>(s)) { }
-        
-        bool valid() const { return _value; }
-        
-        ROMString operator+(int32_t i) const { return ROMString(_value + i);  }
-        ROMString operator-(int32_t i) const { return ROMString(_value - i);  }
-        ROMString operator+=(int32_t i) { _value += i; return *this; }
-        ROMString operator-=(int32_t i) { _value += i; return *this; }
-        
-        const char* value() const { return _value; }
-
-    private:
-        const char* _value = nullptr;
-    };
-}
-
-#ifndef ARDUINO
-    #define RODATA_ATTR
-    #define RODATA2_ATTR
-    #define ROMSTR_ATTR
-    #define FLASH_ATTR
-    #define ICACHE_FLASH_ATTR
-    static inline uint8_t readRomByte(const char* addr) { return *addr; }
-    static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy(dst, src.value(), len); }
-    static inline size_t ROMstrlen(m8r::ROMString s) { return strlen(s.value()); }
-    static inline m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2) { return m8r::ROMString(strstr(s1.value(), s2)); }
-    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return strcmp(s1.value(), s2); }
-
-    static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy(dst, src.value()); return dst + ROMstrlen(src); }
-    #define ROMSTR(s) m8r::ROMString(s)
-#else
-
-#include <Arduino.h>
-#include <pgmspace.h>
-    
-    #define ROMSTR_ATTR PROGMEM
-    #define RODATA_ATTR PROGMEM 
-    #define RODATA2_ATTR PROGMEM
-
-    static inline size_t ROMstrlen(m8r::ROMString s) { return strlen_P(s.value()); }
-    static inline void* ROMmemcpy(void* dst, m8r::ROMString src, size_t len) { return memcpy_P(dst, src.value(), len); }
-    static inline char* ROMCopyString(char* dst, m8r::ROMString src) { strcpy_P(dst, src.value()); return dst + ROMstrlen(src); }
-    static inline int ROMstrcmp(m8r::ROMString s1, const char* s2) { return -strcmp_P(s2, s1.value()); }
-
-    m8r::ROMString ROMstrstr(m8r::ROMString s1, const char* s2);
-
-    #define ROMSTR(s) m8r::ROMString(PSTR(s))
-
-    static inline uint8_t readRomByte(const char* addr) { return pgm_read_byte(addr); }
-#endif
-
-static inline uint8_t readRomByte(m8r::ROMString addr) { return readRomByte(addr.value()); }
 
 namespace m8r {
 
@@ -520,9 +463,9 @@ private:
         
         Entry e;
         const Entry* ep = &(_array[static_cast<uint8_t>(op)]);
-        uint8_t c = readRomByte(ROMString(reinterpret_cast<const char*>(&(ep->size))));
+        uint8_t c = ROMString::readByte(ROMString(reinterpret_cast<const char*>(&(ep->size))));
         e.size = c;
-        c = readRomByte(ROMString(reinterpret_cast<const char*>(&(ep->layout))));
+        c = ROMString::readByte(ROMString(reinterpret_cast<const char*>(&(ep->layout))));
         e.layout = static_cast<Layout>(c);
         return e;
     }

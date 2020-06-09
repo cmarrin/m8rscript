@@ -396,9 +396,9 @@ m8r::String m8r::String::fformat(const char* fmt, std::function<void(FormatType,
     
     static ROMString formatRegexROM = ROMSTR("(%)([\\d]*)(.?)([\\d]*)([c|s|d|i|x|X|u|f|e|E|g|G|p])");
         
-    uint16_t formatRegexSize = ROMstrlen(formatRegexROM) + 1;
+    uint16_t formatRegexSize = ROMString::strlen(formatRegexROM) + 1;
     Mad<char> formatRegex = Mad<char>::create(formatRegexSize);
-    ROMmemcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
+    ROMString::memcpy(formatRegex.get(), formatRegexROM, formatRegexSize);
     
     int size = static_cast<int>(strlen(fmt));
     const char* start = fmt;

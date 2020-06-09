@@ -91,7 +91,7 @@ public:
     
     String& operator=(ROMString other)
     {
-        uint16_t romSize = static_cast<uint16_t>(ROMstrlen(other));
+        uint16_t romSize = static_cast<uint16_t>(ROMString::strlen(other));
         
         if (_data.valid()) {
             _size = 0;
@@ -105,7 +105,7 @@ public:
         ensureCapacity(romSize + 1);
         _size = romSize + 1;
         if (romSize > 0) {
-            ROMmemcpy(_data.get(), other, romSize);
+            ROMString::memcpy(_data.get(), other, romSize);
         }
         _data.get()[romSize] = '\0';
         return *this;

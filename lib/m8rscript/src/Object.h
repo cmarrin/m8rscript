@@ -201,7 +201,7 @@ protected:
 
 static inline SA saFromROM(const SA* sa)
 {
-    return static_cast<SA>(readRomByte(reinterpret_cast<const char*>(sa)));
+    return static_cast<SA>(ROMString::readByte(ROMString(reinterpret_cast<const char*>(sa))));
 }
 
 class StaticObject
