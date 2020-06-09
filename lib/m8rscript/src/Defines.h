@@ -48,6 +48,9 @@ using namespace std::chrono_literals;
 
 namespace m8r {
 
+static constexpr uint8_t MajorVersion = 0;
+static constexpr uint8_t MinorVersion = 2;
+
 static inline bool isdigit(uint8_t c)		{ return c >= '0' && c <= '9'; }
 static inline bool isLCHex(uint8_t c)       { return c >= 'a' && c <= 'f'; }
 static inline bool isUCHex(uint8_t c)       { return c >= 'A' && c <= 'F'; }
@@ -144,9 +147,6 @@ private:
 
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
-
-static constexpr uint8_t MajorVersion = 0;
-static constexpr uint8_t MinorVersion = 2;
 
 }
 
