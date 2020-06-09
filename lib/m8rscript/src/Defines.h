@@ -430,40 +430,6 @@ private:
 static constexpr uint8_t MajorVersion = 0;
 static constexpr uint8_t MinorVersion = 2;
 
-// File format is a sequence of blocks. Some blocks are simply a byte
-// token indicating the block type and others are a generic format
-// with the token byte followed by 2 bytes of length. Every version
-// must understand Type, Version, ObjectStart and ObjectEnd. All others
-// are optional can be skipped by skipping the token byte and the number
-// of bytes contained in the next 2 bytes (high byte is MSB).
-//
-// Currently, the only properties stored are nested functions inside Function
-// objects (which includes Program objects)
-enum class ObjectDataType : uint8_t {
-    End = 0x00,
-    Type = 0x01,            // { 4 bytes: 'm', '8', 'r' }
-    Version = 0x01,         // { uint8_t major, uint8_t minor }
-    
-    // Object
-    ObjectStart = 0x10,     // Indicates start of object data
-    ObjectName = 0x11,      // { uint16_t size, uint8_t name[size] }
-    PropertyCount = 0x12,   // { uint16_t size = 2, uint16_t count }
-    PropertyId = 0x13,      // { uint16_t size = 2, uint16_t id }
-                            // Must be immediately followed by object
-    ObjectEnd = 0x1f,       // Indicates end of object data
-
-    // Program
-    AtomTable = 0x20,       // { uint16_t size, uint8_t data[size] }
-    StringTable = 0x21,     // { uint16_t size, uint8_t data[size] }
-    ObjectCount = 0x22,     // { uint16_t size = 2, uint16_t count }
-                            // Must be immediately followed by object
-    
-    // Function
-    Locals = 0x31,          // { uint16_t nparams, uint16_t atoms[nparams] }
-    ParamEnd = 0x32,        // { uint16_t size = 2, uint16_t paramEnd }
-    Code = 0x33,            // { uint16_t size, uint8_t code[size] }
-};
-
 }
 
 #endif
