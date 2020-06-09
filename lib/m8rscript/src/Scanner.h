@@ -31,6 +31,12 @@ namespace m8r {
 
 static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);
 
+struct Label {
+    int32_t label : 20;
+    uint32_t uniqueID : 12;
+    int32_t matchedAddr : 20;
+};
+
 class Scanner  {
 public:
     typedef struct {

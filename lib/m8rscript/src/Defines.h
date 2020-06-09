@@ -145,12 +145,6 @@ private:
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
-struct Label {
-    int32_t label : 20;
-    uint32_t uniqueID : 12;
-    int32_t matchedAddr : 20;
-};
-
 /*
     Opcodes:
 
