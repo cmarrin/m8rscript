@@ -12,6 +12,7 @@
 #include <cstdint>
 
 #include "Atom.h"
+#include "MachineCode.h"
 #include "Value.h"
 
 namespace m8r {

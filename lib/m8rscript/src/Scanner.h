@@ -138,7 +138,6 @@ struct Label {
 class Scanner  {
 public:
     typedef struct {
-        m8r::Op             op;
         m8r::Label          label;
         m8r::Function*      function;
         m8r::Float::Raw		number;

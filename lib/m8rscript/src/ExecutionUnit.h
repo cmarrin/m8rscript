@@ -21,40 +21,6 @@ class Parser;
 
 using ExecutionStack = Stack<Value>;
 
-static inline Op opFromByte(uint8_t c) { return static_cast<Op>(c & 0x3f); }
-static inline uint8_t immFromByte(uint8_t c) { return c >> 6; }
-static inline uint8_t byteFromOp(Op op) { return static_cast<uint8_t>(op); }
-static inline uint8_t immFromOp(Op op) { return byteFromOp(op) >> 6; }
-static inline uint8_t byteFromOp(Op op, uint8_t imm) { assert(byteFromOp(op) <= 0x3f); return byteFromOp(op) | (imm << 6); }
-static inline uint8_t byteFromCode(const uint8_t*& code) { return *code++; }
-
-static inline Op opFromCode(const uint8_t*& code)
-{
-    // Using this form is only for opcodes that don't
-    // have any immediate bits set. Assure that here
-#ifndef NDEBUG
-    uint8_t c = byteFromCode(code);
-    assert(immFromByte(c) == 0);
-    return opFromByte(c);
-#else
-    return opFromByte(byteFromCode(code));
-#endif
-}
-    
-static inline Op opFromCode(const uint8_t*& code, uint8_t& imm)
-{
-    uint8_t c = byteFromCode(code);
-    imm = immFromByte(c);
-    return opFromByte(c);
-}
-
-static inline uint16_t uNFromCode(const uint8_t*& code)
-{
-    uint16_t n = static_cast<uint16_t>(byteFromCode(code)) << 8;
-    return n | static_cast<uint16_t>(byteFromCode(code));
-}
-static inline int16_t sNFromCode(const uint8_t*& code) { return static_cast<int16_t>(uNFromCode(code)); }
-
 class ExecutionUnit {
 public:
     friend class Closure;
