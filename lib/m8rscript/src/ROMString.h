@@ -9,7 +9,14 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <cstdarg>
+#include <cstring>
+
 namespace m8r {
+
+class String;
 
 #ifndef ARDUINO
     #define RODATA_ATTR
@@ -50,6 +57,11 @@ namespace m8r {
         static char* strcpy(char* dst, m8r::ROMString src) { return strcpy_P(dst, src._value); }
         static m8r::ROMString strstr(m8r::ROMString s1, const char* s2);
 #endif
+
+        String copy() const;
+        
+        static String vformat(ROMString format, va_list args);
+        static String format(ROMString format, ...);
 
     private:
         const char* _value = nullptr;

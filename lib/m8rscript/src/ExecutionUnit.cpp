@@ -326,7 +326,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
 
 void ExecutionUnit::vprintf(ROMString format, va_list args) const
 {
-    String s = String::vformat(format, args);
+    String s = ROMString::vformat(format, args);
 
     if (consolePrintFunction()) {
         consolePrintFunction()(s);

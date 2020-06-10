@@ -62,6 +62,7 @@
 		497139C2246F50BC0025CC4D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761B246EDB9D00CA38D1 /* AppKit.framework */; };
 		497139C3246F50C30025CC4D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
 		497139DB24705A630025CC4D /* m8rFSFile in Resources */ = {isa = PBXBuildFile; fileRef = 497139DA24705A620025CC4D /* m8rFSFile */; };
+		497B4A5C2491110F00CCBA41 /* ROMString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497B4A5B2491110F00CCBA41 /* ROMString.cpp */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
 		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
 		49846005238C60ED001F4FD4 /* MacSystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49846003238C60ED001F4FD4 /* MacSystemInterface.cpp */; };
@@ -276,6 +277,7 @@
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
 		497B4A59248FDFA800CCBA41 /* ROMString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ROMString.h; path = ../lib/m8rscript/src/ROMString.h; sourceTree = "<group>"; };
 		497B4A5A249015A900CCBA41 /* MachineCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../lib/m8rscript/src/MachineCode.h; sourceTree = "<group>"; };
+		497B4A5B2491110F00CCBA41 /* ROMString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ROMString.cpp; path = ../lib/m8rscript/src/ROMString.cpp; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -668,6 +670,7 @@
 				49E648191D00C088005F5059 /* Parser.h */,
 				4942EA821D070C9B00E02088 /* Program.cpp */,
 				4942EA7F1D07009E00E02088 /* Program.h */,
+				497B4A5B2491110F00CCBA41 /* ROMString.cpp */,
 				497B4A59248FDFA800CCBA41 /* ROMString.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
@@ -974,6 +977,7 @@
 				49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */,
 				49079B9F244247EE000FAF22 /* lfs_util.c in Sources */,
 				492396C71E711D12007AC0BF /* MUDP.cpp in Sources */,
+				497B4A5C2491110F00CCBA41 /* ROMString.cpp in Sources */,
 				49079BA2244247EE000FAF22 /* MLittleFS.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,

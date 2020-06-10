@@ -12,7 +12,7 @@
 #include "Containers.h"
 #include "IPAddr.h"
 #include "Value.h"
-#include <cstring>
+#include <string>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netdb.h>
@@ -73,8 +73,8 @@ void MacUDP::init(uint16_t port, EventFunction func)
         return;
     }
 
-    String queueName = "UDPSocketQueue-";
-    queueName += String(_socketFD);
+    std::string queueName = "UDPSocketQueue-";
+    queueName += std::to_string(_socketFD);
     _queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
     
     struct sockaddr_in sa;
