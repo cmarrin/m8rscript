@@ -121,50 +121,6 @@ Atom Value::_toIdValue(ExecutionUnit* eu) const
     }
 }
 
-m8r::String Value::format(ExecutionUnit* eu, Value formatValue, uint32_t nparams)
-{
-    // thisValue is the format string
-    String format = formatValue.toStringValue(eu);
-    if (format.empty()) {
-        return String();
-    }
-    
-    int32_t nextParam = 1 - nparams;
-    Value value;
-    
-    return String::fformat(format.c_str(), [eu, &nextParam](String::FormatType type, String& s) {
-        switch(type) {
-            case String::FormatType::Int:
-                s = String(eu->stack().top(nextParam++).toIntValue(eu));
-                return;
-            case String::FormatType::String:
-                s = eu->stack().top(nextParam++).toStringValue(eu);
-                return;
-            case String::FormatType::Float:
-                s = String(eu->stack().top(nextParam++).toFloatValue(eu));
-                return;
-            case String::FormatType::Ptr: {
-                // return a string showing <type>(value)
-                Value val = eu->stack().top(nextParam++);
-                switch(val.type()) {
-                    case Type::Undefined:       s = "UND()"; break;
-                    case Type::Float:           s = "FLT()"; break;
-                    case Type::Object:          s = "OBJ()"; break;
-                    case Type::Integer:         s = "INT()"; break;
-                    case Type::String:          s = "STR()"; break;
-                    case Type::StringLiteral:   s = "LIT()"; break;
-                    case Type::Id:              s = "ID()";  break;
-                    case Type::Null:            s = "NUL()"; break;
-                    case Type::NativeObject:    s = "NOB()"; break;
-                    case Type::NativeFunction:  s = "NFU()"; break;
-                    case Type::StaticObject:    s = "STA()"; break;
-                }
-                return;
-            }
-        }
-    });
-}
-
 bool Value::isType(ExecutionUnit* eu, Atom atom)
 {
     if (!isObject()) {
@@ -294,11 +250,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
-            if (prop == Atom(SA::format)) {
-                String s = Value::format(eu, eu->stack().top(1 - nparams), nparams - 1);
-                eu->stack().push(Value(s));
-                return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-            }
+
             if (prop == Atom(SA::trim)) {
                 s = s.trim();
                 eu->stack().push(Value(ExecutionUnit::createString(s)));

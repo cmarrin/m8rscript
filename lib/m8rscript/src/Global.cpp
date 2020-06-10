@@ -35,7 +35,6 @@ static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
     { SA::currentTime, Global::currentTime },
     { SA::delay, Global::delay },
     { SA::print, Global::print },
-    { SA::printf, Global::printf },
     { SA::println, Global::println },
     { SA::toFloat, Global::toFloat },
     { SA::toInt, Global::toInt },
@@ -92,19 +91,6 @@ CallReturnValue Global::print(ExecutionUnit* eu, Value thisValue, uint32_t npara
         String s = eu->stack().top(i).toStringValue(eu);
         eu->print(s.c_str());
     }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
-}
-
-CallReturnValue Global::printf(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Error::BadFormatString);
-    }
-    String s = Value::format(eu, eu->stack().top(1 - nparams), nparams - 1);
-    if (s.empty()) {
-        return CallReturnValue(CallReturnValue::Error::BadFormatString);
-    }
-    eu->print(s.c_str());
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 

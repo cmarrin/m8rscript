@@ -283,18 +283,6 @@ public:
         Float value;
         return toFloat(value, c_str()) ? value : 0;
     }
-    
-    enum class FormatType { Int, String, Float, Ptr };
-    
-    static String fformat(const char* fmt, std::function<void(FormatType, String&)>);
-    static String vformat(const char*, va_list);
-    static String vformat(ROMString, va_list);
-    static String format(const char* fmt, ...)
-    {
-        va_list args;
-        va_start(args, fmt);
-        return vformat(fmt, args);
-    }
 
 private:
     void doEnsureCapacity(uint16_t size);

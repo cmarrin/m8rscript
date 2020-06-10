@@ -24,7 +24,7 @@ SystemInterface* m8r::system()
 
 void SystemInterface::vprintf(ROMString fmt, va_list args) const
 {
-    print(String::vformat(fmt, args).c_str());
+    print(ROMString::vformat(fmt, args).c_str());
 }
 
 bool SystemInterface::runOneIteration()

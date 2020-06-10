@@ -79,7 +79,7 @@ m8r::String Error::vformatError(Code code, int32_t lineno, ROMString format, va_
     }
 
     s += String(ROMSTR(": "));
-    s += String::vformat(String(format).c_str(), args);
+    s += ROMString::vformat(format, args);
     if (lineno > 0) {
         s += String(ROMSTR(" on line ")) + String(lineno);
     }

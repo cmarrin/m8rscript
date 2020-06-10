@@ -56,7 +56,7 @@ void Parser::printError(ROMString format, ...)
     va_end(args);
     
     va_start(args, format);
-    String s = String::vformat(format, args);
+    String s = ROMString::vformat(format, args);
     _syntaxErrors.emplace_back(s.c_str(), _scanner.lineno(), 1, 1);
     va_end(args);
 }

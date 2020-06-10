@@ -44,7 +44,6 @@ public:
     static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue print(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue printf(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue println(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toFloat(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);

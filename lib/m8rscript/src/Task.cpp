@@ -60,7 +60,7 @@ bool Task::load(const char* filename)
     bool ret = load(FileStream(file));
 
 #ifndef NDEBUG
-    _name = String::format("Task:%s(%p)", filename, this);
+    _name = ROMString::format(ROMString("Task:%s(%p)"), filename, this);
 #endif
 
     if (file->error() != Error::Code::OK) {
@@ -74,7 +74,7 @@ bool Task::load(const char* filename)
 bool Task::load(const Stream& stream)
 {
     #ifndef NDEBUG
-        _name = String::format("Task(%p)", this);
+        _name = ROMString::format(ROMString("Task(%p)"), this);
     #endif
 
     // See if we can parse it

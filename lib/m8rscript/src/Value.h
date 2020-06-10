@@ -257,8 +257,6 @@ public:
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
 
-    static String format(ExecutionUnit*, Value format, uint32_t nparams);
-    
     void gcMark();
     
     enum class SetType { AlwaysAdd, NeverAdd, AddIfNeeded };
