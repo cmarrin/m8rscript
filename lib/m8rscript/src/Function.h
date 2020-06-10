@@ -38,14 +38,14 @@ public:
     }
 
     virtual const InstructionVector* code() const override { return &_code; }
-    void setCode(const Vector<uint8_t>& code) { bool retval = _code.assign(code); (void) retval; assert(retval); }
+    void setCode(const Vector<uint8_t>& code) { _code = code; }
 
     void setLocalCount(uint16_t size) { _localSize = size; }
     virtual uint16_t localCount() const override { return _localSize; }
     
     virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) override;
 
-    void setConstants(const Vector<Value>& constants) { bool retval = _constants.assign(constants); (void) retval; assert(retval); }
+    void setConstants(const Vector<Value>& constants) { _constants = constants; }
 
     void enumerateConstants(std::function<void(const Value&, const ConstantId&)> func)
     {
@@ -110,7 +110,7 @@ private:
     uint16_t _formalParamCount = 0;
     InstructionVector _code;
     uint16_t _localSize = 0;
-    FixedVector<Value> _constants;
+    Vector<Value> _constants;
     Atom _name;
 };
 

@@ -22,7 +22,7 @@ class ExecutionUnit;
 class Object;
 class Stream;
 
-using InstructionVector = FixedVector<uint8_t>;
+using InstructionVector = Vector<uint8_t>;
 using PropertyMap = Map<Atom, Value>;
 
 class Callable {
