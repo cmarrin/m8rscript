@@ -9,6 +9,10 @@
 
 #pragma once
 
+#ifdef ARDUINO
+#include "Arduino.h"
+#endif
+
 #include <cstddef>
 #include <cstdint>
 #include <cstdarg>

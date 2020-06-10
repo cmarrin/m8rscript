@@ -37,6 +37,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/Parser.o \
     $(SRC_DIR)/ParseEngine.o \
     $(SRC_DIR)/Program.o \
+    $(SRC_DIR)/ROMString.o \
     $(SRC_DIR)/Scanner.o \
     $(SRC_DIR)/SharedAtoms.o \
     $(SRC_DIR)/SystemInterface.o \
