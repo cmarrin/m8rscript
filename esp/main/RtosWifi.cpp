@@ -10,6 +10,7 @@
 #include "RtosWifi.h"
 
 #include "esp_event_loop.h"
+#include <nvs_flash.h>
 #include <cstring>
 
 using namespace m8r;
@@ -65,40 +66,26 @@ esp_err_t RtosWifi::eventHandler(void* ctx, system_event_t* event)
 
 void RtosWifi::start()
 {
-    tcpip_adapter_init();
     _eventGroup = xEventGroupCreate();
     ESP_ERROR_CHECK(esp_event_loop_init(eventHandler, this));
 
-    wifi_init_config_t initConfig;
-    
-    initConfig.event_handler = &esp_event_send;
-    initConfig.osi_funcs = NULL;
-    initConfig.qos_enable = WIFI_QOS_ENABLED;
-    initConfig.ampdu_rx_enable = WIFI_AMPDU_RX_ENABLED;
-    initConfig.rx_ampdu_buf_len = WIFI_AMPDU_RX_AMPDU_BUF_LEN;
-    initConfig.rx_ampdu_buf_num = WIFI_AMPDU_RX_AMPDU_BUF_NUM;
-    initConfig.amsdu_rx_enable = WIFI_AMSDU_RX_ENABLED;
-    initConfig.rx_ba_win = WIFI_AMPDU_RX_BA_WIN;
-    initConfig.rx_max_single_pkt_len = WIFI_RX_MAX_SINGLE_PKT_LEN;
-    initConfig.rx_buf_len = WIFI_HW_RX_BUFFER_LEN;
-    initConfig.rx_buf_num = CONFIG_ESP8266_WIFI_RX_BUFFER_NUM;
-    initConfig.left_continuous_rx_buf_num = CONFIG_ESP8266_WIFI_LEFT_CONTINUOUS_RX_BUFFER_NUM;
-    initConfig.rx_pkt_num = CONFIG_ESP8266_WIFI_RX_PKT_NUM;
-    initConfig.tx_buf_num = CONFIG_ESP8266_WIFI_TX_PKT_NUM;
-    initConfig.nvs_enable = WIFI_NVS_ENABLED;
-    initConfig.nano_enable = 0;
-    initConfig.magic = WIFI_INIT_CONFIG_MAGIC;
-    
+    nvs_flash_init();
+    tcpip_adapter_init();
+
+    wifi_init_config_t initConfig = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&initConfig));
+
+    ::esp_wifi_set_storage(WIFI_STORAGE_RAM);
     
     _inited = true;
     
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+
     wifi_config_t config;
     memset(&config, 0, sizeof(config));
     strcpy(reinterpret_cast<char*>(config.sta.ssid), "marrin");
     strcpy(reinterpret_cast<char*>(config.sta.password), "orion741");
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &config));
     ESP_ERROR_CHECK(esp_wifi_start());
     
