@@ -9,6 +9,7 @@
 
 #include "Application.h"
 
+#include "MFS.h"
 #include "SystemInterface.h"
 #include "Telnet.h"
 #include <unistd.h>
