@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Parser.h"
 
 #include "ParseEngine.h"
@@ -884,3 +890,4 @@ void Parser::ParseStack::propRefToReg()
     replaceTop(type, r, RegOrConst());
 }
 
+#endif

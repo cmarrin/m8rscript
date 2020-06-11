@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Base64.h"
 
 #include "Defines.h"
@@ -152,3 +158,5 @@ CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t 
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
+
+#endif

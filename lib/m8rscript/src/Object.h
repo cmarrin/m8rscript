@@ -9,6 +9,12 @@
 
 #pragma once
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Mallocator.h"
 #include "Defines.h"
 #include "Value.h"
@@ -168,16 +174,6 @@ private:
 
 class ObjectFactory;
 
-class NativeObject {
-public:
-    static MemoryType memoryType() { return MemoryType::Native; }
-    
-    NativeObject() { }
-    virtual ~NativeObject() { }
-
-    virtual void gcMark() { }
-};
-
 class ObjectFactory {
 public:    
     ObjectFactory(SA, ObjectFactory* parent = nullptr, NativeFunction constructor = nullptr);
@@ -290,3 +286,5 @@ protected:
 };
 
 }
+
+#endif

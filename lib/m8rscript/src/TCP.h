@@ -11,6 +11,7 @@
 
 #include "Object.h"
 #include "IPAddr.h"
+#include "MString.h"
 #include "MUDP.h"
 #include <cstdint>
 #include <cstring>
@@ -80,6 +81,7 @@ protected:
 
 // Object
 
+#if SCRIPT_SUPPORT == 1
 class TCPProto : public StaticObject {
 public:
     TCPProto();
@@ -88,5 +90,6 @@ public:
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

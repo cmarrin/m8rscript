@@ -15,6 +15,7 @@
 
 using namespace m8r;
 
+#if SCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsFS[] =
 {
     { SA::mount, FSProto::mount },
@@ -347,3 +348,5 @@ m8r::String FS::findPath(ExecutionUnit* eu, const m8r::String& filename, const M
     }
     return String();
 }
+
+#endif

@@ -9,6 +9,12 @@
 
 #pragma once
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Object.h"
 
 namespace m8r {
@@ -28,5 +34,7 @@ public:
     static CallReturnValue parseFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue stringifyFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
-    
+
 }
+
+#endif

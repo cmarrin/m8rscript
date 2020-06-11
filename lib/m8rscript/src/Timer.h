@@ -9,7 +9,9 @@
 
 #pragma once
 
+#include "Defines.h"
 #include "Object.h"
+#include "SystemTime.h"
 #include <cstdint>
 #include <functional>
 
@@ -60,6 +62,7 @@ private:
     bool _running = false;
 };
 
+#if SCRIPT_SUPPORT == 1
 class TimerProto : public StaticObject {
 public:
     TimerProto();
@@ -68,5 +71,6 @@ public:
     static CallReturnValue start(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue stop(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

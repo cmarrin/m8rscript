@@ -9,6 +9,12 @@
 
 #pragma once
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Mallocator.h"
 
 namespace m8r {
@@ -42,3 +48,5 @@ private:
 };
     
 }
+
+#endif

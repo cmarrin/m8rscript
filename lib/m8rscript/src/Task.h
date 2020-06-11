@@ -73,6 +73,7 @@ private:
     State _state = State::Ready;
 };
 
+#if SCRIPT_SUPPORT == 1
 class Task : public NativeObject, public TaskBase {
 public:
     Task();
@@ -108,5 +109,6 @@ public:
     static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue run(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

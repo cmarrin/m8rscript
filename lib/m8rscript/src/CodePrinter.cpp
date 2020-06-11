@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "CodePrinter.h"
 
 #include "ExecutionUnit.h"
@@ -565,3 +571,5 @@ void CodePrinter::showConstant(const ExecutionUnit* eu, m8r::String& s, const Va
         }
     }
 }
+
+#endif

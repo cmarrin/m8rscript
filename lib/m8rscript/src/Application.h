@@ -46,7 +46,7 @@ public:
     static SystemInterface* system() { assert(_system); return _system; }
 
 private:
-    std::shared_ptr<Task> _autostartTask;
+    std::shared_ptr<TaskBase> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
 
     static SystemInterface* _system;

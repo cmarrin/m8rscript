@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Global.h"
 
 #include "ExecutionUnit.h"
@@ -252,3 +258,5 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
+
+#endif

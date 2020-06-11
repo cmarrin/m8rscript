@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Function.h"
 
 #include "ExecutionUnit.h"
@@ -82,3 +88,5 @@ bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) cons
     value = eu->stack().at(eu->upValueStackIndex(_upValues[index]._index, _upValues[index]._frame));
     return true;
 }
+
+#endif

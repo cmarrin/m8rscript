@@ -36,12 +36,14 @@ Application::Application(uint16_t port)
 
     system()->setHeartrate(3s);
 
+#if SCRIPT_SUPPORT == 1
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
         std::shared_ptr<Task> task = Task::create();
         task->run(shellName());
         return task;
     });
+#endif
 
     mountFileSystem();
 
@@ -55,6 +57,7 @@ Application::Application(uint16_t port)
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1, true).c_str(), String::prettySize(totalUsed, 1, true).c_str());
     }
     
+#if SCRIPT_SUPPORT == 1
     // If autostart is on, run the main program
     String filename = autostartFilename();
     if (filename) {
@@ -78,6 +81,7 @@ Application::Application(uint16_t port)
             _autostartTask.reset();
         });    
     }
+#endif
 }
 
 Application::~Application()

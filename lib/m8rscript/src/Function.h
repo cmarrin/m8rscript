@@ -9,6 +9,12 @@
 
 #pragma once
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Atom.h"
 #include "Containers.h"
 #include "MachineCode.h"
@@ -115,3 +121,5 @@ private:
 };
 
 }
+
+#endif

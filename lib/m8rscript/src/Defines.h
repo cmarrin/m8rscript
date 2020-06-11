@@ -24,6 +24,7 @@
 #include <cstring>
 #include "ROMString.h"
 
+#define SCRIPT_SUPPORT 1
 
 // Debugging
 static inline void DBG_PRINT(const char* type, const char* fmt, ...)
@@ -160,6 +161,16 @@ enum class MemoryType : uint8_t {
     Network,
     Fixed,
     NumTypes
+};
+
+class NativeObject {
+public:
+    static MemoryType memoryType() { return MemoryType::Native; }
+    
+    NativeObject() { }
+    virtual ~NativeObject() { }
+
+    virtual void gcMark() { }
 };
 
 }

@@ -50,6 +50,7 @@ protected:
 
 // Object
 
+#if SCRIPT_SUPPORT == 1
 class UDPProto : public StaticObject {
 public:
     UDPProto();
@@ -58,5 +59,6 @@ public:
     static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

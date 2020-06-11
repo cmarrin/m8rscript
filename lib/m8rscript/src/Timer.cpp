@@ -55,7 +55,7 @@ void Timer::fire()
     }
 }
 
-
+#if SCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TimerProto::constructor },
@@ -152,3 +152,5 @@ CallReturnValue TimerProto::stop(ExecutionUnit* eu, Value thisValue, uint32_t np
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+
+#endif

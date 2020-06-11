@@ -28,6 +28,7 @@
 
 using namespace m8r;
 
+#if SCRIPT_SUPPORT == 1
 Task::Task()
 {
     _eu = Mad<ExecutionUnit>::create();
@@ -266,3 +267,4 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+#endif

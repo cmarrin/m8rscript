@@ -20,6 +20,7 @@ namespace m8r {
 class File;
 class Directory;
 
+#if SCRIPT_SUPPORT == 1
 class FileProto : public StaticObject {
 public:
     FileProto();
@@ -66,6 +67,7 @@ public:
     static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 class FS {
     friend class File;

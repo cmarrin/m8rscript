@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "Object.h"
 
 #include "ExecutionUnit.h"
@@ -439,3 +445,5 @@ Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t n
         return Mad<Object>();
     }
 }
+
+#endif

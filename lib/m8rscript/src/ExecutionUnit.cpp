@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "ExecutionUnit.h"
 
 #include "Closure.h"
@@ -998,3 +1004,4 @@ m8r::String ExecutionUnit::debugString(uint16_t index)
     return _program->stringFromAtom(Atom(index));
 }
 
+#endif

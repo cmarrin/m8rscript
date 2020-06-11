@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "ParseEngine.h"
 
 using namespace m8r;
@@ -915,3 +921,5 @@ bool ParseEngine::commaExpression()
     }
     return true;
 }
+
+#endif

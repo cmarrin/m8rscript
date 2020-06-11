@@ -13,6 +13,7 @@
 
 namespace m8r {
 
+#if SCRIPT_SUPPORT == 1
 class StreamProto : public StaticObject {
 public:
     StreamProto();
@@ -22,5 +23,6 @@ public:
     static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

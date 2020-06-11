@@ -16,6 +16,7 @@
 
 using namespace m8r;
 
+#if SCRIPT_SUPPORT == 1
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;
 
@@ -103,3 +104,4 @@ Trigger::Trigger()
 {
     setProperties(_propsTrigger, sizeof(_propsTrigger) / sizeof(StaticProperty));
 }
+#endif

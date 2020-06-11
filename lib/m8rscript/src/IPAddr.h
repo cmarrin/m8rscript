@@ -64,6 +64,7 @@ private:
 
 // Object
 
+#if SCRIPT_SUPPORT == 1
 class IPAddrProto : public StaticObject {
 public:
     IPAddrProto();
@@ -72,5 +73,6 @@ public:
     static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
+#endif
 
 }

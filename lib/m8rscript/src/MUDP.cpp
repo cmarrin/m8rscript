@@ -16,6 +16,7 @@
 
 using namespace m8r;
 
+#if SCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, UDPProto::constructor },
@@ -119,3 +120,4 @@ CallReturnValue UDPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
     udp->disconnect();
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+#endif

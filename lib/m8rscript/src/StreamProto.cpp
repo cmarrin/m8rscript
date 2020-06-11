@@ -11,6 +11,7 @@
 
 using namespace m8r;
 
+#if SCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, StreamProto::constructor },
@@ -50,3 +51,4 @@ CallReturnValue StreamProto::write(ExecutionUnit* eu, Value thisValue, uint32_t 
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
+#endif

@@ -7,6 +7,12 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#ifndef SCRIPT_SUPPORT
+static_assert(0, "SCRIPT_SUPPORT not defined");
+#endif
+#if SCRIPT_SUPPORT == 1
+
 #include "JSON.h"
 
 #include "Defines.h"
@@ -171,3 +177,5 @@ CallReturnValue JSON::stringifyFunc(ExecutionUnit* eu, Value thisValue, uint32_t
     eu->stack().push(Value(ExecutionUnit::createString(s)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
+
+#endif
