@@ -148,6 +148,20 @@ private:
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
+enum class MemoryType : uint8_t {
+    Unknown,
+    String,
+    Character,
+    Object,
+    ExecutionUnit,
+    Native,
+    Vector,
+    UpValue,
+    Network,
+    Fixed,
+    NumTypes
+};
+
 }
 
 #endif

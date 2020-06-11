@@ -80,20 +80,6 @@ class Object;
 using RawMad = intptr_t;
 static constexpr RawMad NoRawMad = 0;
 
-enum class MemoryType : uint8_t {
-    Unknown,
-    String,
-    Character,
-    Object,
-    ExecutionUnit,
-    Native,
-    Vector,
-    UpValue,
-    Network,
-    Fixed,
-    NumTypes
-};
-
 struct MemoryInfo{
     struct Entry
     {
