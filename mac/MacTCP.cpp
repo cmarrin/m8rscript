@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <unistd.h>
 
 using namespace m8r;
 
@@ -57,7 +58,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 std::unique_lock<std::mutex> lock(_mutex);
                 addEvent(TCP::Event::Error, errno, "TCP bind failed");
             }
-            close(_socketFD);
+            ::close(_socketFD);
             _socketFD = -1;
             return;
         }
@@ -67,7 +68,7 @@ void MacTCP::init(uint16_t port, IPAddr ip, EventFunction func)
                 std::unique_lock<std::mutex> lock(_mutex);
                 addEvent(TCP::Event::Error, errno, "TCP listen failed");
             }
-            close(_socketFD);
+            ::close(_socketFD);
             _socketFD = -1;
             return;
         }
