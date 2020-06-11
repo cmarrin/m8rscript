@@ -278,6 +278,7 @@
 		497B4A59248FDFA800CCBA41 /* ROMString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ROMString.h; path = ../lib/m8rscript/src/ROMString.h; sourceTree = "<group>"; };
 		497B4A5A249015A900CCBA41 /* MachineCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../lib/m8rscript/src/MachineCode.h; sourceTree = "<group>"; };
 		497B4A5B2491110F00CCBA41 /* ROMString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ROMString.cpp; path = ../lib/m8rscript/src/ROMString.cpp; sourceTree = "<group>"; };
+		497B4A5D2492B5BA00CCBA41 /* CallReturnValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CallReturnValue.h; path = ../lib/m8rscript/src/CallReturnValue.h; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -625,6 +626,7 @@
 				49E6482B1D01F279005F5059 /* Atom.h */,
 				492BA3DA1E15987C00242DA8 /* Base64.cpp */,
 				492BA3DB1E15987C00242DA8 /* Base64.h */,
+				497B4A5D2492B5BA00CCBA41 /* CallReturnValue.h */,
 				49899B981EA56A6E003B334B /* Closure.cpp */,
 				49899B991EA56A6E003B334B /* Closure.h */,
 				4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */,
