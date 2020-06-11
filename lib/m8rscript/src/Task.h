@@ -9,7 +9,10 @@
 
 #pragma once
 
+#include "CallReturnValue.h"
 #include "Containers.h"
+#include "Error.h"
+#include "MStream.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
 #include <cstdint>
@@ -27,6 +30,9 @@ public:
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
     virtual ~TaskBase() { }
+    
+    virtual bool run(const Stream&) { return false; }
+    virtual bool run(const char* filename) { return false; }
     
     Error error() const { return _error; }
     
@@ -74,8 +80,8 @@ public:
     
     static std::shared_ptr<Task> create() { return std::make_shared<Task>(); }
     
-    bool run(const Stream&);
-    bool run(const char* filename);
+    virtual bool run(const Stream&) override;
+    virtual bool run(const char* filename) override;
     
     virtual void receivedData(const String& data, KeyAction action) override;
 
