@@ -19,14 +19,8 @@
 
 using namespace m8r;
 
-Terminal::Terminal(uint16_t port, const char* command)
-    : TCPServer(port,
-    [this]()
-    {
-        std::shared_ptr<Task> task = Task::create();
-        task->load(_command.c_str());
-        return task;
-    },
+Terminal::Terminal(uint16_t port, CreateTaskFunction createTaskFunction)
+    : TCPServer(port, createTaskFunction,
     [this](TCP*, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         switch(event) {
@@ -56,6 +50,5 @@ Terminal::Terminal(uint16_t port, const char* command)
                 break;
         }
     })
-    , _command(command)
 {
 }

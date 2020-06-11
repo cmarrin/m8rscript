@@ -17,11 +17,9 @@ namespace m8r {
 
 class Terminal : public TCPServer {
 public:
-    Terminal(uint16_t port, const char* command);
+    Terminal(uint16_t port, CreateTaskFunction);
 
 private:
-    String _command;
-
     Telnet _telnets[TCP::MaxConnections];
 };
     

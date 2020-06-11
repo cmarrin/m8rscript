@@ -41,7 +41,7 @@ Task::~Task()
     GC::gc();
 }
 
-bool Task::load(const char* filename)
+bool Task::run(const char* filename)
 {
     Error error(Error::Code::NoFS);
     Mad<File> file;
@@ -57,7 +57,7 @@ bool Task::load(const char* filename)
         return false;
     }
     
-    bool ret = load(FileStream(file));
+    bool ret = run(FileStream(file));
 
 #ifndef NDEBUG
     _name = ROMString::format(ROMString("Task:%s(%p)"), filename, this);
@@ -71,7 +71,7 @@ bool Task::load(const char* filename)
     return ret;
 }
 
-bool Task::load(const Stream& stream)
+bool Task::run(const Stream& stream)
 {
     #ifndef NDEBUG
         _name = ROMString::format(ROMString("Task(%p)"), this);
@@ -217,7 +217,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     task->setConsolePrintFunction(eu->consolePrintFunction());
 
     if (!filename.empty()) {
-        task->load(path.c_str());
+        task->run(path.c_str());
     }
     
     if (task->error() != Error::Code::OK) {

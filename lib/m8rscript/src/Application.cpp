@@ -35,7 +35,12 @@ Application::Application(uint16_t port)
 
     system()->setHeartrate(3s);
 
-    _terminal = std::make_unique<Terminal>(port, shellName());
+    _terminal = std::make_unique<Terminal>(port, [this]()
+    {
+        std::shared_ptr<Task> task = Task::create();
+        task->run(shellName());
+        return task;
+    });
 
     mountFileSystem();
 
@@ -53,7 +58,7 @@ Application::Application(uint16_t port)
     String filename = autostartFilename();
     if (filename) {
         _autostartTask = Task::create();
-        _autostartTask->load(filename.c_str());
+        _autostartTask->run(filename.c_str());
         _autostartTask->setConsolePrintFunction([](const String& s) {
             system()->printf(ROMSTR("%s"), s.c_str());
         });

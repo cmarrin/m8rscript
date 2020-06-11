@@ -74,8 +74,8 @@ public:
     
     static std::shared_ptr<Task> create() { return std::make_shared<Task>(); }
     
-    bool load(const Stream&);
-    bool load(const char* filename);
+    bool run(const Stream&);
+    bool run(const char* filename);
     
     virtual void receivedData(const String& data, KeyAction action) override;
 
