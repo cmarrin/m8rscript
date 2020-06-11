@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Containers.h"
-#include "SystemTime.h"
 #include "Timer.h"
 #include <cstdint>
 #include <memory>
