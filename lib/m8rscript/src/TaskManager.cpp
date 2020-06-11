@@ -64,7 +64,7 @@ void TaskManager::run(const std::shared_ptr<TaskBase>& newTask, FinishCallback c
     {
         newTask->_finishCB = cb;
         _list.push_back(newTask);
-        newTask->setState(Task::State::Ready);
+        newTask->setState(TaskBase::State::Ready);
     }
     readyToExecuteNextTask();
 }
@@ -73,7 +73,7 @@ void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
 {
     {
         _list.remove(task);
-        task->setState(Task::State::Terminated);
+        task->setState(TaskBase::State::Terminated);
     }
 }
 
@@ -111,7 +111,7 @@ bool TaskManager::executeNextTask()
     
     _currentTask = *it;
     
-    if (_currentTask->state() == Task::State::Ready) {
+    if (_currentTask->state() == TaskBase::State::Ready) {
         // Move the task to the end of the list to let other ready tasks run
         _list.erase(it);
         _list.push_back(_currentTask);
@@ -122,16 +122,16 @@ bool TaskManager::executeNextTask()
     stopTimeSliceTimer();
     
     if (returnValue.isYield()) {
-        _currentTask->setState(Task::State::Ready);
+        _currentTask->setState(TaskBase::State::Ready);
     } else if (returnValue.isTerminated() || returnValue.isFinished()) {
-        _currentTask->setState(Task::State::Terminated);
+        _currentTask->setState(TaskBase::State::Terminated);
         _list.remove(_currentTask);
         _currentTask->finish();
         _currentTask = nullptr;
     } else if (returnValue.isWaitForEvent()) {
-        _currentTask->setState(Task::State::WaitingForEvent);
+        _currentTask->setState(TaskBase::State::WaitingForEvent);
     } else if (returnValue.isDelay()) {
-        _currentTask->setState(Task::State::Delaying);
+        _currentTask->setState(TaskBase::State::Delaying);
     }
     
     return true;
