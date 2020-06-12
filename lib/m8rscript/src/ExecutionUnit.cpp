@@ -330,23 +330,6 @@ CallReturnValue ExecutionUnit::runNextEvent()
     return CallReturnValue(CallReturnValue::Type::WaitForEvent);
 }
 
-void ExecutionUnit::vprintf(ROMString format, va_list args) const
-{
-    String s = ROMString::vformat(format, args);
-
-    if (consolePrintFunction()) {
-        consolePrintFunction()(s);
-    } else {
-        system()->printf(ROMSTR("%s"), s.c_str());
-    }
-}
-
-void ExecutionUnit::print(const char* s) const
-{
-    printf(ROMSTR("%s"), s);
-}
-
-
 uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 {
     assert(frame <= _callRecords.size());
@@ -519,7 +502,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
-CallReturnValue ExecutionUnit::continueExecution()
+CallReturnValue ExecutionUnit::execute()
 {
     #undef OP
     #define OP(op) &&L_ ## op,

@@ -20,6 +20,7 @@ static_assert(0, "SCRIPT_SUPPORT not defined");
 #include "Atom.h"
 #include "Closure.h"
 #include "Program.h"
+#include "Task.h"
 
 namespace m8r {
 
@@ -27,7 +28,7 @@ class Parser;
 
 using ExecutionStack = Stack<Value>;
 
-class ExecutionUnit {
+class ExecutionUnit : public Task::Executable {
 public:
     friend class Closure;
     friend class Function;
@@ -39,10 +40,14 @@ public:
     
     void gcMark();
 
+    // Executable overrides
+    virtual CallReturnValue execute() override;
+    virtual bool readyToRun() const override { return !_eventQueue.empty() || !executingDelay(); }
+    virtual void requestYield() const override { _yield = true; _checkForExceptions = true; }
+    virtual void receivedData(const String& data, KeyAction) override;
+
     void startExecution(Mad<Program>);
     
-    CallReturnValue continueExecution();
-
     void startDelay(Duration);
     void continueDelay();
     
@@ -58,23 +63,7 @@ public:
     Value& argument(int32_t i) { return _stack.inFrame(i); }
     
     void fireEvent(const Value& func, const Value& thisValue, const Value* args, int32_t nargs);
-
-    void receivedData(const String&, KeyAction);
-
-    void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
-    const std::function<void(const String&)>& consolePrintFunction() const { return _consolePrintFunction; }
     
-    void vprintf(ROMString, va_list) const;
-
-    void printf(ROMString fmt, ...) const
-    {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-    }
-    
-    void print(const char* s) const;
-
     void setConsoleListener(Value func)
     {
         if (_program.valid()) {
@@ -98,13 +87,7 @@ public:
     static Mad<String> createString(String&& other);
     static Mad<String> createString(const char* str, int32_t length = -1);
     
-    bool readyToRun() const
-    {
-        return !_eventQueue.empty() || !executingDelay();
-    }
-    
     void requestTerminate() const { _terminate = true; _checkForExceptions = true; }
-    void requestYield() const { _yield = true; _checkForExceptions = true; }
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
@@ -269,7 +252,6 @@ private:
     
     Vector<Mad<UpValue>> _openUpValues;
     
-    std::function<void(const String&)> _consolePrintFunction;
     Value _consoleListener;
     
     std::shared_ptr<Timer> _delayTimer;

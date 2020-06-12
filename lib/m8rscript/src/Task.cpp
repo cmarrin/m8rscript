@@ -10,9 +10,11 @@
 #include "Task.h"
 
 #include "Application.h"
+#include "ExecutionUnit.h"
 #include "GC.h"
 #include "MStream.h"
 #include "Parser.h"
+#include <memory>
 
 #ifndef NDEBUG
 #ifdef __APPLE__
@@ -28,20 +30,37 @@
 
 using namespace m8r;
 
-#if SCRIPT_SUPPORT == 1
-Task::Task()
+void TaskBase::Executable::print(const char* s) const
 {
-    _eu = Mad<ExecutionUnit>::create();
-    GC::addEU(_eu.raw());
-}    
+    if (_consolePrintFunction) {
+        _consolePrintFunction(s);
+    } else {
+        system()->print(s);
+    }
+}
+
+void TaskBase::print(const char* s) const
+{
+    if (_executable) {
+        _executable->print(s);
+    } else {
+        system()->print(s);
+    }
+}
 
 Task::~Task()
 {
-    GC::removeEU(_eu.raw());
-    _eu.destroy(MemoryType::ExecutionUnit);
-    GC::gc();
+#if SCRIPT_SUPPORT == 1
+    if (_executable) {
+        Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(reinterpret_cast<ExecutionUnit*>(_executable.get()));
+        GC::removeEU(eu.raw());
+        _executable.reset();
+        GC::gc();
+    }
+#endif
 }
 
+#if SCRIPT_SUPPORT == 1
 bool Task::run(const char* filename)
 {
     Error error(Error::Code::NoFS);
@@ -53,7 +72,7 @@ bool Task::run(const char* filename)
     }
 
     if (error) {
-        _eu->print(Error::formatError(error.code(), ROMSTR("Unable to open '%s' for execution"), filename).c_str());
+        print(Error::formatError(error.code(), ROMSTR("Unable to open '%s' for execution"), filename).c_str());
         _error = error;
         return false;
     }
@@ -65,7 +84,7 @@ bool Task::run(const char* filename)
 #endif
 
     if (file->error() != Error::Code::OK) {
-        _eu->print(Error::formatError(file->error().code(), ROMSTR("Error reading '%s'"), filename).c_str());
+        print(Error::formatError(file->error().code(), ROMSTR("Error reading '%s'"), filename).c_str());
     }
         
     file.destroy(MemoryType::Native);
@@ -78,18 +97,22 @@ bool Task::run(const Stream& stream)
         _name = ROMString::format(ROMString("Task(%p)"), this);
     #endif
 
+    std::shared_ptr<ExecutionUnit> eu = std::make_shared<ExecutionUnit>();
+    _executable = eu;
+    GC::addEU(Mad<ExecutionUnit>(eu.get()).raw());
+    
     // See if we can parse it
     ParseErrorList errorList;
     Parser parser;
-    parser.parse(stream, _eu.get(), Parser::debug);
+    parser.parse(stream, eu.get(), Parser::debug);
     if (parser.nerrors()) {
-        _eu->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+        _executable->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
         errorList.swap(parser.syntaxErrors());
         _error = Error::Code::ParseError;
         return false;
     }
     
-    _eu->startExecution(parser.program());
+    eu->startExecution(parser.program());
 #ifdef PRINT_CODE
     if (!parser.nerrors()) {
         CodePrinter codePrinter;
@@ -103,46 +126,24 @@ bool Task::run(const Stream& stream)
         
     return true;
 }
-
-void Task::print(const char* s) const
-{
-    if (_eu.valid()) {
-        _eu->print(s);
-    } else {
-        TaskBase::print(s);
-    }
-}
+#endif
 
 bool Task::readyToRun() const
 {
-    return TaskBase::readyToRun() || eu()->readyToRun();
+    return TaskBase::readyToRun() || _executable->readyToRun();
 }
 
 void Task::requestYield() const
 {
-    _eu->requestYield();
+    _executable->requestYield();
 }
-
 
 void Task::receivedData(const String& data, KeyAction action)
 {
-    _eu->receivedData(data, action);
+    _executable->receivedData(data, action);
 }
 
-void Task::setConsolePrintFunction(std::function<void(const String&)> f)
-{
-    _eu->setConsolePrintFunction(f);
-}
-
-void Task::setConsoleListener(Value func)
-{
-    _eu->setConsoleListener(func);
-}
-
-CallReturnValue Task::execute()
-{
-    return _eu->continueExecution();
-}
+#if SCRIPT_SUPPORT == 1
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
@@ -231,7 +232,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     obj->setProperty(Atom(SA::arguments), Value::NullValue(), Value::SetType::AlwaysAdd);
     obj->setProperty(Atom(SA::env), envValue, Value::SetType::AlwaysAdd);
     
-    task->setConsoleListener(consoleListener);
+    eu->setConsoleListener(consoleListener);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }

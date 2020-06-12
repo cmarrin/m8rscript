@@ -10,6 +10,7 @@
 #include "Application.h"
 
 #include "MFS.h"
+#include "Shell.h"
 #include "SystemInterface.h"
 #include "Telnet.h"
 #include <unistd.h>
@@ -36,14 +37,16 @@ Application::Application(uint16_t port)
 
     system()->setHeartrate(3s);
 
-#if SCRIPT_SUPPORT == 1
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
         std::shared_ptr<Task> task = Task::create();
+#if SCRIPT_SUPPORT == 1
         task->run(shellName());
+#else
+        task->run(std::make_shared<Shell>());
+#endif
         return task;
     });
-#endif
 
     mountFileSystem();
 
@@ -111,12 +114,6 @@ Application::NameValidationType Application::validateBonjourName(const char* nam
     return NameValidationType::Ok;
 }
 
-m8r::String Application::autostartFilename() const
-{
-    // Look for it in config first
-    return "/sys/bin/hello.m8r";
-}
-
 bool Application::mountFileSystem()
 {
     if (!system()->fileSystem()) {
@@ -140,6 +137,8 @@ bool Application::mountFileSystem()
 
 bool Application::runOneIteration()
 {
-    _terminal->handleEvents();
+    if (_terminal) {
+        _terminal->handleEvents();
+    }
     return system()->runOneIteration();
 }

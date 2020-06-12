@@ -27,7 +27,6 @@ public:
     ~Application();
         
     bool runOneIteration();
-    String autostartFilename() const;
     
     void receivedData(const String& data, KeyAction action)
     {
@@ -38,14 +37,17 @@ public:
 
     enum class NameValidationType { Ok, BadLength, InvalidChar };
     NameValidationType validateBonjourName(const char* name);
-    
-    const char* shellName() { return "/sys/bin/mrsh"; }
-    
+
     bool mountFileSystem();
     
     static SystemInterface* system() { assert(_system); return _system; }
 
 private:
+#if SCRIPT_SUPPORT == 1
+    const char* shellName() const { return "/sys/bin/mrsh"; }
+    String autostartFilename() const { return "/sys/bin/hello.m8r"; }
+#endif
+
     std::shared_ptr<TaskBase> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
 

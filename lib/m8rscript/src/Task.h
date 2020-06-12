@@ -20,17 +20,52 @@
 
 namespace m8r {
 
-class ExecutionUnit;
 class String;
 
 class TaskBase {
     friend class TaskManager;
     
 public:
+    class Executable
+    {
+    public:
+        using ConsoleListener = std::function<void(const String& data, KeyAction)>;
+        
+        Executable() { }
+        virtual ~Executable() { }
+        
+        virtual CallReturnValue execute() = 0;
+        virtual bool readyToRun() const { return true; }
+        virtual void requestYield() const { }
+        virtual void receivedData(const String& data, KeyAction) { }
+        
+        void printf(ROMString fmt, ...) const
+        {
+            va_list args;
+            va_start(args, fmt);
+            vprintf(fmt, args);
+        }
+
+        void vprintf(ROMString fmt, va_list args) const
+        {
+            print(ROMString::vformat(fmt, args).c_str());
+        }
+        
+        void print(const char* s) const;
+
+        void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
+        std::function<void(const String&)> consolePrintFunction() const { return _consolePrintFunction; }
+ 
+    private:
+        std::function<void(const String&)> _consolePrintFunction;
+    };
+        
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
     virtual ~TaskBase() { }
     
+    bool run(std::shared_ptr<Executable> exec) { _executable = exec; return true; }
+
     virtual bool run(const Stream&) { return false; }
     virtual bool run(const char* filename) { return false; }
     
@@ -40,11 +75,14 @@ public:
     virtual void requestYield() const { }
     
     virtual void receivedData(const String& data, KeyAction action) { }
-    virtual void setConsolePrintFunction(std::function<void(const String&)> f) { }
     
-    virtual void print(const char* s) const
+    void print(const char* s) const;
+    
+    void setConsolePrintFunction(const std::function<void(const String&)>& f)
     {
-        system()->print(s);
+        if (_executable) {
+            _executable->setConsolePrintFunction(f);
+        }
     }
 
 #ifndef NDEBUG
@@ -59,49 +97,40 @@ protected:
 
     Error _error = Error::Code::OK;
 
+    std::shared_ptr<Executable> _executable;
+
 #ifndef NDEBUG
     String _name;
 #endif
 
 private:
-    void finish() { if (_finishCB) _finishCB(this); }
+    CallReturnValue execute() { return _executable->execute(); }
     
-    virtual CallReturnValue execute() = 0;    
+    void finish() { if (_finishCB) _finishCB(this); }
 
     TaskManager::FinishCallback _finishCB;
-    
+        
     State _state = State::Ready;
 };
 
-#if SCRIPT_SUPPORT == 1
 class Task : public NativeObject, public TaskBase {
 public:
-    Task();
     virtual ~Task();
     
     static std::shared_ptr<Task> create() { return std::make_shared<Task>(); }
     
+#if SCRIPT_SUPPORT == 1
     virtual bool run(const Stream&) override;
     virtual bool run(const char* filename) override;
-    
+#endif
+
     virtual void receivedData(const String& data, KeyAction action) override;
 
-    virtual void setConsolePrintFunction(std::function<void(const String&)> f) override;
-    void setConsoleListener(Value func);
-
-    virtual void print(const char* s) const override;
-
-    const ExecutionUnit* eu() const { return _eu.get(); }
-    
     virtual bool readyToRun() const override;
     virtual void requestYield() const override;
-
-private:
-    virtual CallReturnValue execute() override;
-
-    Mad<ExecutionUnit> _eu;    
 };
 
+#if SCRIPT_SUPPORT == 1
 class TaskProto : public StaticObject {
 public:
     TaskProto();
