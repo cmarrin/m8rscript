@@ -14,6 +14,7 @@
 #include "SystemTime.h"
 #include <cstdint>
 #include <functional>
+#include <memory>
 
 namespace m8r {
 
