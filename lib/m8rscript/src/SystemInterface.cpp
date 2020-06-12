@@ -22,11 +22,6 @@ SystemInterface* m8r::system()
     return Application::system();
 }
 
-void SystemInterface::vprintf(ROMString fmt, va_list args) const
-{
-    print(ROMString::vformat(fmt, args).c_str());
-}
-
 bool SystemInterface::runOneIteration()
 {
     return taskManager()->runOneIteration();

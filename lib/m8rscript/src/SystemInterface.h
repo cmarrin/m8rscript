@@ -55,7 +55,10 @@ public:
         vprintf(fmt, args);
     }
 
-    void vprintf(ROMString fmt, va_list) const;
+    void vprintf(ROMString fmt, va_list args) const
+    {
+        print(ROMString::vformat(fmt, args).c_str());
+    }
     
     virtual FS* fileSystem() = 0;
     virtual GPIOInterface* gpio() = 0;
