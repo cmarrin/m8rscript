@@ -63,6 +63,8 @@
 		497139C3246F50C30025CC4D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
 		497139DB24705A630025CC4D /* m8rFSFile in Resources */ = {isa = PBXBuildFile; fileRef = 497139DA24705A620025CC4D /* m8rFSFile */; };
 		497B4A5C2491110F00CCBA41 /* ROMString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497B4A5B2491110F00CCBA41 /* ROMString.cpp */; };
+		497B4A602492E79A00CCBA41 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497B4A5E2492E79A00CCBA41 /* Shell.cpp */; };
+		497B4A612492E79A00CCBA41 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 497B4A5F2492E79A00CCBA41 /* Shell.h */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
 		497CAFC8237DF219000495B2 /* GC.h in Headers */ = {isa = PBXBuildFile; fileRef = 497CAFC6237DF219000495B2 /* GC.h */; };
 		49846005238C60ED001F4FD4 /* MacSystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49846003238C60ED001F4FD4 /* MacSystemInterface.cpp */; };
@@ -279,6 +281,8 @@
 		497B4A5A249015A900CCBA41 /* MachineCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../lib/m8rscript/src/MachineCode.h; sourceTree = "<group>"; };
 		497B4A5B2491110F00CCBA41 /* ROMString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ROMString.cpp; path = ../lib/m8rscript/src/ROMString.cpp; sourceTree = "<group>"; };
 		497B4A5D2492B5BA00CCBA41 /* CallReturnValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CallReturnValue.h; path = ../lib/m8rscript/src/CallReturnValue.h; sourceTree = "<group>"; };
+		497B4A5E2492E79A00CCBA41 /* Shell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../lib/m8rscript/src/Shell.cpp; sourceTree = "<group>"; };
+		497B4A5F2492E79A00CCBA41 /* Shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../lib/m8rscript/src/Shell.h; sourceTree = "<group>"; };
 		497CAFC5237DF219000495B2 /* GC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
 		497CAFC6237DF219000495B2 /* GC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
 		497DC63423A5771A00748031 /* Makefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = Makefile; path = ../esp/Makefile; sourceTree = "<group>"; };
@@ -678,6 +682,8 @@
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */,
 				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
+				497B4A5E2492E79A00CCBA41 /* Shell.cpp */,
+				497B4A5F2492E79A00CCBA41 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
 				492BA3EF1E19727C00242DA8 /* slre.h */,
 				49884F06236CB25100C292EA /* StateMachine.h */,
@@ -752,6 +758,7 @@
 				492BA3DD1E15987C00242DA8 /* Base64.h in Headers */,
 				49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */,
 				49079BA824437F0F000FAF22 /* Terminal.h in Headers */,
+				497B4A612492E79A00CCBA41 /* Shell.h in Headers */,
 				4921CF9723739C3F004CB000 /* Defines.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -995,6 +1002,7 @@
 				497CAFC7237DF219000495B2 /* GC.cpp in Sources */,
 				49079BA724437F0F000FAF22 /* Terminal.cpp in Sources */,
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
+				497B4A602492E79A00CCBA41 /* Shell.cpp in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
