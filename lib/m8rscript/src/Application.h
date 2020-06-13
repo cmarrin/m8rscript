@@ -24,6 +24,13 @@ class FS;
 class Application {
 public:
     Application(uint16_t port);
+    
+    Application(uint16_t port, const std::shared_ptr<Task::Executable>&);
+
+#if SCRIPT_SUPPORT == 1
+    Application(uint16_t port, const char* autostartFilename);
+#endif
+
     ~Application();
         
     bool runOneIteration();
@@ -45,9 +52,11 @@ public:
 private:
 #if SCRIPT_SUPPORT == 1
     const char* shellName() const { return "/sys/bin/mrsh"; }
-    String autostartFilename() const { return "/sys/bin/hello.m8r"; }
 #endif
 
+    void init(uint16_t port, bool autostart);
+    void runAutostartTask();
+    
     std::shared_ptr<TaskBase> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
 

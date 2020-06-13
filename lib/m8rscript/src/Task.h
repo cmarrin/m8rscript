@@ -64,7 +64,11 @@ public:
     
     virtual ~TaskBase() { }
     
-    bool run(std::shared_ptr<Executable> exec) { _executable = exec; return true; }
+    bool run(const std::shared_ptr<Executable>& exec)
+    {
+        _executable = exec;
+        return true;
+    }
 
     virtual bool run(const Stream&) { return false; }
     virtual bool run(const char* filename) { return false; }

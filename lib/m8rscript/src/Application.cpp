@@ -20,10 +20,62 @@
 #endif
 using namespace m8r;
 
+#define RUN_SAMPLE
+
+#ifdef RUN_SAMPLE
+#if SCRIPT_SUPPORT != 1
+class Sample : public Task::Executable
+{
+public:
+    virtual CallReturnValue execute() override
+    {
+        print("***** Hello Native World!!!\n");
+        return CallReturnValue(CallReturnValue::Type::Finished);
+    }
+};
+#endif
+#endif
+
 SystemInterface* Application::_system = nullptr;
 
-
 Application::Application(uint16_t port)
+{
+#ifdef RUN_SAMPLE
+    init(port, true);
+
+#if SCRIPT_SUPPORT == 1
+    _autostartTask->run("/sys/bin/hello.m8r");
+#else
+    _autostartTask->run(std::make_shared<Sample>());
+#endif // SCRIPT_SUPPORT
+    runAutostartTask();
+#else
+    init(port, false);
+#endif // RUN_SAMPLE
+}
+
+Application::Application(uint16_t port, const std::shared_ptr<Task::Executable>& exec)
+{
+    init(port, true);
+    _autostartTask->run(exec);
+    runAutostartTask();
+}
+
+#if SCRIPT_SUPPORT == 1
+Application::Application(uint16_t port, const char* autostartFilename)
+{
+    bool autostart = !autostartFilename || autostartFilename[0] == '\0';
+    init(port, autostart);
+    if (!autostart) {
+        return;
+    }
+    
+    _autostartTask->run(autostartFilename);
+    runAutostartTask();
+}
+#endif
+
+void Application::init(uint16_t port, bool autostart)
 {
     // Seed the random number generator
     srand(static_cast<unsigned>(Time::now().us()));
@@ -60,31 +112,37 @@ Application::Application(uint16_t port)
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1, true).c_str(), String::prettySize(totalUsed, 1, true).c_str());
     }
     
-#if SCRIPT_SUPPORT == 1
-    // If autostart is on, run the main program
-    String filename = autostartFilename();
-    if (filename) {
-        _autostartTask = Task::create();
-        _autostartTask->run(filename.c_str());
-        _autostartTask->setConsolePrintFunction([](const String& s) {
-            system()->printf(ROMSTR("%s"), s.c_str());
-        });
-        system()->setListenerFunc([this](const char* line) {
-            if (!line) {
-                return;
-            }
-            size_t size = strlen(line);
-            if (line[size - 1] == '\n') {
-                size -= 1;
-            }
-            _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
-        });
-        system()->taskManager()->run(_autostartTask, [this](m8r::TaskBase*) {
-            m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
-            _autostartTask.reset();
-        });    
+    if (!autostart) {
+        return;
     }
-#endif
+
+    // Setup the autostart Task
+    _autostartTask = Task::create();
+    _autostartTask->setConsolePrintFunction([](const String& s) {
+        system()->printf(ROMSTR("%s"), s.c_str());
+    });
+    system()->setListenerFunc([this](const char* line) {
+        if (!line) {
+            return;
+        }
+        size_t size = strlen(line);
+        if (line[size - 1] == '\n') {
+            size -= 1;
+        }
+        _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
+    });
+}
+
+void Application::runAutostartTask()
+{
+    if (!_autostartTask) {
+        return;
+    }
+    
+    system()->taskManager()->run(_autostartTask, [this](m8r::TaskBase*) {
+        m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
+        _autostartTask.reset();
+    });    
 }
 
 Application::~Application()
