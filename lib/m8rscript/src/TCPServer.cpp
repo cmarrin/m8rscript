@@ -70,6 +70,8 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 break;
             case TCP::Event::Disconnected:
                 if (_connections[connectionId].task) {
+                    system()->printf(ROMSTR("TCPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n"), 
+                                 connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
                     system()->taskManager()->terminate(_connections[connectionId].task);
                     _connections[connectionId].task.reset();
                 }
