@@ -35,7 +35,7 @@ void Time::elements(Elements& elts) const
     time_t currentSeconds = static_cast<time_t>(_value / 1000000);
 
     struct tm* timeStruct = localtime(&currentSeconds);
-    elts.year = timeStruct->tm_year;
+    elts.year = timeStruct->tm_year + 1900;
     elts.month = timeStruct->tm_mon;
     elts.day = timeStruct->tm_mday;
     elts.hour = timeStruct->tm_hour;
@@ -53,4 +53,17 @@ m8r::String Duration::toString(Duration::Units units, uint8_t decimalDigits) con
         case Duration::Units::us: return String(f * Float(1000000), decimalDigits) + "us";
         case Duration::Units::sec: return String(f, decimalDigits) + "sec";
     }
+}
+
+String Time::Elements::dayString() const
+{
+    static const char* RODATA_ATTR days[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    return String(ROMString(days[int(dayOfWeek)]));
+}
+
+String Time::Elements::monthString() const
+{
+    static const char* RODATA_ATTR months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                                                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    return String(ROMString(months[month]));
 }

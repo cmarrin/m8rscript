@@ -157,14 +157,17 @@ public:
     
     struct Elements
     {
-        uint32_t us;
-        int16_t year;
-        int8_t month;
-        int8_t day;
-        int8_t hour;
-        int8_t minute;
-        int8_t second;
-        DayOfWeek dayOfWeek;
+        uint32_t us = 0;
+        int16_t year = 0;
+        int8_t month = 0;
+        int8_t day = 0;
+        int8_t hour = 0;
+        int8_t minute = 0;
+        int8_t second = 0;
+        DayOfWeek dayOfWeek = DayOfWeek::Sunday;
+        
+        String dayString() const;
+        String monthString() const;
     };
     
     Time() { }
