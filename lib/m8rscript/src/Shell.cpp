@@ -17,5 +17,5 @@ Shell::Shell()
 
 CallReturnValue Shell::execute()
 {
-    return CallReturnValue();
+    return CallReturnValue(CallReturnValue::Type::Finished);
 }
