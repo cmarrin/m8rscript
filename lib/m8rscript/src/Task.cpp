@@ -30,7 +30,7 @@
 
 using namespace m8r;
 
-void TaskBase::Executable::print(const char* s) const
+void Task::Executable::print(const char* s) const
 {
     if (_consolePrintFunction) {
         _consolePrintFunction(s);
@@ -39,7 +39,7 @@ void TaskBase::Executable::print(const char* s) const
     }
 }
 
-void TaskBase::print(const char* s) const
+void Task::print(const char* s) const
 {
     if (_executable) {
         _executable->print(s);
@@ -128,21 +128,6 @@ bool Task::run(const Stream& stream)
 }
 #endif
 
-bool Task::readyToRun() const
-{
-    return TaskBase::readyToRun() || _executable->readyToRun();
-}
-
-void Task::requestYield() const
-{
-    _executable->requestYield();
-}
-
-void Task::receivedData(const String& data, KeyAction action)
-{
-    _executable->receivedData(data, action);
-}
-
 #if SCRIPT_SUPPORT == 1
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
@@ -215,7 +200,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         path = FS::findPath(eu, filename, env);
     }
     
-    std::shared_ptr<Task> task = Task::create();
+    std::shared_ptr<Task> task = std::make_shared<Task>();
     task->setConsolePrintFunction(eu->consolePrintFunction());
 
     if (!filename.empty()) {
@@ -258,7 +243,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     // Store func so it doesn't get gc'ed
     thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
-    system()->taskManager()->run(task, [eu, func](TaskBase* task)
+    system()->taskManager()->run(task, [eu, func](Task* task)
     {
         if (func) {
             Value arg(static_cast<int32_t>(task->error().code()));

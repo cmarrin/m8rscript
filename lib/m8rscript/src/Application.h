@@ -57,7 +57,7 @@ private:
     void init(uint16_t port, bool autostart);
     void runAutostartTask();
     
-    std::shared_ptr<TaskBase> _autostartTask;
+    std::shared_ptr<Task> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
 
     static SystemInterface* _system;

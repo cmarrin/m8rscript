@@ -91,7 +91,7 @@ void Application::init(uint16_t port, bool autostart)
 
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
-        std::shared_ptr<Task> task = Task::create();
+        std::shared_ptr<Task> task = std::make_shared<Task>();
 #if SCRIPT_SUPPORT == 1
         task->run(shellName());
 #else
@@ -117,7 +117,7 @@ void Application::init(uint16_t port, bool autostart)
     }
 
     // Setup the autostart Task
-    _autostartTask = Task::create();
+    _autostartTask = std::make_shared<Task>();
     _autostartTask->setConsolePrintFunction([](const String& s) {
         system()->printf(ROMSTR("%s"), s.c_str());
     });
@@ -139,7 +139,7 @@ void Application::runAutostartTask()
         return;
     }
     
-    system()->taskManager()->run(_autostartTask, [this](m8r::TaskBase*) {
+    system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {
         m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
         _autostartTask.reset();
     });    

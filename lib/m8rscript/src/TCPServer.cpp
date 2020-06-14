@@ -60,7 +60,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                     _eventFunction(tcp, event, connectionId, data, length);
                     
                     // Run the task
-                    system()->taskManager()->run(_connections[connectionId].task, [connectionId, this](TaskBase*)
+                    system()->taskManager()->run(_connections[connectionId].task, [connectionId, this](Task*)
                     {
                         // On return from finished task, drop the connection
                         _socket->disconnect(connectionId);

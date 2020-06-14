@@ -22,7 +22,7 @@ namespace m8r {
 
 class String;
 
-class TaskBase {
+class Task : public NativeObject {
     friend class TaskManager;
     
 public:
@@ -62,7 +62,9 @@ public:
         
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
-    virtual ~TaskBase() { }
+    Task() { }
+    
+    ~Task();
     
     bool run(const std::shared_ptr<Executable>& exec)
     {
@@ -70,15 +72,17 @@ public:
         return true;
     }
 
-    virtual bool run(const Stream&) { return false; }
-    virtual bool run(const char* filename) { return false; }
-    
+#if SCRIPT_SUPPORT == 1
+    bool run(const Stream&);
+    bool run(const char* filename);
+#endif
+
     Error error() const { return _error; }
     
-    virtual bool readyToRun() const { return state() == State::Ready; }
-    virtual void requestYield() const { }
+    bool readyToRun() const { return state() == State::Ready || _executable->readyToRun(); }
+    void requestYield() const { _executable->requestYield(); }
     
-    virtual void receivedData(const String& data, KeyAction action) { }
+    void receivedData(const String& data, KeyAction action) { _executable->receivedData(data, action); }
     
     void print(const char* s) const;
     
@@ -94,8 +98,6 @@ public:
 #endif
 
 protected:
-    TaskBase() { }
-    
     State state() const { return _state; }
     void setState(State state) { _state = state; }
 
@@ -115,23 +117,6 @@ private:
     TaskManager::FinishCallback _finishCB;
         
     State _state = State::Ready;
-};
-
-class Task : public NativeObject, public TaskBase {
-public:
-    virtual ~Task();
-    
-    static std::shared_ptr<Task> create() { return std::make_shared<Task>(); }
-    
-#if SCRIPT_SUPPORT == 1
-    virtual bool run(const Stream&) override;
-    virtual bool run(const char* filename) override;
-#endif
-
-    virtual void receivedData(const String& data, KeyAction action) override;
-
-    virtual bool readyToRun() const override;
-    virtual void requestYield() const override;
 };
 
 #if SCRIPT_SUPPORT == 1

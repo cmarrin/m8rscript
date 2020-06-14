@@ -59,21 +59,21 @@ bool TaskManager::runOneIteration()
     // See if there's anything to be done
     return executeNextTask();
 }
-void TaskManager::run(const std::shared_ptr<TaskBase>& newTask, FinishCallback cb)
+void TaskManager::run(const std::shared_ptr<Task>& newTask, FinishCallback cb)
 {
     {
         newTask->_finishCB = cb;
         _list.push_back(newTask);
-        newTask->setState(TaskBase::State::Ready);
+        newTask->setState(Task::State::Ready);
     }
     readyToExecuteNextTask();
 }
 
-void TaskManager::terminate(const std::shared_ptr<TaskBase>& task)
+void TaskManager::terminate(const std::shared_ptr<Task>& task)
 {
     {
         _list.remove(task);
-        task->setState(TaskBase::State::Terminated);
+        task->setState(Task::State::Terminated);
     }
 }
 
@@ -101,7 +101,7 @@ bool TaskManager::executeNextTask()
     }
     
     // Find the next executable task
-    auto it = std::find_if(_list.begin(), _list.end(), [](std::shared_ptr<TaskBase> task) {
+    auto it = std::find_if(_list.begin(), _list.end(), [](std::shared_ptr<Task> task) {
         return task->readyToRun();
     });
 
@@ -111,7 +111,7 @@ bool TaskManager::executeNextTask()
     
     _currentTask = *it;
     
-    if (_currentTask->state() == TaskBase::State::Ready) {
+    if (_currentTask->state() == Task::State::Ready) {
         // Move the task to the end of the list to let other ready tasks run
         _list.erase(it);
         _list.push_back(_currentTask);
@@ -122,16 +122,16 @@ bool TaskManager::executeNextTask()
     stopTimeSliceTimer();
     
     if (returnValue.isYield()) {
-        _currentTask->setState(TaskBase::State::Ready);
+        _currentTask->setState(Task::State::Ready);
     } else if (returnValue.isTerminated() || returnValue.isFinished()) {
-        _currentTask->setState(TaskBase::State::Terminated);
+        _currentTask->setState(Task::State::Terminated);
         _list.remove(_currentTask);
         _currentTask->finish();
         _currentTask = nullptr;
     } else if (returnValue.isWaitForEvent()) {
-        _currentTask->setState(TaskBase::State::WaitingForEvent);
+        _currentTask->setState(Task::State::WaitingForEvent);
     } else if (returnValue.isDelay()) {
-        _currentTask->setState(TaskBase::State::Delaying);
+        _currentTask->setState(Task::State::Delaying);
     }
     
     return true;

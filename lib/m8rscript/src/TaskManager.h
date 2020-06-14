@@ -16,19 +16,19 @@
 
 namespace m8r {
 
-class TaskBase;
+class Task;
 
 class TaskManager {
     friend class SystemInterface;
-    friend class TaskBase;
+    friend class Task;
     friend class ExecutionUnit;
     friend class Timer;
 
 public:
-    using FinishCallback = std::function<void(TaskBase*)>;
+    using FinishCallback = std::function<void(Task*)>;
     
-    void run(const std::shared_ptr<TaskBase>&, FinishCallback);
-    void terminate(const std::shared_ptr<TaskBase>&);
+    void run(const std::shared_ptr<Task>&, FinishCallback);
+    void terminate(const std::shared_ptr<Task>&);
     
 protected:
     static constexpr uint8_t MaxTasks = 8;
@@ -51,11 +51,11 @@ private:
     
     void restartTimer();
     
-    Vector<std::shared_ptr<TaskBase>> _list;
+    Vector<std::shared_ptr<Task>> _list;
     Vector<Timer*> _timerList;
     int8_t _timerId = -1;
     
-    std::shared_ptr<TaskBase> _currentTask;
+    std::shared_ptr<Task> _currentTask;
 
     std::shared_ptr<Timer> _timeSliceTimer;
     bool _terminating = false;
