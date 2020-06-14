@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Containers.h"
 #include "esp_wifi.h"
 #include "freertos/event_groups.h"
 
@@ -21,10 +22,23 @@ public:
     void start();
 
 private:
+    enum class State { InitialTry, Scan, ConnectAP, Retry, Failed };
+    
     static esp_err_t eventHandler(void* ctx, system_event_t*);
+    
+    bool waitForConnect();
+    void connectToSTA(const char* ssid, const char* pwd);
+    void scanForNetworks();
+    
+    // Setup a wifi connection by starting an AP and presenting
+    // a webpage with SSID choices and the ability to enter a
+    // password
+    bool setupConnection(const char* apName);
 
-    bool _inited = false;
+    State _state = State::InitialTry;
     EventGroupHandle_t _eventGroup;
+    
+    Vector<String> _ssidList;
 };
 
 }
