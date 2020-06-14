@@ -36,6 +36,8 @@
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
+		4940FD742496596A00B47B84 /* HTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4940FD722496596900B47B84 /* HTTPServer.h */; };
+		4940FD752496596A00B47B84 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4940FD732496596A00B47B84 /* HTTPServer.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
 		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
 		4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
@@ -230,6 +232,8 @@
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
+		4940FD722496596900B47B84 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = ../lib/m8rscript/src/HTTPServer.h; sourceTree = "<group>"; };
+		4940FD732496596A00B47B84 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = ../lib/m8rscript/src/HTTPServer.cpp; sourceTree = "<group>"; };
 		4942EA7E1D06FC2500E02088 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../lib/m8rscript/src/Object.h; sourceTree = "<group>"; };
 		4942EA7F1D07009E00E02088 /* Program.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../lib/m8rscript/src/Program.h; sourceTree = "<group>"; };
 		4942EA811D07043C00E02088 /* Function.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../lib/m8rscript/src/Function.h; sourceTree = "<group>"; };
@@ -648,6 +652,8 @@
 				492BA3D61E15849C00242DA8 /* GPIO.cpp */,
 				4924FDB41DDBE7CD00883967 /* GPIO.h */,
 				492BA3D81E15944000242DA8 /* GPIOInterface.h */,
+				4940FD732496596A00B47B84 /* HTTPServer.cpp */,
+				4940FD722496596900B47B84 /* HTTPServer.h */,
 				49CB74301E7F3028007A4805 /* IPAddr.cpp */,
 				492396C91E711E47007AC0BF /* IPAddr.h */,
 				49F4633B1E1873D6004EF625 /* Iterator.cpp */,
@@ -742,6 +748,7 @@
 				49CB61BB23F85256003C9AB0 /* Timer.h in Headers */,
 				49079BA0244247EE000FAF22 /* lfs.h in Headers */,
 				49BDE19F236C711B00304BE8 /* MString.h in Headers */,
+				4940FD742496596A00B47B84 /* HTTPServer.h in Headers */,
 				49263ABF23611DFC005CB9F9 /* StreamProto.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
@@ -971,6 +978,7 @@
 				49DD774C1D84DD7D00D7C374 /* Application.cpp in Sources */,
 				494D25541D2E90A9003755DB /* Atom.cpp in Sources */,
 				49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */,
+				4940FD752496596A00B47B84 /* HTTPServer.cpp in Sources */,
 				49079BA1244247EE000FAF22 /* lfs.c in Sources */,
 				49E9871C2365F6AC00C17CB6 /* SystemTime.cpp in Sources */,
 				49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */,
