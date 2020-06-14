@@ -36,6 +36,7 @@ public:
     static MemoryType memoryType() { return MemoryType::String; }
 
     String() : _size(1), _capacity(0) { }
+    String(const uint8_t* s, int32_t len = -1) { *this = String(reinterpret_cast<const char*>(s), len); }
     String(const char* s, int32_t len = -1) : _size(0), _capacity(0)
     {
         if (!s) {
