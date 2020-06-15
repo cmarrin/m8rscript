@@ -25,8 +25,6 @@ class TCP;
 
 class TCP : public NativeObject 
 {
-    friend class TCPProto;
-    
 public:
     enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };
 

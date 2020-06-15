@@ -47,8 +47,6 @@ public:
 };
 
 class AtomTable {
-    friend class Program;
-    
 public:
     
     AtomTable();

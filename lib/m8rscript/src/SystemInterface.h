@@ -38,8 +38,6 @@ class UDPDelegate;
 
 class SystemInterface  {
 public:
-    friend class Time;
-
     static SystemInterface* create();
 
     virtual ~SystemInterface() { }

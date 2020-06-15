@@ -30,8 +30,6 @@ class String;
 class Duration
 {
 public:
-    friend class Time;
-    
     static constexpr uint32_t Shift = 2;
     static constexpr uint32_t UnitsMask = (1 << Shift) - 1;
     static constexpr uint32_t MaxValue = (1 << (sizeof(int32_t) * 8 - Shift)) - 1;

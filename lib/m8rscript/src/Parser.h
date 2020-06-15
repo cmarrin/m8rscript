@@ -31,7 +31,6 @@ namespace m8r {
 
 class Parser  {
     friend class ParseEngine;
-    friend class ParseStack;
     
 public:
     Parser(Mad<Program> = Mad<Program>());

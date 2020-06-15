@@ -54,11 +54,6 @@ void TaskManager::requestYield()
     }
 }
 
-bool TaskManager::runOneIteration()
-{
-    // See if there's anything to be done
-    return executeNextTask();
-}
 void TaskManager::run(const std::shared_ptr<Task>& newTask, FinishCallback cb)
 {
     {
@@ -77,7 +72,7 @@ void TaskManager::terminate(const std::shared_ptr<Task>& task)
     }
 }
 
-bool TaskManager::executeNextTask()
+bool TaskManager::runOneIteration()
 {
     // Check timers
     if (_timerList.empty() && _list.empty()) {

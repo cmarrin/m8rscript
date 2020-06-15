@@ -30,9 +30,6 @@ using ExecutionStack = Stack<Value>;
 
 class ExecutionUnit : public Task::Executable {
 public:
-    friend class Closure;
-    friend class Function;
-    
     static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
 
     ExecutionUnit();
@@ -89,6 +86,8 @@ public:
     
     void requestTerminate() const { _terminate = true; _checkForExceptions = true; }
 
+    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
+
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
     static constexpr uint32_t DelayThreadSize = 1024;
@@ -115,7 +114,6 @@ private:
         return _checkForExceptions ? checkForExceptions(imm) : opFromCode(_currentAddr, imm);
     }
     
-    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
     CallReturnValue endFunction();
     CallReturnValue runNextEvent();
 

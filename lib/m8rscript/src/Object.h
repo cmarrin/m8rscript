@@ -47,8 +47,6 @@ public:
 
 class Object : public Callable {    
 public:
-    friend class MaterObject;
-    
     Object()
         :  _marked(true)
         , _isDestroyed(false)
