@@ -101,6 +101,10 @@
             argument = "scripts/timing/timing-esp.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "web/index.html"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
