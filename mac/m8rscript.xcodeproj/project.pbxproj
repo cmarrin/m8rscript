@@ -234,6 +234,7 @@
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
 		4940FD722496596900B47B84 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = ../lib/m8rscript/src/HTTPServer.h; sourceTree = "<group>"; };
 		4940FD732496596A00B47B84 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = ../lib/m8rscript/src/HTTPServer.cpp; sourceTree = "<group>"; };
+		4940FD79249AD3F000B47B84 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../web/index.html; sourceTree = "<group>"; };
 		4942EA7E1D06FC2500E02088 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../lib/m8rscript/src/Object.h; sourceTree = "<group>"; };
 		4942EA7F1D07009E00E02088 /* Program.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../lib/m8rscript/src/Program.h; sourceTree = "<group>"; };
 		4942EA811D07043C00E02088 /* Function.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../lib/m8rscript/src/Function.h; sourceTree = "<group>"; };
@@ -421,6 +422,14 @@
 			path = m8rtest;
 			sourceTree = "<group>";
 		};
+		4940FD78249AD3CF00B47B84 /* web */ = {
+			isa = PBXGroup;
+			children = (
+				4940FD79249AD3F000B47B84 /* index.html */,
+			);
+			name = web;
+			sourceTree = "<group>";
+		};
 		4942EA891D0C86BB00E02088 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
@@ -595,11 +604,12 @@
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
-				497139DC24705AA90025CC4D /* m8rFSFile */,
 				494BA1901D207A9B00E72725 /* m8rscript */,
 				49E648071D00BEEC005F5059 /* libm8rscript */,
 				4945A8701EC3711D00559CD1 /* m8r */,
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
+				497139DC24705AA90025CC4D /* m8rFSFile */,
+				4940FD78249AD3CF00B47B84 /* web */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				49D9B8191D1C854700724911 /* m8rsim */,
 				49E647E91D00B68F005F5059 /* Products */,

@@ -13,15 +13,21 @@
 
 namespace m8r {
 
+// HTTPServer
+//
+// Build on top of TCP class
+// Adapted from https://github.com/konteck/wpp
+
 class HTTPServer {
 public:
     class Request;
-    class Response;
     
     HTTPServer(uint16_t port, const char* rootDir);
     ~HTTPServer() { }
     
     static String dateString();
+    
+    void sendResponseHeader(int16_t connectionId, uint32_t size);
     
     void handleEvents()
     {
