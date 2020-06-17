@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "TCPServer.h"
+#include "TCP.h"
 
 namespace m8r {
 
@@ -18,12 +18,20 @@ public:
     class Request;
     class Response;
     
-    HTTPServer() { }
+    HTTPServer(uint16_t port, const char* rootDir);
     ~HTTPServer() { }
-
-    void start(uint16_t port, const char* rootDir);
     
     static String dateString();
+    
+    void handleEvents()
+    {
+        if (_socket.valid()) {
+            _socket->handleEvents();
+        }
+    }
+
+private:
+    Mad<TCP> _socket;
 };
     
 }

@@ -13,6 +13,11 @@
 
 namespace m8r {
 
+// TCPServer
+//
+// This is a wrapper around the raw TCP class which spawns a task each time a connection is made.
+// Communications to and from that connection go to that task.
+
 class TCPServer {
 public:
     using CreateTaskFunction = std::function<std::shared_ptr<Task>()>;

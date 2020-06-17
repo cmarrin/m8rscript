@@ -11,9 +11,48 @@
 
 #include "Containers.h"
 #include "MString.h"
+#include "SystemInterface.h"
 #include "SystemTime.h"
 
 using namespace m8r;
+
+HTTPServer::HTTPServer(uint16_t port, const char* rootDir)
+{
+    Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
+    {
+        if (connectionId < 0 || connectionId >= TCP::MaxConnections) {
+            system()->printf(ROMSTR("******** HTTPServer Internal Error: Invalid connectionId = %d\n"), connectionId);
+            _socket->disconnect(connectionId);
+            return;
+        }
+
+        switch(event) {
+            case TCP::Event::Connected:
+                system()->printf(ROMSTR("HTTPServer: new connection, connectionId=%d, ip=%s, port=%d\n"), 
+                                 connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
+                _socket->send(connectionId, "HTTP/1.0 200 OK\r\nContent-Length: 16\r\n\r\nHello HTTP World");
+
+                break;
+            case TCP::Event::Disconnected:
+                system()->printf(ROMSTR("HTTPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n"), 
+                                 connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
+                break;
+            case TCP::Event::ReceivedData:
+                // FIXME: Handle incoming data
+                // This might be a request (GET, PUT, POST) or upoaded data for a PUT
+                printf("******** Received HTTP data:\n%s", String(data, length).c_str());
+                break;
+            case TCP::Event::SentData:
+                break;
+            case TCP::Event::Error:
+                system()->printf(ROMSTR("******** HTTPServer Error for connectionId = %d (%s)\n"), connectionId, data);
+            default:
+                break;
+        }
+    });
+    
+    _socket = socket;
+}
 
 struct HTTPServer::Request
 {
@@ -44,10 +83,6 @@ struct HTTPServer::Response
     String body;
 
 };
-
-void HTTPServer::start(uint16_t port, const char* rootDir)
-{
-}
 
 String HTTPServer::dateString()
 {

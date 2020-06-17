@@ -20,6 +20,7 @@ class Program;
 class Error;
 class ExecutionUnit;
 class FS;
+class HTTPServer;
 
 class Application {
 public:
@@ -59,6 +60,7 @@ private:
     
     std::shared_ptr<Task> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
+    std::unique_ptr<HTTPServer> _webServer;
 
     static SystemInterface* _system;
 };

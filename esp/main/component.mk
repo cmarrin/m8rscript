@@ -26,6 +26,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/GC.o \
     $(SRC_DIR)/Global.o \
     $(SRC_DIR)/GPIO.o \
+    $(SRC_DIR)/HTTPServer.o \
     $(SRC_DIR)/IPAddr.o \
     $(SRC_DIR)/Iterator.o \
     $(SRC_DIR)/JSON.o \

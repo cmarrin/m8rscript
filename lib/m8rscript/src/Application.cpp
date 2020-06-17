@@ -9,6 +9,7 @@
 
 #include "Application.h"
 
+#include "HTTPServer.h"
 #include "MFS.h"
 #include "Shell.h"
 #include "SystemInterface.h"
@@ -88,6 +89,9 @@ void Application::init(uint16_t port, bool autostart)
     system()->init();
 
     system()->setHeartrate(3s);
+    
+    // Setup test web server
+    _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
 
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
@@ -197,6 +201,9 @@ bool Application::runOneIteration()
 {
     if (_terminal) {
         _terminal->handleEvents();
+    }
+    if (_webServer) {
+        _webServer->handleEvents();
     }
     return system()->runOneIteration();
 }
