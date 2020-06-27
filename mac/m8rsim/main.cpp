@@ -24,15 +24,24 @@ static bool controlState = false;
 static constexpr m8r::Duration ExecutionLoopIdleDelay = 2ms;
 static constexpr m8r::Duration HeartOnTime = 100ms;
 
+static void escape(std::string& s, char c, const char* replacement)
+{
+    size_t pos = 0;
+    
+    while (true) {
+        pos = s.find(c, pos);
+        if (pos == std::string::npos) {
+            break;
+        }
+        s.replace(pos, 1, replacement);
+        pos += strlen(replacement);
+    }
+}
+
 static void escape(std::string& s)
 {
-    while (1) {
-        size_t pos = s.find_first_of("\n");
-        if (pos == std::string::npos) {
-            return;
-        }
-        s.replace(pos, 1, "\\n");
-    }
+    escape(s, '\n', "\\n");
+    escape(s, '\'', "\\'");
 }
 
 int main(int argc, char **argv)
@@ -85,9 +94,9 @@ int main(int argc, char **argv)
     });
     
     std::mutex evalMutex;
-    std::string evalString;
+    std::vector<std::string> evalArray;
 
-    std::thread([wv, &evalMutex, &evalString] {
+    std::thread([wv, &evalMutex, &evalArray] {
         usleep(500000);
 
         // Init m8rscript
@@ -110,13 +119,14 @@ int main(int argc, char **argv)
                 source.close();
             }
             
-            m8r::initMacSystemInterface(destFile.c_str(), [&evalMutex, &evalString](const char* s) {
+            m8r::initMacSystemInterface(destFile.c_str(), [&evalMutex, &evalArray](const char* s) {
                 std::lock_guard<std::mutex> lock(evalMutex);
                 std::string ss(s);
                 escape(ss);
-                evalString += std::string("document.getElementById('Console').value += '");
-                evalString += ss;
-                evalString += "';";
+                std::string line("document.getElementById('Console').value += '");
+                line += ss;
+                line += "';";
+                evalArray.push_back(line);
             });
             application = new m8r::Application(23);
         }
@@ -134,8 +144,9 @@ int main(int argc, char **argv)
             if ((change & 0x04) != 0) {
                 // turn on LED if value & 0x04 is zero
                 std::lock_guard<std::mutex> lock(evalMutex);
-                evalString += std::string("document.getElementById('LED1').className = 'led-bitmap led-");
-                evalString += std::string((value & 0x04) ? "off" : "on") + "';"; 
+                std::string line("document.getElementById('LED1').className = 'led-bitmap led-");
+                line += std::string((value & 0x04) ? "off" : "on") + "';";
+                evalArray.push_back(line);
             }
             
             if (!busy) {
@@ -145,13 +156,13 @@ int main(int argc, char **argv)
     }).detach();
 
     while (wv->run()) {
-        std::string s;
+        std::vector<std::string> v;
         {
             std::lock_guard<std::mutex> lock(evalMutex);
-            s = std::move(evalString);
+            v = std::move(evalArray);
         }
-        if (!s.empty()) {
-            wv->eval(s);
+        for (auto& it : v) {
+            wv->eval(it);
         }
     }
     
