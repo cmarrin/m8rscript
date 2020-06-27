@@ -61,7 +61,7 @@ public:
     void endString() { _program->endStringLiteral(); }
     
 private:
-    enum class Expect { Expr, PropertyAssignment, Statement, DuplicateDefault, MissingVarDecl, OneVarDeclAllowed, ConstantValueRequired };
+    enum class Expect { Expr, PropertyAssignment, Statement, DuplicateDefault, MissingVarDecl, OneVarDeclAllowed, ConstantValueRequired, While };
 
     void expectedError(Token token, const char* = nullptr);
     void expectedError(Expect expect, const char* = nullptr);

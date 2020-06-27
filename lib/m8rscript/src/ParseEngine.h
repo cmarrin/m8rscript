@@ -301,6 +301,31 @@ private:
     bool expect(Token token);
     bool expect(Parser::Expect expect, bool expected = false, const char* = nullptr);
     
+    enum class Keyword {
+        Unknown     = 0x00,
+        Break       = 0x01,
+        Case        = 0x02,
+        Class       = 0x03,
+        Constructor = 0x04,
+        Continue    = 0x05,
+        Default     = 0x06,
+        Delete      = 0x07,
+        Do          = 0x08,
+        Else        = 0x09,
+        For         = 0x0a,
+        Function    = 0x0b,
+        If          = 0x0c,
+        New         = 0x0d,
+        Return      = 0x0e,
+        Switch      = 0x0f,
+        This        = 0x10,
+        Var         = 0x11,
+        While       = 0x12,
+    };
+
+    Keyword scanKeyword();
+    Keyword tokenToKeyword();
+
     Token getToken() { return _parser->getToken(); }
     const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }
     void retireToken() { _parser->retireToken(); }

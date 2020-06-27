@@ -17,6 +17,51 @@ static_assert(0, "SCRIPT_SUPPORT not defined");
 
 using namespace m8r;
 
+static const char _keywordString[] ROMSTR_ATTR =
+    "\x01" "break"
+    "\x02" "case"
+    "\x03" "class"
+    "\x04" "constructor"
+    "\x05" "continue"
+    "\x06" "default"
+    "\x07" "delete"
+    "\x08" "do"
+    "\x09" "else"
+    "\x0a" "for"
+    "\x0b" "function"
+    "\x0c" "if"
+    "\x0d" "new"
+    "\x0e" "return"
+    "\x0f" "switch"
+    "\x10" "this"
+    "\x11" "var"
+    "\x12" "while"
+;
+
+static ROMString keywordString(_keywordString);
+
+// If the word is a keyword, return the enum for it, otherwise return Unknown
+ParseEngine::Keyword ParseEngine::scanKeyword()
+{
+    const char* s = getTokenValue().str;
+    int32_t len = static_cast<int32_t>(strlen(s));
+    ROMString result = ROMString::strstr(keywordString, s);
+    if (!result.valid() || ROMString::readByte(result + len) >= 0x20 || ROMString::readByte(result - 1) >= 0x20) {
+        return Keyword::Unknown;
+    }
+    
+    return static_cast<Keyword>(ROMString::readByte(result - 1));
+}
+
+ParseEngine::Keyword ParseEngine::tokenToKeyword()
+{
+    if (getToken() != Token::Identifier) {
+        return Keyword::Unknown;
+    }
+    
+    return scanKeyword();
+}
+
 ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {
     { Token::STO,         1,  OperatorInfo::Assoc::Right, false, Op::MOVE },
     { Token::ADDSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::ADD  },
@@ -99,7 +144,7 @@ bool ParseEngine::statement()
 
 bool ParseEngine::functionStatement()
 {
-    if (getToken() != Token::Function) {
+    if (tokenToKeyword() != Keyword::Function) {
         return false;
     }
     retireToken();
@@ -112,7 +157,7 @@ bool ParseEngine::functionStatement()
 
 bool ParseEngine::classStatement()
 {
-    if (getToken() != Token::Class) {
+    if (tokenToKeyword() != Keyword::Class) {
         return false;
     }
     retireToken();
@@ -143,7 +188,7 @@ bool ParseEngine::compoundStatement()
 
 bool ParseEngine::selectionStatement()
 {
-    if (getToken() != Token::If) {
+    if (tokenToKeyword() != Keyword::If) {
         return false;
     }
     retireToken();
@@ -157,7 +202,7 @@ bool ParseEngine::selectionStatement()
     expect(Token::RParen);
     statement();
 
-    if (getToken() == Token::Else) {
+    if (tokenToKeyword() == Keyword::Else) {
         retireToken();
         _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
@@ -171,7 +216,7 @@ bool ParseEngine::selectionStatement()
 
 bool ParseEngine::switchStatement()
 {
-    if (getToken() != Token::Switch) {
+    if (tokenToKeyword() != Keyword::Switch) {
         return false;
     }
     retireToken();
@@ -232,8 +277,8 @@ bool ParseEngine::switchStatement()
 
 bool ParseEngine::iterationStatement()
 {
-    Token type = getToken();
-    if (type != Token::While && type != Token::Do && type != Token::For) {
+    Keyword keyword = tokenToKeyword();
+    if (keyword != Keyword::While && keyword != Keyword::Do && keyword != Keyword::For) {
         return false;
     }
     
@@ -241,7 +286,7 @@ bool ParseEngine::iterationStatement()
     
     _breakStack.emplace_back();
     _continueStack.emplace_back();
-    if (type == Token::While) {
+    if (keyword == Keyword::While) {
         expect(Token::LParen);
         Label label = _parser->label();
         commaExpression();
@@ -256,7 +301,7 @@ bool ParseEngine::iterationStatement()
         
         _parser->jumpToLabel(Op::JMP, label);
         _parser->matchJump(label);
-    } else if (type == Token::Do) {
+    } else if (keyword == Keyword::Do) {
         Label label = _parser->label();
         statement();
 
@@ -265,15 +310,15 @@ bool ParseEngine::iterationStatement()
             _parser->matchJump(it);
         }
 
-        expect(Token::While);
+        expect(Parser::Expect::While);
         expect(Token::LParen);
         commaExpression();
         _parser->jumpToLabel(m8r::Op::JT, label);
         expect(Token::RParen);
         expect(Token::Semicolon);
-    } else if (type == Token::For) {
+    } else if (keyword == Keyword::For) {
         expect(Token::LParen);
-        if (getToken() == Token::Var) {
+        if (tokenToKeyword() == Keyword::Var) {
             retireToken();
             
             // Hang onto the identifier. If this is a for..in we need to know it
@@ -319,8 +364,9 @@ bool ParseEngine::iterationStatement()
 
 bool ParseEngine::jumpStatement()
 {
-    if (getToken() == Token::Break || getToken() == Token::Continue) {
-        bool isBreak = getToken() == Token::Break;
+    Keyword keyword = tokenToKeyword();
+    if (keyword == Keyword::Break || keyword == Keyword::Continue) {
+        bool isBreak = keyword == Keyword::Break;
         retireToken();
         expect(Token::Semicolon);
         
@@ -334,7 +380,7 @@ bool ParseEngine::jumpStatement()
         }
         return true;
     }
-    if (getToken() == Token::Return) {
+    if (keyword == Keyword::Return) {
         retireToken();
         uint8_t count = 0;
         if (commaExpression()) {
@@ -356,7 +402,7 @@ bool ParseEngine::jumpStatement()
 
 bool ParseEngine::varStatement()
 {
-    if (getToken() != Token::Var) {
+    if (tokenToKeyword() != Keyword::Var) {
         return false;
     }
     
@@ -382,7 +428,10 @@ bool ParseEngine::classContents()
     if (getToken() == Token::EndOfFile) {
         return false;
     }
-    if (getToken() == Token::Function) {
+
+    Keyword keyword = tokenToKeyword();
+
+    if (keyword == Keyword::Function) {
         retireToken();
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
@@ -390,7 +439,7 @@ bool ParseEngine::classContents()
         _parser->currentClass()->setProperty(name, Value(f));
         return true;
     }
-    if (getToken() == Token::Constructor) {
+    if (keyword == Keyword::Constructor) {
         retireToken();
         Mad<Function> f = functionExpression(true);
         if (!f.valid()) {
@@ -399,7 +448,7 @@ bool ParseEngine::classContents()
         _parser->currentClass()->setProperty(Atom(SA::constructor), Value(f));
         return true;
     }
-    if (getToken() == Token::Var) {
+    if (keyword == Keyword::Var) {
         retireToken();
 
         while (1) {
@@ -440,8 +489,9 @@ bool ParseEngine::caseClause(Vector<CaseEntry>& cases,
                              Label& defaultFromStatementLabel, 
                              bool& haveDefault)
 {
-    if (getToken() == Token::Case || getToken() == Token::Default) {
-        bool isDefault = getToken() == Token::Default;
+    Keyword keyword = tokenToKeyword();
+    if (keyword == Keyword::Case || keyword == Keyword::Default) {
+        bool isDefault = keyword == Keyword::Default;
         retireToken();
 
         if (isDefault) {
@@ -656,7 +706,6 @@ bool ParseEngine::primaryExpression()
 
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
-        case Token::This: _parser->pushThis(); retireToken(); break;
         case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); break;
         case Token::Integer: _parser->pushK(Value(getTokenValue().integer)); retireToken(); break;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); break;
@@ -697,7 +746,13 @@ bool ParseEngine::primaryExpression()
             
             break;
         
-        default: return false;
+        default:
+            // Check for 'this'
+            if (tokenToKeyword() == Keyword::This) {
+                _parser->pushThis(); retireToken();
+                break;
+            }
+            return false;
     }
     return true;
 }
@@ -727,7 +782,8 @@ bool ParseEngine::classExpression()
 
 bool ParseEngine::objectExpression()
 {
-    if (getToken() == Token::New) {
+    Keyword keyword = tokenToKeyword();
+    if (keyword == Keyword::New) {
         retireToken();
         primaryExpression();
         uint32_t argCount = 0;
@@ -740,13 +796,13 @@ bool ParseEngine::objectExpression()
         return true;
     }
     
-    if (getToken() == Token::Delete) {
+    if (keyword == Keyword::Delete) {
         retireToken();
         unaryExpression();
         return true;
     } 
     
-    if (getToken() == Token::Function) {
+    if (keyword == Keyword::Function) {
         retireToken();
         Mad<Function> f = functionExpression(false);
         if (!f.valid()) {
@@ -755,7 +811,7 @@ bool ParseEngine::objectExpression()
         _parser->pushK(Value(f));
         return true;
     }
-    if (getToken() == Token::Class) {
+    if (keyword == Keyword::Class) {
         retireToken();
         classExpression();
         return true;
@@ -773,9 +829,9 @@ bool ParseEngine::postfixExpression()
     while(1) {
         Token token = getToken();
         
-        if (token == Token::INC || token == Token::DEC) {
+        if (token == Token::INCR || token == Token::DECR) {
             retireToken();
-            _parser->emitUnOp((token == Token::INC) ? Op::POSTINC : Op::POSTDEC);
+            _parser->emitUnOp((token == Token::INCR) ? Op::POSTINC : Op::POSTDEC);
         } else if (getToken() == Token::LParen) {
             retireToken();
             uint32_t argCount = argumentList();
@@ -811,8 +867,8 @@ bool ParseEngine::unaryExpression()
     
     Op op;
     switch(getToken()) {
-        case Token::INC: op = Op::PREINC; break;
-        case Token::DEC: op = Op::PREDEC; break;
+        case Token::INCR: op = Op::PREINC; break;
+        case Token::DECR: op = Op::PREDEC; break;
         case Token::Minus: op = Op::UMINUS; break;
         case Token::Twiddle: op = Op::UNOT; break;
         case Token::Bang: op = Op::UNEG; break;

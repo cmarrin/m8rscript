@@ -28,30 +28,29 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#undef DEC
 enum class Token : uint8_t {
-    Break       = 0x01,
-    Case        = 0x02,
-    Class       = 0x03,
-    Constructor = 0x04,
-    Continue    = 0x05,
-    Default     = 0x06,
-    Delete      = 0x07,
-    Do          = 0x08,
-    Else        = 0x09,
-    False       = 0x0a,
-    For         = 0x0b,
-    Function    = 0x0c,
-    If          = 0x0d,
-    New         = 0x0e,
-    Null        = 0x0f,
-    Return      = 0x10,
-    Switch      = 0x11,
-    This        = 0x12,
-    True        = 0x13,
-    Undefined   = 0x14,
-    Var         = 0x15,
-    While       = 0x016,
+    SHRSTO      = 0x01,
+    SARSTO      = 0x02,
+    SHLSTO      = 0x03,
+    ADDSTO      = 0x04,
+    SUBSTO      = 0x05,
+    MULSTO      = 0x06,
+    DIVSTO      = 0x07,
+    MODSTO      = 0x08,
+    ANDSTO      = 0x09,
+    XORSTO      = 0x0a,
+    ORSTO       = 0x0b,
+    SHR         = 0x0c,
+    SAR         = 0x0d,
+    SHL         = 0x0e,
+    INCR        = 0x0f,
+    DECR        = 0x10,
+    LAND        = 0x11,
+    LOR         = 0x12,
+    LE          = 0x13,
+    GE          = 0x14,
+    EQ          = 0x15,
+    NE          = 0x16,
     
     Bang        = '!',
     Percent     = '%',
@@ -80,43 +79,23 @@ enum class Token : uint8_t {
     RBrace      = '}',
     Twiddle     = '~',
     
-    SHRSTO      = 0x80,
-    SARSTO      = 0x81,
-    SHLSTO      = 0x82,
-    ADDSTO      = 0x83,
-    SUBSTO      = 0x84,
-    MULSTO      = 0x85,
-    DIVSTO      = 0x86,
-    MODSTO      = 0x87,
-    ANDSTO      = 0x88,
-    XORSTO      = 0x89,
-    ORSTO       = 0x8a,
-    SHR         = 0x8b,
-    SAR         = 0x8c,
-    SHL         = 0x8d,
-    INC         = 0x8e,
-    DEC         = 0x8f,
-    LAND        = 0x90,
-    LOR         = 0x91,
-    LE          = 0x92,
-    GE          = 0x93,
-    EQ          = 0x94,
-    NE          = 0x95,
+    False       = 0x80,
+    Null        = 0x81,
+    True        = 0x82,
+    Undefined   = 0x83,
+    Unknown     = 0x84,
+    Comment     = 0x85,
+    Whitespace  = 0x86,
+    Float       = 0x87,
+    Identifier  = 0x88,
+    String      = 0x89,
+    Integer     = 0x8a,
+    None        = 0x8b,
+    Error       = 0x8c,
+    EndOfFile   = 0x8d,
     
-    Unknown     = 0xc0,
-    Comment     = 0xc1,
-    Whitespace  = 0xc2,
-
-    Float       = 0xd0,
-    Identifier  = 0xd1,
-    String      = 0xd2,
-    Integer     = 0xd3,
-    
-    None        = 0xfd,
-    Error       = 0xfe,
-    EndOfFile   = 0xff,
+    UserStart   = 0x90,
 };
-
 static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);
 
 struct Label {
@@ -180,7 +159,6 @@ private:
   		_lastChar = c;
 	}
 
-  	Token scanKeyword(const char*);
   	Token scanString(char terminal);
   	Token scanSpecial();
   	Token scanIdentifier();

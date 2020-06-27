@@ -24,51 +24,6 @@ inline static bool findChar(const char* s, char c)
     return false;
 }
 
-struct Keyword
-{
-	uint8_t index;
-	Token token;
-};
-
-static const char _keywordString[] ROMSTR_ATTR =
-    "\x01" "break"
-    "\x02" "case"
-    "\x03" "class"
-    "\x04" "constructor"
-    "\x05" "continue"
-    "\x06" "default"
-    "\x07" "delete"
-    "\x08" "do"
-    "\x09" "else"
-    "\x0a" "false"
-    "\x0b" "for"
-    "\x0c" "function"
-    "\x0d" "if"
-    "\x0e" "new"
-    "\x0f" "null"
-    "\x10" "return"
-    "\x11" "switch"
-    "\x12" "this"
-    "\x13" "true"
-    "\x14" "undefined"
-    "\x15" "var"
-    "\x16" "while"
-;
-
-static ROMString keywordString(_keywordString);
-
-// If the word is a keyword, return the token for it, otherwise return K_UNKNOWN
-Token Scanner::scanKeyword(const char* s)
-{
-    int32_t len = static_cast<int32_t>(strlen(s));
-    ROMString result = ROMString::strstr(keywordString, s);
-    if (!result.valid() || ROMString::readByte(result + len) >= 0x20 || ROMString::readByte(result - 1) >= 0x20) {
-        return Token::Unknown;
-    }
-    
-    return static_cast<Token>(ROMString::readByte(result - 1));
-}
-
 Token Scanner::scanString(char terminal)
 {    
 	uint8_t c;
@@ -259,7 +214,7 @@ Token Scanner::scanSpecial()
                 return Token::ADDSTO;
             }
             if (c2 == '+') {
-                return Token::INC;
+                return Token::INCR;
             }
             break;
         case '-':
@@ -267,7 +222,7 @@ Token Scanner::scanSpecial()
                 return Token::SUBSTO;
             }
             if (c2 == '-') {
-                return Token::DEC;
+                return Token::DECR;
             }
             break;
         case '/':
@@ -314,8 +269,18 @@ Token Scanner::scanIdentifier()
 	}
     size_t len = _tokenString.size();
     if (len) {
-        Token token = scanKeyword(_tokenString.c_str());
-        return (token == Token::Unknown) ? Token::Identifier : token;
+        // Check for keywords
+        if (_tokenString == "false") {
+            return Token::False;
+        } else if (_tokenString == "true") {
+            return Token::True;
+        } else if (_tokenString == "null") {
+            return Token::Null;
+        } else if (_tokenString == "undefined") {
+            return Token::Undefined;
+        }
+        
+        return Token::Identifier;
     }
 
     return Token::EndOfFile;

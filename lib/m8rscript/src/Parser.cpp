@@ -97,6 +97,7 @@ void Parser::expectedError(Expect expect, const char* s)
         case Expect::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;
         case Expect::OneVarDeclAllowed: printError(ROMSTR("only one var declaration allowed here")); break;
         case Expect::ConstantValueRequired: printError(ROMSTR("constant value required")); break;
+        case Expect::While: printError(ROMSTR("while required")); break;
         default: printError(ROMSTR("*** Internal Error ***")); break;
     }
 }
