@@ -15,3 +15,10 @@ sdkconfig.old
 .vscode/ipch
 m8rscript.map
 .gdb_history
+web/index_groups_archive
+web/gwd_preview_index/favicon.ico
+web/gwd_preview_index/index.html
+web/gwd_preview_index/preview.html
+web/gwd_preview_index/preview_polymer.js
+web/gwd_preview_index/webcomponentsjs/web-animations-next-lite.min.js
+web/gwd_preview_index/webcomponentsjs/webcomponents-lite.js
