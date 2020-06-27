@@ -11,7 +11,6 @@
 
 #include "MStream.h"
 #include "Float.h"
-#include "Defines.h"
 
 namespace m8r {
     class Function;
@@ -113,15 +112,6 @@ enum class Token : uint8_t {
     String      = 0xd2,
     Integer     = 0xd3,
     
-    Expr        = 0xe0,
-    
-    PropertyAssignment      = 0xe1,
-    Statement               = 0xe2,
-    DuplicateDefault        = 0xe3,
-    MissingVarDecl          = 0xe4,
-    OneVarDeclAllowed       = 0xe5,
-    ConstantValueRequired   = 0xe6,
-
     None        = 0xfd,
     Error       = 0xfe,
     EndOfFile   = 0xff,

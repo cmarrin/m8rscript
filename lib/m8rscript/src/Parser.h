@@ -48,9 +48,6 @@ public:
     Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, Mad<Function> parent = Mad<Function>());
 
 	void printError(ROMString format, ...);
-    void expectedError(Token token, const char* = nullptr);
-    void unknownError(Token token);
-    
     ParseErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return static_cast<uint32_t>(_syntaxErrors.size()); }
@@ -64,6 +61,12 @@ public:
     void endString() { _program->endStringLiteral(); }
     
 private:
+    enum class Expect { Expr, PropertyAssignment, Statement, DuplicateDefault, MissingVarDecl, OneVarDeclAllowed, ConstantValueRequired };
+
+    void expectedError(Token token, const char* = nullptr);
+    void expectedError(Expect expect, const char* = nullptr);
+    void unknownError(Token token);
+    
     class RegOrConst
     {
     public:

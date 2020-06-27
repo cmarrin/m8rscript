@@ -80,17 +80,24 @@ void Parser::expectedError(Token token, const char* s)
         printError(ROMSTR("syntax error: expected '%c'"), c);
     } else {
         switch(token) {
-            case Token::DuplicateDefault: printError(ROMSTR("multiple default cases not allowed")); break;
-            case Token::Expr: assert(s); printError(ROMSTR("expected %s%sexpression"), s ?: "", s ? " " : ""); break;
-            case Token::PropertyAssignment: printError(ROMSTR("expected object member")); break;
-            case Token::Statement: printError(ROMSTR("statement expected")); break;
             case Token::Identifier: printError(ROMSTR("identifier")); break;
-            case Token::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;
-            case Token::OneVarDeclAllowed: printError(ROMSTR("only one var declaration allowed here")); break;
-            case Token::ConstantValueRequired: printError(ROMSTR("constant value required")); break;
             case Token::EndOfFile: printError(ROMSTR("unable to continue parsing")); break;
             default: printError(ROMSTR("*** UNKNOWN TOKEN ***")); break;
         }
+    }
+}
+
+void Parser::expectedError(Expect expect, const char* s)
+{
+    switch(expect) {
+        case Expect::DuplicateDefault: printError(ROMSTR("multiple default cases not allowed")); break;
+        case Expect::Expr: assert(s); printError(ROMSTR("expected %s%sexpression"), s ?: "", s ? " " : ""); break;
+        case Expect::PropertyAssignment: printError(ROMSTR("expected object member")); break;
+        case Expect::Statement: printError(ROMSTR("statement expected")); break;
+        case Expect::MissingVarDecl: printError(ROMSTR("missing var declaration")); break;
+        case Expect::OneVarDeclAllowed: printError(ROMSTR("only one var declaration allowed here")); break;
+        case Expect::ConstantValueRequired: printError(ROMSTR("constant value required")); break;
+        default: printError(ROMSTR("*** Internal Error ***")); break;
     }
 }
 

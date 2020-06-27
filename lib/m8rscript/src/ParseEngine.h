@@ -299,7 +299,7 @@ private:
     static_assert(sizeof(OperatorInfo) == 4, "OperatorInfo must fit in 4 bytes");
 
     bool expect(Token token);
-    bool expect(Token token, bool expected, const char* = nullptr);
+    bool expect(Parser::Expect expect, bool expected = false, const char* = nullptr);
     
     Token getToken() { return _parser->getToken(); }
     const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }

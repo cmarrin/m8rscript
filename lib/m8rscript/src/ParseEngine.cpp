@@ -66,10 +66,10 @@ bool ParseEngine::expect(Token token)
     return true;
 }
 
-bool ParseEngine::expect(Token token, bool expected, const char* s)
+bool ParseEngine::expect(Parser::Expect expect, bool expected, const char* s)
 {
     if (!expected) {
-        _parser->expectedError(token, s);
+        _parser->expectedError(expect, s);
     }
     return expected;
 }
@@ -77,7 +77,7 @@ bool ParseEngine::expect(Token token, bool expected, const char* s)
 void ParseEngine::program()
 {
     while(getToken() != Token::EndOfFile) {
-        if (!expect(Token::Statement, statement())) {
+        if (!expect(Parser::Expect::Statement, statement())) {
             break;
         }
     }
@@ -122,7 +122,7 @@ bool ParseEngine::classStatement()
 
     expect(Token::Identifier);
     
-    if (!expect(Token::Expr, classExpression(), "class")) {
+    if (!expect(Parser::Expect::Expr, classExpression(), "class")) {
         return false;
     }
     _parser->emitMove();
@@ -283,14 +283,14 @@ bool ParseEngine::iterationStatement()
             }
             
             uint32_t count = variableDeclarationList();
-            expect(Token::MissingVarDecl, count  > 0);
+            expect(Parser::Expect::MissingVarDecl, count  > 0);
             if (getToken() == Token::Colon) {
                 // for-in case with var
-                expect(Token::OneVarDeclAllowed, count == 1);
+                expect(Parser::Expect::OneVarDeclAllowed, count == 1);
                 retireToken();
                 forIteration(name);
             } else {
-                expect(Token::MissingVarDecl, count > 0);
+                expect(Parser::Expect::MissingVarDecl, count > 0);
                 forLoopCondAndIt();
             }
         } else {
@@ -361,7 +361,7 @@ bool ParseEngine::varStatement()
     }
     
     retireToken();
-    expect(Token::MissingVarDecl, variableDeclarationList() > 0);
+    expect(Parser::Expect::MissingVarDecl, variableDeclarationList() > 0);
     expect(Token::Semicolon);
     return true;
 }
@@ -420,7 +420,7 @@ bool ParseEngine::classContents()
                     case Token::False: v = Value(false); retireToken(); break;
                     case Token::Null: v = Value::NullValue(); retireToken(); break;
                     case Token::Undefined: v = Value(); retireToken(); break;
-                    default: expect(Token::ConstantValueRequired);
+                    default: expect(Parser::Expect::ConstantValueRequired);
                 }
             }
             _parser->currentClass()->setProperty(name, v);
@@ -445,7 +445,7 @@ bool ParseEngine::caseClause(Vector<CaseEntry>& cases,
         retireToken();
 
         if (isDefault) {
-            expect(Token::DuplicateDefault, !haveDefault);
+            expect(Parser::Expect::DuplicateDefault, !haveDefault);
             haveDefault = true;
         } else {
             commaExpression();
@@ -577,7 +577,7 @@ bool ParseEngine::variableDeclaration()
     retireToken();
     _parser->emitId(name, Parser::IdType::MustBeLocal);
 
-    if (!expect(Token::Expr, arithmeticExpression(), "variable")) {
+    if (!expect(Parser::Expect::Expr, arithmeticExpression(), "variable")) {
         return false;
     }
 
@@ -609,7 +609,7 @@ bool ParseEngine::propertyAssignment()
     if (!propertyName()) {
         return false;
     }
-    return expect(Token::Colon) && expect(Token::Expr, arithmeticExpression());
+    return expect(Token::Colon) && expect(Parser::Expect::Expr, arithmeticExpression());
 }
 
 bool ParseEngine::propertyName()
@@ -671,7 +671,7 @@ bool ParseEngine::primaryExpression()
                 _parser->emitAppendElt();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Token::Expr, arithmeticExpression(), "array element")) {
+                    if (!expect(Parser::Expect::Expr, arithmeticExpression(), "array element")) {
                         break;
                     }
                     _parser->emitAppendElt();
@@ -686,7 +686,7 @@ bool ParseEngine::primaryExpression()
                 _parser->emitAppendProp();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Token::PropertyAssignment, propertyAssignment())) {
+                    if (!expect(Parser::Expect::PropertyAssignment, propertyAssignment())) {
                         break;
                     }
                     _parser->emitAppendProp();
@@ -877,7 +877,7 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
             // If the TOS is false (if LAND) or true (if LOR) jump to the skip label
             _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel1);
             
-            if (!expect(Token::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+            if (!expect(Parser::Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             
@@ -896,7 +896,7 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
             _parser->emitMove();
             _parser->matchJump(passLabel);
         } else {
-            if (!expect(Token::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+            if (!expect(Parser::Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             _parser->emitBinOp(it->op());
@@ -915,7 +915,7 @@ bool ParseEngine::commaExpression()
         return false;
     }
     while (getToken() == Token::Comma) {
-        if (!expect(Token::Expr, arithmeticExpression(), "expression")) {
+        if (!expect(Parser::Expect::Expr, arithmeticExpression(), "expression")) {
             return false;
         }
     }
