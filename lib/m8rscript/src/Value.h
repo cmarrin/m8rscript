@@ -76,10 +76,10 @@ public:
         _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::StaticObject);
     }
 
-    explicit Value(Mad<Object> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<Function> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::Object; }
-    explicit Value(Mad<String> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::String; }
-    explicit Value(Mad<NativeObject> value) { assert(value.valid()); init(); _value._rawMad = value.raw(); _value._type = Type::NativeObject; }
+    explicit Value(Mad<Object> value) { setMad(value); _value._type = Type::Object; }
+    explicit Value(Mad<Function> value) { setMad(value); _value._type = Type::Object; }
+    explicit Value(Mad<String> value) { setMad(value); _value._type = Type::String; }
+    explicit Value(Mad<NativeObject> value) { setMad(value); _value._type = Type::NativeObject; }
 
     explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
     explicit Value(Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
@@ -106,13 +106,13 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Mad<Object> asObject() const { return (type() == Type::Object) ? objectFromValue() : Mad<Object>(); }
-    Mad<String> asString() const { return (type() == Type::String) ? stringFromValue() : Mad<String>(); }
+    Mad<Object> asObject() const { return (type() == Type::Object) ? getMad<Object>() : Mad<Object>(); }
+    Mad<String> asString() const { return (type() == Type::String) ? getMad<String>() : Mad<String>(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
     Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
-    Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? nativeObjectFromValue() : Mad<NativeObject>(); }
+    Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? getMad<NativeObject>() : Mad<NativeObject>(); }
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
     StaticObject* asStaticObject() { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
     const StaticObject* asStaticObject() const { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
@@ -203,21 +203,24 @@ private:
         Float::Raw raw(_value._float & ~3);
         return Float(raw);
     }
-    inline int32_t int32FromValue() const { return _value._int; }
-    inline uint32_t uint32FromValue() const { return _value._int; }
-    inline Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
-    inline Mad<String> stringFromValue() const { return Mad<String>(_value._rawMad); }
-    inline Mad<NativeObject> nativeObjectFromValue() const { return Mad<NativeObject>(_value._rawMad); }
-    inline NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~ValueMask); }
-    inline StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
-    inline const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
-    inline Mad<Object> objectFromValue() const { return Mad<Object>(_value._rawMad); }
+    int32_t int32FromValue() const { return _value._int; }
+    uint32_t uint32FromValue() const { return _value._int; }
+    Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
+    NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~ValueMask); }
+    StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
+    const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
 
-    inline StringLiteral stringLiteralFromValue() const
+    StringLiteral stringLiteralFromValue() const
     {
         return StringLiteral(static_cast<StringLiteral::Raw>(_value._int));
     }
 
+    template<typename T>
+    void setMad(Mad<T> v) { assert(v.valid()); init(); _value._rawMad = v.raw(); }
+    
+    template<typename T>
+    Mad<T> getMad()const { return Mad<T>(_value._rawMad); }
+    
     // A value is the size of a pointer. This can contain a Float (which can be up to 
     // 64 bits), a NativeFunction or StaticObject pointer, or a structure containing 
     // a type and either an int32_t or a RawMad.
