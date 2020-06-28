@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "MStream.h"
 #include "Float.h"
+#include "MStream.h"
+#include "MString.h"
 
 namespace m8r {
     class Function;
@@ -105,15 +106,15 @@ struct Label {
 class Scanner  {
 public:
     typedef struct {
-        m8r::Label          label;
-        m8r::Function*      function;
-        m8r::Float::Raw		number;
-        uint32_t            integer;
-        uint32_t            argcount;
-        const char*         str;
+        Label           label;
+        Function*       function;
+        Float::Raw	    number;
+        uint32_t        integer;
+        uint32_t        argcount;
+        const char*     str;
     } TokenType;
 
-  	Scanner(m8r::Stream* istream = nullptr)
+  	Scanner(Stream* istream = nullptr)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
@@ -124,7 +125,7 @@ public:
   	{
     }
     
-    void setStream(const m8r::Stream* istream) { _istream = istream; }
+    void setStream(const Stream* istream) { _istream = istream; }
   
     uint32_t lineno() const { return _lineno; }
   	
@@ -166,8 +167,8 @@ private:
   	bool scanFloat(int32_t& mantissa, int32_t& exp);
     
   	mutable uint8_t _lastChar;
-  	m8r::String _tokenString;
-  	const m8r::Stream* _istream;
+  	String _tokenString;
+  	const Stream* _istream;
     mutable uint32_t _lineno;
 
     Token _currentToken = Token::None;

@@ -9,13 +9,13 @@
 
 #include "MString.h"
 
-#include "MStream.h"
+#include "StringStream.h"
 #include "Scanner.h"
 #include "slre.h"
 
 using namespace m8r;
 
-m8r::String& m8r::String::erase(uint16_t pos, uint16_t len)
+m8r::String& String::erase(uint16_t pos, uint16_t len)
 {
     if (pos >= _size - 1) {
         return *this;

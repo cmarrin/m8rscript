@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "49C406E11EB6598B001E4DEC"
-               BuildableName = "generateSharedAtoms"
-               BlueprintName = "generateSharedAtoms"
+               BuildableName = "generateValues"
+               BlueprintName = "generateValues"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -31,8 +31,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49C406E11EB6598B001E4DEC"
-            BuildableName = "generateSharedAtoms"
-            BlueprintName = "generateSharedAtoms"
+            BuildableName = "generateValues"
+            BlueprintName = "generateValues"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -54,8 +54,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49C406E11EB6598B001E4DEC"
-            BuildableName = "generateSharedAtoms"
-            BlueprintName = "generateSharedAtoms"
+            BuildableName = "generateValues"
+            BlueprintName = "generateValues"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -78,8 +78,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49C406E11EB6598B001E4DEC"
-            BuildableName = "generateSharedAtoms"
-            BlueprintName = "generateSharedAtoms"
+            BuildableName = "generateValues"
+            BlueprintName = "generateValues"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

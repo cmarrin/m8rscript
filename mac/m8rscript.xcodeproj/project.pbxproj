@@ -257,6 +257,9 @@
 		4966A41B1D22F8C4008951F4 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../lib/m8rscript/src/CodePrinter.cpp; sourceTree = "<group>"; };
 		4966A41C1D22F8C4008951F4 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../lib/m8rscript/src/CodePrinter.h; sourceTree = "<group>"; };
 		496AF9D924A8127900431796 /* hello.marly */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = hello.marly; sourceTree = "<group>"; };
+		496AF9DB24A929A800431796 /* FileStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileStream.h; path = ../lib/m8rscript/src/FileStream.h; sourceTree = "<group>"; };
+		496AF9DC24A929A800431796 /* StringStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringStream.h; path = ../lib/m8rscript/src/StringStream.h; sourceTree = "<group>"; };
+		496AF9DD24A92A0500431796 /* VectorStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorStream.h; path = ../lib/m8rscript/src/VectorStream.h; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
 		497139BC246F50860025CC4D /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		497139BD246F50860025CC4D /* WebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
@@ -325,7 +328,7 @@
 		49BDE19D236C711B00304BE8 /* MString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../lib/m8rscript/src/MString.h; sourceTree = "<group>"; };
 		49BDE1A423714DC000304BE8 /* mem */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = mem; path = ../scripts/mem; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
-		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
+		49C406E21EB6598B001E4DEC /* generateValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateValues; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generators/generateValues.cpp; sourceTree = "<group>"; };
 		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = generators/SharedAtoms.txt; sourceTree = "<group>"; };
 		49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/m8rscript/src/GeneratedValues.cpp; sourceTree = "<group>"; };
@@ -625,7 +628,7 @@
 			children = (
 				49D9B8181D1C854700724911 /* m8rsim.app */,
 				494D254E1D2E9055003755DB /* libm8rscript.a */,
-				49C406E21EB6598B001E4DEC /* generateSharedAtoms */,
+				49C406E21EB6598B001E4DEC /* generateValues */,
 				4945A86F1EC3711D00559CD1 /* m8r */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
 			);
@@ -655,6 +658,7 @@
 				49A3286B1D35BDC50006D0FE /* Error.h */,
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */,
+				496AF9DB24A929A800431796 /* FileStream.h */,
 				49E648141D00C088005F5059 /* Float.h */,
 				4942EA871D0AF26300E02088 /* Function.cpp */,
 				4942EA811D07043C00E02088 /* Function.h */,
@@ -704,6 +708,7 @@
 				49884F06236CB25100C292EA /* StateMachine.h */,
 				49263ABB23611DF0005CB9F9 /* StreamProto.cpp */,
 				49263ABC23611DF0005CB9F9 /* StreamProto.h */,
+				496AF9DC24A929A800431796 /* StringStream.h */,
 				499AE8E7234A667D00459451 /* SystemInterface.cpp */,
 				494BA1981D207C3A00E72725 /* SystemInterface.h */,
 				49E9871A2365F63000C17CB6 /* SystemTime.cpp */,
@@ -725,6 +730,7 @@
 				49CB61B923F85255003C9AB0 /* Timer.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
+				496AF9DD24A92A0500431796 /* VectorStream.h */,
 			);
 			name = libm8rscript;
 			sourceTree = "<group>";
@@ -835,9 +841,9 @@
 			productReference = 494D254E1D2E9055003755DB /* libm8rscript.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		49C406E11EB6598B001E4DEC /* generateSharedAtoms */ = {
+		49C406E11EB6598B001E4DEC /* generateValues */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateSharedAtoms" */;
+			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateValues" */;
 			buildPhases = (
 				49C406DE1EB6598B001E4DEC /* Sources */,
 				49C406DF1EB6598B001E4DEC /* Frameworks */,
@@ -847,9 +853,9 @@
 			);
 			dependencies = (
 			);
-			name = generateSharedAtoms;
+			name = generateValues;
 			productName = generateSharedAtoms;
-			productReference = 49C406E21EB6598B001E4DEC /* generateSharedAtoms */;
+			productReference = 49C406E21EB6598B001E4DEC /* generateValues */;
 			productType = "com.apple.product-type.tool";
 		};
 		49D9B8171D1C854700724911 /* m8rsim */ = {
@@ -920,7 +926,7 @@
 			targets = (
 				49D9B8171D1C854700724911 /* m8rsim */,
 				494D254D1D2E9055003755DB /* m8rscript */,
-				49C406E11EB6598B001E4DEC /* generateSharedAtoms */,
+				49C406E11EB6598B001E4DEC /* generateValues */,
 				4945A86E1EC3711D00559CD1 /* m8r */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
 			);
@@ -1170,6 +1176,7 @@
 		49C406E71EB6598B001E4DEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1182,6 +1189,7 @@
 		49C406E81EB6598B001E4DEC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1382,7 +1390,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateSharedAtoms" */ = {
+		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateValues" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				49C406E71EB6598B001E4DEC /* Debug */,

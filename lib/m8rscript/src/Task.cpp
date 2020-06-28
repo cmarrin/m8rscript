@@ -12,7 +12,7 @@
 #include "Application.h"
 #include "ExecutionUnit.h"
 #include "GC.h"
-#include "MStream.h"
+#include "FileStream.h"
 #include "Parser.h"
 #include <memory>
 

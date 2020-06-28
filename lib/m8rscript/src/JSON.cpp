@@ -17,7 +17,7 @@ static_assert(0, "SCRIPT_SUPPORT not defined");
 
 #include "Defines.h"
 #include "ExecutionUnit.h"
-#include "MStream.h"
+#include "StringStream.h"
 #include "Scanner.h"
 #include "SystemInterface.h"
 

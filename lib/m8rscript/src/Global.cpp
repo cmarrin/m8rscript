@@ -16,7 +16,8 @@ static_assert(0, "SCRIPT_SUPPORT not defined");
 #include "Global.h"
 
 #include "ExecutionUnit.h"
-#include "MStream.h"
+#include "FileStream.h"
+#include "StringStream.h"
 #include "SystemInterface.h"
 
 using namespace m8r;
