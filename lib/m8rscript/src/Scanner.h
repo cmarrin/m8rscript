@@ -28,6 +28,7 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
+// Tokens can't be a special char, so avoid 0x20 - 0x7f
 enum class Token : uint8_t {
     SHRSTO      = 0x01,
     SARSTO      = 0x02,
@@ -52,33 +53,6 @@ enum class Token : uint8_t {
     EQ          = 0x15,
     NE          = 0x16,
     
-    Bang        = '!',
-    Percent     = '%',
-    Ampersand   = '&',
-    LParen      = '(',
-    RParen      = ')',
-    Star        = '*',
-    Plus        = '+',
-    Comma       = ',',
-    Minus       = '-',
-    Period      = '.',
-    Slash       = '/',
-    
-    Colon       = ':',
-    Semicolon   = ';',
-    LT          = '<',
-    STO         = '=',
-    GT          = '>',
-    Question    = '?',
-    
-    LBracket    = '[',
-    RBracket    = ']',
-    XOR         = '^',
-    LBrace      = '{',
-    OR          = '|',
-    RBrace      = '}',
-    Twiddle     = '~',
-    
     False       = 0x80,
     Null        = 0x81,
     True        = 0x82,
@@ -93,8 +67,32 @@ enum class Token : uint8_t {
     None        = 0x8b,
     Error       = 0x8c,
     EndOfFile   = 0x8d,
+
+    Bang        = 0x90,
+    Percent     = 0x91,
+    Ampersand   = 0x92,
+    LParen      = 0x93,
+    RParen      = 0x94,
+    Star        = 0x95,
+    Plus        = 0x96,
+    Comma       = 0x97,
+    Minus       = 0x98,
+    Period      = 0x99,
+    Slash       = 0x9a,
+    Colon       = 0x9b,
+    Semicolon   = 0x9c,
+    LT          = 0x9d,
+    STO         = 0x9e,
+    GT          = 0x9f,
+    Question    = 0xa0,
+    LBracket    = 0xa1,
+    RBracket    = 0xa2,
+    XOR         = 0xa3,
+    LBrace      = 0xa4,
+    OR          = 0xa5,
+    RBrace      = 0xa6,
+    Twiddle     = 0xa7,
     
-    UserStart   = 0x90,
 };
 static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);
 

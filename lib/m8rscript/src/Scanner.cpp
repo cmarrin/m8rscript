@@ -11,7 +11,6 @@
 
 using namespace m8r;
 
-static const char* specialSingleChar = "(),.:;?[]{}~";
 static const char* specialFirstChar = "!%&*+-/<=>^|";
 
 inline static bool findChar(const char* s, char c)
@@ -138,7 +137,7 @@ Token Scanner::scanSpecial()
             return Token::LE;
         }
         putback(c2);
-        return static_cast<Token>(c1);
+        return Token::LT;
     }
 
     if (c1 == '>') {
@@ -169,11 +168,23 @@ Token Scanner::scanSpecial()
             return Token::GE;
         }
         putback(c2);
-        return static_cast<Token>(c1);
+        return Token::GT;
     }
-        
-    if (findChar(specialSingleChar, c1)) {
-        return static_cast<Token>(c1);
+
+    switch(c1) {
+        case '(': return Token::LParen;
+        case ')': return Token::RParen;
+        case ',': return Token::Comma;
+        case '.': return Token::Period;
+        case ':': return Token::Colon;
+        case ';': return Token::Semicolon;
+        case '?': return Token::Question;
+        case '[': return Token::LBracket;
+        case ']': return Token::RBracket;
+        case '{': return Token::LBrace;
+        case '}': return Token::RBrace;
+        case '~': return Token::Twiddle;
+        default: break;
     }
     
     if (!findChar(specialFirstChar, c1)) {
@@ -190,12 +201,12 @@ Token Scanner::scanSpecial()
             if (c2 == '=') {
                 return Token::NE;
             }
-            break;
+            return Token::Bang;
         case '%':
             if (c2 == '=') {
                 return Token::MODSTO;
             }
-            break;
+            return Token::Percent;
         case '&':
             if (c2 == '&') {
                 return Token::LAND;
@@ -203,12 +214,12 @@ Token Scanner::scanSpecial()
             if (c2 == '=') {
                 return Token::ANDSTO;
             }
-            break;
+            return Token::Ampersand;
         case '*':
             if (c2 == '=') {
                 return Token::MULSTO;
             }
-            break;
+            return Token::Star;
         case '+':
             if (c2 == '=') {
                 return Token::ADDSTO;
@@ -216,7 +227,7 @@ Token Scanner::scanSpecial()
             if (c2 == '+') {
                 return Token::INCR;
             }
-            break;
+            return Token::Plus;
         case '-':
             if (c2 == '=') {
                 return Token::SUBSTO;
@@ -224,22 +235,22 @@ Token Scanner::scanSpecial()
             if (c2 == '-') {
                 return Token::DECR;
             }
-            break;
+            return Token::Minus;
         case '/':
             if (c2 == '=') {
                 return Token::DIVSTO;
             }
-            break;
+            return Token::Slash;
         case '=':
             if (c2 == '=') {
                 return Token::EQ;
             }
-            break;
+            return Token::STO;
         case '^':
             if (c2 == '=') {
                 return Token::XORSTO;
             }
-            break;
+            return Token::XOR;
         case '|':
             if (c2 == '=') {
                 return Token::ORSTO;
@@ -247,10 +258,9 @@ Token Scanner::scanSpecial()
             if (c2 == '|') {
                 return Token::LOR;
             }
-            break;
+            return Token::OR;
+        default: assert(0);
     }
-    putback(c2);
-    return static_cast<Token>(c1);
 }
 
 Token Scanner::scanIdentifier()
@@ -425,7 +435,7 @@ Token Scanner::scanComment()
 		}
 		return Token::Comment;
 	}
-	return static_cast<Token>('/');
+	return Token::Slash;
 }
 
 uint8_t Scanner::get() const
