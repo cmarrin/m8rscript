@@ -11,7 +11,7 @@
 
 #include "Containers.h"
 #include "MString.h"
-#include "SharedAtoms.h"
+#include "GeneratedValues.h"
 
 namespace m8r {
 

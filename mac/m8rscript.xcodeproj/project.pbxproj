@@ -90,8 +90,8 @@
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
 		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
 		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
-		49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */; };
-		49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */; };
+		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
+		49C406F31EB675B7001E4DEC /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */; };
 		49CB61BB23F85256003C9AB0 /* Timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61B923F85255003C9AB0 /* Timer.h */; };
 		49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB61BA23F85255003C9AB0 /* Timer.cpp */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
@@ -324,10 +324,10 @@
 		49BDE1A423714DC000304BE8 /* mem */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = mem; path = ../scripts/mem; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateSharedAtoms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateSharedAtoms; sourceTree = BUILT_PRODUCTS_DIR; };
-		49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateSharedAtoms.cpp; path = generators/generateSharedAtoms.cpp; sourceTree = "<group>"; };
+		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generators/generateValues.cpp; sourceTree = "<group>"; };
 		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = generators/SharedAtoms.txt; sourceTree = "<group>"; };
-		49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SharedAtoms.cpp; path = ../lib/m8rscript/src/SharedAtoms.cpp; sourceTree = "<group>"; };
-		49C406F11EB675B0001E4DEC /* SharedAtoms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAtoms.h; path = ../lib/m8rscript/src/SharedAtoms.h; sourceTree = "<group>"; };
+		49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/m8rscript/src/GeneratedValues.cpp; sourceTree = "<group>"; };
+		49C406F11EB675B0001E4DEC /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../lib/m8rscript/src/GeneratedValues.h; sourceTree = "<group>"; };
 		49CB61B923F85255003C9AB0 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../lib/m8rscript/src/Timer.h; sourceTree = "<group>"; };
 		49CB61BA23F85255003C9AB0 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../lib/m8rscript/src/Timer.cpp; sourceTree = "<group>"; };
 		49CB74301E7F3028007A4805 /* IPAddr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddr.cpp; path = ../lib/m8rscript/src/IPAddr.cpp; sourceTree = "<group>"; };
@@ -556,7 +556,7 @@
 			isa = PBXGroup;
 			children = (
 				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
-				49C406EA1EB65A39001E4DEC /* generateSharedAtoms.cpp */,
+				49C406EA1EB65A39001E4DEC /* generateValues.cpp */,
 			);
 			name = generators;
 			sourceTree = "<group>";
@@ -692,8 +692,8 @@
 				497B4A59248FDFA800CCBA41 /* ROMString.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
-				49C406F01EB675B0001E4DEC /* SharedAtoms.cpp */,
-				49C406F11EB675B0001E4DEC /* SharedAtoms.h */,
+				49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */,
+				49C406F11EB675B0001E4DEC /* GeneratedValues.h */,
 				497B4A5E2492E79A00CCBA41 /* Shell.cpp */,
 				497B4A5F2492E79A00CCBA41 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
@@ -1005,7 +1005,7 @@
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,
 				49CDE69A2386633900159439 /* Iterator.cpp in Sources */,
-				49C406F31EB675B7001E4DEC /* SharedAtoms.cpp in Sources */,
+				49C406F31EB675B7001E4DEC /* GeneratedValues.cpp in Sources */,
 				494D25561D2E90A9003755DB /* ExecutionUnit.cpp in Sources */,
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
@@ -1033,7 +1033,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49C406EC1EB65A3E001E4DEC /* generateSharedAtoms.cpp in Sources */,
+				49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

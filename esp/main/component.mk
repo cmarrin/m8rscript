@@ -40,7 +40,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/Program.o \
     $(SRC_DIR)/ROMString.o \
     $(SRC_DIR)/Scanner.o \
-    $(SRC_DIR)/SharedAtoms.o \
+    $(SRC_DIR)/GeneratedValues.o \
     $(SRC_DIR)/Shell.o \
     $(SRC_DIR)/SystemInterface.o \
     $(SRC_DIR)/SystemTime.o \

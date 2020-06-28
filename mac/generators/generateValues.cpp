@@ -15,8 +15,37 @@
 #include <ctype.h>
 #include <string>
 #include <vector>
+//#include "Scanner.h"
 
-// read SharedAtoms.txt and use it to generate SharedAtoms.cpp/SharedAtoms.h
+// read Shared.txt and use it to generate GeneratedValues.cpp/GeneratedValues.h
+
+//// Add string with tokens and special char sequences
+//struct SpecialEntry
+//{
+//    m8r::Token token;
+//    const char* str;
+//};
+//
+//
+//
+//        "(),.:;?[]{}~"
+//        "< << <= <<="
+//        "> >> >>> >= >>= >>>="
+//        "( ) , . : ; ? [ ] { } ~"
+//        "! !="
+//        "% %="
+//        "& && &="
+//        "* *="
+//        "+ ++ +="
+//        "- -- -="
+//        "/ /="
+//        "= =="
+//        "^ ^="
+//        "| || |="
+//
+//
+//
+
 
 static std::string strip(const char* in)
 {
@@ -45,27 +74,27 @@ int main()
     char* root = getenv("ROOT");
     chdir(root);
 
-    FILE* ifile = fopen("generators/SharedAtoms.txt", "r");
-    if (!ifile) {
+    FILE* afile = fopen("generators/SharedAtoms.txt", "r");
+    if (!afile) {
         printf("could not open SharedAtoms.txt:%d\n", errno);
         return -1;
     }
     
-    FILE* hfile = fopen("../src/SharedAtoms.h", "w");
+    FILE* hfile = fopen("../lib/m8rscript/src/GeneratedValues.h", "w");
     if (!hfile) {
-        printf("could not open SharedAtoms.h:%d\n", errno);
+        printf("could not open GeneratedValues.h:%d\n", errno);
         return -1;
     }
     
-    FILE* cppfile = fopen("../src/SharedAtoms.cpp", "w");
+    FILE* cppfile = fopen("../lib/m8rscript/src/GeneratedValues.cpp", "w");
     if (!cppfile) {
-        printf("could not open SharedAtoms.cpp:%d\n", errno);
+        printf("could not open GeneratedValues.cpp:%d\n", errno);
         return -1;
     }
     
     // Write the preambles
     fprintf(hfile, "// This file is generated. Do not edit\n\n#include <cstdint>\n\nenum class SA : uint16_t {\n");
-    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <cstdlib>\n\n");
+    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"GeneratedValues.h\"\n#include \"Defines.h\"\n#include <cstdlib>\n\n");
     
     // Get the strings into a vector
     std::vector<std::string> strings;
@@ -73,9 +102,9 @@ int main()
     while (1) {
         char* line = nullptr;
         size_t length;
-        ssize_t size = getline(&line, &length, ifile);
+        ssize_t size = getline(&line, &length, afile);
         if (size < 0) {
-            if (feof(ifile)) {
+            if (feof(afile)) {
                 free(line);
                 break;
             }
@@ -127,7 +156,7 @@ int main()
 
     fprintf(cppfile, "};\n\nconst char** m8r::sharedAtoms(uint16_t& nelts)\n{\n    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n    return _sharedAtoms;\n}\n");
     
-    fclose(ifile);
+    fclose(afile);
     fclose(hfile);
     fclose(cppfile);
     return 0;
