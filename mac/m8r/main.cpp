@@ -12,8 +12,9 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "MacSystemInterface.h"
 #include "Application.h"
+#include "MacSystemInterface.h"
+#include "MFS.h"
 
 static void usage(const char* name)
 {
