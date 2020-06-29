@@ -435,12 +435,6 @@ Token Scanner::scanComment()
 		}
 		return Token::Comment;
 	}
-
-    // This is either Slash or DIVSTO
-    if (c == '=') {
-        return Token::DIVSTO;
-    }
-    putback(c);
 	return Token::Slash;
 }
 
