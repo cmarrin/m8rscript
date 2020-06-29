@@ -29,31 +29,8 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// Tokens can't be a special char, so avoid 0x20 - 0x7f
+// Tokens can't be a special char, so avoid 0x00 - 0x7f
 enum class Token : uint8_t {
-    SHRSTO      = 0x01,
-    SARSTO      = 0x02,
-    SHLSTO      = 0x03,
-    ADDSTO      = 0x04,
-    SUBSTO      = 0x05,
-    MULSTO      = 0x06,
-    DIVSTO      = 0x07,
-    MODSTO      = 0x08,
-    ANDSTO      = 0x09,
-    XORSTO      = 0x0a,
-    ORSTO       = 0x0b,
-    SHR         = 0x0c,
-    SAR         = 0x0d,
-    SHL         = 0x0e,
-    INCR        = 0x0f,
-    DECR        = 0x10,
-    LAND        = 0x11,
-    LOR         = 0x12,
-    LE          = 0x13,
-    GE          = 0x14,
-    EQ          = 0x15,
-    NE          = 0x16,
-    
     False       = 0x80,
     Null        = 0x81,
     True        = 0x82,
@@ -93,6 +70,29 @@ enum class Token : uint8_t {
     OR          = 0xa5,
     RBrace      = 0xa6,
     Twiddle     = 0xa7,
+    
+    SHRSTO      = 0xb1,
+    SARSTO      = 0xb2,
+    SHLSTO      = 0xb3,
+    ADDSTO      = 0xb4,
+    SUBSTO      = 0xb5,
+    MULSTO      = 0xb6,
+    DIVSTO      = 0xb7,
+    MODSTO      = 0xb8,
+    ANDSTO      = 0xb9,
+    XORSTO      = 0xba,
+    ORSTO       = 0xbb,
+    SHR         = 0xbc,
+    SAR         = 0xbd,
+    SHL         = 0xbe,
+    INCR        = 0xbf,
+    DECR        = 0xc0,
+    LAND        = 0xc1,
+    LOR         = 0xc2,
+    LE          = 0xc3,
+    GE          = 0xc4,
+    EQ          = 0xc5,
+    NE          = 0xc6,
     
 };
 static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);

@@ -9,19 +9,9 @@
 
 #include "Scanner.h"
 
+#include "GeneratedValues.h"
+
 using namespace m8r;
-
-static const char* specialFirstChar = "!%&*+-/<=>^|";
-
-inline static bool findChar(const char* s, char c)
-{
-    while (*s) {
-        if (*s++ == c) {
-            return true;
-        }
-    }
-    return false;
-}
 
 Token Scanner::scanString(char terminal)
 {    
@@ -113,154 +103,72 @@ Token Scanner::scanString(char terminal)
 
 Token Scanner::scanSpecial()
 {
-	uint8_t c1 = get();
-    uint8_t c2;
-    if (c1 == C_EOF) {
+    ROMString entries = ROMString(specialChars());
+
+    // See if it's a special char in the list
+    char buf[3];
+    buf[0] = get();
+    buf[1] = '\0';
+
+    ROMString found = ROMString::strstr(entries, buf);
+    if (!found.valid()) {
+        putback(buf[0]);
         return Token::EndOfFile;
     }
     
-    if (c1 == '<') {
-        if ((c2 = get()) == C_EOF) {
-            return Token::EndOfFile;
-        }
-        if (c2 == '<') {
-            if ((c2 = get()) == C_EOF) {
-                return Token::EndOfFile;
-            }
-            if (c2 == '=') {
+    // This is either a single char special or the first char
+    // of a 2 or more char special. Since all single char special 
+    // are first in the list and all 2 char specials have a first
+    // char that is in the single char list, the next char
+    // should be the token.
+    uint8_t t = ROMString::readByte(found - 1);
+    assert(t >= 0x80);
+    Token token = static_cast<Token>(t);
+
+    // Now see if this is a 2 char special
+    buf[1] = get();
+    buf[2] = '\0';
+
+    found = ROMString::strstr(entries, buf);
+    
+    if (found.valid()) {
+        // We've found a 2 char sequence. The next char better be a token
+        t = ROMString::readByte(found - 1);
+        assert(t >= 0x80);
+        token = static_cast<Token>(t);
+        
+        // This might be a 3 or 4 char sequence: <<= >>= >>> >>>=
+        if (token == Token::SHL) {
+            char c = get();
+            if (c == '=') {
                 return Token::SHLSTO;
             }
-            putback(c2);
-            return Token::SHL;
+            putback(c);
+            return token;
         }
-        if (c2 == '=') {
-            return Token::LE;
-        }
-        putback(c2);
-        return Token::LT;
-    }
-
-    if (c1 == '>') {
-        if ((c2 = get()) == C_EOF) {
-            return Token::EndOfFile;
-        }
-        if (c2 == '>') {
-            if ((c2 = get()) == C_EOF) {
-                return Token::EndOfFile;
+        
+        if (token == Token::SHR) {
+            char c = get();
+            if (c == '=') {
+                return Token::SHLSTO;
             }
-            if (c2 == '=') {
-                return Token::SHRSTO;
-            }
-            if (c2 == '>') {
-                if ((c2 = get()) == C_EOF) {
-                    return Token::EndOfFile;
-                }
-                if (c2 == '=') {
+            if (c == '>') {
+                c = get();
+                if (c == '=') {
                     return Token::SARSTO;
                 }
-                putback(c2);
+                putback(c);
                 return Token::SAR;
             }
-            putback(c2);
-            return Token::SHR;
+            putback(c);
+            return token;
         }
-        if (c2 == '=') {
-            return Token::GE;
-        }
-        putback(c2);
-        return Token::GT;
-    }
-
-    switch(c1) {
-        case '(': return Token::LParen;
-        case ')': return Token::RParen;
-        case ',': return Token::Comma;
-        case '.': return Token::Period;
-        case ':': return Token::Colon;
-        case ';': return Token::Semicolon;
-        case '?': return Token::Question;
-        case '[': return Token::LBracket;
-        case ']': return Token::RBracket;
-        case '{': return Token::LBrace;
-        case '}': return Token::RBrace;
-        case '~': return Token::Twiddle;
-        default: break;
+        return token;
     }
     
-    if (!findChar(specialFirstChar, c1)) {
-        putback(c1);
-        return Token::EndOfFile;
-    }
-
-	if ((c2 = get()) == C_EOF) {
-        return Token::EndOfFile;
-    }
-    
-    switch(c1) {
-        case '!':
-            if (c2 == '=') {
-                return Token::NE;
-            }
-            return Token::Bang;
-        case '%':
-            if (c2 == '=') {
-                return Token::MODSTO;
-            }
-            return Token::Percent;
-        case '&':
-            if (c2 == '&') {
-                return Token::LAND;
-            }
-            if (c2 == '=') {
-                return Token::ANDSTO;
-            }
-            return Token::Ampersand;
-        case '*':
-            if (c2 == '=') {
-                return Token::MULSTO;
-            }
-            return Token::Star;
-        case '+':
-            if (c2 == '=') {
-                return Token::ADDSTO;
-            }
-            if (c2 == '+') {
-                return Token::INCR;
-            }
-            return Token::Plus;
-        case '-':
-            if (c2 == '=') {
-                return Token::SUBSTO;
-            }
-            if (c2 == '-') {
-                return Token::DECR;
-            }
-            return Token::Minus;
-        case '/':
-            if (c2 == '=') {
-                return Token::DIVSTO;
-            }
-            return Token::Slash;
-        case '=':
-            if (c2 == '=') {
-                return Token::EQ;
-            }
-            return Token::STO;
-        case '^':
-            if (c2 == '=') {
-                return Token::XORSTO;
-            }
-            return Token::XOR;
-        case '|':
-            if (c2 == '=') {
-                return Token::ORSTO;
-            }
-            if (c2 == '|') {
-                return Token::LOR;
-            }
-            return Token::OR;
-        default: assert(0);
-    }
+    // This must be the single char token we found before
+    putback(buf[1]);
+    return token;   
 }
 
 Token Scanner::scanIdentifier()
@@ -435,6 +343,12 @@ Token Scanner::scanComment()
 		}
 		return Token::Comment;
 	}
+
+    // This is either Slash or DIVSTO
+    if (c == '=') {
+        return Token::DIVSTO;
+    }
+    putback(c);
 	return Token::Slash;
 }
 

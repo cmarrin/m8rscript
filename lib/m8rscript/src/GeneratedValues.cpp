@@ -236,8 +236,59 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _write,
 };
 
+const char* RODATA_ATTR _specialChars =
+    "\x93("
+    "\x94)"
+    "\x97,"
+    "\x99."
+    "\x9b:"
+    "\x9c;"
+    "\xa0?"
+    "\xa1["
+    "\xa2]"
+    "\xa4{"
+    "\xa6}"
+    "\xa7~"
+    "\x90!"
+    "\x91%"
+    "\x92&"
+    "\x95*"
+    "\x96+"
+    "\x98-"
+    "\x9a/"
+    "\x9e="
+    "\xa3^"
+    "\xa5|"
+    "\x9d<"
+    "\x9f>"
+    "\xc6!="
+    "\xb8%="
+    "\xc1&&"
+    "\xb9&="
+    "\xb6*="
+    "\xbf++"
+    "\xb4+="
+    "\xc0--"
+    "\xb5-="
+    "\xb7/="
+    "\xc5=="
+    "\xba^="
+    "\xc2||"
+    "\xbb|="
+    "\xc3<="
+    "\xc4>="
+    "\xbe<<"
+    "\xbc>>"
+;
+
 const char** m8r::sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;
 }
+
+const char* m8r::specialChars()
+{
+    return _specialChars;
+}
+
