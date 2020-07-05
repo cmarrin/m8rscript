@@ -93,6 +93,7 @@ void Application::init(uint16_t port, bool autostart)
     // Setup test web server
     _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
     _webServer->on("/", "index.html");
+    _webServer->on("/favicon.ico", "favicon.ico");
 
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
