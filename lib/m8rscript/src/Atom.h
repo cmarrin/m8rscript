@@ -44,6 +44,8 @@ public:
     Atom() { }
     Atom(SA sa) : Id(Id::Raw(static_cast<Atom::value_type>(sa))) { }
     explicit Atom(Atom::value_type value) : Id(Id::Raw(value)) { }
+    
+    friend int compare(const Atom& a, const Atom& b) { return int(a - b); }
 };
 
 class AtomTable {
