@@ -188,12 +188,20 @@ public:
     {
         uint16_t numToInsert = to - from;
         
+        // Convert pos to an index then back to an iterator after ensureCapacity
+        // in case the data pointer changes
+        ptrdiff_t i = pos - begin();
+        
         ensureCapacity(_size + numToInsert);
-        if (_size) {
-            memmove(pos + numToInsert, pos, _size - (pos - _data.get()) * sizeof(T));
-        } else {
-            // If _size == 0, set pos to the start of the vector
-            pos = begin();
+        pos = begin() + i;
+        
+        if (pos < end()) {
+            if (_size) {
+                memmove(pos + numToInsert, pos, (_size - i) * sizeof(T));
+            } else {
+                // If _size == 0, set pos to the start of the vector
+                pos = begin();
+            }
         }
         
         for (int i = 0; i < numToInsert; ++i) {
@@ -420,14 +428,10 @@ public:
         int result = search(0, static_cast<int>(_list.size()) - 1, key);
         bool placed = false;
         if (result < 0) {
-            _list.resize(_list.size() + 1);
-            int sizeToMove = static_cast<int>(_list.size()) + result;
-            if (sizeToMove) {
-                memmove(&_list[-result], &_list[-result - 1], sizeToMove * sizeof(Pair));
-            }
+            // Place the new element at -result - 1
             result = -result - 1;
-            _list[result] = { key, value };
             placed = true;
+            _list.insert(_list.begin() + result, { key, value });
         }
         return { begin() + result, placed };
     }
