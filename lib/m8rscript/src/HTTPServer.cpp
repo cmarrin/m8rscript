@@ -57,40 +57,60 @@ static String toString(HTTPServer::Method method)
     return String("*** Unknown ***");
 }
 
-struct HTTPServer::Request
+// This parser doesn't handle the entire HTTP standard. In
+// fact it puts extra constraints on the query string. Query
+// values follow the '?' of the uri. Query values are 
+// separated by '&' and each query value is a key/value pair
+// with the form: <key>=<value> with no spaces allowed.
+static void parseRequest(const String& s, HTTPServer::Request& request)
 {
-    Request(const String& s)
-    {
-        // Split into lines
-        Vector<String> lines = s.split("\n");
-        
-        // Handle method line
-        Vector<String> line = lines[0].split(" ");
-        if (line.size() != 3) {
-            return;
-        }
-        
-        method = toMethod(line[0].c_str());;
-        if (method == Method::ANY) {
-            // Invalid
-            return;
-        }
-        
-        path = line[1];
-        
-        // For now we don't care about anything else
-        valid = true;
+    // Split into lines
+    Vector<String> lines = s.split("\n");
+    
+    // Handle method line
+    Vector<String> line = lines[0].split(" ");
+    if (line.size() != 3) {
         return;
     }
     
-    HTTPServer::Method method;
-    String path;
-    String params;
-    Map<String, String> headers;
-    Map<String, String> query;
-    Map<String, String> cookies;
-    bool valid = false;
-};
+    request.method = toMethod(line[0].c_str());;
+    if (request.method == HTTPServer::Method::ANY) {
+        // Invalid
+        return;
+    }
+    
+    request.path = line[1];
+    
+    // Split out the params
+    Vector<String> pathParams = request.path.split("?");
+    if (pathParams.size() > 1) {
+        request.path = pathParams[0];
+        
+        // Split the params
+        Vector<String> params = pathParams[1].split("&");
+        for (const auto& it : params) {
+            Vector<String> parts = it.split("=");
+            if (parts.size() != 2) {
+                continue; // Not well formed
+            }
+            request.params.emplace(parts[0], parts[1]);
+        }
+    }
+    
+    // Parse the remaining lines
+    for (int i = 1; i < lines.size(); ++i) {
+        if (lines[i].empty()) {
+            continue;
+        }
+        Vector<String> pair = lines[i].split(":");
+        if (pair.size() != 2) {
+            continue;
+        }
+        request.headers.emplace(pair[0].trim(), pair[1].trim());
+    }
+        
+    request.valid = true;
+}
 
 HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
 {
@@ -117,7 +137,8 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                 String header(data, length);
                 printf("******** Received HTTP data:\n%s", header.c_str());
                 
-                Request req(header);
+                Request req;
+                parseRequest(header, req);
                 if (!req.valid) {
                     system()->printf(ROMSTR("******** HTTPServer Invalid header\n"));
                     break;
@@ -153,6 +174,9 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                             }
                             
                             int32_t size = file->size();
+
+                            system()->printf(ROMSTR("******** HTTPServer: sending '%s'\n"), filename.c_str());
+
                             sendResponseHeader(connectionId, size);
                             
                             char buf[100];
@@ -171,7 +195,7 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                                 }
                             }
                         } else if (it._requestHandler) {
-                            it._requestHandler(it._uri, req.method);
+                            it._requestHandler(it._uri, req);
                         }
                         handled = true;
                         break;
@@ -223,20 +247,17 @@ void HTTPServer::handleEvents()
     }
 }
 
-HTTPServer* HTTPServer::on(const String& uri, RequestFunction f)
+void HTTPServer::on(const String& uri, RequestFunction f)
 {
     _requestHandlers.emplace_back(uri, Method::ANY, f);
-    return this;
 }
 
-HTTPServer* HTTPServer::on(const String& uri, Method method, RequestFunction f)
+void HTTPServer::on(const String& uri, Method method, RequestFunction f)
 {
     _requestHandlers.emplace_back(uri, method, f);
-    return this;
 }
 
-HTTPServer* HTTPServer::on(const String& uri, const String& path, bool dirAccess)
+void HTTPServer::on(const String& uri, const String& path, bool dirAccess)
 {
     _requestHandlers.emplace_back(uri, Method::ANY, path, dirAccess);
-    return this;
 }

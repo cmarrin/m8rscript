@@ -23,21 +23,36 @@ class TCP;
 
 class HTTPServer {
 public:
+    class Request;
+    
     enum class Method { ANY, GET, PUT, POST, DELETE };
-    using RequestFunction = std::function<void(const String& uri, Method)>;
+    using RequestFunction = std::function<void(const String& uri, const Request&)>;
+    
+    // Parsed HTTP Request
+    //
+    //  First line examples:
+    //      GET /api/network/get_ssid_list HTTP/1.1                - Response is JSON list of available ssids
+    //      POST /api/network/set_ssid?ssid=foo&pwd=bar HTTP/1.1   - Set ssid to name and password sent
+    //
+    struct Request
+    {
+        HTTPServer::Method method;      // First line: GET, POST, etc.
+        String path;                    // First line: path without any params
+        Map<String, String> params;     // First line: key/value pairs of params
+        Map<String, String> headers;    // Next lines: each header as key/value pair 
+        bool valid = false;
+    };
     
     HTTPServer(uint16_t port, const char* rootDir, bool dirAccess = true);
     ~HTTPServer() { }
 
     void handleEvents();
     
-    HTTPServer* on(const String& uri, RequestFunction);
-    HTTPServer* on(const String& uri, Method, RequestFunction);
-    HTTPServer* on(const String& uri, const String& path, bool dirAccess = true);
+    void on(const String& uri, RequestFunction);
+    void on(const String& uri, Method, RequestFunction);
+    void on(const String& uri, const String& path, bool dirAccess = true);
 
 private:
-    class Request;
-    
     static String dateString();
         
     void sendResponseHeader(int16_t connectionId, uint32_t size);
