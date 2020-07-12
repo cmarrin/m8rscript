@@ -222,7 +222,7 @@ public:
     bool operator==(const String& other) const { return compare(*this, other) == 0; }
     bool operator!=(const String& other) const { return compare(*this, other) != 0; }
     
-    static int compare(const String& a, const String& b)
+    friend int compare(const String& a, const String& b)
     {
         return strcmp(a.c_str(), b.c_str());
     }
