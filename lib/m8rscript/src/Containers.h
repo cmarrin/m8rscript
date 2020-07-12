@@ -447,7 +447,7 @@ private:
     {
         if (first <= last) {
             int mid = (first + last) / 2;
-            int result = static_cast<int>(key - _list[mid].key);
+            int result = compare(key, _list[mid].key);
             return (result == 0) ? mid : ((result < 0) ? search(first, mid - 1, key) : search(mid + 1, last, key));
         }
         return -(first + 1);    // failed to find key
