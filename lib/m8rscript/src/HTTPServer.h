@@ -26,7 +26,7 @@ public:
     class Request;
     
     enum class Method { ANY, GET, PUT, POST, DELETE };
-    using RequestFunction = std::function<void(const String& uri, const Request&)>;
+    using RequestFunction = std::function<void(const String& uri, const Request&, int16_t connectionId)>;
     
     // Parsed HTTP Request
     //
@@ -67,23 +67,16 @@ private:
             , _requestHandler(f)
         { }
         
-        RequestHandler(const String& uri, Method method, const String& path, bool dirAccess = true)
-            : _uri(uri)
-            , _method(method)
-            , _path(path)
-            , _dirAccess(dirAccess)
-        { }
-
         String _uri;
         Method _method = Method::ANY;
         RequestFunction _requestHandler;
-        String _path;
-        bool _dirAccess = true;
     };
-
+    
     Vector<RequestHandler> _requestHandlers;
     
     Mad<TCP> _socket;
+    String _rootDir;
+    bool _dirAccess;
 };
     
 }

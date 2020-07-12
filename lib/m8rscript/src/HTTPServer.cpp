@@ -113,8 +113,10 @@ static void parseRequest(const String& s, HTTPServer::Request& request)
 }
 
 HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
+    : _rootDir(rootDir)
+    , _dirAccess(dirAccess)
 {
-    Mad<TCP> socket = system()->createTCP(port, [this, rootDir](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
+    Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         if ((connectionId < 0 || connectionId >= TCP::MaxConnections) && event != TCP::Event::Error) {
             system()->printf(ROMSTR("******** HTTPServer Internal Error: Invalid connectionId = %d\n"), connectionId);
@@ -154,48 +156,8 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                     }
                     
                     if (it._uri == req.path) {
-                        if (!it._path.empty()) {
-                            String filename = rootDir;
-                            if (filename.back() == '/') {
-                                filename.erase(filename.size() - 1);
-                            }
-                
-                            filename += req.path;
-                            if (filename.back() == '/') {
-                                filename += "index.html";
-                            }
-
-                            // Get the file and send it
-                            Mad<File> file(system()->fileSystem()->open(filename.c_str(), m8r::FS::FileOpenMode::Read));
-                            if (!file->valid()) {
-                                system()->print(Error::formatError(file->error().code(), 
-                                                                   ROMSTR("******** HTTPServer: unable to open '%s'"), filename.c_str()).c_str());
-                                break;
-                            }
-                            
-                            int32_t size = file->size();
-
-                            system()->printf(ROMSTR("******** HTTPServer: sending '%s'\n"), filename.c_str());
-
-                            sendResponseHeader(connectionId, size);
-                            
-                            char buf[100];
-                            while (1) {
-                                int32_t result = file->read(buf, 100);
-                                if (result < 0) {
-                                    // FIXME: Report error
-                                    break;
-                                }
-                                if (result > 0) {                
-                                    _socket->send(connectionId, buf, result);
-                                }
-                                
-                                if (result < 100) {
-                                    break;
-                                }
-                            }
-                        } else if (it._requestHandler) {
-                            it._requestHandler(it._uri, req);
+                        if (it._requestHandler) {
+                            it._requestHandler(it._uri, req, connectionId);
                         }
                         handled = true;
                         break;
@@ -259,5 +221,48 @@ void HTTPServer::on(const String& uri, Method method, RequestFunction f)
 
 void HTTPServer::on(const String& uri, const String& path, bool dirAccess)
 {
-    _requestHandlers.emplace_back(uri, Method::ANY, path, dirAccess);
+    _requestHandlers.emplace_back(uri, Method::ANY, 
+    [this, path, dirAccess](const String& uri, const Request& request, int16_t connectionId) {
+        String filename = _rootDir;
+        if (filename.back() == '/') {
+            filename.erase(filename.size() - 1);
+        }
+
+        filename += request.path;
+        if (filename.back() == '/') {
+            filename += "index.html";
+        }
+
+        // Get the file and send it
+        Mad<File> file(system()->fileSystem()->open(filename.c_str(), m8r::FS::FileOpenMode::Read));
+        if (!file->valid()) {
+            system()->print(Error::formatError(file->error().code(), 
+                                    ROMSTR("******** HTTPServer: unable to open '%s'"), filename.c_str()).c_str());
+            return;
+        }
+        
+        int32_t size = file->size();
+
+        system()->printf(ROMSTR("******** HTTPServer: sending '%s'\n"), filename.c_str());
+
+        sendResponseHeader(connectionId, size);
+        
+        char buf[100];
+        while (1) {
+            int32_t result = file->read(buf, 100);
+            if (result < 0) {
+                // FIXME: Report error
+                break;
+            }
+            if (result > 0) {                
+                _socket->send(connectionId, buf, result);
+            }
+            
+            if (result < 100) {
+                break;
+            }
+        }
+        
+        file->close();
+    });
 }
