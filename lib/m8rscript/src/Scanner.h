@@ -43,8 +43,9 @@ enum class Token : uint8_t {
     String      = 0x89,
     Integer     = 0x8a,
     None        = 0x8b,
-    Error       = 0x8c,
-    EndOfFile   = 0x8d,
+    Special     = 0x8c,
+    Error       = 0x8d,
+    EndOfFile   = 0x8e,
 
     Bang        = 0x90,
     Percent     = 0x91,
@@ -93,8 +94,8 @@ enum class Token : uint8_t {
     GE          = 0xc4,
     EQ          = 0xc5,
     NE          = 0xc6,
-    
 };
+
 static constexpr uint8_t C_EOF = static_cast<uint8_t>(Token::EndOfFile);
 
 struct Label {

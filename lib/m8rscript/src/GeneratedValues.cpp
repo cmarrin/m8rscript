@@ -236,7 +236,8 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _write,
 };
 
-const char* RODATA_ATTR _specialChars =
+const char* RODATA_ATTR _specialChars = ""
+#if SCRIPT_SUPPORT == 1
     "\x93("
     "\x94)"
     "\x97,"
@@ -279,6 +280,7 @@ const char* RODATA_ATTR _specialChars =
     "\xc4>="
     "\xbe<<"
     "\xbc>>"
+#endif
 ;
 
 const char** m8r::sharedAtoms(uint16_t& nelts)

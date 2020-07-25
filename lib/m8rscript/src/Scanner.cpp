@@ -103,19 +103,28 @@ Token Scanner::scanString(char terminal)
 
 Token Scanner::scanSpecial()
 {
-    ROMString entries = ROMString(specialChars());
-
+#if SCRIPT_SUPPORT == 0
+	uint8_t c = get();
+    if (!isSpecial(c)) {
+        return Token::EndOfFile;
+    }
+    
+    _tokenString.clear();
+    _tokenString += c;
+    return Token::Special;
+#else
     // See if it's a special char in the list
     char buf[3];
     buf[0] = get();
     buf[1] = '\0';
+
+    ROMString entries = ROMString(specialChars());
 
     ROMString found = ROMString::strstr(entries, buf);
     if (!found.valid()) {
         putback(buf[0]);
         return Token::EndOfFile;
     }
-    
     // This is either a single char special or the first char
     // of a 2 or more char special. Since all single char special 
     // are first in the list and all 2 char specials have a first
@@ -169,6 +178,7 @@ Token Scanner::scanSpecial()
     // This must be the single char token we found before
     putback(buf[1]);
     return token;   
+#endif
 }
 
 Token Scanner::scanIdentifier()
@@ -344,12 +354,18 @@ Token Scanner::scanComment()
 		return Token::Comment;
 	}
 
+#if SCRIPT_SUPPORT == 1
     // This is either Slash or DIVSTO
     if (c == '=') {
         return Token::DIVSTO;
     }
     putback(c);
 	return Token::Slash;
+#else
+    _tokenString.clear();
+    _tokenString += c;
+	return Token::Special;
+#endif
 }
 
 uint8_t Scanner::get() const
@@ -405,6 +421,7 @@ Token Scanner::getToken(TokenType& tokenValue, bool ignoreWhitespace)
 					break;
 				}
 				if ((token = scanSpecial()) != Token::EndOfFile) {
+                    
 					break;
 				}
 				if ((token = scanIdentifier()) != Token::EndOfFile) {

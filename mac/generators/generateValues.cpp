@@ -174,12 +174,14 @@ int main()
     fprintf(cppfile, "};\n\n");
     
     // Write the special char string
-    fprintf(cppfile, "const char* RODATA_ATTR _specialChars =\n");
+    fprintf(cppfile, "const char* RODATA_ATTR _specialChars = \"\"\n");
+    fprintf(cppfile, "#if SCRIPT_SUPPORT == 1\n");
     
     for (auto it : entries) {
         fprintf(cppfile, "    \"\\x%02x%s\"\n", int(it.token), it.str);
     }
     
+    fprintf(cppfile, "#endif\n");    
     fprintf(cppfile, ";\n\n");
 
     // Round count to the nearest 100 to make it easier to compute byte offset into table.

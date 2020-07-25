@@ -270,7 +270,7 @@ bool m8r::String::toFloat(Float& f, const char* s, bool allowWhitespace)
     bool neg = false;
     Scanner::TokenType type;
       Token token = scanner.getToken(type, allowWhitespace);
-    if (token == Token::Minus) {
+    if (token == Token::Minus || (token == Token::Special && type.str[0] == '-' && type.str[1] == '\0')) {
         neg = true;
         token = scanner.getToken(type, allowWhitespace);
     }
@@ -291,7 +291,7 @@ bool m8r::String::toInt(int32_t& i, const char* s, bool allowWhitespace)
     bool neg = false;
     Scanner::TokenType type;
       Token token = scanner.getToken(type, allowWhitespace);
-    if (token == Token::Minus) {
+    if (token == Token::Minus || (token == Token::Special && type.str[0] == '-' && type.str[1] == '\0')) {
         neg = true;
         token = scanner.getToken(type, allowWhitespace);
     }
