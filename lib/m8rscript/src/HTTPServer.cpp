@@ -148,22 +148,41 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                 
                 bool handled = false;
                 
+                // Find exact path matches first
                 for (const auto& it : _requestHandlers) {
-                    // See if we have a path match.
-                    // FIXME: For now handle only exact matches.
-                    if (it._method != Method::ANY && req.method != it._method) {
-                        continue;
-                    }
-                    
                     if (it._uri == req.path) {
                         if (it._requestHandler) {
-                            it._requestHandler(it._uri, req, connectionId);
+                            it._requestHandler(it._uri, "", req, connectionId);
                         }
                         handled = true;
                         break;
                     }
                 }
                 
+                if (!handled) {
+                    // Now look for prefix matches
+                    const RequestHandler* foundRequest = nullptr;
+                    
+                    for (const auto& it : _requestHandlers) {
+                        if (it._uri.size() <= req.path.size()) {
+                            continue;
+                        }
+                        
+                        if (it._uri == String(req.path.c_str(), it._uri.size())) {
+                            if (!foundRequest || foundRequest->_uri.size() < it._uri.size()) {
+                                foundRequest = &it;
+                            }
+                        }
+                    }
+                    if (foundRequest) {
+                        String suffix = String(req.path.c_str() + foundRequest->_uri.size());
+                        if (foundRequest->_requestHandler) {
+                            foundRequest->_requestHandler(foundRequest->_uri, suffix, req, connectionId);
+                        }
+                        handled = true;
+                    }
+                }
+
                 if (!handled) {
                     system()->printf(ROMSTR("******** HTTPServer Error: no %s method handler for uri '%s'\n"),
                                             toString(req.method).c_str(), req.path.c_str());
@@ -211,18 +230,13 @@ void HTTPServer::handleEvents()
 
 void HTTPServer::on(const String& uri, RequestFunction f)
 {
-    _requestHandlers.emplace_back(uri, Method::ANY, f);
-}
-
-void HTTPServer::on(const String& uri, Method method, RequestFunction f)
-{
-    _requestHandlers.emplace_back(uri, method, f);
+    _requestHandlers.emplace_back(uri, f);
 }
 
 void HTTPServer::on(const String& uri, const String& path, bool dirAccess)
 {
-    _requestHandlers.emplace_back(uri, Method::ANY, 
-    [this, path, dirAccess](const String& uri, const Request& request, int16_t connectionId) {
+    _requestHandlers.emplace_back(uri, 
+    [this, path, dirAccess](const String& uri, const String&, const Request& request, int16_t connectionId) {
         String filename = _rootDir;
         if (filename.back() == '/') {
             filename.erase(filename.size() - 1);
