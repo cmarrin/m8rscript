@@ -14,8 +14,6 @@
 
 namespace m8r {
 
-class ExecutionUnit;
-
 class Error
 {
 public:

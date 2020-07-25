@@ -9,8 +9,6 @@
 
 #include "Terminal.h"
 
-#include "ExecutionUnit.h"
-
 #include <unistd.h>
 
 #ifdef MONITOR_TRAFFIC
