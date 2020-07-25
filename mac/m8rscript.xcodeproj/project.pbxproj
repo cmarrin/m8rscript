@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49026F1424C9E73800CAB23B /* NetworkTime.marly in Resources */ = {isa = PBXBuildFile; fileRef = 49026F1324C9E73800CAB23B /* NetworkTime.marly */; };
 		49079B9F244247EE000FAF22 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B99244247EE000FAF22 /* lfs_util.c */; };
 		49079BA0244247EE000FAF22 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9A244247EE000FAF22 /* lfs.h */; };
 		49079BA1244247EE000FAF22 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B9B244247EE000FAF22 /* lfs.c */; };
@@ -195,6 +196,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		49026F1224C8FA0100CAB23B /* TimeZoneDBClient.marly */ = {isa = PBXFileReference; lastKnownFileType = text; name = TimeZoneDBClient.marly; path = examples/TimeZoneDBClient.marly; sourceTree = "<group>"; };
+		49026F1324C9E73800CAB23B /* NetworkTime.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkTime.marly; sourceTree = "<group>"; };
+		49026F1524CA355600CAB23B /* Marley.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Marley.h; path = ../lib/m8rscript/src/Marley.h; sourceTree = "<group>"; };
 		49079B99244247EE000FAF22 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../lib/m8rscript/src/littlefs/lfs_util.c; sourceTree = "<group>"; };
 		49079B9A244247EE000FAF22 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../lib/m8rscript/src/littlefs/lfs.h; sourceTree = "<group>"; };
 		49079B9B244247EE000FAF22 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../lib/m8rscript/src/littlefs/lfs.c; sourceTree = "<group>"; };
@@ -472,6 +476,8 @@
 			children = (
 				4948AEAE24242CC90087EC5A /* NTPClient.m8r */,
 				4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */,
+				49026F1224C8FA0100CAB23B /* TimeZoneDBClient.marly */,
+				49026F1324C9E73800CAB23B /* NetworkTime.marly */,
 			);
 			name = examples;
 			sourceTree = "<group>";
@@ -682,6 +688,7 @@
 				497B4A5A249015A900CCBA41 /* MachineCode.h */,
 				49E987162365CEF000C17CB6 /* Mallocator.cpp */,
 				49E987172365CEF000C17CB6 /* Mallocator.h */,
+				49026F1524CA355600CAB23B /* Marley.h */,
 				49E9871123628AE600C17CB6 /* MFS.cpp */,
 				49AE34F11D8231BF00C4E680 /* MFS.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
@@ -961,6 +968,7 @@
 				49DD77431D83E14B00D7C374 /* ReloadFiles1.png in Resources */,
 				49D9B82E1D1C8CD300724911 /* green-led-on-md.png in Resources */,
 				492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */,
+				49026F1424C9E73800CAB23B /* NetworkTime.marly in Resources */,
 				493C9EDB1D2191E60062152D /* build.png in Resources */,
 				49DD77421D83E14B00D7C374 /* ReloadFIles2.png in Resources */,
 			);

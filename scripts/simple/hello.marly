@@ -17,8 +17,8 @@
 
 // f - function to print string 10 times at 1 second intervals
 //
-[0 [dup 10 <] ["Hello World" println 1 delay ++] while] @f
+[0 [dup 10 <] ["Hello World" println 1 delay inc] while] @f
 
-2.5 true ["******* Timer Fired" nl . print] Timer new start
+[ 2.5 $Timer .Repeat ["******* Timer Fired" println] ] $Timer new start
 f
 10 delay
