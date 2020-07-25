@@ -237,7 +237,7 @@ const char* RODATA_ATTR _sharedAtoms[] = {
 };
 
 const char* RODATA_ATTR _specialChars = ""
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     "\x93("
     "\x94)"
     "\x97,"

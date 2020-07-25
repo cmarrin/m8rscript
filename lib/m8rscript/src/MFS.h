@@ -20,7 +20,7 @@ namespace m8r {
 class File;
 class Directory;
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 class FileProto : public StaticObject {
 public:
     FileProto();

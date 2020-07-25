@@ -34,7 +34,7 @@ static bool toIPAddr(const m8r::String& ipString, IPAddr& ip)
     return true;
 }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
 {
     { SA::constructor, IPAddrProto::constructor },
@@ -62,7 +62,7 @@ m8r::String IPAddr::toString() const
            String(_addr[3]);
 }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 CallReturnValue IPAddrProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // Stack: string ip octets or 4 integers

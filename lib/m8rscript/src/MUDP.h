@@ -50,7 +50,7 @@ protected:
 
 // Object
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 class UDPProto : public StaticObject {
 public:
     UDPProto();

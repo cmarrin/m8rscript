@@ -41,7 +41,7 @@ void TCP::send(int16_t connectionId, const char* data, uint16_t length)
     _eventFunction(this, TCP::Event::SentData, connectionId, data, length);
 }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TCPProto::constructor },

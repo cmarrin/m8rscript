@@ -79,7 +79,7 @@ protected:
 
 // Object
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 class TCPProto : public StaticObject {
 public:
     TCPProto();

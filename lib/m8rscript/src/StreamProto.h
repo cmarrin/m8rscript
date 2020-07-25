@@ -13,7 +13,7 @@
 
 namespace m8r {
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 class StreamProto : public StaticObject {
 public:
     StreamProto();

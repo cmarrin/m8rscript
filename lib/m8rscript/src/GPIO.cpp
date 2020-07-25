@@ -16,7 +16,7 @@
 
 using namespace m8r;
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;
 

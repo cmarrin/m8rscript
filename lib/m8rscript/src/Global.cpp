@@ -8,10 +8,10 @@
 -------------------------------------------------------------------------*/
 
 #include "Defines.h"
-#ifndef SCRIPT_SUPPORT
-static_assert(0, "SCRIPT_SUPPORT not defined");
+#ifndef M8RSCRIPT_SUPPORT
+static_assert(0, "M8RSCRIPT_SUPPORT not defined");
 #endif
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 
 #include "Global.h"
 

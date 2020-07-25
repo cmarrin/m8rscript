@@ -103,7 +103,7 @@ Token Scanner::scanString(char terminal)
 
 Token Scanner::scanSpecial()
 {
-#if SCRIPT_SUPPORT == 0
+#if M8RSCRIPT_SUPPORT == 0
 	uint8_t c = get();
     if (!isSpecial(c)) {
         return Token::EndOfFile;
@@ -354,7 +354,7 @@ Token Scanner::scanComment()
 		return Token::Comment;
 	}
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     // This is either Slash or DIVSTO
     if (c == '=') {
         return Token::DIVSTO;

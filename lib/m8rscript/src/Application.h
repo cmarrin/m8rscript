@@ -28,7 +28,7 @@ public:
     
     Application(uint16_t port, const std::shared_ptr<Task::Executable>&);
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     Application(uint16_t port, const char* autostartFilename);
 #endif
 
@@ -51,7 +51,7 @@ public:
     static SystemInterface* system() { assert(_system); return _system; }
 
 private:
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     const char* shellName() const { return "/sys/bin/mrsh"; }
 #endif
 

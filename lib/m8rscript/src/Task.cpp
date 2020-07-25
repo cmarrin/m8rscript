@@ -50,7 +50,7 @@ void Task::print(const char* s) const
 
 Task::~Task()
 {
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     if (_executable) {
         Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(reinterpret_cast<ExecutionUnit*>(_executable.get()));
         GC::removeEU(eu.raw());
@@ -60,7 +60,7 @@ Task::~Task()
 #endif
 }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 bool Task::run(const char* filename)
 {
     Error error(Error::Code::NoFS);
@@ -128,7 +128,7 @@ bool Task::run(const Stream& stream)
 }
 #endif
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {

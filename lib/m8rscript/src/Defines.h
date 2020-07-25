@@ -24,7 +24,7 @@
 #include <cstring>
 #include "ROMString.h"
 
-#define SCRIPT_SUPPORT 1
+#define M8RSCRIPT_SUPPORT 1
 
 // Debugging
 static inline void DBG_PRINT(const char* type, const char* fmt, ...)

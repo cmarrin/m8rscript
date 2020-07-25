@@ -24,7 +24,7 @@ using namespace m8r;
 #define RUN_SAMPLE
 
 #ifdef RUN_SAMPLE
-#if SCRIPT_SUPPORT != 1
+#if M8RSCRIPT_SUPPORT != 1
 class Sample : public Task::Executable
 {
 public:
@@ -44,11 +44,11 @@ Application::Application(uint16_t port)
 #ifdef RUN_SAMPLE
     init(port, true);
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     _autostartTask->run("/sys/bin/hello.m8r");
 #else
     _autostartTask->run(std::make_shared<Sample>());
-#endif // SCRIPT_SUPPORT
+#endif // M8RSCRIPT_SUPPORT
     runAutostartTask();
 #else
     init(port, false);
@@ -62,7 +62,7 @@ Application::Application(uint16_t port, const std::shared_ptr<Task::Executable>&
     runAutostartTask();
 }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 Application::Application(uint16_t port, const char* autostartFilename)
 {
     bool autostart = !autostartFilename || autostartFilename[0] == '\0';
@@ -98,7 +98,7 @@ void Application::init(uint16_t port, bool autostart)
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
         std::shared_ptr<Task> task = std::make_shared<Task>();
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
         task->run(shellName());
 #else
         task->run(std::make_shared<Shell>());

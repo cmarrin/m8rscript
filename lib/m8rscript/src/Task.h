@@ -72,7 +72,7 @@ public:
         return true;
     }
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
     bool run(const Stream&);
     bool run(const char* filename);
 #endif
@@ -119,7 +119,7 @@ private:
     State _state = State::Ready;
 };
 
-#if SCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1
 class TaskProto : public StaticObject {
 public:
     TaskProto();
