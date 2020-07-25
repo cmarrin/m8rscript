@@ -9,8 +9,12 @@
 
 #pragma once
 
+#include "Containers.h"
+#include "Float.h"
+#include "MString.h"
+
 /*
-Marley:
+Marly:
     In the descriptions below TOS is to the right. So "X Y Z" is Z on TOS.
 
 Literals:
@@ -161,3 +165,70 @@ Operators:
     import      "S" -> O
                 import package S, pushing O which contains elements of S
 */
+
+namespace m8r {
+
+class Atom;
+class Stream;
+
+class Marly {
+public:
+    Marly(const Stream&);
+    
+private:
+    class Value
+    {
+    public:
+        enum class Type : uint8_t { Bool, Int, Float, String, Char, List, Object };
+        
+    private:
+        Type _type;
+        union {
+            bool _bool;
+            int32_t _int;
+            Float::value_type _float;
+            char _char;
+            void* _ptr;
+        };
+    };
+    
+    using ValueMap = Map<Atom, Value>;
+
+    class Shared
+    {
+    public:
+
+    private:
+        uint32_t _count = 0;
+    };
+
+    class SharedObject : public Shared
+    {
+    public:
+
+    private:
+        ValueMap _props;
+    };
+
+    class SharedList : public Shared
+    {
+    public:
+
+    private:
+        Vector<Value> _list;
+    };
+
+    class SharedString : public Shared
+    {
+    public:
+
+    private:
+        String _string;
+    };
+
+    ValueMap _vars;
+    Stack<Value> _stack;
+    SharedList* _code = nullptr;
+};    
+
+}

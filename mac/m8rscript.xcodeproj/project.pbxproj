@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		49026F1424C9E73800CAB23B /* NetworkTime.marly in Resources */ = {isa = PBXBuildFile; fileRef = 49026F1324C9E73800CAB23B /* NetworkTime.marly */; };
+		49026F1724CC82F700CAB23B /* Marly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49026F1624CC82F700CAB23B /* Marly.cpp */; };
 		49079B9F244247EE000FAF22 /* lfs_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B99244247EE000FAF22 /* lfs_util.c */; };
 		49079BA0244247EE000FAF22 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 49079B9A244247EE000FAF22 /* lfs.h */; };
 		49079BA1244247EE000FAF22 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 49079B9B244247EE000FAF22 /* lfs.c */; };
@@ -198,7 +199,8 @@
 /* Begin PBXFileReference section */
 		49026F1224C8FA0100CAB23B /* TimeZoneDBClient.marly */ = {isa = PBXFileReference; lastKnownFileType = text; name = TimeZoneDBClient.marly; path = examples/TimeZoneDBClient.marly; sourceTree = "<group>"; };
 		49026F1324C9E73800CAB23B /* NetworkTime.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkTime.marly; sourceTree = "<group>"; };
-		49026F1524CA355600CAB23B /* Marley.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Marley.h; path = ../lib/m8rscript/src/Marley.h; sourceTree = "<group>"; };
+		49026F1524CA355600CAB23B /* Marly.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Marly.h; path = ../lib/m8rscript/src/Marly.h; sourceTree = "<group>"; };
+		49026F1624CC82F700CAB23B /* Marly.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Marly.cpp; path = ../lib/m8rscript/src/Marly.cpp; sourceTree = "<group>"; };
 		49079B99244247EE000FAF22 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../lib/m8rscript/src/littlefs/lfs_util.c; sourceTree = "<group>"; };
 		49079B9A244247EE000FAF22 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../lib/m8rscript/src/littlefs/lfs.h; sourceTree = "<group>"; };
 		49079B9B244247EE000FAF22 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../lib/m8rscript/src/littlefs/lfs.c; sourceTree = "<group>"; };
@@ -688,7 +690,8 @@
 				497B4A5A249015A900CCBA41 /* MachineCode.h */,
 				49E987162365CEF000C17CB6 /* Mallocator.cpp */,
 				49E987172365CEF000C17CB6 /* Mallocator.h */,
-				49026F1524CA355600CAB23B /* Marley.h */,
+				49026F1524CA355600CAB23B /* Marly.h */,
+				49026F1624CC82F700CAB23B /* Marly.cpp */,
 				49E9871123628AE600C17CB6 /* MFS.cpp */,
 				49AE34F11D8231BF00C4E680 /* MFS.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
@@ -1028,6 +1031,7 @@
 				494D25571D2E90A9003755DB /* Function.cpp in Sources */,
 				494D25581D2E90A9003755DB /* Global.cpp in Sources */,
 				492BA3DC1E15987C00242DA8 /* Base64.cpp in Sources */,
+				49026F1724CC82F700CAB23B /* Marly.cpp in Sources */,
 				494D25971D33D33E003755DB /* Object.cpp in Sources */,
 				494D25591D2E90A9003755DB /* ParseEngine.cpp in Sources */,
 				499AE8E5234A625100459451 /* Task.cpp in Sources */,
