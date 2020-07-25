@@ -8,9 +8,6 @@
 -------------------------------------------------------------------------*/
 
 #include "Defines.h"
-#ifndef M8RSCRIPT_SUPPORT
-static_assert(0, "M8RSCRIPT_SUPPORT not defined");
-#endif
 #if M8RSCRIPT_SUPPORT == 1
 
 #include "Value.h"
