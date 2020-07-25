@@ -268,11 +268,11 @@ bool m8r::String::toFloat(Float& f, const char* s, bool allowWhitespace)
     StringStream stream(s);
     Scanner scanner(&stream);
     bool neg = false;
-    Scanner::TokenType type;
-      Token token = scanner.getToken(type, allowWhitespace);
+    Token token = scanner.getToken(allowWhitespace);
+    Scanner::TokenType type = scanner.getTokenValue(allowWhitespace);
     if (token == Token::Minus || (token == Token::Special && type.str[0] == '-' && type.str[1] == '\0')) {
         neg = true;
-        token = scanner.getToken(type, allowWhitespace);
+        token = scanner.getToken(allowWhitespace);
     }
     if (token == Token::Float || token == Token::Integer) {
         f = (token == Token::Float) ? Float(type.number) : Float(type.integer, 0);
@@ -289,11 +289,11 @@ bool m8r::String::toInt(int32_t& i, const char* s, bool allowWhitespace)
     StringStream stream(s);
     Scanner scanner(&stream);
     bool neg = false;
-    Scanner::TokenType type;
-      Token token = scanner.getToken(type, allowWhitespace);
+    Token token = scanner.getToken(allowWhitespace);
+    Scanner::TokenType type = scanner.getTokenValue(allowWhitespace);
     if (token == Token::Minus || (token == Token::Special && type.str[0] == '-' && type.str[1] == '\0')) {
         neg = true;
-        token = scanner.getToken(type, allowWhitespace);
+        token = scanner.getToken(allowWhitespace);
     }
     if (token == Token::Integer && type.integer <= std::numeric_limits<int32_t>::max()) {
         i = type.integer;
@@ -309,8 +309,8 @@ bool m8r::String::toUInt(uint32_t& u, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
     Scanner scanner(&stream);
-    Scanner::TokenType type;
-      Token token = scanner.getToken(type, allowWhitespace);
+    Token token = scanner.getToken(allowWhitespace);
+    Scanner::TokenType type = scanner.getTokenValue(allowWhitespace);
     if (token == Token::Integer) {
         u = type.integer;
         return true;

@@ -115,7 +115,7 @@ public:
         const char*     str;
     } TokenType;
 
-  	Scanner(Stream* istream = nullptr)
+  	Scanner(const Stream* istream = nullptr)
   	 : _lastChar(C_EOF)
   	 , _istream(istream)
      , _lineno(1)
@@ -130,20 +130,18 @@ public:
   
     uint32_t lineno() const { return _lineno; }
   	
-  	Token getToken(TokenType& token, bool ignoreWhitespace = true);
-
-    Token getToken()
+    Token getToken(bool ignoreWhitespace = true)
     {
         if (_currentToken == Token::None) {
-            _currentToken = getToken(_currentTokenValue);
+            _currentToken = getToken(_currentTokenValue, ignoreWhitespace);
         }
         return _currentToken;
     }
     
-    const Scanner::TokenType& getTokenValue()
+    const Scanner::TokenType& getTokenValue(bool ignoreWhitespace = true)
     {
         if (_currentToken == Token::None) {
-            _currentToken = getToken(_currentTokenValue);
+            _currentToken = getToken(_currentTokenValue, ignoreWhitespace);
         }
         return _currentTokenValue;
     }
@@ -151,6 +149,8 @@ public:
     void retireToken() { _currentToken = Token::None; }
 
 private:
+  	Token getToken(TokenType& token, bool ignoreWhitespace);
+
     uint8_t get() const;
     
 	void putback(uint8_t c) const
