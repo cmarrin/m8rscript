@@ -10,8 +10,10 @@
 #include "Application.h"
 
 #include "HTTPServer.h"
+#include "Marly.h"
 #include "MFS.h"
 #include "Shell.h"
+#include "StringStream.h"
 #include "SystemInterface.h"
 #include "Telnet.h"
 #include <unistd.h>
@@ -78,6 +80,8 @@ Application::Application(uint16_t port, const char* autostartFilename)
 
 void Application::init(uint16_t port, bool autostart)
 {
+    Marly marly(StringStream("\"Hello world\n\" print"));
+    
     // Seed the random number generator
     srand(static_cast<unsigned>(Time::now().us()));
 

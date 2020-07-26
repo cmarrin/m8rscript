@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Atom.h"
 #include "Containers.h"
 #include "Float.h"
 #include "MString.h"
@@ -175,11 +176,108 @@ class Marly {
 public:
     Marly(const Stream&);
     
+    const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
+    class SharedPtrBase;
+    class Value;
+    
+    using ValueMap = Map<Atom, Value>;
+    using ValueVector = Vector<Value>;
+
+    class Shared
+    {
+    public:
+        friend class Marly::SharedPtrBase;
+        friend class Marly::Value;
+        
+    private:
+        uint16_t _count = 0;
+    };
+    
+    class SharedPtrBase
+    {
+    public:
+        uint16_t& count(Shared* ptr) { return ptr->_count; }
+    };
+    
+    template<typename T>
+    class SharedPtr : private SharedPtrBase
+    {
+    public:
+        SharedPtr() { }
+        SharedPtr(T* p) { reset(p); }
+        
+        ~SharedPtr() { reset(); }
+        
+        void reset(T* p = nullptr)
+        {
+            if (_ptr) {
+                assert(count(_ptr) > 0);
+                if (--count(_ptr) == 0) {
+                    delete _ptr;
+                    _ptr = nullptr;
+                }
+            }
+            if (p) {
+                count(p)++;
+                _ptr = p;
+            }
+        }
+
+        void reset(SharedPtr<T>& p) { reset(p.get()); }
+        
+        T& operator*() { return *_ptr; }
+        T* operator->() { return _ptr; }
+        
+        T* get() { return _ptr; }
+        
+        operator bool() { return _ptr != nullptr; }
+    
+    private:
+        T* _ptr = nullptr;
+    };
+
+    class Object : public Shared, public ValueMap
+    {
+    };
+
+    class List : public Shared, public ValueVector
+    {
+    };
+
+    class String : public Shared, public m8r::String
+    {
+    public:
+        String(const char* s) { *this += s; }
+    };
+
     class Value
     {
     public:
-        enum class Type : uint8_t { Bool, Int, Float, String, Char, List, Object };
+        enum class Type : uint8_t { Bool, Null, Undefined, Atom, Int, Float, String, Char, List, Object };
+        
+        Value() { _type = Type::Undefined; _int = 0; }
+        Value(bool b) { _type = Type::Bool; _bool = b; }
+        Value(const char* s)
+        {
+            _type = Type::String;
+            String* str = new String(s);
+            str->_count++;
+            _ptr = str;
+        }
+        
+        Value(Atom a) { _type = Type::Atom; _int = a.raw(); }
+        
+        Type type() const {return _type; }
+        
+        const char* string(const Marly* marly) const
+        {
+            switch(_type) {
+                case Type::String: return reinterpret_cast<String*>(_ptr)->c_str();
+                case Type::Atom: return marly->stringFromAtom(Atom(_int));
+                default: return "** Unimplemented **";
+            }
+        }
         
     private:
         Type _type;
@@ -192,43 +290,12 @@ private:
         };
     };
     
-    using ValueMap = Map<Atom, Value>;
-
-    class Shared
-    {
-    public:
-
-    private:
-        uint32_t _count = 0;
-    };
-
-    class SharedObject : public Shared
-    {
-    public:
-
-    private:
-        ValueMap _props;
-    };
-
-    class SharedList : public Shared
-    {
-    public:
-
-    private:
-        Vector<Value> _list;
-    };
-
-    class SharedString : public Shared
-    {
-    public:
-
-    private:
-        String _string;
-    };
-
+    void executeCode();
+    
     ValueMap _vars;
     Stack<Value> _stack;
-    SharedList* _code = nullptr;
+    SharedPtr<List> _code;
+    AtomTable _atomTable;
 };    
 
 }
