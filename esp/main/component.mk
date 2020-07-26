@@ -31,6 +31,7 @@ COMPONENT_OBJS := m8rscript.o \
     $(SRC_DIR)/Iterator.o \
     $(SRC_DIR)/JSON.o \
     $(SRC_DIR)/Mallocator.o \
+    $(SRC_DIR)/Marly.o \
     $(SRC_DIR)/MFS.o \
     $(SRC_DIR)/MString.o \
     $(SRC_DIR)/MUDP.o \
