@@ -53,7 +53,7 @@ Operators:
                 Push value at <id>.
     
     .<id>       X -> Y
-                Deref property <id> of X and push the result
+                Push property <id> of X
                 
     :<id>       X Y ->
                 Store X in property <id> of Object Y
@@ -245,19 +245,35 @@ private:
     private:
         T* _ptr = nullptr;
     };
-
-    class Object : public Shared, public ValueMap
+    
+    class ObjectBase : public Shared
     {
+    public:
+        virtual Value property(Atom) const { return Value(); }
+        virtual void setProperty(Atom, const Value&) { }
     };
 
-    class List : public Shared, public ValueVector
+    class Object : public ObjectBase, public ValueMap
     {
+    public:
+        virtual Value property(Atom) const override { return Value(); }
+        virtual void setProperty(Atom, const Value&) override { }
     };
 
-    class String : public Shared, public m8r::String
+    class List : public ObjectBase, public ValueVector
+    {
+    public:
+        virtual Value property(Atom) const override { return Value(); }
+        virtual void setProperty(Atom, const Value&) override { }
+    };
+
+    class String : public ObjectBase, public m8r::String
     {
     public:
         String(const char* s) { *this += s; }
+
+        virtual Value property(Atom) const override { return Value(); }
+        virtual void setProperty(Atom, const Value&) override { }
     };
 
     class Value
@@ -272,6 +288,9 @@ private:
             Bool, Null, Undefined, 
             Int, Float, Char,
             String, List, Object,
+            
+            // Built-in operators
+            Load, Store, LoadProp, StoreProp
         };
         
         Value() { _type = Type::Undefined; _int = 0; }
@@ -283,6 +302,27 @@ private:
             String* str = new String(s);
             str->_count++;
             _ptr = str;
+        }
+        
+        Value(List* list)
+        {
+            _type = Type::List;
+            list->_count++;
+            _ptr = list;
+        }
+        
+        Value(String* string)
+        {
+            _type = Type::String;
+            string->_count++;
+            _ptr = string;
+        }
+        
+        Value(Object* obj)
+        {
+            _type = Type::Object;
+            obj->_count++;
+            _ptr = obj;
         }
         
         Value(int32_t i, Type type = Type::Int)
@@ -300,12 +340,18 @@ private:
         
         Type type() const {return _type; }
         
-        const char* string(const Marly* marly) const
+        const char* string() const
         {
             switch(_type) {
                 case Type::String: return reinterpret_cast<String*>(_ptr)->c_str();
                 default: return "** Unimplemented **";
             }
+        }
+        
+        ObjectBase* obj() const
+        {
+            assert(_type == Type::List || _type == Type::Object || _type == Type::String);
+            return reinterpret_cast<ObjectBase*>(_ptr);
         }
         
         int32_t integer() const { return _int; }
