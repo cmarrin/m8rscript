@@ -1,0 +1,20 @@
+//
+// Timing test
+//
+
+[ ] @a
+4000 @n
+@n $a:length
+
+"\n\nTiming test: " $n " squared iterations\n" cat cat print
+
+currentTime @startTime
+
+0 [$n lt] [inc] [
+    0 [$n lt] [inc] [
+        3 @f
+        $a dup dup dup 1 + * 2 / swap insert
+    ]
+]
+
+"Run time: " currentTime $startTime - "ms\n\n" cat cat print

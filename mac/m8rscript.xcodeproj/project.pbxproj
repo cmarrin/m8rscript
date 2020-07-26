@@ -201,6 +201,7 @@
 		49026F1324C9E73800CAB23B /* NetworkTime.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkTime.marly; sourceTree = "<group>"; };
 		49026F1524CA355600CAB23B /* Marly.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Marly.h; path = ../lib/m8rscript/src/Marly.h; sourceTree = "<group>"; };
 		49026F1624CC82F700CAB23B /* Marly.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Marly.cpp; path = ../lib/m8rscript/src/Marly.cpp; sourceTree = "<group>"; };
+		49026F1824CDD4A600CAB23B /* timing.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = timing.marly; sourceTree = "<group>"; };
 		49079B99244247EE000FAF22 /* lfs_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs_util.c; path = ../lib/m8rscript/src/littlefs/lfs_util.c; sourceTree = "<group>"; };
 		49079B9A244247EE000FAF22 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../lib/m8rscript/src/littlefs/lfs.h; sourceTree = "<group>"; };
 		49079B9B244247EE000FAF22 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../lib/m8rscript/src/littlefs/lfs.c; sourceTree = "<group>"; };
@@ -548,6 +549,7 @@
 				4978365F24141EEC005735D5 /* timing.js */,
 				4978365E24141EEC005735D5 /* timing.lua */,
 				4978365C24141EEC005735D5 /* timing.m8r */,
+				49026F1824CDD4A600CAB23B /* timing.marly */,
 			);
 			path = timing;
 			sourceTree = "<group>";
