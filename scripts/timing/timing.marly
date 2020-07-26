@@ -14,7 +14,7 @@ currentTime @startTime
     0 [$n lt] [inc] [
         3 @f
         $a dup dup dup 1 + * 2 / swap insert
-    ]
-]
+    ] for
+] for
 
 "Run time: " currentTime $startTime - "ms\n\n" cat cat print
