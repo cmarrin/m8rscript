@@ -52,6 +52,7 @@ static SpecialEntry entries[ ] = {
     { m8r::Token::OR,           "|" },
     { m8r::Token::LT,           "<" },
     { m8r::Token::GT,           ">" },
+    { m8r::Token::At,           "@" },
     { m8r::Token::NE,           "!=" },
     { m8r::Token::MODSTO,       "%=" },
     { m8r::Token::LAND,         "&&" },
