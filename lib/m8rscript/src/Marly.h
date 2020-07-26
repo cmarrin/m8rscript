@@ -327,7 +327,7 @@ private:
     
     ValueMap _vars;
     Stack<Value> _stack;
-    SharedPtr<List> _code;
+    Stack<SharedPtr<List>> _codeStack;
     AtomTable _atomTable;
     Map<Atom, Verb> _verbs;
 };    

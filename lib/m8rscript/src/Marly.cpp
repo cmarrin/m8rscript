@@ -23,16 +23,16 @@ Marly::Marly(const Stream& stream)
 //    });
     
     Scanner scanner(&stream);
-    _code.reset(new List());
+    _codeStack.push(SharedPtr<List>(new List()));
     
     while (true) {
         Token token = scanner.getToken();
         switch (token) {
             case Token::False:
-                _code->push_back(false);
+                _codeStack.top()->push_back(false);
                 break;
             case Token::String:
-                _code->push_back(scanner.getTokenValue().str);
+                _codeStack.top()->push_back(scanner.getTokenValue().str);
                 break;
             case Token::Identifier: {
                 Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
@@ -41,14 +41,14 @@ Marly::Marly(const Stream& stream)
                 // it is built in and there is a corresponding verb with
                 // that same id
                 if (atom.raw() < ExternalAtomOffset) {
-                    _code->emplace_back(Value::Type(atom.raw()));
+                    _codeStack.top()->emplace_back(Value::Type(atom.raw()));
                     break;
                 }
                 
                 // Try to find the id in the list of verbs
                 auto it1 = _verbs.find(atom);
                 if (it1 != _verbs.end()) {
-                    _code->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
+                    _codeStack.top()->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
                 }
                 
                 // FIXME: Error
@@ -67,8 +67,9 @@ Marly::Marly(const Stream& stream)
 void Marly::executeCode()
 {
     Value v;
+    assert(_codeStack.size() == 1);
 
-    for (const auto& it : *_code) {
+    for (const auto& it : *_codeStack.top()) {
         switch(it.type()) {
             case Value::Type::String: _stack.push(it.string(this)); break;
             case Value::Type::Verb:
