@@ -55,6 +55,9 @@ Operators:
     .<id>       X -> Y
                 Deref property <id> of X and push the result
                 
+    :<id>       X Y ->
+                Store X in property <id> of Object Y
+                
     <id>        .. -> ..
                 Execute named function.
     
@@ -76,10 +79,10 @@ Operators:
     swap:       X Y -> Y X
                 Interchanges X and Y on top of the stack.
                 
-    spick:      A0..Ai..An i -> A0..An Ai
+    pick:       A0..Ai..An i -> A0..An Ai
                 Remove the nth item on the stack and push it
                 
-    stuck:      A0..A(i-1) Ai..An X i -> A0..A(i-1) X ai..An
+    tuck:       A0..A(i-1) Ai..An X i -> A0..A(i-1) X ai..An
                 Insert X n locations down the stack
 
     pop:        X ->
@@ -88,13 +91,13 @@ Operators:
     join:       [ X ] [ Y ] -> [X Y]
                 Combine 2 lists into one. 
                 
-    cat:        "X" "Y" -> "XY"
-                Concatenate 2 strings
+    cat:        X Y -> "XY"
+                Concatenate X and Y. Can be any types which are converted to strings 
     
-    lpick:      [ A0..Ai..An ] i -> [ A0..An ] Ai
+    remove:     [ A0..Ai..An ] i -> [ A0..An ] Ai
                 Remove value at index i and push it.
 
-    ltuck:      [ A0..A(i-1) Ai..An ] X i -> [ A0..A(i-1) X ai..An ]
+    insert:     [ A0..A(i-1) Ai..An ] X i -> [ A0..A(i-1) X ai..An ]
                 Insert X before A(i) in the list
 
     size:       X -> N
@@ -163,7 +166,7 @@ Operators:
     filter:     A [B] -> A1
                 Execute B on each element of A. If true that element is added to list A1
 
-    import      "S" -> O
+    import:     "S" -> O
                 import package S, pushing O which contains elements of S
 */
 
@@ -174,7 +177,7 @@ class Stream;
 
 class Marly {
 public:
-    using NativeVerb = std::function<void()>;
+    using Verb = std::function<void()>;
     Marly(const Stream&);
     
     const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
@@ -258,12 +261,16 @@ private:
         enum class Type : uint8_t {
             Bool, Null, Undefined, 
             Int, Float, Char,
-            NativeVerb,
+            Verb,
             String, List, Object,
+            
+            // Built-in verbs
+            print,
         };
         
         Value() { _type = Type::Undefined; _int = 0; }
         Value(bool b) { _type = Type::Bool; _bool = b; }
+        Value(Type t) { _type = t; }
         Value(const char* s)
         {
             _type = Type::String;
@@ -277,7 +284,7 @@ private:
             _type = type;
             switch(type) {
                 case Type::Bool: _bool = i != 0; break;
-                case Type::NativeVerb:
+                case Type::Verb:
                 case Type::Int: _int = i; 
                 case Type::Float: _float = Float(i).raw(); break;
                 case Type::Char: _char = i; break;
@@ -307,6 +314,8 @@ private:
             void* _ptr;
         };
     };
+
+    //static_assert(sizeof(Value) == sizeof(intptr_t * 3), "Size of Value must be 2 pointers");
     
     void executeCode();
     
@@ -314,7 +323,8 @@ private:
     Stack<Value> _stack;
     SharedPtr<List> _code;
     AtomTable _atomTable;
-    Map<Atom, NativeVerb> _nativeVerbs;
+    Map<Atom, Verb> _verbs;
+    Map<Atom, Value::Type> _builtinVerbs;
 };    
 
 }

@@ -15,12 +15,14 @@ using namespace m8r;
 
 Marly::Marly(const Stream& stream)
 {
-    _nativeVerbs.emplace(SA::print, [this]()
-    {
-        Value v;
-        _stack.pop(v);
-        printf("%s", v.string(this));
-    });
+//    _verbs.emplace(SA::print, [this]()
+//    {
+//        Value v;
+//        _stack.pop(v);
+//        printf("%s", v.string(this));
+//    });
+    
+    _builtinVerbs.emplace(SA::print, Value::Type::print);
     
     Scanner scanner(&stream);
     _code.reset(new List());
@@ -35,13 +37,21 @@ Marly::Marly(const Stream& stream)
                 _code->push_back(scanner.getTokenValue().str);
                 break;
             case Token::Identifier: {
-                auto it = _nativeVerbs.find(_atomTable.atomizeString(scanner.getTokenValue().str));
-                if (it == _nativeVerbs.end()) {
-                    // FIXME: Error
-                    return;
+                Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
+                
+                auto it = _builtinVerbs.find(atom);
+                if (it != _builtinVerbs.end()) {
+                    _code->emplace_back(it->value);
+                    break;
                 }
-                _code->emplace_back(int32_t(it - _nativeVerbs.begin()), Value::Type::NativeVerb);
-                break;
+                
+                auto it1 = _verbs.find(atom);
+                if (it1 != _verbs.end()) {
+                    _code->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
+                }
+                
+                // FIXME: Error
+                return;
             }
             case Token::EndOfFile:
                 executeCode();
@@ -55,15 +65,23 @@ Marly::Marly(const Stream& stream)
 
 void Marly::executeCode()
 {
+    Value v;
+
     for (const auto& it : *_code) {
         switch(it.type()) {
             case Value::Type::String: _stack.push(it.string(this)); break;
-            case Value::Type::NativeVerb:
-                _nativeVerbs[it.integer()].value();
+            case Value::Type::Verb:
+                _verbs[it.integer()].value();
                 break;
             default:
                 // FIXME: Handle unknowns
                 return;
+                
+            // Handle built-in verbs
+            case Value::Type::print:
+                _stack.pop(v);
+                printf("%s", v.string(this));
+                break;
         }
     }
 }
