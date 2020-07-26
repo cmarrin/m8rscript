@@ -208,11 +208,16 @@ private:
     class SharedPtr : private SharedPtrBase
     {
     public:
-        SharedPtr() { }
-        SharedPtr(T* p) { reset(p); }
+        explicit SharedPtr(T* p = nullptr) { reset(p); }
+        
+        SharedPtr(const SharedPtr<T>& other) { reset(other); }
+        SharedPtr(SharedPtr<T>&& other) { _ptr = other._ptr; other._ptr = nullptr; }
         
         ~SharedPtr() { reset(); }
         
+        SharedPtr& operator=(const SharedPtr& other) { reset(other._ptr); return *this; }
+        SharedPtr& operator=(SharedPtr&& other) { _ptr = other._ptr; other._ptr = nullptr; return *this; }
+
         void reset(T* p = nullptr)
         {
             if (_ptr) {
@@ -228,7 +233,7 @@ private:
             }
         }
 
-        void reset(SharedPtr<T>& p) { reset(p.get()); }
+        void reset(const SharedPtr<T>& p) { reset(p.get()); }
         
         T& operator*() { return *_ptr; }
         T* operator->() { return _ptr; }
