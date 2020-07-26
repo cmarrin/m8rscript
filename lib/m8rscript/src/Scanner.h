@@ -71,6 +71,7 @@ enum class Token : uint8_t {
     OR          = 0xa5,
     RBrace      = 0xa6,
     Twiddle     = 0xa7,
+    At          = 0xa8,
     
     SHRSTO      = 0xb1,
     SARSTO      = 0xb2,
