@@ -399,6 +399,12 @@ public:
     using iterator = typename MapList::iterator;
     using const_iterator = typename MapList::const_iterator;
 
+    const Pair& operator[](uint16_t i) const { return at(i); };
+    Pair& operator[](uint16_t i) { return at(i); };
+    
+    Pair& at(uint16_t i) { assert(i < _list.size()); return _list[i]; }
+    const Pair& at(uint16_t i) const { assert(i < _list.size()); return _list[i]; }
+
     Pair& back() { return _list.back(); }
     const Pair& back() const { return _list.back(); }
     
