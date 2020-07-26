@@ -80,7 +80,7 @@ Application::Application(uint16_t port, const char* autostartFilename)
 
 void Application::init(uint16_t port, bool autostart)
 {
-    Marly marly(StringStream("\"Hello world\n\" print"));
+    Marly marly(StringStream("\"Hello world from Marly!!!\n\" print"));
     
     // Seed the random number generator
     srand(static_cast<unsigned>(Time::now().us()));

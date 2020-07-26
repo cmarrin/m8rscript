@@ -174,6 +174,7 @@ class Stream;
 
 class Marly {
 public:
+    using NativeVerb = std::function<void()>;
     Marly(const Stream&);
     
     const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
@@ -254,7 +255,12 @@ private:
     class Value
     {
     public:
-        enum class Type : uint8_t { Bool, Null, Undefined, Atom, Int, Float, String, Char, List, Object };
+        enum class Type : uint8_t {
+            Bool, Null, Undefined, 
+            Int, Float, Char,
+            NativeVerb,
+            String, List, Object,
+        };
         
         Value() { _type = Type::Undefined; _int = 0; }
         Value(bool b) { _type = Type::Bool; _bool = b; }
@@ -266,7 +272,18 @@ private:
             _ptr = str;
         }
         
-        Value(Atom a) { _type = Type::Atom; _int = a.raw(); }
+        Value(int32_t i, Type type = Type::Int)
+        {
+            _type = type;
+            switch(type) {
+                case Type::Bool: _bool = i != 0; break;
+                case Type::NativeVerb:
+                case Type::Int: _int = i; 
+                case Type::Float: _float = Float(i).raw(); break;
+                case Type::Char: _char = i; break;
+                default: assert(0); _type = Type::Undefined; 
+            }
+        }
         
         Type type() const {return _type; }
         
@@ -274,10 +291,11 @@ private:
         {
             switch(_type) {
                 case Type::String: return reinterpret_cast<String*>(_ptr)->c_str();
-                case Type::Atom: return marly->stringFromAtom(Atom(_int));
                 default: return "** Unimplemented **";
             }
         }
+        
+        int32_t integer() const { return _int; }
         
     private:
         Type _type;
@@ -296,6 +314,7 @@ private:
     Stack<Value> _stack;
     SharedPtr<List> _code;
     AtomTable _atomTable;
+    Map<Atom, NativeVerb> _nativeVerbs;
 };    
 
 }
