@@ -259,13 +259,14 @@ private:
     {
     public:
         enum class Type : uint8_t {
+            // Built-in verbs are first so they can
+            // have the same values as the shared atoms
+            print = int(SA::print),
+
+            Verb = ExternalAtomOffset,
             Bool, Null, Undefined, 
             Int, Float, Char,
-            Verb,
             String, List, Object,
-            
-            // Built-in verbs
-            print,
         };
         
         Value() { _type = Type::Undefined; _int = 0; }
@@ -324,7 +325,6 @@ private:
     SharedPtr<List> _code;
     AtomTable _atomTable;
     Map<Atom, Verb> _verbs;
-    Map<Atom, Value::Type> _builtinVerbs;
 };    
 
 }

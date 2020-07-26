@@ -22,8 +22,6 @@ Marly::Marly(const Stream& stream)
 //        printf("%s", v.string(this));
 //    });
     
-    _builtinVerbs.emplace(SA::print, Value::Type::print);
-    
     Scanner scanner(&stream);
     _code.reset(new List());
     
@@ -39,12 +37,15 @@ Marly::Marly(const Stream& stream)
             case Token::Identifier: {
                 Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
                 
-                auto it = _builtinVerbs.find(atom);
-                if (it != _builtinVerbs.end()) {
-                    _code->emplace_back(it->value);
+                // If the Atom ID is less than ExternalAtomOffset then
+                // it is built in and there is a corresponding verb with
+                // that same id
+                if (atom.raw() < ExternalAtomOffset) {
+                    _code->emplace_back(Value::Type(atom.raw()));
                     break;
                 }
                 
+                // Try to find the id in the list of verbs
                 auto it1 = _verbs.find(atom);
                 if (it1 != _verbs.end()) {
                     _code->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
