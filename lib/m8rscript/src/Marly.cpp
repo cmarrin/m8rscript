@@ -10,6 +10,7 @@
 #include "Marly.h"
 
 #include "Scanner.h"
+#include "SystemTime.h"
 
 using namespace m8r;
 
@@ -164,6 +165,9 @@ void Marly::executeCode()
                         _stack.push(s1);
                         break;
                     }
+                    case SA::currentTime:
+                        _stack.push(float(Time::now().us() / 1000000.));
+                        break;
                     default: {
                         m8r::String s(ROMString("unrecognized built-in verb '"));
                         s += _atomTable.stringFromAtom(it.builtInVerb());
