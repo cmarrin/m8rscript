@@ -230,7 +230,7 @@ private:
     public:
         explicit SharedPtr(T* p = nullptr) { reset(p); }
         
-        SharedPtr(const SharedPtr<T>& other) { reset(other); }
+        SharedPtr(SharedPtr<T>& other) { reset(other); }
         SharedPtr(SharedPtr<T>&& other) { _ptr = other._ptr; other._ptr = nullptr; }
         
         ~SharedPtr() { reset(); }
@@ -253,7 +253,7 @@ private:
             }
         }
 
-        void reset(const SharedPtr<T>& p) { reset(p.get()); }
+        void reset(SharedPtr<T>& p) { reset(p.get()); }
         
         T& operator*() { return *_ptr; }
         T* operator->() { return _ptr; }
@@ -270,6 +270,7 @@ private:
     class ObjectBase : public Shared
     {
     public:
+        virtual ~ObjectBase() { }
         virtual Value property(Atom) const { return Value(); }
         virtual void setProperty(Atom, const Value&) { }
     };
@@ -277,6 +278,7 @@ private:
     class Object : public ObjectBase, public ValueMap
     {
     public:
+        virtual ~Object() { }
         virtual Value property(Atom) const override { return Value(); }
         virtual void setProperty(Atom, const Value&) override { }
     };
@@ -284,6 +286,7 @@ private:
     class List : public ObjectBase, public ValueVector
     {
     public:
+        virtual ~List() { }
         virtual Value property(Atom) const override { return Value(); }
         virtual void setProperty(Atom, const Value&) override { }
     };
@@ -292,6 +295,7 @@ private:
     {
     public:
         String(const char* s) { *this += s; }
+        virtual ~String() { }
 
         virtual Value property(Atom) const override { return Value(); }
         virtual void setProperty(Atom, const Value&) override { }
@@ -303,20 +307,18 @@ private:
         enum class Type : uint8_t {
             // Built-in verbs are first so they can
             // have the same values as the shared atoms
-            print = int(SA::print),
-            cat = int(SA::cat),
-
             Verb = ExternalAtomOffset,
             Bool, Null, Undefined, 
             Int, Float, Char,
             String, List, Object,
             
             // Built-in operators
-            Load, Store, LoadProp, StoreProp
+            Load, Store, LoadProp, StoreProp,
+            TokenVerb,
         };
         
         Value() { _type = Type::Undefined; _int = 0; }
-        Value(bool b) { _type = Type::Bool; _bool = b; }
+        explicit Value(bool b) { _type = Type::Bool; _bool = b; }
         Value(Type t) { _type = t; }
         Value(const char* s)
         {
@@ -339,14 +341,17 @@ private:
             switch(type) {
                 case Type::Bool: _bool = i != 0; break;
                 case Type::Verb:
-                case Type::Int: _int = i; 
                 case Type::Float: _float = Float(i).raw(); break;
                 case Type::Char: _char = i; break;
-                default: assert(0); _type = Type::Undefined; 
+                case Type::Int:
+                default: _int = i; 
             }
         }
         
         Type type() const {return _type; }
+        
+        bool isBuiltInVerb() const { return int(_type) < ExternalAtomOffset; }
+        SA builtInVerb() const { assert(isBuiltInVerb()); return static_cast<SA>(_type); }
         
         const char* string() const
         {
@@ -356,14 +361,46 @@ private:
             }
         }
         
-        ObjectBase* obj() const
+        List* list() const
         {
-            assert(_type == Type::List || _type == Type::Object || _type == Type::String);
-            return reinterpret_cast<ObjectBase*>(_ptr);
+            assert(_type == Type::List);
+            return reinterpret_cast<List*>(_ptr);
+        }
+        
+        Object* object() const
+        {
+            assert(_type == Type::Object);
+            return reinterpret_cast<Object*>(_ptr);
         }
         
         int32_t integer() const { return _int; }
         
+        Value property(Atom prop) const
+        {
+            switch(_type) {
+                case Type::List:
+                case Type::String:
+                case Type::Object:
+                    assert(_ptr);
+                    return reinterpret_cast<ObjectBase*>(_ptr)->property(prop);
+                default:
+                    return Value();
+            }
+        }
+        
+        void setProperty(Atom prop, const Value& val)
+        {
+            switch(_type) {
+                case Type::List:
+                case Type::String:
+                case Type::Object:
+                    assert(_ptr);
+                    reinterpret_cast<ObjectBase*>(_ptr)->setProperty(prop, val);
+                default:
+                    return;
+            }
+        }
+
     private:
         void setValue(Type type, ObjectBase* obj)
         {
@@ -382,8 +419,6 @@ private:
         };
     };
 
-    //static_assert(sizeof(Value) == sizeof(intptr_t * 3), "Size of Value must be 2 pointers");
-    
     void executeCode();
     
     enum Phase { Compile, Run };
