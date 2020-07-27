@@ -13,6 +13,49 @@
 
 using namespace m8r;
 
+
+//Keywords
+//
+//$new
+//exec
+//pack
+//unpack
+//dup
+//swap
+//pick
+//tuck
+//pop
+//join
+//cat
+//remove
+//insert
+//bor
+//bxor
+//band
+//bnot
+//or
+//$and
+//not
+//neg
+//lt
+//le
+//eq
+//ne
+//ge
+//gt
+//inc
+//dec
+//$if
+//ifte
+//$while
+//$for
+//fold
+//map
+//filter
+//import
+
+
+
 Marly::Marly(const Stream& stream)
 {
 //    _verbs.emplace(SA::print, [this]()
