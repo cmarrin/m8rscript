@@ -103,36 +103,40 @@ Token Scanner::scanString(char terminal)
 
 Token Scanner::scanSpecial()
 {
-#if M8RSCRIPT_SUPPORT == 0
 	uint8_t c = get();
     if (!isSpecial(c)) {
+        putback(c);
         return Token::EndOfFile;
     }
     
-    _tokenString.clear();
-    _tokenString += c;
-    return Token::Special;
+#if M8RSCRIPT_SUPPORT == 0
+    return static_cast<Token>(c);
 #else
     // See if it's a special char in the list
     char buf[3];
-    buf[0] = get();
+    buf[0] = c;
     buf[1] = '\0';
 
     ROMString entries = ROMString(specialChars());
 
     ROMString found = ROMString::strstr(entries, buf);
     if (!found.valid()) {
-        putback(buf[0]);
-        return Token::EndOfFile;
+        // Assume this is a lone special char
+        return static_cast<Token>(c);
     }
+    
     // This is either a single char special or the first char
-    // of a 2 or more char special. Since all single char special 
-    // are first in the list and all 2 char specials have a first
-    // char that is in the single char list, the next char
-    // should be the token.
-    uint8_t t = ROMString::readByte(found - 1);
-    assert(t >= 0x80);
-    Token token = static_cast<Token>(t);
+    // of a 2 or more char special. If the prev char is not
+    // >= 0x80 or the next char is not a special char, then 
+    // we found a single char special embedded in a multichar 
+    // special. Return that as a single char special
+    uint8_t prev = ROMString::readByte(found - 1);
+    uint8_t next = ROMString::readByte(found + 1);
+    if (prev < 0x80 || next >= 0x80) {
+        return static_cast<Token>(c);
+    }
+
+    Token token = static_cast<Token>(prev);
 
     // Now see if this is a 2 char special
     buf[1] = get();
@@ -141,10 +145,10 @@ Token Scanner::scanSpecial()
     found = ROMString::strstr(entries, buf);
     
     if (found.valid()) {
-        // We've found a 2 char sequence. The next char better be a token
-        t = ROMString::readByte(found - 1);
-        assert(t >= 0x80);
-        token = static_cast<Token>(t);
+        // We've found a 2 char sequence. The prev char better be a token
+        prev = ROMString::readByte(found - 1);
+        assert(prev >= 0x80);
+        token = static_cast<Token>(prev);
         
         // This might be a 3 or 4 char sequence: <<= >>= >>> >>>=
         if (token == Token::SHL) {
@@ -420,8 +424,7 @@ Token Scanner::getToken(TokenType& tokenValue, bool ignoreWhitespace)
 				if ((token = scanNumber(tokenValue)) != Token::EndOfFile) {
 					break;
 				}
-				if ((token = scanSpecial()) != Token::EndOfFile) {
-                    
+				if ((token = scanSpecial()) != Token::EndOfFile) {                    
 					break;
 				}
 				if ((token = scanIdentifier()) != Token::EndOfFile) {
