@@ -46,45 +46,75 @@ static const char _UDPProto[] ROMSTR_ATTR = "UDPProto";
 static const char ___index[] ROMSTR_ATTR = "__index";
 static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
+static const char _and$[] ROMSTR_ATTR = "and";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
 static const char _back[] ROMSTR_ATTR = "back";
+static const char _band[] ROMSTR_ATTR = "band";
+static const char _bnot[] ROMSTR_ATTR = "bnot";
+static const char _bor[] ROMSTR_ATTR = "bor";
+static const char _bxor[] ROMSTR_ATTR = "bxor";
 static const char _call[] ROMSTR_ATTR = "call";
+static const char _cat[] ROMSTR_ATTR = "cat";
 static const char _close[] ROMSTR_ATTR = "close";
 static const char _consoleListener[] ROMSTR_ATTR = "consoleListener";
 static const char _constructor[] ROMSTR_ATTR = "constructor";
 static const char _currentTime[] ROMSTR_ATTR = "currentTime";
+static const char _dec[] ROMSTR_ATTR = "dec";
 static const char _decode[] ROMSTR_ATTR = "decode";
 static const char _delay[] ROMSTR_ATTR = "delay";
 static const char _digitalRead[] ROMSTR_ATTR = "digitalRead";
 static const char _digitalWrite[] ROMSTR_ATTR = "digitalWrite";
 static const char _disconnect[] ROMSTR_ATTR = "disconnect";
 static const char _done[] ROMSTR_ATTR = "done";
+static const char _dup[] ROMSTR_ATTR = "dup";
 static const char _encode[] ROMSTR_ATTR = "encode";
 static const char _env[] ROMSTR_ATTR = "env";
 static const char _eof[] ROMSTR_ATTR = "eof";
+static const char _eq[] ROMSTR_ATTR = "eq";
 static const char _error[] ROMSTR_ATTR = "error";
 static const char _errorString[] ROMSTR_ATTR = "errorString";
+static const char _exec[] ROMSTR_ATTR = "exec";
+static const char _filter[] ROMSTR_ATTR = "filter";
+static const char _fold[] ROMSTR_ATTR = "fold";
+static const char _for$[] ROMSTR_ATTR = "for";
 static const char _format[] ROMSTR_ATTR = "format";
 static const char _front[] ROMSTR_ATTR = "front";
+static const char _ge[] ROMSTR_ATTR = "ge";
 static const char _getValue[] ROMSTR_ATTR = "getValue";
+static const char _gt[] ROMSTR_ATTR = "gt";
+static const char _if$[] ROMSTR_ATTR = "if";
+static const char _ifte[] ROMSTR_ATTR = "ifte";
 static const char _import[] ROMSTR_ATTR = "import";
 static const char _importString[] ROMSTR_ATTR = "importString";
+static const char _inc[] ROMSTR_ATTR = "inc";
+static const char _insert[] ROMSTR_ATTR = "insert";
 static const char _iterator[] ROMSTR_ATTR = "iterator";
 static const char _join[] ROMSTR_ATTR = "join";
 static const char _lastError[] ROMSTR_ATTR = "lastError";
+static const char _le[] ROMSTR_ATTR = "le";
 static const char _length[] ROMSTR_ATTR = "length";
 static const char _lookupHostname[] ROMSTR_ATTR = "lookupHostname";
+static const char _lt[] ROMSTR_ATTR = "lt";
 static const char _makeDirectory[] ROMSTR_ATTR = "makeDirectory";
+static const char _map[] ROMSTR_ATTR = "map";
 static const char _meminfo[] ROMSTR_ATTR = "meminfo";
 static const char _mount[] ROMSTR_ATTR = "mount";
 static const char _mounted[] ROMSTR_ATTR = "mounted";
 static const char _name[] ROMSTR_ATTR = "name";
+static const char _ne[] ROMSTR_ATTR = "ne";
+static const char _neg[] ROMSTR_ATTR = "neg";
+static const char _new$[] ROMSTR_ATTR = "new";
 static const char _next[] ROMSTR_ATTR = "next";
+static const char _not$[] ROMSTR_ATTR = "not";
 static const char _null[] ROMSTR_ATTR = "null";
 static const char _onInterrupt[] ROMSTR_ATTR = "onInterrupt";
 static const char _open[] ROMSTR_ATTR = "open";
 static const char _openDirectory[] ROMSTR_ATTR = "openDirectory";
+static const char _or$[] ROMSTR_ATTR = "or";
+static const char _pack[] ROMSTR_ATTR = "pack";
 static const char _parse[] ROMSTR_ATTR = "parse";
+static const char _pick[] ROMSTR_ATTR = "pick";
+static const char _pop[] ROMSTR_ATTR = "pop";
 static const char _pop_back[] ROMSTR_ATTR = "pop_back";
 static const char _pop_front[] ROMSTR_ATTR = "pop_front";
 static const char _print[] ROMSTR_ATTR = "print";
@@ -106,17 +136,21 @@ static const char _start[] ROMSTR_ATTR = "start";
 static const char _stat[] ROMSTR_ATTR = "stat";
 static const char _stop[] ROMSTR_ATTR = "stop";
 static const char _stringify[] ROMSTR_ATTR = "stringify";
+static const char _swap[] ROMSTR_ATTR = "swap";
 static const char _toFloat[] ROMSTR_ATTR = "toFloat";
 static const char _toInt[] ROMSTR_ATTR = "toInt";
 static const char _toString[] ROMSTR_ATTR = "toString";
 static const char _toUInt[] ROMSTR_ATTR = "toUInt";
 static const char _trim[] ROMSTR_ATTR = "trim";
+static const char _tuck[] ROMSTR_ATTR = "tuck";
 static const char _type[] ROMSTR_ATTR = "type";
 static const char _undefined[] ROMSTR_ATTR = "undefined";
 static const char _unmount[] ROMSTR_ATTR = "unmount";
+static const char _unpack[] ROMSTR_ATTR = "unpack";
 static const char _valid[] ROMSTR_ATTR = "valid";
 static const char _value[] ROMSTR_ATTR = "value";
 static const char _waitForEvent[] ROMSTR_ATTR = "waitForEvent";
+static const char _while$[] ROMSTR_ATTR = "while";
 static const char _write[] ROMSTR_ATTR = "write";
 
 const char* RODATA_ATTR _sharedAtoms[] = {
@@ -162,45 +196,75 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     ___index,
     ___nativeObject,
     ___object,
+    _and$,
     _arguments,
     _back,
+    _band,
+    _bnot,
+    _bor,
+    _bxor,
     _call,
+    _cat,
     _close,
     _consoleListener,
     _constructor,
     _currentTime,
+    _dec,
     _decode,
     _delay,
     _digitalRead,
     _digitalWrite,
     _disconnect,
     _done,
+    _dup,
     _encode,
     _env,
     _eof,
+    _eq,
     _error,
     _errorString,
+    _exec,
+    _filter,
+    _fold,
+    _for$,
     _format,
     _front,
+    _ge,
     _getValue,
+    _gt,
+    _if$,
+    _ifte,
     _import,
     _importString,
+    _inc,
+    _insert,
     _iterator,
     _join,
     _lastError,
+    _le,
     _length,
     _lookupHostname,
+    _lt,
     _makeDirectory,
+    _map,
     _meminfo,
     _mount,
     _mounted,
     _name,
+    _ne,
+    _neg,
+    _new$,
     _next,
+    _not$,
     _null,
     _onInterrupt,
     _open,
     _openDirectory,
+    _or$,
+    _pack,
     _parse,
+    _pick,
+    _pop,
     _pop_back,
     _pop_front,
     _print,
@@ -222,17 +286,21 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     _stat,
     _stop,
     _stringify,
+    _swap,
     _toFloat,
     _toInt,
     _toString,
     _toUInt,
     _trim,
+    _tuck,
     _type,
     _undefined,
     _unmount,
+    _unpack,
     _valid,
     _value,
     _waitForEvent,
+    _while$,
     _write,
 };
 

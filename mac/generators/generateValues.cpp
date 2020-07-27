@@ -164,8 +164,16 @@ int main()
 
     // Write the .h entries and the first .cpp entries
     for (int32_t i = 0; i < strings.size(); ++i) {
-        fprintf(hfile, "    %s = %d,\n", strings[i].c_str(), i);
-        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", strings[i].c_str(), strings[i].c_str());
+        // Some entries have a trailing '$'. This is done because they are
+        // keywords, which can't be enumerants. So the enum will have the $
+        // but we remove it from the string.
+        std::string enumString = strings[i];
+        std::string string = enumString;
+        if (string.back() == '$') {
+            string.erase(string.size() - 1);
+        }
+        fprintf(hfile, "    %s = %d,\n", enumString.c_str(), i);
+        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", enumString.c_str(), string.c_str());
     }
     
     // Write the second .cpp entries
