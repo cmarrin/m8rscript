@@ -48,6 +48,8 @@ Application::Application(uint16_t port)
 
 #if M8RSCRIPT_SUPPORT == 1
     _autostartTask->run("/sys/bin/hello.m8r");
+#elif MARLY_SUPPORT == 1
+    _autostartTask->run("/sys/bin/timing.marly");
 #else
     _autostartTask->run(std::make_shared<Sample>());
 #endif // M8RSCRIPT_SUPPORT
@@ -80,8 +82,6 @@ Application::Application(uint16_t port, const char* autostartFilename)
 
 void Application::init(uint16_t port, bool autostart)
 {
-    Marly marly(StringStream("\"Hello world from Marly!!!\n\" print"));
-    
     // Seed the random number generator
     srand(static_cast<unsigned>(Time::now().us()));
 

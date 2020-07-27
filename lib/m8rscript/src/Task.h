@@ -72,7 +72,7 @@ public:
         return true;
     }
 
-#if M8RSCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
     bool run(const Stream&);
     bool run(const char* filename);
 #endif
@@ -110,7 +110,7 @@ protected:
 #endif
 
 private:
-    CallReturnValue execute() { return _executable->execute(); }
+    CallReturnValue execute() { return _executable ? _executable->execute() : CallReturnValue(CallReturnValue::Type::Finished); }
     
     void finish() { if (_finishCB) _finishCB(this); }
 

@@ -13,6 +13,7 @@
 #include "ExecutionUnit.h"
 #include "GC.h"
 #include "FileStream.h"
+#include "Marly.h"
 #include "Parser.h"
 #include <memory>
 
@@ -60,7 +61,7 @@ Task::~Task()
 #endif
 }
 
-#if M8RSCRIPT_SUPPORT == 1
+#if M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
 bool Task::run(const char* filename)
 {
     Error error(Error::Code::NoFS);
@@ -91,6 +92,7 @@ bool Task::run(const char* filename)
     return ret;
 }
 
+#if M8RSCRIPT_SUPPORT == 1
 bool Task::run(const Stream& stream)
 {
     #ifndef NDEBUG
@@ -126,7 +128,18 @@ bool Task::run(const Stream& stream)
         
     return true;
 }
-#endif
+#elif MARLY_SUPPORT == 1
+bool Task::run(const Stream& stream)
+{
+    #ifndef NDEBUG
+        _name = ROMString::format(ROMString("Task(%p)"), this);
+    #endif
+    
+    Marly marly(stream);
+    return true;
+}
+#endif // MARLY_SUPPORT == 1
+#endif //M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
 
 #if M8RSCRIPT_SUPPORT == 1
 
