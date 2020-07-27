@@ -122,6 +122,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		49026F1924CF272200CAB23B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49C406E11EB6598B001E4DEC;
+			remoteInfo = generateValues;
+		};
 		491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -847,6 +854,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				49026F1A24CF272200CAB23B /* PBXTargetDependency */,
 			);
 			name = m8rscript;
 			productName = libm8rscript;
@@ -858,6 +866,7 @@
 			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateValues" */;
 			buildPhases = (
 				49C406DE1EB6598B001E4DEC /* Sources */,
+				49026F1C24CF29BC00CAB23B /* ShellScript */,
 				49C406DF1EB6598B001E4DEC /* Frameworks */,
 				49C406E01EB6598B001E4DEC /* CopyFiles */,
 			);
@@ -981,6 +990,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		49026F1C24CF29BC00CAB23B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$BUILT_PRODUCTS_DIR/generateValues\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		491ED39F2353EFE600DE0C42 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -1073,6 +1102,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		49026F1A24CF272200CAB23B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49C406E11EB6598B001E4DEC /* generateValues */;
+			targetProxy = 49026F1924CF272200CAB23B /* PBXContainerItemProxy */;
+		};
 		491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* m8rscript */;

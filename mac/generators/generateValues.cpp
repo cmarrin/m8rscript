@@ -99,6 +99,7 @@ static std::string strip(const char* in)
 
 int main()
 {
+    printf("\n\n*** Generating Values ***\n\n");
     char* root = getenv("ROOT");
     chdir(root);
 
