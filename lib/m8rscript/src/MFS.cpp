@@ -330,7 +330,7 @@ static bool makePathString(m8r::String& fullPath, const m8r::String& filename, c
     return true;
 }
 
-m8r::String FS::findPath(ExecutionUnit* eu, const m8r::String& filename, const Mad<Object>& env)
+m8r::String FSProto::findPath(ExecutionUnit* eu, const m8r::String& filename, const Mad<Object>& env)
 {
     String fullPath;
     Value paths = env->property(eu->program()->atomizeString("PATH"));

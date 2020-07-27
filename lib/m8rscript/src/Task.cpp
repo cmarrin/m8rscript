@@ -197,7 +197,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     String path;
     if (!filename.empty()) {
-        path = FS::findPath(eu, filename, env);
+        path = FSProto::findPath(eu, filename, env);
     }
     
     std::shared_ptr<Task> task = std::make_shared<Task>();

@@ -66,6 +66,8 @@ public:
     static CallReturnValue stat(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+
+    static String findPath(ExecutionUnit*, const String& filename, const Mad<Object>& env);
 };
 #endif
 
@@ -124,8 +126,6 @@ public:
     Error lastError() const { return _error; }
     
     static const char* errorString(Error);
-    
-    static String findPath(ExecutionUnit*, const String& filename, const Mad<Object>& env);
     
     // m8rscript object methods
     
