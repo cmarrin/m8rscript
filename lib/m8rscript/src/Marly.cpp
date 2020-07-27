@@ -13,49 +13,6 @@
 
 using namespace m8r;
 
-
-//Keywords
-//
-//$new
-//exec
-//pack
-//unpack
-//dup
-//swap
-//pick
-//tuck
-//pop
-//join
-//cat
-//remove
-//insert
-//bor
-//bxor
-//band
-//bnot
-//or
-//$and
-//not
-//neg
-//lt
-//le
-//eq
-//ne
-//ge
-//gt
-//inc
-//dec
-//$if
-//ifte
-//$while
-//$for
-//fold
-//map
-//filter
-//import
-
-
-
 Marly::Marly(const Stream& stream)
 {
 //    _verbs.emplace(SA::print, [this]()
@@ -214,6 +171,14 @@ void Marly::executeCode()
                 _stack.pop(v);
                 printf("%s", v.string());
                 break;
+            case Value::Type::cat: {
+                SharedPtr<String> s(new String(_stack.top().string()));
+                _stack.pop();
+                *s += _stack.top().string();
+                _stack.pop();
+                _stack.push(s);
+                break;
+            }
         }
     }
 }

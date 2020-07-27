@@ -257,6 +257,7 @@ private:
         T* operator->() { return _ptr; }
         
         T* get() { return _ptr; }
+        const T* get() const { return _ptr; }
         
         operator bool() { return _ptr != nullptr; }
     
@@ -301,6 +302,7 @@ private:
             // Built-in verbs are first so they can
             // have the same values as the shared atoms
             print = int(SA::print),
+            cat = int(SA::cat),
 
             Verb = ExternalAtomOffset,
             Bool, Null, Undefined, 
@@ -322,26 +324,12 @@ private:
             _ptr = str;
         }
         
-        Value(List* list)
-        {
-            _type = Type::List;
-            list->_count++;
-            _ptr = list;
-        }
-        
-        Value(String* string)
-        {
-            _type = Type::String;
-            string->_count++;
-            _ptr = string;
-        }
-        
-        Value(Object* obj)
-        {
-            _type = Type::Object;
-            obj->_count++;
-            _ptr = obj;
-        }
+        Value(SharedPtr<List>& list) { setValue(Type::List, list.get()); }
+        Value(List* list) { setValue(Type::List, list); }
+        Value(SharedPtr<String>& list) { setValue(Type::String, list.get()); }
+        Value(String* list) { setValue(Type::String, list); }
+        Value(SharedPtr<Object>& list) { setValue(Type::Object, list.get()); }
+        Value(Object* list) { setValue(Type::Object, list); }
         
         Value(int32_t i, Type type = Type::Int)
         {
@@ -375,6 +363,13 @@ private:
         int32_t integer() const { return _int; }
         
     private:
+        void setValue(Type type, ObjectBase* obj)
+        {
+            _type = type;
+            obj->_count++;
+            _ptr = obj;
+        }
+        
         Type _type;
         union {
             bool _bool;
