@@ -56,6 +56,7 @@ enum class Token : uint8_t {
     RBrace      = '}',
     Twiddle     = '~',
     At          = '@',
+    Dollar      = '$',
 
     False       = 0x80,
     Null        = 0x81,
