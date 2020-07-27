@@ -135,7 +135,7 @@ bool Task::run(const Stream& stream)
         _name = ROMString::format(ROMString("Task(%p)"), this);
     #endif
     
-    Marly marly(stream);
+    Marly marly(stream, [this](const char* s) { print(s); });
     return true;
 }
 #endif // MARLY_SUPPORT == 1

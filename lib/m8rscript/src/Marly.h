@@ -196,7 +196,9 @@ class Stream;
 class Marly {
 public:
     using Verb = std::function<void()>;
-    Marly(const Stream&);
+    using Printer = std::function<void(const char*)>;
+    
+    Marly(const Stream&, Printer);
     
     const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
@@ -384,11 +386,22 @@ private:
     
     void executeCode();
     
+    enum Phase { Compile, Run };
+    void showError(Phase phase, ROMString s, uint32_t lineno) const
+    {
+        showError(phase, m8r::String(s).c_str(), lineno);
+    }
+    
+    void showError(Phase, const char*, uint32_t lineno) const;
+    
+    void print(const char* s) const;
+    
     ValueMap _vars;
     Stack<Value> _stack;
     Stack<SharedPtr<List>> _codeStack;
     AtomTable _atomTable;
     Map<Atom, Verb> _verbs;
+    Printer _printer;
 };    
 
 }

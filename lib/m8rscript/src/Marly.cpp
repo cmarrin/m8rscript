@@ -13,7 +13,8 @@
 
 using namespace m8r;
 
-Marly::Marly(const Stream& stream)
+Marly::Marly(const Stream& stream, Printer printer)
+    : _printer(printer)
 {
     Scanner scanner(&stream);
     _codeStack.push(SharedPtr<List>(new List()));
@@ -173,5 +174,27 @@ void Marly::executeCode()
                 break;
             }
         }
+    }
+}
+
+void Marly::showError(Phase phase, const char* s, uint32_t lineno) const
+{
+    m8r::String string = "*** ";
+    string += (phase == Phase::Compile) ? "Compile" : "Runtime";
+    string += " error: ";
+    string += s;
+    if (lineno > 0) {
+        string += " on line " + m8r::String(lineno) + '\n';
+    }
+    string += '\n';
+    print(string.c_str());
+}
+
+void Marly::print(const char* s) const
+{
+    if (_printer) {
+        _printer(s);
+    } else {
+        printf("%s", s);
     }
 }
