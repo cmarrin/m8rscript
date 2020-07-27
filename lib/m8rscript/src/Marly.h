@@ -11,7 +11,6 @@
 
 #include "Atom.h"
 #include "Containers.h"
-#include "Float.h"
 #include "MString.h"
 
 /*
@@ -328,6 +327,7 @@ private:
             _ptr = str;
         }
         
+        Value(float f) { _type = Type::Float; _float = f; }
         Value(SharedPtr<List>& list) { setValue(Type::List, list.get()); }
         Value(List* list) { setValue(Type::List, list); }
         Value(SharedPtr<String>& list) { setValue(Type::String, list.get()); }
@@ -341,7 +341,7 @@ private:
             switch(type) {
                 case Type::Bool: _bool = i != 0; break;
                 case Type::Verb:
-                case Type::Float: _float = Float(i).raw(); break;
+                case Type::Float: _float = float(i); break;
                 case Type::Char: _char = i; break;
                 case Type::Int:
                 default: _int = i; 
@@ -413,7 +413,7 @@ private:
         union {
             bool _bool;
             int32_t _int;
-            Float::value_type _float;
+            float _float;
             char _char;
             void* _ptr;
         };
