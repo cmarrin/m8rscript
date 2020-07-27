@@ -64,109 +64,127 @@ Operators:
     new         X Y -> Z
                 Use values in list X as params to Object Y and create a new instance of Y
 
-    x           [..] -> ..
+    exec        [..] -> ..
                 execute list on TOS
 
-    pack:       .. n -> [..]
+    pack        .. n -> [..]
                 Makes n stack items into a list.
 
-    unpack:     [A0..An] -> A0 .. An
+    unpack      [A0..An] -> A0 .. An
                 Places each element from the list onto the stack.
 
-    dup:        X -> X X
+    dup         X -> X X
                 Pushes an extra copy of X onto stack.
 
-    swap:       X Y -> Y X
+    swap        X Y -> Y X
                 Interchanges X and Y on top of the stack.
                 
-    pick:       A0..Ai..An i -> A0..An Ai
+    pick        A0..Ai..An i -> A0..An Ai
                 Remove the nth item on the stack and push it
                 
-    tuck:       A0..A(i-1) Ai..An X i -> A0..A(i-1) X ai..An
+    tuck        A0..A(i-1) Ai..An X i -> A0..A(i-1) X ai..An
                 Insert X n locations down the stack
 
-    pop:        X ->
+    pop         X ->
                 Removes X from top of the stack.
 
-    join:       [ X ] [ Y ] -> [X Y]
+    join        [ X ] [ Y ] -> [X Y]
                 Combine 2 lists into one. 
                 
-    cat:        X Y -> "XY"
+    cat         X Y -> "XY"
                 Concatenate X and Y. Can be any types which are converted to strings 
     
-    remove:     [ A0..Ai..An ] i -> [ A0..An ] Ai
+    remove      [ A0..Ai..An ] i -> [ A0..An ] Ai
                 Remove value at index i and push it.
 
-    insert:     [ A0..A(i-1) Ai..An ] X i -> [ A0..A(i-1) X ai..An ]
+    insert      [ A0..A(i-1) Ai..An ] X i -> [ A0..A(i-1) X ai..An ]
                 Insert X before A(i) in the list
 
-    size:       X -> N
-                N is the size of X which can be a list or a string
-
-    bor:        X Y -> Z
+    bor         X Y -> Z
                 Z is the bitwise or of ints X and Y.
 
-    bxor:       X Y -> Z
+    bxor        X Y -> Z
                 Z is the bitwise exclusive or of ints X and Y.
 
-    band:       X Y -> Z
+    band        X Y -> Z
                 Z is the bitwise and of ints X and Y.
 
-    bneg:       X -> Y
+    bnot        X -> Y
                 Y is the inverse of int X.
                 
-    or:         X Y -> B
+    or          X Y -> B
                 B is true if either X or Y are true, false otherwise.
     
-    and:        X Y -> B
+    and         X Y -> B
                 B is true if both X and Y are true, false otherwise.
                 
-    not:        X -> B
+    not         X -> B
                 B is true if X is false, false otherwise.
                 
-    +:          X Y -> Z
+    neg         X -> Y
+                Negate (2 complement) X
+    
+    lt          X Y -> B
+                B = X < Y
+
+    le          X Y -> B
+                B = X <= Y
+
+    eq          X Y -> B
+                B = X == Y
+
+    ne          X Y -> B
+                B = X != Y
+
+    ge          X Y -> B
+                B = X >= Y
+
+    gt          X Y -> B
+                B = X > Y
+
+    +           X Y -> Z
                 Z = X + Y. Numbers can be int or float.
 
-    -:          X Y -> Z
+    -           X Y -> Z
                 Z = X - Y. Numbers can be int or float.
 
-    *:          X Y -> Z
+    *           X Y -> Z
                 Z = X times Y. Numbers can be int or float.
 
-    /:          X Y -> Z
+    /           X Y -> Z
                 Z = X divided by Y. Numbers can be int or float.
 
-    %:          X Y -> Z
+    %           X Y -> Z
                 Z = X modulo Y. Numbers can be int or float.
 
-    inc:        M -> N
+    inc         M -> N
                 Increment M by 1.
 
-    dec:        M -> N
+    dec         M -> N
                 Decrement M by 1.
                 
-    if:         B [T] ->
+    if          B [T] ->
                 If B is true execute T othereise skip.
     
-    ifte:       B [T] [F] ->
+    ifte        B [T] [F] ->
                 If B is true execute T otherwise execute F.
                 
-    while:      B X ->
+    while       B X ->
                 Execute B. If it is true execute X and repeat.
                 
-    for:        S B I X ->
+    for         S B I X ->
                 Execute B. If true execute X then I. Repeat
 
-    fold:       A V0 [P] -> V
+    fold        A V0 [P] -> V
                 Starting with value V0, push each member of A and execute P to produce value V.
                 
-    map:        A [P] -> B
+    map         A [P] -> B
                 Executes P on each member of aggregate A, collects results in aggregate B.
                 
-    filter:     A [B] -> A1
+    filter      A [B] -> A1
                 Execute B on each element of A. If true that element is added to list A1
 
-    import:     "S" -> O
+    import      "S" -> O
                 import package S, pushing O which contains elements of S
 */
 
