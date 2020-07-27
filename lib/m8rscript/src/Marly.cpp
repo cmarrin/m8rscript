@@ -15,13 +15,6 @@ using namespace m8r;
 
 Marly::Marly(const Stream& stream)
 {
-//    _verbs.emplace(SA::print, [this]()
-//    {
-//        Value v;
-//        _stack.pop(v);
-//        printf("%s", v.string(this));
-//    });
-    
     Scanner scanner(&stream);
     _codeStack.push(SharedPtr<List>(new List()));
     
