@@ -317,9 +317,11 @@ bool Marly::execute(const SharedPtr<List>& code)
                         _stack.push(s1.string().c_str());
                         break;
                     }
-                    case SA::currentTime:
-                        _stack.push(float(Time::now().us() / 1000000.));
+                    case SA::currentTime: {
+                        Float t = Float(static_cast<Float::value_type>(Time::now().us()), -6);
+                        _stack.push(t);
                         break;
+                    }
                     case SA::for$: {
                         SharedPtr<List> body = _stack.top().list();
                         _stack.pop();
