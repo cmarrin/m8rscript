@@ -101,6 +101,7 @@ public:
 
     void push_back(T const &x)
     {
+        assert(_size < std::numeric_limits<uint16_t>::max() - 1);
         ensureCapacity(_size + 1);
         new (_data.get() + _size) T();
         _data.get()[_size++] = x;
@@ -192,6 +193,7 @@ public:
         // in case the data pointer changes
         ptrdiff_t i = pos - begin();
         
+        assert(_size < std::numeric_limits<uint16_t>::max() - numToInsert);
         ensureCapacity(_size + numToInsert);
         pos = begin() + i;
         
@@ -256,6 +258,7 @@ private:
             return;
         }
         
+        assert(_capacity < std::numeric_limits<uint16_t>::max() / 2);
         _capacity = _capacity ? _capacity * 2 : 1;
         if (_capacity < size) {
             _capacity = size;
