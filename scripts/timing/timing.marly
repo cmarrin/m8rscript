@@ -13,7 +13,9 @@ currentTime @startTime
 0 [dup $n lt] [inc] [
     0 [dup $n lt] [inc] [
         3 @f
-        $a dup dup dup 1 + * 2 / swap insert
+        
+        // a[j] = j * (j + 1) / 2;
+        dup $a swap dup dup 1 + * 2 / swap insert
     ] for
 ] for
 
