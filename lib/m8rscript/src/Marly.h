@@ -377,6 +377,7 @@ private:
         
         // FIXME: We need to handle all types here
         int32_t integer() const { return _int; }
+        float flt() const { return _float; }
         bool boolean() const { return _bool; }
         
         Value property(Atom prop) const
@@ -423,15 +424,17 @@ private:
         };
     };
 
-    void execute(const SharedPtr<List>& code);
+    bool execute(const SharedPtr<List>& code);
     
     enum Phase { Compile, Run };
-    void showError(Phase phase, ROMString s, uint32_t lineno) const
+    
+    // Return true if we've exceeded the max number of errors
+    bool showError(Phase phase, ROMString s, uint32_t lineno)
     {
-        showError(phase, m8r::String(s).c_str(), lineno);
+        return showError(phase, m8r::String(s).c_str(), lineno);
     }
     
-    void showError(Phase, const char*, uint32_t lineno) const;
+    bool showError(Phase, const char*, uint32_t lineno);
     
     void print(const char* s) const;
     
@@ -441,6 +444,9 @@ private:
     AtomTable _atomTable;
     Map<Atom, Verb> _verbs;
     Printer _printer;
+    
+    static constexpr uint16_t MaxErrors = 32;
+    uint16_t _nerrors = 0;
 };    
 
 }

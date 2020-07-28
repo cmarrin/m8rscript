@@ -46,10 +46,13 @@ Marly::Marly(const Stream& stream, Printer printer)
                 auto it1 = _verbs.find(atom);
                 if (it1 != _verbs.end()) {
                     _codeStack.top()->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
+                    break;
                 }
                 
-                showError(Phase::Compile, ROMString("invalid identifier"), scanner.lineno());
-                return;
+                if (showError(Phase::Compile, ROMString("invalid identifier"), scanner.lineno())) {
+                    return;
+                }
+                break;
             }
             case Token::LBracket:
                 _codeStack.push(SharedPtr<List>(new List()));
@@ -69,8 +72,10 @@ Marly::Marly(const Stream& stream, Printer printer)
                 scanner.retireToken();
                 Token idToken = scanner.getToken();
                 if (idToken != Token::Identifier) {
-                    showError(Phase::Compile, ROMString("identifier required"), scanner.lineno());
-                    return;
+                    if (showError(Phase::Compile, ROMString("identifier required"), scanner.lineno())) {
+                        return;
+                    }
+                    break;
                 }
                 
                 Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
@@ -90,7 +95,7 @@ Marly::Marly(const Stream& stream, Printer printer)
             case Token::EndOfFile:
                 if (_codeStack.size() != 1) {
                     showError(Phase::Compile, ROMString("misaligned code stack"), scanner.lineno());
-                    return;
+                    return;                    
                 }
                 execute(_codeStack.top());
                 return;
@@ -103,7 +108,7 @@ Marly::Marly(const Stream& stream, Printer printer)
     }
 }
 
-void Marly::execute(const SharedPtr<List>& code)
+bool Marly::execute(const SharedPtr<List>& code)
 {
     for (const auto& it : *(code.get())) {
         switch(it.type()) {
@@ -113,8 +118,7 @@ void Marly::execute(const SharedPtr<List>& code)
             case Value::Type::Load: {
                 auto foundValue = _vars.find(Atom(it.integer()));
                 if (foundValue == _vars.end()) {
-                    showError(Phase::Run, ROMString("var not found"), 0);
-                    return;
+                    return !showError(Phase::Run, ROMString("var not found"), 0);
                 }
                 _stack.push(foundValue->value);
                 break;
@@ -143,16 +147,94 @@ void Marly::execute(const SharedPtr<List>& code)
             case Value::Type::Verb:
                 _verbs[it.integer()].value();
                 break;
-
+                
+            case Value::Type::TokenVerb: {
+                switch(static_cast<Token>(it.integer())) {
+                    case Token::Plus:
+                    case Token::Minus:
+                    case Token::Star:
+                    case Token::Slash:
+                    case Token::Percent: {
+                        float rhs = _stack.top().flt();
+                        _stack.pop();
+                        float lhs = _stack.top().flt();
+                        _stack.pop();
+                        float result = 0;
+                        switch(static_cast<Token>(it.integer())) {
+                            case Token::Plus: result = lhs + rhs; break;
+                            case Token::Minus: result = lhs - rhs; break;
+                            case Token::Star: result = lhs * rhs; break;
+                            case Token::Slash: result = lhs / rhs; break;
+                            default: break;
+                        }
+                        _stack.push(result);
+                        break;
+                    }
+                    default: {
+                        m8r::String s(ROMString("unrecognized verb '"));
+                        s += char(it.integer());
+                        s += "'";
+                        return !showError(Phase::Run, s.c_str(), 0);
+                    }
+                }
+                break;
+            }
+            
             // Handle built-in verbs
             default: {
                 // If the Type is < ExternalAtomOffset this is a built-in verb
                 if (!it.isBuiltInVerb()) {
-                    showError(Phase::Run, ROMString("unrecognized value"), 0);
-                    return;
+                    return !showError(Phase::Run, ROMString("unrecognized value"), 0);
                 }
                 
                 switch(it.builtInVerb()) {
+                    case SA::dup:
+                        _stack.push(_stack.top());
+                        break;
+                    case SA::lt:
+                    case SA::le:
+                    case SA::eq:
+                    case SA::ne:
+                    case SA::ge:
+                    case SA::gt: {
+                        float rhs = _stack.top().flt();
+                        _stack.pop();
+                        float lhs = _stack.top().flt();
+                        _stack.pop();
+                        bool result = false;
+                        switch(it.builtInVerb()) {
+                            case SA::lt: result = lhs < rhs; break;
+                            case SA::le: result = lhs <= rhs; break;
+                            case SA::eq: result = lhs == rhs; break;
+                            case SA::ne: result = lhs != rhs; break;
+                            case SA::ge: result = lhs >= rhs; break;
+                            case SA::gt: result = lhs > rhs; break;
+                            default: break;
+                        }
+                        _stack.push(result);
+                        break;
+                    }
+                    case SA::inc:
+                    case SA::dec: {
+                        if (_stack.top().type() == Value::Type::Int) {
+                            int32_t i = _stack.top().integer();
+                            if (it.builtInVerb() == SA::inc) {
+                                i++;
+                            } else {
+                                i--;
+                            }
+                            _stack.top() = i;
+                        } else {
+                             float f = _stack.top().flt();
+                            if (it.builtInVerb() == SA::inc) {
+                                f+= 1;
+                            } else {
+                                f-= 1;
+                            }
+                            _stack.top() = f;
+                       }
+                       break;
+                    }
                     case SA::print:
                         print(_stack.top().string());
                         _stack.pop();
@@ -182,13 +264,19 @@ void Marly::execute(const SharedPtr<List>& code)
                         Value testResult;
                         
                         while (true) {
-                            execute(test);
+                            if (!execute(test)) {
+                                return false;
+                            }
                             _stack.pop(testResult);
                             if (!testResult.boolean()) {
                                 break;
                             }
-                            execute(body);
-                            execute(iter);
+                            if (!execute(body)) {
+                                return false;
+                            }
+                            if (!execute(iter)) {
+                                return false;
+                            }
                         }
                         break;
                     }
@@ -196,17 +284,17 @@ void Marly::execute(const SharedPtr<List>& code)
                         m8r::String s(ROMString("unrecognized built-in verb '"));
                         s += _atomTable.stringFromAtom(it.builtInVerb());
                         s += "'";
-                        showError(Phase::Run, s.c_str(), 0);
-                        return;
+                        return !showError(Phase::Run, s.c_str(), 0);
                     }
                 }
                 break;
             }
         }
     }
+    return true;
 }
 
-void Marly::showError(Phase phase, const char* s, uint32_t lineno) const
+bool Marly::showError(Phase phase, const char* s, uint32_t lineno)
 {
     m8r::String string = "*** ";
     string += (phase == Phase::Compile) ? "Compile" : "Runtime";
@@ -217,6 +305,8 @@ void Marly::showError(Phase phase, const char* s, uint32_t lineno) const
     }
     string += '\n';
     print(string.c_str());
+    
+    return ++_nerrors >= MaxErrors;
 }
 
 void Marly::print(const char* s) const
