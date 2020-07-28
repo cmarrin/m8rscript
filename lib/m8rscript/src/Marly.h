@@ -380,9 +380,45 @@ private:
         }
         
         // FIXME: We need to handle all types here
-        int32_t integer() const { return _int; }
-        float flt() const { return _float; }
-        bool boolean() const { return _bool; }
+        int32_t integer() const
+        {
+            switch(_type) {
+                case Type::String: return string()->string().toInt();
+                case Type::Bool: return _bool ? 1 : 0;
+                case Type::Int: return _int;
+                case Type::Float: return(int32_t(_float));
+                case Type::Char: return int32_t(_char);
+                
+                // For all other types we assume the value stored is an int
+                default: return _int;
+            }
+        }
+        
+        float flt() const
+        {
+            switch(_type) {
+                // FIXME: Do a toFloat conversion
+                case Type::String: return string()->string().toInt();
+                case Type::Bool: return _bool ? 1 : 0;
+                case Type::Int: return _int;
+                case Type::Float: return _float;
+                case Type::Char: return _char;
+                default: return 0;
+            }
+        }
+
+        bool boolean() const
+        {
+            switch(_type) {
+                // FIXME: Do a toFloat conversion
+                case Type::String: return string()->string().toInt() != 0;
+                case Type::Bool: return _bool;
+                case Type::Int: return _int != 0;
+                case Type::Float: return _float != 0;
+                case Type::Char: return _char != 0;
+                default: return false;
+            }
+        }
         
         void toString(String& str) const
         {
