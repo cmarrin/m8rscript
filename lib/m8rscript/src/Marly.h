@@ -340,7 +340,7 @@ private:
             _ptr = str;
         }
         
-        Value(float f) { _type = Type::Float; _float = f; }
+        Value(Float f) { _type = Type::Float; _float = f.raw(); }
         Value(const SharedPtr<List>& list) { setValue(Type::List, list.get()); }
         Value(List* list) { setValue(Type::List, list); }
         Value(const SharedPtr<String>& string) { setValue(Type::String, string.get()); }
@@ -354,7 +354,7 @@ private:
             switch(type) {
                 case Type::Bool: _bool = i != 0; break;
                 case Type::Verb:
-                case Type::Float: _float = float(i); break;
+                case Type::Float: _float = Float(i); break;
                 case Type::Char: _char = i; break;
                 case Type::Int:
                 default: _int = i; 
@@ -401,16 +401,16 @@ private:
             }
         }
         
-        float flt() const
+        Float flt() const
         {
             switch(_type) {
                 // FIXME: Do a toFloat conversion
-                case Type::String: return string()->string().toInt();
-                case Type::Bool: return _bool ? 1 : 0;
-                case Type::Int: return _int;
-                case Type::Float: return _float;
-                case Type::Char: return _char;
-                default: return 0;
+                case Type::String: return string()->string().toFloat();
+                case Type::Bool: return Float(_bool ? 1 : 0);
+                case Type::Int: return Float(_int);
+                case Type::Float: return Float(Float::Raw(_float));
+                case Type::Char: return Float(int32_t(_char));
+                default: return Float(0);
             }
         }
 
@@ -433,7 +433,7 @@ private:
                 case Type::String: str.string() = string()->string(); return;
                 case Type::Bool: str.string() = _bool ? "true" : "false"; return;
                 case Type::Int: str.string() = m8r::String(_int); return;
-                case Type::Float: str.string() = m8r::String(_float); return;
+                case Type::Float: str.string() = m8r::String(flt()); return;
                 case Type::Char: str.string() = _char; return;
                 default: str.string() = "** unimplemented **";
             }
@@ -477,7 +477,7 @@ private:
         union {
             bool _bool;
             int32_t _int;
-            float _float;
+            Float::value_type _float;
             char _char;
             void* _ptr;
         };
