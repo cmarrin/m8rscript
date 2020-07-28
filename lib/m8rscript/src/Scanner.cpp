@@ -368,7 +368,7 @@ Token Scanner::scanComment()
 #else
     _tokenString.clear();
     _tokenString += c;
-	return Token::Special;
+	return Token::Slash;
 #endif
 }
 
