@@ -97,6 +97,15 @@ Marly::Marly(const Stream& stream, Printer printer)
                     showError(Phase::Compile, ROMString("misaligned code stack"), scanner.lineno());
                     return;                    
                 }
+                if (_nerrors > 0) {
+                    m8r::String s(_nerrors);
+                    s += ROMString(" parse error");
+                    if (_nerrors > 1) {
+                        s += 's';
+                    }
+                    showError(Phase::Compile, s.c_str(), 0);
+                    return;                    
+                }
                 execute(_codeStack.top());
                 return;
             default:
