@@ -239,6 +239,27 @@ m8r::String::String(Float value, uint8_t decimalDigits)
     *this = String(buf);
 }
 
+m8r::String::String(double value, uint8_t decimalDigits)
+{
+    //          sign    digits  dp      'e'     dp      exp     '\0'
+    char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
+    
+    int fexp;
+    double fman = std::frexp(value, &fexp);
+    Float::decompose_type mantissa = Float::decompose_type(fman * 1024 * 1024 * 1024);
+    fexp += 30;
+    int16_t exp = int16_t(fexp);
+    
+    if (mantissa < 0) {
+        buf[0] = '-';
+        mantissa = -mantissa;
+        ::toString(buf + 1, mantissa, exp, decimalDigits);
+    } else {
+        ::toString(buf, mantissa, exp, decimalDigits);
+    }
+    *this = String(buf);
+}
+
 m8r::String::String(uint32_t value)
 {
     char buf[12];

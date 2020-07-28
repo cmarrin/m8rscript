@@ -84,6 +84,7 @@ public:
     }
     
     String(Float, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
+    String(double, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
     String(int32_t);
     String(uint32_t);
     String(void*);
