@@ -199,6 +199,8 @@ private:
     Time(uint64_t t) : _value(t) { }
     
     uint64_t _value = 0;
+    
+    static uint64_t _baseTime;
 };
 
 }

@@ -14,10 +14,19 @@
 
 using namespace m8r;
 
+uint64_t Time::_baseTime = 0;
+
 Time Time::now()
 {
+    if (_baseTime == 0) {
+        _baseTime = 1; // to avoid loop when we recurse
+        _baseTime = now().us();
+        assert(_baseTime > 0);
+    }
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    return Time(std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
+    uint64_t t = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    t -= _baseTime;
+    return Time(t);
 }
 
 m8r::String Time::toString() const
