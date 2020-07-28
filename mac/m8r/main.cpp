@@ -111,6 +111,8 @@ int main(int argc, char * argv[])
         fclose(fromFile);
     }
 
+    application.runAutostartTask();
+    
     while (true) {
         application.runOneIteration();
     }

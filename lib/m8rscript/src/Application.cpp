@@ -43,44 +43,10 @@ SystemInterface* Application::_system = nullptr;
 
 Application::Application(uint16_t port)
 {
-#ifdef RUN_SAMPLE
-    init(port, true);
-
-#if M8RSCRIPT_SUPPORT == 1
-    _autostartTask->run("/sys/bin/hello.m8r");
-#elif MARLY_SUPPORT == 1
-    _autostartTask->run("/sys/bin/timing.marly");
-#else
-    _autostartTask->run(std::make_shared<Sample>());
-#endif // M8RSCRIPT_SUPPORT
-    runAutostartTask();
-#else
-    init(port, false);
-#endif // RUN_SAMPLE
+    init(port);
 }
 
-Application::Application(uint16_t port, const std::shared_ptr<Task::Executable>& exec)
-{
-    init(port, true);
-    _autostartTask->run(exec);
-    runAutostartTask();
-}
-
-#if M8RSCRIPT_SUPPORT == 1
-Application::Application(uint16_t port, const char* autostartFilename)
-{
-    bool autostart = !autostartFilename || autostartFilename[0] == '\0';
-    init(port, autostart);
-    if (!autostart) {
-        return;
-    }
-    
-    _autostartTask->run(autostartFilename);
-    runAutostartTask();
-}
-#endif
-
-void Application::init(uint16_t port, bool autostart)
+void Application::init(uint16_t port)
 {
     // Seed the random number generator
     srand(static_cast<unsigned>(Time::now().us()));
@@ -121,16 +87,15 @@ void Application::init(uint16_t port, bool autostart)
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
         m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1, true).c_str(), String::prettySize(totalUsed, 1, true).c_str());
     }
-    
-    if (!autostart) {
-        return;
-    }
+}
 
-    // Setup the autostart Task
+void Application::runAutostartTask()
+{
     _autostartTask = std::make_shared<Task>();
     _autostartTask->setConsolePrintFunction([](const String& s) {
         system()->printf(ROMSTR("%s"), s.c_str());
     });
+    
     system()->setListenerFunc([this](const char* line) {
         if (!line) {
             return;
@@ -141,14 +106,17 @@ void Application::init(uint16_t port, bool autostart)
         }
         _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
     });
-}
-
-void Application::runAutostartTask()
-{
-    if (!_autostartTask) {
-        return;
-    }
     
+#if M8RSCRIPT_SUPPORT == 1
+    _autostartTask->run("/sys/bin/timing.m8r");
+#elif MARLY_SUPPORT == 1
+    _autostartTask->run("/sys/bin/timing.marly");
+#else
+#ifdef RUN_SAMPLE
+    _autostartTask->run(std::make_shared<Sample>());
+#endif
+#endif // M8RSCRIPT_SUPPORT
+
     system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {
         m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
         _autostartTask.reset();

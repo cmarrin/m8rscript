@@ -26,14 +26,9 @@ class Application {
 public:
     Application(uint16_t port);
     
-    Application(uint16_t port, const std::shared_ptr<Task::Executable>&);
-
-#if M8RSCRIPT_SUPPORT == 1
-    Application(uint16_t port, const char* autostartFilename);
-#endif
-
     ~Application();
-        
+    
+    void runAutostartTask();
     bool runOneIteration();
     
     void receivedData(const String& data, KeyAction action)
@@ -55,8 +50,7 @@ private:
     const char* shellName() const { return "/sys/bin/mrsh"; }
 #endif
 
-    void init(uint16_t port, bool autostart);
-    void runAutostartTask();
+    void init(uint16_t port);
     
     std::shared_ptr<Task> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
