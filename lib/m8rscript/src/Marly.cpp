@@ -172,11 +172,11 @@ bool Marly::execute(const SharedPtr<List>& code)
                     case Token::Star:
                     case Token::Slash:
                     case Token::Percent: {
-                        float rhs = _stack.top().flt();
+                        Float rhs = _stack.top().flt();
                         _stack.pop();
-                        float lhs = _stack.top().flt();
+                        Float lhs = _stack.top().flt();
                         _stack.pop();
-                        float result = 0;
+                        Float result;
                         switch(static_cast<Token>(it.integer())) {
                             case Token::Plus: result = lhs + rhs; break;
                             case Token::Minus: result = lhs - rhs; break;
@@ -262,9 +262,9 @@ bool Marly::execute(const SharedPtr<List>& code)
                     case SA::ne:
                     case SA::ge:
                     case SA::gt: {
-                        float rhs = _stack.top().flt();
+                        Float rhs = _stack.top().flt();
                         _stack.pop();
-                        float lhs = _stack.top().flt();
+                        Float lhs = _stack.top().flt();
                         _stack.pop();
                         bool result = false;
                         switch(it.builtInVerb()) {
@@ -290,11 +290,11 @@ bool Marly::execute(const SharedPtr<List>& code)
                             }
                             _stack.top() = i;
                         } else {
-                             float f = _stack.top().flt();
+                             Float f = _stack.top().flt();
                             if (it.builtInVerb() == SA::inc) {
-                                f+= 1;
+                                f = f + Float(1);
                             } else {
-                                f-= 1;
+                                f = f + Float(1);
                             }
                             _stack.top() = f;
                        }
