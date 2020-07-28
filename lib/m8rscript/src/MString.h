@@ -280,10 +280,10 @@ public:
         return toUInt(value, c_str()) ? value : 0;
     }
     
-    uint32_t toFloat() const
+    Float toFloat() const
     {
         Float value;
-        return toFloat(value, c_str()) ? value : 0;
+        return toFloat(value, c_str()) ? value : Float(0);
     }
 
 private:
