@@ -230,6 +230,10 @@ bool Marly::execute(const SharedPtr<List>& code)
                             return false;
                         }
                         
+                        if (i >= list->size()) {
+                            showError(Phase::Run, ROMString::format(ROMString("insert index %d out of range for list of size %d"), i, list->size()).c_str(), _lineno);
+                            return false;
+                        }
                         list->insert(list->begin() + i, v);
                         break;
                     }
