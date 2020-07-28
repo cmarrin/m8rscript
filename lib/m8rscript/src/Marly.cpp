@@ -127,7 +127,7 @@ bool Marly::execute(const SharedPtr<List>& code)
             case Value::Type::Load: {
                 auto foundValue = _vars.find(Atom(it.integer()));
                 if (foundValue == _vars.end()) {
-                    return !showError(Phase::Run, ROMString("var not found"), 0);
+                    return !showError(Phase::Run, ROMString("var not found"), _lineno);
                 }
                 _stack.push(foundValue->value);
                 break;
@@ -183,7 +183,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         m8r::String s(ROMString("unrecognized verb '"));
                         s += char(it.integer());
                         s += "'";
-                        return !showError(Phase::Run, s.c_str(), 0);
+                        return !showError(Phase::Run, s.c_str(), _lineno);
                     }
                 }
                 break;
@@ -193,7 +193,7 @@ bool Marly::execute(const SharedPtr<List>& code)
             default: {
                 // If the Type is < ExternalAtomOffset this is a built-in verb
                 if (!it.isBuiltInVerb()) {
-                    return !showError(Phase::Run, ROMString("unrecognized value"), 0);
+                    return !showError(Phase::Run, ROMString("unrecognized value"), _lineno);
                 }
                 
                 switch(it.builtInVerb()) {
@@ -293,7 +293,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         m8r::String s(ROMString("unrecognized built-in verb '"));
                         s += _atomTable.stringFromAtom(it.builtInVerb());
                         s += "'";
-                        return !showError(Phase::Run, s.c_str(), 0);
+                        return !showError(Phase::Run, s.c_str(), _lineno);
                     }
                 }
                 break;

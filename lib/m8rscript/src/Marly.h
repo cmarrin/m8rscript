@@ -447,6 +447,7 @@ private:
     
     static constexpr uint16_t MaxErrors = 32;
     uint16_t _nerrors = 0;
+    uint32_t _lineno = 0;
 };    
 
 }
