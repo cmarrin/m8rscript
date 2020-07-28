@@ -289,7 +289,12 @@ private:
     public:
         virtual ~List() { }
         virtual Value property(Atom) const override { return Value(); }
-        virtual void setProperty(Atom, const Value&) override { }
+        virtual void setProperty(Atom prop, const Value& value) override
+        {
+            if (prop == Atom(SA::length)) {
+                resize(value.integer());
+            }
+        }
     };
 
     class String : public ObjectBase
