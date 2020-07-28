@@ -329,7 +329,7 @@ private:
         };
         
         Value() { _type = Type::Undefined; _int = 0; }
-        explicit Value(bool b) { _type = Type::Bool; _bool = b; }
+        Value(bool b) { _type = Type::Bool; _bool = b; }
         Value(Type t) { _type = t; }
         Value(const char* s)
         {
