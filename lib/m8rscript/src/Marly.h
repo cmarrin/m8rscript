@@ -388,7 +388,9 @@ private:
                 case Type::Int: return _int;
                 case Type::Float: return(int32_t(_float));
                 case Type::Char: return int32_t(_char);
-                
+                case Type::List:
+                case Type::Object: return 0;
+
                 // For all other types we assume the value stored is an int
                 default: return _int;
             }
