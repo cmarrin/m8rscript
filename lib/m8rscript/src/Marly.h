@@ -292,14 +292,19 @@ private:
         virtual void setProperty(Atom, const Value&) override { }
     };
 
-    class String : public ObjectBase, public m8r::String
+    class String : public ObjectBase
     {
     public:
-        String(const char* s) { *this += s; }
         virtual ~String() { }
+        
+        m8r::String& string() { return _str; }
+        const m8r::String& string() const { return _str; }
 
         virtual Value property(Atom) const override { return Value(); }
         virtual void setProperty(Atom, const Value&) override { }
+    
+    private:
+        m8r::String _str;
     };
 
     class Value
@@ -324,7 +329,8 @@ private:
         Value(const char* s)
         {
             _type = Type::String;
-            String* str = new String(s);
+            String* str = new String();
+            str->string() = s;
             str->_count++;
             _ptr = str;
         }
@@ -355,12 +361,10 @@ private:
         bool isBuiltInVerb() const { return int(_type) < ExternalAtomOffset; }
         SA builtInVerb() const { assert(isBuiltInVerb()); return static_cast<SA>(_type); }
         
-        const char* string() const
+        SharedPtr<String> string() const
         {
-            switch(_type) {
-                case Type::String: return reinterpret_cast<String*>(_ptr)->c_str();
-                default: return "** Unimplemented **";
-            }
+            assert(_type == Type::String);
+            return SharedPtr<String>(reinterpret_cast<String*>(_ptr));
         }
         
         SharedPtr<List> list() const
@@ -380,6 +384,18 @@ private:
         float flt() const { return _float; }
         bool boolean() const { return _bool; }
         
+        void toString(String& str) const
+        {
+            switch(_type) {
+                case Type::String: str.string() = string()->string(); return;
+                case Type::Bool: str.string() = _bool ? "true" : "false"; return;
+                case Type::Int: str.string() = m8r::String(_int); return;
+                case Type::Float: str.string() = m8r::String(_float); return;
+                case Type::Char: str.string() = _char; return;
+                default: str.string() = "** unimplemented **";
+            }
+        }
+
         Value property(Atom prop) const
         {
             switch(_type) {

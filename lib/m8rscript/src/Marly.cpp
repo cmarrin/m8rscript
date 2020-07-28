@@ -122,7 +122,15 @@ bool Marly::execute(const SharedPtr<List>& code)
     for (const auto& it : *(code.get())) {
         switch(it.type()) {
             case Value::Type::Int: _stack.push(it.integer()); break;
-            case Value::Type::String: _stack.push(it.string()); break;
+            case Value::Type::String:
+                if (it.type() == Value::Type::String) {
+                    _stack.push(it.string());
+                } else {
+                    String s;
+                    it.toString(s);
+                    _stack.push(s.string().c_str());
+                }
+                break;
             case Value::Type::List: _stack.push(it.list()); break;
             case Value::Type::Load: {
                 auto foundValue = _vars.find(Atom(it.integer()));
@@ -269,17 +277,21 @@ bool Marly::execute(const SharedPtr<List>& code)
                        }
                        break;
                     }
-                    case SA::print:
-                        print(_stack.top().string());
+                    case SA::print: {
+                        String s;
+                        _stack.top().toString(s);
+                        print(s.string().c_str());
                         _stack.pop();
                         break;
+                    }
                     case SA::cat: {
-                        SharedPtr<String> s2(new String(_stack.top().string()));
+                        String s1, s2;
+                        _stack.top().toString(s2);
                         _stack.pop();
-                        SharedPtr<String> s1(new String(_stack.top().string()));
+                        _stack.top().toString(s1);
                         _stack.pop();
-                        *s1 += *s2;
-                        _stack.push(s1);
+                        s1.string() += s2.string();
+                        _stack.push(s1.string().c_str());
                         break;
                     }
                     case SA::currentTime:
