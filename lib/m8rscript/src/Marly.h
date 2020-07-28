@@ -172,7 +172,10 @@ Operators:
                 Execute B. If it is true execute X and repeat.
                 
     for         S B I X ->
-                Execute B. If true execute X then I. Repeat
+                Execute B. Pop the result from the stack. If result is true execute X then 
+                I. Repeat until not true. S is the current iteration value and remains on 
+                TOS. It can be modified by any of the lists, but must be the only element 
+                left on the stack at the end of execution.
 
     fold        A V0 [P] -> V
                 Starting with value V0, push each member of A and execute P to produce value V.
@@ -257,8 +260,7 @@ private:
         T& operator*() { return *_ptr; }
         T* operator->() { return _ptr; }
         
-        T* get() { return _ptr; }
-        const T* get() const { return _ptr; }
+        T* get() const { return _ptr; }
         
         operator bool() { return _ptr != nullptr; }
     
@@ -328,12 +330,12 @@ private:
         }
         
         Value(float f) { _type = Type::Float; _float = f; }
-        Value(SharedPtr<List>& list) { setValue(Type::List, list.get()); }
+        Value(const SharedPtr<List>& list) { setValue(Type::List, list.get()); }
         Value(List* list) { setValue(Type::List, list); }
-        Value(SharedPtr<String>& list) { setValue(Type::String, list.get()); }
-        Value(String* list) { setValue(Type::String, list); }
-        Value(SharedPtr<Object>& list) { setValue(Type::Object, list.get()); }
-        Value(Object* list) { setValue(Type::Object, list); }
+        Value(const SharedPtr<String>& string) { setValue(Type::String, string.get()); }
+        Value(String* string) { setValue(Type::String, string); }
+        Value(const SharedPtr<Object>& object) { setValue(Type::Object, object.get()); }
+        Value(Object* object) { setValue(Type::Object, object); }
         
         Value(int32_t i, Type type = Type::Int)
         {
@@ -361,19 +363,21 @@ private:
             }
         }
         
-        List* list() const
+        SharedPtr<List> list() const
         {
             assert(_type == Type::List);
-            return reinterpret_cast<List*>(_ptr);
+            return SharedPtr<List>(reinterpret_cast<List*>(_ptr));
         }
         
-        Object* object() const
+        SharedPtr<Object> object() const
         {
             assert(_type == Type::Object);
-            return reinterpret_cast<Object*>(_ptr);
+            return SharedPtr<Object>(reinterpret_cast<Object*>(_ptr));
         }
         
+        // FIXME: We need to handle all types here
         int32_t integer() const { return _int; }
+        bool boolean() const { return _bool; }
         
         Value property(Atom prop) const
         {
@@ -419,7 +423,7 @@ private:
         };
     };
 
-    void executeCode();
+    void execute(const SharedPtr<List>& code);
     
     enum Phase { Compile, Run };
     void showError(Phase phase, ROMString s, uint32_t lineno) const

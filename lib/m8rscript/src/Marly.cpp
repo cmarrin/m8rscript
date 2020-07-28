@@ -88,7 +88,11 @@ Marly::Marly(const Stream& stream, Printer printer)
                 break;
             }
             case Token::EndOfFile:
-                executeCode();
+                if (_codeStack.size() != 1) {
+                    showError(Phase::Compile, ROMString("misaligned code stack"), scanner.lineno());
+                    return;
+                }
+                execute(_codeStack.top());
                 return;
             default:
                 // Assume any other token is a built-in verb
@@ -99,12 +103,9 @@ Marly::Marly(const Stream& stream, Printer printer)
     }
 }
 
-void Marly::executeCode()
+void Marly::execute(const SharedPtr<List>& code)
 {
-    Value v;
-    assert(_codeStack.size() == 1);
-
-    for (const auto& it : *_codeStack.top()) {
+    for (const auto& it : *(code.get())) {
         switch(it.type()) {
             case Value::Type::Int: _stack.push(it.integer()); break;
             case Value::Type::String: _stack.push(it.string()); break;
@@ -153,8 +154,8 @@ void Marly::executeCode()
                 
                 switch(it.builtInVerb()) {
                     case SA::print:
-                        _stack.pop(v);
-                        print(v.string());
+                        print(_stack.top().string());
+                        _stack.pop();
                         break;
                     case SA::cat: {
                         SharedPtr<String> s2(new String(_stack.top().string()));
@@ -168,6 +169,29 @@ void Marly::executeCode()
                     case SA::currentTime:
                         _stack.push(float(Time::now().us() / 1000000.));
                         break;
+                    case SA::for$: {
+                        SharedPtr<List> body = _stack.top().list();
+                        _stack.pop();
+                        SharedPtr<List> iter = _stack.top().list();
+                        _stack.pop();
+                        SharedPtr<List> test = _stack.top().list();
+                        _stack.pop();
+                        
+                        // Iteration value is on TOS.
+                        // FIXME: Check that the stack is the same size before executing each list
+                        Value testResult;
+                        
+                        while (true) {
+                            execute(test);
+                            _stack.pop(testResult);
+                            if (!testResult.boolean()) {
+                                break;
+                            }
+                            execute(body);
+                            execute(iter);
+                        }
+                        break;
+                    }
                     default: {
                         m8r::String s(ROMString("unrecognized built-in verb '"));
                         s += _atomTable.stringFromAtom(it.builtInVerb());
