@@ -200,6 +200,31 @@ bool Marly::execute(const SharedPtr<List>& code)
                     case SA::dup:
                         _stack.push(_stack.top());
                         break;
+                    case SA::swap: {
+                        Value v1 = _stack.top();
+                        _stack.pop();
+                        Value v2 = _stack.top();
+                        _stack.pop();
+                        _stack.push(v1);
+                        _stack.push(v2);
+                        break;
+                    }
+                    case SA::insert: {
+                        int32_t i = _stack.top().integer();
+                        _stack.pop();
+                        Value v = _stack.top();
+                        _stack.pop();
+                        
+                        // Make sure TOS is a List
+                        SharedPtr<List> list = _stack.top().list();
+                        if (!list) {
+                            showError(Phase::Run, ROMString("target must be List for 'insert'"), _lineno);
+                            return false;
+                        }
+                        
+                        list->insert(list->begin() + i, v);
+                        break;
+                    }
                     case SA::lt:
                     case SA::le:
                     case SA::eq:
