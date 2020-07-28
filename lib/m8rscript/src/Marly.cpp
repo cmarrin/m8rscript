@@ -217,24 +217,43 @@ bool Marly::execute(const SharedPtr<List>& code)
                         _stack.push(v2);
                         break;
                     }
+                    case SA::at:
+                    case SA::atput:
                     case SA::insert: {
                         int32_t i = _stack.top().integer();
                         _stack.pop();
-                        Value v = _stack.top();
-                        _stack.pop();
+
+                        Value v;
+                        if (it.builtInVerb() != SA::at) {
+                            v = _stack.top();
+                            _stack.pop();
+                        }
                         
                         // Make sure TOS is a List
                         SharedPtr<List> list = _stack.top().list();
+                        _stack.pop();
                         if (!list) {
                             showError(Phase::Run, ROMString("target must be List for 'insert'"), _lineno);
                             return false;
                         }
                         
-                        if (i >= list->size()) {
-                            showError(Phase::Run, ROMString::format(ROMString("insert index %d out of range for list of size %d"), i, list->size()).c_str(), _lineno);
-                            return false;
+                        if (it.builtInVerb() == SA::insert) {
+                            if (i > list->size()) {
+                                i = int32_t(list->size());
+                            }
+                            list->insert(list->begin() + i, v);
+                        } else {
+                            if (i >= list->size()) {
+                                showError(Phase::Run, ROMString::format(ROMString("at index %d out of range for list of size %d"), i, list->size()).c_str(), _lineno);
+                                return false;
+                            }
+                        
+                            if (it.builtInVerb() == SA::at) {
+                                _stack.push((*list)[i]);
+                            } else {
+                                (*list)[i] = v;
+                            }
                         }
-                        list->insert(list->begin() + i, v);
                         break;
                     }
                     case SA::lt:

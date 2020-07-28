@@ -99,6 +99,12 @@ Operators:
     insert      [ A0..A(i-1) Ai..An ] X i -> [ A0..A(i-1) X ai..An ]
                 Insert X before A(i) in the list
 
+    at          [..] i -> X
+                Push the ith element in the List.
+    
+    atput       [..] X i ->
+                Replace the ith element of the list with X.
+                
     bor         X Y -> Z
                 Z is the bitwise or of ints X and Y.
 
