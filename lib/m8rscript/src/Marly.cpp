@@ -340,6 +340,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                             }
                             _stack.pop(testResult);
                             if (!testResult.boolean()) {
+                                _stack.pop();
                                 break;
                             }
                             if (!execute(body)) {
