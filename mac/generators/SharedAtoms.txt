@@ -122,6 +122,8 @@ waitForEvent
 write
 
 // Marly
+at
+atput
 new$
 exec
 pack

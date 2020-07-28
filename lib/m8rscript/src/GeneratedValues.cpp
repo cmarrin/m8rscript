@@ -48,6 +48,8 @@ static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
 static const char _and$[] ROMSTR_ATTR = "and";
 static const char _arguments[] ROMSTR_ATTR = "arguments";
+static const char _at[] ROMSTR_ATTR = "at";
+static const char _atput[] ROMSTR_ATTR = "atput";
 static const char _back[] ROMSTR_ATTR = "back";
 static const char _band[] ROMSTR_ATTR = "band";
 static const char _bnot[] ROMSTR_ATTR = "bnot";
@@ -198,6 +200,8 @@ const char* RODATA_ATTR _sharedAtoms[] = {
     ___object,
     _and$,
     _arguments,
+    _at,
+    _atput,
     _back,
     _band,
     _bnot,
