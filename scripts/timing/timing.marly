@@ -10,8 +10,8 @@ $n $a:length
 
 currentTime @startTime
 
-0 [$n lt] [inc] [
-    0 [$n lt] [inc] [
+0 [dup $n lt] [inc] [
+    0 [dup $n lt] [inc] [
         3 @f
         $a dup dup dup 1 + * 2 / swap insert
     ] for
