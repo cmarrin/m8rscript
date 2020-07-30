@@ -37,6 +37,7 @@ static void mainTask(void* data)
 extern "C" void app_main()
 {
     m8r::Application* application = new m8r::Application(23);
+    application->runAutostartTask();
 
     TaskHandle_t handle = nullptr;
     xTaskCreate(mainTask, "mainTask", 8192, application, tskIDLE_PRIORITY, &handle);
