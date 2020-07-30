@@ -326,7 +326,7 @@ private:
             // have the same values as the shared atoms
             Verb = ExternalAtomOffset,
             Bool, Null, Undefined, 
-            Int, Float, Char,
+            Int, Float,
             String, List, Object,
             
             // Built-in operators
@@ -361,7 +361,6 @@ private:
                 case Type::Bool: _bool = i != 0; break;
                 case Type::Verb:
                 case Type::Float: _float = Float(i); break;
-                case Type::Char: _char = i; break;
                 case Type::Int:
                 default: _int = i; 
             }
@@ -398,7 +397,6 @@ private:
                 case Type::Bool: return _bool ? 1 : 0;
                 case Type::Int: return _int;
                 case Type::Float: return(int32_t(_float));
-                case Type::Char: return int32_t(_char);
                 case Type::List:
                 case Type::Object: return 0;
 
@@ -415,7 +413,6 @@ private:
                 case Type::Bool: return Float(_bool ? 1 : 0);
                 case Type::Int: return Float(_int);
                 case Type::Float: return Float(Float::Raw(_float));
-                case Type::Char: return Float(int32_t(_char));
                 default: return Float(0);
             }
         }
@@ -428,7 +425,6 @@ private:
                 case Type::Bool: return _bool;
                 case Type::Int: return _int != 0;
                 case Type::Float: return _float != 0;
-                case Type::Char: return _char != 0;
                 default: return false;
             }
         }
@@ -440,7 +436,6 @@ private:
                 case Type::Bool: str.string() = _bool ? "true" : "false"; return;
                 case Type::Int: str.string() = m8r::String(_int); return;
                 case Type::Float: str.string() = m8r::String(flt()); return;
-                case Type::Char: str.string() = _char; return;
                 default: str.string() = "** unimplemented **";
             }
         }
@@ -484,7 +479,6 @@ private:
             bool _bool;
             int32_t _int;
             Float::value_type _float;
-            char _char;
             void* _ptr;
         };
     };
