@@ -23,8 +23,9 @@ Marly::Marly(const Stream& stream, Printer printer)
     while (true) {
         Token token = scanner.getToken();
         switch (token) {
+            case Token::True:
             case Token::False:
-                _codeStack.top()->push_back(false);
+                _codeStack.top()->push_back(token == Token::True);
                 break;
             case Token::String:
                 _codeStack.top()->push_back(scanner.getTokenValue().str);
