@@ -112,76 +112,62 @@ Token Scanner::scanSpecial()
 #if M8RSCRIPT_SUPPORT == 0
     return static_cast<Token>(c);
 #else
-    // See if it's a special char in the list
+    // This is either a single character special or
+    // part of a multi-char special. Try for a 2
+    // char special first
     char buf[3];
     buf[0] = c;
-    buf[1] = '\0';
+    buf[1] = get();
+    buf[2] = '\0';
 
     ROMString entries = ROMString(specialChars());
 
     ROMString found = ROMString::strstr(entries, buf);
     if (!found.valid()) {
         // Assume this is a lone special char
+        putback(buf[1]);
         return static_cast<Token>(c);
     }
     
-    // This is either a single char special or the first char
-    // of a 2 or more char special. If the prev char is not
-    // >= 0x80 or the next char is not a special char, then 
-    // we found a single char special embedded in a multichar 
-    // special. Return that as a single char special
+    // This could be a 2 character special or part of a
+    // 3 or 4 character special.
     uint8_t prev = ROMString::readByte(found - 1);
-    uint8_t next = ROMString::readByte(found + 1);
-    if (prev < 0x80 || next >= 0x80) {
+    if (prev < 0x80) {
+        putback(buf[1]);
         return static_cast<Token>(c);
     }
 
     Token token = static_cast<Token>(prev);
 
-    // Now see if this is a 2 char special
-    buf[1] = get();
-    buf[2] = '\0';
-
-    found = ROMString::strstr(entries, buf);
-    
-    if (found.valid()) {
-        // We've found a 2 char sequence. The prev char better be a token
-        prev = ROMString::readByte(found - 1);
-        assert(prev >= 0x80);
-        token = static_cast<Token>(prev);
-        
-        // This might be a 3 or 4 char sequence: <<= >>= >>> >>>=
-        if (token == Token::SHL) {
-            char c = get();
-            if (c == '=') {
-                return Token::SHLSTO;
-            }
-            putback(c);
-            return token;
+    // This might be a 3 or 4 char sequence: <<= >>= >>> >>>=
+    if (token == Token::SHL) {
+        char c = get();
+        if (c == '=') {
+            return Token::SHLSTO;
         }
         
-        if (token == Token::SHR) {
-            char c = get();
-            if (c == '=') {
-                return Token::SHLSTO;
-            }
-            if (c == '>') {
-                c = get();
-                if (c == '=') {
-                    return Token::SARSTO;
-                }
-                putback(c);
-                return Token::SAR;
-            }
-            putback(c);
-            return token;
-        }
+        putback(c);
         return token;
     }
     
-    // This must be the single char token we found before
-    putback(buf[1]);
-    return token;   
+    if (token == Token::SHR) {
+        char c = get();
+        if (c == '=') {
+            return Token::SHLSTO;
+        }
+        if (c == '>') {
+            c = get();
+            if (c == '=') {
+                return Token::SARSTO;
+            }
+            putback(c);
+            return Token::SAR;
+        }
+        putback(c);
+        return token;
+    }
+    
+    return token;
 #endif
 }
 
