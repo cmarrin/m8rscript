@@ -266,6 +266,9 @@ private:
         T& operator*() { return *_ptr; }
         T* operator->() { return _ptr; }
         
+        const T& operator*() const { return *_ptr; }
+        const T* operator->() const { return _ptr; }
+        
         T* get() const { return _ptr; }
         
         operator bool() { return _ptr != nullptr; }
