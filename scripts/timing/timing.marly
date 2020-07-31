@@ -8,7 +8,7 @@ $n $a:length
 
 "\n\nTiming test: " $n " squared iterations\n" cat cat print
 
-currentTime dup @startTime "*** start=" swap cat " seconds\n" cat print
+currentTime @startTime
 
 0 [dup $n lt] [inc] [
     0 [dup $n lt] [inc] [
@@ -19,6 +19,5 @@ currentTime dup @startTime "*** start=" swap cat " seconds\n" cat print
     ] for
 ] for
 
-currentTime dup "*** end=" swap cat " seconds\n" cat print
-$startTime -
+currentTime $startTime -
 "Run time: " swap cat " seconds\n\n" cat print
