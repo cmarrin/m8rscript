@@ -98,6 +98,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "scripts/timing/timing.lua"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "scripts/examples/TimeZoneDBClient.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
