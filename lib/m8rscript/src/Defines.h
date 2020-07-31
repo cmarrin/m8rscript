@@ -25,7 +25,8 @@
 #include "ROMString.h"
 
 #define M8RSCRIPT_SUPPORT 1
-#define MARLY_SUPPORT 0
+#define MARLY_SUPPORT 1
+#define LUA_SUPPORT 1
 
 // Debugging
 static inline void DBG_PRINT(const char* type, const char* fmt, ...)

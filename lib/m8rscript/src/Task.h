@@ -66,16 +66,14 @@ public:
     
     ~Task();
     
-    bool run(const std::shared_ptr<Executable>& exec)
+    bool load(const std::shared_ptr<Executable>& exec)
     {
         _executable = exec;
         return true;
     }
 
-#if M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
-    bool run(const Stream&);
-    bool run(const char* filename);
-#endif
+    bool load(const Stream&, const String& type);
+    bool load(const char* filename);
 
     Error error() const { return _error; }
     

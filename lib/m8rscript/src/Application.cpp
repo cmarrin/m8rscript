@@ -23,10 +23,9 @@
 #endif
 using namespace m8r;
 
-#define RUN_SAMPLE
+//#define RUN_SAMPLE
 
 #ifdef RUN_SAMPLE
-#if M8RSCRIPT_SUPPORT != 1
 class Sample : public Task::Executable
 {
 public:
@@ -36,7 +35,6 @@ public:
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 };
-#endif
 #endif
 
 SystemInterface* Application::_system = nullptr;
@@ -54,27 +52,27 @@ void Application::init(uint16_t port)
     assert(!_system);
     _system = SystemInterface::create();
     
-    system()->setHeartrate(1s);
+    //system()->setHeartrate(1s);
     
     system()->init();
 
-    system()->setHeartrate(3s);
+    //system()->setHeartrate(3s);
     
     // Setup test web server
-    _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
-    _webServer->on("/", "index.html");
-    _webServer->on("/favicon.ico", "favicon.ico");
-
-    _terminal = std::make_unique<Terminal>(port, [this]()
-    {
-        std::shared_ptr<Task> task = std::make_shared<Task>();
-#if M8RSCRIPT_SUPPORT == 1
-        task->run(shellName());
-#else
-        task->run(std::make_shared<Shell>());
-#endif
-        return task;
-    });
+//    _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
+//    _webServer->on("/", "index.html");
+//    _webServer->on("/favicon.ico", "favicon.ico");
+//
+//    _terminal = std::make_unique<Terminal>(port, [this]()
+//    {
+//        std::shared_ptr<Task> task = std::make_shared<Task>();
+//#if M8RSCRIPT_SUPPORT == 1
+//        task->run(shellName());
+//#else
+//        task->run(std::make_shared<Shell>());
+//#endif
+//        return task;
+//    });
 
     mountFileSystem();
 
@@ -107,20 +105,16 @@ void Application::runAutostartTask()
         _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
     });
     
-#if M8RSCRIPT_SUPPORT == 1
-    _autostartTask->run("/sys/bin/timing.m8r");
-#elif MARLY_SUPPORT == 1
-    _autostartTask->run("/sys/bin/timing.marly");
-#else
 #ifdef RUN_SAMPLE
-    _autostartTask->run(std::make_shared<Sample>());
+    _autostartTask->load(std::make_shared<Sample>());
+#else
+    _autostartTask->load("/sys/bin/hello.m8r");
 #endif
-#endif // M8RSCRIPT_SUPPORT
 
     system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {
         m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
         _autostartTask.reset();
-    });    
+    });  
 }
 
 Application::~Application()

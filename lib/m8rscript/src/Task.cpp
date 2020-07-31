@@ -10,6 +10,7 @@
 #include "Task.h"
 
 #include "Application.h"
+#include "Containers.h"
 #include "ExecutionUnit.h"
 #include "GC.h"
 #include "FileStream.h"
@@ -51,19 +52,21 @@ void Task::print(const char* s) const
 
 Task::~Task()
 {
-#if M8RSCRIPT_SUPPORT == 1
     if (_executable) {
         Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(reinterpret_cast<ExecutionUnit*>(_executable.get()));
         GC::removeEU(eu.raw());
         _executable.reset();
         GC::gc();
     }
-#endif
 }
 
-#if M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
-bool Task::run(const char* filename)
+bool Task::load(const char* filename)
 {
+    Vector<String> parts = String(filename).split(".");
+    if (parts.size() < 2) {
+        return false;
+    }
+    
     Error error(Error::Code::NoFS);
     Mad<File> file;
 
@@ -78,11 +81,7 @@ bool Task::run(const char* filename)
         return false;
     }
     
-    bool ret = run(FileStream(file));
-
-#ifndef NDEBUG
-    _name = ROMString::format(ROMString("Task:%s(%p)"), filename, this);
-#endif
+    bool ret = load(FileStream(file), parts.back());
 
     if (file->error() != Error::Code::OK) {
         print(Error::formatError(file->error().code(), ROMSTR("Error reading '%s'"), filename).c_str());
@@ -92,57 +91,51 @@ bool Task::run(const char* filename)
     return ret;
 }
 
-#if M8RSCRIPT_SUPPORT == 1
-bool Task::run(const Stream& stream)
+bool Task::load(const Stream& stream, const String& type)
 {
-    #ifndef NDEBUG
-        _name = ROMString::format(ROMString("Task(%p)"), this);
-    #endif
-
-    std::shared_ptr<ExecutionUnit> eu = std::make_shared<ExecutionUnit>();
-    _executable = eu;
-    GC::addEU(Mad<ExecutionUnit>(eu.get()).raw());
-    
-    // See if we can parse it
-    ParseErrorList errorList;
-    Parser parser;
-    parser.parse(stream, eu.get(), Parser::debug);
-    if (parser.nerrors()) {
-        _executable->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
-        errorList.swap(parser.syntaxErrors());
-        _error = Error::Code::ParseError;
-        return false;
-    }
-    
-    eu->startExecution(parser.program());
-#ifdef PRINT_CODE
-    if (!parser.nerrors()) {
-        CodePrinter codePrinter;
-        m8r::String codeString = codePrinter.generateCodeString(_eu.get());
-        
-        system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-        system()->printf(ROMSTR("%s"), codeString.c_str());
-        system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
-    }
+#ifndef NDEBUG
+    _name = ROMString::format(ROMString("Task(%p)"), this);
 #endif
+
+    if (type == "m8r") {
+        std::shared_ptr<ExecutionUnit> eu = std::make_shared<ExecutionUnit>();
+        _executable = eu;
+        GC::addEU(Mad<ExecutionUnit>(eu.get()).raw());
         
-    return true;
-}
-#elif MARLY_SUPPORT == 1
-bool Task::run(const Stream& stream)
-{
-    #ifndef NDEBUG
-        _name = ROMString::format(ROMString("Task(%p)"), this);
-    #endif
+        // See if we can parse it
+        ParseErrorList errorList;
+        Parser parser;
+        parser.parse(stream, eu.get(), Parser::debug);
+        if (parser.nerrors()) {
+            _executable->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+            errorList.swap(parser.syntaxErrors());
+            _error = Error::Code::ParseError;
+            return false;
+        }
+        
+        eu->startExecution(parser.program());
+        #ifdef PRINT_CODE
+        if (!parser.nerrors()) {
+            CodePrinter codePrinter;
+            m8r::String codeString = codePrinter.generateCodeString(_eu.get());
+            
+            system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
+            system()->printf(ROMSTR("%s"), codeString.c_str());
+            system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+        }
+        #endif
+        return true;
+    } else if (type == "marly") {
+        Marly marly(stream, [this](const char* s) { print(s); });
+        return true;
+    } else if (type == "lua") {
+        return true;
+    }
     
-    Marly marly(stream, [this](const char* s) { print(s); });
     return true;
 }
-#endif // MARLY_SUPPORT == 1
-#endif //M8RSCRIPT_SUPPORT == 1 || MARLY_SUPPORT == 1
 
 #if M8RSCRIPT_SUPPORT == 1
-
 static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
 {
     { SA::constructor, TaskProto::constructor },
@@ -217,7 +210,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     task->setConsolePrintFunction(eu->consolePrintFunction());
 
     if (!filename.empty()) {
-        task->run(path.c_str());
+        task->load(path.c_str());
     }
     
     if (task->error() != Error::Code::OK) {
