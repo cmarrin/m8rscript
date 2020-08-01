@@ -443,7 +443,7 @@
 		49E1907B1DBAE2570030DC89 /* MacUDP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacUDP.h; sourceTree = "<group>"; };
 		49E1907C1DBAE2570030DC89 /* MacTCP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacTCP.h; sourceTree = "<group>"; };
 		49E1907D1DBAE2570030DC89 /* MacTCP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacTCP.cpp; sourceTree = "<group>"; };
-		49E648141D00C088005F5059 /* Float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Float.h; path = ../lib/m8rscript/src/Float.h; sourceTree = "<group>"; };
+		49E648141D00C088005F5059 /* MFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFloat.h; path = ../lib/m8rscript/src/MFloat.h; sourceTree = "<group>"; };
 		49E648181D00C088005F5059 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../lib/m8rscript/src/Parser.cpp; sourceTree = "<group>"; };
 		49E648191D00C088005F5059 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../lib/m8rscript/src/Parser.h; sourceTree = "<group>"; };
 		49E6481A1D00C088005F5059 /* Scanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scanner.cpp; path = ../lib/m8rscript/src/Scanner.cpp; sourceTree = "<group>"; };
@@ -827,7 +827,7 @@
 				49AC57301D03465600DB94B5 /* ExecutionUnit.cpp */,
 				49AC572F1D02C71B00DB94B5 /* ExecutionUnit.h */,
 				496AF9DB24A929A800431796 /* FileStream.h */,
-				49E648141D00C088005F5059 /* Float.h */,
+				49E648141D00C088005F5059 /* MFloat.h */,
 				4942EA871D0AF26300E02088 /* Function.cpp */,
 				4942EA811D07043C00E02088 /* Function.h */,
 				497CAFC5237DF219000495B2 /* GC.cpp */,

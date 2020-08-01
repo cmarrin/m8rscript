@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Float.h"
+#include "MFloat.h"
 #include "MStream.h"
 #include "MString.h"
 

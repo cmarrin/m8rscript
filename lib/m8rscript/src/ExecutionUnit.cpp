@@ -13,7 +13,7 @@
 #include "ExecutionUnit.h"
 
 #include "Closure.h"
-#include "Float.h"
+#include "MFloat.h"
 #include "GC.h"
 #include "MStream.h"
 #include "Parser.h"
