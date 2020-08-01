@@ -55,11 +55,11 @@ void Time::elements(Elements& elts) const
 
 m8r::String Duration::toString(Duration::Units units, uint8_t decimalDigits) const
 {
-    Float f = toFloat();
+    double f = toFloat();
     switch(units) {
         default:
-        case Duration::Units::ms: return String(f * Float(1000), decimalDigits) + "ms";
-        case Duration::Units::us: return String(f * Float(1000000), decimalDigits) + "us";
+        case Duration::Units::ms: return String(f * 1000, decimalDigits) + "ms";
+        case Duration::Units::us: return String(f * 1000000, decimalDigits) + "us";
         case Duration::Units::sec: return String(f, decimalDigits) + "sec";
     }
 }

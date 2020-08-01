@@ -173,11 +173,11 @@ bool Marly::execute(const SharedPtr<List>& code)
                     case Token::Star:
                     case Token::Slash:
                     case Token::Percent: {
-                        Float rhs = _stack.top().flt();
+                        float rhs = _stack.top().flt();
                         _stack.pop();
-                        Float lhs = _stack.top().flt();
+                        float lhs = _stack.top().flt();
                         _stack.pop();
-                        Float result;
+                        float result = 0;
                         switch(static_cast<Token>(it.integer())) {
                             case Token::Plus: result = lhs + rhs; break;
                             case Token::Minus: result = lhs - rhs; break;
@@ -263,9 +263,9 @@ bool Marly::execute(const SharedPtr<List>& code)
                     case SA::ne:
                     case SA::ge:
                     case SA::gt: {
-                        Float rhs = _stack.top().flt();
+                        float rhs = _stack.top().flt();
                         _stack.pop();
-                        Float lhs = _stack.top().flt();
+                        float lhs = _stack.top().flt();
                         _stack.pop();
                         bool result = false;
                         switch(it.builtInVerb()) {
@@ -291,11 +291,11 @@ bool Marly::execute(const SharedPtr<List>& code)
                             }
                             _stack.top() = i;
                         } else {
-                             Float f = _stack.top().flt();
+                             float f = _stack.top().flt();
                             if (it.builtInVerb() == SA::inc) {
-                                f = f + Float(1);
+                                f = f + 1;
                             } else {
-                                f = f + Float(1);
+                                f = f + 1;
                             }
                             _stack.top() = f;
                        }
@@ -319,7 +319,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         break;
                     }
                     case SA::currentTime: {
-                        Float t = Float(static_cast<Float::value_type>(Time::now().us()), -6);
+                        float t = float(double(Time::now().us()) / 1000000);
                         _stack.push(t);
                         break;
                     }

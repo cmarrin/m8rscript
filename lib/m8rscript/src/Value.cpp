@@ -14,6 +14,7 @@
 
 #include "ExecutionUnit.h"
 #include "Object.h"
+#include <cmath>
 
 using namespace m8r;
 
@@ -56,31 +57,31 @@ const char* Value::toStringPointer(ExecutionUnit* eu) const
     }
 }
 
-Float Value::_toFloatValue(ExecutionUnit* eu) const
+float Value::_toFloatValue(ExecutionUnit* eu) const
 {
     switch(type()) {
         case Type::Object: {
             Mad<Object> obj = asObject();
-            Float f;
+            float f = 0;
             if (obj.valid()) {
                 String::toFloat(f, obj->toString(eu).c_str());
             }
             return f;
         }
         case Type::Float: return asFloatValue();
-        case Type::Integer: return Float(int32FromValue(), 0);
+        case Type::Integer: return int32FromValue();
         case Type::String: {
             const Mad<String> s = asString();
             if (!s.valid()) {
-                return Float();
+                return 0;
             }
-            Float f;
+            float f;
             String::toFloat(f, s->c_str());
             return f;
         }
         case Type::StringLiteral: {
             const String& s = eu->program()->stringFromStringLiteral(stringLiteralFromValue());
-            Float f;
+            float f;
             String::toFloat(f, s.c_str());
             return f;
         }
@@ -89,10 +90,10 @@ Float Value::_toFloatValue(ExecutionUnit* eu) const
         case Type::NativeFunction:
         case Type::StaticObject:
         case Type::Null:
-            return Float();
+            return 0;
         case Type::Undefined:
         default:
-            return Float::nan();
+            return NAN;
     }
 }
 

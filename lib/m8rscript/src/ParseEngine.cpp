@@ -459,8 +459,8 @@ bool ParseEngine::classContents()
                 retireToken();
                 
                 switch(getToken()) {
-                    case Token::Float: v = Value(Float(getTokenValue().number)); retireToken(); break;
-                    case Token::Integer: v = Value(getTokenValue().integer); retireToken(); break;
+                    case Token::Float: v = Value(getTokenValue().number); retireToken(); break;
+                    case Token::Integer: v = Value(int32_t(getTokenValue().integer)); retireToken(); break;
                     case Token::String: v = Value(_parser->program()->addStringLiteral(getTokenValue().str)); retireToken(); break;
                     case Token::True: v = Value(true); retireToken(); break;
                     case Token::False: v = Value(false); retireToken(); break;
@@ -664,9 +664,9 @@ bool ParseEngine::propertyName()
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::NotLocal); retireToken(); return true;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); return true;
-        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); return true;
+        case Token::Float: _parser->pushK(Value(getTokenValue().number)); retireToken(); return true;
         case Token::Integer:
-            _parser->pushK(Value(getTokenValue().integer));
+            _parser->pushK(Value(int32_t(getTokenValue().integer)));
             retireToken();
             return true;
         default: return false;
@@ -703,8 +703,8 @@ bool ParseEngine::primaryExpression()
 
     switch(getToken()) {
         case Token::Identifier: _parser->emitId(_parser->atomizeString(getTokenValue().str), Parser::IdType::MightBeLocal); retireToken(); break;
-        case Token::Float: _parser->pushK(Value(Float(getTokenValue().number))); retireToken(); break;
-        case Token::Integer: _parser->pushK(Value(getTokenValue().integer)); retireToken(); break;
+        case Token::Float: _parser->pushK(Value(getTokenValue().number)); retireToken(); break;
+        case Token::Integer: _parser->pushK(Value(int32_t(getTokenValue().integer))); retireToken(); break;
         case Token::String: _parser->pushK(getTokenValue().str); retireToken(); break;
         case Token::True: _parser->pushK(Value(true)); retireToken(); break;
         case Token::False: _parser->pushK(Value(false)); retireToken(); break;

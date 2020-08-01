@@ -11,9 +11,11 @@
 
 #include "StringStream.h"
 #include "Scanner.h"
-#include "slre.h"
+#include <cmath>
 
 using namespace m8r;
+
+static constexpr uint32_t MaxDigits = 12;
 
 m8r::String& String::erase(uint16_t pos, uint16_t len)
 {
@@ -124,7 +126,7 @@ void m8r::String::doEnsureCapacity(uint16_t size)
     _data = newData;
 }
 
-static int32_t intToString(Float::decompose_type x, char* str, int16_t dp, uint8_t decimalDigits)
+static int32_t intToString(int64_t x, char* str, int16_t dp, uint8_t decimalDigits)
 {
     // Adjust x and dp for decimalDigits
     if (dp > decimalDigits) {
@@ -179,7 +181,7 @@ static int32_t intToString(Float::decompose_type x, char* str, int16_t dp, uint8
     return i;
 }
 
-static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8_t decimalDigits)
+static bool toString(char* buf, int64_t value, int16_t& exp, uint8_t decimalDigits)
 {
     if (value == 0) {
         buf[0] = '0';
@@ -194,12 +196,12 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8
     }
 
     // See how many digits we have
-    Float::decompose_type v = value;
+    int64_t v = value;
     int digits = 0;
     for ( ; v > 0; ++digits, v /= 10) ;
     v = value;
     int32_t dp;
-    if (exp + digits > Float::MaxDigits || -exp > Float::MaxDigits) {
+    if (exp + digits > MaxDigits || -exp > MaxDigits) {
         // Scientific notation
         dp = digits - 1;
         exp += dp;
@@ -222,23 +224,6 @@ static bool toString(char* buf, Float::decompose_type value, int16_t& exp, uint8
     return true;
 }
 
-m8r::String::String(Float value, uint8_t decimalDigits)
-{
-    //          sign    digits  dp      'e'     dp      exp     '\0'
-    char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
-    int16_t exp;
-    Float::decompose_type mantissa;
-    value.decompose(mantissa, exp);
-    if (mantissa < 0) {
-        buf[0] = '-';
-        mantissa = - mantissa;
-        ::toString(buf + 1, mantissa, exp, decimalDigits);
-    } else {
-        ::toString(buf, mantissa, exp, decimalDigits);
-    }
-    *this = String(buf);
-}
-
 m8r::String::String(double value, uint8_t decimalDigits)
 {
     //          sign    digits  dp      'e'     dp      exp     '\0'
@@ -246,7 +231,7 @@ m8r::String::String(double value, uint8_t decimalDigits)
     
     int fexp;
     double fman = std::frexp(value, &fexp);
-    Float::decompose_type mantissa = Float::decompose_type(fman * 1024 * 1024 * 1024);
+    int64_t mantissa = int64_t(fman * 1024 * 1024 * 1024);
     fexp += 30;
     int16_t exp = int16_t(fexp);
     
@@ -284,7 +269,7 @@ m8r::String::String(void* value)
     *this = ROMString::format(ROMString("0x%08x"), static_cast<uint32_t>(reinterpret_cast<intptr_t>(value)));
 }
 
-bool m8r::String::toFloat(Float& f, const char* s, bool allowWhitespace)
+bool m8r::String::toFloat(float& f, const char* s, bool allowWhitespace)
 {
     StringStream stream(s);
     Scanner scanner(&stream);
@@ -296,7 +281,7 @@ bool m8r::String::toFloat(Float& f, const char* s, bool allowWhitespace)
         token = scanner.getToken(allowWhitespace);
     }
     if (token == Token::Float || token == Token::Integer) {
-        f = (token == Token::Float) ? Float(type.number) : Float(type.integer, 0);
+        f = (token == Token::Float) ? type.number : float(type.integer);
         if (neg) {
             f = -f;
         }
@@ -347,10 +332,10 @@ m8r::String m8r::String::prettySize(uint32_t size, uint8_t decimalDigits, bool b
     if (static_cast<int32_t>(size) < multiplier) {
         return String(size) + ' ';
     } else if (static_cast<int32_t>(size) < multiplier * multiplier) {
-        return String(Float(static_cast<int32_t>(size)) / Float(multiplier), decimalDigits) + " K";
+        return String(float(size) / multiplier, decimalDigits) + " K";
     } else if (static_cast<int32_t>(size) < multiplier * multiplier * multiplier) {
-        return String(Float(static_cast<int32_t>(size)) / Float(multiplier * multiplier), decimalDigits) + " M";
+        return String(float(size) / multiplier / multiplier, decimalDigits) + " M";
     } else {
-        return String(Float(static_cast<int32_t>(size)) / Float(multiplier * multiplier * multiplier), decimalDigits) + " G";
+        return String(float(size) / multiplier / multiplier / multiplier, decimalDigits) + " G";
     }
 }

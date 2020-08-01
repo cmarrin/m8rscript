@@ -230,6 +230,30 @@ int32_t Scanner::scanDigits(int32_t& number, bool hex)
     return numDigits;
 }
 
+static float pow10(int32_t e)
+{
+    bool neg = false;
+    if (e < 0) {
+        neg = true;
+        e = -e;
+    }
+
+    float r = 1;
+    float p = 10;
+    
+    while (true) {
+        if (e % 2 == 1) {
+            r *= p;
+            e--;
+        }
+        if (e == 0) {
+            break;
+        }
+        p *= p;
+        e /= 2;
+    }
+    return neg ? (1 / r) : r;
+}
 Token Scanner::scanNumber(TokenType& tokenValue)
 {
 	uint8_t c = get();
@@ -266,8 +290,7 @@ Token Scanner::scanNumber(TokenType& tokenValue)
     
     scanDigits(number, hex);
     if (scanFloat(number, exp)) {
-        Float f(number, exp);
-        tokenValue.number = f.raw();
+        tokenValue.number = float(number) * pow10(exp);
         return Token::Float;
     }
     assert(exp == 0);

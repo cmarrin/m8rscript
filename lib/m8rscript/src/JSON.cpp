@@ -39,12 +39,12 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
         case Token::Minus: 
             scanner.retireToken();
             switch(scanner.getToken()) {
-                case Token::Float: v = Value(-Float(scanner.getTokenValue().number)); scanner.retireToken(); break;
+                case Token::Float: v = Value(-scanner.getTokenValue().number); scanner.retireToken(); break;
                 case Token::Integer: v = Value(-static_cast<int32_t>(scanner.getTokenValue().integer)); scanner.retireToken(); break;
                 default: return Value();
             }
             break;
-        case Token::Float: v = Value(Float(scanner.getTokenValue().number)); scanner.retireToken(); break;
+        case Token::Float: v = Value(scanner.getTokenValue().number); scanner.retireToken(); break;
         case Token::Integer: v = Value(static_cast<int32_t>(scanner.getTokenValue().integer)); scanner.retireToken(); break;
         case Token::String: v = Value(ExecutionUnit::createString(scanner.getTokenValue().str)); scanner.retireToken(); break;
         case Token::True: v = Value(static_cast<int32_t>(1)); scanner.retireToken(); break;

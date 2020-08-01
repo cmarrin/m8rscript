@@ -349,7 +349,7 @@ private:
             _ptr = str;
         }
         
-        Value(Float f) { _type = Type::Float; _float = f.raw(); }
+        Value(float f) { _type = Type::Float; _float = f; }
         Value(const SharedPtr<List>& list) { setValue(Type::List, list.get()); }
         Value(List* list) { setValue(Type::List, list); }
         Value(const SharedPtr<String>& string) { setValue(Type::String, string.get()); }
@@ -363,7 +363,7 @@ private:
             switch(type) {
                 case Type::Bool: _bool = i != 0; break;
                 case Type::Verb:
-                case Type::Float: _float = Float(i); break;
+                case Type::Float: _float = i; break;
                 case Type::Int:
                 default: _int = i; 
             }
@@ -408,15 +408,15 @@ private:
             }
         }
         
-        Float flt() const
+        float flt() const
         {
             switch(_type) {
                 // FIXME: Do a toFloat conversion
                 case Type::String: return string()->string().toFloat();
-                case Type::Bool: return Float(_bool ? 1 : 0);
-                case Type::Int: return Float(_int);
-                case Type::Float: return Float(Float::Raw(_float));
-                default: return Float(0);
+                case Type::Bool: return _bool ? 1 : 0;
+                case Type::Int: return _int;
+                case Type::Float: return _float;
+                default: return 0;
             }
         }
 
@@ -481,7 +481,7 @@ private:
         union {
             bool _bool;
             int32_t _int;
-            Float::value_type _float;
+            float _float;
             void* _ptr;
         };
     };

@@ -18,7 +18,6 @@
 #include <vector>
 #include "Containers.h"
 #include "Defines.h"
-#include "MFloat.h"
 #include "Mallocator.h"
 
 namespace m8r {
@@ -83,7 +82,6 @@ public:
         _size = 2;
     }
     
-    String(Float, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
     String(double, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
     String(int32_t);
     String(uint32_t);
@@ -257,7 +255,7 @@ public:
     
     void reserve(uint16_t size) { ensureCapacity(size); }
     
-    static bool toFloat(Float&, const char*, bool allowWhitespace = true);
+    static bool toFloat(float&, const char*, bool allowWhitespace = true);
     static bool toInt(int32_t&, const char*, bool allowWhitespace = true);
     static bool toUInt(uint32_t&, const char*, bool allowWhitespace = true);
     
@@ -280,10 +278,10 @@ public:
         return toUInt(value, c_str()) ? value : 0;
     }
     
-    Float toFloat() const
+    float toFloat() const
     {
-        Float value;
-        return toFloat(value, c_str()) ? value : Float(0);
+        float value;
+        return toFloat(value, c_str()) ? value : 0;
     }
 
 private:

@@ -46,31 +46,29 @@ public:
         Null = 24,
         NativeObject = 28,
     };
-    
-    static constexpr auto ValueMask = 0x03;
-    
-    void init() { memset(_value._raw, 0, sizeof(_value._raw)); }
-    void copy(const Value& other) { memcpy(_value._raw, other._value._raw, sizeof(_value._raw)); }
+        
+    void init() { _value._type = Type::Undefined; _value._intptr = 0; }
+    void copy(const Value& other) { _value._type = other._value._type; _value._intptr = other._value._intptr; }
 
     Value() { init(); _value._type = Type::Undefined; }
     
-    explicit Value(Float value) {
-        _value._float = value.raw() & ~ValueMask;
-        _value._float |= static_cast<Float::decompose_type>(Type::Float);
+    explicit Value(float value) {
+        _value._float = value;
+        _value._type = Type::Float;
     }
     
     explicit Value(NativeFunction value)
     {
         assert(value);
-        assert((reinterpret_cast<intptr_t>(value) & ValueMask) == 0);
-        _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::NativeFunction);
+        _value._type = Type::NativeFunction;
+        _value._intptr = intptr_t(value);
     }
 
     explicit Value(StaticObject* value)
     {
         assert(value);
-        assert((reinterpret_cast<intptr_t>(value) & ValueMask) == 0);
-        _value._intptr = reinterpret_cast<intptr_t>(value) | static_cast<intptr_t>(Type::StaticObject);
+        _value._type = Type::StaticObject;
+        _value._intptr = intptr_t(value);
     }
 
     explicit Value(Mad<Object> value) { setMad(value); _value._type = Type::Object; }
@@ -90,14 +88,14 @@ public:
     
     static Value NullValue() { Value value; value.init(); value._value._type = Type::Null; return value; }
     
-    bool operator==(const Value& other) { return _value._raw == other._value._raw; }
-    bool operator!=(const Value& other) { return _value._raw != other._value._raw; }
+    bool operator==(const Value& other) { return _value._type == other._value._type && _value._intptr == other._value._intptr; }
+    bool operator!=(const Value& other) { return !(*this == other); }
     
     explicit operator bool() const { return type() != Type::Undefined; }
 
     ~Value() { }
     
-    Type type() const { return ((_value._intptr & ValueMask) == 0) ? _value._type : static_cast<Type>(_value._float & ValueMask); }
+    Type type() const { return _value._type; }
     
     //
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
@@ -107,7 +105,7 @@ public:
     Mad<String> asString() const { return (type() == Type::String) ? getMad<String>() : Mad<String>(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
-    Float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : Float(); }
+    float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : 0; }
     Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
     Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? getMad<NativeObject>() : Mad<NativeObject>(); }
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
@@ -136,9 +134,9 @@ public:
         }
     }
     
-    Float toFloatValue(ExecutionUnit* eu) const
+    float toFloatValue(ExecutionUnit* eu) const
     {
-        return (type() == Type::Float) ? floatFromValue() : ((type() == Type::Integer) ? Float(int32FromValue()) : _toFloatValue(eu));
+        return (type() == Type::Float) ? floatFromValue() : ((type() == Type::Integer) ? float(int32FromValue()) : _toFloatValue(eu));
     }
 
     int32_t toIntValue(ExecutionUnit* eu) const
@@ -191,21 +189,17 @@ public:
     bool needsGC() const { return type() == Type::Object || type() == Type::String; }
     
 private:
-    Float _toFloatValue(ExecutionUnit*) const;
+    float _toFloatValue(ExecutionUnit*) const;
     Value _toValue(ExecutionUnit*) const;
     Atom _toIdValue(ExecutionUnit*) const;
 
-    inline Float floatFromValue() const
-    {
-        Float::Raw raw(_value._float & ~3);
-        return Float(raw);
-    }
+    inline float floatFromValue() const { return _value._float; }
     int32_t int32FromValue() const { return _value._int; }
     uint32_t uint32FromValue() const { return _value._int; }
     Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
-    NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr & ~ValueMask); }
-    StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
-    const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr & ~ValueMask); }
+    NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr); }
+    StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr); }
+    const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr); }
 
     StringLiteral stringLiteralFromValue() const
     {
@@ -226,21 +220,13 @@ private:
     // lowest 2 bits are used for type. For pointers, they are 4 byte aligned on ESP and
     // 8 byte aligned on Mac. So using the lowest 2 bits is safe. For float, using the
     // lowest 2 bits means you lose 2 bits of precision.
-    union {
-        uint8_t _raw[sizeof(intptr_t) * 2];
-        Float::value_type _float;
-        intptr_t _intptr;
-        struct {
-            // TODO: type needs to be in the low order bytes of Value
-            // This makes the trick of using the 2 LSB as the type forFloat and
-            // NativeFunction. That's only true for little endian platforms. Both
-            // Mac and ESP are little endian, but if it's ever ported big endian this
-            // needs to be fixed
-            Type _type;
-            union {
-                RawMad _rawMad;
-                int32_t _int;
-            };
+    struct {
+        Type _type;
+        union {
+            intptr_t _intptr;
+            RawMad _rawMad;
+            int32_t _int;
+            float _float;
         };
     } _value;
     

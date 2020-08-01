@@ -75,7 +75,7 @@ Global::Global()
 CallReturnValue Global::currentTime(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     uint64_t t = Time::now().us();
-    eu->stack().push(Value(Float(static_cast<Float::value_type>(t), -6)));
+    eu->stack().push(Value(float(double(t) / 1000000)));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
 
@@ -122,7 +122,7 @@ CallReturnValue Global::toFloat(ExecutionUnit* eu, Value thisValue, uint32_t npa
     }
     
     String s = eu->stack().top(1 - nparams).toStringValue(eu);
-    Float f;
+    float f;
     if (String::toFloat(f, s.c_str(), allowWhitespace)) {
         eu->stack().push(Value(f));
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);

@@ -13,7 +13,6 @@
 #include "CodePrinter.h"
 
 #include "ExecutionUnit.h"
-#include "MFloat.h"
 #include "Program.h"
 
 using namespace m8r;

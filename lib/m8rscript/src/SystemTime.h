@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Defines.h"
-#include "MFloat.h"
 #include <cstdint>
 #include <limits>
 #include <unistd.h>
@@ -46,7 +45,7 @@ public:
         _value = (v << Shift);
     }
     
-    Duration(Float value) { *this = Duration(static_cast<int64_t>(value * Float(1000000))); }
+    Duration(double value) { *this = Duration(static_cast<int64_t>(value * 1000000)); }
     
     constexpr Duration(std::chrono::microseconds value) { *this = value; }
     constexpr Duration(std::chrono::milliseconds value) { *this = value; }
@@ -118,12 +117,12 @@ public:
         return v;
     }
     
-    Float toFloat() const
+    double toFloat() const
     {
-        Float f(_value >> Shift);
+        double f(_value >> Shift);
         switch (units()) {
-            case Units::us: f /= Float(1000000); break;
-            case Units::ms: f /= Float(1000); break;
+            case Units::us: f /= 1000000; break;
+            case Units::ms: f /= 1000; break;
             default: break;
         }
         return f;
@@ -177,7 +176,7 @@ public:
     friend Time operator+(const Time& t, const Duration& d) { return Time(t._value + d.us()); }
     friend Time operator+(const Duration& d, const Time& t) { return Time(t._value + d.us()); }
     friend Time operator-(const Time& t, const Duration& d) { return Time(t._value - d.us()); }
-    friend Duration operator-(const Time& t1, const Time& t2) { return Duration(t1._value - t2._value); }
+    friend Duration operator-(const Time& t1, const Time& t2) { return Duration(int64_t(t1._value - t2._value)); }
 
     Time operator+=(const Duration& other) { *this = *this + other; return *this; }
     Time operator-=(const Duration& other) { *this = *this - other; return *this; }

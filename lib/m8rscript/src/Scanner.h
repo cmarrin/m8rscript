@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "MFloat.h"
 #include "MStream.h"
 #include "MString.h"
 
@@ -111,7 +110,7 @@ public:
     typedef struct {
         Label           label;
         Function*       function;
-        Float::Raw	    number;
+        float   	    number;
         uint32_t        integer;
         uint32_t        argcount;
         const char*     str;

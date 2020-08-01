@@ -13,12 +13,12 @@
 #include "ExecutionUnit.h"
 
 #include "Closure.h"
-#include "MFloat.h"
 #include "GC.h"
 #include "MStream.h"
 #include "Parser.h"
 #include "SystemInterface.h"
 #include "SystemTime.h"
+#include <cmath>
 
 using namespace m8r;
 
@@ -429,10 +429,10 @@ static inline bool valuesAreInt(const Value& a, const Value& b)
     return a.isInteger() && b.isInteger();
 }
 
-static inline int compareFloat(Float a, Float b)
+static inline int compareFloat(float a, float b)
 {
-    Float result = a - b;
-    return (result < Float(0)) ? -1 : ((result > Float(0)) ? 1 : 0);
+    float result = a - b;
+    return (result < 0) ? -1 : ((result > 0) ? 1 : 0);
 }
 
 int ExecutionUnit::compareValues(const Value& a, const Value& b)
@@ -538,12 +538,10 @@ CallReturnValue ExecutionUnit::execute()
     GC::gc();
     
     uint32_t uintValue;
-    Float floatValue;
     bool boolValue;
     Value leftValue, rightValue;
     bool leftBoolValue, rightBoolValue;
     int32_t leftIntValue, rightIntValue;
-    Float leftFloatValue, rightFloatValue;
     Mad<Object> objectValue;
     Value returnedValue;
     CallReturnValue callReturnValue;
@@ -831,7 +829,7 @@ CallReturnValue ExecutionUnit::execute()
         if (valuesAreInt(leftValue, rightValue)) {
             setInFrame(ra, Value(leftValue.asIntValue() % rightValue.asIntValue()));
         } else {
-            setInFrame(ra, Value(leftValue.toFloatValue(this) % rightValue.toFloatValue(this)));
+            setInFrame(ra, Value(std::fmod(leftValue.toFloatValue(this), rightValue.toFloatValue(this))));
         }
         DISPATCH;
     L_ADD:
