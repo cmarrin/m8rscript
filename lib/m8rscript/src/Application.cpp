@@ -52,27 +52,27 @@ void Application::init(uint16_t port)
     assert(!_system);
     _system = SystemInterface::create();
     
-    //system()->setHeartrate(1s);
+    system()->setHeartrate(1s);
     
     system()->init();
 
-    //system()->setHeartrate(3s);
+    system()->setHeartrate(3s);
     
     // Setup test web server
-//    _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
-//    _webServer->on("/", "index.html");
-//    _webServer->on("/favicon.ico", "favicon.ico");
-//
-//    _terminal = std::make_unique<Terminal>(port, [this]()
-//    {
-//        std::shared_ptr<Task> task = std::make_shared<Task>();
-//#if M8RSCRIPT_SUPPORT == 1
-//        task->run(shellName());
-//#else
-//        task->run(std::make_shared<Shell>());
-//#endif
-//        return task;
-//    });
+    _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
+    _webServer->on("/", "index.html");
+    _webServer->on("/favicon.ico", "favicon.ico");
+
+    _terminal = std::make_unique<Terminal>(port, [this]()
+    {
+        std::shared_ptr<Task> task = std::make_shared<Task>();
+#if M8RSCRIPT_SUPPORT == 1
+        task->load(shellName());
+#else
+        task->load(std::make_shared<Shell>());
+#endif
+        return task;
+    });
 
     mountFileSystem();
 
