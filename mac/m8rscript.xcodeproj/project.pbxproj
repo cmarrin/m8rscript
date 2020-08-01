@@ -526,6 +526,8 @@
 		49FA4DE124D5C407001069AE /* LuaEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaEngine.h; path = ../lib/m8rscript/src/LuaEngine.h; sourceTree = "<group>"; };
 		49FA4DE524D5CF00001069AE /* Executable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Executable.cpp; path = ../lib/m8rscript/src/Executable.cpp; sourceTree = "<group>"; };
 		49FA4DE624D5CF00001069AE /* Executable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Executable.h; path = ../lib/m8rscript/src/Executable.h; sourceTree = "<group>"; };
+		49FA4DEC24D5DC79001069AE /* component.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = component.mk; path = ../esp/components/m8rscript/component.mk; sourceTree = "<group>"; };
+		49FA4DED24D5DC8D001069AE /* component.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = component.mk; path = ../esp/components/lua/component.mk; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -666,6 +668,9 @@
 		494D25891D32B2E6003755DB /* esprtos */ = {
 			isa = PBXGroup;
 			children = (
+				49FA4DEA24D5DC3C001069AE /* main */,
+				49FA4DEE24D5DD26001069AE /* lua */,
+				49FA4DEB24D5DC54001069AE /* m8rscript */,
 				49087CFC2476F3B200CA752A /* RtosGPIOInterface.cpp */,
 				49087CFD2476F3B200CA752A /* RtosGPIOInterface.h */,
 				497DC63F23A5BC9700748031 /* RtosSystemInterface.cpp */,
@@ -673,7 +678,6 @@
 				49087D012477388800CA752A /* RtosTCP.h */,
 				49A6A9ED2430F31C004D457C /* RtosWifi.cpp */,
 				49A6A9EE2430F31C004D457C /* RtosWifi.h */,
-				497DC63D23A58A7F00748031 /* component.mk */,
 				497DC63423A5771A00748031 /* Makefile */,
 				497DC63623A5835100748031 /* m8rscript.cpp */,
 				497DC63823A5849E00748031 /* sdkconfig */,
@@ -986,6 +990,30 @@
 				49F2478924D45F9800D977D2 /* lzio.c */,
 				49F2476A24D45F9600D977D2 /* lzio.h */,
 				49F2478B24D45F9800D977D2 /* Makefile */,
+			);
+			name = lua;
+			sourceTree = "<group>";
+		};
+		49FA4DEA24D5DC3C001069AE /* main */ = {
+			isa = PBXGroup;
+			children = (
+				497DC63D23A58A7F00748031 /* component.mk */,
+			);
+			name = main;
+			sourceTree = "<group>";
+		};
+		49FA4DEB24D5DC54001069AE /* m8rscript */ = {
+			isa = PBXGroup;
+			children = (
+				49FA4DEC24D5DC79001069AE /* component.mk */,
+			);
+			name = m8rscript;
+			sourceTree = "<group>";
+		};
+		49FA4DEE24D5DD26001069AE /* lua */ = {
+			isa = PBXGroup;
+			children = (
+				49FA4DED24D5DC8D001069AE /* component.mk */,
 			);
 			name = lua;
 			sourceTree = "<group>";
