@@ -53,7 +53,6 @@ COMPONENT_OBJS := \
     $(M8R_DIR)/Terminal.o \
     $(M8R_DIR)/Timer.o \
     $(M8R_DIR)/Value.o \
-    $(M8R_DIR)/slre.o \
     $(M8R_DIR)/littlefs/MLittleFS.o \
     $(M8R_DIR)/littlefs/lfs.o \
     $(M8R_DIR)/littlefs/lfs_util.o \
