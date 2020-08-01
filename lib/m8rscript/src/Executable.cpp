@@ -7,20 +7,17 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#pragma once
+#include "Executable.h"
 
-#include "Task.h"
+#include "SystemInterface.h"
 
-namespace m8r {
+using namespace m8r;
 
-class Shell : public Executable {
-public:
-    Shell();
-    virtual ~Shell() { }
-
-    virtual CallReturnValue execute() override;
-
-private:
-};
-    
+void Executable::print(const char* s) const
+{
+    if (_consolePrintFunction) {
+        _consolePrintFunction(s);
+    } else {
+        system()->print(s);
+    }
 }

@@ -37,15 +37,6 @@ extern "C" {
 
 using namespace m8r;
 
-void Task::Executable::print(const char* s) const
-{
-    if (_consolePrintFunction) {
-        _consolePrintFunction(s);
-    } else {
-        system()->print(s);
-    }
-}
-
 void Task::print(const char* s) const
 {
     if (_executable) {

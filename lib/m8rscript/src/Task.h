@@ -12,6 +12,7 @@
 #include "CallReturnValue.h"
 #include "Containers.h"
 #include "Error.h"
+#include "Executable.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 #include "TaskManager.h"
@@ -25,41 +26,7 @@ class String;
 class Task : public NativeObject {
     friend class TaskManager;
     
-public:
-    class Executable
-    {
-    public:
-        using ConsoleListener = std::function<void(const String& data, KeyAction)>;
-        
-        Executable() { }
-        virtual ~Executable() { }
-        
-        virtual CallReturnValue execute() = 0;
-        virtual bool readyToRun() const { return true; }
-        virtual void requestYield() const { }
-        virtual void receivedData(const String& data, KeyAction) { }
-        
-        void printf(ROMString fmt, ...) const
-        {
-            va_list args;
-            va_start(args, fmt);
-            vprintf(fmt, args);
-        }
-
-        void vprintf(ROMString fmt, va_list args) const
-        {
-            print(ROMString::vformat(fmt, args).c_str());
-        }
-        
-        void print(const char* s) const;
-
-        void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
-        std::function<void(const String&)> consolePrintFunction() const { return _consolePrintFunction; }
- 
-    private:
-        std::function<void(const String&)> _consolePrintFunction;
-    };
-        
+public:        
     enum class State { Ready, WaitingForEvent, Delaying, Terminated };
     
     Task() { }

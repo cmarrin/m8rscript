@@ -26,7 +26,7 @@ using namespace m8r;
 //#define RUN_SAMPLE
 
 #ifdef RUN_SAMPLE
-class Sample : public Task::Executable
+class Sample : public Executable
 {
 public:
     virtual CallReturnValue execute() override

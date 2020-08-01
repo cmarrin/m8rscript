@@ -25,7 +25,7 @@ class Parser;
 
 using ExecutionStack = Stack<Value>;
 
-class ExecutionUnit : public Task::Executable {
+class ExecutionUnit : public Executable {
 public:
     static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
 
