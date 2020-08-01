@@ -106,13 +106,13 @@ void Application::runAutostartTask()
     });
     
 #ifdef RUN_SAMPLE
-    _autostartTask->load(std::make_shared<Sample>());
+    bool result = _autostartTask->load(std::make_shared<Sample>());
 #else
-    _autostartTask->load("/sys/bin/hello.m8r");
+    bool result = _autostartTask->load("/sys/bin/timing.lua");
 #endif
 
-    system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {
-        m8r::system()->printf(ROMSTR("******* autostart task completed\n"));
+    system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
+        m8r::system()->printf(ROMSTR("******* autostart task completed. Result=%d\n"), result);
         _autostartTask.reset();
     });  
 }

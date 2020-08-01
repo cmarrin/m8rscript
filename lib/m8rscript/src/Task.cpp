@@ -18,6 +18,11 @@
 #include "Parser.h"
 #include <memory>
 
+extern "C" {
+    #include "lua.h"
+    #include "lauxlib.h"
+}
+
 #ifndef NDEBUG
 #ifdef __APPLE__
 //#define PRINT_CODE
@@ -91,6 +96,13 @@ bool Task::load(const char* filename)
     return ret;
 }
 
+static int pmain (lua_State *L)
+{
+    luaL_checkversion(L);
+    printf("***** Hello from Lua!\n");
+    return 1;
+}
+
 bool Task::load(const Stream& stream, const String& type)
 {
 #ifndef NDEBUG
@@ -128,10 +140,20 @@ bool Task::load(const Stream& stream, const String& type)
     } else if (type == "marly") {
         Marly marly(stream, [this](const char* s) { print(s); });
         return true;
-    } else if (type == "lua") {
-        return true;
+    } else if (type == "lua") {        
+        lua_State *L = luaL_newstate();  /* create state */
+        if (L == NULL) {
+            printf("***** Lua Error: cannot create state: not enough memory\n");
+            return false;
+        }
+        lua_pushcfunction(L, &pmain);
+        int status = lua_pcall(L, 0, 1, 0);
+        printf("***** Lua finished: returned status %d\n", status);
+        int result = lua_toboolean(L, -1);
+        lua_close(L);
+        return result != 0;
     }
-    
+
     return true;
 }
 

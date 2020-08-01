@@ -178,6 +178,7 @@
 		49F247D824D45F9A00D977D2 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 49F2479A24D45F9A00D977D2 /* lparser.c */; };
 		49F247D924D45F9A00D977D2 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F2479B24D45F9A00D977D2 /* llimits.h */; };
 		49F4633E1E1873D6004EF625 /* Iterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F4633C1E1873D6004EF625 /* Iterator.h */; };
+		49FA4DDF24D53EB0001069AE /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -531,6 +532,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49FA4DDF24D53EB0001069AE /* liblua.a in Frameworks */,
 				4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
