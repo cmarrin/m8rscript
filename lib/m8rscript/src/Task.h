@@ -9,12 +9,14 @@
 
 #pragma once
 
+#include "Error.h"
 #include "Executable.h"
 #include "TaskManager.h"
 #include <functional>
 
 namespace m8r {
 
+class Stream;
 class String;
 
 class Task : public NativeObject {

@@ -14,6 +14,7 @@
 #include "LuaEngine.h"
 #include "Marly.h"
 #include "Parser.h"
+#include "SystemInterface.h"
 
 #ifndef NDEBUG
 #ifdef __APPLE__
@@ -41,10 +42,14 @@ void Task::print(const char* s) const
 Task::~Task()
 {
     if (_executable) {
+#if M8RSCRIPT_SUPPORT == 1
         Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(reinterpret_cast<ExecutionUnit*>(_executable.get()));
         GC::removeEU(eu.raw());
         _executable.reset();
         GC::gc();
+#else
+        _executable.reset();
+#endif
     }
 }
 
@@ -86,6 +91,7 @@ bool Task::load(const Stream& stream, const String& type)
 #endif
 
     if (type == "m8r") {
+#if M8RSCRIPT_SUPPORT == 1
         std::shared_ptr<ExecutionUnit> eu = std::make_shared<ExecutionUnit>();
         _executable = eu;
         GC::addEU(Mad<ExecutionUnit>(eu.get()).raw());
@@ -112,6 +118,7 @@ bool Task::load(const Stream& stream, const String& type)
             system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
         }
         #endif
+#endif
         return true;
     } else if (type == "marly") {
         Marly marly(stream, [this](const char* s) { print(s); });
