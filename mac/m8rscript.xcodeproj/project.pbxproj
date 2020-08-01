@@ -179,6 +179,9 @@
 		49F247D924D45F9A00D977D2 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F2479B24D45F9A00D977D2 /* llimits.h */; };
 		49F4633E1E1873D6004EF625 /* Iterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F4633C1E1873D6004EF625 /* Iterator.h */; };
 		49FA4DDF24D53EB0001069AE /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
+		49FA4DE224D5C407001069AE /* LuaEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FA4DE024D5C407001069AE /* LuaEngine.cpp */; };
+		49FA4DE324D5C407001069AE /* LuaEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FA4DE024D5C407001069AE /* LuaEngine.cpp */; };
+		49FA4DE424D5C407001069AE /* LuaEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 49FA4DE124D5C407001069AE /* LuaEngine.h */; };
 		49FA4DE724D5CF00001069AE /* Executable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FA4DE524D5CF00001069AE /* Executable.cpp */; };
 		49FA4DE824D5CF00001069AE /* Executable.h in Headers */ = {isa = PBXBuildFile; fileRef = 49FA4DE624D5CF00001069AE /* Executable.h */; };
 /* End PBXBuildFile section */
@@ -519,6 +522,8 @@
 		49F2479B24D45F9A00D977D2 /* llimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = llimits.h; path = "../lib/lua-5.3.5/src/llimits.h"; sourceTree = "<group>"; };
 		49F4633B1E1873D6004EF625 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../lib/m8rscript/src/Iterator.cpp; sourceTree = "<group>"; };
 		49F4633C1E1873D6004EF625 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iterator.h; path = ../lib/m8rscript/src/Iterator.h; sourceTree = "<group>"; };
+		49FA4DE024D5C407001069AE /* LuaEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LuaEngine.cpp; path = ../lib/m8rscript/src/LuaEngine.cpp; sourceTree = "<group>"; };
+		49FA4DE124D5C407001069AE /* LuaEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LuaEngine.h; path = ../lib/m8rscript/src/LuaEngine.h; sourceTree = "<group>"; };
 		49FA4DE524D5CF00001069AE /* Executable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Executable.cpp; path = ../lib/m8rscript/src/Executable.cpp; sourceTree = "<group>"; };
 		49FA4DE624D5CF00001069AE /* Executable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Executable.h; path = ../lib/m8rscript/src/Executable.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -842,11 +847,13 @@
 				49F4633C1E1873D6004EF625 /* Iterator.h */,
 				49E8262E1E95EB0100E416C4 /* JSON.cpp */,
 				49E8262F1E95EB0100E416C4 /* JSON.h */,
+				49FA4DE024D5C407001069AE /* LuaEngine.cpp */,
+				49FA4DE124D5C407001069AE /* LuaEngine.h */,
 				497B4A5A249015A900CCBA41 /* MachineCode.h */,
 				49E987162365CEF000C17CB6 /* Mallocator.cpp */,
 				49E987172365CEF000C17CB6 /* Mallocator.h */,
-				49026F1524CA355600CAB23B /* Marly.h */,
 				49026F1624CC82F700CAB23B /* Marly.cpp */,
+				49026F1524CA355600CAB23B /* Marly.h */,
 				49E9871123628AE600C17CB6 /* MFS.cpp */,
 				49AE34F11D8231BF00C4E680 /* MFS.h */,
 				4984E8331D1492ED00D0ABA6 /* MStream.h */,
@@ -993,6 +1000,7 @@
 				497CAFC8237DF219000495B2 /* GC.h in Headers */,
 				49A3286D1D35BDC50006D0FE /* Error.h in Headers */,
 				49FA4DE824D5CF00001069AE /* Executable.h in Headers */,
+				49FA4DE424D5C407001069AE /* LuaEngine.h in Headers */,
 				49846006238C60ED001F4FD4 /* MacSystemInterface.h in Headers */,
 				49DD774D1D84DD7D00D7C374 /* Application.h in Headers */,
 				49079BA4244247EE000FAF22 /* lfs_util.h in Headers */,
@@ -1344,6 +1352,7 @@
 				49AB794D1DC143B700DE6332 /* TaskManager.cpp in Sources */,
 				497B4A602492E79A00CCBA41 /* Shell.cpp in Sources */,
 				492BA3F21E1972A000242DA8 /* slre.cpp in Sources */,
+				49FA4DE324D5C407001069AE /* LuaEngine.cpp in Sources */,
 				494D255A1D2E90A9003755DB /* Parser.cpp in Sources */,
 				491E2F90236A55890054725E /* Telnet.cpp in Sources */,
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
@@ -1369,6 +1378,7 @@
 			files = (
 				49562F6A1D1D7A75001AFAEE /* main.cpp in Sources */,
 				497139C1246F50860025CC4D /* WebView.mm in Sources */,
+				49FA4DE224D5C407001069AE /* LuaEngine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
