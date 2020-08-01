@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Task.h"
+#include "TCP.h"
 
 namespace m8r {
 
@@ -17,6 +17,8 @@ namespace m8r {
 //
 // This is a wrapper around the raw TCP class which spawns a task each time a connection is made.
 // Communications to and from that connection go to that task.
+
+class Task;
 
 class TCPServer {
 public:

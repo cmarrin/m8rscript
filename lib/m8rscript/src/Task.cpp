@@ -9,15 +9,11 @@
 
 #include "Task.h"
 
-#include "Application.h"
-#include "Containers.h"
-#include "ExecutionUnit.h"
 #include "GC.h"
 #include "FileStream.h"
 #include "LuaEngine.h"
 #include "Marly.h"
 #include "Parser.h"
-#include <memory>
 
 #ifndef NDEBUG
 #ifdef __APPLE__

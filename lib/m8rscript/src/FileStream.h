@@ -10,6 +10,7 @@
 #pragma once
 
 #include "MFS.h"
+#include "MStream.h"
 
 namespace m8r {
 
@@ -21,7 +22,7 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class FileStream : public m8r::Stream {
+class FileStream : public Stream {
 public:
 	FileStream(Mad<File> file)
         : _file(file)

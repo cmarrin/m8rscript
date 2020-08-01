@@ -9,6 +9,8 @@
 
 #include "TCPServer.h"
 
+#include "SystemInterface.h"
+#include "Task.h"
 #include <unistd.h>
 
 #ifdef MONITOR_TRAFFIC
