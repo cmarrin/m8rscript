@@ -9,4 +9,4 @@ while (i < 10) {
 }
 
 currentTime();
-delay(10);
+delay(5);
