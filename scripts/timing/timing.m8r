@@ -6,7 +6,7 @@ var a = [ ];
 var n = 4000;
 a.length = n;
 
-println("\n\nTiming test: " + n + " squared iterations");
+println("\n\nm8rscript timing test: " + n + " squared iterations");
 
 var startTime = currentTime();
 

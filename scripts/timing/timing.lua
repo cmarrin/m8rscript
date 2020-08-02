@@ -6,7 +6,7 @@ local a = { }
 local n = 4000
 a.n = n
 
-print("\n\nTiming test: " .. n .. " squared iterations\n");
+print("\n\nLua timing test: " .. n .. " squared iterations\n");
 
 local startTime = os.clock();
 
