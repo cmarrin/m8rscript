@@ -95,6 +95,7 @@ void ExecutionUnit::printError(CallReturnValue::Error error) const
         case CallReturnValue::Error::ImportTimeout: errorString = ROMSTR("import() timeout"); break;
         case CallReturnValue::Error::DelayNotAllowedInImport: errorString = ROMSTR("delay not allowed in import()"); break;
         case CallReturnValue::Error::EventNotAllowedInImport: errorString = ROMSTR("event not allowed in import()"); break;
+        case CallReturnValue::Error::OutOfMemory: errorString = ROMSTR("out of memory"); break;
         case CallReturnValue::Error::Error: errorString = ROMSTR("error"); break;
     }
     

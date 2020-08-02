@@ -58,6 +58,7 @@ public:
         ImportTimeout,
         DelayNotAllowedInImport,
         EventNotAllowedInImport,
+        OutOfMemory,
         Error,
     };
     

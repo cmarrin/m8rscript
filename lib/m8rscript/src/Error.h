@@ -53,6 +53,7 @@ public:
         Mounted,
         Corrupted,
         OutOfMemory,
+        SyntaxErrors,
         InternalError,
      };
     
