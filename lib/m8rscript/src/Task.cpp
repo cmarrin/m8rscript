@@ -11,9 +11,15 @@
 
 #include "GC.h"
 #include "FileStream.h"
+#if LUA_SUPPORT == 1
 #include "LuaEngine.h"
+#endif
+#if MARLY_SUPPORT == 1
 #include "Marly.h"
+#endif
+#if M8RSCRIPT_SUPPORT == 1
 #include "Parser.h"
+#endif
 #include "SystemInterface.h"
 
 #ifndef NDEBUG
@@ -118,18 +124,22 @@ bool Task::load(const Stream& stream, const String& type)
             system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
         }
         #endif
-#endif
         return true;
+#endif
     } else if (type == "marly") {
+#if MARLY_SUPPORT == 1
         Marly marly(stream, [this](const char* s) { print(s); });
         return true;
+#endif
     } else if (type == "lua") {
+#if LUA_SUPPORT == 1
         std::shared_ptr<LuaEngine> engine = std::make_shared<LuaEngine>(stream);
         if (engine->nerrors() > 0) {
-            _executable->printf(ROMSTR("***** %d lua error%s\n\n"), engine->nerrors(), (engine->nerrors() == 1) ? "" : "s");
+            engine->printf(ROMSTR("***** %d lua error%s\n\n"), engine->nerrors(), (engine->nerrors() == 1) ? "" : "s");
         } else {
             _executable = engine;
         }
+#endif
     }
 
     return true;

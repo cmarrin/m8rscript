@@ -42,7 +42,7 @@
 		4940FD762499838800B47B84 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4940FD732496596A00B47B84 /* HTTPServer.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
 		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
-		4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; };
+		4945A8781EC3969100559CD1 /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* libm8rscript.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907D1DBAE2570030DC89 /* MacTCP.cpp */; };
 		4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E1907A1DBAE2570030DC89 /* MacUDP.cpp */; };
 		4948AEB024242CC90087EC5A /* NTPClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAE24242CC90087EC5A /* NTPClient.m8r */; };
