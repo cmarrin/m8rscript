@@ -108,7 +108,7 @@ void Application::runAutostartTask()
 #ifdef RUN_SAMPLE
     bool result = _autostartTask->load(std::make_shared<Sample>());
 #else
-    bool result = _autostartTask->load("/sys/bin/timing.lua");
+    bool result = _autostartTask->load("/sys/bin/timing.m8r");
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
