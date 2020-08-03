@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Error.h"
 #include "Executable.h"
 
 struct lua_State;
@@ -37,8 +38,15 @@ public:
     virtual CallReturnValue execute() override;
 
 private:
+    static const char* readStream(lua_State*, void* data, size_t* size);
+
     lua_State * _state = nullptr;
     uint32_t _nerrors = 0;
+    Error _error = Error::Code::OK;
+    const Stream* _stream;
+    String _errorString;
+    int _functionIndex = -1;
+    char _buf;
 };
 
 }
