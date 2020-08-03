@@ -25,20 +25,13 @@
 
 static m8r::Duration MainTaskSleepDuration = 10ms;
 
-static void mainTask(void* data)
-{
-    m8r::Application* application = reinterpret_cast<m8r::Application*>(data);
-    while(1) {
-        application->runOneIteration();
-        vTaskDelay(pdMS_TO_TICKS(MainTaskSleepDuration.ms()));
-    }
-}
-
 extern "C" void app_main()
 {
     m8r::Application* application = new m8r::Application(23);
     application->runAutostartTask();
 
-    TaskHandle_t handle = nullptr;
-    xTaskCreate(mainTask, "mainTask", 8192, application, tskIDLE_PRIORITY, &handle);
+    while(1) {
+        application->runOneIteration();
+        vTaskDelay(pdMS_TO_TICKS(MainTaskSleepDuration.ms()));
+    }
 }
