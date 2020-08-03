@@ -12,10 +12,11 @@
 #include "StringStream.h"
 #include "Scanner.h"
 #include <cmath>
+#include <cstdlib>
 
 using namespace m8r;
 
-static constexpr uint32_t MaxDigits = 12;
+static constexpr uint32_t MaxFloatDigits = 16;
 
 m8r::String& String::erase(uint16_t pos, uint16_t len)
 {
@@ -183,6 +184,7 @@ static int32_t intToString(int64_t x, char* str, int16_t dp, uint8_t decimalDigi
 
 static bool toString(char* buf, int64_t value, int16_t& exp, uint8_t decimalDigits)
 {
+    // Value is guaranteed to be non-negative
     if (value == 0) {
         buf[0] = '0';
         buf[1] = '\0';
@@ -201,13 +203,18 @@ static bool toString(char* buf, int64_t value, int16_t& exp, uint8_t decimalDigi
     for ( ; v > 0; ++digits, v /= 10) ;
     v = value;
     int32_t dp;
-    if (exp + digits > MaxDigits || -exp > MaxDigits) {
+    if (exp + digits > MaxFloatDigits || -exp > MaxFloatDigits) {
         // Scientific notation
         dp = digits - 1;
         exp += dp;
     } else {
         dp = -exp;
         exp = 0;
+        
+        if (digits - dp < decimalDigits) {
+            // Number is of the form xxx.yyy. Make total digits equal to decimalDigits
+            decimalDigits -= (digits - dp);
+        }
     }
     
     int32_t i = intToString(value, buf, dp, decimalDigits);
@@ -224,21 +231,38 @@ static bool toString(char* buf, int64_t value, int16_t& exp, uint8_t decimalDigi
     return true;
 }
 
+#include <string>
+
+static void decompose(double f, int64_t& mantissa, int16_t& exp)
+{
+    // Make the number fit 16 digits
+    static constexpr double max = 1e16;
+    static constexpr double min = 1e15;
+    
+    exp = 0;
+    while (f < min) {
+        f *= 10;
+        --exp;
+    }
+    while (f > max) {
+        f /= 10;
+        ++exp;
+    }
+    mantissa = int64_t(f);
+}
+
 m8r::String::String(double value, uint8_t decimalDigits)
 {
     //          sign    digits  dp      'e'     dp      exp     '\0'
     char buf[   1 +     16 +    1 +     1 +     1 +     3 +     1];
     
-    int fexp;
-    double fman = std::frexp(value, &fexp);
-    int64_t mantissa = int64_t(fman * 1024 * 1024 * 1024);
-    fexp += 30;
-    int16_t exp = int16_t(fexp);
+    int64_t mantissa;
+    int16_t exp;
+    decompose(value, mantissa, exp);
     
     if (mantissa < 0) {
         buf[0] = '-';
-        mantissa = -mantissa;
-        ::toString(buf + 1, mantissa, exp, decimalDigits);
+        ::toString(buf + 1, -mantissa, exp, decimalDigits);
     } else {
         ::toString(buf, mantissa, exp, decimalDigits);
     }

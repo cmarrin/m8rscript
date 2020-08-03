@@ -32,6 +32,8 @@ class Value;
 
 class String {
 public:
+    static constexpr uint32_t DefaultFloatDigits = 6;
+
     static MemoryType memoryType() { return MemoryType::String; }
 
     String() : _size(1), _capacity(0) { }
@@ -82,7 +84,7 @@ public:
         _size = 2;
     }
     
-    String(double, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max());
+    String(double, uint8_t decimalDigits = DefaultFloatDigits);
     String(int32_t);
     String(uint32_t);
     String(void*);
@@ -264,7 +266,7 @@ public:
     // decimalDigits specifies the number of digits to the right of the decimal point. Value is
     // rounded to this many digits. Trailing zeros are omitted. If there are no digits to the
     // right of the dp, either because of rounding or decimalDigits = 0, the dp is omitted
-    static String prettySize(uint32_t size, uint8_t decimalDigits = std::numeric_limits<uint8_t>::max(), bool binary = false);
+    static String prettySize(uint32_t size, uint8_t decimalDigits = DefaultFloatDigits, bool binary = false);
     
     int32_t toInt() const
     {
