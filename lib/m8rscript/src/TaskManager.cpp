@@ -118,7 +118,12 @@ bool TaskManager::runOneIteration()
     
     if (returnValue.isYield()) {
         _currentTask->setState(Task::State::Ready);
-    } else if (returnValue.isTerminated() || returnValue.isFinished()) {
+    } else if (returnValue.isTerminated() || returnValue.isFinished() || returnValue.isError()) {
+        if (returnValue.isError()) {
+            String errorString = ROMString::format(ROMString("*** TaskManager execution error (%d)\n"), int(returnValue.error()));
+            _currentTask->print(errorString.c_str());
+        }
+        
         _currentTask->setState(Task::State::Terminated);
         _list.remove(_currentTask);
         _currentTask->finish();
@@ -128,7 +133,6 @@ bool TaskManager::runOneIteration()
     } else if (returnValue.isDelay()) {
         _currentTask->setState(Task::State::Delaying);
     }
-    
     return true;
 }
 
