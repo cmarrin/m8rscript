@@ -63,6 +63,28 @@ bool Task::load(const char* filename)
 {
     Vector<String> parts = String(filename).split(".");
     if (parts.size() < 2) {
+        // Try appending known suffixes
+        String baseFilename = filename;
+
+#if M8RSCRIPT_SUPPORT == 1
+        if (load((baseFilename + ".m8r").c_str())) {
+            return true;
+        }
+#endif
+
+#if MARLY_SUPPORT == 1
+        if (load((baseFilename + ".marly").c_str())) {
+            return true;
+        }
+#endif
+
+#if LUA_SUPPORT == 1
+         if (load((baseFilename + ".lua").c_str())) {
+            return true;
+        }
+#endif
+         
+        system()->printf(ROMSTR("***** Missing suffix for '%s'\n\n"), filename);
         return false;
     }
     
@@ -140,6 +162,8 @@ bool Task::load(const Stream& stream, const String& type)
             _executable = engine;
         }
 #endif
+    } else {
+        system()->printf(ROMSTR("***** Unknown suffix '%s'.\n\n"), type.c_str());
     }
 
     return true;

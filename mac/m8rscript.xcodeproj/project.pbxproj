@@ -91,7 +91,7 @@
 		49AB794E1DC143B700DE6332 /* TaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 49AB794C1DC143B700DE6332 /* TaskManager.h */; };
 		49BDE19E236C711B00304BE8 /* MString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BDE19C236C711B00304BE8 /* MString.cpp */; };
 		49BDE19F236C711B00304BE8 /* MString.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BDE19D236C711B00304BE8 /* MString.h */; };
-		49BDE1A523714DC000304BE8 /* mem in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem */; };
+		49BDE1A523714DC000304BE8 /* mem.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem.m8r */; };
 		49BE70AD23C6919F005F6F92 /* MacLittleFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49BF344723680892001E5508 /* MacLittleFS.cpp */; };
 		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		49C406F31EB675B7001E4DEC /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */; };
@@ -402,7 +402,7 @@
 		49A3286A1D35BDC50006D0FE /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../lib/m8rscript/src/Error.cpp; sourceTree = "<group>"; };
 		49A3286B1D35BDC50006D0FE /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../lib/m8rscript/src/Error.h; sourceTree = "<group>"; };
 		49A39F1E234C513600F6A144 /* SystemTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SystemTime.h; path = ../lib/m8rscript/src/SystemTime.h; sourceTree = "<group>"; };
-		49A39F2123509E5200F6A144 /* mrsh */ = {isa = PBXFileReference; lastKnownFileType = text; name = mrsh; path = ../scripts/mrsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
+		49A39F2123509E5200F6A144 /* mrsh.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; path = mrsh.m8r; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49A6A9ED2430F31C004D457C /* RtosWifi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtosWifi.cpp; path = ../esp/main/RtosWifi.cpp; sourceTree = "<group>"; };
 		49A6A9EE2430F31C004D457C /* RtosWifi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtosWifi.h; path = ../esp/main/RtosWifi.h; sourceTree = "<group>"; };
 		49AB794B1DC143B700DE6332 /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskManager.cpp; path = ../lib/m8rscript/src/TaskManager.cpp; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 		49AE34F11D8231BF00C4E680 /* MFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MFS.h; path = ../lib/m8rscript/src/MFS.h; sourceTree = "<group>"; };
 		49BDE19C236C711B00304BE8 /* MString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MString.cpp; path = ../lib/m8rscript/src/MString.cpp; sourceTree = "<group>"; };
 		49BDE19D236C711B00304BE8 /* MString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MString.h; path = ../lib/m8rscript/src/MString.h; sourceTree = "<group>"; };
-		49BDE1A423714DC000304BE8 /* mem */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = mem; path = ../scripts/mem; sourceTree = "<group>"; };
+		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateValues; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generators/generateValues.cpp; sourceTree = "<group>"; };
@@ -601,8 +601,8 @@
 			isa = PBXGroup;
 			children = (
 				4948AEAD24242CB70087EC5A /* examples */,
-				49BDE1A423714DC000304BE8 /* mem */,
-				49A39F2123509E5200F6A144 /* mrsh */,
+				49BDE1A423714DC000304BE8 /* mem.m8r */,
+				49A39F2123509E5200F6A144 /* mrsh.m8r */,
 				4979403D24141E4B0042B86B /* simple */,
 				4978365B24141ED3005735D5 /* timing */,
 				4978365A24141EC9005735D5 /* tests */,
@@ -1273,7 +1273,7 @@
 				4998DB4F1D21671000E2F776 /* Run.png in Resources */,
 				4970FD131DB04DDD00521DF1 /* download.png in Resources */,
 				493C9ED91D218F100062152D /* play.png in Resources */,
-				49BDE1A523714DC000304BE8 /* mem in Resources */,
+				49BDE1A523714DC000304BE8 /* mem.m8r in Resources */,
 				493C9ED71D218F100062152D /* stop.png in Resources */,
 				49D9B82D1D1C8CD300724911 /* green-led-off-md.png in Resources */,
 				496AF9DA24A8127900431796 /* hello.marly in Resources */,

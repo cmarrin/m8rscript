@@ -62,10 +62,6 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-p 800"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "-u scripts/mrsh"
             isEnabled = "YES">
          </CommandLineArgument>
@@ -74,19 +70,27 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scripts/mrsh"
+            argument = "scripts/mem.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scripts/mem scripts/simple/hello.m8r scripts/timing/timing.m8r scripts/examples/TimeZoneDBClient.m8r"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "scripts/mrsh"
+            argument = "scripts/mrsh.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "scripts/simple/hello.m8r"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scripts/simple/hello.m8r"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scripts/timing/timing.m8r"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "scripts/examples/TimeZoneDBClient.m8r"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
