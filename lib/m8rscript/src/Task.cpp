@@ -139,7 +139,7 @@ bool Task::load(const Stream& stream, const String& type)
         #ifdef PRINT_CODE
         if (!parser.nerrors()) {
             CodePrinter codePrinter;
-            m8r::String codeString = codePrinter.generateCodeString(_eu.get());
+            m8r::String codeString = codePrinter.generateCodeString(eu.get());
             
             system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
             system()->printf(ROMSTR("%s"), codeString.c_str());
