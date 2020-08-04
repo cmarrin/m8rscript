@@ -24,6 +24,9 @@
 using namespace m8r;
 
 //#define RUN_SAMPLE
+//#define ENABLE_WEBSERVER
+//#define ENABLE_HEARTBEAT
+//#define ENABLE_SHELL
 
 #ifdef RUN_SAMPLE
 class Sample : public Executable
@@ -52,17 +55,22 @@ void Application::init(uint16_t port)
     assert(!_system);
     _system = SystemInterface::create();
     
+#ifdef ENABLE_HEARTBEAT
     system()->setHeartrate(1s);
-    
+#endif
     system()->init();
 
+#ifdef ENABLE_HEARTBEAT
     system()->setHeartrate(3s);
+#endif
     
+#ifdef ENABLE_WEBSERVER
     // Setup test web server
     _webServer = std::make_unique<HTTPServer>(80, "/sys/bin");
     _webServer->on("/", "index.html");
     _webServer->on("/favicon.ico", "favicon.ico");
-
+#endif
+#ifdef ENABLE_WEBSERVER
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
         std::shared_ptr<Task> task = std::make_shared<Task>();
@@ -73,7 +81,7 @@ void Application::init(uint16_t port)
 #endif
         return task;
     });
-
+#endif
     mountFileSystem();
 
     // Start things running
@@ -108,7 +116,7 @@ void Application::runAutostartTask()
 #ifdef RUN_SAMPLE
     bool result = _autostartTask->load(std::make_shared<Sample>());
 #else
-    bool result = _autostartTask->load("/sys/bin/timing-esp.m8r");
+    bool result = _autostartTask->load("/sys/bin/timing.m8r");
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
