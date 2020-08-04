@@ -3,8 +3,8 @@
 --
 
 local a = { }
-local n = 10
-local loops = 500
+local n = 4000
+local loops = 4000
 a.n = n
 
 print("\n\nLua timing test: " .. loops .. " squared iterations\n");
@@ -19,4 +19,4 @@ for i = 1, loops, 1 do
 end
 
 local t = os.clock() - startTime;
-print("Run time: " .. t .. "ms\n\n");
+print("Run time: " .. t .. " seconds\n\n");
