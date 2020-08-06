@@ -155,8 +155,6 @@ public:
     virtual const Value property(const Atom& prop) const override;
     virtual bool setProperty(const Atom& prop, const Value& v, Value::Value::SetType type = Value::Value::SetType::AddIfNeeded) override;
     
-    const Value& operator[](size_t i) const { assert(i < _array.size()); return _array[i]; };
-    Value& operator[](size_t i) { assert(i < _array.size()); return _array[i]; };
     size_t size() const { return _array.size(); }
     bool empty() const { return _array.empty(); }
     void clear() { _array.clear(); }
