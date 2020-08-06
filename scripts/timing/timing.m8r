@@ -3,7 +3,7 @@
 //
 
 var a = [ ];
-var n = 4000;
+var n = 200;
 a.length = n;
 
 println("\n\nm8rscript timing test: " + n + " squared iterations");
