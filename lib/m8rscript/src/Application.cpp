@@ -24,9 +24,9 @@
 using namespace m8r;
 
 //#define RUN_SAMPLE
-//#define ENABLE_WEBSERVER
-//#define ENABLE_HEARTBEAT
-//#define ENABLE_SHELL
+#define ENABLE_WEBSERVER
+#define ENABLE_HEARTBEAT
+#define ENABLE_SHELL
 
 #ifdef RUN_SAMPLE
 class Sample : public Executable
