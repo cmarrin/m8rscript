@@ -234,7 +234,8 @@ bool MaterObject::setElement(ExecutionUnit* eu, const Value& elt, const Value& v
 bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType type)
 {
     if (type == Value::SetType::AlwaysAdd) {
-        _array.push_back(value);
+        value.gcMark();
+       _array.push_back(value);
         _arrayNeedsGC |= value.needsGC();
         return true;
     }
@@ -248,6 +249,7 @@ bool MaterArray::setElement(ExecutionUnit* eu, const Value& elt, const Value& va
         _array.resize(index + 1);
     }
     
+    value.gcMark();
     _array[index] = value;
     _arrayNeedsGC |= value.needsGC();
     return true;
@@ -282,7 +284,10 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
     if (prop == Atom(SA::push_back)) {
         // Push all the params
         for (int32_t i = 1 - nparams; i <= 0; ++i) {
-            _array.push_back(eu->stack().top(i));
+            const Value& value = eu->stack().top(i);
+            value.gcMark();
+            _array.push_back(value);
+            _arrayNeedsGC |= value.needsGC();
         }
 
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -291,16 +296,21 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
     if (prop == Atom(SA::push_front)) {
         // Push all the params, efficiently
         if (nparams == 1) {
-            _array.insert(_array.begin(), eu->stack().top());
+            const Value& value = eu->stack().top();
+            value.gcMark();
+            _array.insert(_array.begin(), value);
+            _arrayNeedsGC |= value.needsGC();
+        } else {
+            Vector<Value> vec;
+            vec.reserve(nparams);
+            for (int32_t i = 1 - nparams; i <= 0; ++i) {
+                const Value& value = eu->stack().top(i);
+                value.gcMark();
+                vec.push_back(value);
+                _arrayNeedsGC |= value.needsGC();
+            }
+            _array.insert(_array.begin(), vec.begin(), vec.end());
         }
-        
-        Vector<Value> vec;
-        vec.reserve(nparams);
-        for (int32_t i = 1 - nparams; i <= 0; ++i) {
-            vec.push_back(eu->stack().top(i));
-        }
-        _array.insert(_array.begin(), vec.begin(), vec.end());
-
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
 
@@ -358,6 +368,7 @@ bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetType t
         return false;
     }
 
+    v.gcMark();
     auto it = _properties.find(prop);
     if (it == _properties.end()) {
         auto ret = _properties.emplace(prop, Value());
