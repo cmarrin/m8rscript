@@ -172,7 +172,7 @@ public:
     bool isType(ExecutionUnit*, Atom);
     bool isType(ExecutionUnit*, SA);
 
-    void gcMark();
+    void gcMark() const;
     
     enum class SetType { AlwaysAdd, NeverAdd, AddIfNeeded };
 

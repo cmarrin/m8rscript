@@ -293,7 +293,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
     }
 }
 
-void Value::gcMark()
+void Value::gcMark() const
 {
     Mad<String> string = asString();
     if (string.valid()) {
