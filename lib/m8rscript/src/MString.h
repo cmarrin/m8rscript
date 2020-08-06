@@ -18,7 +18,6 @@
 #include <vector>
 #include "Containers.h"
 #include "Defines.h"
-#include "Mallocator.h"
 
 namespace m8r {
 
@@ -48,10 +47,10 @@ public:
         }
         ensureCapacity(len + 1);
         if (len) {
-            memcpy(_data.get(), s, len);
+            memcpy(_data, s, len);
         }
         _size = len + 1;
-        _data.get()[_size - 1] = '\0';
+        _data[_size - 1] = '\0';
     }
     
     String(ROMString s)
@@ -66,9 +65,9 @@ public:
     
     String(String&& other)
     {
-        _data.destroy();
+        delete [ ] _data;
         _data = other._data;
-        other._data = Mad<char>();
+        other._data = nullptr;
         _size = other._size;
         other._size = 0;
         _capacity = other._capacity;
@@ -78,7 +77,7 @@ public:
     String(char c)
     {
         ensureCapacity(2);
-        char* s = _data.get();
+        char* s = _data;
         s[0] = c;
         s[1] = '\0';
         _size = 2;
@@ -89,17 +88,22 @@ public:
     String(uint32_t);
     String(void*);
 
-    ~String() { _data.destroy(); _destroyed = true; };
+    ~String()
+    {
+        delete [ ] _data;
+        _data = nullptr;
+        _destroyed = true;
+    };
     
     String& operator=(ROMString other)
     {
         uint16_t romSize = static_cast<uint16_t>(ROMString::strlen(other));
         
-        if (_data.valid()) {
+        if (_data) {
             _size = 0;
             if (_capacity < romSize) {
-                _data.destroy();
-                _data = Mad<char>();
+                delete [ ] _data;
+                _data = nullptr;
                 _capacity = 0;
             }
         }
@@ -107,26 +111,27 @@ public:
         ensureCapacity(romSize + 1);
         _size = romSize + 1;
         if (romSize > 0) {
-            ROMString::memcpy(_data.get(), other, romSize);
+            ROMString::memcpy(_data, other, romSize);
         }
-        _data.get()[romSize] = '\0';
+        _data[romSize] = '\0';
         return *this;
     }
 
     String& operator=(const String& other)
     {
-        _data.destroy();
+    assert(!_destroyed && !other._destroyed);
+        delete [ ] _data;
         _size = other._size;
         _capacity = other._capacity;
-        if (!other._data.valid()) {
-            _data = Mad<char>();
+        if (!other._data) {
+            _data = nullptr;
             return *this;
         }
         
-        _data = Mad<char>::create(_capacity);
-        assert(_data.valid());
-        if (_data.valid()) {
-            memcpy(_data.get(), other._data.get(), _size);
+        _data = new char[_capacity];
+        assert(_data);
+        if (_data) {
+            memcpy(_data, other._data, _size);
         } else {
             _capacity = 0;
             _size = 1;
@@ -136,17 +141,18 @@ public:
     
     String& operator=(String&& other)
     {
+    assert(!_destroyed && !other._destroyed);
         if (this == &other) {
             return *this;
         }
 
-        _data.destroy();
+        delete [ ] _data;
 
         _data = other._data;
         _size = other._size;
         _capacity = other._capacity;
 
-        other._data = Mad<char>();
+        other._data = nullptr;
         other._size = 0;
         other._capacity = 0;
 
@@ -156,21 +162,19 @@ public:
     String& operator=(char c)
     {
         ensureCapacity(2);
-        char* s = _data.get();
+        char* s = _data;
         s[0] = c;
         s[1] = '\0';
         _size = 2;
         return *this;
     }
 
-    String& operator=(const Mad<String>& other) { *this = *(other.get()); return *this; }
-
     operator bool () { return !empty(); }
     
-    const char& operator[](uint16_t i) const { assert(i < _size - 1); return _data.get()[i]; };
-    char& operator[](uint16_t i) { assert(i < _size - 1); return _data.get()[i]; };
-    const char& at(uint16_t i) const { assert(i < _size - 1); return _data.get()[i]; };
-    char& at(uint16_t i) { assert(i < _size - 1); return _data.get()[i]; };
+    const char& operator[](uint16_t i) const { assert(i < _size - 1); return _data[i]; };
+    char& operator[](uint16_t i) { assert(i < _size - 1); return _data[i]; };
+    const char& at(uint16_t i) const { assert(i < _size - 1); return _data[i]; };
+    char& at(uint16_t i) { assert(i < _size - 1); return _data[i]; };
     
     char& back() { return at(size() - 1); }
     const char& back() const { return at(size() - 1); }
@@ -180,11 +184,11 @@ public:
 
     uint16_t size() const { return _size ? (_size - 1) : 0; }
     bool empty() const { return _size <= 1; }
-    void clear() { _size = 1; if (_data.valid()) _data.get()[0] = '\0'; }
+    void clear() { _size = 1; if (_data) _data[0] = '\0'; }
     String& operator+=(uint8_t c)
     {
         ensureCapacity(_size + 1);
-        char* s = _data.get();
+        char* s = _data;
         s[_size - 1] = c;
         s[_size++] = '\0';
         return *this;
@@ -193,7 +197,7 @@ public:
     String& operator+=(char c)
     {
         ensureCapacity(_size + 1);
-        char* s = _data.get();
+        char* s = _data;
         s[_size - 1] = c;
         s[_size] = '\0';
         _size += 1;
@@ -202,14 +206,15 @@ public:
     
     String& operator+=(const char* s)
     {
+    assert(!_destroyed);
         uint16_t len = strlen(s);
         ensureCapacity(_size + len);
-        memcpy(_data.get() + _size - 1, s, len + 1);
+        memcpy(_data + _size - 1, s, len + 1);
         _size += len;
         return *this;
     }
     
-    String& operator+=(const String& s) { return *this += s.c_str(); }
+    String& operator+=(const String& s) { assert(!_destroyed && !s._destroyed); return *this += s.c_str(); }
     
     friend String operator +(const String& s1 , const String& s2) { String s = s1; s += s2; return s; }
     friend String operator +(const String& s1 , const char* s2) { String s = s1; s += s2; return s; }
@@ -228,7 +233,7 @@ public:
         return strcmp(a.c_str(), b.c_str());
     }
 
-    const char* c_str() const { return _data.valid() ? _data.get() : ""; }
+    const char* c_str() const { return _data ? _data : ""; }
     String& erase(uint16_t pos, uint16_t len);
 
     String& erase(uint16_t pos = 0)
@@ -299,7 +304,7 @@ private:
     
     uint16_t _size = 0;
     uint16_t _capacity = 0;
-    Mad<char> _data;
+    char* _data = nullptr;
     bool _marked = true;
     bool _destroyed = false;
 };

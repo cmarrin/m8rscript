@@ -26,7 +26,7 @@ m8r::String& String::erase(uint16_t pos, uint16_t len)
     if (pos + len >= _size) {
         len = _size - pos - 1;
     }
-    memmove(_data.get() + pos, _data.get() + pos + len, _size - pos - len);
+    memmove(_data + pos, _data + pos + len, _size - pos - len);
     _size -= len;
     return *this;
 }
@@ -46,16 +46,16 @@ m8r::String m8r::String::slice(int32_t start, int32_t end) const
     if (start >= end) {
         return String();
     }
-    return String(_data.get() + start, end - start);
+    return String(_data + start, end - start);
 }
 
 m8r::String m8r::String::trim() const
 {
-    if (_size < 2 || !_data.valid()) {
+    if (_size < 2 || !_data) {
         return String();
     }
     uint16_t l = _size - 1;
-    char* s = _data.get();
+    char* s = _data;
     while (isspace(s[l - 1])) {
         --l;
     }
@@ -69,7 +69,11 @@ m8r::String m8r::String::trim() const
 Vector<m8r::String> m8r::String::split(const m8r::String& separator, bool skipEmpty) const
 {
     Vector<String> array;
-    char* p = _data.get();
+    if (size() == 0) {
+        return array;
+    }
+    char* p = _data;
+    assert(p);
     while (1) {
         char* n = strstr(p, separator.c_str());
         if (!n || n - p != 0 || !skipEmpty) {
@@ -113,16 +117,17 @@ void m8r::String::doEnsureCapacity(uint16_t size)
     if (_capacity < size) {
         _capacity = size;
     }
-    Mad<char> newData = Mad<char>::create(_capacity);
-    assert(newData.valid());
-    if (_data.valid()) {
-        if (newData.valid()) {
-            memcpy(newData.get(), _data.get(), _size);
-        } else {
-            _capacity = 0;
-            _size = 1;
+    char* newData = new char[_capacity];
+    if (_data) {
+        if (newData) {
+            memcpy(newData, _data, _size);
         }
-        _data.destroy();
+        delete [ ] _data;
+    }
+    
+    if (!newData) {
+        _capacity = 0;
+        _size = 1;
     }
     _data = newData;
 }
