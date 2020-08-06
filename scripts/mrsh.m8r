@@ -39,8 +39,7 @@ function processLine(line)
     var command = components.front;
     components.pop_front();
 
-    command += ".m8r";
-    var task = new Task(command, consoleListener, env);
+    var task = new Task(command + ".m8r", consoleListener, env);
     if (task == null) {
         println("mrsh: " + command + ": command not found");
         return;
