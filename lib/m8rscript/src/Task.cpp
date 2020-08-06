@@ -241,7 +241,6 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     }
     
     std::shared_ptr<Task> task = std::make_shared<Task>();
-    task->setConsolePrintFunction(eu->consolePrintFunction());
 
     if (!filename.empty()) {
         task->load(path.c_str());
@@ -253,6 +252,8 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     
+    task->setConsolePrintFunction(eu->consolePrintFunction());
+
     obj->setNativeObject(task);
     obj->setProperty(Atom(SA::arguments), Value::NullValue(), Value::SetType::AlwaysAdd);
     obj->setProperty(Atom(SA::env), envValue, Value::SetType::AlwaysAdd);
