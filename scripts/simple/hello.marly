@@ -20,5 +20,5 @@
 [0 [dup 10 <] ["Hello World" println 1 delay inc] while] @f
 
 [ 2.5 $Timer .Repeat ["******* Timer Fired" println] ] $Timer new start
-f
+$f exec
 10 delay
