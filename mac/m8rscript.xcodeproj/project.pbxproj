@@ -38,6 +38,7 @@
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
+		493E015524E865BE00EF89B3 /* SharedPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 493E015324E865BE00EF89B3 /* SharedPtr.h */; };
 		4940FD742496596A00B47B84 /* HTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4940FD722496596900B47B84 /* HTTPServer.h */; };
 		4940FD762499838800B47B84 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4940FD732496596A00B47B84 /* HTTPServer.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
@@ -318,6 +319,7 @@
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
+		493E015324E865BE00EF89B3 /* SharedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SharedPtr.h; path = ../lib/m8rscript/src/SharedPtr.h; sourceTree = "<group>"; };
 		4940FD722496596900B47B84 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = ../lib/m8rscript/src/HTTPServer.h; sourceTree = "<group>"; };
 		4940FD732496596A00B47B84 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = ../lib/m8rscript/src/HTTPServer.cpp; sourceTree = "<group>"; };
 		4940FD79249AD3F000B47B84 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../web/index.html; sourceTree = "<group>"; };
@@ -870,6 +872,7 @@
 				4942EA7F1D07009E00E02088 /* Program.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
+				493E015324E865BE00EF89B3 /* SharedPtr.h */,
 				497B4A5E2492E79A00CCBA41 /* Shell.cpp */,
 				497B4A5F2492E79A00CCBA41 /* Shell.h */,
 				492BA3EE1E19727C00242DA8 /* slre.cpp */,
@@ -1034,6 +1037,7 @@
 				4940FD742496596A00B47B84 /* HTTPServer.h in Headers */,
 				49263ABF23611DFC005CB9F9 /* StreamProto.h in Headers */,
 				49E826311E95EB0100E416C4 /* JSON.h in Headers */,
+				493E015524E865BE00EF89B3 /* SharedPtr.h in Headers */,
 				49F4633E1E1873D6004EF625 /* Iterator.h in Headers */,
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				49A6A9F02430F31C004D457C /* RtosWifi.h in Headers */,

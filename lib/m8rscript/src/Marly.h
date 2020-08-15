@@ -12,6 +12,7 @@
 #include "Atom.h"
 #include "Containers.h"
 #include "MString.h"
+#include "SharedPtr.h"
 
 /*
 Marly:
@@ -216,67 +217,6 @@ private:
     using ValueMap = Map<Atom, Value>;
     using ValueVector = Vector<Value>;
 
-    class Shared
-    {
-    public:
-        friend class Marly::SharedPtrBase;
-        friend class Marly::Value;
-        
-    private:
-        uint16_t _count = 0;
-    };
-    
-    class SharedPtrBase
-    {
-    public:
-        uint16_t& count(Shared* ptr) { return ptr->_count; }
-    };
-    
-    template<typename T>
-    class SharedPtr : private SharedPtrBase
-    {
-    public:
-        explicit SharedPtr(T* p = nullptr) { reset(p); }
-        
-        SharedPtr(SharedPtr<T>& other) { reset(other); }
-        SharedPtr(SharedPtr<T>&& other) { _ptr = other._ptr; other._ptr = nullptr; }
-        
-        ~SharedPtr() { reset(); }
-        
-        SharedPtr& operator=(const SharedPtr& other) { reset(other._ptr); return *this; }
-        SharedPtr& operator=(SharedPtr&& other) { _ptr = other._ptr; other._ptr = nullptr; return *this; }
-
-        void reset(T* p = nullptr)
-        {
-            if (_ptr) {
-                assert(count(_ptr) > 0);
-                if (--count(_ptr) == 0) {
-                    delete _ptr;
-                    _ptr = nullptr;
-                }
-            }
-            if (p) {
-                count(p)++;
-                _ptr = p;
-            }
-        }
-
-        void reset(SharedPtr<T>& p) { reset(p.get()); }
-        
-        T& operator*() { return *_ptr; }
-        T* operator->() { return _ptr; }
-        
-        const T& operator*() const { return *_ptr; }
-        const T* operator->() const { return _ptr; }
-        
-        T* get() const { return _ptr; }
-        
-        operator bool() { return _ptr != nullptr; }
-    
-    private:
-        T* _ptr = nullptr;
-    };
-    
     class ObjectBase : public Shared
     {
     public:
@@ -343,10 +283,10 @@ private:
         Value(const char* s)
         {
             _type = Type::String;
-            String* str = new String();
-            str->string() = s;
-            str->_count++;
-            _ptr = str;
+            _ptr = nullptr;
+            SharedPtr<String>* str = reinterpret_cast<SharedPtr<String>*>(&_ptr);
+            str->reset(new String());
+            (*str)->string() = s;
         }
         
         Value(float f) { _type = Type::Float; _float = f; }
@@ -473,8 +413,9 @@ private:
         void setValue(Type type, ObjectBase* obj)
         {
             _type = type;
-            obj->_count++;
-            _ptr = obj;
+            _ptr = nullptr;
+            SharedPtr<ObjectBase>* objptr = reinterpret_cast<SharedPtr<ObjectBase>*>(&_ptr);
+            objptr->reset(obj);
         }
         
         Type _type;
