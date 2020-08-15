@@ -18,7 +18,7 @@
 
 using namespace m8r;
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty _props[] =
 {
     { SA::constructor, Iterator::constructor },
     { SA::done, Iterator::done },

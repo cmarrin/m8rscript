@@ -70,20 +70,20 @@ uint32_t Mallocator::freeSize() const
     return (_memoryInfo.totalAllocatedBytes > 80000) ? 0 : 80000 - _memoryInfo.totalAllocatedBytes;
 }
 
-ROMString Mallocator::stringFromMemoryType(MemoryType type)
+const char* Mallocator::stringFromMemoryType(MemoryType type)
 {
     switch(type) {
-        case MemoryType::String:        return ROMSTR("String");
-        case MemoryType::Character:     return ROMSTR("Char");
-        case MemoryType::Object:        return ROMSTR("Object");
-        case MemoryType::ExecutionUnit: return ROMSTR("ExecutionUnit");
-        case MemoryType::Native:        return ROMSTR("Native");
-        case MemoryType::Vector:        return ROMSTR("Vector");
-        case MemoryType::UpValue:       return ROMSTR("UpValue");
-        case MemoryType::Network:       return ROMSTR("Network");
-        case MemoryType::Fixed:         return ROMSTR("Fixed");
+        case MemoryType::String:        return "String";
+        case MemoryType::Character:     return "Char";
+        case MemoryType::Object:        return "Object";
+        case MemoryType::ExecutionUnit: return "ExecutionUnit";
+        case MemoryType::Native:        return "Native";
+        case MemoryType::Vector:        return "Vector";
+        case MemoryType::UpValue:       return "UpValue";
+        case MemoryType::Network:       return "Network";
+        case MemoryType::Fixed:         return "Fixed";
         case MemoryType::NumTypes:
         case MemoryType::Unknown:
-        default:                        return ROMSTR("Unknown");
+        default:                        return "Unknown";
     }
 }

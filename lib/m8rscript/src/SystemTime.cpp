@@ -35,7 +35,7 @@ m8r::String Time::toString() const
     elements(elts);
     
     // For now just show h:m:s.ms
-    return ROMString::format(ROMString("%d:%02d:%02d.%03d"), elts.hour, elts.minute, elts.second, elts.us / 1000);
+    return String::format("%d:%02d:%02d.%03d", elts.hour, elts.minute, elts.second, elts.us / 1000);
 }
 
 void Time::elements(Elements& elts) const
@@ -66,13 +66,13 @@ m8r::String Duration::toString(Duration::Units units, uint8_t decimalDigits) con
 
 String Time::Elements::dayString() const
 {
-    static const char* RODATA_ATTR days[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    return String(ROMString(days[int(dayOfWeek)]));
+    static const char* days[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    return String(days[int(dayOfWeek)]);
 }
 
 String Time::Elements::monthString() const
 {
-    static const char* RODATA_ATTR months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+    static const char* months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                                                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    return String(ROMString(months[month]));
+    return String(months[month]);
 }

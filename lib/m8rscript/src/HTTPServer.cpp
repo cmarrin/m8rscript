@@ -19,10 +19,10 @@
 
 using namespace m8r;
 
-static const char _GET[] ROMSTR_ATTR = "GET";
-static const char _PUT[] ROMSTR_ATTR = "PUT";
-static const char _POST[] ROMSTR_ATTR = "POST";
-static const char _DELETE[] ROMSTR_ATTR = "DELETE";
+static constexpr char _GET[] = "GET";
+static constexpr char _PUT[] = "PUT";
+static constexpr char _POST[] = "POST";
+static constexpr char _DELETE[] = "DELETE";
 
 struct Methods
 {
@@ -30,7 +30,7 @@ struct Methods
     HTTPServer::Method method;
 };
 
-Methods RODATA_ATTR _methods[] = {
+Methods _methods[] = {
     { _GET, HTTPServer::Method::GET },
     { _PUT, HTTPServer::Method::PUT },
     { _POST, HTTPServer::Method::POST },
@@ -40,7 +40,7 @@ Methods RODATA_ATTR _methods[] = {
 static HTTPServer::Method toMethod(const char* s)
 {
     for (const auto& it : _methods) {
-        if (ROMString::strcmp(ROMString(it.str), s) == 0) {
+        if (::strcmp(it.str, s) == 0) {
             return it.method;
         }
     }
@@ -51,7 +51,7 @@ static String toString(HTTPServer::Method method)
 {
     for (const auto& it : _methods) {
         if (it.method == method) {
-            return ROMString(it.str);
+            return it.str;
         }
     }
     return String("*** Unknown ***");
@@ -119,18 +119,18 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
     Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         if ((connectionId < 0 || connectionId >= TCP::MaxConnections) && event != TCP::Event::Error) {
-            system()->printf(ROMSTR("******** HTTPServer Internal Error: Invalid connectionId = %d\n"), connectionId);
+            system()->printf("******** HTTPServer Internal Error: Invalid connectionId = %d\n", connectionId);
             _socket->disconnect(connectionId);
             return;
         }
 
         switch(event) {
             case TCP::Event::Connected:
-                system()->printf(ROMSTR("HTTPServer: new connection, connectionId=%d, ip=%s, port=%d\n"), 
+                system()->printf("HTTPServer: new connection, connectionId=%d, ip=%s, port=%d\n", 
                                  connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
                 break;
             case TCP::Event::Disconnected:
-                system()->printf(ROMSTR("HTTPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n"), 
+                system()->printf("HTTPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n", 
                                  connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
                 break;
             case TCP::Event::ReceivedData: {
@@ -142,7 +142,7 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                 Request req;
                 parseRequest(header, req);
                 if (!req.valid) {
-                    system()->printf(ROMSTR("******** HTTPServer Invalid header\n"));
+                    system()->printf("******** HTTPServer Invalid header\n");
                     break;
                 }
                 
@@ -184,7 +184,7 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
                 }
 
                 if (!handled) {
-                    system()->printf(ROMSTR("******** HTTPServer Error: no %s method handler for uri '%s'\n"),
+                    system()->printf("******** HTTPServer Error: no %s method handler for uri '%s'\n",
                                             toString(req.method).c_str(), req.path.c_str());
                 }
                 break;
@@ -192,7 +192,7 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
             case TCP::Event::SentData:
                 break;
             case TCP::Event::Error:
-                system()->printf(ROMSTR("******** HTTPServer Error: code=%d (%s)\n"), connectionId, data);
+                system()->printf("******** HTTPServer Error: code=%d (%s)\n", connectionId, data);
             default:
                 break;
         }
@@ -204,7 +204,7 @@ HTTPServer::HTTPServer(uint16_t port, const char* rootDir, bool dirAccess)
 void HTTPServer::sendResponseHeader(int16_t connectionId, uint32_t size)
 {
     // This is for a valid response
-    String s = ROMString::format(ROMString("HTTP/1.1 200 OK\r\nDate: %s\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n"),
+    String s = String::format("HTTP/1.1 200 OK\r\nDate: %s\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n",
                                  dateString().c_str(), size);
     _socket->send(connectionId, s.c_str());
 }
@@ -217,7 +217,7 @@ String HTTPServer::dateString()
     now.elements(el);
     
     // FIXME: Get timezone
-    return ROMString::format(ROMString("%s, %d %s %d %02d:%02d:%02d *"), 
+    return String::format("%s, %d %s %d %02d:%02d:%02d *", 
                              el.dayString().c_str(), el.day, el.monthString().c_str(), el.year, el.hour, el.minute, el.second);
 }
 
@@ -251,13 +251,13 @@ void HTTPServer::on(const String& uri, const String& path, bool dirAccess)
         Mad<File> file(system()->fileSystem()->open(filename.c_str(), m8r::FS::FileOpenMode::Read));
         if (!file->valid()) {
             system()->print(Error::formatError(file->error().code(), 
-                                    ROMSTR("******** HTTPServer: unable to open '%s'"), filename.c_str()).c_str());
+                                    "******** HTTPServer: unable to open '%s'", filename.c_str()).c_str());
             return;
         }
         
         int32_t size = file->size();
 
-        system()->printf(ROMSTR("******** HTTPServer: sending '%s'\n"), filename.c_str());
+        system()->printf("******** HTTPServer: sending '%s'\n", filename.c_str());
 
         sendResponseHeader(connectionId, size);
         

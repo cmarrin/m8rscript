@@ -59,44 +59,44 @@ Mad<m8r::String> ExecutionUnit::createString(const char* str, int32_t length)
     return s;
 }
 
-void ExecutionUnit::printError(ROMString format, ...) const
+void ExecutionUnit::printError(const char* format, ...) const
 {
     va_list args;
     va_start(args, format);
-    printf(ROMSTR("***** "));
+    printf("***** ");
 
     print(Error::vformatError(Error::Code::RuntimeError, _lineno, format, args).c_str());
     if (++_nerrors > MaxRunTimeErrrors) {
-        printf(ROMSTR("\n\nToo many runtime errors, (%d) exiting...\n"), _nerrors);
+        printf("\n\nToo many runtime errors, (%d) exiting...\n", _nerrors);
         requestTerminate();
     }
 }
 
 void ExecutionUnit::printError(CallReturnValue::Error error) const
 {
-    ROMString errorString = ROMSTR("*UNKNOWN*");
+    const char* errorString = "*UNKNOWN*";
     switch(error) {
         case CallReturnValue::Error::Ok: return;
-        case CallReturnValue::Error::WrongNumberOfParams: errorString = ROMSTR("wrong number of params"); break;
-        case CallReturnValue::Error::ConstructorOnly: errorString = ROMSTR("only valid for new"); break;
-        case CallReturnValue::Error::Unimplemented: errorString = ROMSTR("unimplemented function"); break;
-        case CallReturnValue::Error::OutOfRange: errorString = ROMSTR("param out of range"); break;
-        case CallReturnValue::Error::MissingThis: errorString = ROMSTR("Missing this value"); break;
-        case CallReturnValue::Error::InternalError: errorString = ROMSTR("internal error"); break;
-        case CallReturnValue::Error::PropertyDoesNotExist: errorString = ROMSTR("property does not exist"); break;
-        case CallReturnValue::Error::BadFormatString: errorString = ROMSTR("bad format string"); break;
-        case CallReturnValue::Error::UnknownFormatSpecifier: errorString = ROMSTR("unknown format specifier"); break;
-        case CallReturnValue::Error::CannotConvertStringToNumber: errorString = ROMSTR("string cannot be converted"); break;
-        case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = ROMSTR("cannot create arguments array"); break;
-        case CallReturnValue::Error::CannotCall: errorString = ROMSTR("cannot call value of this type"); break;
-        case CallReturnValue::Error::CannotConstruct: errorString = ROMSTR("cannot construct value of this type"); break;
-        case CallReturnValue::Error::InvalidArgumentValue: errorString = ROMSTR("invalid argument value"); break;
-        case CallReturnValue::Error::SyntaxErrors: errorString = ROMSTR("syntax errors"); break;
-        case CallReturnValue::Error::ImportTimeout: errorString = ROMSTR("import() timeout"); break;
-        case CallReturnValue::Error::DelayNotAllowedInImport: errorString = ROMSTR("delay not allowed in import()"); break;
-        case CallReturnValue::Error::EventNotAllowedInImport: errorString = ROMSTR("event not allowed in import()"); break;
-        case CallReturnValue::Error::OutOfMemory: errorString = ROMSTR("out of memory"); break;
-        case CallReturnValue::Error::Error: errorString = ROMSTR("error"); break;
+        case CallReturnValue::Error::WrongNumberOfParams: errorString = "wrong number of params"; break;
+        case CallReturnValue::Error::ConstructorOnly: errorString = "only valid for new"; break;
+        case CallReturnValue::Error::Unimplemented: errorString = "unimplemented function"; break;
+        case CallReturnValue::Error::OutOfRange: errorString = "param out of range"; break;
+        case CallReturnValue::Error::MissingThis: errorString = "Missing this value"; break;
+        case CallReturnValue::Error::InternalError: errorString = "internal error"; break;
+        case CallReturnValue::Error::PropertyDoesNotExist: errorString = "property does not exist"; break;
+        case CallReturnValue::Error::BadFormatString: errorString = "bad format string"; break;
+        case CallReturnValue::Error::UnknownFormatSpecifier: errorString = "unknown format specifier"; break;
+        case CallReturnValue::Error::CannotConvertStringToNumber: errorString = "string cannot be converted"; break;
+        case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = "cannot create arguments array"; break;
+        case CallReturnValue::Error::CannotCall: errorString = "cannot call value of this type"; break;
+        case CallReturnValue::Error::CannotConstruct: errorString = "cannot construct value of this type"; break;
+        case CallReturnValue::Error::InvalidArgumentValue: errorString = "invalid argument value"; break;
+        case CallReturnValue::Error::SyntaxErrors: errorString = "syntax errors"; break;
+        case CallReturnValue::Error::ImportTimeout: errorString = "import() timeout"; break;
+        case CallReturnValue::Error::DelayNotAllowedInImport: errorString = "delay not allowed in import()"; break;
+        case CallReturnValue::Error::EventNotAllowedInImport: errorString = "event not allowed in import()"; break;
+        case CallReturnValue::Error::OutOfMemory: errorString = "out of memory"; break;
+        case CallReturnValue::Error::Error: errorString = "error"; break;
     }
     
     printError(errorString);
@@ -132,7 +132,7 @@ Value* ExecutionUnit::valueFromId(Atom id, const Object* obj) const
 void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
 {
     if (!atom) {
-        printError(ROMSTR("Destination in STOREFK must be an Atom"));
+        printError("Destination in STOREFK must be an Atom");
         return;
     }
     
@@ -141,7 +141,7 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
         Value oldValue = _this->property(atom);
         if (oldValue) {
             if (!_this->setProperty(atom, value, Value::SetType::AddIfNeeded)) {
-                printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
+                printError("'%s' property of this object cannot be set", _program->stringFromAtom(atom));
             }
             return;
         }
@@ -151,19 +151,19 @@ void ExecutionUnit::stoIdRef(Atom atom, const Value& value)
     Value oldValue = _program->property(atom);
     if (oldValue) {
         if (!_program->setProperty(atom, value, Value::SetType::AddIfNeeded)) {
-            printError(ROMSTR("'%s' property of this object cannot be set"), _program->stringFromAtom(atom));
+            printError("'%s' property of this object cannot be set", _program->stringFromAtom(atom));
         }
         return;
     }
 
-    printError(ROMSTR("'%s' property does not exist or cannot be set"), _program->stringFromAtom(atom));
+    printError("'%s' property does not exist or cannot be set", _program->stringFromAtom(atom));
     return;
 }
 
 Value ExecutionUnit::derefId(Atom atom)
 {
     if (!atom) {
-        printError(ROMSTR("Value in LOADREFK must be an Atom"));
+        printError("Value in LOADREFK must be an Atom");
         return Value();
     }
     
@@ -186,7 +186,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return value;
     }
     
-    printError(ROMSTR("'%s' property does not exist in global scope"), _program->stringFromAtom(atom));
+    printError("'%s' property does not exist in global scope", _program->stringFromAtom(atom));
     return Value();
 }
 
@@ -505,7 +505,7 @@ CallReturnValue ExecutionUnit::execute()
     #undef OP
     #define OP(op) &&L_ ## op,
     
-    static const void* RODATA_ATTR dispatchTable[] {
+    static const void* dispatchTable[] {
         /* 0x00 */ OP(MOVE) OP(LOADREFK) OP(STOREFK) OP(LOADLITA)
         /* 0x04 */ OP(LOADLITO) OP(LOADPROP) OP(LOADELT) OP(STOPROP)
         /* 0x08 */ OP(STOELT) OP(APPENDELT) OP(APPENDPROP) OP(LOADTRUE)
@@ -611,7 +611,7 @@ CallReturnValue ExecutionUnit::execute()
                 // We've hit the end of the program
                 
                 if (!_stack.validateFrame(0, _program->localCount())) {
-                    printError(ROMSTR("internal error. On exit stack has %d elements, should have %d"), _stack.size(), _program->localCount());
+                    printError("internal error. On exit stack has %d elements, should have %d", _stack.size(), _program->localCount());
                     _terminate = true;
                     _stack.clear();
                     GC::gc(true);
@@ -678,7 +678,7 @@ CallReturnValue ExecutionUnit::execute()
             if (rightValue.asIdValue() == Atom(SA::iterator)) {
                 leftValue = Global::shared()->property(Atom(SA::Iterator));
             } else {
-                printError(ROMSTR("Property '%s' does not exist"), rightValue.toStringPointer(this));
+                printError("Property '%s' does not exist", rightValue.toStringPointer(this));
                 DISPATCH;
             }
         }
@@ -686,27 +686,27 @@ CallReturnValue ExecutionUnit::execute()
         DISPATCH;
     L_STOPROP:
         if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::NeverAdd)) {
-            printError(ROMSTR("Property '%s' does not exist"), leftValue.toStringPointer(this));
+            printError("Property '%s' does not exist", leftValue.toStringPointer(this));
         }
         DISPATCH;
     L_LOADELT:
         ra = byteFromCode(_currentAddr);
         leftValue = regOrConst().element(this, (rightValue = regOrConst()));
         if (!leftValue) {
-            printError(ROMSTR("Can't read element '%s' of a non-existant object"), rightValue.toStringValue(this).c_str());
+            printError("Can't read element '%s' of a non-existant object", rightValue.toStringValue(this).c_str());
         } else {
             setInFrame(ra, leftValue);
         }
         DISPATCH;
     L_STOELT:
         if (!reg(byteFromCode(_currentAddr)).setElement(this, (leftValue = regOrConst()), regOrConst(), Value::SetType::AddIfNeeded)) {
-            printError(ROMSTR("Element '%s' does not exist"), leftValue.toStringValue(this).c_str());
+            printError("Element '%s' does not exist", leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADUP:
         ra = byteFromCode(_currentAddr);
         if (!_function->loadUpValue(this, byteFromCode(_currentAddr), rightValue)) {
-            printError(ROMSTR("unable to load upValue"));
+            printError("unable to load upValue");
         } else {
             setInFrame(ra, rightValue);
         }
@@ -721,12 +721,12 @@ CallReturnValue ExecutionUnit::execute()
         DISPATCH;
     L_APPENDPROP:
         if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::AlwaysAdd)) {
-            printError(ROMSTR("Property '%s' already exists for APPENDPROP"), leftValue.toStringPointer(this));
+            printError("Property '%s' already exists for APPENDPROP", leftValue.toStringPointer(this));
         }
         DISPATCH;
     L_APPENDELT:
         if (!reg(byteFromCode(_currentAddr)).setElement(this, Value(), (leftValue = regOrConst()), Value::SetType::AlwaysAdd)) {
-            printError(ROMSTR("Can't append element '%s' to object"), leftValue.toStringValue(this).c_str());
+            printError("Can't append element '%s' to object", leftValue.toStringValue(this).c_str());
         }
         DISPATCH;
     L_LOADTRUE:
@@ -916,14 +916,14 @@ CallReturnValue ExecutionUnit::execute()
                 name = rightValue.asIdValue();
                 callReturnValue = leftValue.callProperty(this, name, uintValue);
                 if (callReturnValue.isError()) {
-                    printError(ROMSTR("'%s'"), _program->stringFromAtom(name));
+                    printError("'%s'", _program->stringFromAtom(name));
                 }
                 break;
         }
         
         if (callReturnValue.isWaitForEvent()) {
             if (_executingEvent) {
-                printError(ROMSTR("waitForEvent() not allowed in event handler"));
+                printError("waitForEvent() not allowed in event handler");
                 _terminate = true;
                 return CallReturnValue(CallReturnValue::Type::Terminated);
             }

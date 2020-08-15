@@ -22,10 +22,9 @@
 #include <cassert>
 #include <limits>
 #include <cstring>
-#include "ROMString.h"
 
 #define M8RSCRIPT_SUPPORT 1
-#define MARLY_SUPPORT 0
+#define MARLY_SUPPORT 1
 #define LUA_SUPPORT 0
 
 // Debugging

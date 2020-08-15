@@ -42,7 +42,7 @@ void TCP::send(int16_t connectionId, const char* data, uint16_t length)
 }
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, TCPProto::constructor },
     { SA::send, TCPProto::send },

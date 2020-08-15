@@ -35,7 +35,7 @@ static bool toIPAddr(const m8r::String& ipString, IPAddr& ip)
 }
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _props[] =
+static StaticObject::StaticFunctionProperty _props[] =
 {
     { SA::constructor, IPAddrProto::constructor },
     { SA::toString, IPAddrProto::toString },

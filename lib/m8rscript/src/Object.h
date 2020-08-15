@@ -188,17 +188,12 @@ protected:
     NativeFunction _constructor;
 };
 
-static inline SA saFromROM(const SA* sa)
-{
-    return static_cast<SA>(ROMString::readByte(ROMString(reinterpret_cast<const char*>(sa))));
-}
-
 class StaticObject
 {
 public:
     struct StaticProperty
     {
-        SA name() const { return saFromROM(&_name); }
+        SA name() const { return _name; }
         Value value() const { return _value; }
 
         bool operator==(const Atom& atom) const { return Atom(name()) == atom; }
@@ -208,7 +203,7 @@ public:
     
     struct StaticFunctionProperty
     {
-        SA name() const { return saFromROM(&_name); }
+        SA name() const { return _name; }
         NativeFunction func() const { return _func; }
         
         SA _name;
@@ -219,7 +214,7 @@ public:
 
     struct StaticObjectProperty
     {
-        SA name() const { return saFromROM(&_name); }
+        SA name() const { return _name; }
         StaticObject* obj() const { return _obj; }
         
         SA _name;

@@ -295,7 +295,7 @@ m8r::String::String(int32_t value)
 m8r::String::String(void* value)
 {
     // Convert to a uint32_t. This will truncate the pointer on Mac
-    *this = ROMString::format(ROMString("0x%08x"), static_cast<uint32_t>(reinterpret_cast<intptr_t>(value)));
+    *this = String::format("0x%08x", static_cast<uint32_t>(reinterpret_cast<intptr_t>(value)));
 }
 
 bool m8r::String::toFloat(float& f, const char* s, bool allowWhitespace)
@@ -367,4 +367,26 @@ m8r::String m8r::String::prettySize(uint32_t size, uint8_t decimalDigits, bool b
     } else {
         return String(float(size) / multiplier / multiplier / multiplier, decimalDigits) + " G";
     }
+}
+
+m8r::String String::vformat(const char* fmt, va_list args)
+{
+    va_list args2;
+    va_copy(args2, args);
+    size_t size = ::vsnprintf(nullptr, 0, fmt, args) + 1;
+    if( size <= 0 ) {
+        return "***** Error during formatting.";
+    }
+    char* buf(new char[size]); 
+    ::vsnprintf(buf, size, fmt, args2);
+    String s(buf, int32_t(size - 1));
+    delete [ ] buf;
+    return s;
+}
+
+m8r::String String::format(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    return vformat(fmt, args);
 }

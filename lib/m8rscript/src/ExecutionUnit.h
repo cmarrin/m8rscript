@@ -114,7 +114,7 @@ private:
     CallReturnValue endFunction();
     CallReturnValue runNextEvent();
 
-    void printError(ROMString s, ...) const;
+    void printError(const char* s, ...) const;
     void printError(CallReturnValue::Error) const;
     
     Value* valueFromId(Atom, const Object*) const;

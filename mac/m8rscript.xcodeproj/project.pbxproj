@@ -67,7 +67,6 @@
 		497139C2246F50BC0025CC4D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761B246EDB9D00CA38D1 /* AppKit.framework */; };
 		497139C3246F50C30025CC4D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491A761D246EDBB400CA38D1 /* WebKit.framework */; };
 		497139DB24705A630025CC4D /* m8rFSFile in Resources */ = {isa = PBXBuildFile; fileRef = 497139DA24705A620025CC4D /* m8rFSFile */; };
-		497B4A5C2491110F00CCBA41 /* ROMString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497B4A5B2491110F00CCBA41 /* ROMString.cpp */; };
 		497B4A602492E79A00CCBA41 /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497B4A5E2492E79A00CCBA41 /* Shell.cpp */; };
 		497B4A612492E79A00CCBA41 /* Shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 497B4A5F2492E79A00CCBA41 /* Shell.h */; };
 		497CAFC7237DF219000495B2 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497CAFC5237DF219000495B2 /* GC.cpp */; };
@@ -371,9 +370,7 @@
 		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = blink.m8r; sourceTree = "<group>"; };
 		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleFunction.m8r; sourceTree = "<group>"; };
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
-		497B4A59248FDFA800CCBA41 /* ROMString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ROMString.h; path = ../lib/m8rscript/src/ROMString.h; sourceTree = "<group>"; };
 		497B4A5A249015A900CCBA41 /* MachineCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../lib/m8rscript/src/MachineCode.h; sourceTree = "<group>"; };
-		497B4A5B2491110F00CCBA41 /* ROMString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ROMString.cpp; path = ../lib/m8rscript/src/ROMString.cpp; sourceTree = "<group>"; };
 		497B4A5D2492B5BA00CCBA41 /* CallReturnValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CallReturnValue.h; path = ../lib/m8rscript/src/CallReturnValue.h; sourceTree = "<group>"; };
 		497B4A5E2492E79A00CCBA41 /* Shell.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shell.cpp; path = ../lib/m8rscript/src/Shell.cpp; sourceTree = "<group>"; };
 		497B4A5F2492E79A00CCBA41 /* Shell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shell.h; path = ../lib/m8rscript/src/Shell.h; sourceTree = "<group>"; };
@@ -871,8 +868,6 @@
 				49E648191D00C088005F5059 /* Parser.h */,
 				4942EA821D070C9B00E02088 /* Program.cpp */,
 				4942EA7F1D07009E00E02088 /* Program.h */,
-				497B4A5B2491110F00CCBA41 /* ROMString.cpp */,
-				497B4A59248FDFA800CCBA41 /* ROMString.h */,
 				49E6481A1D00C088005F5059 /* Scanner.cpp */,
 				49E6481B1D00C088005F5059 /* Scanner.h */,
 				497B4A5E2492E79A00CCBA41 /* Shell.cpp */,
@@ -1359,7 +1354,6 @@
 				49079BAB244384B1000FAF22 /* TCPServer.cpp in Sources */,
 				49079B9F244247EE000FAF22 /* lfs_util.c in Sources */,
 				492396C71E711D12007AC0BF /* MUDP.cpp in Sources */,
-				497B4A5C2491110F00CCBA41 /* ROMString.cpp in Sources */,
 				49079BA2244247EE000FAF22 /* MLittleFS.cpp in Sources */,
 				49E826301E95EB0100E416C4 /* JSON.cpp in Sources */,
 				494D25551D2E90A9003755DB /* CodePrinter.cpp in Sources */,

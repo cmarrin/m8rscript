@@ -44,7 +44,7 @@ public:
     
     Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, Mad<Function> parent = Mad<Function>());
 
-	void printError(ROMString format, ...);
+	void printError(const char* format, ...);
     ParseErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return static_cast<uint32_t>(_syntaxErrors.size()); }

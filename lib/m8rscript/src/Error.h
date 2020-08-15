@@ -71,13 +71,13 @@ public:
 
     Code code() const { return _code; }
         
-    static String formatError(Code code, ROMString format = ROMString(), ...);
-    static String formatError(Code, int32_t lineno, ROMString format = ROMString(), ...);
-    static String vformatError(Code, ROMString format, va_list);
-    static String vformatError(Code, int32_t lineno, ROMString format, va_list);
+    static String formatError(Code code, const char* format = nullptr, ...);
+    static String formatError(Code, int32_t lineno, const char* format = nullptr, ...);
+    static String vformatError(Code, const char* format, va_list);
+    static String vformatError(Code, int32_t lineno, const char* format, va_list);
 
 private:
-    static ROMString description(Code);
+    static const char* description(Code);
 
     Code _code = Code::OK;
 };

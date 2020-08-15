@@ -56,7 +56,7 @@ void Timer::fire()
 }
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, TimerProto::constructor },
     { SA::start, TimerProto::start },

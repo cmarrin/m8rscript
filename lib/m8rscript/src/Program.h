@@ -32,7 +32,6 @@ public:
 
     const char* stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
     Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
-    Atom atomizeString(ROMString s) const { return _atomTable.atomizeString(s); }
 
     StringLiteral startStringLiteral() { return StringLiteral(StringLiteral::Raw(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }

@@ -53,11 +53,6 @@ public:
         _data[_size - 1] = '\0';
     }
     
-    String(ROMString s)
-    {
-        *this = s;
-    }
-    
     String(const String& other)
     {
         *this = other;
@@ -95,28 +90,6 @@ public:
         _destroyed = true;
     };
     
-    String& operator=(ROMString other)
-    {
-        uint16_t romSize = static_cast<uint16_t>(ROMString::strlen(other));
-        
-        if (_data) {
-            _size = 0;
-            if (_capacity < romSize) {
-                delete [ ] _data;
-                _data = nullptr;
-                _capacity = 0;
-            }
-        }
-        
-        ensureCapacity(romSize + 1);
-        _size = romSize + 1;
-        if (romSize > 0) {
-            ROMString::memcpy(_data, other, romSize);
-        }
-        _data[romSize] = '\0';
-        return *this;
-    }
-
     String& operator=(const String& other)
     {
     assert(!_destroyed && !other._destroyed);
@@ -290,6 +263,9 @@ public:
         float value;
         return toFloat(value, c_str()) ? value : 0;
     }
+
+    static String vformat(const char* format, va_list args);
+    static String format(const char* format, ...);
 
 private:
     void doEnsureCapacity(uint16_t size);

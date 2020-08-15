@@ -120,7 +120,7 @@ bool TaskManager::runOneIteration()
         _currentTask->setState(Task::State::Ready);
     } else if (returnValue.isTerminated() || returnValue.isFinished() || returnValue.isError()) {
         if (returnValue.isError()) {
-            String errorString = ROMString::format(ROMString("*** TaskManager execution error (%d)\n"), int(returnValue.error()));
+            String errorString = String::format("*** TaskManager execution error (%d)\n", int(returnValue.error()));
             _currentTask->print(errorString.c_str());
         }
         

@@ -73,14 +73,14 @@ int main(int argc, char * argv[])
             m8r::system()->fileSystem()->makeDirectory(toPath.c_str());
             if (m8r::system()->fileSystem()->lastError() != m8r::Error::Code::OK) {
                 m8r::system()->print(m8r::Error::formatError(m8r::system()->fileSystem()->lastError().code(), 
-                                                        ROMSTR("Unable to create '%s'"), toPath.c_str()).c_str());
+                                                        "Unable to create '%s'", toPath.c_str()).c_str());
             } else {
                 toPath += baseName;
                 
                 m8r::Mad<m8r::File> toFile(m8r::system()->fileSystem()->open(toPath.c_str(), m8r::FS::FileOpenMode::Write));
                 if (!toFile->valid()) {
                     m8r::system()->print(m8r::Error::formatError(toFile->error().code(), 
-                                                            ROMSTR("Error: unable to open '%s'"), toPath.c_str()).c_str());
+                                                            "Error: unable to open '%s'", toPath.c_str()).c_str());
                 } else {
                     bool success = true;
                     while (1) {

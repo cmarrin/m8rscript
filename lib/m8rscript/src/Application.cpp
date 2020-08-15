@@ -85,13 +85,13 @@ void Application::init(uint16_t port)
     mountFileSystem();
 
     // Start things running
-    system()->printf(ROMSTR("\n*** m8rscript v%d.%d - %s\n"), MajorVersion, MinorVersion, __TIMESTAMP__);
-    system()->printf(ROMSTR("Free heap: %d\n\n"), m8r::Mallocator::shared()->freeSize());
+    system()->printf("\n*** m8rscript v%d.%d - %s\n", MajorVersion, MinorVersion, __TIMESTAMP__);
+    system()->printf("Free heap: %d\n\n", m8r::Mallocator::shared()->freeSize());
 
     if (m8r::system()->fileSystem() && m8r::system()->fileSystem()->mounted()) {
         uint32_t totalSize = m8r::system()->fileSystem()->totalSize();
         uint32_t totalUsed = m8r::system()->fileSystem()->totalUsed();
-        m8r::system()->printf(ROMSTR("Filesystem - total size:%sB, used:%sB\n"), String::prettySize(totalSize, 1, true).c_str(), String::prettySize(totalUsed, 1, true).c_str());
+        m8r::system()->printf("Filesystem - total size:%sB, used:%sB\n", String::prettySize(totalSize, 1, true).c_str(), String::prettySize(totalUsed, 1, true).c_str());
     }
 }
 
@@ -99,7 +99,7 @@ void Application::runAutostartTask()
 {
     _autostartTask = std::make_shared<Task>();
     _autostartTask->setConsolePrintFunction([](const String& s) {
-        system()->printf(ROMSTR("%s"), s.c_str());
+        system()->printf("%s", s.c_str());
     });
     
     system()->setListenerFunc([this](const char* line) {
@@ -120,7 +120,7 @@ void Application::runAutostartTask()
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
-        m8r::system()->printf(ROMSTR("******* autostart task completed. Result=%d\n"), result);
+        m8r::system()->printf("******* autostart task completed. Result=%d\n", result);
         _autostartTask.reset();
     });  
 }
@@ -159,15 +159,15 @@ bool Application::mountFileSystem()
     }
     if (!system()->fileSystem()->mount()) {
         if (system()->fileSystem()->lastError().code() == Error::Code::FSNotFormatted) {
-            m8r::system()->printf(ROMSTR("Filessytem not present, formatting...\n"));
+            m8r::system()->printf("Filessytem not present, formatting...\n");
         } else {
-            system()->print(Error::formatError(system()->fileSystem()->lastError().code(), ROMSTR("Filesystem mount failed")).c_str());
+            system()->print(Error::formatError(system()->fileSystem()->lastError().code(), "Filesystem mount failed").c_str());
             return false;
         }
         if (m8r::system()->fileSystem()->format()) {
-            m8r::system()->printf(ROMSTR("succeeded.\n"));
+            m8r::system()->printf("succeeded.\n");
         } else {
-            m8r::system()->printf(ROMSTR("FAILED.\n"));
+            m8r::system()->printf("FAILED.\n");
         }
     }
     return true;

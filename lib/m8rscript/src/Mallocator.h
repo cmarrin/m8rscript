@@ -166,7 +166,7 @@ public:
     
     uint32_t freeSize() const;
 
-    static ROMString stringFromMemoryType(MemoryType);
+    static const char* stringFromMemoryType(MemoryType);
 
 protected:
     MemoryInfo _memoryInfo;

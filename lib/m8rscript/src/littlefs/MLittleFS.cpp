@@ -49,25 +49,25 @@ LittleFS::~LittleFS()
 
 bool LittleFS::mount()
 {
-    system()->printf(ROMSTR("Mounting LittleFS...\n"));
+    system()->printf("Mounting LittleFS...\n");
     int32_t result = internalMount();
     if (result != 0) {
         if (result != 0) {
-            system()->printf(ROMSTR("ERROR: Not a valid LittleFS filesystem. Please format.\n"));
+            system()->printf("ERROR: Not a valid LittleFS filesystem. Please format.\n");
             _error = Error::Code::FSNotFormatted;
         } else {
-            system()->printf(ROMSTR("ERROR: LittleFS mount failed, error=%d\n"), result);
+            system()->printf("ERROR: LittleFS mount failed, error=%d\n", result);
             _error = Error::Code::MountFailed;
         }
         return false;
     }
     if (!mounted()) {
-        system()->printf(ROMSTR("ERROR: LittleFS filesystem failed to mount\n"));
+        system()->printf("ERROR: LittleFS filesystem failed to mount\n");
         _error = Error::Code::MountFailed;
         return false;
     }
 
-    system()->printf(ROMSTR("LittleFS mounted successfully\n"));
+    system()->printf("LittleFS mounted successfully\n");
     _error = Error::Code::OK;
 
     return true;
@@ -94,7 +94,7 @@ bool LittleFS::format()
     
     int32_t result = lfs_format(&_littleFileSystem, &_config);
     if (result != 0) {
-        system()->printf(ROMSTR("ERROR: LittleFS format failed, error=%d\n"), result);
+        system()->printf("ERROR: LittleFS format failed, error=%d\n", result);
         return false;
     }
     mount();

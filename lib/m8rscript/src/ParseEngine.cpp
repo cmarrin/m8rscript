@@ -14,7 +14,7 @@
 
 using namespace m8r;
 
-static const char _keywordString[] ROMSTR_ATTR =
+static const char _keywordString[] =
     "\x01" "break"
     "\x02" "case"
     "\x03" "class"
@@ -35,19 +35,19 @@ static const char _keywordString[] ROMSTR_ATTR =
     "\x12" "while"
 ;
 
-static ROMString keywordString(_keywordString);
+static const char* keywordString(_keywordString);
 
 // If the word is a keyword, return the enum for it, otherwise return Unknown
 ParseEngine::Keyword ParseEngine::scanKeyword()
 {
     const char* s = getTokenValue().str;
     int32_t len = static_cast<int32_t>(strlen(s));
-    ROMString result = ROMString::strstr(keywordString, s);
-    if (!result.valid() || ROMString::readByte(result + len) >= 0x20 || ROMString::readByte(result - 1) >= 0x20) {
+    const char* result = ::strstr(keywordString, s);
+    if (!result || result[len] >= 0x20 || result[-1] >= 0x20) {
         return Keyword::Unknown;
     }
     
-    return static_cast<Keyword>(ROMString::readByte(result - 1));
+    return static_cast<Keyword>(result[-1]);
 }
 
 ParseEngine::Keyword ParseEngine::tokenToKeyword()

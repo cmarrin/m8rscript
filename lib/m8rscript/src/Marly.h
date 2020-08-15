@@ -491,11 +491,6 @@ private:
     enum Phase { Compile, Run };
     
     // Return true if we've exceeded the max number of errors
-    bool showError(Phase phase, ROMString s, uint32_t lineno)
-    {
-        return showError(phase, m8r::String(s).c_str(), lineno);
-    }
-    
     bool showError(Phase, const char*, uint32_t lineno);
     
     void print(const char* s) const;

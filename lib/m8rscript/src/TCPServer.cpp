@@ -26,14 +26,14 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
     Mad<TCP> socket = system()->createTCP(port, [this](TCP* tcp, TCP::Event event, int16_t connectionId, const char* data, int16_t length)
     {
         if (connectionId < 0 || connectionId >= TCP::MaxConnections) {
-            system()->printf(ROMSTR("******** TCPServer Internal Error: Invalid connectionId = %d\n"), connectionId);
+            system()->printf("******** TCPServer Internal Error: Invalid connectionId = %d\n", connectionId);
             _socket->disconnect(connectionId);
             return;
         }
 
         switch(event) {
             case TCP::Event::Connected:
-                system()->printf(ROMSTR("TCPServer: new connection, connectionId=%d, ip=%s, port=%d\n"), 
+                system()->printf("TCPServer: new connection, connectionId=%d, ip=%s, port=%d\n", 
                                  connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
                 _connections[connectionId].task = _createTaskFunction();
                 
@@ -72,7 +72,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
                 break;
             case TCP::Event::Disconnected:
                 if (_connections[connectionId].task) {
-                    system()->printf(ROMSTR("TCPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n"), 
+                    system()->printf("TCPServer: disconnecting, connectionId=%d, ip=%s, port=%d\n", 
                                  connectionId, tcp->clientIPAddr(connectionId).toString().c_str(), tcp->port());
                     system()->taskManager()->terminate(_connections[connectionId].task);
                     _connections[connectionId].task.reset();
@@ -86,7 +86,7 @@ TCPServer::TCPServer(uint16_t port, CreateTaskFunction createTaskFunction, TCP::
             case TCP::Event::SentData:
                 break;
             case TCP::Event::Error:
-                system()->printf(ROMSTR("******** TCPServer Error for connectionId = %d (%s)\n"), connectionId, data);
+                system()->printf("******** TCPServer Error for connectionId = %d (%s)\n", connectionId, data);
             default:
                 break;
         }

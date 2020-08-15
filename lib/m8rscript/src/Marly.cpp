@@ -50,7 +50,7 @@ Marly::Marly(const Stream& stream, Printer printer)
                     break;
                 }
                 
-                if (showError(Phase::Compile, ROMString("invalid identifier"), scanner.lineno())) {
+                if (showError(Phase::Compile, "invalid identifier", scanner.lineno())) {
                     return;
                 }
                 break;
@@ -73,7 +73,7 @@ Marly::Marly(const Stream& stream, Printer printer)
                 scanner.retireToken();
                 Token idToken = scanner.getToken();
                 if (idToken != Token::Identifier) {
-                    if (showError(Phase::Compile, ROMString("identifier required"), scanner.lineno())) {
+                    if (showError(Phase::Compile, "identifier required", scanner.lineno())) {
                         return;
                     }
                     break;
@@ -95,12 +95,12 @@ Marly::Marly(const Stream& stream, Printer printer)
             }
             case Token::EndOfFile:
                 if (_codeStack.size() != 1) {
-                    showError(Phase::Compile, ROMString("misaligned code stack"), scanner.lineno());
+                    showError(Phase::Compile, "misaligned code stack", scanner.lineno());
                     return;                    
                 }
                 if (_nerrors > 0) {
                     m8r::String s(_nerrors);
-                    s += ROMString(" parse error");
+                    s += " parse error";
                     if (_nerrors > 1) {
                         s += 's';
                     }
@@ -136,7 +136,7 @@ bool Marly::execute(const SharedPtr<List>& code)
             case Value::Type::Load: {
                 auto foundValue = _vars.find(Atom(it.integer()));
                 if (foundValue == _vars.end()) {
-                    return !showError(Phase::Run, ROMString("var not found"), _lineno);
+                    return !showError(Phase::Run, "var not found", _lineno);
                 }
                 _stack.push(foundValue->value);
                 break;
@@ -189,7 +189,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         break;
                     }
                     default: {
-                        m8r::String s(ROMString("unrecognized verb '"));
+                        m8r::String s("unrecognized verb '");
                         s += char(it.integer());
                         s += "'";
                         return !showError(Phase::Run, s.c_str(), _lineno);
@@ -202,7 +202,7 @@ bool Marly::execute(const SharedPtr<List>& code)
             default: {
                 // If the Type is < ExternalAtomOffset this is a built-in verb
                 if (!it.isBuiltInVerb()) {
-                    return !showError(Phase::Run, ROMString("unrecognized value"), _lineno);
+                    return !showError(Phase::Run, "unrecognized value", _lineno);
                 }
                 
                 switch(it.builtInVerb()) {
@@ -234,7 +234,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         SharedPtr<List> list = _stack.top().list();
                         _stack.pop();
                         if (!list) {
-                            showError(Phase::Run, ROMString("target must be List for 'insert'"), _lineno);
+                            showError(Phase::Run, "target must be List for 'insert'", _lineno);
                             return false;
                         }
                         
@@ -245,7 +245,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                             list->insert(list->begin() + i, v);
                         } else {
                             if (i >= list->size()) {
-                                showError(Phase::Run, ROMString::format(ROMString("at index %d out of range for list of size %d"), i, list->size()).c_str(), _lineno);
+                                showError(Phase::Run, m8r::String::format("at index %d out of range for list of size %d", i, list->size()).c_str(), _lineno);
                                 return false;
                             }
                         
@@ -354,7 +354,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         break;
                     }
                     default: {
-                        m8r::String s(ROMString("unrecognized built-in verb '"));
+                        m8r::String s("unrecognized built-in verb '");
                         s += _atomTable.stringFromAtom(it.builtInVerb());
                         s += "'";
                         return !showError(Phase::Run, s.c_str(), _lineno);

@@ -344,7 +344,7 @@ static_assert (sizeof(dispatchTable) == 64 * sizeof(void*), "Dispatch table is w
     
     for (const uint8_t* p = code; ; ) {
         if (p >= end) {
-            eu->print(Error::formatError(Error::Code::InternalError, _lineno, ROMString("WENT PAST THE END OF CODE")).c_str());
+            eu->print(Error::formatError(Error::Code::InternalError, _lineno, "WENT PAST THE END OF CODE").c_str());
             _nerrors++;
             return false;
         }

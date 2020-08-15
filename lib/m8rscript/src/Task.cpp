@@ -84,7 +84,7 @@ bool Task::load(const char* filename)
         }
 #endif
          
-        system()->printf(ROMSTR("***** Missing suffix for '%s'\n\n"), filename);
+        system()->printf("***** Missing suffix for '%s'\n\n", filename);
         return false;
     }
     
@@ -97,7 +97,7 @@ bool Task::load(const char* filename)
     }
 
     if (error) {
-        print(Error::formatError(error.code(), ROMSTR("Unable to open '%s' for execution"), filename).c_str());
+        print(Error::formatError(error.code(), "Unable to open '%s' for execution", filename).c_str());
         _error = error;
         return false;
     }
@@ -105,7 +105,7 @@ bool Task::load(const char* filename)
     bool ret = load(FileStream(file), parts.back());
 
     if (file->error() != Error::Code::OK) {
-        print(Error::formatError(file->error().code(), ROMSTR("Error reading '%s'"), filename).c_str());
+        print(Error::formatError(file->error().code(), "Error reading '%s'", filename).c_str());
     }
         
     file.destroy(MemoryType::Native);
@@ -115,7 +115,7 @@ bool Task::load(const char* filename)
 bool Task::load(const Stream& stream, const String& type)
 {
 #ifndef NDEBUG
-    _name = ROMString::format(ROMString("Task(%p)"), this);
+    _name = String::format("Task(%p)", this);
 #endif
 
     if (type == "m8r") {
@@ -129,7 +129,7 @@ bool Task::load(const Stream& stream, const String& type)
         Parser parser;
         parser.parse(stream, eu.get(), Parser::debug);
         if (parser.nerrors()) {
-            _executable->printf(ROMSTR("***** %d parse error%s\n\n"), parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
+            _executable->printf("***** %d parse error%s\n\n", parser.nerrors(), (parser.nerrors() == 1) ? "" : "s");
             errorList.swap(parser.syntaxErrors());
             _error = Error::Code::ParseError;
             return false;
@@ -141,9 +141,9 @@ bool Task::load(const Stream& stream, const String& type)
             CodePrinter codePrinter;
             m8r::String codeString = codePrinter.generateCodeString(eu.get());
             
-            system()->printf(ROMSTR("\n*** Start Generated Code ***\n\n"));
-            system()->printf(ROMSTR("%s"), codeString.c_str());
-            system()->printf(ROMSTR("\n*** End of Generated Code ***\n\n"));
+            system()->printf("\n*** Start Generated Code ***\n\n");
+            system()->printf("%s", codeString.c_str());
+            system()->printf("\n*** End of Generated Code ***\n\n");
         }
         #endif
         return true;
@@ -157,20 +157,20 @@ bool Task::load(const Stream& stream, const String& type)
 #if LUA_SUPPORT == 1
         std::shared_ptr<LuaEngine> engine = std::make_shared<LuaEngine>(stream);
         if (engine->nerrors() > 0) {
-            engine->printf(ROMSTR("***** %d lua error%s\n\n"), engine->nerrors(), (engine->nerrors() == 1) ? "" : "s");
+            engine->printf("***** %d lua error%s\n\n", engine->nerrors(), (engine->nerrors() == 1) ? "" : "s");
         } else {
             _executable = engine;
         }
 #endif
     } else {
-        system()->printf(ROMSTR("***** Unknown suffix '%s'.\n\n"), type.c_str());
+        system()->printf("***** Unknown suffix '%s'.\n\n", type.c_str());
     }
 
     return true;
 }
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, TaskProto::constructor },
     { SA::run, TaskProto::run },
@@ -248,7 +248,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     if (task->error() != Error::Code::OK) {
         eu->print(Error::formatError(Error::Code::RuntimeError, eu->lineno(),
-                                     ROMSTR("unable to load task '%s'"), filename.c_str()).c_str());
+                                     "unable to load task '%s'", filename.c_str()).c_str());
         return CallReturnValue(CallReturnValue::Error::Error);
     }
     

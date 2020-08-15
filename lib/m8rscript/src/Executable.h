@@ -28,16 +28,16 @@ public:
     virtual void requestYield() const { }
     virtual void receivedData(const String& data, KeyAction) { }
     
-    void printf(ROMString fmt, ...) const
+    void printf(const char* fmt, ...) const
     {
         va_list args;
         va_start(args, fmt);
         vprintf(fmt, args);
     }
 
-    void vprintf(ROMString fmt, va_list args) const
+    void vprintf(const char* fmt, va_list args) const
     {
-        print(ROMString::vformat(fmt, args).c_str());
+        print(String::vformat(fmt, args).c_str());
     }
     
     void print(const char* s) const;

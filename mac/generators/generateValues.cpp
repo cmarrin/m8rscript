@@ -148,18 +148,18 @@ int main()
             string.erase(string.size() - 1);
         }
         fprintf(hfile, "    %s = %d,\n", enumString.c_str(), i);
-        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", enumString.c_str(), string.c_str());
+        fprintf(cppfile, "static const char _%s[] = \"%s\";\n", enumString.c_str(), string.c_str());
     }
     
     // Write the second .cpp entries
-    fprintf(cppfile, "\nconst char* RODATA_ATTR _sharedAtoms[] = {\n");
+    fprintf(cppfile, "\nconst char* _sharedAtoms[] = {\n");
     for (int32_t i = 0; i < strings.size(); ++i) {
         fprintf(cppfile, "    _%s,\n", strings[i].c_str());
     }
     fprintf(cppfile, "};\n\n");
     
     // Write the special char string
-    fprintf(cppfile, "const char* RODATA_ATTR _specialChars = \"\"\n");
+    fprintf(cppfile, "const char* _specialChars = \"\"\n");
     fprintf(cppfile, "#if M8RSCRIPT_SUPPORT == 1\n");
     
     for (auto it : entries) {

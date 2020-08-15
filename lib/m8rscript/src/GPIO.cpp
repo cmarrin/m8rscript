@@ -20,7 +20,7 @@ using namespace m8r;
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _funcPropsGPIO[] =
+static StaticObject::StaticFunctionProperty _funcPropsGPIO[] =
 {
     { SA::setPinMode, GPIO::setPinMode },
     { SA::digitalWrite, GPIO::digitalWrite },

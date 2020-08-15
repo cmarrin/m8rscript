@@ -16,7 +16,7 @@
 using namespace m8r;
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsFS[] =
+static StaticObject::StaticFunctionProperty _propsFS[] =
 {
     { SA::mount, FSProto::mount },
     { SA::mounted, FSProto::mounted },
@@ -107,7 +107,7 @@ CallReturnValue FSProto::errorString(ExecutionUnit* eu, Value thisValue, uint32_
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsFile[] =
+static StaticObject::StaticFunctionProperty _propsFile[] =
 {
     { SA::constructor, FileProto::constructor },
     { SA::close, FileProto::close },
@@ -248,7 +248,7 @@ CallReturnValue FileProto::type(ExecutionUnit* eu, Value thisValue, uint32_t npa
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _propsDirectory[] =
+static StaticObject::StaticFunctionProperty _propsDirectory[] =
 {
     { SA::constructor, DirectoryProto::constructor },
     { SA::name, DirectoryProto::name },

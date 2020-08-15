@@ -39,7 +39,6 @@ COMPONENT_OBJS := \
     $(M8R_DIR)/Parser.o \
     $(M8R_DIR)/ParseEngine.o \
     $(M8R_DIR)/Program.o \
-    $(M8R_DIR)/ROMString.o \
     $(M8R_DIR)/Scanner.o \
     $(M8R_DIR)/GeneratedValues.o \
     $(M8R_DIR)/Shell.o \

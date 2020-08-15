@@ -17,7 +17,7 @@
 using namespace m8r;
 
 #if M8RSCRIPT_SUPPORT == 1
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, UDPProto::constructor },
     { SA::send, UDPProto::send },

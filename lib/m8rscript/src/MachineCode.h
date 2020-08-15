@@ -207,7 +207,7 @@ private:
 
     static const Entry array(Op op)
     {
-        static const Entry RODATA_ATTR _array[ ] = {
+        static const Entry _array[ ] = {
 /*0x00 */   { Layout::AB,   2 },   // MOVE         R[d], RK[s]
             { Layout::AB,   2 },   // LOADREFK     R[d], RK[s]
             { Layout::BC,   2 },   // STOREFK      RK[d], RK[s]
@@ -282,14 +282,7 @@ private:
         };
         
         assert(static_cast<uint8_t>(op) < sizeof(_array) / sizeof(Entry));
-        
-        Entry e;
-        const Entry* ep = &(_array[static_cast<uint8_t>(op)]);
-        uint8_t c = ROMString::readByte(ROMString(reinterpret_cast<const char*>(&(ep->size))));
-        e.size = c;
-        c = ROMString::readByte(ROMString(reinterpret_cast<const char*>(&(ep->layout))));
-        e.layout = static_cast<Layout>(c);
-        return e;
+        return _array[static_cast<uint8_t>(op)];
     }
 };
 

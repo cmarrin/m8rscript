@@ -120,10 +120,10 @@ Token Scanner::scanSpecial()
     buf[1] = get();
     buf[2] = '\0';
 
-    ROMString entries = ROMString(specialChars());
+    const char* entries = specialChars();
 
-    ROMString found = ROMString::strstr(entries, buf);
-    if (!found.valid()) {
+    const char* found = ::strstr(entries, buf);
+    if (!found) {
         // Assume this is a lone special char
         putback(buf[1]);
         return static_cast<Token>(c);
@@ -131,7 +131,7 @@ Token Scanner::scanSpecial()
     
     // This could be a 2 character special or part of a
     // 3 or 4 character special.
-    uint8_t prev = ROMString::readByte(found - 1);
+    uint8_t prev = uint8_t(found[-1]);
     if (prev < 0x80) {
         putback(buf[1]);
         return static_cast<Token>(c);

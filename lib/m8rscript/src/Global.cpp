@@ -34,7 +34,7 @@ FSProto Global::_fs;
 FileProto Global::_file;
 DirectoryProto Global::_directory;
 
-static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::currentTime, Global::currentTime },
     { SA::delay, Global::delay },
@@ -50,7 +50,7 @@ static StaticObject::StaticFunctionProperty RODATA2_ATTR _functionProps[] =
     { SA::meminfo, Global::meminfo },
 };
 
-static StaticObject::StaticObjectProperty RODATA2_ATTR _objectProps[] =
+static StaticObject::StaticObjectProperty _objectProps[] =
 {
     { SA::Base64, &Global::_base64 },
     { SA::GPIO, &Global::_gpio },
@@ -226,31 +226,31 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     
     uint32_t freeSize = Mallocator::shared()->freeSize();
     uint32_t allocatedSize = info.totalAllocatedBytes;
-    obj->setProperty(eu->program()->atomizeString(ROMSTR("freeSize")),
+    obj->setProperty(eu->program()->atomizeString("freeSize"),
                      Value(static_cast<int32_t>(freeSize)), Value::SetType::AlwaysAdd);
                      
-    obj->setProperty(eu->program()->atomizeString(ROMSTR("allocatedSize")),
+    obj->setProperty(eu->program()->atomizeString("allocatedSize"),
                      Value(static_cast<int32_t>(allocatedSize)), Value::SetType::AlwaysAdd);
                      
-    obj->setProperty(eu->program()->atomizeString(ROMSTR("numAllocations")),
+    obj->setProperty(eu->program()->atomizeString("numAllocations"),
                      Value(static_cast<int32_t>(info.numAllocations)), Value::SetType::AlwaysAdd);
                      
     Mad<Object> allocationsByType = Object::create<MaterArray>();
     for (uint32_t i = 0; i < info.allocationsByType.size(); ++i) {
         Mad<Object> allocation = Object::create<MaterObject>();
         uint32_t size = info.allocationsByType[i].size;
-        ROMString type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
-        allocation->setProperty(eu->program()->atomizeString(ROMSTR("count")),
+        const char* type = Mallocator::stringFromMemoryType(static_cast<MemoryType>(i));
+        allocation->setProperty(eu->program()->atomizeString("count"),
                          Value(static_cast<int32_t>(info.allocationsByType[i].count)), Value::SetType::AlwaysAdd);
-        allocation->setProperty(eu->program()->atomizeString(ROMSTR("size")),
+        allocation->setProperty(eu->program()->atomizeString("size"),
                          Value(static_cast<int32_t>(size)), Value::SetType::AlwaysAdd);
-        allocation->setProperty(eu->program()->atomizeString(ROMSTR("type")),
+        allocation->setProperty(eu->program()->atomizeString("type"),
                          Value(ExecutionUnit::createString(type)), Value::SetType::AlwaysAdd);
 
         allocationsByType->setElement(eu, Value(0), Value(allocation), Value::SetType::AlwaysAdd);
     }
     
-    obj->setProperty(eu->program()->atomizeString(ROMSTR("allocationsByType")),
+    obj->setProperty(eu->program()->atomizeString("allocationsByType"),
                      Value(allocationsByType), Value::SetType::AlwaysAdd);
 
     eu->stack().push(Value(obj));
