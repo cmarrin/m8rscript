@@ -10,7 +10,6 @@
 #include "Application.h"
 
 #include "HTTPServer.h"
-#include "Marly.h"
 #include "MFS.h"
 #include "Shell.h"
 #include "StringStream.h"
@@ -115,8 +114,12 @@ void Application::runAutostartTask()
     
 #ifdef RUN_SAMPLE
     bool result = _autostartTask->load(std::make_shared<Sample>());
-#else
+#elif M8RSCRIPT_SUPPORT == 1
     bool result = _autostartTask->load("/sys/bin/timing.m8r");
+#elif MARLY_SUPPORT == 1
+    bool result = _autostartTask->load("/sys/bin/timing.marly");
+#elif LUA_SUPPORT == 1
+    bool result = _autostartTask->load("/sys/bin/timing.lua");
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
