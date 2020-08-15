@@ -82,7 +82,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "scripts/simple/hello.m8r"
+            argument = "scripts/simple/hello.marly"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
