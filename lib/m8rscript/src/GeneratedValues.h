@@ -157,6 +157,6 @@ enum class SA : uint16_t {
 
 namespace m8r {
     const char** sharedAtoms(uint16_t& nelts);
-    static constexpr uint16_t ExternalAtomOffset = 200;
+    static constexpr uint16_t ExternalAtomOffset = 32768;
     const char* specialChars();
 }
