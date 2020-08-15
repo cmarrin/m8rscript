@@ -53,7 +53,8 @@ Marly::Marly(const Stream& stream, Printer printer)
                     break;
                 }
                 
-                if (showError(Phase::Compile, "invalid identifier", scanner.lineno())) {
+                m8r::String s = m8r::String::format("invalid identifier '%s'", scanner.getTokenValue().str);
+                if (showError(Phase::Compile, s.c_str(), scanner.lineno())) {
                     return;
                 }
                 break;
