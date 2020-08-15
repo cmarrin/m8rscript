@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "MString.h"
 #include "Object.h"
 
 #include <functional>
