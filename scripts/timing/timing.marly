@@ -3,7 +3,7 @@
 //
 
 [ ] @a
-4000 @n
+200 @n
 $n $a:length
 
 "\n\nMarly timing test: " $n " squared iterations\n" cat cat print
