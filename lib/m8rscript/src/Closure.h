@@ -13,10 +13,11 @@
 #if M8RSCRIPT_SUPPORT == 1
 
 #include "Function.h"
+#include "SharedPtr.h"
 
 namespace m8r {
 
-class UpValue {
+class UpValue : public Shared {
 public:
     UpValue()
         : _closed(false)
@@ -88,7 +89,7 @@ public:
     virtual Atom name() const override { return _func->name(); }
 
 private:
-    Vector<Mad<UpValue>> _upValues;
+    Vector<SharedPtr<UpValue>> _upValues;
 
     Mad<Object> _func;
     Value _thisValue;

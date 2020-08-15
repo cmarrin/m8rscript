@@ -342,7 +342,7 @@ uint32_t ExecutionUnit::upValueStackIndex(uint32_t index, uint16_t frame) const
 void ExecutionUnit::closeUpValues(uint32_t frame)
 {
     auto it = std::remove_if(_openUpValues.begin(), _openUpValues.end(), 
-        [this, frame](const Mad<UpValue>& upValue) {
+        [this, frame](SharedPtr<UpValue>& upValue) {
             return upValue->closeIfNeeded(this, frame);
         });
     

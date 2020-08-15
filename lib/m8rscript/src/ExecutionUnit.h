@@ -69,7 +69,7 @@ public:
     void stopEventListening() { _numEventListeners--; }
 
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
-    void addOpenUpValue(const Mad<UpValue> upValue) { _openUpValues.push_back(upValue); }
+    void addOpenUpValue(const SharedPtr<UpValue>& upValue) { _openUpValues.push_back(upValue); }
     
     Mad<Callable> currentFunction() const { return _function; }
     
@@ -245,7 +245,7 @@ private:
     
     uint32_t _lineno = 0;
     
-    Vector<Mad<UpValue>> _openUpValues;
+    Vector<SharedPtr<UpValue>> _openUpValues;
     
     Value _consoleListener;
     

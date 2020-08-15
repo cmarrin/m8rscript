@@ -18,9 +18,6 @@ using namespace m8r;
 
 Closure::~Closure()
 {
-    for (auto it : _upValues) {
-        it.destroy(MemoryType::UpValue);
-    }
 }
 
 void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisValue)
@@ -30,7 +27,7 @@ void Closure::init(ExecutionUnit* eu, const Value& function, const Value& thisVa
     assert(_func.valid());
 
     for (uint32_t i = 0; i < _func->upValueCount(); ++i) {
-        Mad<UpValue> up = Mad<UpValue>::create(MemoryType::UpValue);
+        SharedPtr<UpValue> up(new UpValue());
 
         uint32_t index;
         uint16_t frame;
