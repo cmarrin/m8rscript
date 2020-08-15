@@ -7,6 +7,9 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+#if MARLY_SUPPORT == 1
+
 #include "Marly.h"
 
 #include "Scanner.h"
@@ -390,3 +393,5 @@ void Marly::print(const char* s) const
         printf("%s", s);
     }
 }
+
+#endif
