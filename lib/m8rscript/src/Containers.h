@@ -48,23 +48,24 @@ public:
     ~Vector()
     {
         clear();
-        _data.destroyVector();
+        delete [ ] _data;
+        _data = nullptr;
     }
     
     using iterator = T*;
     using const_iterator = const T*;
     
-    iterator begin() { return _size ? _data.get() : end(); }
-    const_iterator begin() const { return _size ? _data.get() : end(); }
-    iterator end() { return _data.get() + _size; }
-    const_iterator end() const { return _data.get() + _size; }
+    iterator begin() { return _size ? _data : end(); }
+    const_iterator begin() const { return _size ? _data : end(); }
+    iterator end() { return _data + _size; }
+    const_iterator end() const { return _data + _size; }
 
     Vector& operator=(const Vector& other)
     {
         clear();
-        _data.destroyVector();
+        delete [ ] _data;
         
-        _data = Mad<T>();
+        _data = nullptr;
         _size = 0;
         _capacity = 0;
         
@@ -72,7 +73,7 @@ public:
         _size = other._size;
         
         for (int i = 0; i < _size; ++i) {
-            _data.get()[i] = other._data.get()[i];
+            _data[i] = other._data[i];
         }
         return *this;
     };
@@ -80,12 +81,12 @@ public:
     Vector& operator=(Vector&& other)
     {
         clear();
-        _data.destroyVector();
+        delete [ ] _data;
 
         _data = other._data;
         _size = other._size;
         _capacity = other._capacity;
-        other._data = Mad<T>();
+        other._data = nullptr;
         other._size = 0;
         other._capacity = 0;
         return *this;
@@ -103,14 +104,12 @@ public:
     {
         assert(_size < std::numeric_limits<uint16_t>::max() - 1);
         ensureCapacity(_size + 1);
-        new (_data.get() + _size) T();
-        _data.get()[_size++] = x;
+        _data[_size++] = x;
     };
     
     void pop_back()
     {
-        _data.get()[_size - 1].~T();
-        _size--;
+        _data[--_size] = T();
     }
     
     template<class... Args>
@@ -131,11 +130,11 @@ public:
     const T& operator[](uint16_t i) const { return at(i); };
     T& operator[](uint16_t i) { return at(i); };
     
-    T& at(uint16_t i) { assert(i < _size); return _data.get()[i]; }
-    const T& at(uint16_t i) const { assert(i < _size); return _data.get()[i]; }
+    T& at(uint16_t i) { assert(i < _size); return _data[i]; }
+    const T& at(uint16_t i) const { assert(i < _size); return _data[i]; }
 
-    T& back() { return _data.get()[_size - 1]; }
-    const T& back() const { return _data.get()[_size - 1]; }
+    T& back() { return _data[_size - 1]; }
+    const T& back() const { return _data[_size - 1]; }
     
     T& front() { return at(0); }
     const T& front() const { return at(0); }
@@ -162,11 +161,11 @@ public:
                 last = end();
             }
             
-            assert(_data.get() - first < _size);
+            assert(_data - first < _size);
             
             // destruct
-            for (T* it = first; it != last; ++it) {
-                it->~T();
+            for (iterator it = first; it != last; ++it) {
+                *it = T();
             }
             
             uint32_t numToDelete = static_cast<uint32_t>(last - first);
@@ -234,15 +233,12 @@ public:
         
         if (size > _size) {
             ensureCapacity(size);
-            for (int i = _size; i < size; ++i) {
-                new(_data.get() + i) T();
-            }
             _size = size;
             return;
         }
 
         for (int i = size; i < _size; ++i) {
-            _data.get()[i].~T();
+            _data[i] = T();
         }
         _size = size;
     }
@@ -264,20 +260,17 @@ private:
             _capacity = size;
         }
 
-        Mad<T> newData = Mad<T>::create(MemoryType::Vector, _capacity);
+        T* newData = new T [_capacity];
         for (int i = 0; i < _size; ++i) {
-            new(&(newData.get()[i])) T();
-            newData.get()[i] = _data.get()[i];
-            _data.get()[i].~T();
+            newData[i] = _data[i];
         }
-        assert(_data.raw() != 1 && newData.raw() != 1);
-        _data.destroyVector();
+        delete [ ] _data;
         _data = newData;
     }
 
     uint16_t _size = 0;
     uint16_t _capacity = 0;
-    Mad<T> _data;
+    T* _data = nullptr;
 };
 
 //
