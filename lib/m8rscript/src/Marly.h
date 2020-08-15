@@ -324,7 +324,7 @@ private:
     class Value
     {
     public:
-        enum class Type : uint8_t {
+        enum class Type : uint16_t {
             // Built-in verbs are first so they can
             // have the same values as the shared atoms
             Verb = ExternalAtomOffset,
