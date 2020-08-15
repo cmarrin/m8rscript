@@ -7,6 +7,8 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
+#include "Defines.h"
+
 #include "Task.h"
 
 #include "GC.h"
