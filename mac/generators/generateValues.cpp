@@ -169,13 +169,10 @@ int main()
     fprintf(cppfile, "#endif\n");    
     fprintf(cppfile, ";\n\n");
 
-    // Round count to the nearest 100 to make it easier to compute byte offset into table.
-    size_t count = ((strings.size() + 99) / 100) * 100;
-
     // Write the postambles
     fprintf(hfile, "};\n\nnamespace m8r {\n");
     fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
-    fprintf(hfile, "    static constexpr uint16_t ExternalAtomOffset = %zu;\n", count);
+    fprintf(hfile, "    static constexpr uint16_t ExternalAtomOffset = 32768;\n");
     fprintf(hfile, "    const char* specialChars();\n");
     fprintf(hfile, "}\n");
 
