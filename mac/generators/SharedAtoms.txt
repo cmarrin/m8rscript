@@ -51,6 +51,8 @@ UDPProto
 __index
 __nativeObject
 __object
+__destructor
+__timer
 arguments
 back
 call

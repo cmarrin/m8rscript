@@ -43,9 +43,11 @@ static const char _Timer[] = "Timer";
 static const char _Trigger[] = "Trigger";
 static const char _UDP[] = "UDP";
 static const char _UDPProto[] = "UDPProto";
+static const char ___destructor[] = "__destructor";
 static const char ___index[] = "__index";
 static const char ___nativeObject[] = "__nativeObject";
 static const char ___object[] = "__object";
+static const char ___timer[] = "__timer";
 static const char _and$[] = "and";
 static const char _arguments[] = "arguments";
 static const char _at[] = "at";
@@ -195,9 +197,11 @@ const char* _sharedAtoms[] = {
     _Trigger,
     _UDP,
     _UDPProto,
+    ___destructor,
     ___index,
     ___nativeObject,
     ___object,
+    ___timer,
     _and$,
     _arguments,
     _at,
