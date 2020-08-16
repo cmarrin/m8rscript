@@ -22,7 +22,14 @@ class Mutex
     friend class Lock;
     
 public:
-    Mutex() { pthread_mutex_init(&_m, nullptr); }
+    Mutex()
+    {
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&_m, &attr);
+    }
+    
     Mutex(const Mutex&) = delete;
     ~Mutex() { pthread_mutex_destroy(&_m); }
     
