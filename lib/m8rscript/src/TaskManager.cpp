@@ -20,7 +20,7 @@ static Duration MaxTaskTimeSlice = 50ms;
 
 TaskManager::TaskManager()
 {
-    _timeSliceTimer = Timer::create(MaxTaskTimeSlice, Timer::Behavior::Once, [this](Timer*)
+    _timeSliceTimer.setCallback([this](Timer*)
     {
         requestYield();
     });
@@ -39,12 +39,12 @@ void TaskManager::readyToExecuteNextTask()
 
 void TaskManager::startTimeSliceTimer()
 {
-    _timeSliceTimer->start();
+    _timeSliceTimer.start(MaxTaskTimeSlice);
 }
 
 void TaskManager::stopTimeSliceTimer()
 {
-    _timeSliceTimer->stop();
+    _timeSliceTimer.stop();
 }
 
 void TaskManager::requestYield()
@@ -74,25 +74,8 @@ void TaskManager::terminate(const std::shared_ptr<Task>& task)
 
 bool TaskManager::runOneIteration()
 {
-    // Check timers
-    if (_timerList.empty() && _list.empty()) {
+    if (_list.empty()) {
         return false;
-    }
-    
-    Time currentTime = Time::now();
-    
-    while (1) {
-        if (!_timerList.empty() && _timerList.front()->timeToFire() <= currentTime) {
-            auto timer = _timerList.front();
-            _timerList.erase(_timerList.begin());
-            DBG_TIMERS("firing timer: duration=%s, now=%s, timeToFire=%s", 
-                        timer->duration().toString().c_str(), 
-                        currentTime.toString().c_str(), 
-                        timer->timeToFire().toString().c_str());
-            timer->fire();
-        } else {
-            break;
-        }
     }
     
     // Find the next executable task
@@ -134,32 +117,4 @@ bool TaskManager::runOneIteration()
         _currentTask->setState(Task::State::Delaying);
     }
     return true;
-}
-
-void TaskManager::addTimer(Timer* timer)
-{
-    system()->stopTimer(_timerId);
-    _timerId = -1;
-    _timerList.push_back(timer);
-    std::sort(_timerList.begin(), _timerList.end(), [](const Timer* a, const Timer* b) {
-        return a->timeToFire() < b->timeToFire();
-    });
-    restartTimer();
-}
-
-void TaskManager::removeTimer(Timer* timer)
-{
-    system()->stopTimer(_timerId);
-    _timerList.remove(timer);
-    restartTimer();
-}
-
-void TaskManager::restartTimer()
-{
-    if (!_timerList.empty()) {
-        DBG_TIMERS("restartTimer: duration=%s", (_timerList[0]->timeToFire() - Time::now()).toString().c_str());
-        _timerId = system()->startTimer(_timerList[0]->timeToFire() - Time::now(), false, [this] {
-            requestYield();
-        });
-    }
 }

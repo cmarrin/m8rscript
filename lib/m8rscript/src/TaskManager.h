@@ -46,12 +46,10 @@ private:
     void restartTimer();
     
     Vector<std::shared_ptr<Task>> _list;
-    Vector<Timer*> _timerList;
-    int8_t _timerId = -1;
     
     std::shared_ptr<Task> _currentTask;
 
-    std::shared_ptr<Timer> _timeSliceTimer;
+    Timer _timeSliceTimer;
     bool _terminating = false;
 };
 

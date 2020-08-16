@@ -249,7 +249,7 @@ private:
     
     Value _consoleListener;
     
-    std::shared_ptr<Timer> _delayTimer;
+    Timer _delayTimer;
 };
 
 }

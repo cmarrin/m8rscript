@@ -26,6 +26,7 @@
 #include "SystemInterface.h"
 #include "esp_system.h"
 #include "spi_flash.h"
+
 using namespace m8r;
 
 static constexpr uint32_t FSStart = 0x100000;
@@ -76,64 +77,10 @@ public:
         return Mad<UDP>();
     }
     
-    static void timerFunc(void* arg)
-    {
-        TimerEntry* t = reinterpret_cast<TimerEntry*>(arg);
-        t->cb();
-        if (!t->repeat) {
-            t->running = false;
-        }
-    }
-
-    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
-    {
-        int8_t id = -1;
-        
-        for (int i = 0; i < NumTimers; ++i) {
-            if (!_timers[i].running) {
-                id = i;
-                break;
-            }
-        }
-        
-        if (id < 0) {
-            return id;
-        }
-        
-        _timers[id].running = true;
-        _timers[id].repeat = repeat;
-        _timers[id].cb = std::move(cb);
-        
-        os_timer_disarm(&(_timers[id].timer));
-        os_timer_setfn(&(_timers[id].timer), timerFunc, &(_timers[id]));
-        os_timer_arm(&(_timers[id].timer), duration.ms(), repeat);
-
-        return id;
-    }
-    
-    virtual void stopTimer(int8_t id) override
-    {
-        if (id < 0 || id >= NumTimers || !_timers[id].running) {
-            return;
-        }
-        
-        os_timer_disarm(&(_timers[id].timer));
-        _timers[id].running = false;
-}
-
 private:
     RtosGPIOInterface _gpio;
     LittleFS _fileSystem;
     RtosWifi _wifi;
-    
-    struct TimerEntry
-    {
-        bool running = false;
-        bool repeat = false;
-        os_timer_t timer;
-        std::function<void()> cb;
-    };
-    TimerEntry _timers[NumTimers];
 };
 
 int32_t SystemInterface::heapFreeSize()
@@ -176,4 +123,43 @@ void LittleFS::setConfig(lfs_config& config)
     config.prog = lfs_flash_write;
     config.erase = lfs_flash_erase;
     config.sync = lfs_flash_sync;
+}
+
+Timer::~Timer()
+{
+    if (_data) {
+        xTimerDelete(reinterpret_cast<TimerHandle_t>(_data), 100);
+    }
+}
+
+static void timerCB(TimerHandle_t id)
+{
+    Timer* timer = reinterpret_cast<Timer*>(pvTimerGetTimerID(id));
+    timer->fire();
+    if (timer->behavior() == Timer::Behavior::Repeating) {
+        xTimerStart(id, 0);
+    }
+}
+
+void Timer::init()
+{
+    _data = reinterpret_cast<void*>(xTimerCreate("SYS", 0, pdFALSE, this, timerCB));
+}
+
+void Timer::start(Duration duration, Behavior behavior)
+{
+    _behavior = behavior;
+    TimerHandle_t id = reinterpret_cast<TimerHandle_t>(_data);
+    xTimerChangePeriod(id, pdMS_TO_TICKS(duration.ms()), 100);
+    xTimerStart(id, 0);
+}
+
+void Timer::stop()
+{
+    xTimerStop(reinterpret_cast<TimerHandle_t>(_data), 0);
+}
+
+bool Timer::running() const
+{
+    return xTimerIsTimerActive(reinterpret_cast<TimerHandle_t>(_data)) == pdTRUE;
 }

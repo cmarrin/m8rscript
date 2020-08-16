@@ -22,6 +22,15 @@ SystemInterface* m8r::system()
     return Application::system();
 }
 
+SystemInterface::SystemInterface()
+{
+    _heartbeatTimer.setCallback([this](Timer*) {
+        gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
+        _heartOn = !_heartOn;
+        startHeartbeat();
+    });
+}
+
 bool SystemInterface::runOneIteration()
 {
     return taskManager()->runOneIteration();
@@ -29,11 +38,7 @@ bool SystemInterface::runOneIteration()
 
 void SystemInterface::startHeartbeat()
 {
-    _heartbeatId = startTimer(_heartOn ? _heartOnTime : _heartrate, false, [this] {
-        gpio()->digitalWrite(gpio()->builtinLED(), _heartOn);
-        _heartOn = !_heartOn;
-        startHeartbeat();
-    });
+    _heartbeatTimer.start(_heartOn ? _heartOnTime : _heartrate);
 }
 
 void SystemInterface::setHeartrate(Duration rate, Duration ontime)
@@ -42,14 +47,13 @@ void SystemInterface::setHeartrate(Duration rate, Duration ontime)
         ontime = _defaultHeartOnTime ?: DefaultHeartOnTime;
     }
     
-    if (_heartbeatId < 0) {
+    if (!_heartbeatTimer.running()) {
         gpio()->digitalWrite(gpio()->builtinLED(), true);
         gpio()->setPinMode(gpio()->builtinLED(), m8r::GPIOInterface::PinMode::Output);
     } else {
-        stopTimer(_heartbeatId);
+        _heartbeatTimer.stop();
     }
 
-    _heartbeatId = -1;
     _heartrate = rate;
     _heartOnTime = ontime;
     startHeartbeat();

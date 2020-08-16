@@ -68,10 +68,6 @@ public:
 
     virtual void setDeviceName(const char*) = 0;
         
-    // Return timer ID, -1 if can't start a timer
-    virtual int8_t startTimer(Duration, bool repeat, std::function<void()>) { return -1; }
-    virtual void stopTimer(int8_t id) { }
-    
     void receivedLine(const char* line)
     {
         if(_listenerFunc) {
@@ -90,7 +86,7 @@ public:
 
 
 protected:
-    SystemInterface() { }
+    SystemInterface();
 
 private:
     void startHeartbeat();
@@ -98,7 +94,7 @@ private:
     std::function<void(const char*)> _listenerFunc;
     TaskManager _taskManager;
     
-    int8_t _heartbeatId = -1;
+    Timer _heartbeatTimer;
     Duration _heartrate;
     Duration _heartOnTime;
     Duration _defaultHeartOnTime;

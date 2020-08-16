@@ -18,60 +18,32 @@
 
 namespace m8r {
 
-class Timer : public NativeObject {
+class Timer {
 public:
     enum class Behavior { Once, Repeating };
 
     using Callback = std::function<void(Timer*)>;
     
-    Timer(Duration duration, Behavior behavior, const Callback& cb);
+    Timer() { init(); }
 
-    virtual ~Timer()
-    {
-        stop();
-    }
-
-    static std::shared_ptr<Timer> create(Duration duration, Behavior behavior, const Callback& cb)
-    {
-        return std::make_shared<Timer>(duration, behavior, cb);
-    }
-
-    Duration duration() const { return _duration; }
-    bool repeating() const { return _repeating; }
-    Time timeToFire() const { return _timeToFire; }
+    ~Timer();
     
-    void setDuration(Duration d)
-    {
-        if (running()) {
-            return;
-        }
-        _duration = d;
-    }
+    void init();
+    
+    void setCallback(const Callback& cb) { _cb = cb; }
 
-    void start(Duration = Duration());
+    void start(Duration duration, Behavior behavior = Behavior::Once);
     void stop();
     
-    bool running() const { return _running; }
+    bool running() const;
+    Behavior behavior() const { return _behavior; }
     
-    void fire();
-
+    void fire() { if (_cb) { _cb(this); } }
+    
 private:
-    Duration _duration = 0s;
-    Time _timeToFire; // Set when Timer is started
     Callback _cb;
-    bool _repeating = false;
-    bool _running = false;
+    void* _data = nullptr;
+    Behavior _behavior = Behavior::Once;
 };
-
-#if M8RSCRIPT_SUPPORT == 1
-class TimerProto : public StaticObject {
-public:
-    TimerProto();
-
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue start(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue stop(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};
-#endif
 
 }

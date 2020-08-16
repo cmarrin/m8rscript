@@ -25,7 +25,7 @@ using namespace m8r;
 ExecutionUnit::ExecutionUnit()
     : _stack(20)
 {
-    _delayTimer = Timer::create(0s, Timer::Behavior::Once, [this](Timer*) {
+    _delayTimer.setCallback([this](Timer*) {
         _delayComplete = true;
     });
 }
@@ -413,8 +413,7 @@ void ExecutionUnit::startDelay(Duration duration)
     if (!_callRecords.empty()) {
         _callRecords.back()._executingDelay = true;
     }
-    _delayTimer->setDuration(duration);
-    _delayTimer->start();
+    _delayTimer.start(duration);
 }
 
 void ExecutionUnit::continueDelay()
