@@ -84,7 +84,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
             Value propertyKey;
             Value propertyValue;
             if (propertyAssignment(eu, scanner, propertyKey, propertyValue)) {
-                v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
+                v.setProperty(propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
                 while (scanner.getToken() == Token::Comma) {
                     scanner.retireToken();
                     if (!propertyAssignment(eu, scanner, propertyKey, propertyValue)) {
@@ -96,7 +96,7 @@ Value JSON::value(ExecutionUnit* eu, Scanner& scanner)
                         return Value();
                     }
 
-                    v.setProperty(eu, propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
+                    v.setProperty(propertyKey.toIdValue(eu), propertyValue, Value::SetType::AlwaysAdd);
                 }
             }
             if (scanner.getToken() != Token::RBrace) {
