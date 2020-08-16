@@ -320,6 +320,7 @@
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
 		493E015324E865BE00EF89B3 /* SharedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SharedPtr.h; path = ../lib/m8rscript/src/SharedPtr.h; sourceTree = "<group>"; };
+		493E015E24E9DCBD00EF89B3 /* cpptime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpptime.h; sourceTree = "<group>"; };
 		4940FD722496596900B47B84 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = ../lib/m8rscript/src/HTTPServer.h; sourceTree = "<group>"; };
 		4940FD732496596A00B47B84 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = ../lib/m8rscript/src/HTTPServer.cpp; sourceTree = "<group>"; };
 		4940FD79249AD3F000B47B84 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../web/index.html; sourceTree = "<group>"; };
@@ -659,6 +660,7 @@
 				49E1907C1DBAE2570030DC89 /* MacTCP.h */,
 				49E1907A1DBAE2570030DC89 /* MacUDP.cpp */,
 				49E1907B1DBAE2570030DC89 /* MacUDP.h */,
+				493E015E24E9DCBD00EF89B3 /* cpptime.h */,
 			);
 			name = mac;
 			sourceTree = "<group>";
