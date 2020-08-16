@@ -129,6 +129,7 @@ int main(int argc, char **argv)
                 evalArray.push_back(line);
             });
             application = new m8r::Application(23);
+            application->runAutostartTask();
         }
         
         m8r::system()->setDefaultHeartOnTime(HeartOnTime);
