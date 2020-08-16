@@ -45,6 +45,7 @@ public:
         Id = 20,
         Null = 24,
         NativeObject = 28,
+        RawPointer = 32,
     };
         
     void init() { _value._type = Type::Undefined; _value._intptr = 0; }
@@ -68,6 +69,12 @@ public:
     {
         assert(value);
         _value._type = Type::StaticObject;
+        _value._intptr = intptr_t(value);
+    }
+    
+    explicit Value(void* value)
+    {
+        _value._type = Type::RawPointer;
         _value._intptr = intptr_t(value);
     }
 
@@ -111,6 +118,7 @@ public:
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
     StaticObject* asStaticObject() { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
     const StaticObject* asStaticObject() const { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
+    void* asRawPointer() const { return (type() == Type::RawPointer) ? reinterpret_cast<void*>(_value._intptr) : nullptr; }
 
     static Value asValue(Mad<NativeObject> obj) { return Value(static_cast<Mad<NativeObject>>(obj)); }
     

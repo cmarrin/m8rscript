@@ -496,6 +496,7 @@ static m8r::String escapeString(const m8r::String& s)
 void CodePrinter::showConstant(const ExecutionUnit* eu, m8r::String& s, const Value& value, bool abbreviated) const
 {
     switch(value.type()) {
+        case Value::Type::RawPointer: s += "RawPointer"; break;
         case Value::Type::StaticObject: s += "StaticObject"; break;
         case Value::Type::NativeFunction: s += "NativeFunction"; break;
         case Value::Type::NativeObject: s += "NativeObject"; break;
