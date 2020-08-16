@@ -182,7 +182,7 @@ const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
     return property(prop);
 }
 
-bool Value::setProperty(ExecutionUnit* eu, const Atom& prop, const Value& value, Value::SetType type)
+bool Value::setProperty(const Atom& prop, const Value& value, Value::SetType type)
 {
     // FIXME: Handle Integer, Float, String and StringLiteral
     Mad<Object> obj = asObject();

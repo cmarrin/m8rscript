@@ -186,7 +186,7 @@ public:
 
     const Value property(const Atom&) const;
     const Value property(ExecutionUnit*, const Atom&) const;
-    bool setProperty(ExecutionUnit*, const Atom& prop, const Value& value, Value::SetType);
+    bool setProperty(const Atom& prop, const Value& value, Value::SetType);
     const Value element(ExecutionUnit* eu, const Value& elt) const;
     bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType);
 

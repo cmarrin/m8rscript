@@ -284,7 +284,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
     }
     
     // Store func so it doesn't get gc'ed
-    thisValue.setProperty(eu, Atom(SA::__object), func, Value::SetType::AddIfNeeded);
+    thisValue.setProperty(Atom(SA::__object), func, Value::SetType::AddIfNeeded);
     
     system()->taskManager()->run(task, [eu, func](Task* task)
     {
