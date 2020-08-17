@@ -118,6 +118,12 @@ m8r::String Object::toString(ExecutionUnit* eu, bool typeOnly) const
 
 MaterObject::~MaterObject()
 {
+    // Call destructor, if any
+    Value dtor = property(Atom(SA::__destructor));
+    if (dtor.isNativeFunction()) {
+        dtor.asNativeFunction()(nullptr, Value(Mad<Object>(this)), 0);
+    }
+    
     for (auto it : _properties) {
         Mad<NativeObject> obj = it.value.asNativeObject();
         if (obj.valid()) {
