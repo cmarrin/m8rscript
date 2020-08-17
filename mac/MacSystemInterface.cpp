@@ -17,6 +17,7 @@
 #include "SystemInterface.h"
 
 #include "MLittleFS.h"
+#include "cpptime.h"
 
 using namespace m8r;
 
@@ -40,72 +41,6 @@ public:
         }
     }
     
-    virtual int8_t startTimer(Duration duration, bool repeat, std::function<void()> cb) override
-    {
-        int8_t id = -1;
-        
-        {
-            Lock lock(_timerMutex);
-            for (int i = 0; i < NumTimers; ++i) {
-                if (!_timers[i].allocated) {
-                    id = i;
-                    break;
-                }
-            }
-            
-            if (id < 0) {
-                return id;
-            }
-        
-            _timers[id].running = true;
-            _timers[id].allocated = true;
-        }
-        
-        Thread(1024, [this, id, duration, repeat, cb] {
-            while (1) {
-                {
-                    Lock lock(_timers[id].mutex);
-                    if (!_timers[id].running) {
-                        // We've been stopped
-                        break;
-                    }
-                    
-                    if (_timers[id].cond.waitFor(lock, std::chrono::microseconds(duration.us())) != Condition::WaitResult::TimedOut) {
-                        // Timer stopped
-                        _timers[id].running = false;
-                        break;
-                    }
-                    
-                    cb();
-                    if (repeat) {
-                        continue;
-                    } else {
-                        _timers[id].running = false;
-                        break;
-                    }
-                }
-            }
-            _timers[id].allocated = false;
-        }).detach();
-        
-        return id;
-    }
-
-    virtual void stopTimer(int8_t id) override
-    {
-        {
-            Lock lock(_timerMutex);
-
-            if (id < 0 || id >= NumTimers || !_timers[id].running) {
-                return;
-            }
-        }
-        
-        Lock lock(_timers[id].mutex);
-        _timers[id].cond.notify(true);
-        _timers[id].running = false;
-    }
-
     virtual void setDeviceName(const char*) override { }
     virtual FS* fileSystem() override { return &_fileSystem; }
     virtual GPIOInterface* gpio() override { return &_gpio; }
@@ -134,16 +69,6 @@ public:
 private:
     GPIOInterface _gpio;
     LittleFS _fileSystem;
-
-    struct TimerEntry
-    {
-        bool running = false;
-        bool allocated = false;
-        Condition cond;
-        Mutex mutex;
-    };
-    TimerEntry _timers[NumTimers];
-    Mutex _timerMutex;
 };
 
 int32_t SystemInterface::heapFreeSize()
@@ -157,5 +82,45 @@ void m8r::initMacSystemInterface(const char* fsFile, ConsoleCB cb)
 {
     _consoleCB = cb;
     LittleFS::setHostFilename(fsFile);
+}
+
+CppTime::Timer _timerManager;
+
+Timer::~Timer()
+{
+    stop();
+}
+
+void Timer::init()
+{
+}
+
+void Timer::start(Duration duration, Behavior behavior)
+{
+    stop();
     
+    std::chrono::milliseconds dur = std::chrono::milliseconds(duration.ms());
+    std::chrono::milliseconds repeat;
+    if (behavior == Behavior::Repeating) {
+        repeat = dur;
+    }
+    CppTime::timer_id id = _timerManager.add(dur, [this](CppTime::timer_id)
+    {
+        _cb(this);
+    }, repeat);
+    _data = reinterpret_cast<void*>(id);
+}
+
+void Timer::stop()
+{
+    if (_data) {
+        CppTime::timer_id id = reinterpret_cast<CppTime::timer_id>(_data);
+        _timerManager.remove(id);
+        _data = nullptr;
+    }
+}
+
+bool Timer::running() const
+{
+    return _data;
 }
