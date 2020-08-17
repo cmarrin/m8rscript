@@ -684,7 +684,7 @@ CallReturnValue ExecutionUnit::execute()
         setInFrame(ra, leftValue);
         DISPATCH;
     L_STOPROP:
-        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::NeverAdd)) {
+        if (!reg(byteFromCode(_currentAddr)).setProperty((leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::NeverAdd)) {
             printError("Property '%s' does not exist", leftValue.toStringPointer(this));
         }
         DISPATCH;
@@ -719,7 +719,7 @@ CallReturnValue ExecutionUnit::execute()
         setInFrame(byteFromCode(_currentAddr), Value(objectValue));
         DISPATCH;
     L_APPENDPROP:
-        if (!reg(byteFromCode(_currentAddr)).setProperty(this, (leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::AlwaysAdd)) {
+        if (!reg(byteFromCode(_currentAddr)).setProperty((leftValue = regOrConst()).toIdValue(this), regOrConst(), Value::SetType::AlwaysAdd)) {
             printError("Property '%s' already exists for APPENDPROP", leftValue.toStringPointer(this));
         }
         DISPATCH;

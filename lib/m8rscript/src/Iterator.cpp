@@ -54,8 +54,8 @@ CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
     }
     
-    thisValue.setProperty(eu, Atom(SA::__object), Value(obj), Value::SetType::AlwaysAdd);
-    thisValue.setProperty(eu, Atom(SA::__index), Value(0), Value::SetType::AlwaysAdd);
+    thisValue.setProperty(Atom(SA::__object), Value(obj), Value::SetType::AlwaysAdd);
+    thisValue.setProperty(Atom(SA::__index), Value(0), Value::SetType::AlwaysAdd);
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -74,7 +74,7 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
-        if (!thisValue.setProperty(eu, Atom(SA::__index), Value(index), Value::SetType::NeverAdd)) {
+        if (!thisValue.setProperty(Atom(SA::__index), Value(index), Value::SetType::NeverAdd)) {
             return CallReturnValue(CallReturnValue::Error::InternalError);
         }
     }
