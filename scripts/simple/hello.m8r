@@ -1,5 +1,5 @@
-var t = new Timer(2.5, Timer.Repeating, function() { println("******* Timer Fired"); });
-t.start();
+var t = new Timer(function() { println("******* Timer Fired"); });
+t.start(2.5, Timer.Repeating);
 
 var i = 0;
 while (i < 10) {

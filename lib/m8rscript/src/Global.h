@@ -20,7 +20,7 @@
 #include "Object.h"
 #include "SystemTime.h"
 #include "Task.h"
-#include "Timer.h"
+#include "TimerProto.h"
 #include "TCP.h"
 
 namespace m8r {

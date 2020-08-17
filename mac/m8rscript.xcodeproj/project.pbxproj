@@ -39,6 +39,9 @@
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
 		493E015524E865BE00EF89B3 /* SharedPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 493E015324E865BE00EF89B3 /* SharedPtr.h */; };
+		493E015A24E9A73800EF89B3 /* TimerProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E015824E9A73800EF89B3 /* TimerProto.cpp */; };
+		493E015B24E9A73800EF89B3 /* TimerProto.h in Headers */ = {isa = PBXBuildFile; fileRef = 493E015924E9A73800EF89B3 /* TimerProto.h */; };
+		493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
 		4940FD742496596A00B47B84 /* HTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4940FD722496596900B47B84 /* HTTPServer.h */; };
 		4940FD762499838800B47B84 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4940FD732496596A00B47B84 /* HTTPServer.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
@@ -96,7 +99,6 @@
 		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		49C406F31EB675B7001E4DEC /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406F01EB675B0001E4DEC /* GeneratedValues.cpp */; };
 		49CB61BB23F85256003C9AB0 /* Timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 49CB61B923F85255003C9AB0 /* Timer.h */; };
-		49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB61BA23F85255003C9AB0 /* Timer.cpp */; };
 		49CB74311E7F3028007A4805 /* IPAddr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49CB74301E7F3028007A4805 /* IPAddr.cpp */; };
 		49CDE69A2386633900159439 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49F4633B1E1873D6004EF625 /* Iterator.cpp */; };
 		49D5FD351E2D9D89001AF5C8 /* TCP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49D5FD331E2D9D89001AF5C8 /* TCP.cpp */; };
@@ -320,6 +322,8 @@
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
 		493E015324E865BE00EF89B3 /* SharedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SharedPtr.h; path = ../lib/m8rscript/src/SharedPtr.h; sourceTree = "<group>"; };
+		493E015824E9A73800EF89B3 /* TimerProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimerProto.cpp; path = ../lib/m8rscript/src/TimerProto.cpp; sourceTree = "<group>"; };
+		493E015924E9A73800EF89B3 /* TimerProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimerProto.h; path = ../lib/m8rscript/src/TimerProto.h; sourceTree = "<group>"; };
 		493E015E24E9DCBD00EF89B3 /* cpptime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpptime.h; sourceTree = "<group>"; };
 		4940FD722496596900B47B84 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = ../lib/m8rscript/src/HTTPServer.h; sourceTree = "<group>"; };
 		4940FD732496596A00B47B84 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = ../lib/m8rscript/src/HTTPServer.cpp; sourceTree = "<group>"; };
@@ -565,6 +569,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */,
 				497139C3246F50C30025CC4D /* WebKit.framework in Frameworks */,
 				497139C2246F50BC0025CC4D /* AppKit.framework in Frameworks */,
 				494D25631D2E9337003755DB /* libm8rscript.a in Frameworks */,
@@ -902,6 +907,8 @@
 				491A7609246886E800CA38D1 /* Thread.h */,
 				49CB61BA23F85255003C9AB0 /* Timer.cpp */,
 				49CB61B923F85255003C9AB0 /* Timer.h */,
+				493E015824E9A73800EF89B3 /* TimerProto.cpp */,
+				493E015924E9A73800EF89B3 /* TimerProto.h */,
 				4942EA841D0AEAC600E02088 /* Value.cpp */,
 				4942EA851D0AEAC600E02088 /* Value.h */,
 				496AF9DD24A92A0500431796 /* VectorStream.h */,
@@ -1044,6 +1051,7 @@
 				492BA3F11E19729A00242DA8 /* slre.h in Headers */,
 				49A6A9F02430F31C004D457C /* RtosWifi.h in Headers */,
 				49A39F20234C513600F6A144 /* SystemTime.h in Headers */,
+				493E015B24E9A73800EF89B3 /* TimerProto.h in Headers */,
 				499AE8E6234A625100459451 /* Task.h in Headers */,
 				49E987192365CEF000C17CB6 /* Mallocator.h in Headers */,
 				492BA3D91E15944000242DA8 /* GPIOInterface.h in Headers */,
@@ -1342,6 +1350,7 @@
 				49E9871223628AE600C17CB6 /* MFS.cpp in Sources */,
 				4945A87D1EC3995800559CD1 /* MacUDP.cpp in Sources */,
 				4945A87C1EC3995000559CD1 /* MacTCP.cpp in Sources */,
+				493E015A24E9A73800EF89B3 /* TimerProto.cpp in Sources */,
 				49899B9B1EA570DE003B334B /* Closure.cpp in Sources */,
 				49FA4DE724D5CF00001069AE /* Executable.cpp in Sources */,
 				49263ABE23611DFC005CB9F9 /* StreamProto.cpp in Sources */,
@@ -1384,7 +1393,6 @@
 				494D255B1D2E90A9003755DB /* Program.cpp in Sources */,
 				4988DC2D1F03EBEB009F7ED5 /* Containers.cpp in Sources */,
 				494D255C1D2E90A9003755DB /* Scanner.cpp in Sources */,
-				49CB61BC23F85256003C9AB0 /* Timer.cpp in Sources */,
 				494D255D1D2E90A9003755DB /* Value.cpp in Sources */,
 				49846005238C60ED001F4FD4 /* MacSystemInterface.cpp in Sources */,
 			);
