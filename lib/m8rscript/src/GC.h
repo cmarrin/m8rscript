@@ -28,8 +28,8 @@ public:
 
     static void addStaticObject(RawMad);
     static void removeStaticObject(RawMad);
-    static void addEU(RawMad);
-    static void removeEU(RawMad);
+    static void addExecutable(RawMad);
+    static void removeExecutable(RawMad);
 
 private:
     static constexpr int32_t MaxGCObjectDiff = 10;

@@ -32,7 +32,7 @@ public:
     ExecutionUnit();
     ~ExecutionUnit();
     
-    void gcMark();
+    virtual void gcMark() override;
 
     // Executable overrides
     virtual CallReturnValue execute() override;

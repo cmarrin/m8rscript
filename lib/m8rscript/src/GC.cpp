@@ -12,7 +12,7 @@
 #include "GC.h"
 
 #include "Containers.h"
-#include "ExecutionUnit.h"
+#include "Executable.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 
@@ -20,7 +20,7 @@ using namespace m8r;
 
 static Vector<RawMad> _objectStore;
 static Vector<RawMad> _stringStore;
-static Vector<RawMad> _euStore;
+static Vector<RawMad> _executableStore;
 static Vector<RawMad> _staticObjects;
 
 GC::GCState GC::gcState = GCState::ClearMarkedObj;
@@ -60,9 +60,9 @@ void GC::gc(bool force)
                 gcState = GCState::MarkActive;
                 break;
             case GCState::MarkActive:
-                for (RawMad& it : _euStore) {
-                    Mad<ExecutionUnit> eu = Mad<ExecutionUnit>(it);
-                    eu->gcMark();
+                for (RawMad& it : _executableStore) {
+                    Mad<Executable> ex = Mad<Executable>(it);
+                    ex->gcMark();
                 }
                 gcState = GCState::MarkStatic;
                 break;
@@ -161,16 +161,16 @@ void GC::removeStaticObject(RawMad obj)
     }
 }
 
-void GC::addEU(RawMad eu)
+void GC::addExecutable(RawMad eu)
 {
-    _euStore.push_back(eu);
+    _executableStore.push_back(eu);
 }
 
-void GC::removeEU(RawMad eu)
+void GC::removeExecutable(RawMad eu)
 {
-    auto it = std::find(_euStore.begin(), _euStore.end(), eu);
-    if (it != _euStore.end()) {
-        _euStore.erase(it);
+    auto it = std::find(_executableStore.begin(), _executableStore.end(), eu);
+    if (it != _executableStore.end()) {
+        _executableStore.erase(it);
     }
 }
 

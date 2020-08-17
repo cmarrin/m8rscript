@@ -21,3 +21,15 @@ void Executable::print(const char* s) const
         system()->print(s);
     }
 }
+
+void Executable::printf(const char* fmt, ...) const
+{
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+}
+
+void Executable::vprintf(const char* fmt, va_list args) const
+{
+    print(String::vformat(fmt, args).c_str());
+}

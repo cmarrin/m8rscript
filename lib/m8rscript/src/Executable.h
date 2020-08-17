@@ -10,7 +10,6 @@
 #pragma once
 
 #include "CallReturnValue.h"
-#include "MString.h"
 #include <functional>
 
 namespace m8r {
@@ -27,19 +26,10 @@ public:
     virtual bool readyToRun() const { return true; }
     virtual void requestYield() const { }
     virtual void receivedData(const String& data, KeyAction) { }
-    
-    void printf(const char* fmt, ...) const
-    {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-    }
+    virtual void gcMark() { }
 
-    void vprintf(const char* fmt, va_list args) const
-    {
-        print(String::vformat(fmt, args).c_str());
-    }
-    
+    void printf(const char* fmt, ...) const;
+    void vprintf(const char* fmt, va_list args) const;
     void print(const char* s) const;
 
     void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
