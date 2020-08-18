@@ -10,11 +10,12 @@
 #pragma once
 
 #include "CallReturnValue.h"
+#include "SharedPtr.h"
 #include <functional>
 
 namespace m8r {
 
-class Executable
+class Executable : public Shared
 {
 public:
     using ConsoleListener = std::function<void(const String& data, KeyAction)>;

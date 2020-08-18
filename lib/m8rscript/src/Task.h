@@ -64,7 +64,7 @@ protected:
 
     Error _error = Error::Code::OK;
 
-    std::shared_ptr<Executable> _executable;
+    SharedPtr<Executable> _executable;
 
 #ifndef NDEBUG
     String _name;

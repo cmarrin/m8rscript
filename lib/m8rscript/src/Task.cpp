@@ -50,7 +50,7 @@ void Task::print(const char* s) const
 Task::~Task()
 {
     if (_executable) {
-        GC::removeExecutable(Mad<Executable>(_executable.get()).raw());
+        GC::removeExecutable(_executable);
         _executable.reset();
         GC::gc();
     }
@@ -117,9 +117,9 @@ bool Task::load(const Stream& stream, const String& type)
 
     if (type == "m8r") {
 #if M8RSCRIPT_SUPPORT == 1
-        std::shared_ptr<ExecutionUnit> eu = std::make_shared<ExecutionUnit>();
+        SharedPtr<ExecutionUnit> eu(new ExecutionUnit());
         _executable = eu;
-        GC::addExecutable(Mad<Executable>(_executable.get()).raw());
+        GC::addExecutable(_executable);
         
         // See if we can parse it
         ParseErrorList errorList;

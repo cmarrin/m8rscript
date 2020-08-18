@@ -37,6 +37,9 @@ namespace m8r {
         SharedPtr(SharedPtr<T>& other) { reset(other); }
         SharedPtr(SharedPtr<T>&& other) { _ptr = other._ptr; other._ptr = nullptr; }
         
+        template <class U>
+        SharedPtr(const SharedPtr<U>& other) { reset(other.get()); }
+        
         ~SharedPtr() { reset(); }
         
         SharedPtr& operator=(const SharedPtr& other) { reset(other._ptr); return *this; }
@@ -67,7 +70,7 @@ namespace m8r {
         
         T* get() const { return _ptr; }
         
-        operator bool() { return _ptr != nullptr; }
+        operator bool() const { return _ptr != nullptr; }
     
     private:
         T* _ptr = nullptr;

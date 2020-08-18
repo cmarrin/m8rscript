@@ -20,7 +20,7 @@ using namespace m8r;
 
 static Vector<RawMad> _objectStore;
 static Vector<RawMad> _stringStore;
-static Vector<RawMad> _executableStore;
+static Vector<SharedPtr<Executable>> _executableStore;
 static Vector<RawMad> _staticObjects;
 
 GC::GCState GC::gcState = GCState::ClearMarkedObj;
@@ -60,9 +60,8 @@ void GC::gc(bool force)
                 gcState = GCState::MarkActive;
                 break;
             case GCState::MarkActive:
-                for (RawMad& it : _executableStore) {
-                    Mad<Executable> ex = Mad<Executable>(it);
-                    ex->gcMark();
+                for (auto it : _executableStore) {
+                    it->gcMark();
                 }
                 gcState = GCState::MarkStatic;
                 break;
@@ -161,12 +160,12 @@ void GC::removeStaticObject(RawMad obj)
     }
 }
 
-void GC::addExecutable(RawMad eu)
+void GC::addExecutable(const SharedPtr<Executable>& eu)
 {
     _executableStore.push_back(eu);
 }
 
-void GC::removeExecutable(RawMad eu)
+void GC::removeExecutable(const SharedPtr<Executable>& eu)
 {
     auto it = std::find(_executableStore.begin(), _executableStore.end(), eu);
     if (it != _executableStore.end()) {

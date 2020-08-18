@@ -13,8 +13,11 @@
 #if M8RSCRIPT_SUPPORT == 1
 
 #include "Mallocator.h"
+#include "SharedPtr.h"
 
 namespace m8r {
+
+class Executable;
 
 class GC {
 public:
@@ -28,8 +31,8 @@ public:
 
     static void addStaticObject(RawMad);
     static void removeStaticObject(RawMad);
-    static void addExecutable(RawMad);
-    static void removeExecutable(RawMad);
+    static void addExecutable(const SharedPtr<Executable>&);
+    static void removeExecutable(const SharedPtr<Executable>&);
 
 private:
     static constexpr int32_t MaxGCObjectDiff = 10;
