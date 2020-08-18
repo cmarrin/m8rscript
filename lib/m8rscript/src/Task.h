@@ -29,7 +29,7 @@ public:
     
     ~Task();
     
-    bool load(const std::shared_ptr<Executable>& exec)
+    bool load(const SharedPtr<Executable>& exec)
     {
         _executable = exec;
         return true;
