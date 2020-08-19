@@ -49,11 +49,6 @@ void Task::print(const char* s) const
 
 Task::~Task()
 {
-    if (_executable) {
-        GC::removeExecutable(_executable);
-        _executable.reset();
-        GC::gc();
-    }
 }
 
 bool Task::load(const char* filename)
@@ -119,7 +114,6 @@ bool Task::load(const Stream& stream, const String& type)
 #if M8RSCRIPT_SUPPORT == 1
         SharedPtr<ExecutionUnit> eu(new ExecutionUnit());
         _executable = eu;
-        GC::addExecutable(_executable);
         
         // See if we can parse it
         ParseErrorList errorList;

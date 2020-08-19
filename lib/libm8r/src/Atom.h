@@ -11,7 +11,6 @@
 
 #include "Containers.h"
 #include "MString.h"
-#include "GeneratedValues.h"
 
 namespace m8r {
 
@@ -36,13 +35,15 @@ class Stream;
 //
 //************************************************************************
 
+static constexpr uint16_t ExternalAtomOffset = 32768;
+
+
 class Atom : public Id<uint16_t>
 {
     using Id::Id;
 
 public:
     Atom() { }
-    Atom(SA sa) : Id(Id::Raw(static_cast<Atom::value_type>(sa))) { }
     explicit Atom(Atom::value_type value) : Id(Id::Raw(value)) { }
     
     friend int compare(const Atom& a, const Atom& b) { return int(a - b); }
@@ -55,31 +56,18 @@ public:
 
     Atom atomizeString(const char*) const;
 
-    const char* stringFromAtom(const Atom atom) const
-    {
-        if (!atom) {
-            return "";
-        }
-        uint16_t index = atom.raw();
-        if (index < ExternalAtomOffset) {
-            uint16_t nelts;
-            const char** p = sharedAtoms(nelts);
-            assert(index < nelts);
-            return p[index];
-        }
+    const char* stringFromAtom(const Atom) const;
         
-        index -= ExternalAtomOffset;
-        return &(_table[index]);
-    }
-    
-    static Atom internalAtom(SA sa) { return Atom(static_cast<Atom::value_type>(sa)); }
-    
 private:
     Atom findAtom(const char* s) const;
 
     static constexpr uint8_t MaxAtomSize = 127;
 
     mutable Vector<char> _table;
+    
+    // Shared atom table
+    const char** _sharedAtoms = nullptr;
+    uint16_t _sharedAtomCount = 0;
 };
 
 }

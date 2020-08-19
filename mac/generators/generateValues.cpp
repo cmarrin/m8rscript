@@ -172,7 +172,6 @@ int main()
     // Write the postambles
     fprintf(hfile, "};\n\nnamespace m8r {\n");
     fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
-    fprintf(hfile, "    static constexpr uint16_t ExternalAtomOffset = 32768;\n");
     fprintf(hfile, "    const char* specialChars();\n");
     fprintf(hfile, "}\n");
 

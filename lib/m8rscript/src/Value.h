@@ -178,7 +178,6 @@ public:
     bool isPointer() const { return isObject() || isNativeObject(); }
 
     bool isType(ExecutionUnit*, Atom);
-    bool isType(ExecutionUnit*, SA);
 
     void gcMark() const;
     

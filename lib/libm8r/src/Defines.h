@@ -23,8 +23,8 @@
 #include <limits>
 #include <cstring>
 
-#define M8RSCRIPT_SUPPORT 1
-#define MARLY_SUPPORT 1
+#define M8RSCRIPT_SUPPORT 0
+#define MARLY_SUPPORT 0
 #define LUA_SUPPORT 0
 
 // Debugging

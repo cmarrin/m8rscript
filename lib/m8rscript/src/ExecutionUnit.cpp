@@ -28,11 +28,14 @@ ExecutionUnit::ExecutionUnit()
     _delayTimer.setCallback([this](Timer*) {
         _delayComplete = true;
     });
+    
+    GC::addExecutable(SharedPtr(this));
 }
 
 ExecutionUnit::~ExecutionUnit()
 {
-
+    GC::removeExecutable(_executable);
+    GC::gc();
 }
 
 Mad<m8r::String> ExecutionUnit::createString(const m8r::String& other)

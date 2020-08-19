@@ -22,7 +22,7 @@
 #endif
 using namespace m8r;
 
-//#define RUN_SAMPLE
+#define RUN_SAMPLE
 #define ENABLE_WEBSERVER
 #define ENABLE_HEARTBEAT
 #define ENABLE_SHELL
@@ -76,7 +76,7 @@ void Application::init(uint16_t port)
 #if M8RSCRIPT_SUPPORT == 1
         task->load(shellName());
 #else
-        task->load(std::make_shared<Shell>());
+        task->load(SharedPtr<Shell>(new Shell()));
 #endif
         return task;
     });
@@ -111,15 +111,16 @@ void Application::runAutostartTask()
         }
         _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
     });
-    
+
+    bool result = false;
 #ifdef RUN_SAMPLE
-    bool result = _autostartTask->load(std::make_shared<Sample>());
+    result = _autostartTask->load(SharedPtr<Sample>(new Sample()));
 #elif M8RSCRIPT_SUPPORT == 1
-    bool result = _autostartTask->load("/sys/bin/timing.m8r");
+    result = _autostartTask->load("/sys/bin/hello.m8r");
 #elif MARLY_SUPPORT == 1
-    bool result = _autostartTask->load("/sys/bin/timing.marly");
+    result = _autostartTask->load("/sys/bin/timing.marly");
 #elif LUA_SUPPORT == 1
-    bool result = _autostartTask->load("/sys/bin/timing.lua");
+    result = _autostartTask->load("/sys/bin/timing.lua");
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {

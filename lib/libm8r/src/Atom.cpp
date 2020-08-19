@@ -90,10 +90,11 @@ Atom AtomTable::atomizeString(const char* str) const
 
 Atom AtomTable::findAtom(const char* s) const
 {
-    // First look in the sharedAtom table
-    uint16_t nelts;
-    const char** sharedAtomTable = sharedAtoms(nelts);
-    int32_t result = binarySearch(sharedAtomTable, nelts, s);
+    // First look in the sharedAtom table, if any
+    int32_t result = -1;
+    if (_sharedAtoms) {
+        result = binarySearch(_sharedAtoms, _sharedAtomCount, s);
+    }
    if (result >= 0) {
         return Atom(static_cast<Atom::value_type>(result));
     }
@@ -107,3 +108,21 @@ Atom AtomTable::findAtom(const char* s) const
     
     return Atom();
 }
+
+const char* AtomTable::stringFromAtom(const Atom atom) const
+{
+    if (!atom) {
+        return "";
+    }
+    uint16_t index = atom.raw();
+    if (index < ExternalAtomOffset) {
+        if (!_sharedAtoms || _sharedAtomCount <= index) {
+            return "";
+        }
+        return _sharedAtoms[index];
+    }
+    
+    index -= ExternalAtomOffset;
+    return &(_table[index]);
+}
+    
