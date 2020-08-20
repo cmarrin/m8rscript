@@ -64,3 +64,8 @@ void SystemInterface::setDefaultHeartOnTime(Duration ontime)
     _defaultHeartOnTime = ontime;
     setHeartrate(_heartrate);
 }
+
+void SystemInterface::registerScriptingLanguage(const ScriptingLanguage* lang)
+{
+    _scriptingLanguages.push_back(lang);
+}

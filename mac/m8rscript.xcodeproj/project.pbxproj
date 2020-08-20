@@ -44,6 +44,10 @@
 		491ED3A62353EFE600DE0C42 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 491ED3A52353EFE600DE0C42 /* main.cpp */; };
 		491ED3AC2353F48100DE0C42 /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; };
 		492604A81D9354F000C5DF07 /* BonjourBW.png in Resources */ = {isa = PBXBuildFile; fileRef = 492604A71D9354F000C5DF07 /* BonjourBW.png */; };
+		492C7DA024EDF94C0027B75E /* Marly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492C7D9624EDF9200027B75E /* Marly.cpp */; };
+		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
+		492C7DB724EECF880027B75E /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */; };
+		492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libmarly.a */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -138,7 +142,6 @@
 		49F247D624D45F9A00D977D2 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 49F2479824D45F9900D977D2 /* ldebug.c */; };
 		49F247D824D45F9A00D977D2 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 49F2479A24D45F9A00D977D2 /* lparser.c */; };
 		49F247D924D45F9A00D977D2 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 49F2479B24D45F9A00D977D2 /* llimits.h */; };
-		49FA4DDF24D53EB0001069AE /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +151,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 494D254D1D2E9055003755DB;
 			remoteInfo = libm8rscript;
+		};
+		492C7DA224EDFC420027B75E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 492C7D9B24EDF9390027B75E;
+			remoteInfo = marly;
+		};
+		492C7DB124EECF540027B75E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49C406E11EB6598B001E4DEC;
+			remoteInfo = generateMarlyValues;
 		};
 		4945A8761EC3712700559CD1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -175,6 +192,15 @@
 				499D95F22355323D00F45585 /* m8rtest in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		492C7DA724EECBA10027B75E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		4945A86D1EC3711D00559CD1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -294,6 +320,16 @@
 		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
 		491ED3A52353EFE600DE0C42 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		492604A71D9354F000C5DF07 /* BonjourBW.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BonjourBW.png; sourceTree = "<group>"; };
+		492C7D9324EDF83C0027B75E /* component.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = component.mk; path = ../esp/components/marly/component.mk; sourceTree = "<group>"; };
+		492C7D9624EDF9200027B75E /* Marly.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Marly.cpp; path = ../lib/marly/src/Marly.cpp; sourceTree = "<group>"; };
+		492C7D9724EDF9200027B75E /* Marly.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Marly.h; path = ../lib/marly/src/Marly.h; sourceTree = "<group>"; };
+		492C7D9C24EDF9390027B75E /* libmarly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmarly.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		492C7DA124EDF9FA0027B75E /* ScriptingLanguage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScriptingLanguage.h; path = ../lib/libm8r/src/ScriptingLanguage.h; sourceTree = "<group>"; };
+		492C7DA424EDFE120027B75E /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../lib/m8rscript/src/SharedAtoms.txt; sourceTree = "<group>"; };
+		492C7DA924EECBA10027B75E /* generator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generator; sourceTree = BUILT_PRODUCTS_DIR; };
+		492C7DAB24EECBA10027B75E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/marly/src/GeneratedValues.cpp; sourceTree = "<group>"; };
+		492C7DB424EECF7B0027B75E /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../lib/marly/src/GeneratedValues.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -347,9 +383,9 @@
 		49A6A9EE2430F31C004D457C /* RtosWifi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtosWifi.h; path = ../esp/main/RtosWifi.h; sourceTree = "<group>"; };
 		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
 		49BF344723680892001E5508 /* MacLittleFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacLittleFS.cpp; sourceTree = "<group>"; };
-		49C406E21EB6598B001E4DEC /* generateValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateValues; sourceTree = BUILT_PRODUCTS_DIR; };
+		49C406E21EB6598B001E4DEC /* generateMarlyValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateMarlyValues; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generators/generateValues.cpp; sourceTree = "<group>"; };
-		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = generators/SharedAtoms.txt; sourceTree = "<group>"; };
+		49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../lib/marly/src/SharedAtoms.txt; sourceTree = "<group>"; };
 		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49D9B8211D1C854700724911 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		49D9B8261D1C854700724911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -442,11 +478,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		492C7D9A24EDF9390027B75E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		492C7DA624EECBA10027B75E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4945A86C1EC3711D00559CD1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49FA4DDF24D53EB0001069AE /* liblua.a in Frameworks */,
+				492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */,
 				4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -521,6 +571,7 @@
 				491B92F524ECADA60078A2B9 /* MString.h */,
 				491B92F224ECADA50078A2B9 /* MUDP.cpp */,
 				491B92E924ECADA50078A2B9 /* MUDP.h */,
+				492C7DA124EDF9FA0027B75E /* ScriptingLanguage.h */,
 				491B931824ECADA90078A2B9 /* Scanner.cpp */,
 				491B930624ECADA70078A2B9 /* Scanner.h */,
 				491B92E824ECADA50078A2B9 /* SharedPtr.h */,
@@ -581,6 +632,42 @@
 			path = m8rtest;
 			sourceTree = "<group>";
 		};
+		492C7D9224EDF7F00027B75E /* marly */ = {
+			isa = PBXGroup;
+			children = (
+				492C7D9324EDF83C0027B75E /* component.mk */,
+			);
+			name = marly;
+			sourceTree = "<group>";
+		};
+		492C7D9424EDF8990027B75E /* marly */ = {
+			isa = PBXGroup;
+			children = (
+				492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */,
+				492C7DB424EECF7B0027B75E /* GeneratedValues.h */,
+				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
+				492C7D9624EDF9200027B75E /* Marly.cpp */,
+				492C7D9724EDF9200027B75E /* Marly.h */,
+			);
+			name = marly;
+			sourceTree = "<group>";
+		};
+		492C7D9524EDF8B20027B75E /* m8rscript */ = {
+			isa = PBXGroup;
+			children = (
+				492C7DA424EDFE120027B75E /* SharedAtoms.txt */,
+			);
+			name = m8rscript;
+			sourceTree = "<group>";
+		};
+		492C7DAA24EECBA10027B75E /* generator */ = {
+			isa = PBXGroup;
+			children = (
+				492C7DAB24EECBA10027B75E /* main.cpp */,
+			);
+			path = generator;
+			sourceTree = "<group>";
+		};
 		4940FD78249AD3CF00B47B84 /* web */ = {
 			isa = PBXGroup;
 			children = (
@@ -632,14 +719,6 @@
 			name = examples;
 			sourceTree = "<group>";
 		};
-		494BA1901D207A9B00E72725 /* m8rscript */ = {
-			isa = PBXGroup;
-			children = (
-				49C406E91EB65A15001E4DEC /* generators */,
-			);
-			name = m8rscript;
-			sourceTree = "<group>";
-		};
 		494BA1911D207AB700E72725 /* mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -661,6 +740,7 @@
 				491B939724EDECF50078A2B9 /* libm8r */,
 				49FA4DEA24D5DC3C001069AE /* main */,
 				49FA4DEE24D5DD26001069AE /* lua */,
+				492C7D9224EDF7F00027B75E /* marly */,
 				49FA4DEB24D5DC54001069AE /* m8rscript */,
 				497DC63423A5771A00748031 /* Makefile */,
 				497DC63823A5849E00748031 /* sdkconfig */,
@@ -712,7 +792,6 @@
 		49C406E91EB65A15001E4DEC /* generators */ = {
 			isa = PBXGroup;
 			children = (
-				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
 				49C406EA1EB65A39001E4DEC /* generateValues.cpp */,
 			);
 			name = generators;
@@ -764,10 +843,13 @@
 				497139DC24705AA90025CC4D /* m8rFSFile */,
 				491B92E424ECAD7E0078A2B9 /* libm8r */,
 				49F2475D24D45F4200D977D2 /* lua */,
+				492C7D9524EDF8B20027B75E /* m8rscript */,
+				492C7D9424EDF8990027B75E /* marly */,
+				49C406E91EB65A15001E4DEC /* generators */,
 				4945A8701EC3711D00559CD1 /* m8rmac */,
-				494BA1901D207A9B00E72725 /* m8rscript */,
 				49D9B8191D1C854700724911 /* m8rsim */,
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
+				492C7DAA24EECBA10027B75E /* generator */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
@@ -780,10 +862,12 @@
 			children = (
 				49D9B8181D1C854700724911 /* m8rsim.app */,
 				494D254E1D2E9055003755DB /* liblibm8r.a */,
-				49C406E21EB6598B001E4DEC /* generateValues */,
+				49C406E21EB6598B001E4DEC /* generateMarlyValues */,
 				4945A86F1EC3711D00559CD1 /* m8rmac */,
 				491ED3A32353EFE600DE0C42 /* m8rtest */,
 				49F2475924D45F1100D977D2 /* liblua.a */,
+				492C7D9C24EDF9390027B75E /* libmarly.a */,
+				492C7DA924EECBA10027B75E /* generator */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -894,6 +978,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		492C7D9824EDF9390027B75E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		494D254C1D2E9055003755DB /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -958,6 +1049,41 @@
 			productReference = 491ED3A32353EFE600DE0C42 /* m8rtest */;
 			productType = "com.apple.product-type.tool";
 		};
+		492C7D9B24EDF9390027B75E /* marly */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "marly" */;
+			buildPhases = (
+				492C7D9824EDF9390027B75E /* Headers */,
+				492C7D9924EDF9390027B75E /* Sources */,
+				492C7D9A24EDF9390027B75E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				492C7DB224EECF540027B75E /* PBXTargetDependency */,
+			);
+			name = marly;
+			productName = marly;
+			productReference = 492C7D9C24EDF9390027B75E /* libmarly.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		492C7DA824EECBA10027B75E /* generator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 492C7DAD24EECBA10027B75E /* Build configuration list for PBXNativeTarget "generator" */;
+			buildPhases = (
+				492C7DA524EECBA10027B75E /* Sources */,
+				492C7DA624EECBA10027B75E /* Frameworks */,
+				492C7DA724EECBA10027B75E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = generator;
+			productName = generator;
+			productReference = 492C7DA924EECBA10027B75E /* generator */;
+			productType = "com.apple.product-type.tool";
+		};
 		4945A86E1EC3711D00559CD1 /* m8rmac */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8rmac" */;
@@ -969,6 +1095,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				492C7DA324EDFC420027B75E /* PBXTargetDependency */,
 				4945A8771EC3712700559CD1 /* PBXTargetDependency */,
 			);
 			name = m8rmac;
@@ -993,9 +1120,9 @@
 			productReference = 494D254E1D2E9055003755DB /* liblibm8r.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		49C406E11EB6598B001E4DEC /* generateValues */ = {
+		49C406E11EB6598B001E4DEC /* generateMarlyValues */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateValues" */;
+			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateMarlyValues" */;
 			buildPhases = (
 				49C406DE1EB6598B001E4DEC /* Sources */,
 				49026F1C24CF29BC00CAB23B /* ShellScript */,
@@ -1006,9 +1133,9 @@
 			);
 			dependencies = (
 			);
-			name = generateValues;
+			name = generateMarlyValues;
 			productName = generateSharedAtoms;
-			productReference = 49C406E21EB6598B001E4DEC /* generateValues */;
+			productReference = 49C406E21EB6598B001E4DEC /* generateMarlyValues */;
 			productType = "com.apple.product-type.tool";
 		};
 		49D9B8171D1C854700724911 /* m8rsim */ = {
@@ -1062,6 +1189,14 @@
 						CreatedOnToolsVersion = 11.0;
 						ProvisioningStyle = Automatic;
 					};
+					492C7D9B24EDF9390027B75E = {
+						CreatedOnToolsVersion = 11.6;
+						ProvisioningStyle = Automatic;
+					};
+					492C7DA824EECBA10027B75E = {
+						CreatedOnToolsVersion = 11.6;
+						ProvisioningStyle = Automatic;
+					};
 					4945A86E1EC3711D00559CD1 = {
 						CreatedOnToolsVersion = 9.0;
 						ProvisioningStyle = Automatic;
@@ -1100,10 +1235,12 @@
 			targets = (
 				494D254D1D2E9055003755DB /* libm8r */,
 				49F2475824D45F1100D977D2 /* lua */,
-				49C406E11EB6598B001E4DEC /* generateValues */,
+				492C7D9B24EDF9390027B75E /* marly */,
+				49C406E11EB6598B001E4DEC /* generateMarlyValues */,
 				4945A86E1EC3711D00559CD1 /* m8rmac */,
 				491ED3A22353EFE600DE0C42 /* m8rtest */,
 				49D9B8171D1C854700724911 /* m8rsim */,
+				492C7DA824EECBA10027B75E /* generator */,
 			);
 		};
 /* End PBXProject section */
@@ -1159,7 +1296,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$BUILT_PRODUCTS_DIR/generateValues\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateMarlyValues ../lib/marly/src/SharedAtoms.txt ../lib/marly/src\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1169,6 +1306,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				491ED3A62353EFE600DE0C42 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		492C7D9924EDF9390027B75E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				492C7DA024EDF94C0027B75E /* Marly.cpp in Sources */,
+				492C7DB724EECF880027B75E /* GeneratedValues.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		492C7DA524EECBA10027B75E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1283,6 +1437,16 @@
 			target = 494D254D1D2E9055003755DB /* libm8r */;
 			targetProxy = 491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */;
 		};
+		492C7DA324EDFC420027B75E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 492C7D9B24EDF9390027B75E /* marly */;
+			targetProxy = 492C7DA224EDFC420027B75E /* PBXContainerItemProxy */;
+		};
+		492C7DB224EECF540027B75E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49C406E11EB6598B001E4DEC /* generateMarlyValues */;
+			targetProxy = 492C7DB124EECF540027B75E /* PBXContainerItemProxy */;
+		};
 		4945A8771EC3712700559CD1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 494D254D1D2E9055003755DB /* libm8r */;
@@ -1331,6 +1495,76 @@
 			};
 			name = Release;
 		};
+		492C7D9E24EDF9390027B75E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		492C7D9F24EDF9390027B75E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		492C7DAE24EECBA10027B75E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		492C7DAF24EECBA10027B75E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4945A8741EC3711D00559CD1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1343,6 +1577,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1359,6 +1594,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1630,6 +1866,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "marly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				492C7D9E24EDF9390027B75E /* Debug */,
+				492C7D9F24EDF9390027B75E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		492C7DAD24EECBA10027B75E /* Build configuration list for PBXNativeTarget "generator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				492C7DAE24EECBA10027B75E /* Debug */,
+				492C7DAF24EECBA10027B75E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8rmac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1648,7 +1902,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateValues" */ = {
+		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateMarlyValues" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				49C406E71EB6598B001E4DEC /* Debug */,

@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if MARLY_SUPPORT == 1
-
 #include "Marly.h"
 
 #include "Scanner.h"
@@ -17,8 +14,12 @@
 
 using namespace m8r;
 
-Marly::Marly(const Stream& stream, Printer printer)
-    : _printer(printer)
+SharedPtr<Executable> MarlyScriptingLanguage::create() const
+{
+    return SharedPtr<Executable>(new Marly());
+}
+
+bool Marly::load(const Stream& stream)
 {
     Scanner scanner(&stream);
     _codeStack.push(SharedPtr<List>(new List()));
@@ -55,7 +56,7 @@ Marly::Marly(const Stream& stream, Printer printer)
                 
                 m8r::String s = m8r::String::format("invalid identifier '%s'", scanner.getTokenValue().str);
                 if (showError(Phase::Compile, s.c_str(), scanner.lineno())) {
-                    return;
+                    return false;
                 }
                 break;
             }
@@ -78,7 +79,7 @@ Marly::Marly(const Stream& stream, Printer printer)
                 Token idToken = scanner.getToken();
                 if (idToken != Token::Identifier) {
                     if (showError(Phase::Compile, "identifier required", scanner.lineno())) {
-                        return;
+                        return false;
                     }
                     break;
                 }
@@ -91,7 +92,7 @@ Marly::Marly(const Stream& stream, Printer printer)
                     case Token::Dollar: type = Value::Type::Load; break;
                     case Token::Period: type = Value::Type::LoadProp; break;
                     case Token::Colon:  type = Value::Type::StoreProp; break;
-                    default: assert(0); return;
+                    default: assert(0); return false;
                     
                 }
                 _codeStack.top()->emplace_back(atom.raw(), type);
@@ -100,7 +101,7 @@ Marly::Marly(const Stream& stream, Printer printer)
             case Token::EndOfFile:
                 if (_codeStack.size() != 1) {
                     showError(Phase::Compile, "misaligned code stack", scanner.lineno());
-                    return;                    
+                    return false;                    
                 }
                 if (_nerrors > 0) {
                     m8r::String s(_nerrors);
@@ -109,10 +110,9 @@ Marly::Marly(const Stream& stream, Printer printer)
                         s += 's';
                     }
                     showError(Phase::Compile, s.c_str(), 0);
-                    return;                    
+                    return false;                    
                 }
-                execute(_codeStack.top());
-                return;
+                return true;
             default:
                 // Assume any other token is a built-in verb
                 _codeStack.top()->emplace_back(int(token), Value::Type::TokenVerb);
@@ -359,7 +359,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                     }
                     default: {
                         m8r::String s("unrecognized built-in verb '");
-                        s += _atomTable.stringFromAtom(it.builtInVerb());
+                        s += _atomTable.stringFromAtom(Atom(static_cast<Atom::value_type>(it.builtInVerb())));
                         s += "'";
                         return !showError(Phase::Run, s.c_str(), _lineno);
                     }
@@ -385,14 +385,3 @@ bool Marly::showError(Phase phase, const char* s, uint32_t lineno)
     
     return ++_nerrors >= MaxErrors;
 }
-
-void Marly::print(const char* s) const
-{
-    if (_printer) {
-        _printer(s);
-    } else {
-        printf("%s", s);
-    }
-}
-
-#endif

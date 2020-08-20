@@ -14,6 +14,7 @@
 
 #include "Application.h"
 #include "MacSystemInterface.h"
+#include "Marly.h"
 #include "MFS.h"
 
 static void usage(const char* name)
@@ -27,6 +28,8 @@ static void usage(const char* name)
                 "    <file> : file(s) to be uploaded\n"
             , name);
 }
+
+m8r::MarlyScriptingLanguage marlyScriptingLanguage;
 
 int main(int argc, char * argv[])
 {
@@ -48,6 +51,8 @@ int main(int argc, char * argv[])
         
     m8r::initMacSystemInterface(fsFile, [](const char* s) { ::printf("%s", s); });
     m8r::Application application(port);
+    
+    m8r::system()->registerScriptingLanguage(&marlyScriptingLanguage);
     
     // Upload files if present
     for (int i = optind; i < argc; ++i) {

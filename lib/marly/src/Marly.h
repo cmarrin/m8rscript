@@ -11,7 +11,10 @@
 
 #include "Atom.h"
 #include "Containers.h"
+#include "Executable.h"
+#include "GeneratedValues.h"
 #include "MString.h"
+#include "ScriptingLanguage.h"
 #include "SharedPtr.h"
 
 /*
@@ -200,15 +203,29 @@ Operators:
 namespace m8r {
 
 class Atom;
+class Marly;
 class Stream;
 
-class Marly {
+class MarlyScriptingLanguage : public ScriptingLanguage
+{
+public:
+    virtual const char* suffix() const override { return "marly"; }
+    virtual SharedPtr<Executable> create() const override;
+};
+
+class Marly : public Executable {
 public:
     using Verb = std::function<void()>;
-    using Printer = std::function<void(const char*)>;
     
-    Marly(const Stream&, Printer);
+    Marly() { }
     
+    virtual bool load(const Stream&) override;
+    virtual CallReturnValue execute() override
+    {
+        execute(_codeStack.top());
+        return CallReturnValue(CallReturnValue::Type::Finished);
+    }
+
     const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
     class SharedPtrBase;
@@ -240,7 +257,7 @@ private:
         virtual Value property(Atom) const override { return Value(); }
         virtual void setProperty(Atom prop, const Value& value) override
         {
-            if (prop == Atom(SA::length)) {
+            if (prop == Atom(static_cast<Atom::value_type>(SA::length))) {
                 resize(value.integer());
             }
         }
@@ -433,15 +450,12 @@ private:
     
     // Return true if we've exceeded the max number of errors
     bool showError(Phase, const char*, uint32_t lineno);
-    
-    void print(const char* s) const;
-    
+
     ValueMap _vars;
     Stack<Value> _stack;
     Stack<SharedPtr<List>> _codeStack;
     AtomTable _atomTable;
     Map<Atom, Verb> _verbs;
-    Printer _printer;
     
     static constexpr uint16_t MaxErrors = 32;
     uint16_t _nerrors = 0;

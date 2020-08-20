@@ -22,12 +22,10 @@
 #endif
 using namespace m8r;
 
-#define RUN_SAMPLE
 #define ENABLE_WEBSERVER
 #define ENABLE_HEARTBEAT
 #define ENABLE_SHELL
 
-#ifdef RUN_SAMPLE
 class Sample : public Executable
 {
 public:
@@ -37,7 +35,6 @@ public:
         return CallReturnValue(CallReturnValue::Type::Finished);
     }
 };
-#endif
 
 SystemInterface* Application::_system = nullptr;
 
@@ -108,13 +105,12 @@ void Application::runAutostartTask()
         _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
     });
 
-    bool result = false;
-#ifdef RUN_SAMPLE
-    result = _autostartTask->load(SharedPtr<Sample>(new Sample()));
-#endif
-
-    system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {
-        m8r::system()->printf("******* autostart task completed. Result=%d\n", result);
+    if (!_autostartTask->load("/sys/bin/hello.marly")) {
+        _autostartTask->load(SharedPtr<Sample>(new Sample()));
+    }
+    
+    system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {
+        m8r::system()->printf("******* autostart task completed.\n");
         _autostartTask.reset();
     });  
 }

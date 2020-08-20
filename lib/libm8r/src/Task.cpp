@@ -13,6 +13,7 @@
 
 #include "GC.h"
 #include "FileStream.h"
+#include "ScriptingLanguage.h"
 #include "SystemInterface.h"
 
 #include <cassert>
@@ -73,7 +74,22 @@ bool Task::load(const Stream& stream, const String& type)
     _name = String::format("Task(%p)", this);
 #endif
 
+    for (uint32_t i = 0; ; ++i) {
+        const ScriptingLanguage* lang = system()->scriptingLanguage(i);
+        if (!lang) {
+            break;
+        }
+        
+        if (String(lang->suffix()) == type) {
+            _executable = lang->create();
+            _executable->load(stream);
+            
+            // FIXME: Check for errors
+            return true;
+        }
+    }
+    
     system()->printf("***** Unknown suffix '%s'.\n\n", type.c_str());
 
-    return true;
+    return false;
 }

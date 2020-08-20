@@ -72,25 +72,34 @@ static std::string strip(const char* in)
     return out;
 }
 
-int main()
+int main(int argc, const char* argv[])
 {
-    printf("\n\n*** Generating Values ***\n\n");
-    char* root = getenv("ROOT");
+    // first arg is a filename containing the strings. Second arg is
+    // dir to put output in. Both relative to mac
+    const char* inFilename = (argc > 1) ? argv[1] : "generators/SharedAtoms.txt";
+    std::string outPath = (argc > 2) ? argv[2] : "../lib/m8rscript/src";
+    if (outPath.back() != '/') {
+        outPath += '/';
+    }
+    
+    printf("\n\n*** Generating Values ****\n\n");
+    char* root = getenv("PWD");
     chdir(root);
+    printf("*** CWD=%s\n", root);
 
-    FILE* afile = fopen("generators/SharedAtoms.txt", "r");
+    FILE* afile = fopen(inFilename, "r");
     if (!afile) {
-        printf("could not open SharedAtoms.txt:%d\n", errno);
+        printf("could not open '%s':%d\n", inFilename, errno);
         return -1;
     }
     
-    FILE* hfile = fopen("../lib/m8rscript/src/GeneratedValues.h", "w");
+    FILE* hfile = fopen((outPath + "GeneratedValues.h").c_str(), "w");
     if (!hfile) {
         printf("could not open GeneratedValues.h:%d\n", errno);
         return -1;
     }
     
-    FILE* cppfile = fopen("../lib/m8rscript/src/GeneratedValues.cpp", "w");
+    FILE* cppfile = fopen((outPath + "GeneratedValues.cpp").c_str(), "w");
     if (!cppfile) {
         printf("could not open GeneratedValues.cpp:%d\n", errno);
         return -1;

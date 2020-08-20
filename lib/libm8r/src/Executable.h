@@ -15,6 +15,8 @@
 
 namespace m8r {
 
+class Stream;
+
 class Executable : public Shared
 {
 public:
@@ -23,6 +25,7 @@ public:
     Executable() { }
     virtual ~Executable() { }
     
+    virtual bool load(const Stream&) { return false; }
     virtual CallReturnValue execute() = 0;
     virtual bool readyToRun() const { return true; }
     virtual void requestYield() const { }

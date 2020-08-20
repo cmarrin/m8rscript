@@ -11,6 +11,8 @@
 
 #include "Containers.h"
 #include "IPAddr.h"
+#include "ScriptingLanguage.h"
+#include "SharedPtr.h"
 #include "TaskManager.h"
 #include "TCP.h"
 #include <cstring>
@@ -83,7 +85,15 @@ public:
     void setDefaultHeartOnTime(Duration ontime);
     
     static int32_t heapFreeSize();
-
+    
+    void registerScriptingLanguage(const ScriptingLanguage*);
+    const ScriptingLanguage* scriptingLanguage(uint32_t i)
+    {
+        if (i >= _scriptingLanguages.size()) {
+            return nullptr;
+        }
+        return _scriptingLanguages[i];
+    }
 
 protected:
     SystemInterface();
@@ -99,6 +109,8 @@ private:
     Duration _heartOnTime;
     Duration _defaultHeartOnTime;
     bool _heartOn = false;
+    
+    Vector<const ScriptingLanguage*> _scriptingLanguages;
 };
 
 SystemInterface* system();
