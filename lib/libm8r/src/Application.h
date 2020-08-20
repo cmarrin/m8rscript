@@ -9,16 +9,13 @@
 
 #pragma once
 
-#include "ExecutionUnit.h"
 #include "SystemInterface.h"
 #include "Task.h"
 #include "Terminal.h"
 
 namespace m8r {
 
-class Program;
 class Error;
-class ExecutionUnit;
 class FS;
 class HTTPServer;
 
@@ -46,10 +43,6 @@ public:
     static SystemInterface* system() { assert(_system); return _system; }
 
 private:
-#if M8RSCRIPT_SUPPORT == 1
-    const char* shellName() const { return "/sys/bin/mrsh"; }
-#endif
-
     void init(uint16_t port);
     
     std::shared_ptr<Task> _autostartTask;

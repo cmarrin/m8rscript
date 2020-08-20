@@ -9,11 +9,4 @@
 
 #include "Timer.h"
 
-#include "Application.h"
-#include "GC.h"
-#include "MStream.h"
-#include "Parser.h"
-
-#include <cassert>
-
 using namespace m8r;

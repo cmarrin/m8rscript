@@ -10,7 +10,6 @@
 #pragma once
 
 #include "IPAddr.h"
-#include "Object.h"
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
@@ -47,18 +46,5 @@ protected:
     EventFunction _eventFunction;
     uint16_t _port;
 };
-
-// Object
-
-#if M8RSCRIPT_SUPPORT == 1
-class UDPProto : public StaticObject {
-public:
-    UDPProto();
-
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};
-#endif
 
 }

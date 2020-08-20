@@ -9,8 +9,6 @@
 
 #include "Scanner.h"
 
-#include "GeneratedValues.h"
-
 using namespace m8r;
 
 Token Scanner::scanString(char terminal)
@@ -109,66 +107,7 @@ Token Scanner::scanSpecial()
         return Token::EndOfFile;
     }
     
-#if M8RSCRIPT_SUPPORT == 0
     return static_cast<Token>(c);
-#else
-    // This is either a single character special or
-    // part of a multi-char special. Try for a 2
-    // char special first
-    char buf[3];
-    buf[0] = c;
-    buf[1] = get();
-    buf[2] = '\0';
-
-    const char* entries = specialChars();
-
-    const char* found = ::strstr(entries, buf);
-    if (!found) {
-        // Assume this is a lone special char
-        putback(buf[1]);
-        return static_cast<Token>(c);
-    }
-    
-    // This could be a 2 character special or part of a
-    // 3 or 4 character special.
-    uint8_t prev = uint8_t(found[-1]);
-    if (prev < 0x80) {
-        putback(buf[1]);
-        return static_cast<Token>(c);
-    }
-
-    Token token = static_cast<Token>(prev);
-
-    // This might be a 3 or 4 char sequence: <<= >>= >>> >>>=
-    if (token == Token::SHL) {
-        char c = get();
-        if (c == '=') {
-            return Token::SHLSTO;
-        }
-        
-        putback(c);
-        return token;
-    }
-    
-    if (token == Token::SHR) {
-        char c = get();
-        if (c == '=') {
-            return Token::SHLSTO;
-        }
-        if (c == '>') {
-            c = get();
-            if (c == '=') {
-                return Token::SARSTO;
-            }
-            putback(c);
-            return Token::SAR;
-        }
-        putback(c);
-        return token;
-    }
-    
-    return token;
-#endif
 }
 
 Token Scanner::scanIdentifier()
@@ -367,18 +306,9 @@ Token Scanner::scanComment()
 		return Token::Comment;
 	}
 
-#if M8RSCRIPT_SUPPORT == 1
-    // This is either Slash or DIVSTO
-    if (c == '=') {
-        return Token::DIVSTO;
-    }
-    putback(c);
-	return Token::Slash;
-#else
     _tokenString.clear();
     _tokenString += c;
 	return Token::Slash;
-#endif
 }
 
 uint8_t Scanner::get() const

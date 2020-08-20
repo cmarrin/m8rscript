@@ -73,11 +73,7 @@ void Application::init(uint16_t port)
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
         std::shared_ptr<Task> task = std::make_shared<Task>();
-#if M8RSCRIPT_SUPPORT == 1
-        task->load(shellName());
-#else
         task->load(SharedPtr<Shell>(new Shell()));
-#endif
         return task;
     });
 #endif
@@ -115,12 +111,6 @@ void Application::runAutostartTask()
     bool result = false;
 #ifdef RUN_SAMPLE
     result = _autostartTask->load(SharedPtr<Sample>(new Sample()));
-#elif M8RSCRIPT_SUPPORT == 1
-    result = _autostartTask->load("/sys/bin/hello.m8r");
-#elif MARLY_SUPPORT == 1
-    result = _autostartTask->load("/sys/bin/timing.marly");
-#elif LUA_SUPPORT == 1
-    result = _autostartTask->load("/sys/bin/timing.lua");
 #endif
 
     system()->taskManager()->run(_autostartTask, [this, result](m8r::Task*) {

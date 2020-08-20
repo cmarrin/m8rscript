@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Defines.h"
-#include "Object.h"
 #include "SystemTime.h"
 #include <cstdint>
 #include <functional>

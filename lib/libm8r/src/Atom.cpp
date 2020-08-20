@@ -8,7 +8,6 @@
 -------------------------------------------------------------------------*/
 
 #include "Atom.h"
-#include "Program.h"
 #include <algorithm>
 
 using namespace m8r;

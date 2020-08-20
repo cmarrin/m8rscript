@@ -5,7 +5,9 @@
 
 IDF_PATH=$(HOME)/esp/ESP8266_RTOS_SDK
 
-PROJECT_NAME := m8r
+PROJECT_NAME := m8resp
+
+EXCLUDE_COMPONENTS := lua m8rscript marly
 
 include $(IDF_PATH)/make/project.mk
 

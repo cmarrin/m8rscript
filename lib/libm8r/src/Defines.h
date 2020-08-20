@@ -23,10 +23,6 @@
 #include <limits>
 #include <cstring>
 
-#define M8RSCRIPT_SUPPORT 0
-#define MARLY_SUPPORT 0
-#define LUA_SUPPORT 0
-
 // Debugging
 static inline void DBG_PRINT(const char* type, const char* fmt, ...)
 {

@@ -160,13 +160,11 @@ int main()
     
     // Write the special char string
     fprintf(cppfile, "const char* _specialChars = \"\"\n");
-    fprintf(cppfile, "#if M8RSCRIPT_SUPPORT == 1\n");
     
     for (auto it : entries) {
         fprintf(cppfile, "    \"\\x%02x%s\"\n", int(it.token), it.str);
     }
     
-    fprintf(cppfile, "#endif\n");    
     fprintf(cppfile, ";\n\n");
 
     // Write the postambles

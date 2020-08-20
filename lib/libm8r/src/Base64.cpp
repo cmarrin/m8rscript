@@ -7,29 +7,11 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Base64.h"
 
 #include "Defines.h"
-#include "ExecutionUnit.h"
-#include "Program.h"
 
 using namespace m8r;
-
-static StaticObject::StaticFunctionProperty _props[] =
-{
-    { SA::encode, Base64::encodeFunc },
-    { SA::decode, Base64::decodeFunc },
-};
-
-Base64::Base64()
-{
-    setProperties(_props, sizeof(_props) / sizeof(StaticFunctionProperty));
-}
-
-static const uint32_t BASE64_STACK_ALLOC_LIMIT = 32;
 
 static const char base64enc_tab[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -111,47 +93,3 @@ int Base64::encode(uint16_t in_len, const unsigned char *in, uint16_t out_len, c
 	out[io]=0;
 	return io;
 }
-
-CallReturnValue Base64::encodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    String inString = eu->stack().top().toStringValue(eu);
-    uint16_t inLength = inString.size();
-    uint16_t outLength = (inLength * 4 + 2) / 3 + 1;
-    if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-        char outString[BASE64_STACK_ALLOC_LIMIT];
-        int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()), 
-                                         BASE64_STACK_ALLOC_LIMIT, outString);
-        Mad<String> string = ExecutionUnit::createString(outString, actualLength);
-        eu->stack().push(Value(string));
-    } else {
-        Mad<char> outString = Mad<char>::create(outLength);
-        int actualLength = encode(inLength, reinterpret_cast<const uint8_t*>(inString.c_str()),
-                                         BASE64_STACK_ALLOC_LIMIT, outString.get());
-        Mad<String> string = ExecutionUnit::createString(outString.get(), actualLength);
-        eu->stack().push(Value(string));
-        outString.destroy();
-    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-CallReturnValue Base64::decodeFunc(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
-{
-    String inString = eu->stack().top().toStringValue(eu);
-    uint16_t inLength = inString.size();
-    uint16_t outLength = (inLength * 3 + 3) / 4 + 1;
-    if (outLength <= BASE64_STACK_ALLOC_LIMIT) {
-        unsigned char outString[BASE64_STACK_ALLOC_LIMIT];
-        int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString);
-        Mad<String> string = ExecutionUnit::createString(reinterpret_cast<char*>(outString), actualLength);
-        eu->stack().push(Value(string));
-    } else {
-        Mad<unsigned char> outString = Mad<uint8_t>::create(outLength);
-        int actualLength = decode(inLength, inString.c_str(), BASE64_STACK_ALLOC_LIMIT, outString.get());
-        Mad<String> string = ExecutionUnit::createString(reinterpret_cast<char*>(outString.get()), actualLength);
-        eu->stack().push(Value(string));
-        outString.destroy();
-    }
-    return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
-}
-
-#endif

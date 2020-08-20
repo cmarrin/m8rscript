@@ -7,8 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
 #include "GC.h"
 
 #include "Containers.h"
@@ -172,5 +170,3 @@ void GC::removeExecutable(const SharedPtr<Executable>& eu)
         _executableStore.erase(it);
     }
 }
-
-#endif

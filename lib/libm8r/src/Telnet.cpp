@@ -9,8 +9,6 @@
 
 #include "Telnet.h"
 
-#include "Value.h"
-
 using namespace m8r;
 
 //StateTable<Telnet, Telnet::State, Telnet::Input> Telnet::_stateTable({ { { '\x01', '\xff'}, State::Ready } });

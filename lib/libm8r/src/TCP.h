@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Object.h"
 #include "IPAddr.h"
 #include "MString.h"
 #include "MUDP.h"
@@ -76,18 +75,5 @@ protected:
     
     Vector<EventEntry> _events;
 };
-
-// Object
-
-#if M8RSCRIPT_SUPPORT == 1
-class TCPProto : public StaticObject {
-public:
-    TCPProto();
-
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
-};
-#endif
 
 }
