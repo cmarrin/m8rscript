@@ -14,6 +14,7 @@ static const char _bxor[] = "bxor";
 static const char _cat[] = "cat";
 static const char _currentTime[] = "currentTime";
 static const char _dec[] = "dec";
+static const char _delay[] = "delay";
 static const char _dup[] = "dup";
 static const char _eq[] = "eq";
 static const char _exec[] = "exec";
@@ -41,6 +42,7 @@ static const char _pack[] = "pack";
 static const char _pick[] = "pick";
 static const char _pop[] = "pop";
 static const char _print[] = "print";
+static const char _println[] = "println";
 static const char _remove[] = "remove";
 static const char _swap[] = "swap";
 static const char _tuck[] = "tuck";
@@ -58,6 +60,7 @@ const char* _sharedAtoms[] = {
     _cat,
     _currentTime,
     _dec,
+    _delay,
     _dup,
     _eq,
     _exec,
@@ -85,6 +88,7 @@ const char* _sharedAtoms[] = {
     _pick,
     _pop,
     _print,
+    _println,
     _remove,
     _swap,
     _tuck,

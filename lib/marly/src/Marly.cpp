@@ -312,11 +312,15 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                        }
                        break;
                     }
+                    case SA::println:
                     case SA::print: {
                         String s;
                         _stack.top().toString(s);
                         print(s.string().c_str());
                         _stack.pop();
+                        if (it.builtInVerb() == SA::println) {
+                            print("\n");
+                        }
                         break;
                     }
                     case SA::cat: {
@@ -334,6 +338,9 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                         _stack.push(t);
                         break;
                     }
+                    case SA::delay:
+                        // FIXME: Need to return delay value, like in Global
+                        break;
                     case SA::for$: {
                         m8r::SharedPtr<List> body = _stack.top().list();
                         _stack.pop();

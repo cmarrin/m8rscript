@@ -11,7 +11,9 @@
 
 length
 print
+println
 currentTime
+delay
 at
 atput
 new$
