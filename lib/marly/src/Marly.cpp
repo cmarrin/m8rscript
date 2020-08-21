@@ -23,6 +23,9 @@ bool Marly::load(const Stream& stream)
 {
     Scanner scanner(&stream);
     _codeStack.push(SharedPtr<List>(new List()));
+    uint16_t count = 0;
+    const char** list = m8r::sharedAtoms(count);
+    _atomTable.setSharedAtomList(list, count);
     
     while (true) {
         Token token = scanner.getToken();

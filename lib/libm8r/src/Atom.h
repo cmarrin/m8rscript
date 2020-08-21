@@ -57,6 +57,8 @@ public:
     Atom atomizeString(const char*) const;
 
     const char* stringFromAtom(const Atom) const;
+    
+    void setSharedAtomList(const char** list, uint16_t count) { _sharedAtoms = list; _sharedAtomCount = count; }
         
 private:
     Atom findAtom(const char* s) const;

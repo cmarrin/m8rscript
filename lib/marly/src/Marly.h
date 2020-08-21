@@ -217,7 +217,7 @@ class Marly : public Executable {
 public:
     using Verb = std::function<void()>;
     
-    Marly() { }
+    Marly();
     
     virtual bool load(const Stream&) override;
     virtual CallReturnValue execute() override
