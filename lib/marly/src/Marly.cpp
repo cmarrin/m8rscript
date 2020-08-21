@@ -12,40 +12,44 @@
 #include "Scanner.h"
 #include "SystemTime.h"
 
-using namespace m8r;
+using namespace marly;
 
-SharedPtr<Executable> MarlyScriptingLanguage::create() const
+m8r::SharedPtr<m8r::Executable> MarlyScriptingLanguage::create() const
 {
-    return SharedPtr<Executable>(new Marly());
+    return m8r::SharedPtr<m8r::Executable>(new Marly());
 }
 
-bool Marly::load(const Stream& stream)
+Marly::Marly()
 {
-    Scanner scanner(&stream);
-    _codeStack.push(SharedPtr<List>(new List()));
     uint16_t count = 0;
     const char** list = m8r::sharedAtoms(count);
     _atomTable.setSharedAtomList(list, count);
+}
+
+bool Marly::load(const m8r::Stream& stream)
+{
+    m8r::Scanner scanner(&stream);
+    _codeStack.push(m8r::SharedPtr<List>(new List()));
     
     while (true) {
-        Token token = scanner.getToken();
+        m8r::Token token = scanner.getToken();
         switch (token) {
-            case Token::True:
-            case Token::False:
-                _codeStack.top()->push_back(token == Token::True);
+            case m8r::Token::True:
+            case m8r::Token::False:
+                _codeStack.top()->push_back(token == m8r::Token::True);
                 break;
-            case Token::String:
+            case m8r::Token::String:
                 _codeStack.top()->push_back(scanner.getTokenValue().str);
                 break;
-            case Token::Integer:
+            case m8r::Token::Integer:
                 _codeStack.top()->push_back(int32_t(scanner.getTokenValue().integer));
                 break;
-            case Token::Identifier: {
+            case m8r::Token::Identifier: {
                 // If the Atom ID is less than ExternalAtomOffset then
                 // it is built in and there is a corresponding verb with
                 // that same id
-                Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
-                if (atom.raw() < ExternalAtomOffset) {
+                m8r::Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
+                if (atom.raw() < m8r::ExternalAtomOffset) {
                     _codeStack.top()->emplace_back(Value::Type(atom.raw()));
                     break;
                 }
@@ -63,45 +67,45 @@ bool Marly::load(const Stream& stream)
                 }
                 break;
             }
-            case Token::LBracket:
-                _codeStack.push(SharedPtr<List>(new List()));
+            case m8r::Token::LBracket:
+                _codeStack.push(m8r::SharedPtr<List>(new List()));
                 break;
-            case Token::RBracket: {
+            case m8r::Token::RBracket: {
                 // When closing a list, write a command to push it onto the stack
-                SharedPtr<List> list = _codeStack.top();
+                m8r::SharedPtr<List> list = _codeStack.top();
                 _codeStack.pop();
                 _codeStack.top()->push_back(list);
                 break;
             }
-            case Token::At:
-            case Token::Dollar:
-            case Token::Period:
-            case Token::Colon: {
+            case m8r::Token::At:
+            case m8r::Token::Dollar:
+            case m8r::Token::Period:
+            case m8r::Token::Colon: {
                 // The next token must be an identifier
                 scanner.retireToken();
-                Token idToken = scanner.getToken();
-                if (idToken != Token::Identifier) {
+                m8r::Token idToken = scanner.getToken();
+                if (idToken != m8r::Token::Identifier) {
                     if (showError(Phase::Compile, "identifier required", scanner.lineno())) {
                         return false;
                     }
                     break;
                 }
                 
-                Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
+                m8r::Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
                 
                 Value::Type type;
                 switch (token) {
-                    case Token::At:     type = Value::Type::Store; break;
-                    case Token::Dollar: type = Value::Type::Load; break;
-                    case Token::Period: type = Value::Type::LoadProp; break;
-                    case Token::Colon:  type = Value::Type::StoreProp; break;
+                    case m8r::Token::At:     type = Value::Type::Store; break;
+                    case m8r::Token::Dollar: type = Value::Type::Load; break;
+                    case m8r::Token::Period: type = Value::Type::LoadProp; break;
+                    case m8r::Token::Colon:  type = Value::Type::StoreProp; break;
                     default: assert(0); return false;
                     
                 }
                 _codeStack.top()->emplace_back(atom.raw(), type);
                 break;
             }
-            case Token::EndOfFile:
+            case m8r::Token::EndOfFile:
                 if (_codeStack.size() != 1) {
                     showError(Phase::Compile, "misaligned code stack", scanner.lineno());
                     return false;                    
@@ -125,7 +129,7 @@ bool Marly::load(const Stream& stream)
     }
 }
 
-bool Marly::execute(const SharedPtr<List>& code)
+bool Marly::execute(const m8r::SharedPtr<List>& code)
 {
     for (const auto& it : *(code.get())) {
         switch(it.type()) {
@@ -141,7 +145,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                 break;
             case Value::Type::List: _stack.push(it.list()); break;
             case Value::Type::Load: {
-                auto foundValue = _vars.find(Atom(it.integer()));
+                auto foundValue = _vars.find(m8r::Atom(it.integer()));
                 if (foundValue == _vars.end()) {
                     return !showError(Phase::Run, "var not found", _lineno);
                 }
@@ -149,7 +153,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                 break;
             }
             case Value::Type::Store:
-                _vars.emplace(Atom(it.integer()), _stack.top());
+                _vars.emplace(m8r::Atom(it.integer()), _stack.top());
                 _stack.pop();
                 break;
             case Value::Type::LoadProp: {
@@ -157,7 +161,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                 // of the Object on TOS
                 Value val = _stack.top();
                 _stack.pop();
-                _stack.push(val.property(Atom(it.integer())));
+                _stack.push(val.property(m8r::Atom(it.integer())));
                 break;
             }
             case Value::Type::StoreProp: {
@@ -165,7 +169,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                 // in the object on TOS
                 Value val = _stack.top();
                 _stack.pop();
-                val.setProperty(Atom(it.integer()), _stack.top());
+                val.setProperty(m8r::Atom(it.integer()), _stack.top());
                 _stack.pop();
                 break;
             }
@@ -174,22 +178,22 @@ bool Marly::execute(const SharedPtr<List>& code)
                 break;
                 
             case Value::Type::TokenVerb: {
-                switch(static_cast<Token>(it.integer())) {
-                    case Token::Plus:
-                    case Token::Minus:
-                    case Token::Star:
-                    case Token::Slash:
-                    case Token::Percent: {
+                switch(static_cast<m8r::Token>(it.integer())) {
+                    case m8r::Token::Plus:
+                    case m8r::Token::Minus:
+                    case m8r::Token::Star:
+                    case m8r::Token::Slash:
+                    case m8r::Token::Percent: {
                         float rhs = _stack.top().flt();
                         _stack.pop();
                         float lhs = _stack.top().flt();
                         _stack.pop();
                         float result = 0;
-                        switch(static_cast<Token>(it.integer())) {
-                            case Token::Plus: result = lhs + rhs; break;
-                            case Token::Minus: result = lhs - rhs; break;
-                            case Token::Star: result = lhs * rhs; break;
-                            case Token::Slash: result = lhs / rhs; break;
+                        switch(static_cast<m8r::Token>(it.integer())) {
+                            case m8r::Token::Plus: result = lhs + rhs; break;
+                            case m8r::Token::Minus: result = lhs - rhs; break;
+                            case m8r::Token::Star: result = lhs * rhs; break;
+                            case m8r::Token::Slash: result = lhs / rhs; break;
                             default: break;
                         }
                         _stack.push(result);
@@ -238,7 +242,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                         }
                         
                         // Make sure TOS is a List
-                        SharedPtr<List> list = _stack.top().list();
+                        m8r::SharedPtr<List> list = _stack.top().list();
                         _stack.pop();
                         if (!list) {
                             showError(Phase::Run, "target must be List for 'insert'", _lineno);
@@ -326,16 +330,16 @@ bool Marly::execute(const SharedPtr<List>& code)
                         break;
                     }
                     case SA::currentTime: {
-                        float t = float(double(Time::now().us()) / 1000000);
+                        float t = float(double(m8r::Time::now().us()) / 1000000);
                         _stack.push(t);
                         break;
                     }
                     case SA::for$: {
-                        SharedPtr<List> body = _stack.top().list();
+                        m8r::SharedPtr<List> body = _stack.top().list();
                         _stack.pop();
-                        SharedPtr<List> iter = _stack.top().list();
+                        m8r::SharedPtr<List> iter = _stack.top().list();
                         _stack.pop();
-                        SharedPtr<List> test = _stack.top().list();
+                        m8r::SharedPtr<List> test = _stack.top().list();
                         _stack.pop();
                         
                         // Iteration value is on TOS.
@@ -362,7 +366,7 @@ bool Marly::execute(const SharedPtr<List>& code)
                     }
                     default: {
                         m8r::String s("unrecognized built-in verb '");
-                        s += _atomTable.stringFromAtom(Atom(static_cast<Atom::value_type>(it.builtInVerb())));
+                        s += _atomTable.stringFromAtom(m8r::Atom(static_cast<m8r::Atom::value_type>(it.builtInVerb())));
                         s += "'";
                         return !showError(Phase::Run, s.c_str(), _lineno);
                     }

@@ -200,64 +200,63 @@ Operators:
                 import package S, pushing O which contains elements of S
 */
 
-namespace m8r {
+namespace marly {
 
 class Atom;
 class Marly;
 class Stream;
 
-class MarlyScriptingLanguage : public ScriptingLanguage
+class MarlyScriptingLanguage : public m8r::ScriptingLanguage
 {
 public:
     virtual const char* suffix() const override { return "marly"; }
-    virtual SharedPtr<Executable> create() const override;
+    virtual m8r::SharedPtr<m8r::Executable> create() const override;
 };
 
-class Marly : public Executable {
+class Marly : public m8r::Executable {
 public:
     using Verb = std::function<void()>;
     
     Marly();
     
-    virtual bool load(const Stream&) override;
-    virtual CallReturnValue execute() override
+    virtual bool load(const m8r::Stream&) override;
+    virtual m8r::CallReturnValue execute() override
     {
         execute(_codeStack.top());
-        return CallReturnValue(CallReturnValue::Type::Finished);
+        return m8r::CallReturnValue(m8r::CallReturnValue::Type::Finished);
     }
 
-    const char* stringFromAtom(Atom atom) const { return _atomTable.stringFromAtom(atom); }
+    const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
-    class SharedPtrBase;
     class Value;
     
-    using ValueMap = Map<Atom, Value>;
-    using ValueVector = Vector<Value>;
+    using ValueMap = m8r::Map<m8r::Atom, Value>;
+    using ValueVector = m8r::Vector<Value>;
 
     class ObjectBase : public Shared
     {
     public:
         virtual ~ObjectBase() { }
-        virtual Value property(Atom) const { return Value(); }
-        virtual void setProperty(Atom, const Value&) { }
+        virtual Value property(m8r::Atom) const { return Value(); }
+        virtual void setProperty(m8r::Atom, const Value&) { }
     };
 
     class Object : public ObjectBase, public ValueMap
     {
     public:
         virtual ~Object() { }
-        virtual Value property(Atom) const override { return Value(); }
-        virtual void setProperty(Atom, const Value&) override { }
+        virtual Value property(m8r::Atom) const override { return Value(); }
+        virtual void setProperty(m8r::Atom, const Value&) override { }
     };
 
     class List : public ObjectBase, public ValueVector
     {
     public:
         virtual ~List() { }
-        virtual Value property(Atom) const override { return Value(); }
-        virtual void setProperty(Atom prop, const Value& value) override
+        virtual Value property(m8r::Atom) const override { return Value(); }
+        virtual void setProperty(m8r::Atom prop, const Value& value) override
         {
-            if (prop == Atom(static_cast<Atom::value_type>(SA::length))) {
+            if (prop == m8r::Atom(static_cast<m8r::Atom::value_type>(SA::length))) {
                 resize(value.integer());
             }
         }
@@ -271,8 +270,8 @@ private:
         m8r::String& string() { return _str; }
         const m8r::String& string() const { return _str; }
 
-        virtual Value property(Atom) const override { return Value(); }
-        virtual void setProperty(Atom, const Value&) override { }
+        virtual Value property(m8r::Atom) const override { return Value(); }
+        virtual void setProperty(m8r::Atom, const Value&) override { }
     
     private:
         m8r::String _str;
@@ -284,7 +283,7 @@ private:
         enum class Type : uint16_t {
             // Built-in verbs are first so they can
             // have the same values as the shared atoms
-            Verb = ExternalAtomOffset,
+            Verb = m8r::ExternalAtomOffset,
             Bool, Null, Undefined, 
             Int, Float,
             String, List, Object,
@@ -301,17 +300,17 @@ private:
         {
             _type = Type::String;
             _ptr = nullptr;
-            SharedPtr<String>* str = reinterpret_cast<SharedPtr<String>*>(&_ptr);
+            m8r::SharedPtr<String>* str = reinterpret_cast<m8r::SharedPtr<String>*>(&_ptr);
             str->reset(new String());
             (*str)->string() = s;
         }
         
         Value(float f) { _type = Type::Float; _float = f; }
-        Value(const SharedPtr<List>& list) { setValue(Type::List, list.get()); }
+        Value(const m8r::SharedPtr<List>& list) { setValue(Type::List, list.get()); }
         Value(List* list) { setValue(Type::List, list); }
-        Value(const SharedPtr<String>& string) { setValue(Type::String, string.get()); }
+        Value(const m8r::SharedPtr<String>& string) { setValue(Type::String, string.get()); }
         Value(String* string) { setValue(Type::String, string); }
-        Value(const SharedPtr<Object>& object) { setValue(Type::Object, object.get()); }
+        Value(const m8r::SharedPtr<Object>& object) { setValue(Type::Object, object.get()); }
         Value(Object* object) { setValue(Type::Object, object); }
         
         Value(int32_t i, Type type = Type::Int)
@@ -328,25 +327,25 @@ private:
         
         Type type() const {return _type; }
         
-        bool isBuiltInVerb() const { return int(_type) < ExternalAtomOffset; }
+        bool isBuiltInVerb() const { return int(_type) < m8r::ExternalAtomOffset; }
         SA builtInVerb() const { assert(isBuiltInVerb()); return static_cast<SA>(_type); }
         
-        SharedPtr<String> string() const
+        m8r::SharedPtr<String> string() const
         {
             assert(_type == Type::String);
-            return SharedPtr<String>(reinterpret_cast<String*>(_ptr));
+            return m8r::SharedPtr<String>(reinterpret_cast<String*>(_ptr));
         }
         
-        SharedPtr<List> list() const
+        m8r::SharedPtr<List> list() const
         {
             assert(_type == Type::List);
-            return SharedPtr<List>(reinterpret_cast<List*>(_ptr));
+            return m8r::SharedPtr<List>(reinterpret_cast<List*>(_ptr));
         }
         
-        SharedPtr<Object> object() const
+        m8r::SharedPtr<Object> object() const
         {
             assert(_type == Type::Object);
-            return SharedPtr<Object>(reinterpret_cast<Object*>(_ptr));
+            return m8r::SharedPtr<Object>(reinterpret_cast<Object*>(_ptr));
         }
         
         // FIXME: We need to handle all types here
@@ -400,7 +399,7 @@ private:
             }
         }
 
-        Value property(Atom prop) const
+        Value property(m8r::Atom prop) const
         {
             switch(_type) {
                 case Type::List:
@@ -413,7 +412,7 @@ private:
             }
         }
         
-        void setProperty(Atom prop, const Value& val)
+        void setProperty(m8r::Atom prop, const Value& val)
         {
             switch(_type) {
                 case Type::List:
@@ -431,7 +430,7 @@ private:
         {
             _type = type;
             _ptr = nullptr;
-            SharedPtr<ObjectBase>* objptr = reinterpret_cast<SharedPtr<ObjectBase>*>(&_ptr);
+            m8r::SharedPtr<ObjectBase>* objptr = reinterpret_cast<m8r::SharedPtr<ObjectBase>*>(&_ptr);
             objptr->reset(obj);
         }
         
@@ -444,7 +443,7 @@ private:
         };
     };
 
-    bool execute(const SharedPtr<List>& code);
+    bool execute(const m8r::SharedPtr<List>& code);
     
     enum Phase { Compile, Run };
     
@@ -452,10 +451,10 @@ private:
     bool showError(Phase, const char*, uint32_t lineno);
 
     ValueMap _vars;
-    Stack<Value> _stack;
-    Stack<SharedPtr<List>> _codeStack;
-    AtomTable _atomTable;
-    Map<Atom, Verb> _verbs;
+    m8r::Stack<Value> _stack;
+    m8r::Stack<m8r::SharedPtr<List>> _codeStack;
+    m8r::AtomTable _atomTable;
+    m8r::Map<m8r::Atom, Verb> _verbs;
     
     static constexpr uint16_t MaxErrors = 32;
     uint16_t _nerrors = 0;

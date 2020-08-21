@@ -29,7 +29,7 @@ static void usage(const char* name)
             , name);
 }
 
-m8r::MarlyScriptingLanguage marlyScriptingLanguage;
+marly::MarlyScriptingLanguage marlyScriptingLanguage;
 
 int main(int argc, char * argv[])
 {
