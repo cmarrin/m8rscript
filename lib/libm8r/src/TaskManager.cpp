@@ -103,7 +103,8 @@ bool TaskManager::runOneIteration()
         _currentTask->setState(Task::State::Ready);
     } else if (returnValue.isTerminated() || returnValue.isFinished() || returnValue.isError()) {
         if (returnValue.isError()) {
-            String errorString = String::format("*** TaskManager execution error (%d)\n", int(returnValue.error()));
+            Error error = returnValue.error();
+            String errorString = error.formatError(_currentTask->errorString());
             _currentTask->print(errorString.c_str());
         }
         
