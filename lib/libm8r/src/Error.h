@@ -71,6 +71,23 @@ public:
 
     Code code() const { return _code; }
         
+    String formatError(const char* format = nullptr, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        return vformatError(format, args);
+    }
+    
+    String formatError(int32_t lineno, const char* format = nullptr, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        return vformatError(lineno, format, args);
+    }
+
+    String vformatError(const char* format, va_list args) { return vformatError(code(), format, args); }
+    String vformatError(int32_t lineno, const char* format, va_list args) { return vformatError(code(), lineno, format, args); }
+    
     static String formatError(Code, const char* format = nullptr, ...);
     static String formatError(Code, int32_t lineno, const char* format = nullptr, ...);
     static String vformatError(Code, const char* format, va_list);
