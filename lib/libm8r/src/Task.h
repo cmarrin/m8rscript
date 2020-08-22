@@ -53,6 +53,8 @@ public:
             _executable->setConsolePrintFunction(f);
         }
     }
+    
+    const char* errorString() const { return _executable ? _executable->errorString() : "unknown"; }
 
 #ifndef NDEBUG
     const String& name() const { return _name; }

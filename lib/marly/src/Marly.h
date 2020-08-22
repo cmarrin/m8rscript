@@ -222,6 +222,7 @@ public:
     
     virtual bool load(const m8r::Stream&) override;
     virtual m8r::CallReturnValue execute() override;
+    virtual const char* errorString() const override { return _errorString.c_str(); }
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:

@@ -32,6 +32,7 @@ public:
     virtual void requestYield() const { }
     virtual void receivedData(const String& data, KeyAction) { }
     virtual void gcMark() { }
+    virtual const char* errorString() const { return "unknown"; }
 
     void printf(const char* fmt, ...) const;
     void vprintf(const char* fmt, va_list args) const;
@@ -41,6 +42,7 @@ public:
     std::function<void(const String&)> consolePrintFunction() const { return _consolePrintFunction; }
 
     void startDelay(Duration);
+    
 
 private:
     std::function<void(const String&)> _consolePrintFunction;
