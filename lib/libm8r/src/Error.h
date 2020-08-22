@@ -71,7 +71,7 @@ public:
 
     Code code() const { return _code; }
         
-    static String formatError(Code code, const char* format = nullptr, ...);
+    static String formatError(Code, const char* format = nullptr, ...);
     static String formatError(Code, int32_t lineno, const char* format = nullptr, ...);
     static String vformatError(Code, const char* format, va_list);
     static String vformatError(Code, int32_t lineno, const char* format, va_list);

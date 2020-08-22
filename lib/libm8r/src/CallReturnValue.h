@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Error.h"
 #include "SystemTime.h"
 
 namespace m8r {
@@ -38,30 +39,6 @@ public:
     
     enum class Type { ReturnCount = 0, Delay = 1, FunctionStart, Finished, Terminated, WaitForEvent, Yield };
     
-    enum class Error {
-        Ok,
-        WrongNumberOfParams,
-        ConstructorOnly,
-        Unimplemented,
-        OutOfRange,
-        MissingThis,
-        InternalError,
-        PropertyDoesNotExist,
-        BadFormatString,
-        UnknownFormatSpecifier,
-        CannotConvertStringToNumber,
-        CannotCreateArgumentsArray,
-        CannotCall,
-        CannotConstruct,
-        InvalidArgumentValue,
-        SyntaxErrors,
-        ImportTimeout,
-        DelayNotAllowedInImport,
-        EventNotAllowedInImport,
-        OutOfMemory,
-        Error,
-    };
-    
     CallReturnValue(Type type = Type::ReturnCount, uint32_t value = 0)
     {
         switch(type) {
@@ -89,7 +66,9 @@ public:
     bool isReturnCount() const { return _value >= 0 && _value <= MaxReturnCount; }
     bool isDelay() const { return _value < 0 && _value >= -MaxDelay; }
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
-    Error error() const { return isError() ? static_cast<Error>(_value - ErrorValue) : Error::Error; }
+    Error error() const
+    {
+        return isError() ? static_cast<Error::Code>(_value - ErrorValue) : Error::Code::OK; }
 
     Duration delay() const
     {
