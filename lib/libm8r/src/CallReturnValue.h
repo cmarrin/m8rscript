@@ -55,7 +55,7 @@ public:
         }
     }
     
-    CallReturnValue(Error error) { _value = ErrorValue + static_cast<int32_t>(error); }
+    CallReturnValue(Error error) { _value = ErrorValue + static_cast<int32_t>(error.code()); }
     
     bool isFunctionStart() const { return _value == FunctionStartValue; }
     bool isError() const { return _value >= ErrorValue; }
@@ -68,7 +68,8 @@ public:
     uint32_t returnCount() const { assert(isReturnCount()); return _value; }
     Error error() const
     {
-        return isError() ? static_cast<Error::Code>(_value - ErrorValue) : Error::Code::OK; }
+        return isError() ? static_cast<Error::Code>(_value - ErrorValue) : Error::Code::OK;
+    }
 
     Duration delay() const
     {
