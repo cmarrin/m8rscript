@@ -69,7 +69,7 @@ public:
         String, List, Object,
         
         // Built-in operators
-        Load, Store, LoadProp, StoreProp,
+        Load, Store, LoadProp, StoreProp, Exec,
         TokenVerb,
     };
     

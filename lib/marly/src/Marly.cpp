@@ -76,6 +76,7 @@ bool Marly::load(const m8r::Stream& stream)
                 _codeStack.top().push_back(list);
                 break;
             }
+            case m8r::Token::Twiddle:
             case m8r::Token::At:
             case m8r::Token::Dollar:
             case m8r::Token::Period:
@@ -94,6 +95,7 @@ bool Marly::load(const m8r::Stream& stream)
                 
                 Value::Type type;
                 switch (token) {
+                    case m8r::Token::Twiddle:type = Value::Type::Exec; break;
                     case m8r::Token::At:     type = Value::Type::Store; break;
                     case m8r::Token::Dollar: type = Value::Type::Load; break;
                     case m8r::Token::Period: type = Value::Type::LoadProp; break;
@@ -130,15 +132,22 @@ m8r::CallReturnValue Marly::execute()
         _codeStack.push(int32_t(State::Normal));
     }
     assert(_codeStack.size() >= 3);
+
+    startExec();
     
-    State state = static_cast<State>(_codeStack.top().integer());
-    (void) state;
-    int32_t index = _codeStack.top(-1).integer();
-    const m8r::SharedPtr<List>& code = _codeStack.top(-2).list();
-    assert(index >= 0 && index < code->size());
-    
-    while (index < code->size()) {
-        Value it = (*code)[index++];
+    while (true) {
+        if (_currentIndex >= _currentCode->size()) {
+            // Done with the current function. pop it
+            _codeStack.pop(3);
+            if (_codeStack.size() == 0) {
+                return m8r::CallReturnValue(m8r::CallReturnValue::Type::Finished);
+            }
+            assert(_codeStack.size() >= 3);
+            startExec();
+            continue;
+        }
+
+        Value it = (*_currentCode)[_currentIndex++];
         
         switch(it.type()) {
             case Value::Type::Int: _stack.push(it.integer()); break;
@@ -180,6 +189,20 @@ m8r::CallReturnValue Marly::execute()
                 _stack.pop();
                 val.setProperty(m8r::Atom(it.integer()), _stack.top());
                 _stack.pop();
+                break;
+            }
+            case Value::Type::Exec: {
+                auto foundValue = _vars.find(m8r::Atom(it.integer()));
+                if (foundValue == _vars.end()) {
+                    _errorString = "var not found";
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                }
+                
+                if (!initExec(foundValue->value)) {
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                }
+                startExec();
+                
                 break;
             }
             case Value::Type::Verb:
@@ -351,7 +374,7 @@ m8r::CallReturnValue Marly::execute()
                     case SA::delay:
                         startDelay(m8r::Duration(_stack.top().flt()));
                         _stack.pop();
-                        _codeStack.top(-1) = Value(index);
+                        _codeStack.top(-1) = Value(_currentIndex);
                         return m8r::CallReturnValue(m8r::CallReturnValue::Type::Delay);
                     case SA::for$: {
 //                        m8r::SharedPtr<List> body = _stack.top().list();
@@ -393,6 +416,29 @@ m8r::CallReturnValue Marly::execute()
             }
         }
     }
+}
 
-    return m8r::CallReturnValue(m8r::CallReturnValue::Type::Finished);
+bool Marly::initExec(const Value& list, State state)
+{
+    if (list.type() != Value::Type::List) {
+        _errorString = "value to exec must be List";
+        return false;
+    }
+    
+    // Save the current index and state
+    _codeStack.top() = Value(int32_t(_currentState));
+    _codeStack.top(-1) = Value(_currentIndex);
+
+    _codeStack.push(list);
+    _codeStack.push(0);
+    _codeStack.push(int32_t(state));
+    return true;
+}
+
+void Marly::startExec()
+{
+    _currentState = static_cast<State>(_codeStack.top().integer());
+    _currentIndex = _codeStack.top(-1).integer();
+    _currentCode = _codeStack.top(-2).list();
+    assert(_currentIndex >= 0 && _currentIndex <= _currentCode->size());
 }

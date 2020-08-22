@@ -225,14 +225,17 @@ public:
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
+    enum class State { Normal, ForTest, ForBody, ForIter, WhileTest, WhileIter };
+
+    bool initExec(const Value& list, State = State::Normal);
+    void startExec();
+    
     bool addParseError(const char* desc)
     {
         _parseErrors.emplace_back(desc, _lineno);
         return ++_nerrors > MaxErrors;
     }
     
-    enum class State { Normal, ForTest, ForBody, ForIter, WhileTest, WhileIter };
-
     ValueMap _vars;
     m8r::Stack<Value> _stack;
     m8r::Stack<Value> _codeStack;
@@ -242,7 +245,10 @@ private:
     static constexpr uint16_t MaxErrors = 32;
     uint16_t _nerrors = 0;
     uint32_t _lineno = 0;
-    State _state = State::Normal;
+    State _currentState = State::Normal;
+    int32_t _currentIndex = 0;
+    m8r::SharedPtr<List> _currentCode;
+    
     m8r::String _errorString;
     m8r::ParseErrorList _parseErrors;
 };    
