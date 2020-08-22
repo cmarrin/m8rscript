@@ -48,7 +48,7 @@
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		492C7DB724EECF880027B75E /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */; };
 		492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libmarly.a */; };
-		492C7DBE24EF51420027B75E /* Value.h in Headers */ = {isa = PBXBuildFile; fileRef = 492C7DBC24EF51420027B75E /* Value.h */; };
+		492C7DBE24EF51420027B75E /* MarlyValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 492C7DBC24EF51420027B75E /* MarlyValue.h */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
@@ -331,7 +331,7 @@
 		492C7DAB24EECBA10027B75E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/marly/src/GeneratedValues.cpp; sourceTree = "<group>"; };
 		492C7DB424EECF7B0027B75E /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../lib/marly/src/GeneratedValues.h; sourceTree = "<group>"; };
-		492C7DBC24EF51420027B75E /* Value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../lib/marly/src/Value.h; sourceTree = "<group>"; };
+		492C7DBC24EF51420027B75E /* MarlyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MarlyValue.h; path = ../lib/marly/src/MarlyValue.h; sourceTree = "<group>"; };
 		493C9ED41D218F100062152D /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		493C9ED51D218F100062152D /* pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause.png; sourceTree = "<group>"; };
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
@@ -650,7 +650,7 @@
 				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
 				492C7D9624EDF9200027B75E /* Marly.cpp */,
 				492C7D9724EDF9200027B75E /* Marly.h */,
-				492C7DBC24EF51420027B75E /* Value.h */,
+				492C7DBC24EF51420027B75E /* MarlyValue.h */,
 			);
 			name = marly;
 			sourceTree = "<group>";
@@ -985,7 +985,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				492C7DBE24EF51420027B75E /* Value.h in Headers */,
+				492C7DBE24EF51420027B75E /* MarlyValue.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

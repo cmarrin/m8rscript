@@ -204,6 +204,13 @@ public:
                 return;
         }
     }
+    
+    void push_back(const Value& value)
+    {
+        if (_type == Type::List) {
+            list()->push_back(value);
+        }
+    }
 
 private:
     void setValue(Type type, ObjectBase* obj)
