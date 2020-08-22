@@ -11,6 +11,7 @@
 
 #include "CallReturnValue.h"
 #include "SharedPtr.h"
+#include "Timer.h"
 #include <functional>
 
 namespace m8r {
@@ -22,12 +23,12 @@ class Executable : public Shared
 public:
     using ConsoleListener = std::function<void(const String& data, KeyAction)>;
     
-    Executable() { }
+    Executable();
     virtual ~Executable() { }
     
     virtual bool load(const Stream&) { return false; }
     virtual CallReturnValue execute() = 0;
-    virtual bool readyToRun() const { return true; }
+    virtual bool readyToRun() const { return _delayComplete; }
     virtual void requestYield() const { }
     virtual void receivedData(const String& data, KeyAction) { }
     virtual void gcMark() { }
@@ -39,8 +40,12 @@ public:
     void setConsolePrintFunction(const std::function<void(const String&)>& f) { _consolePrintFunction = std::move(f); }
     std::function<void(const String&)> consolePrintFunction() const { return _consolePrintFunction; }
 
+    void startDelay(Duration);
+
 private:
     std::function<void(const String&)> _consolePrintFunction;
+    Timer _delayTimer;
+    bool _delayComplete = true;
 };
 
 }

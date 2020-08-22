@@ -13,6 +13,13 @@
 
 using namespace m8r;
 
+Executable::Executable()
+{
+    _delayTimer.setCallback([this](Timer*) {
+        _delayComplete = true;
+    });
+}
+
 void Executable::print(const char* s) const
 {
     if (_consolePrintFunction) {
@@ -33,3 +40,10 @@ void Executable::vprintf(const char* fmt, va_list args) const
 {
     print(String::vformat(fmt, args).c_str());
 }
+
+void Executable::startDelay(Duration duration)
+{
+    _delayComplete = false;
+    _delayTimer.start(duration);
+}
+
