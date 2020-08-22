@@ -221,30 +221,30 @@ public:
     Marly();
     
     virtual bool load(const m8r::Stream&) override;
-    virtual m8r::CallReturnValue execute() override
-    {
-        execute(_codeStack.top());
-        return m8r::CallReturnValue(m8r::CallReturnValue::Type::Finished);
-    }
+    virtual m8r::CallReturnValue execute() override;
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
-    bool execute(const m8r::SharedPtr<List>& code);
+    bool addParseError(const char* desc)
+    {
+        _parseErrors.emplace_back(desc, _lineno);
+        return ++_nerrors > MaxErrors;
+    }
     
-    enum Phase { Compile, Run };
-    
-    // Return true if we've exceeded the max number of errors
-    bool showError(Phase, const char*, uint32_t lineno);
+    enum class State { Normal, ForTest, ForBody, ForIter, WhileTest, WhileIter };
 
     ValueMap _vars;
     m8r::Stack<Value> _stack;
-    m8r::Stack<m8r::SharedPtr<List>> _codeStack;
+    m8r::Stack<Value> _codeStack;
     m8r::AtomTable _atomTable;
     m8r::Map<m8r::Atom, Verb> _verbs;
     
     static constexpr uint16_t MaxErrors = 32;
     uint16_t _nerrors = 0;
     uint32_t _lineno = 0;
+    State _state = State::Normal;
+    m8r::String _errorString;
+    m8r::ParseErrorList _parseErrors;
 };    
 
 }

@@ -36,13 +36,13 @@ bool Marly::load(const m8r::Stream& stream)
         switch (token) {
             case m8r::Token::True:
             case m8r::Token::False:
-                _codeStack.top()->push_back(token == m8r::Token::True);
+                _codeStack.top().push_back(token == m8r::Token::True);
                 break;
             case m8r::Token::String:
-                _codeStack.top()->push_back(scanner.getTokenValue().str);
+                _codeStack.top().push_back(scanner.getTokenValue().str);
                 break;
             case m8r::Token::Integer:
-                _codeStack.top()->push_back(int32_t(scanner.getTokenValue().integer));
+                _codeStack.top().push_back(int32_t(scanner.getTokenValue().integer));
                 break;
             case m8r::Token::Identifier: {
                 // If the Atom ID is less than ExternalAtomOffset then
@@ -50,31 +50,30 @@ bool Marly::load(const m8r::Stream& stream)
                 // that same id
                 m8r::Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
                 if (atom.raw() < m8r::ExternalAtomOffset) {
-                    _codeStack.top()->emplace_back(Value::Type(atom.raw()));
+                    _codeStack.top().push_back(static_cast<Value::Type>(atom.raw()));
                     break;
                 }
                 
                 // Try to find the id in the list of verbs
                 auto it1 = _verbs.find(atom);
                 if (it1 != _verbs.end()) {
-                    _codeStack.top()->emplace_back(int32_t(it1 - _verbs.begin()), Value::Type::Verb);
+                    _codeStack.top().push_back(Value(int32_t(it1 - _verbs.begin()), Value::Type::Verb));
                     break;
                 }
                 
-                m8r::String s = m8r::String::format("invalid identifier '%s'", scanner.getTokenValue().str);
-                if (showError(Phase::Compile, s.c_str(), scanner.lineno())) {
+                if (addParseError(m8r::String::format("invalid identifier '%s'", scanner.getTokenValue().str).c_str())) {
                     return false;
                 }
-                break;
             }
             case m8r::Token::LBracket:
                 _codeStack.push(m8r::SharedPtr<List>(new List()));
                 break;
             case m8r::Token::RBracket: {
                 // When closing a list, write a command to push it onto the stack
-                m8r::SharedPtr<List> list = _codeStack.top();
+                assert(_codeStack.top().type() == Value::Type::List);
+                Value list = _codeStack.top();
                 _codeStack.pop();
-                _codeStack.top()->push_back(list);
+                _codeStack.top().push_back(list);
                 break;
             }
             case m8r::Token::At:
@@ -85,7 +84,7 @@ bool Marly::load(const m8r::Stream& stream)
                 scanner.retireToken();
                 m8r::Token idToken = scanner.getToken();
                 if (idToken != m8r::Token::Identifier) {
-                    if (showError(Phase::Compile, "identifier required", scanner.lineno())) {
+                    if (addParseError("identifier required")) {
                         return false;
                     }
                     break;
@@ -102,36 +101,45 @@ bool Marly::load(const m8r::Stream& stream)
                     default: assert(0); return false;
                     
                 }
-                _codeStack.top()->emplace_back(atom.raw(), type);
+                _codeStack.top().push_back(Value(atom.raw(), type));
                 break;
             }
             case m8r::Token::EndOfFile:
                 if (_codeStack.size() != 1) {
-                    showError(Phase::Compile, "misaligned code stack", scanner.lineno());
-                    return false;                    
-                }
-                if (_nerrors > 0) {
-                    m8r::String s(_nerrors);
-                    s += " parse error";
-                    if (_nerrors > 1) {
-                        s += 's';
+                    if (addParseError("misaligned code stack")) {
+                        return false;
                     }
-                    showError(Phase::Compile, s.c_str(), 0);
-                    return false;                    
                 }
-                return true;
+                return _nerrors == 0;
             default:
                 // Assume any other token is a built-in verb
-                _codeStack.top()->emplace_back(int(token), Value::Type::TokenVerb);
+                _codeStack.top().push_back(Value(int(token), Value::Type::TokenVerb));
                 break;
         }
         scanner.retireToken();
     }
 }
 
-bool Marly::execute(const m8r::SharedPtr<List>& code)
+m8r::CallReturnValue Marly::execute()
 {
-    for (const auto& it : *(code.get())) {
+    // If there is only one element on the _codeStack it is the outermost list and we
+    // are just starting the program
+    assert(_codeStack.size() > 0);
+    if (_codeStack.size() == 1) {
+        _codeStack.push(0);
+        _codeStack.push(int32_t(State::Normal));
+    }
+    assert(_codeStack.size() >= 3);
+    
+    State state = static_cast<State>(_codeStack.top().integer());
+    (void) state;
+    int32_t index = _codeStack.top(-1).integer();
+    const m8r::SharedPtr<List>& code = _codeStack.top(-2).list();
+    assert(index >= 0 && index < code->size());
+    
+    while (index < code->size()) {
+        Value it = (*code)[index++];
+        
         switch(it.type()) {
             case Value::Type::Int: _stack.push(it.integer()); break;
             case Value::Type::String:
@@ -147,7 +155,8 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
             case Value::Type::Load: {
                 auto foundValue = _vars.find(m8r::Atom(it.integer()));
                 if (foundValue == _vars.end()) {
-                    return !showError(Phase::Run, "var not found", _lineno);
+                    _errorString = "var not found";
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
                 }
                 _stack.push(foundValue->value);
                 break;
@@ -200,10 +209,10 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                         break;
                     }
                     default: {
-                        m8r::String s("unrecognized verb '");
-                        s += char(it.integer());
-                        s += "'";
-                        return !showError(Phase::Run, s.c_str(), _lineno);
+                        _errorString = "unrecognized verb '";
+                        _errorString += char(it.integer());
+                        _errorString += "'";
+                        return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
                     }
                 }
                 break;
@@ -213,7 +222,8 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
             default: {
                 // If the Type is < ExternalAtomOffset this is a built-in verb
                 if (!it.isBuiltInVerb()) {
-                    return !showError(Phase::Run, "unrecognized value", _lineno);
+                    _errorString = "unrecognized value";
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
                 }
                 
                 switch(it.builtInVerb()) {
@@ -245,8 +255,8 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                         m8r::SharedPtr<List> list = _stack.top().list();
                         _stack.pop();
                         if (!list) {
-                            showError(Phase::Run, "target must be List for 'insert'", _lineno);
-                            return false;
+                            _errorString = "target must be List for 'insert'";
+                            return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
                         }
                         
                         if (it.builtInVerb() == SA::insert) {
@@ -256,9 +266,9 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                             list->insert(list->begin() + i, v);
                         } else {
                             if (i >= list->size()) {
-                                showError(Phase::Run, m8r::String::format("at index %d out of range for list of size %d", i, list->size()).c_str(), _lineno);
-                                return false;
-                            }
+                                _errorString = m8r::String::format("at index %d out of range for list of size %d", i, list->size());
+                                return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                             }
                         
                             if (it.builtInVerb() == SA::at) {
                                 _stack.push((*list)[i]);
@@ -339,63 +349,50 @@ bool Marly::execute(const m8r::SharedPtr<List>& code)
                         break;
                     }
                     case SA::delay:
-                        // FIXME: Need to return delay value, like in Global
-                        break;
+                        startDelay(m8r::Duration(_stack.top().flt()));
+                        _stack.pop();
+                        _codeStack.top(-1) = Value(index);
+                        return m8r::CallReturnValue(m8r::CallReturnValue::Type::Delay);
                     case SA::for$: {
-                        m8r::SharedPtr<List> body = _stack.top().list();
-                        _stack.pop();
-                        m8r::SharedPtr<List> iter = _stack.top().list();
-                        _stack.pop();
-                        m8r::SharedPtr<List> test = _stack.top().list();
-                        _stack.pop();
-                        
-                        // Iteration value is on TOS.
-                        // FIXME: Check that the stack is the same size before executing each list
-                        Value testResult;
-                        
-                        while (true) {
-                            if (!execute(test)) {
-                                return false;
-                            }
-                            _stack.pop(testResult);
-                            if (!testResult.boolean()) {
-                                _stack.pop();
-                                break;
-                            }
-                            if (!execute(body)) {
-                                return false;
-                            }
-                            if (!execute(iter)) {
-                                return false;
-                            }
-                        }
+//                        m8r::SharedPtr<List> body = _stack.top().list();
+//                        _stack.pop();
+//                        m8r::SharedPtr<List> iter = _stack.top().list();
+//                        _stack.pop();
+//                        m8r::SharedPtr<List> test = _stack.top().list();
+//                        _stack.pop();
+//                        
+//                        // Iteration value is on TOS.
+//                        // FIXME: Check that the stack is the same size before executing each list
+//                        Value testResult;
+//                        
+//                        while (true) {
+//                            if (!execute(test)) {
+//                                return false;
+//                            }
+//                            _stack.pop(testResult);
+//                            if (!testResult.boolean()) {
+//                                _stack.pop();
+//                                break;
+//                            }
+//                            if (!execute(body)) {
+//                                return false;
+//                            }
+//                            if (!execute(iter)) {
+//                                return false;
+//                            }
+//                        }
                         break;
                     }
                     default: {
-                        m8r::String s("unrecognized built-in verb '");
-                        s += _atomTable.stringFromAtom(m8r::Atom(static_cast<m8r::Atom::value_type>(it.builtInVerb())));
-                        s += "'";
-                        return !showError(Phase::Run, s.c_str(), _lineno);
+                        _errorString = m8r::String::format("unrecognized built-in verb '%s'", 
+                                        _atomTable.stringFromAtom(m8r::Atom(static_cast<m8r::Atom::value_type>(it.builtInVerb()))));
+                        return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
                     }
                 }
                 break;
             }
         }
     }
-    return true;
-}
 
-bool Marly::showError(Phase phase, const char* s, uint32_t lineno)
-{
-    m8r::String string = "*** ";
-    string += (phase == Phase::Compile) ? "Compile" : "Runtime";
-    string += " error: ";
-    string += s;
-    if (lineno > 0) {
-        string += " on line " + m8r::String(lineno) + '\n';
-    }
-    string += '\n';
-    print(string.c_str());
-    
-    return ++_nerrors >= MaxErrors;
+    return m8r::CallReturnValue(m8r::CallReturnValue::Type::Finished);
 }
