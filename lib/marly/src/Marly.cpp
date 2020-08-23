@@ -433,6 +433,14 @@ m8r::CallReturnValue Marly::execute()
                         _stack.pop();
                         _codeStack.top(-1) = Value(_currentIndex);
                         return m8r::CallReturnValue(m8r::CallReturnValue::Type::Delay);
+                    case SA::new$: {
+                        // Create a new Map and call the __ctor of the Value in TOS
+                        Value obj = _stack.top();
+                        _stack.pop();
+                        
+                        m8r::SharedPtr<Map> map(new Map(obj));
+                        break;
+                    }
                     case SA::loop:
                         if (!initExec(_stack.top(), State::LoopBody)) {
                             return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
