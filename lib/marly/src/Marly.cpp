@@ -9,6 +9,7 @@
 
 #include "Marly.h"
 
+#include "Timer.h"
 #include "SystemTime.h"
 
 using namespace marly;
@@ -18,11 +19,42 @@ m8r::SharedPtr<m8r::Executable> MarlyScriptingLanguage::create() const
     return m8r::SharedPtr<m8r::Executable>(new Marly());
 }
 
+static Value timerStart(Marly* marly, const Value& value)
+{
+    // Params passed as a List: duration, repeat (0 or 1), list to execute, Timer
+    if (value.type() != Value::Type::List || value.list()->size() != 4) {
+        return Value();
+    }
+    
+    m8r::Duration duration = m8r::Duration(value.list()->at(0).flt());
+    bool repeat = value.list()->at(1).integer() != 0;
+    Value body = value.list()->at(2);
+    Value timerValue = value.list()->at(3);
+    
+    m8r::Timer* timer = reinterpret_cast<m8r::Timer*>(timerValue.property(m8r::SAtom(SA::__rawptr)).pointer());
+
+    if (body.type() != Value::Type::List || !timer) {
+        return Value();
+    }
+    
+    timer->setCallback([marly, body](m8r::Timer*) { marly->fireEvent(body); });
+    timer->start(duration, repeat ? m8r::Timer::Behavior::Repeating : m8r::Timer::Behavior::Once);
+    return Value();
+}
+
 Marly::Marly()
 {
     uint16_t count = 0;
     const char** list = m8r::sharedAtoms(count);
     _atomTable.setSharedAtomList(list, count);
+    
+    // Add global vars
+    m8r::SharedPtr<Map> timer(new Map());
+    timer->emplace(m8r::SAtom(SA::Once), 0);
+    timer->emplace(m8r::SAtom(SA::Repeat), 1);
+    timer->emplace(m8r::SAtom(SA::start), Value(timerStart));
+    timer->emplace(m8r::SAtom(SA::stop), 1);
+    _vars.emplace(m8r::SAtom(SA::Timer), timer);
 }
 
 bool Marly::load(const m8r::Stream& stream)
