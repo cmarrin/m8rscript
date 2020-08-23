@@ -24,7 +24,7 @@ Marly:
     In the descriptions below TOS is to the right. So "X Y Z" is Z on TOS.
 
 Literals:
-    bool, int (32 bit), float (32 bit), String, Char, List, Object
+    bool, int (32 bit), float (32 bit), String, Char, List, Map
     
 Operators:
     false:      -> false
@@ -49,7 +49,7 @@ Operators:
                 Pushes list.
                 
     { <id> : <value> ... } -> { .. }
-                Pushes an Object (AA)
+                Pushes a Map (AA)
                 
     @<id>       X ->
                 Store X at <id>.
@@ -61,13 +61,13 @@ Operators:
                 Push property <id> of X
                 
     :<id>       X Y ->
-                Store X in property <id> of Object Y
+                Store X in property <id> of Map Y
                 
     <id>        .. -> ..
                 Execute named function.
     
     new         X Y -> Z
-                Use values in list X as params to Object Y and create a new instance of Y
+                Use values in list X as params to Map Y and create a new instance of Y
 
     exec        [..] -> ..
                 execute list on TOS

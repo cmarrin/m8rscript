@@ -26,10 +26,10 @@ public:
     virtual void setProperty(m8r::Atom, const Value&) { }
 };
 
-class Object : public ObjectBase, public ValueMap
+class Map : public ObjectBase, public ValueMap
 {
 public:
-    virtual ~Object() { }
+    virtual ~Map() { }
     virtual Value property(m8r::Atom) const override;
     virtual void setProperty(m8r::Atom, const Value&) override { }
 };
@@ -66,7 +66,7 @@ public:
         Verb = m8r::ExternalAtomOffset,
         Bool, Null, Undefined, 
         Int, Float,
-        String, List, Object,
+        String, List, Map,
         
         // Built-in operators
         Load, Store, LoadProp, StoreProp, Exec,
@@ -90,8 +90,8 @@ public:
     Value(List* list) { setValue(Type::List, list); }
     Value(const m8r::SharedPtr<String>& string) { setValue(Type::String, string.get()); }
     Value(String* string) { setValue(Type::String, string); }
-    Value(const m8r::SharedPtr<Object>& object) { setValue(Type::Object, object.get()); }
-    Value(Object* object) { setValue(Type::Object, object); }
+    Value(const m8r::SharedPtr<Map>& map) { setValue(Type::Map, map.get()); }
+    Value(Map* map) { setValue(Type::Map, map); }
     
     Value(int32_t i, Type type = Type::Int)
     {
@@ -122,10 +122,10 @@ public:
         return m8r::SharedPtr<List>(reinterpret_cast<List*>(_ptr));
     }
     
-    m8r::SharedPtr<Object> object() const
+    m8r::SharedPtr<Map> map() const
     {
-        assert(_type == Type::Object);
-        return m8r::SharedPtr<Object>(reinterpret_cast<Object*>(_ptr));
+        assert(_type == Type::Map);
+        return m8r::SharedPtr<Map>(reinterpret_cast<Map*>(_ptr));
     }
     
     // FIXME: We need to handle all types here
@@ -137,7 +137,7 @@ public:
             case Type::Int: return _int;
             case Type::Float: return(int32_t(_float));
             case Type::List:
-            case Type::Object: return 0;
+            case Type::Map: return 0;
 
             // For all other types we assume the value stored is an int
             default: return _int;
@@ -184,7 +184,7 @@ public:
         switch(_type) {
             case Type::List:
             case Type::String:
-            case Type::Object:
+            case Type::Map:
                 assert(_ptr);
                 return reinterpret_cast<ObjectBase*>(_ptr)->property(prop);
             default:
@@ -197,7 +197,7 @@ public:
         switch(_type) {
             case Type::List:
             case Type::String:
-            case Type::Object:
+            case Type::Map:
                 assert(_ptr);
                 reinterpret_cast<ObjectBase*>(_ptr)->setProperty(prop, val);
             default:
@@ -231,7 +231,7 @@ private:
 };
 
 inline Value ObjectBase::property(m8r::Atom) const { return Value(); }
-inline Value Object::property(m8r::Atom) const { return Value(); }
+inline Value Map::property(m8r::Atom) const { return Value(); }
 inline Value List::property(m8r::Atom) const { return Value(); }
 inline Value String::property(m8r::Atom) const { return Value(); }
 inline void List::setProperty(m8r::Atom prop, const Value& value)

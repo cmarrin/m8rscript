@@ -201,7 +201,7 @@ m8r::CallReturnValue Marly::execute()
                 break;
             case Value::Type::LoadProp: {
                 // push the value for the property identified by Atom(it.integer())
-                // of the Object on TOS
+                // of the Map on TOS
                 Value val = _stack.top();
                 _stack.pop();
                 _stack.push(val.property(m8r::Atom(it.integer())));
@@ -209,7 +209,7 @@ m8r::CallReturnValue Marly::execute()
             }
             case Value::Type::StoreProp: {
                 // Store the value in TOS-1 in the property identified by Atom(it.integer())
-                // in the object on TOS
+                // in the Map on TOS
                 Value val = _stack.top();
                 _stack.pop();
                 val.setProperty(m8r::Atom(it.integer()), _stack.top());
