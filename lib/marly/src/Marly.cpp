@@ -124,19 +124,44 @@ bool Marly::load(const m8r::Stream& stream)
 
 m8r::CallReturnValue Marly::execute()
 {
+    enum class Action { None, Break, Continue, Return };
+    Action action = Action::None;
+    
     // If there is only one element on the _codeStack it is the outermost list and we
     // are just starting the program
     assert(_codeStack.size() > 0);
     if (_codeStack.size() == 1) {
         _codeStack.push(0);
-        _codeStack.push(int32_t(State::Normal));
+        _codeStack.push(int32_t(State::Function));
     }
     assert(_codeStack.size() >= 3);
 
     startExec();
     
     while (true) {
-        if (_currentIndex >= _currentCode->size()) {
+        bool brk = false;
+        if (action != Action::None) {
+            if (action == Action::Break) {
+                // break out of current loop
+                if (_currentState == State::Function) {
+                    _errorString = "cannot 'break' out of function";
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                }
+                
+                brk = true;
+                if (_currentState == State::LoopBody) {
+                    action = Action::None;
+                }
+            }
+        }
+        
+        if (brk || _currentIndex >= _currentCode->size()) {
+            if (!brk && _currentState == State::LoopBody) {
+                // loop again
+                _currentIndex = 0;
+                continue;
+            }
+            
             // Done with the current function. pop it
             _codeStack.pop(3);
             if (_codeStack.size() == 0) {
@@ -376,7 +401,41 @@ m8r::CallReturnValue Marly::execute()
                         _stack.pop();
                         _codeStack.top(-1) = Value(_currentIndex);
                         return m8r::CallReturnValue(m8r::CallReturnValue::Type::Delay);
-                    case SA::for$: {
+                    case SA::loop:
+                        if (!initExec(_stack.top(), State::LoopBody)) {
+                            return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                        }
+                        _stack.pop();
+                        startExec();
+                        break;
+                    case SA::break$:
+                        action = Action::Break;
+                        break;
+                    case SA::if$:
+                        // Stack has body and bool. If bool is true execute body
+                        if (_stack.top(-1).boolean()) {
+                            if (!initExec(_stack.top(), State::Body)) {
+                                return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                            }
+                            _stack.pop(2);
+                            startExec();
+                        } else {
+                            _stack.pop(2);
+                        }
+                        break;
+//                    case SA::while {
+//                        // Push the while body and test
+//                        _codeStack.push(_stack.top()); // body
+//                        _codeStack.push(_stack.top(-1)); // test
+//                        _stack.pop(2);
+//                        _currentState = State::WhileTest;
+//                        
+//                        if (!initExec(_codeStack.top(), State::WhileTest) {
+//                            return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+//                        }
+//                        startExec();
+//                    }
+//                    case SA::for$: {
 //                        m8r::SharedPtr<List> body = _stack.top().list();
 //                        _stack.pop();
 //                        m8r::SharedPtr<List> iter = _stack.top().list();
@@ -404,8 +463,8 @@ m8r::CallReturnValue Marly::execute()
 //                                return false;
 //                            }
 //                        }
-                        break;
-                    }
+//                        break;
+//                    }
                     default: {
                         _errorString = m8r::String::format("unrecognized built-in verb '%s'", 
                                         _atomTable.stringFromAtom(m8r::Atom(static_cast<m8r::Atom::value_type>(it.builtInVerb()))));

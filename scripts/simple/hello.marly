@@ -15,10 +15,17 @@
 //currentTime();
 //delay(10);
 
-// f - function to print string 10 times at 1 second intervals
-//
-[0 [dup 10 <] ["Hello World" println 1 delay inc] while] @f
+"Marly 'Hello World' test." println
+"    Prints 'Hello World 10 times at 1 per second." println
+"    Every 2.5 seconds a Timer fires and prints a message." println
+"    Runs for a total of 15 seconds. The last 5 seconds only timer messages print.\n" println
 
-[ 2.5 $Timer .Repeat ["******* Timer Fired" println] ] $Timer new start
-$f exec
-10 delay
+// f - function to print string 10 times at 1 second intervals
+
+//[0 [dup 10 <] ["Hello World" println 1 delay inc] while] @f
+
+[0 [dup 10 ge [break] if "Hello World" println 1 delay inc] loop ] @f
+
+//[ 2.5 Timer.Repeat ["******* Timer Fired" println] ] Timer new start
+~f
+5 delay
