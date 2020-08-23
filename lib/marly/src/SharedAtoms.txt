@@ -9,6 +9,15 @@
 
 // Entries can be in any order. They are sorted in the generator
 
+__ctor
+__proto
+__rawptr
+Timer
+Once
+Repeat
+start
+stop
+
 length
 print
 println

@@ -4,6 +4,12 @@
 #include "Defines.h"
 #include <cstdlib>
 
+static const char _Once[] = "Once";
+static const char _Repeat[] = "Repeat";
+static const char _Timer[] = "Timer";
+static const char ___ctor[] = "__ctor";
+static const char ___proto[] = "__proto";
+static const char ___rawptr[] = "__rawptr";
 static const char _and$[] = "and";
 static const char _at[] = "at";
 static const char _atput[] = "atput";
@@ -46,12 +52,20 @@ static const char _pop[] = "pop";
 static const char _print[] = "print";
 static const char _println[] = "println";
 static const char _remove[] = "remove";
+static const char _start[] = "start";
+static const char _stop[] = "stop";
 static const char _swap[] = "swap";
 static const char _tuck[] = "tuck";
 static const char _unpack[] = "unpack";
 static const char _while$[] = "while";
 
 const char* _sharedAtoms[] = {
+    _Once,
+    _Repeat,
+    _Timer,
+    ___ctor,
+    ___proto,
+    ___rawptr,
     _and$,
     _at,
     _atput,
@@ -94,6 +108,8 @@ const char* _sharedAtoms[] = {
     _print,
     _println,
     _remove,
+    _start,
+    _stop,
     _swap,
     _tuck,
     _unpack,
