@@ -328,7 +328,6 @@
 		492C7DA124EDF9FA0027B75E /* ScriptingLanguage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScriptingLanguage.h; path = ../lib/libm8r/src/ScriptingLanguage.h; sourceTree = "<group>"; };
 		492C7DA424EDFE120027B75E /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../lib/m8rscript/src/SharedAtoms.txt; sourceTree = "<group>"; };
 		492C7DA924EECBA10027B75E /* generator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generator; sourceTree = BUILT_PRODUCTS_DIR; };
-		492C7DAB24EECBA10027B75E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/marly/src/GeneratedValues.cpp; sourceTree = "<group>"; };
 		492C7DB424EECF7B0027B75E /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../lib/marly/src/GeneratedValues.h; sourceTree = "<group>"; };
 		492C7DBC24EF51420027B75E /* MarlyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MarlyValue.h; path = ../lib/marly/src/MarlyValue.h; sourceTree = "<group>"; };
@@ -663,14 +662,6 @@
 			name = m8rscript;
 			sourceTree = "<group>";
 		};
-		492C7DAA24EECBA10027B75E /* generator */ = {
-			isa = PBXGroup;
-			children = (
-				492C7DAB24EECBA10027B75E /* main.cpp */,
-			);
-			path = generator;
-			sourceTree = "<group>";
-		};
 		4940FD78249AD3CF00B47B84 /* web */ = {
 			isa = PBXGroup;
 			children = (
@@ -852,7 +843,6 @@
 				4945A8701EC3711D00559CD1 /* m8rmac */,
 				49D9B8191D1C854700724911 /* m8rsim */,
 				491ED3A42353EFE600DE0C42 /* m8rtest */,
-				492C7DAA24EECBA10027B75E /* generator */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4942EA891D0C86BB00E02088 /* scripts */,
 				4945A8791EC398B900559CD1 /* Frameworks */,
