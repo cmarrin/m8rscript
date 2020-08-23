@@ -106,8 +106,16 @@ int main(int argc, const char* argv[])
     }
     
     // Write the preambles
-    fprintf(hfile, "// This file is generated. Do not edit\n\n#include <cstdint>\n\nenum class SA : uint16_t {\n");
-    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"GeneratedValues.h\"\n#include \"Defines.h\"\n#include <cstdlib>\n\n");
+    fprintf(hfile, "// This file is generated. Do not edit\n\n");
+    fprintf(hfile, "#pragma once\n\n");
+    fprintf(hfile, "#include <cstdint>\n");
+    fprintf(hfile, "#include \"Atom.h\"\n\n");
+    fprintf(hfile, "enum class SA : uint16_t {\n");
+    
+    fprintf(cppfile, "// This file is generated. Do not edit\n\n");
+    fprintf(cppfile, "#include \"GeneratedValues.h\"\n");
+    fprintf(cppfile, "#include \"Defines.h\"\n");
+    fprintf(cppfile, "#include <cstdlib>\n\n");
     
     // Get the strings into a vector
     std::vector<std::string> strings;
@@ -180,6 +188,8 @@ int main(int argc, const char* argv[])
     fprintf(hfile, "};\n\nnamespace m8r {\n");
     fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
     fprintf(hfile, "    const char* specialChars();\n");
+    fprintf(hfile, "    static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }\n");
+
     fprintf(hfile, "}\n");
 
     fprintf(cppfile, "const char** m8r::sharedAtoms(uint16_t& nelts)\n");
