@@ -85,7 +85,7 @@ enum class Token : uint8_t {
     XORSTO      = 0xba,
     ORSTO       = 0xbb,
     SHR         = 0xbc,
-    SAR         = 0xbd,
+    _SAR         = 0xbd,
     SHL         = 0xbe,
     INCR        = 0xbf,
     DECR        = 0xc0,

@@ -12,3 +12,5 @@ COMPONENT_EXTRA_INCLUDES :=
 COMPONENT_SRCDIRS := . $(MARLY_DIR)
 COMPONENT_OBJS := \
     $(MARLY_DIR)/Marly.o \
+    $(MARLY_DIR)/MarlyValue.o \
+    $(MARLY_DIR)/GeneratedValues.o \
