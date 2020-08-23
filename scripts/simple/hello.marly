@@ -21,11 +21,8 @@
 "    Runs for a total of 15 seconds. The last 5 seconds only timer messages print.\n" println
 
 // f - function to print string 10 times at 1 second intervals
-
-//[0 [dup 10 <] ["Hello World" println 1 delay inc] while] @f
-
 [0 [dup 10 ge [break] if "Hello World" println 1 delay inc] loop ] @f
 
-//[ 2.5 Timer.Repeat ["******* Timer Fired" println] ] Timer new start
+[ 2.5 $Timer.Repeat ["******* Timer Fired" println] ] $Timer new ,start
 ~f
 5 delay

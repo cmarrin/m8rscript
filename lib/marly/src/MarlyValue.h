@@ -9,14 +9,20 @@
 
 #pragma once
 
+#include "Atom.h"
+#include "GeneratedValues.h"
 #include "SharedPtr.h"
 
 namespace marly {
 
+class Marly;
 class Value;
 
 using ValueMap = m8r::Map<m8r::Atom, Value>;
 using ValueVector = m8r::Vector<Value>;
+
+// Pass args as a List and return a value which can be any type
+using NativeFunction = Value(*)(Marly*, const Value&);
 
 class ObjectBase : public m8r::Shared
 {
@@ -24,6 +30,7 @@ public:
     virtual ~ObjectBase() { }
     virtual Value property(m8r::Atom) const;
     virtual void setProperty(m8r::Atom, const Value&) { }
+    virtual Value callProperty(m8r::Atom);
 };
 
 class Map : public ObjectBase, public ValueMap
@@ -35,6 +42,7 @@ public:
     virtual ~Map() { }
     virtual Value property(m8r::Atom) const override;
     virtual void setProperty(m8r::Atom, const Value&) override { }
+    virtual Value callProperty(m8r::Atom) override;
 };
 
 class List : public ObjectBase, public ValueVector
@@ -62,7 +70,7 @@ private:
 
 class Value
 {
-public:
+public:    
     enum class Type : uint16_t {
         // Built-in verbs are first so they can
         // have the same values as the shared atoms
@@ -70,9 +78,10 @@ public:
         Bool, Null, Undefined, 
         Int, Float,
         String, List, Map,
+        NativeFunction, RawPointer,
         
         // Built-in operators
-        Load, Store, LoadProp, StoreProp, Exec,
+        Load, Store, Exec, LoadProp, StoreProp, ExecProp,
         TokenVerb,
     };
     
@@ -95,6 +104,8 @@ public:
     Value(String* string) { setValue(Type::String, string); }
     Value(const m8r::SharedPtr<Map>& map) { setValue(Type::Map, map.get()); }
     Value(Map* map) { setValue(Type::Map, map); }
+    Value(NativeFunction func) { _type = Type::NativeFunction; _ptr = reinterpret_cast<void*>(func); }
+    Value(void* p) { _type = Type::RawPointer; _ptr = p; }
     
     Value(int32_t i, Type type = Type::Int)
     {
@@ -171,6 +182,8 @@ public:
         }
     }
     
+    void* pointer() const { return (_type == Type::RawPointer) ? _ptr : nullptr; }
+    
     void toString(String& str) const
     {
         switch(_type) {
@@ -208,11 +221,32 @@ public:
         }
     }
     
+    Value callProperty(m8r::Atom prop)
+    {
+        switch(_type) {
+            case Type::List:
+            case Type::String:
+            case Type::Map:
+                assert(_ptr);
+                return reinterpret_cast<ObjectBase*>(_ptr)->callProperty(prop);
+            default:
+                return Value();
+        }
+    }
+    
     void push_back(const Value& value)
     {
         if (_type == Type::List) {
             list()->push_back(value);
         }
+    }
+    
+    Value operator()(Marly* marly, const Value& value)
+    {
+        if (_type != Type::NativeFunction) {
+            return Value();
+        }
+        return reinterpret_cast<NativeFunction>(_ptr)(marly, value);
     }
 
 private:
@@ -234,6 +268,7 @@ private:
 };
 
 inline Value ObjectBase::property(m8r::Atom) const { return Value(); }
+inline Value ObjectBase::callProperty(m8r::Atom) { return Value(); }
 inline Value Map::property(m8r::Atom) const { return Value(); }
 inline Value List::property(m8r::Atom) const { return Value(); }
 inline Value String::property(m8r::Atom) const { return Value(); }
@@ -242,6 +277,11 @@ inline void List::setProperty(m8r::Atom prop, const Value& value)
     if (prop == m8r::Atom(static_cast<m8r::Atom::value_type>(SA::length))) {
         resize(value.integer());
     }
+}
+
+inline Value Map::callProperty(m8r::Atom)
+{
+    return Value();
 }
 
 }

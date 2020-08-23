@@ -108,11 +108,13 @@ bool Marly::load(const m8r::Stream& stream)
                 _codeStack.top().push_back(list);
                 break;
             }
-            case m8r::Token::Twiddle:
-            case m8r::Token::At:
-            case m8r::Token::Dollar:
-            case m8r::Token::Period:
-            case m8r::Token::Colon: {
+            case m8r::Token::Dollar:    // Load var
+            case m8r::Token::At:        // Store var
+            case m8r::Token::Twiddle:   // Exec var
+            case m8r::Token::Period:    // Load prop
+            case m8r::Token::Colon:     // Store prop
+            case m8r::Token::Comma:     // Exec prop
+            {
                 // The next token must be an identifier
                 _scanner.retireToken();
                 m8r::Token idToken = _scanner.getToken();
@@ -127,11 +129,12 @@ bool Marly::load(const m8r::Stream& stream)
                 
                 Value::Type type;
                 switch (token) {
-                    case m8r::Token::Twiddle:type = Value::Type::Exec; break;
-                    case m8r::Token::At:     type = Value::Type::Store; break;
                     case m8r::Token::Dollar: type = Value::Type::Load; break;
+                    case m8r::Token::At:     type = Value::Type::Store; break;
+                    case m8r::Token::Twiddle:type = Value::Type::Exec; break;
                     case m8r::Token::Period: type = Value::Type::LoadProp; break;
                     case m8r::Token::Colon:  type = Value::Type::StoreProp; break;
+                    case m8r::Token::Comma:  type = Value::Type::ExecProp; break;
                     default: assert(0); return false;
                     
                 }
@@ -231,6 +234,20 @@ m8r::CallReturnValue Marly::execute()
                 _vars.emplace(m8r::Atom(it.integer()), _stack.top());
                 _stack.pop();
                 break;
+            case Value::Type::Exec: {
+                auto foundValue = _vars.find(m8r::Atom(it.integer()));
+                if (foundValue == _vars.end()) {
+                    _errorString = "var not found";
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                }
+                
+                if (!initExec(foundValue->value)) {
+                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
+                }
+                startExec();
+                
+                break;
+            }
             case Value::Type::LoadProp: {
                 // push the value for the property identified by Atom(it.integer())
                 // of the Map on TOS
@@ -248,18 +265,13 @@ m8r::CallReturnValue Marly::execute()
                 _stack.pop();
                 break;
             }
-            case Value::Type::Exec: {
-                auto foundValue = _vars.find(m8r::Atom(it.integer()));
-                if (foundValue == _vars.end()) {
-                    _errorString = "var not found";
-                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
-                }
-                
-                if (!initExec(foundValue->value)) {
-                    return m8r::CallReturnValue(m8r::Error::Code::RuntimeError);
-                }
-                startExec();
-                
+            case Value::Type::ExecProp: {
+                // Load obj on TOS, find prop in it and exec, push returned value
+                // FIXME: For now the property must be a native function. Need to
+                // support List to be executed as a nested body
+                Value val = _stack.top();
+                _stack.pop();
+                _stack.push(val.callProperty(m8r::Atom(it.integer())));
                 break;
             }
             case Value::Type::Verb:
