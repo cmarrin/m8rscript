@@ -54,7 +54,7 @@ public:
         }
     }
     
-    const char* errorString() const { return _executable ? _executable->errorString() : "unknown"; }
+    const char* runtimeErrorString() const { return _executable ? _executable->runtimeErrorString() : "unknown"; }
 
 #ifndef NDEBUG
     const String& name() const { return _name; }

@@ -104,7 +104,7 @@ bool TaskManager::runOneIteration()
     } else if (returnValue.isTerminated() || returnValue.isFinished() || returnValue.isError()) {
         if (returnValue.isError()) {
             Error error = returnValue.error();
-            String errorString = error.formatError(_currentTask->errorString());
+            String errorString = error.formatError(_currentTask->runtimeErrorString());
             _currentTask->print(errorString.c_str());
         }
         

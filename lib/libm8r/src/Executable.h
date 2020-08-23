@@ -32,7 +32,8 @@ public:
     virtual void requestYield() const { }
     virtual void receivedData(const String& data, KeyAction) { }
     virtual void gcMark() { }
-    virtual const char* errorString() const { return "unknown"; }
+    virtual const char* runtimeErrorString() const { return "unknown"; }
+    virtual const m8r::ParseErrorList* parseErrors() const { return nullptr; }
 
     void printf(const char* fmt, ...) const;
     void vprintf(const char* fmt, va_list args) const;
