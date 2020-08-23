@@ -11,7 +11,6 @@
 
 using namespace m8r;
 
-#if M8RSCRIPT_SUPPORT == 1
 static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, StreamProto::constructor },
@@ -31,7 +30,7 @@ CallReturnValue StreamProto::constructor(ExecutionUnit* eu, Value thisValue, uin
     // for a FileStream
     // If there is one param, it is a string for a StringStream.
     if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -51,4 +50,3 @@ CallReturnValue StreamProto::write(ExecutionUnit* eu, Value thisValue, uint32_t 
 {
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
-#endif

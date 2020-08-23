@@ -9,14 +9,10 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Object.h"
 
 namespace m8r {
 
-#if M8RSCRIPT_SUPPORT == 1
 class Iterator : public StaticObject {
 public:
     Iterator();
@@ -27,8 +23,5 @@ public:
     static CallReturnValue getValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue setValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
-#endif
 
 }
-
-#endif

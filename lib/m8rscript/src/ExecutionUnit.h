@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include <cstdint>
 
 #include "Atom.h"
@@ -61,7 +58,7 @@ public:
     void setConsoleListener(Value func)
     {
         if (_program.valid()) {
-            _program->setProperty(Atom(SA::consoleListener), func, Value::Value::SetType::AddIfNeeded);
+            _program->setProperty(SAtom(SA::consoleListener), func, Value::Value::SetType::AddIfNeeded);
         }
     }
 
@@ -115,7 +112,7 @@ private:
     CallReturnValue runNextEvent();
 
     void printError(const char* s, ...) const;
-    void printError(CallReturnValue::Error) const;
+    void printError(Error) const;
     
     Value* valueFromId(Atom, const Object*) const;
 
@@ -253,5 +250,3 @@ private:
 };
 
 }
-
-#endif

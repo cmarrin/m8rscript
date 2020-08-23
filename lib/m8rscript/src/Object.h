@@ -9,11 +9,9 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Mallocator.h"
 #include "Defines.h"
+#include "GeneratedValues.h"
 #include "Value.h"
 #include <algorithm>
 #include <memory>
@@ -30,7 +28,10 @@ using PropertyMap = Map<Atom, Value>;
 
 class Callable {
 public:
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
+    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams)
+    {
+        return CallReturnValue(Error::Code::Unimplemented);
+    }
     virtual const InstructionVector* code() const { return nullptr; }
     virtual uint16_t localCount() const { return 0; }
     virtual bool constant(uint8_t reg, Value&) const { return false; }
@@ -75,7 +76,7 @@ public:
     virtual uint32_t numProperties() const { return 0; }
     virtual Atom propertyKeyforIndex(uint32_t i) const { return Atom(); }
     
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(CallReturnValue::Error::Unimplemented); }
+    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) { return CallReturnValue(Error::Code::Unimplemented); }
     
     void setMarked(bool b) { _marked = b; }
     bool isMarked() const { return _marked; }
@@ -96,7 +97,7 @@ public:
     template<typename T>
     Mad<T> getNative() const
     {
-        Mad<NativeObject> nobj = property(Atom(SA::__nativeObject)).asNativeObject();
+        Mad<NativeObject> nobj = property(SAtom(SA::__nativeObject)).asNativeObject();
         return Mad<T>(nobj.raw());
     }
     
@@ -196,7 +197,7 @@ public:
         SA name() const { return _name; }
         Value value() const { return _value; }
 
-        bool operator==(const Atom& atom) const { return Atom(name()) == atom; }
+        bool operator==(const Atom& atom) const { return SAtom(name()) == atom; }
         SA _name;
         Value _value;
     };
@@ -233,12 +234,12 @@ public:
     Value property(const Atom& name)
     {
         auto it = std::find_if(_functionProperties, _functionProperties + _functionPropertiesCount, 
-                               [name](const StaticFunctionProperty& p) { return name == Atom(p.name()); });
+                               [name](const StaticFunctionProperty& p) { return name == SAtom(p.name()); });
         if (it != _functionProperties + _functionPropertiesCount) {
             return Value(it->func());
         }
         auto it2 = std::find_if(_objectProperties, _objectProperties + _objectPropertiesCount,
-                                [name](const StaticObjectProperty& p) { return name == Atom(p.name()); });
+                                [name](const StaticObjectProperty& p) { return name == SAtom(p.name()); });
         if (it2 != _objectProperties + _objectPropertiesCount) {
             return Value(it2->obj());
         }
@@ -274,5 +275,3 @@ protected:
 };
 
 }
-
-#endif

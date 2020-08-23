@@ -9,19 +9,16 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
-#include "Base64.h"
-#include "MFS.h"
+#include "FSProto.h"
 #include "GPIO.h"
+#include "IPAddrProto.h"
 #include "Iterator.h"
-#include "JSON.h"
+#include "JSONProto.h"
 #include "Object.h"
 #include "SystemTime.h"
-#include "Task.h"
+#include "TaskProto.h"
 #include "TimerProto.h"
-#include "TCP.h"
+#include "TCPProto.h"
 
 namespace m8r {
 
@@ -31,11 +28,9 @@ class Global : public StaticObject {
 public:
     Global();
 
-    static Base64 _base64;
     static GPIO _gpio;
-    static JSON _json;
+    static JSONProto _json;
     static TCPProto _tcp;
-    static UDPProto _udp;
     static IPAddrProto _ipAddr;
     static Iterator _iterator;
     static TaskProto _task;
@@ -64,5 +59,3 @@ private:
 };
     
 }
-
-#endif

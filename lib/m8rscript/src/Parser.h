@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "ExecutionUnit.h"
 #include "Scanner.h"
 #include "SystemInterface.h"
@@ -343,5 +340,3 @@ private:
 };
 
 }
-
-#endif

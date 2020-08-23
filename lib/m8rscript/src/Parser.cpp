@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Parser.h"
 
 #include "ParseEngine.h"
@@ -354,7 +351,7 @@ void Parser::emitId(const Atom& atom, IdType type)
         }
     }
     
-    if (atom == Atom(SA::value)) {
+    if (atom == SAtom(SA::value)) {
         _parseStack.push((type == IdType::NotLocal) ? ParseStack::Type::Constant : ParseStack::Type::RefK, RegOrConst());
         _parseStack.setIsValue(true);
         return;
@@ -394,7 +391,7 @@ void Parser::emitMove()
                 //
                 _parseStack.propRefToReg();
                 _parseStack.swap();
-                emitId(Atom(SA::setValue), IdType::NotLocal);
+                emitId(SAtom(SA::setValue), IdType::NotLocal);
                 _parseStack.swap();
                 emitPush();
                 RegOrConst objReg = emitDeref(DerefType::Prop);
@@ -814,7 +811,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
                 //      dst.setValue(src
                 //
                 propRefToReg();
-                _parser->emitId(Atom(SA::getValue), Parser::IdType::NotLocal);
+                _parser->emitId(SAtom(SA::getValue), Parser::IdType::NotLocal);
                 RegOrConst objectReg = _parser->emitDeref(Parser::DerefType::Prop);
                 _parser->emitCallRet(Op::CALL, objectReg, 0);
                 return _stack.top()._reg;
@@ -830,7 +827,7 @@ Parser::RegOrConst Parser::ParseStack::bake(bool makeClosure)
             RegOrConst r = pushRegister();
             if (entry._isValue) {
                 pushRegister();
-                _parser->emitId(Atom(SA::getValue), Parser::IdType::MightBeLocal);
+                _parser->emitId(SAtom(SA::getValue), Parser::IdType::MightBeLocal);
                 _parser->emitMove();
                 _parser->emitCallRet(Op::CALL, RegOrConst(), 0);
                 _parser->emitMove();
@@ -894,5 +891,3 @@ void Parser::ParseStack::propRefToReg()
     Type type = r.isReg() ? ((r.index() < _parser->_functions.back()._minReg) ? Type::Local : Type::Register) : Type::Register;
     replaceTop(type, r, RegOrConst());
 }
-
-#endif

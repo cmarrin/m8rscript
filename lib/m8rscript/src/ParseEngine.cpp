@@ -7,12 +7,11 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "ParseEngine.h"
 
 using namespace m8r;
+
+static constexpr ParseEngine::Keyword K(Token t) { return ParseEngine::Keyword(t); }
 
 static const char _keywordString[] =
     "\x01" "break"
@@ -33,6 +32,20 @@ static const char _keywordString[] =
     "\x10" "this"
     "\x11" "var"
     "\x12" "while"
+
+    "\x13" "+="
+    "\x14" "-="
+    "\x15" "*="
+    "\x16" "/="
+    "\x17" "%="
+    "\x18" "<<="
+    "\x19" ">>="
+    "\x1a" ">>>="
+    "\x1b" "&="
+    "\x1c" "|="
+    "\x1d" "^="
+    "\x1e" "||"
+    "\x1f" "&&"
 ;
 
 static const char* keywordString(_keywordString);
@@ -60,37 +73,37 @@ ParseEngine::Keyword ParseEngine::tokenToKeyword()
 }
 
 ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {
-    { Token::STO,         1,  OperatorInfo::Assoc::Right, false, Op::MOVE },
-    { Token::ADDSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::ADD  },
-    { Token::SUBSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::SUB  },
-    { Token::MULSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::MUL  },
-    { Token::DIVSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::DIV  },
-    { Token::MODSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::MOD  },
-    { Token::SHLSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::SHL  },
-    { Token::SHRSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::SHR  },
-    { Token::SARSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::SAR  },
-    { Token::ANDSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::AND  },
-    { Token::ORSTO,       1,  OperatorInfo::Assoc::Right, true,  Op::OR   },
-    { Token::XORSTO,      1,  OperatorInfo::Assoc::Right, true,  Op::XOR  },
-    { Token::LOR,         6,  OperatorInfo::Assoc::Left,  false, Op::LOR  },
-    { Token::LAND,        7,  OperatorInfo::Assoc::Left,  false, Op::LAND },
-    { Token::OR,          8,  OperatorInfo::Assoc::Left,  false, Op::OR   },
-    { Token::XOR,         9,  OperatorInfo::Assoc::Left,  false, Op::XOR  },
-    { Token::Ampersand,   10, OperatorInfo::Assoc::Left,  false, Op::OR   },
-    { Token::EQ,          11, OperatorInfo::Assoc::Left,  false, Op::EQ   },
-    { Token::NE,          11, OperatorInfo::Assoc::Left,  false, Op::NE   },
-    { Token::LT,          12, OperatorInfo::Assoc::Left,  false, Op::LT   },
-    { Token::GT,          12, OperatorInfo::Assoc::Left,  false, Op::GT   },
-    { Token::GE,          12, OperatorInfo::Assoc::Left,  false, Op::GE   },
-    { Token::LE,          12, OperatorInfo::Assoc::Left,  false, Op::LE   },
-    { Token::SHL,         13, OperatorInfo::Assoc::Left,  false, Op::SHL  },
-    { Token::SHR,         13, OperatorInfo::Assoc::Left,  false, Op::SHR  },
-    { Token::SAR,         13, OperatorInfo::Assoc::Left,  false, Op::SAR  },
-    { Token::Plus,        14, OperatorInfo::Assoc::Left,  false, Op::ADD  },
-    { Token::Minus,       14, OperatorInfo::Assoc::Left,  false, Op::SUB  },
-    { Token::Star,        15, OperatorInfo::Assoc::Left,  false, Op::MUL  },
-    { Token::Slash,       15, OperatorInfo::Assoc::Left,  false, Op::DIV  },
-    { Token::Percent,     15, OperatorInfo::Assoc::Left,  false, Op::MOD  },
+    { Token::STO,         1, OperatorInfo::Assoc::Right, false, Op::MOVE },
+    { Keyword::ADDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::ADD  },
+    { Keyword::SUBSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SUB  },
+    { Keyword::MULSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MUL  },
+    { Keyword::DIVSTO,    1, OperatorInfo::Assoc::Right, true,  Op::DIV  },
+    { Keyword::MODSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MOD  },
+    { Keyword::SHLSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHL  },
+    { Keyword::SHRSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHR  },
+    { Keyword::SARSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SAR  },
+    { Keyword::ANDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::AND  },
+    { Keyword::ORSTO,     1, OperatorInfo::Assoc::Right, true,  Op::OR   },
+    { Keyword::XORSTO,    1, OperatorInfo::Assoc::Right, true,  Op::XOR  },
+    { Keyword::LOR,       6, OperatorInfo::Assoc::Left,  false, Op::LOR  },
+    { Keyword::LAND,      7, OperatorInfo::Assoc::Left,  false, Op::LAND },
+    { Token::OR,          8, OperatorInfo::Assoc::Left,  false, Op::OR   },
+    { Token::XOR,         9, OperatorInfo::Assoc::Left,  false, Op::XOR  },
+    { Token::Ampersand,  10, OperatorInfo::Assoc::Left,  false, Op::OR   },
+    { Keyword::EQ,       11, OperatorInfo::Assoc::Left,  false, Op::EQ   },
+    { Keyword::NE,       11, OperatorInfo::Assoc::Left,  false, Op::NE   },
+    { Token::LT,         12, OperatorInfo::Assoc::Left,  false, Op::LT   },
+    { Token::GT,         12, OperatorInfo::Assoc::Left,  false, Op::GT   },
+    { Keyword::GE,       12, OperatorInfo::Assoc::Left,  false, Op::GE   },
+    { Keyword::LE,       12, OperatorInfo::Assoc::Left,  false, Op::LE   },
+    { Keyword::SHL,      13, OperatorInfo::Assoc::Left,  false, Op::SHL  },
+    { Keyword::SHR,      13, OperatorInfo::Assoc::Left,  false, Op::SHR  },
+    { Keyword::SAR,      13, OperatorInfo::Assoc::Left,  false, Op::SAR  },
+    { Token::Plus,       14, OperatorInfo::Assoc::Left,  false, Op::ADD  },
+    { Token::Minus,      14, OperatorInfo::Assoc::Left,  false, Op::SUB  },
+    { Token::Star,       15, OperatorInfo::Assoc::Left,  false, Op::MUL  },
+    { Token::Slash,      15, OperatorInfo::Assoc::Left,  false, Op::DIV  },
+    { Token::Percent,    15, OperatorInfo::Assoc::Left,  false, Op::MOD  },
 };
 
 ParseEngine::ParseEngine(Parser* parser)
@@ -442,7 +455,7 @@ bool ParseEngine::classContents()
         if (!f.valid()) {
             return false;
         }
-        _parser->currentClass()->setProperty(Atom(SA::constructor), Value(f));
+        _parser->currentClass()->setProperty(SAtom(SA::constructor), Value(f));
         return true;
     }
     if (keyword == Keyword::Var) {
@@ -566,7 +579,7 @@ void ParseEngine::forIteration(Atom iteratorName)
 
     _parser->emitDup();
     _parser->emitPush();
-    _parser->emitId(Atom(SA::iterator), Parser::IdType::NotLocal);
+    _parser->emitId(SAtom(SA::iterator), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::NEW, Parser::RegOrConst(), 1);
     _parser->emitMove();
@@ -574,7 +587,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     
     Label label = _parser->label();
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(Atom(SA::done), Parser::IdType::NotLocal);
+    _parser->emitId(SAtom(SA::done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
 
@@ -588,7 +601,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     }
 
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
-    _parser->emitId(Atom(SA::next), Parser::IdType::NotLocal);
+    _parser->emitId(SAtom(SA::next), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
     _parser->discardResult();
@@ -826,9 +839,9 @@ bool ParseEngine::postfixExpression()
     while(1) {
         Token token = getToken();
         
-        if (token == Token::INCR || token == Token::DECR) {
+        if (K(token) == Keyword::INCR || K(token) == Keyword::DECR) {
             retireToken();
-            _parser->emitUnOp((token == Token::INCR) ? Op::POSTINC : Op::POSTDEC);
+            _parser->emitUnOp((K(token) == Keyword::INCR) ? Op::POSTINC : Op::POSTDEC);
         } else if (getToken() == Token::LParen) {
             retireToken();
             uint32_t argCount = argumentList();
@@ -863,12 +876,12 @@ bool ParseEngine::unaryExpression()
     }
     
     Op op;
-    switch(getToken()) {
-        case Token::INCR: op = Op::PREINC; break;
-        case Token::DECR: op = Op::PREDEC; break;
-        case Token::Minus: op = Op::UMINUS; break;
-        case Token::Twiddle: op = Op::UNOT; break;
-        case Token::Bang: op = Op::UNEG; break;
+    switch(K(getToken())) {
+        case Keyword::INCR: op = Op::PREINC; break;
+        case Keyword::DECR: op = Op::PREDEC; break;
+        case Keyword::Minus: op = Op::UMINUS; break;
+        case Keyword::Twiddle: op = Op::UNOT; break;
+        case Keyword::Bang: op = Op::UNEG; break;
         default: op = Op::UNKNOWN; break;
     }
     
@@ -974,5 +987,3 @@ bool ParseEngine::commaExpression()
     }
     return true;
 }
-
-#endif

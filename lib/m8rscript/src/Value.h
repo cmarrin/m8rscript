@@ -9,12 +9,10 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Atom.h"
 #include "CallReturnValue.h"
 #include "Error.h"
+#include "GeneratedValues.h"
 #include "Mallocator.h"
 #include "SystemTime.h"
 
@@ -178,6 +176,7 @@ public:
     bool isPointer() const { return isObject() || isNativeObject(); }
 
     bool isType(ExecutionUnit*, Atom);
+    bool isType(ExecutionUnit*, SA);
 
     void gcMark() const;
     
@@ -242,5 +241,3 @@ private:
 };
 
 }
-
-#endif

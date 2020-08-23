@@ -11,6 +11,7 @@
 
 #include "Containers.h"
 #include "Executable.h"
+#include "Object.h"
 #include "MStream.h"
 #include "SystemInterface.h"
 

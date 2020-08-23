@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include <cstdint>
 
 #include "Atom.h"
@@ -71,5 +68,3 @@ private:
 };
     
 }
-
-#endif

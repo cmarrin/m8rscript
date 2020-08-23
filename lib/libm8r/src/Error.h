@@ -55,6 +55,14 @@ public:
         OutOfMemory,
         SyntaxErrors,
         InternalError,
+        Unimplemented,
+        WrongNumberOfParams,
+        PropertyDoesNotExist,
+        InvalidArgumentValue, 
+        MissingThis,
+        CannotCall,
+        CannotConvertStringToNumber,
+        OutOfRange,
      };
     
     Error() { }

@@ -16,7 +16,6 @@
 
 using namespace m8r;
 
-#if M8RSCRIPT_SUPPORT == 1
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;
 
@@ -43,7 +42,7 @@ GPIO::GPIO()
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (!system()->gpio()) {
-        return CallReturnValue(CallReturnValue::Error::Unimplemented);
+        return CallReturnValue(Error::Code::Unimplemented);
     }
     
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
@@ -55,7 +54,7 @@ CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t np
 CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (!system()->gpio()) {
-        return CallReturnValue(CallReturnValue::Error::Unimplemented);
+        return CallReturnValue(Error::Code::Unimplemented);
     }
     
     uint8_t pin = (nparams >= 1) ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
@@ -67,13 +66,13 @@ CallReturnValue GPIO::digitalWrite(ExecutionUnit* eu, Value thisValue, uint32_t 
 CallReturnValue GPIO::digitalRead(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Error::Unimplemented);
+    return CallReturnValue(Error::Code::Unimplemented);
 }
 
 CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     // FIXME: Implement
-    return CallReturnValue(CallReturnValue::Error::Unimplemented);
+    return CallReturnValue(Error::Code::Unimplemented);
 }
 
 static StaticObject::StaticProperty _propsPinMode[] =
@@ -104,4 +103,3 @@ Trigger::Trigger()
 {
     setProperties(_propsTrigger, sizeof(_propsTrigger) / sizeof(StaticProperty));
 }
-#endif

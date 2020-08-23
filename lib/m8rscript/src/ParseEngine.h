@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Atom.h"
 #include "Containers.h"
 #include "Parser.h"
@@ -241,6 +238,79 @@ digit: '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
 
 class ParseEngine  {
 public:
+    enum class Keyword {
+        Unknown     = 0x00,
+        Break       = 0x01,
+        Case        = 0x02,
+        Class       = 0x03,
+        Constructor = 0x04,
+        Continue    = 0x05,
+        Default     = 0x06,
+        Delete      = 0x07,
+        Do          = 0x08,
+        Else        = 0x09,
+        For         = 0x0a,
+        Function    = 0x0b,
+        If          = 0x0c,
+        New         = 0x0d,
+        Return      = 0x0e,
+        Switch      = 0x0f,
+        This        = 0x10,
+        Var         = 0x11,
+        While       = 0x12,
+
+        ADDSTO      = 0x13,
+        SUBSTO      = 0x14,
+        MULSTO      = 0x15,
+        DIVSTO      = 0x16,
+        MODSTO      = 0x17,
+        SHLSTO      = 0x18,
+        SHRSTO      = 0x19,
+        SARSTO      = 0x1a,
+        ANDSTO      = 0x1b,
+        ORSTO       = 0x1c,
+        XORSTO      = 0x1d,
+        LOR         = 0x1e,
+        LAND        = 0x1f,
+        
+        Bang        = '!',
+        Percent     = '%',
+        Ampersand   = '&',
+        LParen      = '(',
+        RParen      = ')',
+        Star        = '*',
+        Plus        = '+',
+        Comma       = ',',
+        Minus       = '-',
+        Period      = '.',
+        Slash       = '/',
+        Colon       = ':',
+        Semicolon   = ';',
+        LT          = '<',
+        STO         = '=',
+        GT          = '>',
+        Question    = '?',
+        LBracket    = '[',
+        RBracket    = ']',
+        XOR         = '^',
+        LBrace      = '{',
+        OR          = '|',
+        RBrace      = '}',
+        Twiddle     = '~',
+        At          = '@',
+        Dollar      = '$',
+
+        EQ          = 0x40,       
+        NE          = 0x41,       
+        GE          = 0x42,       
+        LE          = 0x43,       
+        SHL         = 0x44,       
+        SHR         = 0x45,       
+        SAR         = 0x46,       
+        INCR        = 0x47,       
+        DECR        = 0x48,       
+    };
+
   	ParseEngine(Parser* parser);
   	
   	~ParseEngine()
@@ -257,6 +327,16 @@ private:
         enum class Assoc { Left = 0, Right = 1 };
         
         OperatorInfo() { }
+        OperatorInfo(Keyword keyword, uint8_t prec, Assoc assoc, bool sto, Op op)
+        {
+            OperatorInfo info;
+            info._token = static_cast<uint32_t>(keyword);
+            info._prec = prec;
+            info._op = static_cast<uint32_t>(op);
+            info._assoc = static_cast<uint32_t>(assoc);
+            info._sto = sto;
+            _u = info._u;
+        }
         OperatorInfo(Token token, uint8_t prec, Assoc assoc, bool sto, Op op)
         {
             OperatorInfo info;
@@ -298,28 +378,6 @@ private:
     bool expect(Token token);
     bool expect(Parser::Expect expect, bool expected = false, const char* = nullptr);
     
-    enum class Keyword {
-        Unknown     = 0x00,
-        Break       = 0x01,
-        Case        = 0x02,
-        Class       = 0x03,
-        Constructor = 0x04,
-        Continue    = 0x05,
-        Default     = 0x06,
-        Delete      = 0x07,
-        Do          = 0x08,
-        Else        = 0x09,
-        For         = 0x0a,
-        Function    = 0x0b,
-        If          = 0x0c,
-        New         = 0x0d,
-        Return      = 0x0e,
-        Switch      = 0x0f,
-        This        = 0x10,
-        Var         = 0x11,
-        While       = 0x12,
-    };
-
     Keyword scanKeyword();
     Keyword tokenToKeyword();
 
@@ -382,5 +440,3 @@ private:
 };
 
 }
-
-#endif

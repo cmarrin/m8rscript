@@ -15,7 +15,6 @@
 
 namespace m8r {
 
-#if M8RSCRIPT_SUPPORT == 1
 class PinMode : public StaticObject {
 public:
     PinMode();
@@ -38,6 +37,5 @@ public:
     static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
     static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
-#endif
 
 }

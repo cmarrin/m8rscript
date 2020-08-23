@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Closure.h"
 
 #include "ExecutionUnit.h"
@@ -72,5 +69,3 @@ bool UpValue::closeIfNeeded(ExecutionUnit* eu, uint32_t frame)
     }
     return false;
 }
-
-#endif

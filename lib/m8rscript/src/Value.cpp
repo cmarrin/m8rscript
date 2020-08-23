@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Value.h"
 
 #include "ExecutionUnit.h"
@@ -136,7 +133,7 @@ bool Value::isType(ExecutionUnit* eu, Atom atom)
 
 bool Value::isType(ExecutionUnit* eu, SA sa)
 {
-    return isType(eu, Atom(sa));
+    return isType(eu, SAtom(sa));
 }
 
 const Value Value::property(const Atom& prop) const
@@ -175,7 +172,7 @@ const Value Value::property(const Atom& prop) const
 const Value Value::property(ExecutionUnit* eu, const Atom& prop) const
 {
     if (type() == Type::String || type() == Type::StringLiteral) {
-        if (prop == Atom(SA::length)) {
+        if (prop == SAtom(SA::length)) {
             return Value(static_cast<int32_t>(toStringValue(eu).size()));
         }
     }
@@ -237,7 +234,7 @@ CallReturnValue Value::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams
     }
 
     Mad<Object> obj = asObject();
-    return obj.valid() ? obj->call(eu, thisValue, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
+    return obj.valid() ? obj->call(eu, thisValue, nparams) : CallReturnValue(Error::Code::CannotCall);
 }
 
 CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
@@ -245,22 +242,22 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
     switch(type()) {
         case Type::Object: {
             Mad<Object> obj = asObject();
-            return obj.valid() ? obj->callProperty(eu, prop, nparams) : CallReturnValue(CallReturnValue::Error::CannotCall);
+            return obj.valid() ? obj->callProperty(eu, prop, nparams) : CallReturnValue(Error::Code::CannotCall);
         }
         case Type::Integer:
         case Type::Float: 
             // FIXME: Implement a Number object
-            return CallReturnValue(CallReturnValue::Error::CannotCall);
+            return CallReturnValue(Error::Code::CannotCall);
         case Type::StringLiteral:
         case Type::String: {
             String s = toStringValue(eu);
 
-            if (prop == Atom(SA::trim)) {
+            if (prop == SAtom(SA::trim)) {
                 s = s.trim();
                 eu->stack().push(Value(ExecutionUnit::createString(s)));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            if (prop == Atom(SA::split)) {
+            if (prop == SAtom(SA::split)) {
                 String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String(" ");
                 bool skipEmpty = (nparams > 1) ? eu->stack().top(2 - nparams).toBoolValue(eu) : false;
                 Vector<String> array = s.split(separator, skipEmpty);
@@ -272,13 +269,13 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
                 eu->stack().push(Value(Mad<Object>(static_cast<Mad<Object>>(arrayObject))));
                 return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
             }
-            return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+            return CallReturnValue(Error::Code::PropertyDoesNotExist);
         }
         case Type::StaticObject: {
             StaticObject* obj = asStaticObject();
             NativeFunction func = obj ? obj->property(prop).asNativeFunction() : nullptr;
             if (!func) {
-                return CallReturnValue(CallReturnValue::Error::CannotCall);
+                return CallReturnValue(Error::Code::CannotCall);
             }
             return func(eu, Value(), nparams);
         }
@@ -288,7 +285,7 @@ CallReturnValue Value::callProperty(ExecutionUnit* eu, Atom prop, uint32_t npara
         case Type::Undefined:
         case Type::Null:
         default:
-            return CallReturnValue(CallReturnValue::Error::CannotCall);
+            return CallReturnValue(Error::Code::CannotCall);
     }
 }
 
@@ -305,5 +302,3 @@ void Value::gcMark() const
         obj->gcMark();
     }
 }
-
-#endif

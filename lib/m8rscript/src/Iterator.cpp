@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Iterator.h"
 
 #include "ExecutionUnit.h"
@@ -34,28 +31,28 @@ Iterator::Iterator()
 
 static bool done(ExecutionUnit* eu, Value thisValue, Mad<Object>& obj, int32_t& index)
 {
-    obj = thisValue.property(eu, Atom(SA::__object)).asObject();
-    index = thisValue.property(eu, Atom(SA::__index)).asIntValue();
+    obj = thisValue.property(eu, SAtom(SA::__object)).asObject();
+    index = thisValue.property(eu, SAtom(SA::__index)).asIntValue();
     if (!obj.valid()) {
         return true;
     }
-    int32_t size = obj->property(Atom(SA::length)).asIntValue();
+    int32_t size = obj->property(SAtom(SA::length)).asIntValue();
     return index >= size;
 }
 
 CallReturnValue Iterator::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
     Mad<Object> obj = eu->stack().top(1 - nparams).asObject();
     if (!obj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::InvalidArgumentValue);
+        return CallReturnValue(Error::Code::InvalidArgumentValue);
     }
     
-    thisValue.setProperty(Atom(SA::__object), Value(obj), Value::SetType::AlwaysAdd);
-    thisValue.setProperty(Atom(SA::__index), Value(0), Value::SetType::AlwaysAdd);
+    thisValue.setProperty(SAtom(SA::__object), Value(obj), Value::SetType::AlwaysAdd);
+    thisValue.setProperty(SAtom(SA::__index), Value(0), Value::SetType::AlwaysAdd);
     
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -74,8 +71,8 @@ CallReturnValue Iterator::next(ExecutionUnit* eu, Value thisValue, uint32_t npar
     int32_t index;
     if (!::done(eu, thisValue, obj, index)) {
         ++index;
-        if (!thisValue.setProperty(Atom(SA::__index), Value(index), Value::SetType::NeverAdd)) {
-            return CallReturnValue(CallReturnValue::Error::InternalError);
+        if (!thisValue.setProperty(SAtom(SA::__index), Value(index), Value::SetType::NeverAdd)) {
+            return CallReturnValue(Error::Code::InternalError);
         }
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
@@ -94,7 +91,7 @@ CallReturnValue Iterator::getValue(ExecutionUnit* eu, Value thisValue, uint32_t 
 CallReturnValue Iterator::setValue(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
     Mad<Object> obj;
@@ -104,5 +101,3 @@ CallReturnValue Iterator::setValue(ExecutionUnit* eu, Value thisValue, uint32_t 
     }
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
-
-#endif

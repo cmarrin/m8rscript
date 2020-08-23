@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Global.h"
 
 #include "ExecutionUnit.h"
@@ -21,11 +18,9 @@ using namespace m8r;
 
 Global Global::_global;
 
-Base64 Global::_base64;
 GPIO Global::_gpio;
-JSON Global::_json;
+JSONProto Global::_json;
 TCPProto Global::_tcp;
-UDPProto Global::_udp;
 IPAddrProto Global::_ipAddr;
 Iterator Global::_iterator;
 TaskProto Global::_task;
@@ -52,11 +47,9 @@ static StaticObject::StaticFunctionProperty _functionProps[] =
 
 static StaticObject::StaticObjectProperty _objectProps[] =
 {
-    { SA::Base64, &Global::_base64 },
     { SA::GPIO, &Global::_gpio },
     { SA::JSON, &Global::_json },
     { SA::TCP, &Global::_tcp },
-    { SA::UDP, &Global::_udp },
     { SA::IPAddr, &Global::_ipAddr },
     { SA::Iterator, &Global::_iterator },
     { SA::Task, &Global::_task },
@@ -128,7 +121,7 @@ CallReturnValue Global::toFloat(ExecutionUnit* eu, Value thisValue, uint32_t npa
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
+    return CallReturnValue(Error::Code::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -150,7 +143,7 @@ CallReturnValue Global::toInt(ExecutionUnit* eu, Value thisValue, uint32_t npara
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
+    return CallReturnValue(Error::Code::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -172,14 +165,14 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Error::CannotConvertStringToNumber);
+    return CallReturnValue(Error::Code::CannotConvertStringToNumber);
 }
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<Object> array = ObjectFactory::create(Atom(SA::Array), eu, 0);
+    Mad<Object> array = ObjectFactory::create(SAtom(SA::Array), eu, 0);
     if (!array.valid()) {
-        return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
+        return CallReturnValue(Error::Code::OutOfMemory);
     }
     
     for (int32_t i = 0; i < static_cast<int32_t>(eu->argumentCount()); ++i) {
@@ -256,5 +249,3 @@ CallReturnValue Global::meminfo(ExecutionUnit* eu, Value thisValue, uint32_t npa
     eu->stack().push(Value(obj));
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
 }
-
-#endif

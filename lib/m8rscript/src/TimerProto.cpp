@@ -36,18 +36,18 @@ TimerProto::TimerProto()
 CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams != 1) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
 
     Mad<Object> obj = thisValue.asObject();
     if (!obj.valid()) {
-        return CallReturnValue(CallReturnValue::Error::MissingThis);
+        return CallReturnValue(Error::Code::MissingThis);
     }
     
     Value func = eu->stack().top();
     
     // Store func so it doesn't get gc'ed
-    thisValue.setProperty(Atom(SA::__object), func, Value::SetType::AddIfNeeded);
+    thisValue.setProperty(SAtom(SA::__object), func, Value::SetType::AddIfNeeded);
     
     Timer* timer = new Timer();
     timer->setCallback([eu, func](Timer*)
@@ -57,20 +57,20 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
         }
     });
 
-    thisValue.setProperty(Atom(SA::__timer), Value(timer), Value::SetType::AddIfNeeded);
+    thisValue.setProperty(SAtom(SA::__timer), Value(timer), Value::SetType::AddIfNeeded);
     
     // Add a destructor for the timer
     Value dtor([](ExecutionUnit*, Value thisValue, uint32_t nparams)
     {
-        Timer* timer = reinterpret_cast<Timer*>(thisValue.property(Atom(SA::__timer)).asRawPointer());
+        Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
         if (timer) {
             delete timer;
-            thisValue.setProperty(Atom(SA::__timer), Value(), Value::SetType::AddIfNeeded);
+            thisValue.setProperty(SAtom(SA::__timer), Value(), Value::SetType::AddIfNeeded);
         }
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     });
     
-    thisValue.setProperty(Atom(SA::__destructor), dtor, Value::SetType::AddIfNeeded);
+    thisValue.setProperty(SAtom(SA::__destructor), dtor, Value::SetType::AddIfNeeded);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -78,7 +78,7 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
 CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams < 1 || nparams > 2) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
 
     Duration duration(eu->stack().top(1 - nparams).toFloatValue(eu));
@@ -89,10 +89,10 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
         repeating = eu->stack().top().toBoolValue(eu);
     }
     
-    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(Atom(SA::__timer)).asRawPointer());
+    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
 
     if (!timer) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
+        return CallReturnValue(Error::Code::InternalError);
     }
 
     timer->start(duration, repeating ? Timer::Behavior::Repeating : Timer::Behavior::Once);
@@ -103,13 +103,13 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
 CallReturnValue TimerProto::stop(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
     if (nparams != 0) {
-        return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+        return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
-    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(Atom(SA::__timer)).asRawPointer());
+    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
 
     if (!timer) {
-        return CallReturnValue(CallReturnValue::Error::InternalError);
+        return CallReturnValue(Error::Code::InternalError);
     }
 
     timer->stop();

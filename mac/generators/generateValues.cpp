@@ -20,36 +20,6 @@
 
 // read Shared.txt and use it to generate GeneratedValues.cpp/GeneratedValues.h
 
-// Add string with tokens and special char sequences
-struct SpecialEntry
-{
-    m8r::Token token;
-    const char* str;
-};
-
-static SpecialEntry entries[ ] = {
-    { m8r::Token::NE,           "!=" },
-    { m8r::Token::MODSTO,       "%=" },
-    { m8r::Token::LAND,         "&&" },
-    { m8r::Token::ANDSTO,       "&=" },
-    { m8r::Token::MULSTO,       "*=" },
-    { m8r::Token::INCR,         "++" },
-    { m8r::Token::ADDSTO,       "+=" },
-    { m8r::Token::DECR,         "--" },
-    { m8r::Token::SUBSTO,       "-=" },
-    { m8r::Token::DIVSTO,       "/=" },
-    { m8r::Token::EQ,           "==" },
-    { m8r::Token::XORSTO,       "^=" },
-    { m8r::Token::LOR,          "||" },
-    { m8r::Token::ORSTO,        "|=" },
-    { m8r::Token::LE,           "<=" },
-    { m8r::Token::GE,           ">=" },
-    { m8r::Token::SHL,          "<<" },
-    { m8r::Token::SHR,          ">>" },
-};
-
-
-
 static std::string strip(const char* in)
 {
     std::string out;
@@ -175,15 +145,6 @@ int main(int argc, const char* argv[])
     }
     fprintf(cppfile, "};\n\n");
     
-    // Write the special char string
-    fprintf(cppfile, "const char* _specialChars = \"\"\n");
-    
-    for (auto it : entries) {
-        fprintf(cppfile, "    \"\\x%02x%s\"\n", int(it.token), it.str);
-    }
-    
-    fprintf(cppfile, ";\n\n");
-
     // Write the postambles
     fprintf(hfile, "};\n\nnamespace m8r {\n");
     fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
@@ -199,12 +160,6 @@ int main(int argc, const char* argv[])
     fprintf(cppfile, "}\n");
     fprintf(cppfile, "\n");
 
-    fprintf(cppfile, "const char* m8r::specialChars()\n");
-    fprintf(cppfile, "{\n");
-    fprintf(cppfile, "    return _specialChars;\n");
-    fprintf(cppfile, "}\n");
-    fprintf(cppfile, "\n");
-    
     fclose(afile);
     fclose(hfile);
     fclose(cppfile);

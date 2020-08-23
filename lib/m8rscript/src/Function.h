@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Atom.h"
 #include "Containers.h"
 #include "MachineCode.h"
@@ -118,5 +115,3 @@ private:
 };
 
 }
-
-#endif

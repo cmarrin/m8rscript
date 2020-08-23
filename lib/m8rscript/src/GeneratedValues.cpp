@@ -48,77 +48,45 @@ static const char ___index[] = "__index";
 static const char ___nativeObject[] = "__nativeObject";
 static const char ___object[] = "__object";
 static const char ___timer[] = "__timer";
-static const char _and$[] = "and";
 static const char _arguments[] = "arguments";
-static const char _at[] = "at";
-static const char _atput[] = "atput";
 static const char _back[] = "back";
-static const char _band[] = "band";
-static const char _bnot[] = "bnot";
-static const char _bor[] = "bor";
-static const char _bxor[] = "bxor";
 static const char _call[] = "call";
-static const char _cat[] = "cat";
 static const char _close[] = "close";
 static const char _consoleListener[] = "consoleListener";
 static const char _constructor[] = "constructor";
 static const char _currentTime[] = "currentTime";
-static const char _dec[] = "dec";
 static const char _decode[] = "decode";
 static const char _delay[] = "delay";
 static const char _digitalRead[] = "digitalRead";
 static const char _digitalWrite[] = "digitalWrite";
 static const char _disconnect[] = "disconnect";
 static const char _done[] = "done";
-static const char _dup[] = "dup";
 static const char _encode[] = "encode";
 static const char _env[] = "env";
 static const char _eof[] = "eof";
-static const char _eq[] = "eq";
 static const char _error[] = "error";
 static const char _errorString[] = "errorString";
-static const char _exec[] = "exec";
-static const char _filter[] = "filter";
-static const char _fold[] = "fold";
-static const char _for$[] = "for";
 static const char _format[] = "format";
 static const char _front[] = "front";
-static const char _ge[] = "ge";
 static const char _getValue[] = "getValue";
-static const char _gt[] = "gt";
-static const char _if$[] = "if";
-static const char _ifte[] = "ifte";
 static const char _import[] = "import";
 static const char _importString[] = "importString";
-static const char _inc[] = "inc";
-static const char _insert[] = "insert";
 static const char _iterator[] = "iterator";
 static const char _join[] = "join";
 static const char _lastError[] = "lastError";
-static const char _le[] = "le";
 static const char _length[] = "length";
 static const char _lookupHostname[] = "lookupHostname";
-static const char _lt[] = "lt";
 static const char _makeDirectory[] = "makeDirectory";
-static const char _map[] = "map";
 static const char _meminfo[] = "meminfo";
 static const char _mount[] = "mount";
 static const char _mounted[] = "mounted";
 static const char _name[] = "name";
-static const char _ne[] = "ne";
-static const char _neg[] = "neg";
-static const char _new$[] = "new";
 static const char _next[] = "next";
-static const char _not$[] = "not";
 static const char _null[] = "null";
 static const char _onInterrupt[] = "onInterrupt";
 static const char _open[] = "open";
 static const char _openDirectory[] = "openDirectory";
-static const char _or$[] = "or";
-static const char _pack[] = "pack";
 static const char _parse[] = "parse";
-static const char _pick[] = "pick";
-static const char _pop[] = "pop";
 static const char _pop_back[] = "pop_back";
 static const char _pop_front[] = "pop_front";
 static const char _print[] = "print";
@@ -140,21 +108,17 @@ static const char _start[] = "start";
 static const char _stat[] = "stat";
 static const char _stop[] = "stop";
 static const char _stringify[] = "stringify";
-static const char _swap[] = "swap";
 static const char _toFloat[] = "toFloat";
 static const char _toInt[] = "toInt";
 static const char _toString[] = "toString";
 static const char _toUInt[] = "toUInt";
 static const char _trim[] = "trim";
-static const char _tuck[] = "tuck";
 static const char _type[] = "type";
 static const char _undefined[] = "undefined";
 static const char _unmount[] = "unmount";
-static const char _unpack[] = "unpack";
 static const char _valid[] = "valid";
 static const char _value[] = "value";
 static const char _waitForEvent[] = "waitForEvent";
-static const char _while$[] = "while";
 static const char _write[] = "write";
 
 const char* _sharedAtoms[] = {
@@ -202,77 +166,45 @@ const char* _sharedAtoms[] = {
     ___nativeObject,
     ___object,
     ___timer,
-    _and$,
     _arguments,
-    _at,
-    _atput,
     _back,
-    _band,
-    _bnot,
-    _bor,
-    _bxor,
     _call,
-    _cat,
     _close,
     _consoleListener,
     _constructor,
     _currentTime,
-    _dec,
     _decode,
     _delay,
     _digitalRead,
     _digitalWrite,
     _disconnect,
     _done,
-    _dup,
     _encode,
     _env,
     _eof,
-    _eq,
     _error,
     _errorString,
-    _exec,
-    _filter,
-    _fold,
-    _for$,
     _format,
     _front,
-    _ge,
     _getValue,
-    _gt,
-    _if$,
-    _ifte,
     _import,
     _importString,
-    _inc,
-    _insert,
     _iterator,
     _join,
     _lastError,
-    _le,
     _length,
     _lookupHostname,
-    _lt,
     _makeDirectory,
-    _map,
     _meminfo,
     _mount,
     _mounted,
     _name,
-    _ne,
-    _neg,
-    _new$,
     _next,
-    _not$,
     _null,
     _onInterrupt,
     _open,
     _openDirectory,
-    _or$,
-    _pack,
     _parse,
-    _pick,
-    _pop,
     _pop_back,
     _pop_front,
     _print,
@@ -294,55 +226,23 @@ const char* _sharedAtoms[] = {
     _stat,
     _stop,
     _stringify,
-    _swap,
     _toFloat,
     _toInt,
     _toString,
     _toUInt,
     _trim,
-    _tuck,
     _type,
     _undefined,
     _unmount,
-    _unpack,
     _valid,
     _value,
     _waitForEvent,
-    _while$,
     _write,
 };
-
-const char* _specialChars = ""
-#if M8RSCRIPT_SUPPORT == 1
-    "\xc6!="
-    "\xb8%="
-    "\xc1&&"
-    "\xb9&="
-    "\xb6*="
-    "\xbf++"
-    "\xb4+="
-    "\xc0--"
-    "\xb5-="
-    "\xb7/="
-    "\xc5=="
-    "\xba^="
-    "\xc2||"
-    "\xbb|="
-    "\xc3<="
-    "\xc4>="
-    "\xbe<<"
-    "\xbc>>"
-#endif
-;
 
 const char** m8r::sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;
-}
-
-const char* m8r::specialChars()
-{
-    return _specialChars;
 }
 

@@ -9,29 +9,13 @@
 
 #pragma once
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Object.h"
 
 namespace m8r {
 
-class Scanner;
-
 class JSON : public StaticObject {
 public:
     JSON();
-    
-    static Value parse(ExecutionUnit* eu, const String& json);
-    static String stringify(ExecutionUnit* eu, const Value);
-
-    static Value value(ExecutionUnit* eu, Scanner& scanner);
-    static bool propertyAssignment(ExecutionUnit* eu, Scanner&, Value& key, Value& value);
-
-    static CallReturnValue parseFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue stringifyFunc(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }
-
-#endif

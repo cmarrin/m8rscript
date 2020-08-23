@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Program.h"
 
 #include "ExecutionUnit.h"
@@ -19,11 +16,9 @@ using namespace m8r;
 Program::Program()
 {
     // Set a dummy 'consoleListener' property so it can be overwritten
-    setProperty(Atom(SA::consoleListener), Value::NullValue());
+    setProperty(SAtom(SA::consoleListener), Value::NullValue());
 }
 
 Program::~Program()
 {
 }
-
-#endif

@@ -7,6 +7,19 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "JSON.h"
+#pragma once
 
-using namespace m8r;
+#include "Object.h"
+
+namespace m8r {
+
+class IPAddrProto : public StaticObject {
+public:
+    IPAddrProto();
+
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};
+
+}

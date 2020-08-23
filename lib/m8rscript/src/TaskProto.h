@@ -7,6 +7,18 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "JSON.h"
+#pragma once
 
-using namespace m8r;
+#include "Object.h"
+
+namespace m8r {
+
+class TaskProto : public StaticObject {
+public:
+    TaskProto();
+
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue run(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};
+
+}

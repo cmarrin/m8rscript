@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Function.h"
 
 #include "ExecutionUnit.h"
@@ -43,9 +40,9 @@ bool Function::builtinConstant(uint8_t reg, Value& value)
 
 CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == Atom(SA::call)) {
+    if (prop == SAtom(SA::call)) {
         if (nparams < 1) {
-            return CallReturnValue(CallReturnValue::Error::WrongNumberOfParams);
+            return CallReturnValue(Error::Code::WrongNumberOfParams);
         }
         
         // Remove the first element and use it as the this pointer
@@ -55,7 +52,7 @@ CallReturnValue Function::callProperty(ExecutionUnit* eu, Atom prop, uint32_t np
     
         return call(eu, self, nparams);
     }
-    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+    return CallReturnValue(Error::Code::PropertyDoesNotExist);
 }
 
 CallReturnValue Function::call(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -85,5 +82,3 @@ bool Function::loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) cons
     value = eu->stack().at(eu->upValueStackIndex(_upValues[index]._index, _upValues[index]._frame));
     return true;
 }
-
-#endif

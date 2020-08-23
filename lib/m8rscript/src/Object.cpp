@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "Object.h"
 
 #include "ExecutionUnit.h"
@@ -52,7 +49,7 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
     Value objectValue(obj);
     obj->setProto(proto);
     
-    Value ctor = proto.property(eu, Atom(SA::constructor));
+    Value ctor = proto.property(eu, SAtom(SA::constructor));
     if (ctor) {
         CallReturnValue retval = ctor.call(eu, objectValue, nparams);
         // ctor should not return anything
@@ -67,8 +64,8 @@ CallReturnValue Object::construct(const Value& proto, ExecutionUnit* eu, uint32_
 
 Value Object::value(ExecutionUnit* eu) const
 {
-    Value propValue = property(Atom(SA::getValue));
-    CallReturnValue retval(CallReturnValue::Error::PropertyDoesNotExist);
+    Value propValue = property(SAtom(SA::getValue));
+    CallReturnValue retval(Error::Code::PropertyDoesNotExist);
     
     if (propValue.isObject()) {
         retval = propValue.asObject()->call(eu, Value(Mad<Object>(this)), 0);
@@ -96,8 +93,8 @@ m8r::String Object::toString(ExecutionUnit* eu, bool typeOnly) const
         return v.toStringValue(eu);
     }
     
-    Value propValue = property(Atom(SA::toString));
-    CallReturnValue retval(CallReturnValue::Error::PropertyDoesNotExist);
+    Value propValue = property(SAtom(SA::toString));
+    CallReturnValue retval(Error::Code::PropertyDoesNotExist);
     
     if (propValue.isObject()) {
         retval = propValue.asObject()->call(eu, Value(Mad<Object>(this)), 0);
@@ -119,7 +116,7 @@ m8r::String Object::toString(ExecutionUnit* eu, bool typeOnly) const
 MaterObject::~MaterObject()
 {
     // Call destructor, if any
-    Value dtor = property(Atom(SA::__destructor));
+    Value dtor = property(SAtom(SA::__destructor));
     if (dtor.isNativeFunction()) {
         dtor.asNativeFunction()(nullptr, Value(Mad<Object>(this)), 0);
     }
@@ -265,7 +262,7 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 {
     Value callee = property(prop);
     if (!callee) {
-        return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+        return CallReturnValue(Error::Code::PropertyDoesNotExist);
     }
     
     return callee.call(eu, Value(Mad<Object>(this)), nparams);
@@ -273,21 +270,21 @@ CallReturnValue MaterObject::callProperty(ExecutionUnit* eu, Atom prop, uint32_t
 
 CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams)
 {
-    if (prop == Atom(SA::pop_back)) {
+    if (prop == SAtom(SA::pop_back)) {
         if (!_array.empty()) {
             _array.pop_back();
         }
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
 
-    if (prop == Atom(SA::pop_front)) {
+    if (prop == SAtom(SA::pop_front)) {
         if (!_array.empty()) {
             _array.erase(_array.begin());
         }
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
 
-    if (prop == Atom(SA::push_back)) {
+    if (prop == SAtom(SA::push_back)) {
         // Push all the params
         for (int32_t i = 1 - nparams; i <= 0; ++i) {
             const Value& value = eu->stack().top(i);
@@ -299,7 +296,7 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
     
-    if (prop == Atom(SA::push_front)) {
+    if (prop == SAtom(SA::push_front)) {
         // Push all the params, efficiently
         if (nparams == 1) {
             const Value& value = eu->stack().top();
@@ -320,7 +317,7 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     }
 
-    if (prop == Atom(SA::join)) {
+    if (prop == SAtom(SA::join)) {
         String separator = (nparams > 0) ? eu->stack().top(1 - nparams).toStringValue(eu) : String("");
         String s;
         bool first = true;
@@ -337,7 +334,7 @@ CallReturnValue MaterArray::callProperty(ExecutionUnit* eu, Atom prop, uint32_t 
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 1);
     }
     
-    return CallReturnValue(CallReturnValue::Error::PropertyDoesNotExist);
+    return CallReturnValue(Error::Code::PropertyDoesNotExist);
 }
 
 const Value MaterObject::property(const Atom& prop) const
@@ -348,15 +345,15 @@ const Value MaterObject::property(const Atom& prop) const
 
 const Value MaterArray::property(const Atom& prop) const
 {
-    if (prop == Atom(SA::length)) {
+    if (prop == SAtom(SA::length)) {
         return Value(static_cast<int32_t>(_array.size()));
     }
     
-    if (prop == Atom(SA::front)) {
+    if (prop == SAtom(SA::front)) {
         return _array.empty() ? Value() : _array[0];
     }
     
-    if (prop == Atom(SA::back)) {
+    if (prop == SAtom(SA::back)) {
         return _array.empty() ? Value() : _array[_array.size() - 1];
     }
     
@@ -388,7 +385,7 @@ bool MaterObject::setProperty(const Atom& prop, const Value& v, Value::SetType t
 
 bool MaterArray::setProperty(const Atom& prop, const Value& v, Value::SetType type)
 {
-    if (prop == Atom(SA::length)) {
+    if (prop == SAtom(SA::length)) {
         _array.resize(v.asIntValue());
         return true;
     }
@@ -400,7 +397,7 @@ ObjectFactory::ObjectFactory(SA sa, ObjectFactory* parent, NativeFunction constr
 {
     _obj = Object::create<MaterObject>();
     
-    Atom name = Atom(sa);
+    Atom name = SAtom(sa);
     if (name) {
         _obj->setTypeName(name);
         
@@ -433,17 +430,17 @@ void ObjectFactory::addProperty(Atom prop, const Value& value)
 
 void ObjectFactory::addProperty(SA sa, Mad<Object> obj)
 {
-    addProperty(Atom(sa), obj);
+    addProperty(SAtom(sa), obj);
 }
 
 void ObjectFactory::addProperty(SA sa, const Value& value)
 {
-    addProperty(Atom(sa), value);
+    addProperty(SAtom(sa), value);
 }
 
 void ObjectFactory::addProperty(SA sa, NativeFunction f)
 {
-    addProperty(Atom(sa), Value(f));    
+    addProperty(SAtom(sa), Value(f));    
 }
 
 Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t nparams)
@@ -459,5 +456,3 @@ Mad<Object> ObjectFactory::create(Atom objectName, ExecutionUnit* eu, uint32_t n
         return Mad<Object>();
     }
 }
-
-#endif

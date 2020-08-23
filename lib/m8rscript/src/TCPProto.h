@@ -7,6 +7,19 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "JSON.h"
+#pragma once
 
-using namespace m8r;
+#include "Object.h"
+
+namespace m8r {
+
+class TCPProto : public StaticObject {
+public:
+    TCPProto();
+
+    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
+};
+
+}

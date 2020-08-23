@@ -48,13 +48,36 @@
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		492C7DB724EECF880027B75E /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492C7DB324EECF7B0027B75E /* GeneratedValues.cpp */; };
 		492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libmarly.a */; };
-		492C7DBE24EF51420027B75E /* MarlyValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 492C7DBC24EF51420027B75E /* MarlyValue.h */; };
 		493C9ED71D218F100062152D /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED41D218F100062152D /* stop.png */; };
 		493C9ED81D218F100062152D /* pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED51D218F100062152D /* pause.png */; };
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
 		493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
 		493E4F3524F2EC3100D64430 /* MarlyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F3424F2EC3100D64430 /* MarlyValue.cpp */; };
+		493E4F4924F31A6700D64430 /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
+		493E4F4F24F31C4B00D64430 /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F4B24F31C4400D64430 /* GeneratedValues.cpp */; };
+		493E4F6F24F31D0600D64430 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6124F31D0500D64430 /* Parser.cpp */; };
+		493E4F7024F31D0600D64430 /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6224F31D0500D64430 /* Closure.cpp */; };
+		493E4F7124F31D0600D64430 /* TimerProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6324F31D0500D64430 /* TimerProto.cpp */; };
+		493E4F7224F31D0600D64430 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6424F31D0500D64430 /* Value.cpp */; };
+		493E4F7324F31D0600D64430 /* StreamProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6524F31D0500D64430 /* StreamProto.cpp */; };
+		493E4F7424F31D0600D64430 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6624F31D0500D64430 /* Object.cpp */; };
+		493E4F7524F31D0600D64430 /* CodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6724F31D0500D64430 /* CodePrinter.cpp */; };
+		493E4F7624F31D0600D64430 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6824F31D0500D64430 /* Global.cpp */; };
+		493E4F7724F31D0600D64430 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6924F31D0500D64430 /* ExecutionUnit.cpp */; };
+		493E4F7824F31D0600D64430 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6A24F31D0500D64430 /* Program.cpp */; };
+		493E4F7924F31D0600D64430 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6B24F31D0500D64430 /* Function.cpp */; };
+		493E4F7A24F31D0600D64430 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6C24F31D0600D64430 /* Iterator.cpp */; };
+		493E4F7B24F31D0600D64430 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6D24F31D0600D64430 /* GPIO.cpp */; };
+		493E4F7C24F31D0600D64430 /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6E24F31D0600D64430 /* ParseEngine.cpp */; };
+		493E4F7F24F31EFE00D64430 /* JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F7D24F31EFE00D64430 /* JSON.cpp */; };
+		493E4F8324F31FF200D64430 /* JSONProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8124F31FF200D64430 /* JSONProto.cpp */; };
+		493E4F8424F31FF200D64430 /* JSONProto.h in Headers */ = {isa = PBXBuildFile; fileRef = 493E4F8224F31FF200D64430 /* JSONProto.h */; };
+		493E4F8724F320BE00D64430 /* TCPProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8524F320BE00D64430 /* TCPProto.cpp */; };
+		493E4F8F24F32AF700D64430 /* FSProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8924F32AF600D64430 /* FSProto.cpp */; };
+		493E4F9124F32AF700D64430 /* TaskProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8B24F32AF700D64430 /* TaskProto.cpp */; };
+		493E4F9424F32AF700D64430 /* IPAddrProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8E24F32AF700D64430 /* IPAddrProto.cpp */; };
+		493E4F9824F32D1E00D64430 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F9624F32D1E00D64430 /* GC.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
 		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
 		4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -168,6 +191,20 @@
 			remoteGlobalIDString = 49C406E11EB6598B001E4DEC;
 			remoteInfo = generateMarlyValues;
 		};
+		493E4F5024F31C6800D64430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 493E4F3924F31A2700D64430;
+			remoteInfo = generateM8rscriptValues;
+		};
+		493E4F9924F339BC00D64430 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 493E4F4424F31A4100D64430;
+			remoteInfo = m8rscript;
+		};
 		4945A8761EC3712700559CD1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -196,6 +233,15 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		492C7DA724EECBA10027B75E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		493E4F3824F31A2700D64430 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -338,6 +384,53 @@
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
 		493E015E24E9DCBD00EF89B3 /* cpptime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpptime.h; sourceTree = "<group>"; };
 		493E4F3424F2EC3100D64430 /* MarlyValue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MarlyValue.cpp; path = ../lib/marly/src/MarlyValue.cpp; sourceTree = "<group>"; };
+		493E4F3A24F31A2700D64430 /* generateM8rscriptValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateM8rscriptValues; sourceTree = BUILT_PRODUCTS_DIR; };
+		493E4F4524F31A4100D64430 /* libm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		493E4F4B24F31C4400D64430 /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../lib/m8rscript/src/GeneratedValues.cpp; sourceTree = "<group>"; };
+		493E4F4C24F31C4400D64430 /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../lib/m8rscript/src/GeneratedValues.h; sourceTree = "<group>"; };
+		493E4F5224F31CDF00D64430 /* Global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../lib/m8rscript/src/Global.h; sourceTree = "<group>"; };
+		493E4F5324F31CDF00D64430 /* Iterator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Iterator.h; path = ../lib/m8rscript/src/Iterator.h; sourceTree = "<group>"; };
+		493E4F5424F31CDF00D64430 /* ExecutionUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../lib/m8rscript/src/ExecutionUnit.h; sourceTree = "<group>"; };
+		493E4F5524F31CDF00D64430 /* CodePrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../lib/m8rscript/src/CodePrinter.h; sourceTree = "<group>"; };
+		493E4F5624F31CE000D64430 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../lib/m8rscript/src/Object.h; sourceTree = "<group>"; };
+		493E4F5724F31CE000D64430 /* GPIO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../lib/m8rscript/src/GPIO.h; sourceTree = "<group>"; };
+		493E4F5824F31CE000D64430 /* StreamProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StreamProto.h; path = ../lib/m8rscript/src/StreamProto.h; sourceTree = "<group>"; };
+		493E4F5924F31CE000D64430 /* Value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../lib/m8rscript/src/Value.h; sourceTree = "<group>"; };
+		493E4F5A24F31CE000D64430 /* ParseEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../lib/m8rscript/src/ParseEngine.h; sourceTree = "<group>"; };
+		493E4F5B24F31CE000D64430 /* Function.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../lib/m8rscript/src/Function.h; sourceTree = "<group>"; };
+		493E4F5C24F31CE000D64430 /* Closure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../lib/m8rscript/src/Closure.h; sourceTree = "<group>"; };
+		493E4F5D24F31CE000D64430 /* Program.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../lib/m8rscript/src/Program.h; sourceTree = "<group>"; };
+		493E4F5E24F31CE000D64430 /* Parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../lib/m8rscript/src/Parser.h; sourceTree = "<group>"; };
+		493E4F5F24F31CE000D64430 /* MachineCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../lib/m8rscript/src/MachineCode.h; sourceTree = "<group>"; };
+		493E4F6024F31CE000D64430 /* TimerProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimerProto.h; path = ../lib/m8rscript/src/TimerProto.h; sourceTree = "<group>"; };
+		493E4F6124F31D0500D64430 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../lib/m8rscript/src/Parser.cpp; sourceTree = "<group>"; };
+		493E4F6224F31D0500D64430 /* Closure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Closure.cpp; path = ../lib/m8rscript/src/Closure.cpp; sourceTree = "<group>"; };
+		493E4F6324F31D0500D64430 /* TimerProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimerProto.cpp; path = ../lib/m8rscript/src/TimerProto.cpp; sourceTree = "<group>"; };
+		493E4F6424F31D0500D64430 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../lib/m8rscript/src/Value.cpp; sourceTree = "<group>"; };
+		493E4F6524F31D0500D64430 /* StreamProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StreamProto.cpp; path = ../lib/m8rscript/src/StreamProto.cpp; sourceTree = "<group>"; };
+		493E4F6624F31D0500D64430 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../lib/m8rscript/src/Object.cpp; sourceTree = "<group>"; };
+		493E4F6724F31D0500D64430 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../lib/m8rscript/src/CodePrinter.cpp; sourceTree = "<group>"; };
+		493E4F6824F31D0500D64430 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../lib/m8rscript/src/Global.cpp; sourceTree = "<group>"; };
+		493E4F6924F31D0500D64430 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../lib/m8rscript/src/ExecutionUnit.cpp; sourceTree = "<group>"; };
+		493E4F6A24F31D0500D64430 /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../lib/m8rscript/src/Program.cpp; sourceTree = "<group>"; };
+		493E4F6B24F31D0500D64430 /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../lib/m8rscript/src/Function.cpp; sourceTree = "<group>"; };
+		493E4F6C24F31D0600D64430 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../lib/m8rscript/src/Iterator.cpp; sourceTree = "<group>"; };
+		493E4F6D24F31D0600D64430 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../lib/m8rscript/src/GPIO.cpp; sourceTree = "<group>"; };
+		493E4F6E24F31D0600D64430 /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../lib/m8rscript/src/ParseEngine.cpp; sourceTree = "<group>"; };
+		493E4F7D24F31EFE00D64430 /* JSON.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSON.cpp; path = ../lib/libm8r/src/JSON.cpp; sourceTree = "<group>"; };
+		493E4F7E24F31EFE00D64430 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSON.h; path = ../lib/libm8r/src/JSON.h; sourceTree = "<group>"; };
+		493E4F8124F31FF200D64430 /* JSONProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = JSONProto.cpp; path = ../lib/m8rscript/src/JSONProto.cpp; sourceTree = "<group>"; };
+		493E4F8224F31FF200D64430 /* JSONProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JSONProto.h; path = ../lib/m8rscript/src/JSONProto.h; sourceTree = "<group>"; };
+		493E4F8524F320BE00D64430 /* TCPProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TCPProto.cpp; path = ../lib/m8rscript/src/TCPProto.cpp; sourceTree = "<group>"; };
+		493E4F8624F320BE00D64430 /* TCPProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TCPProto.h; path = ../lib/m8rscript/src/TCPProto.h; sourceTree = "<group>"; };
+		493E4F8924F32AF600D64430 /* FSProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FSProto.cpp; path = ../lib/m8rscript/src/FSProto.cpp; sourceTree = "<group>"; };
+		493E4F8A24F32AF600D64430 /* IPAddrProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPAddrProto.h; path = ../lib/m8rscript/src/IPAddrProto.h; sourceTree = "<group>"; };
+		493E4F8B24F32AF700D64430 /* TaskProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskProto.cpp; path = ../lib/m8rscript/src/TaskProto.cpp; sourceTree = "<group>"; };
+		493E4F8C24F32AF700D64430 /* TaskProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskProto.h; path = ../lib/m8rscript/src/TaskProto.h; sourceTree = "<group>"; };
+		493E4F8D24F32AF700D64430 /* FSProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSProto.h; path = ../lib/m8rscript/src/FSProto.h; sourceTree = "<group>"; };
+		493E4F8E24F32AF700D64430 /* IPAddrProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddrProto.cpp; path = ../lib/m8rscript/src/IPAddrProto.cpp; sourceTree = "<group>"; };
+		493E4F9524F32D1E00D64430 /* GC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
+		493E4F9624F32D1E00D64430 /* GC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
 		4940FD79249AD3F000B47B84 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../web/index.html; sourceTree = "<group>"; };
 		4943BF521DC009CC00773D23 /* savebinary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = savebinary.png; sourceTree = "<group>"; };
 		4945A86F1EC3711D00559CD1 /* m8rmac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rmac; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -495,6 +588,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		493E4F3724F31A2700D64430 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493E4F4324F31A4100D64430 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4945A86C1EC3711D00559CD1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -565,6 +672,8 @@
 				491B930724ECADA70078A2B9 /* HTTPServer.h */,
 				491B92E724ECADA50078A2B9 /* IPAddr.cpp */,
 				491B92E524ECADA40078A2B9 /* IPAddr.h */,
+				493E4F7D24F31EFE00D64430 /* JSON.cpp */,
+				493E4F7E24F31EFE00D64430 /* JSON.h */,
 				491B92EB24ECADA50078A2B9 /* Mallocator.cpp */,
 				491B92F124ECADA50078A2B9 /* Mallocator.h */,
 				491B92EC24ECADA50078A2B9 /* MFS.cpp */,
@@ -660,7 +769,50 @@
 		492C7D9524EDF8B20027B75E /* m8rscript */ = {
 			isa = PBXGroup;
 			children = (
+				493E4F6224F31D0500D64430 /* Closure.cpp */,
+				493E4F5C24F31CE000D64430 /* Closure.h */,
+				493E4F6724F31D0500D64430 /* CodePrinter.cpp */,
+				493E4F5524F31CDF00D64430 /* CodePrinter.h */,
+				493E4F6924F31D0500D64430 /* ExecutionUnit.cpp */,
+				493E4F5424F31CDF00D64430 /* ExecutionUnit.h */,
+				493E4F8924F32AF600D64430 /* FSProto.cpp */,
+				493E4F8D24F32AF700D64430 /* FSProto.h */,
+				493E4F6B24F31D0500D64430 /* Function.cpp */,
+				493E4F5B24F31CE000D64430 /* Function.h */,
+				493E4F9624F32D1E00D64430 /* GC.cpp */,
+				493E4F9524F32D1E00D64430 /* GC.h */,
+				493E4F4B24F31C4400D64430 /* GeneratedValues.cpp */,
+				493E4F4C24F31C4400D64430 /* GeneratedValues.h */,
+				493E4F6824F31D0500D64430 /* Global.cpp */,
+				493E4F5224F31CDF00D64430 /* Global.h */,
+				493E4F6D24F31D0600D64430 /* GPIO.cpp */,
+				493E4F5724F31CE000D64430 /* GPIO.h */,
+				493E4F8E24F32AF700D64430 /* IPAddrProto.cpp */,
+				493E4F8A24F32AF600D64430 /* IPAddrProto.h */,
+				493E4F6C24F31D0600D64430 /* Iterator.cpp */,
+				493E4F5324F31CDF00D64430 /* Iterator.h */,
+				493E4F8124F31FF200D64430 /* JSONProto.cpp */,
+				493E4F8224F31FF200D64430 /* JSONProto.h */,
+				493E4F5F24F31CE000D64430 /* MachineCode.h */,
+				493E4F6624F31D0500D64430 /* Object.cpp */,
+				493E4F5624F31CE000D64430 /* Object.h */,
+				493E4F6E24F31D0600D64430 /* ParseEngine.cpp */,
+				493E4F5A24F31CE000D64430 /* ParseEngine.h */,
+				493E4F6124F31D0500D64430 /* Parser.cpp */,
+				493E4F5E24F31CE000D64430 /* Parser.h */,
+				493E4F6A24F31D0500D64430 /* Program.cpp */,
+				493E4F5D24F31CE000D64430 /* Program.h */,
 				492C7DA424EDFE120027B75E /* SharedAtoms.txt */,
+				493E4F6524F31D0500D64430 /* StreamProto.cpp */,
+				493E4F5824F31CE000D64430 /* StreamProto.h */,
+				493E4F8B24F32AF700D64430 /* TaskProto.cpp */,
+				493E4F8C24F32AF700D64430 /* TaskProto.h */,
+				493E4F8524F320BE00D64430 /* TCPProto.cpp */,
+				493E4F8624F320BE00D64430 /* TCPProto.h */,
+				493E4F6324F31D0500D64430 /* TimerProto.cpp */,
+				493E4F6024F31CE000D64430 /* TimerProto.h */,
+				493E4F6424F31D0500D64430 /* Value.cpp */,
+				493E4F5924F31CE000D64430 /* Value.h */,
 			);
 			name = m8rscript;
 			sourceTree = "<group>";
@@ -864,6 +1016,8 @@
 				49F2475924D45F1100D977D2 /* liblua.a */,
 				492C7D9C24EDF9390027B75E /* libmarly.a */,
 				492C7DA924EECBA10027B75E /* generator */,
+				493E4F3A24F31A2700D64430 /* generateM8rscriptValues */,
+				493E4F4524F31A4100D64430 /* libm8rscript.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -978,7 +1132,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				492C7DBE24EF51420027B75E /* MarlyValue.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493E4F4124F31A4100D64430 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493E4F8424F31FF200D64430 /* JSONProto.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1081,6 +1242,42 @@
 			productReference = 492C7DA924EECBA10027B75E /* generator */;
 			productType = "com.apple.product-type.tool";
 		};
+		493E4F3924F31A2700D64430 /* generateM8rscriptValues */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493E4F3E24F31A2700D64430 /* Build configuration list for PBXNativeTarget "generateM8rscriptValues" */;
+			buildPhases = (
+				493E4F3624F31A2700D64430 /* Sources */,
+				493E4F4A24F31AA300D64430 /* ShellScript */,
+				493E4F3724F31A2700D64430 /* Frameworks */,
+				493E4F3824F31A2700D64430 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = generateM8rscriptValues;
+			productName = generateM8rscriptValues;
+			productReference = 493E4F3A24F31A2700D64430 /* generateM8rscriptValues */;
+			productType = "com.apple.product-type.tool";
+		};
+		493E4F4424F31A4100D64430 /* m8rscript */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493E4F4624F31A4100D64430 /* Build configuration list for PBXNativeTarget "m8rscript" */;
+			buildPhases = (
+				493E4F4124F31A4100D64430 /* Headers */,
+				493E4F4224F31A4100D64430 /* Sources */,
+				493E4F4324F31A4100D64430 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493E4F5124F31C6800D64430 /* PBXTargetDependency */,
+			);
+			name = m8rscript;
+			productName = m8rscript;
+			productReference = 493E4F4524F31A4100D64430 /* libm8rscript.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		4945A86E1EC3711D00559CD1 /* m8rmac */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8rmac" */;
@@ -1092,6 +1289,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				493E4F9A24F339BC00D64430 /* PBXTargetDependency */,
 				492C7DA324EDFC420027B75E /* PBXTargetDependency */,
 				4945A8771EC3712700559CD1 /* PBXTargetDependency */,
 			);
@@ -1194,6 +1392,14 @@
 						CreatedOnToolsVersion = 11.6;
 						ProvisioningStyle = Automatic;
 					};
+					493E4F3924F31A2700D64430 = {
+						CreatedOnToolsVersion = 11.6;
+						ProvisioningStyle = Automatic;
+					};
+					493E4F4424F31A4100D64430 = {
+						CreatedOnToolsVersion = 11.6;
+						ProvisioningStyle = Automatic;
+					};
 					4945A86E1EC3711D00559CD1 = {
 						CreatedOnToolsVersion = 9.0;
 						ProvisioningStyle = Automatic;
@@ -1231,6 +1437,8 @@
 			projectRoot = "";
 			targets = (
 				494D254D1D2E9055003755DB /* libm8r */,
+				493E4F4424F31A4100D64430 /* m8rscript */,
+				493E4F3924F31A2700D64430 /* generateM8rscriptValues */,
 				49F2475824D45F1100D977D2 /* lua */,
 				492C7D9B24EDF9390027B75E /* marly */,
 				49C406E11EB6598B001E4DEC /* generateMarlyValues */,
@@ -1295,6 +1503,23 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateMarlyValues ../lib/marly/src/SharedAtoms.txt ../lib/marly/src\n";
 		};
+		493E4F4A24F31AA300D64430 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../lib/m8rscript/src/SharedAtoms.txt ../lib/m8rscript/src\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1324,6 +1549,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		493E4F3624F31A2700D64430 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493E4F4924F31A6700D64430 /* generateValues.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		493E4F4224F31A4100D64430 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				493E4F7124F31D0600D64430 /* TimerProto.cpp in Sources */,
+				493E4F8724F320BE00D64430 /* TCPProto.cpp in Sources */,
+				493E4F7824F31D0600D64430 /* Program.cpp in Sources */,
+				493E4F6F24F31D0600D64430 /* Parser.cpp in Sources */,
+				493E4F9424F32AF700D64430 /* IPAddrProto.cpp in Sources */,
+				493E4F9124F32AF700D64430 /* TaskProto.cpp in Sources */,
+				493E4F7724F31D0600D64430 /* ExecutionUnit.cpp in Sources */,
+				493E4F7B24F31D0600D64430 /* GPIO.cpp in Sources */,
+				493E4F7024F31D0600D64430 /* Closure.cpp in Sources */,
+				493E4F7624F31D0600D64430 /* Global.cpp in Sources */,
+				493E4F7224F31D0600D64430 /* Value.cpp in Sources */,
+				493E4F7924F31D0600D64430 /* Function.cpp in Sources */,
+				493E4F7424F31D0600D64430 /* Object.cpp in Sources */,
+				493E4F7A24F31D0600D64430 /* Iterator.cpp in Sources */,
+				493E4F7324F31D0600D64430 /* StreamProto.cpp in Sources */,
+				493E4F8F24F32AF700D64430 /* FSProto.cpp in Sources */,
+				493E4F8324F31FF200D64430 /* JSONProto.cpp in Sources */,
+				493E4F9824F32D1E00D64430 /* GC.cpp in Sources */,
+				493E4F4F24F31C4B00D64430 /* GeneratedValues.cpp in Sources */,
+				493E4F7524F31D0600D64430 /* CodePrinter.cpp in Sources */,
+				493E4F7C24F31D0600D64430 /* ParseEngine.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4945A86B1EC3711D00559CD1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1346,6 +1607,7 @@
 				491B937424EDE3340078A2B9 /* Application.cpp in Sources */,
 				491B937C24EDE3340078A2B9 /* IPAddr.cpp in Sources */,
 				491B937124EDE31D0078A2B9 /* lfs_util.c in Sources */,
+				493E4F7F24F31EFE00D64430 /* JSON.cpp in Sources */,
 				491B938124EDE3340078A2B9 /* MUDP.cpp in Sources */,
 				491B937E24EDE3340078A2B9 /* Mallocator.cpp in Sources */,
 				491B937824EDE3340078A2B9 /* Error.cpp in Sources */,
@@ -1444,6 +1706,16 @@
 			isa = PBXTargetDependency;
 			target = 49C406E11EB6598B001E4DEC /* generateMarlyValues */;
 			targetProxy = 492C7DB124EECF540027B75E /* PBXContainerItemProxy */;
+		};
+		493E4F5124F31C6800D64430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 493E4F3924F31A2700D64430 /* generateM8rscriptValues */;
+			targetProxy = 493E4F5024F31C6800D64430 /* PBXContainerItemProxy */;
+		};
+		493E4F9A24F339BC00D64430 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 493E4F4424F31A4100D64430 /* m8rscript */;
+			targetProxy = 493E4F9924F339BC00D64430 /* PBXContainerItemProxy */;
 		};
 		4945A8771EC3712700559CD1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1560,6 +1832,76 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		493E4F3F24F31A2700D64430 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		493E4F4024F31A2700D64430 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		493E4F4724F31A4100D64430 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		493E4F4824F31A4100D64430 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -1878,6 +2220,24 @@
 			buildConfigurations = (
 				492C7DAE24EECBA10027B75E /* Debug */,
 				492C7DAF24EECBA10027B75E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493E4F3E24F31A2700D64430 /* Build configuration list for PBXNativeTarget "generateM8rscriptValues" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493E4F3F24F31A2700D64430 /* Debug */,
+				493E4F4024F31A2700D64430 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493E4F4624F31A4100D64430 /* Build configuration list for PBXNativeTarget "m8rscript" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493E4F4724F31A4100D64430 /* Debug */,
+				493E4F4824F31A4100D64430 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

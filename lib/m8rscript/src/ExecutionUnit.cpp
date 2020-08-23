@@ -7,9 +7,6 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Defines.h"
-#if M8RSCRIPT_SUPPORT == 1
-
 #include "ExecutionUnit.h"
 
 #include "Closure.h"
@@ -29,12 +26,12 @@ ExecutionUnit::ExecutionUnit()
         _delayComplete = true;
     });
     
-    GC::addExecutable(SharedPtr(this));
+    GC::addExecutable(SharedPtr<Executable>(this));
 }
 
 ExecutionUnit::~ExecutionUnit()
 {
-    GC::removeExecutable(_executable);
+    GC::removeExecutable(SharedPtr<Executable>(this));
     GC::gc();
 }
 
@@ -75,34 +72,9 @@ void ExecutionUnit::printError(const char* format, ...) const
     }
 }
 
-void ExecutionUnit::printError(CallReturnValue::Error error) const
+void ExecutionUnit::printError(Error error) const
 {
-    const char* errorString = "*UNKNOWN*";
-    switch(error) {
-        case CallReturnValue::Error::Ok: return;
-        case CallReturnValue::Error::WrongNumberOfParams: errorString = "wrong number of params"; break;
-        case CallReturnValue::Error::ConstructorOnly: errorString = "only valid for new"; break;
-        case CallReturnValue::Error::Unimplemented: errorString = "unimplemented function"; break;
-        case CallReturnValue::Error::OutOfRange: errorString = "param out of range"; break;
-        case CallReturnValue::Error::MissingThis: errorString = "Missing this value"; break;
-        case CallReturnValue::Error::InternalError: errorString = "internal error"; break;
-        case CallReturnValue::Error::PropertyDoesNotExist: errorString = "property does not exist"; break;
-        case CallReturnValue::Error::BadFormatString: errorString = "bad format string"; break;
-        case CallReturnValue::Error::UnknownFormatSpecifier: errorString = "unknown format specifier"; break;
-        case CallReturnValue::Error::CannotConvertStringToNumber: errorString = "string cannot be converted"; break;
-        case CallReturnValue::Error::CannotCreateArgumentsArray: errorString = "cannot create arguments array"; break;
-        case CallReturnValue::Error::CannotCall: errorString = "cannot call value of this type"; break;
-        case CallReturnValue::Error::CannotConstruct: errorString = "cannot construct value of this type"; break;
-        case CallReturnValue::Error::InvalidArgumentValue: errorString = "invalid argument value"; break;
-        case CallReturnValue::Error::SyntaxErrors: errorString = "syntax errors"; break;
-        case CallReturnValue::Error::ImportTimeout: errorString = "import() timeout"; break;
-        case CallReturnValue::Error::DelayNotAllowedInImport: errorString = "delay not allowed in import()"; break;
-        case CallReturnValue::Error::EventNotAllowedInImport: errorString = "event not allowed in import()"; break;
-        case CallReturnValue::Error::OutOfMemory: errorString = "out of memory"; break;
-        case CallReturnValue::Error::Error: errorString = "error"; break;
-    }
-    
-    printError(errorString);
+    printError(error.formatError().c_str());
 }
 
 void ExecutionUnit::gcMark()
@@ -249,7 +221,7 @@ void ExecutionUnit::fireEvent(const Value& func, const Value& thisValue, const V
 void ExecutionUnit::receivedData(const String& data, KeyAction action)
 {
     // Get the consoleListener from Program and use that to fire an event
-    Value listener = program()->property(Atom(SA::consoleListener));
+    Value listener = program()->property(SAtom(SA::consoleListener));
     if (listener && !listener.isNull()) {
         Value args[2];
         args[0] = Value(ExecutionUnit::createString(data));
@@ -322,7 +294,7 @@ CallReturnValue ExecutionUnit::runNextEvent()
         } else if (callReturnValue.isFunctionStart()) {
             callReturnValue = CallReturnValue(CallReturnValue::Type::Yield);
         } else if (callReturnValue.isFinished() || callReturnValue.isTerminated()) {
-            callReturnValue = CallReturnValue(CallReturnValue::Error::InternalError);
+            callReturnValue = CallReturnValue(Error::Code::InternalError);
         }
 
         return callReturnValue;
@@ -483,7 +455,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
         syntaxErrors.swap(parser.syntaxErrors());
         
         // TODO: Do something with syntaxErrors
-        return CallReturnValue(CallReturnValue::Error::SyntaxErrors);
+        return CallReturnValue(Error::Code::SyntaxErrors);
     }
     
     // Get all the contents into a new object
@@ -677,8 +649,8 @@ CallReturnValue ExecutionUnit::execute()
         if (!leftValue) {
             // We need to handle 'iterator' here because if the value is undefined and the property
             // is 'iterator' we need to supply the default iterator
-            if (rightValue.asIdValue() == Atom(SA::iterator)) {
-                leftValue = Global::shared()->property(Atom(SA::Iterator));
+            if (rightValue.asIdValue() == SAtom(SA::iterator)) {
+                leftValue = Global::shared()->property(SAtom(SA::Iterator));
             } else {
                 printError("Property '%s' does not exist", rightValue.toStringPointer(this));
                 DISPATCH;
@@ -984,5 +956,3 @@ m8r::String ExecutionUnit::debugString(uint16_t index)
 {
     return _program->stringFromAtom(Atom(index));
 }
-
-#endif

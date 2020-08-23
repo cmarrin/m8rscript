@@ -116,35 +116,9 @@ const char* _sharedAtoms[] = {
     _while$,
 };
 
-const char* _specialChars = ""
-    "\xc6!="
-    "\xb8%="
-    "\xc1&&"
-    "\xb9&="
-    "\xb6*="
-    "\xbf++"
-    "\xb4+="
-    "\xc0--"
-    "\xb5-="
-    "\xb7/="
-    "\xc5=="
-    "\xba^="
-    "\xc2||"
-    "\xbb|="
-    "\xc3<="
-    "\xc4>="
-    "\xbe<<"
-    "\xbc>>"
-;
-
 const char** m8r::sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;
-}
-
-const char* m8r::specialChars()
-{
-    return _specialChars;
 }
 
