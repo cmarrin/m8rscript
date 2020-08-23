@@ -9,7 +9,6 @@
 
 #include "Marly.h"
 
-#include "Scanner.h"
 #include "SystemTime.h"
 
 using namespace marly;
@@ -28,27 +27,27 @@ Marly::Marly()
 
 bool Marly::load(const m8r::Stream& stream)
 {
-    m8r::Scanner scanner(&stream);
+    _scanner.setStream(&stream);
     _codeStack.push(m8r::SharedPtr<List>(new List()));
     
     while (true) {
-        m8r::Token token = scanner.getToken();
+        m8r::Token token = _scanner.getToken();
         switch (token) {
             case m8r::Token::True:
             case m8r::Token::False:
                 _codeStack.top().push_back(token == m8r::Token::True);
                 break;
             case m8r::Token::String:
-                _codeStack.top().push_back(scanner.getTokenValue().str);
+                _codeStack.top().push_back(_scanner.getTokenValue().str);
                 break;
             case m8r::Token::Integer:
-                _codeStack.top().push_back(int32_t(scanner.getTokenValue().integer));
+                _codeStack.top().push_back(int32_t(_scanner.getTokenValue().integer));
                 break;
             case m8r::Token::Identifier: {
                 // If the Atom ID is less than ExternalAtomOffset then
                 // it is built in and there is a corresponding verb with
                 // that same id
-                m8r::Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
+                m8r::Atom atom = _atomTable.atomizeString(_scanner.getTokenValue().str);
                 if (atom.raw() < m8r::ExternalAtomOffset) {
                     _codeStack.top().push_back(static_cast<Value::Type>(atom.raw()));
                     break;
@@ -61,7 +60,7 @@ bool Marly::load(const m8r::Stream& stream)
                     break;
                 }
                 
-                if (addParseError(m8r::String::format("invalid identifier '%s'", scanner.getTokenValue().str).c_str())) {
+                if (addParseError(m8r::String::format("invalid identifier '%s'", _scanner.getTokenValue().str).c_str())) {
                     return false;
                 }
             }
@@ -82,8 +81,8 @@ bool Marly::load(const m8r::Stream& stream)
             case m8r::Token::Period:
             case m8r::Token::Colon: {
                 // The next token must be an identifier
-                scanner.retireToken();
-                m8r::Token idToken = scanner.getToken();
+                _scanner.retireToken();
+                m8r::Token idToken = _scanner.getToken();
                 if (idToken != m8r::Token::Identifier) {
                     if (addParseError("identifier required")) {
                         return false;
@@ -91,7 +90,7 @@ bool Marly::load(const m8r::Stream& stream)
                     break;
                 }
                 
-                m8r::Atom atom = _atomTable.atomizeString(scanner.getTokenValue().str);
+                m8r::Atom atom = _atomTable.atomizeString(_scanner.getTokenValue().str);
                 
                 Value::Type type;
                 switch (token) {
@@ -118,7 +117,7 @@ bool Marly::load(const m8r::Stream& stream)
                 _codeStack.top().push_back(Value(int(token), Value::Type::TokenVerb));
                 break;
         }
-        scanner.retireToken();
+        _scanner.retireToken();
     }
 }
 

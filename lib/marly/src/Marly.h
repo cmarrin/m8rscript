@@ -14,6 +14,7 @@
 #include "Executable.h"
 #include "GeneratedValues.h"
 #include "MString.h"
+#include "Scanner.h"
 #include "ScriptingLanguage.h"
 #include "SharedPtr.h"
 #include "MarlyValue.h"
@@ -203,9 +204,7 @@ Operators:
 
 namespace marly {
 
-class Atom;
 class Marly;
-class Stream;
 
 class MarlyScriptingLanguage : public m8r::ScriptingLanguage
 {
@@ -226,10 +225,11 @@ public:
     virtual const m8r::ParseErrorList* parseErrors() const override { return &_parseErrors; }
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
-private:
-    enum class State { Normal, ForTest, ForBody, ForIter, WhileTest, WhileIter };
 
-    bool initExec(const Value& list, State = State::Normal);
+private:
+    enum class State { Function, Body, ForTest, ForBody, ForIter, WhileTest, WhileBody, LoopBody };
+
+    bool initExec(const Value& list, State = State::Function);
     void startExec();
     
     bool addParseError(const char* desc)
@@ -238,6 +238,8 @@ private:
         return _parseErrors.size() > MaxErrors;
     }
     
+    m8r::Scanner _scanner;
+
     ValueMap _vars;
     m8r::Stack<Value> _stack;
     m8r::Stack<Value> _codeStack;
@@ -245,7 +247,7 @@ private:
     m8r::Map<m8r::Atom, Verb> _verbs;
     
     static constexpr uint16_t MaxErrors = 32;
-    State _currentState = State::Normal;
+    State _currentState = State::Function;
     int32_t _currentIndex = 0;
     m8r::SharedPtr<List> _currentCode;
     
