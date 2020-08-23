@@ -14,6 +14,7 @@ print
 println
 currentTime
 delay
+break$
 at
 atput
 new$
@@ -49,6 +50,7 @@ if$
 ifte
 while$
 for$
+loop
 fold
 map
 filter

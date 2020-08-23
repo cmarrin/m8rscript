@@ -10,6 +10,7 @@ static const char _atput[] = "atput";
 static const char _band[] = "band";
 static const char _bnot[] = "bnot";
 static const char _bor[] = "bor";
+static const char _break$[] = "break";
 static const char _bxor[] = "bxor";
 static const char _cat[] = "cat";
 static const char _currentTime[] = "currentTime";
@@ -31,6 +32,7 @@ static const char _insert[] = "insert";
 static const char _join[] = "join";
 static const char _le[] = "le";
 static const char _length[] = "length";
+static const char _loop[] = "loop";
 static const char _lt[] = "lt";
 static const char _map[] = "map";
 static const char _ne[] = "ne";
@@ -56,6 +58,7 @@ const char* _sharedAtoms[] = {
     _band,
     _bnot,
     _bor,
+    _break$,
     _bxor,
     _cat,
     _currentTime,
@@ -77,6 +80,7 @@ const char* _sharedAtoms[] = {
     _join,
     _le,
     _length,
+    _loop,
     _lt,
     _map,
     _ne,
