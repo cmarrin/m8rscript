@@ -225,6 +225,8 @@ public:
     virtual const m8r::ParseErrorList* parseErrors() const override { return &_parseErrors; }
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
+    
+    void fireEvent(const Value&) { }
 
 private:
     enum class State { Function, Body, ForTest, ForBody, ForIter, WhileTest, WhileBody, LoopBody };
