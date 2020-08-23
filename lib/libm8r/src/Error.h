@@ -99,7 +99,9 @@ private:
     Code _code = Code::OK;
 };
 
-struct ParseErrorEntry {
+class ParseErrorEntry
+{
+public:
     ParseErrorEntry() { }
     ParseErrorEntry(const char* description, uint32_t lineno, uint16_t charno = 1, uint16_t length = 1)
         : _description(description)
@@ -119,6 +121,9 @@ struct ParseErrorEntry {
     
     ~ParseErrorEntry() { }
     
+    String format() const;
+
+private:
     String _description;
     uint32_t _lineno = 0;
     uint16_t _charno = 0;

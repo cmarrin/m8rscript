@@ -87,3 +87,9 @@ m8r::String Error::vformatError(Code code, int32_t lineno, const char* format, v
     return s;
 }
 
+String ParseErrorEntry::format() const
+{
+    String s("***** ");
+    s += Error::formatError(Error::Code::ParseError, _lineno, _description.c_str());
+    return s;
+}
