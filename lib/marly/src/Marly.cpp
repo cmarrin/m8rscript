@@ -112,7 +112,7 @@ bool Marly::load(const m8r::Stream& stream)
                         return false;
                     }
                 }
-                return _nerrors == 0;
+                return _parseErrors.size() == 0;
             default:
                 // Assume any other token is a built-in verb
                 _codeStack.top().push_back(Value(int(token), Value::Type::TokenVerb));

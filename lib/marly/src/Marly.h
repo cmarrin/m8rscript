@@ -222,7 +222,8 @@ public:
     
     virtual bool load(const m8r::Stream&) override;
     virtual m8r::CallReturnValue execute() override;
-    virtual const char* errorString() const override { return _errorString.c_str(); }
+    virtual const char* runtimeErrorString() const override { return _errorString.c_str(); }
+    virtual const m8r::ParseErrorList* parseErrors() const override { return &_parseErrors; }
 
     const char* stringFromAtom(m8r::Atom atom) const { return _atomTable.stringFromAtom(atom); }
 private:
@@ -233,8 +234,8 @@ private:
     
     bool addParseError(const char* desc)
     {
-        _parseErrors.emplace_back(desc, _lineno);
-        return ++_nerrors > MaxErrors;
+        _parseErrors.emplace_back(desc, _scanner.lineno());
+        return _parseErrors.size() > MaxErrors;
     }
     
     ValueMap _vars;
@@ -244,8 +245,6 @@ private:
     m8r::Map<m8r::Atom, Verb> _verbs;
     
     static constexpr uint16_t MaxErrors = 32;
-    uint16_t _nerrors = 0;
-    uint32_t _lineno = 0;
     State _currentState = State::Normal;
     int32_t _currentIndex = 0;
     m8r::SharedPtr<List> _currentCode;

@@ -85,6 +85,15 @@ bool Task::load(const Stream& stream, const String& type)
             _executable->load(stream);
             
             // FIXME: Check for errors
+            const ParseErrorList* errors = _executable->parseErrors();
+            if (errors && errors->size() > 0) {
+                _executable->print("\n");
+                for (const auto& it : *errors) {
+                    _executable->print(it.format().c_str());
+                }
+                _executable->print(String::format("%d parse error%s\n\n", errors->size(), (errors->size() == 1) ? "" : "s").c_str());
+                return false;
+            }
             return true;
         }
     }
