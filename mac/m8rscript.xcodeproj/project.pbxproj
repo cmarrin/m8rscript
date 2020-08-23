@@ -54,6 +54,7 @@
 		493C9ED91D218F100062152D /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9ED61D218F100062152D /* play.png */; };
 		493C9EDB1D2191E60062152D /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 493C9EDA1D2191E60062152D /* build.png */; };
 		493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
+		493E4F3524F2EC3100D64430 /* MarlyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F3424F2EC3100D64430 /* MarlyValue.cpp */; };
 		4943BF531DC009CC00773D23 /* savebinary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4943BF521DC009CC00773D23 /* savebinary.png */; };
 		4945A8721EC3711D00559CD1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4945A8711EC3711D00559CD1 /* main.cpp */; };
 		4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -336,6 +337,7 @@
 		493C9ED61D218F100062152D /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		493C9EDA1D2191E60062152D /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = build.png; sourceTree = "<group>"; };
 		493E015E24E9DCBD00EF89B3 /* cpptime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpptime.h; sourceTree = "<group>"; };
+		493E4F3424F2EC3100D64430 /* MarlyValue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MarlyValue.cpp; path = ../lib/marly/src/MarlyValue.cpp; sourceTree = "<group>"; };
 		4940FD79249AD3F000B47B84 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../web/index.html; sourceTree = "<group>"; };
 		4943BF521DC009CC00773D23 /* savebinary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = savebinary.png; sourceTree = "<group>"; };
 		4945A86F1EC3711D00559CD1 /* m8rmac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rmac; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -649,6 +651,7 @@
 				49C406ED1EB65A66001E4DEC /* SharedAtoms.txt */,
 				492C7D9624EDF9200027B75E /* Marly.cpp */,
 				492C7D9724EDF9200027B75E /* Marly.h */,
+				493E4F3424F2EC3100D64430 /* MarlyValue.cpp */,
 				492C7DBC24EF51420027B75E /* MarlyValue.h */,
 			);
 			name = marly;
@@ -1309,6 +1312,7 @@
 			files = (
 				492C7DA024EDF94C0027B75E /* Marly.cpp in Sources */,
 				492C7DB724EECF880027B75E /* GeneratedValues.cpp in Sources */,
+				493E4F3524F2EC3100D64430 /* MarlyValue.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

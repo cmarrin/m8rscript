@@ -29,6 +29,9 @@ public:
 class Map : public ObjectBase, public ValueMap
 {
 public:
+    Map() { }
+    Map(const Value& proto);
+    
     virtual ~Map() { }
     virtual Value property(m8r::Atom) const override;
     virtual void setProperty(m8r::Atom, const Value&) override { }
