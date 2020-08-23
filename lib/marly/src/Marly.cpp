@@ -63,6 +63,7 @@ bool Marly::load(const m8r::Stream& stream)
                 if (addParseError(m8r::String::format("invalid identifier '%s'", _scanner.getTokenValue().str).c_str())) {
                     return false;
                 }
+                break;
             }
             case m8r::Token::LBracket:
                 _codeStack.push(m8r::SharedPtr<List>(new List()));
