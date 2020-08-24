@@ -45,12 +45,15 @@ static std::string strip(const char* in)
 int main(int argc, const char* argv[])
 {
     // first arg is a filename containing the strings. Second arg is
-    // dir to put output in. Both relative to mac
+    // dir to put output in. Both relative to mac. The third param
+    // is a namespace name
     const char* inFilename = (argc > 1) ? argv[1] : "generators/SharedAtoms.txt";
     std::string outPath = (argc > 2) ? argv[2] : "../lib/m8rscript/src";
     if (outPath.back() != '/') {
         outPath += '/';
     }
+    
+    const char* ns = (argc > 3) ? argv[3] : nullptr;
     
     printf("\n\n*** Generating Values ****\n\n");
     char* root = getenv("PWD");
@@ -80,12 +83,18 @@ int main(int argc, const char* argv[])
     fprintf(hfile, "#pragma once\n\n");
     fprintf(hfile, "#include <cstdint>\n");
     fprintf(hfile, "#include \"Atom.h\"\n\n");
+    if (ns) {
+        fprintf(hfile, "namespace %s {\n\n", ns);
+    }
     fprintf(hfile, "enum class SA : uint16_t {\n");
     
     fprintf(cppfile, "// This file is generated. Do not edit\n\n");
     fprintf(cppfile, "#include \"GeneratedValues.h\"\n");
     fprintf(cppfile, "#include \"Defines.h\"\n");
     fprintf(cppfile, "#include <cstdlib>\n\n");
+    if (ns) {
+        fprintf(cppfile, "using namespace %s;\n\n", ns);
+    }
     
     // Get the strings into a vector
     std::vector<std::string> strings;
@@ -146,14 +155,16 @@ int main(int argc, const char* argv[])
     fprintf(cppfile, "};\n\n");
     
     // Write the postambles
-    fprintf(hfile, "};\n\nnamespace m8r {\n");
-    fprintf(hfile, "    const char** sharedAtoms(uint16_t& nelts);\n");
-    fprintf(hfile, "    const char* specialChars();\n");
-    fprintf(hfile, "    static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }\n");
+    fprintf(hfile, "};\n\n");
+    fprintf(hfile, "const char** sharedAtoms(uint16_t& nelts);\n");
+    fprintf(hfile, "const char* specialChars();\n");
+    fprintf(hfile, "static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }\n");
 
-    fprintf(hfile, "}\n");
+    if (ns) {
+        fprintf(hfile, "\n}\n");
+    }
 
-    fprintf(cppfile, "const char** m8r::sharedAtoms(uint16_t& nelts)\n");
+    fprintf(cppfile, "const char** sharedAtoms(uint16_t& nelts)\n");
     fprintf(cppfile, "{\n");
     fprintf(cppfile, "    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n");
     fprintf(cppfile, "    return _sharedAtoms;\n");

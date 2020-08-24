@@ -31,7 +31,7 @@ static Value timerStart(Marly* marly, const Value& value)
     Value body = value.list()->at(2);
     Value timerValue = value.list()->at(3);
     
-    m8r::Timer* timer = reinterpret_cast<m8r::Timer*>(timerValue.property(m8r::SAtom(SA::__rawptr)).pointer());
+    m8r::Timer* timer = reinterpret_cast<m8r::Timer*>(timerValue.property(SAtom(SA::__rawptr)).pointer());
 
     if (body.type() != Value::Type::List || !timer) {
         return Value();
@@ -45,16 +45,16 @@ static Value timerStart(Marly* marly, const Value& value)
 Marly::Marly()
 {
     uint16_t count = 0;
-    const char** list = m8r::sharedAtoms(count);
+    const char** list = sharedAtoms(count);
     _atomTable.setSharedAtomList(list, count);
     
     // Add global vars
     m8r::SharedPtr<Map> timer(new Map());
-    timer->emplace(m8r::SAtom(SA::Once), 0);
-    timer->emplace(m8r::SAtom(SA::Repeat), 1);
-    timer->emplace(m8r::SAtom(SA::start), Value(timerStart));
-    timer->emplace(m8r::SAtom(SA::stop), 1);
-    _vars.emplace(m8r::SAtom(SA::Timer), timer);
+    timer->emplace(SAtom(SA::Once), 0);
+    timer->emplace(SAtom(SA::Repeat), 1);
+    timer->emplace(SAtom(SA::start), Value(timerStart));
+    timer->emplace(SAtom(SA::stop), 1);
+    _vars.emplace(SAtom(SA::Timer), timer);
 }
 
 bool Marly::load(const m8r::Stream& stream)

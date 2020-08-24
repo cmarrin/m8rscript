@@ -4,6 +4,8 @@
 #include "Defines.h"
 #include <cstdlib>
 
+using namespace marly;
+
 static const char _Once[] = "Once";
 static const char _Repeat[] = "Repeat";
 static const char _Timer[] = "Timer";
@@ -116,7 +118,7 @@ const char* _sharedAtoms[] = {
     _while$,
 };
 
-const char** m8r::sharedAtoms(uint16_t& nelts)
+const char** sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;

@@ -5,6 +5,8 @@
 #include <cstdint>
 #include "Atom.h"
 
+namespace m8rscript {
+
 enum class SA : uint16_t {
     Array = 0,
     Base64 = 1,
@@ -124,8 +126,8 @@ enum class SA : uint16_t {
     write = 115,
 };
 
-namespace m8r {
-    const char** sharedAtoms(uint16_t& nelts);
-    const char* specialChars();
-    static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }
+const char** sharedAtoms(uint16_t& nelts);
+const char* specialChars();
+static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }
+
 }

@@ -4,6 +4,8 @@
 #include "Defines.h"
 #include <cstdlib>
 
+using namespace m8rscript;
+
 static const char _Array[] = "Array";
 static const char _Base64[] = "Base64";
 static const char _BothEdges[] = "BothEdges";
@@ -240,7 +242,7 @@ const char* _sharedAtoms[] = {
     _write,
 };
 
-const char** m8r::sharedAtoms(uint16_t& nelts)
+const char** sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;

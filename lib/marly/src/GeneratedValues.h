@@ -5,6 +5,8 @@
 #include <cstdint>
 #include "Atom.h"
 
+namespace marly {
+
 enum class SA : uint16_t {
     Once = 0,
     Repeat = 1,
@@ -62,8 +64,8 @@ enum class SA : uint16_t {
     while$ = 53,
 };
 
-namespace m8r {
-    const char** sharedAtoms(uint16_t& nelts);
-    const char* specialChars();
-    static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }
+const char** sharedAtoms(uint16_t& nelts);
+const char* specialChars();
+static inline m8r::Atom SAtom(SA sa) { return m8r::Atom(static_cast<m8r::Atom::value_type>(sa)); }
+
 }

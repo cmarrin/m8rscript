@@ -13,6 +13,6 @@ using namespace marly;
 
 Map::Map(const Value& proto)
 {
-    setProperty(m8r::SAtom(SA::__proto), proto);
-    proto.property(m8r::SAtom(SA::__ctor))(nullptr, this);
+    setProperty(SAtom(SA::__proto), proto);
+    proto.property(SAtom(SA::__ctor))(nullptr, this);
 }
