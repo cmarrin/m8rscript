@@ -59,7 +59,7 @@ LuaEngine::LuaEngine(const Stream& stream)
         _errorString = lua_tostring(_state, -1);
         
         if (result == LUA_ERRSYNTAX) {
-            _error = Error::Code::SyntaxErrors;
+            _error = Error::Code::ParseError;
             _nerrors = 1;
         } else {
             _error = Error::Code::InternalError;

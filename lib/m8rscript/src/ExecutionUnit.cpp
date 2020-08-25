@@ -470,7 +470,7 @@ CallReturnValue ExecutionUnit::import(const Stream& stream, Value thisValue)
         syntaxErrors.swap(parser.syntaxErrors());
         
         // TODO: Do something with syntaxErrors
-        return CallReturnValue(Error::Code::SyntaxErrors);
+        return CallReturnValue(Error::Code::ParseError);
     }
     
     // Get all the contents into a new object

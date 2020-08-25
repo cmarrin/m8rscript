@@ -22,6 +22,7 @@ const char* Error::description(Code code)
         case Code::SerialType               : return "Serial Type";
         case Code::SerialVersion            : return "Serial Version";
         case Code::FileNotFound             : return "File Not Found";
+        case Code::FileExists               : return "File Exists";
         case Code::FileClosed               : return "File Closed";
         case Code::ParseError               : return "Parse";
         case Code::RuntimeError             : return "Runtime";
@@ -47,7 +48,14 @@ const char* Error::description(Code code)
         case Code::Corrupted                : return "Corrupted";
         case Code::OutOfMemory              : return "Out of Memory";
         case Code::InternalError            : return "Internal";
-        default                             : return "*** INVALID CODE ***";
+        case Code::Unimplemented            : return "Unimplemented";
+        case Code::WrongNumberOfParams      : return "Wrong Number of Params";
+        case Code::PropertyDoesNotExist     : return "Property Does Not Exist";
+        case Code::InvalidArgumentValue     : return "Invalid Argument Value";
+        case Code::MissingThis              : return "Missing this";
+        case Code::CannotCall               : return "Cannot Call";
+        case Code::CannotConvertStringToNumber: return "Cannot Convert String to Number";
+        case Code::OutOfRange               : return "Out of Range";
     }
 }
 

@@ -53,7 +53,6 @@ public:
         Mounted,
         Corrupted,
         OutOfMemory,
-        SyntaxErrors,
         InternalError,
         Unimplemented,
         WrongNumberOfParams,
