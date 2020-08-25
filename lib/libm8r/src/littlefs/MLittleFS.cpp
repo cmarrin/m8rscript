@@ -117,7 +117,7 @@ Mad<Directory> LittleFS::openDirectory(const char* name)
     if (!mounted()) {
         return Mad<Directory>();
     }
-    return Mad<Directory>(); //std::shared_ptr<LittleDirectory>(new LittleDirectory(name));
+    return Mad<Directory>();
 }
 
 bool LittleFS::makeDirectory(const char* name)

@@ -19,7 +19,7 @@ namespace m8r {
 class Stream;
 class String;
 
-class Task : public NativeObject {
+class Task : public Shared {
     friend class TaskManager;
     
 public:        

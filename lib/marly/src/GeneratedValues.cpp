@@ -118,7 +118,7 @@ const char* _sharedAtoms[] = {
     _while$,
 };
 
-const char** sharedAtoms(uint16_t& nelts)
+const char** marly::sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;

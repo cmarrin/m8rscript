@@ -13,7 +13,7 @@
 #include "SystemInterface.h"
 #include "TCP.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static StaticObject::StaticFunctionProperty _functionProps[] =
 {
@@ -90,8 +90,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
         return CallReturnValue(Error::Code::MissingThis);
     }
 
-    Mad<NativeObject> nativeDelegate = static_cast<Mad<NativeObject>>(tcp);
-    obj->setProperty(SAtom(SA::__nativeObject), Value(nativeDelegate), Value::SetType::AlwaysAdd);
+    obj->setProperty(SAtom(SA::__impl), Value(tcp.get()), Value::SetType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -108,8 +107,8 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(Error::Code::MissingThis);
     }
     
-    Mad<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->getNative<TCP>() : Mad<TCP>();
-    if (!tcp.valid()) {
+    SharedPtr<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->impl<TCP>() : SharedPtr<TCP>();
+    if (!tcp) {
         return CallReturnValue(Error::Code::InternalError);
     }
 
@@ -128,8 +127,8 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(Error::Code::MissingThis);
     }
     
-    Mad<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->getNative<TCP>() : Mad<TCP>();
-    if (!tcp.valid()) {
+    SharedPtr<TCP> tcp = thisValue.isObject() ? thisValue.asObject()->impl<TCP>() : SharedPtr<TCP>();
+    if (!tcp) {
         return CallReturnValue(Error::Code::InternalError);
     }
 

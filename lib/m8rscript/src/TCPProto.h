@@ -11,7 +11,7 @@
 
 #include "Object.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class TCPProto : public StaticObject {
 public:

@@ -12,7 +12,7 @@
 #include "ExecutionUnit.h"
 #include "Timer.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static StaticObject::StaticFunctionProperty _functionProps[] =
 {
@@ -57,15 +57,15 @@ CallReturnValue TimerProto::constructor(ExecutionUnit* eu, Value thisValue, uint
         }
     });
 
-    thisValue.setProperty(SAtom(SA::__timer), Value(timer), Value::SetType::AddIfNeeded);
+    thisValue.setProperty(SAtom(SA::__impl), Value(timer), Value::SetType::AddIfNeeded);
     
     // Add a destructor for the timer
     Value dtor([](ExecutionUnit*, Value thisValue, uint32_t nparams)
     {
-        Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
+        Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__impl)).asRawPointer());
         if (timer) {
             delete timer;
-            thisValue.setProperty(SAtom(SA::__timer), Value(), Value::SetType::AddIfNeeded);
+            thisValue.setProperty(SAtom(SA::__impl), Value(), Value::SetType::AddIfNeeded);
         }
         return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
     });
@@ -89,7 +89,7 @@ CallReturnValue TimerProto::start(ExecutionUnit* eu, Value thisValue, uint32_t n
         repeating = eu->stack().top().toBoolValue(eu);
     }
     
-    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
+    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__impl)).asRawPointer());
 
     if (!timer) {
         return CallReturnValue(Error::Code::InternalError);
@@ -106,7 +106,7 @@ CallReturnValue TimerProto::stop(ExecutionUnit* eu, Value thisValue, uint32_t np
         return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
-    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__timer)).asRawPointer());
+    Timer* timer = reinterpret_cast<Timer*>(thisValue.property(SAtom(SA::__impl)).asRawPointer());
 
     if (!timer) {
         return CallReturnValue(Error::Code::InternalError);

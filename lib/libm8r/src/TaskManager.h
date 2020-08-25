@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Containers.h"
+#include "SharedPtr.h"
 #include "Timer.h"
 #include <cstdint>
 #include <memory>
@@ -27,8 +28,8 @@ public:
     
     bool runOneIteration();
 
-    void run(const std::shared_ptr<Task>&, FinishCallback);
-    void terminate(const std::shared_ptr<Task>&);
+    void run(const SharedPtr<Task>&, FinishCallback);
+    void terminate(const SharedPtr<Task>&);
 
     void readyToExecuteNextTask();
 
@@ -45,9 +46,9 @@ private:
     
     void restartTimer();
     
-    Vector<std::shared_ptr<Task>> _list;
+    Vector<SharedPtr<Task>> _list;
     
-    std::shared_ptr<Task> _currentTask;
+    SharedPtr<Task> _currentTask;
 
     Timer _timeSliceTimer;
     bool _terminating = false;

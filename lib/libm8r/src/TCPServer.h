@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "SharedPtr.h"
 #include "TCP.h"
 
 namespace m8r {
@@ -22,7 +23,7 @@ class Task;
 
 class TCPServer {
 public:
-    using CreateTaskFunction = std::function<std::shared_ptr<Task>()>;
+    using CreateTaskFunction = std::function<SharedPtr<Task>()>;
     
     TCPServer(uint16_t port, CreateTaskFunction, TCP::EventFunction);
     ~TCPServer();
@@ -40,7 +41,7 @@ protected:
     struct Connection
     {
         Connection() { }
-        std::shared_ptr<Task> task;
+        SharedPtr<Task> task;
     };
     
     Connection _connections[TCP::MaxConnections];

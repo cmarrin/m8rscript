@@ -12,7 +12,7 @@
 #include "ExecutionUnit.h"
 #include "Program.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 uint32_t CodePrinter::findAnnotation(uint32_t addr) const
 {

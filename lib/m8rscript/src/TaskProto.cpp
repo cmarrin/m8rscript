@@ -13,9 +13,9 @@
 #include "SystemInterface.h"
 #include "TCP.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
-static m8r::StaticObject::StaticFunctionProperty _functionProps[] =
+static StaticObject::StaticFunctionProperty _functionProps[] =
 {
     { SA::constructor, TaskProto::constructor },
     { SA::run, TaskProto::run },
@@ -85,7 +85,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         path = FSProto::findPath(eu, filename, env);
     }
     
-    std::shared_ptr<Task> task = std::make_shared<Task>();
+    Task* task = new Task();
 
     if (!filename.empty()) {
         task->load(path.c_str());
@@ -99,7 +99,7 @@ CallReturnValue TaskProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
     
     task->setConsolePrintFunction(eu->consolePrintFunction());
 
-    obj->setNativeObject(task);
+    obj->setProperty(SAtom(SA::__impl), Value(task), Value::SetType::AlwaysAdd);
     obj->setProperty(SAtom(SA::arguments), Value::NullValue(), Value::SetType::AlwaysAdd);
     obj->setProperty(SAtom(SA::env), envValue, Value::SetType::AlwaysAdd);
     
@@ -116,7 +116,7 @@ CallReturnValue TaskProto::run(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(Error::Code::WrongNumberOfParams);
     }
     
-    std::shared_ptr<Task> task = thisValue.isObject() ? thisValue.asObject()->nativeObject<Task>() : nullptr;
+    SharedPtr<Task> task = thisValue.isObject() ? thisValue.asObject()->impl<Task>() : SharedPtr<Task>();
     if (!task) {
         return CallReturnValue(Error::Code::InternalError);
     }

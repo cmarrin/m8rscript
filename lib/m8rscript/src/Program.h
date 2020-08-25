@@ -13,7 +13,7 @@
 #include "Function.h"
 #include "Global.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class Program : public Function {
 public:

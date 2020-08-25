@@ -12,7 +12,7 @@
 #include "Function.h"
 #include "SharedPtr.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class UpValue : public Shared {
 public:

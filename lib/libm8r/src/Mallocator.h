@@ -57,9 +57,6 @@ namespace m8r {
 //
 //---------------------------------------------------------------------------
 
-class NativeObject;
-class Object;
-
 // Memory header for all memory blocks.
 //
 // Headers are 4 uint16_t:
@@ -129,7 +126,7 @@ public:
     
     template<typename X>
     struct assert_false : std::false_type { };
-    void destroy() { destroy(T::memoryType()); }
+    void destroy() { destroy(MemoryType::Unknown); }
     
     void destroyVector() { destroyHelper(MemoryType::Vector, false); }
     void destroy(MemoryType type) { destroyHelper(type, true); }

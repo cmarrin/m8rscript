@@ -12,16 +12,15 @@
 #include "Mallocator.h"
 #include "Defines.h"
 #include "GeneratedValues.h"
+#include "SharedPtr.h"
 #include "Value.h"
 #include <algorithm>
 #include <memory>
 
-namespace m8r {
+namespace m8rscript {
 
-class Error;
 class ExecutionUnit;
 class Object;
-class Stream;
 
 using InstructionVector = Vector<uint8_t>;
 using PropertyMap = Map<Atom, Value>;
@@ -87,18 +86,17 @@ public:
     void setTypeName(Atom name) { _typeName = name; }
     
     template<typename T>
-    void setNativeObject(const std::shared_ptr<T> obj) { _nativeObject = std::static_pointer_cast<NativeObject>(obj); }
+    void setNativeObject(const SharedPtr<T> obj) { _nativeObject = std::static_pointer_cast<NativeObject>(obj); }
 
     template<typename T>
-    std::shared_ptr<T> nativeObject() const { return std::static_pointer_cast<T>(_nativeObject); }
+    SharedPtr<T> nativeObject() const { return std::static_pointer_cast<T>(_nativeObject); }
 
     static CallReturnValue construct(const Value& proto, ExecutionUnit*, uint32_t nparams);
 
     template<typename T>
-    Mad<T> getNative() const
+    SharedPtr<T> impl() const
     {
-        Mad<NativeObject> nobj = property(SAtom(SA::__nativeObject)).asNativeObject();
-        return Mad<T>(nobj.raw());
+        return SharedPtr<T>(reinterpret_cast<T*>(property(SAtom(SA::__impl)).asRawPointer()));
     }
     
     virtual bool canMakeClosure() const { return false; }
@@ -114,7 +112,7 @@ private:
     bool _marked : 1;
     bool _isDestroyed : 1;
     Atom _typeName;
-    std::shared_ptr<NativeObject> _nativeObject;
+    SharedPtr<NativeObject> _nativeObject;
 };
 
 class MaterObject : public Object {
@@ -272,6 +270,16 @@ protected:
     uint16_t _functionPropertiesCount = 0;
     uint16_t _objectPropertiesCount = 0;
     uint16_t _propertiesCount = 0;
+};
+
+class NativeObject : public Shared {
+public:
+    static MemoryType memoryType() { return MemoryType::Native; }
+    
+    NativeObject() { }
+    virtual ~NativeObject() { }
+
+    virtual void gcMark() { }
 };
 
 }

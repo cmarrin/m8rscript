@@ -11,6 +11,7 @@
 
 #include "Containers.h"
 #include "Error.h"
+#include "SharedPtr.h"
 #include <cstdint>
 #include <memory>
 
@@ -19,7 +20,7 @@ namespace m8r {
 class File;
 class Directory;
 
-class FS {
+class FS : public Shared {
     friend class File;
     
 public:
@@ -81,7 +82,7 @@ protected:
     Error _error;
 };
 
-class Directory : public NativeObject {
+class Directory : public Shared {
     friend class FS;
     
 public:
@@ -102,7 +103,7 @@ protected:
     uint32_t _size = 0;
 };
 
-class File : public NativeObject {
+class File : public Shared {
     friend class FS;
     
 public:

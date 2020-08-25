@@ -9,7 +9,7 @@
 
 #include "ParseEngine.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static constexpr ParseEngine::Keyword K(Token t) { return ParseEngine::Keyword(t); }
 
@@ -207,14 +207,14 @@ bool ParseEngine::selectionStatement()
     
     Label ifLabel = _parser->label();
     Label elseLabel = _parser->label();
-    _parser->addMatchedJump(m8r::Op::JF, elseLabel);
+    _parser->addMatchedJump(Op::JF, elseLabel);
 
     expect(Token::RParen);
     statement();
 
     if (tokenToKeyword() == Keyword::Else) {
         retireToken();
-        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
+        _parser->addMatchedJump(Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
         statement();
         _parser->matchJump(ifLabel);
@@ -300,7 +300,7 @@ bool ParseEngine::iterationStatement()
         expect(Token::LParen);
         Label label = _parser->label();
         commaExpression();
-        _parser->addMatchedJump(m8r::Op::JF, label);
+        _parser->addMatchedJump(Op::JF, label);
         expect(Token::RParen);
         statement();
         
@@ -323,7 +323,7 @@ bool ParseEngine::iterationStatement()
         expect(Parser::Expect::While);
         expect(Token::LParen);
         commaExpression();
-        _parser->jumpToLabel(m8r::Op::JT, label);
+        _parser->jumpToLabel(Op::JT, label);
         expect(Token::RParen);
         expect(Token::Semicolon);
     } else if (keyword == Keyword::For) {
@@ -403,7 +403,7 @@ bool ParseEngine::jumpStatement()
             count = 1;
         }
         
-        _parser->emitCallRet(m8r::Op::RET, Parser::RegOrConst(), count);
+        _parser->emitCallRet(Op::RET, Parser::RegOrConst(), count);
         expect(Token::Semicolon);
         return true;
     }
@@ -545,7 +545,7 @@ void ParseEngine::forLoopCondAndIt()
     expect(Token::Semicolon);
     Label label = _parser->label();
     commaExpression(); // cond expr
-    _parser->addMatchedJump(m8r::Op::JF, label);
+    _parser->addMatchedJump(Op::JF, label);
     _parser->startDeferred();
     expect(Token::Semicolon);
     commaExpression(); // iterator
@@ -591,7 +591,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     _parser->emitDeref(Parser::DerefType::Prop);
     _parser->emitCallRet(Op::CALL, Parser::RegOrConst(), 0);
 
-    _parser->addMatchedJump(m8r::Op::JT, label);
+    _parser->addMatchedJump(Op::JT, label);
 
     statement();
 
@@ -802,7 +802,7 @@ bool ParseEngine::objectExpression()
             argCount = argumentList();
             expect(Token::RParen);
         }
-        _parser->emitCallRet(m8r::Op::NEW, Parser::RegOrConst(), argCount);
+        _parser->emitCallRet(Op::NEW, Parser::RegOrConst(), argCount);
         return true;
     }
     
@@ -846,7 +846,7 @@ bool ParseEngine::postfixExpression()
             retireToken();
             uint32_t argCount = argumentList();
             expect(Token::RParen);
-            _parser->emitCallRet(m8r::Op::CALL, objectReg, argCount);
+            _parser->emitCallRet(Op::CALL, objectReg, argCount);
             objectReg = Parser::RegOrConst();
         } else if (getToken() == Token::LBracket) {
             retireToken();
@@ -907,12 +907,12 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
 
         Label ifLabel = _parser->label();
         Label elseLabel = _parser->label();
-        _parser->addMatchedJump(m8r::Op::JF, elseLabel);
+        _parser->addMatchedJump(Op::JF, elseLabel);
         _parser->pushTmp();
         commaExpression();
         _parser->emitMove();
         expect(Token::Colon);
-        _parser->addMatchedJump(m8r::Op::JMP, ifLabel);
+        _parser->addMatchedJump(Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
         arithmeticExpression();
         _parser->emitMove();

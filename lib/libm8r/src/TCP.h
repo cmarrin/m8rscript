@@ -12,6 +12,7 @@
 #include "IPAddr.h"
 #include "MString.h"
 #include "MUDP.h"
+#include "SharedPtr.h"
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -22,7 +23,7 @@ class TCP;
 
 // Native
 
-class TCP : public NativeObject 
+class TCP : public Shared
 {
 public:
     enum class Event { Connected, Reconnected, Disconnected, ReceivedData, SentData, Error };

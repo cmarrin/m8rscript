@@ -52,7 +52,7 @@ __index
 __nativeObject
 __object
 __destructor
-__timer
+__impl
 arguments
 back
 call

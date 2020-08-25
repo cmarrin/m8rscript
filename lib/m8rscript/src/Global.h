@@ -20,7 +20,7 @@
 #include "TimerProto.h"
 #include "TCPProto.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class Function;
 

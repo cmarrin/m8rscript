@@ -13,7 +13,7 @@
 #include "GC.h"
 #include "TCP.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static StaticObject::StaticFunctionProperty _props[] =
 {

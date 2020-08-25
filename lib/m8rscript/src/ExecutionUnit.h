@@ -16,7 +16,7 @@
 #include "Program.h"
 #include "Task.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class Parser;
 

@@ -54,7 +54,7 @@ void TaskManager::requestYield()
     }
 }
 
-void TaskManager::run(const std::shared_ptr<Task>& newTask, FinishCallback cb)
+void TaskManager::run(const SharedPtr<Task>& newTask, FinishCallback cb)
 {
     {
         newTask->_finishCB = cb;
@@ -64,7 +64,7 @@ void TaskManager::run(const std::shared_ptr<Task>& newTask, FinishCallback cb)
     readyToExecuteNextTask();
 }
 
-void TaskManager::terminate(const std::shared_ptr<Task>& task)
+void TaskManager::terminate(const SharedPtr<Task>& task)
 {
     {
         _list.remove(task);
@@ -79,7 +79,7 @@ bool TaskManager::runOneIteration()
     }
     
     // Find the next executable task
-    auto it = std::find_if(_list.begin(), _list.end(), [](std::shared_ptr<Task> task) {
+    auto it = std::find_if(_list.begin(), _list.end(), [](SharedPtr<Task> task) {
         return task->readyToRun();
     });
 
@@ -111,7 +111,7 @@ bool TaskManager::runOneIteration()
         _currentTask->setState(Task::State::Terminated);
         _list.remove(_currentTask);
         _currentTask->finish();
-        _currentTask = nullptr;
+        _currentTask.reset();
     } else if (returnValue.isWaitForEvent()) {
         _currentTask->setState(Task::State::WaitingForEvent);
     } else if (returnValue.isDelay()) {

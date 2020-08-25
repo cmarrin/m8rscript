@@ -165,16 +165,6 @@ enum class MemoryType : uint8_t {
     NumTypes
 };
 
-class NativeObject {
-public:
-    static MemoryType memoryType() { return MemoryType::Native; }
-    
-    NativeObject() { }
-    virtual ~NativeObject() { }
-
-    virtual void gcMark() { }
-};
-
 }
 
 #endif

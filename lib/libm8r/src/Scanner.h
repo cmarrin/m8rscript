@@ -12,10 +12,6 @@
 #include "MStream.h"
 #include "MString.h"
 
-namespace m8r {
-    class Function;
-}
-
 #define MAX_ID_LENGTH 32
 
 namespace m8r {
@@ -86,7 +82,6 @@ class Scanner  {
 public:
     typedef struct {
         Label           label;
-        Function*       function;
         float   	    number;
         uint32_t        integer;
         uint32_t        argcount;

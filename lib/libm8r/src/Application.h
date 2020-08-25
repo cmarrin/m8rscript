@@ -45,7 +45,7 @@ public:
 private:
     void init(uint16_t port);
     
-    std::shared_ptr<Task> _autostartTask;
+    SharedPtr<Task> _autostartTask;
     std::unique_ptr<Terminal> _terminal;
     std::unique_ptr<HTTPServer> _webServer;
 

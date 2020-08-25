@@ -13,7 +13,7 @@
 #include "Object.h"
 #include <functional>
 
-namespace m8r {
+namespace m8rscript {
 
 class PinMode : public StaticObject {
 public:

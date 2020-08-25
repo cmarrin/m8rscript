@@ -69,7 +69,7 @@ void Application::init(uint16_t port)
 #ifdef ENABLE_WEBSERVER
     _terminal = std::make_unique<Terminal>(port, [this]()
     {
-        std::shared_ptr<Task> task = std::make_shared<Task>();
+        SharedPtr<Task> task(new Task());
         task->load(SharedPtr<Shell>(new Shell()));
         return task;
     });
@@ -89,7 +89,7 @@ void Application::init(uint16_t port)
 
 void Application::runAutostartTask()
 {
-    _autostartTask = std::make_shared<Task>();
+    _autostartTask = SharedPtr<Task>(new Task());
     _autostartTask->setConsolePrintFunction([](const String& s) {
         system()->printf("%s", s.c_str());
     });
@@ -105,8 +105,10 @@ void Application::runAutostartTask()
         _autostartTask->receivedData(String(line, static_cast<uint32_t>(size)), KeyAction::None);
     });
 
-    if (!_autostartTask->load("/sys/bin/hello.marly")) {
-        _autostartTask->load(SharedPtr<Sample>(new Sample()));
+    if (!_autostartTask->load("/sys/bin/hello.m8r")) {
+        if (!_autostartTask->load("/sys/bin/hello.marly")) {
+            _autostartTask->load(SharedPtr<Sample>(new Sample()));
+        }
     }
     
     system()->taskManager()->run(_autostartTask, [this](m8r::Task*) {

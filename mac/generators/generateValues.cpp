@@ -164,7 +164,7 @@ int main(int argc, const char* argv[])
         fprintf(hfile, "\n}\n");
     }
 
-    fprintf(cppfile, "const char** sharedAtoms(uint16_t& nelts)\n");
+    fprintf(cppfile, "const char** %s::sharedAtoms(uint16_t& nelts)\n", ns);
     fprintf(cppfile, "{\n");
     fprintf(cppfile, "    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n");
     fprintf(cppfile, "    return _sharedAtoms;\n");

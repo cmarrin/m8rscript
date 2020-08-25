@@ -21,8 +21,6 @@
 
 namespace m8r {
 
-class Value;
-
 //
 //  Class: String
 //

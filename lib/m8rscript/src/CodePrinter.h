@@ -15,7 +15,7 @@
 #include "MachineCode.h"
 #include "Value.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class Object;
 class Parser;

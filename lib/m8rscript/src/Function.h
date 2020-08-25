@@ -14,7 +14,7 @@
 #include "MachineCode.h"
 #include "Object.h"
 
-namespace m8r {
+namespace m8rscript {
 
 class Function : public MaterObject {
 public:

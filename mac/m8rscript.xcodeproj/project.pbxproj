@@ -70,7 +70,6 @@
 		493E4F7A24F31D0600D64430 /* Iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6C24F31D0600D64430 /* Iterator.cpp */; };
 		493E4F7B24F31D0600D64430 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6D24F31D0600D64430 /* GPIO.cpp */; };
 		493E4F7C24F31D0600D64430 /* ParseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6E24F31D0600D64430 /* ParseEngine.cpp */; };
-		493E4F7F24F31EFE00D64430 /* JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F7D24F31EFE00D64430 /* JSON.cpp */; };
 		493E4F8324F31FF200D64430 /* JSONProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8124F31FF200D64430 /* JSONProto.cpp */; };
 		493E4F8424F31FF200D64430 /* JSONProto.h in Headers */ = {isa = PBXBuildFile; fileRef = 493E4F8224F31FF200D64430 /* JSONProto.h */; };
 		493E4F8724F320BE00D64430 /* TCPProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8524F320BE00D64430 /* TCPProto.cpp */; };
@@ -85,6 +84,7 @@
 		4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */; };
 		494D25631D2E9337003755DB /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; };
 		49562F6A1D1D7A75001AFAEE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49562F691D1D7A75001AFAEE /* main.cpp */; };
+		4968D6E024F48C2C00AD089F /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 493E4F4524F31A4100D64430 /* libm8rscript.a */; };
 		496AF9DA24A8127900431796 /* hello.marly in Resources */ = {isa = PBXBuildFile; fileRef = 496AF9D924A8127900431796 /* hello.marly */; };
 		4970FD131DB04DDD00521DF1 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 4970FD121DB04DDD00521DF1 /* download.png */; };
 		497139C0246F50860025CC4D /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 497139BC246F50860025CC4D /* index.html */; };
@@ -417,8 +417,6 @@
 		493E4F6C24F31D0600D64430 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../lib/m8rscript/src/Iterator.cpp; sourceTree = "<group>"; };
 		493E4F6D24F31D0600D64430 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../lib/m8rscript/src/GPIO.cpp; sourceTree = "<group>"; };
 		493E4F6E24F31D0600D64430 /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../lib/m8rscript/src/ParseEngine.cpp; sourceTree = "<group>"; };
-		493E4F7D24F31EFE00D64430 /* JSON.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSON.cpp; path = ../lib/libm8r/src/JSON.cpp; sourceTree = "<group>"; };
-		493E4F7E24F31EFE00D64430 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSON.h; path = ../lib/libm8r/src/JSON.h; sourceTree = "<group>"; };
 		493E4F8124F31FF200D64430 /* JSONProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = JSONProto.cpp; path = ../lib/m8rscript/src/JSONProto.cpp; sourceTree = "<group>"; };
 		493E4F8224F31FF200D64430 /* JSONProto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JSONProto.h; path = ../lib/m8rscript/src/JSONProto.h; sourceTree = "<group>"; };
 		493E4F8524F320BE00D64430 /* TCPProto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TCPProto.cpp; path = ../lib/m8rscript/src/TCPProto.cpp; sourceTree = "<group>"; };
@@ -440,6 +438,7 @@
 		4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = TimeZoneDBClient.m8r; path = examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
 		494D254E1D2E9055003755DB /* liblibm8r.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8r.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		49562F691D1D7A75001AFAEE /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4968D6DF24F48B1600AD089F /* M8rscript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = M8rscript.h; path = ../lib/m8rscript/src/M8rscript.h; sourceTree = "<group>"; };
 		496AF9D924A8127900431796 /* hello.marly */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = hello.marly; sourceTree = "<group>"; };
 		4970FD121DB04DDD00521DF1 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
 		497139BC246F50860025CC4D /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
@@ -606,6 +605,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4968D6E024F48C2C00AD089F /* libm8rscript.a in Frameworks */,
 				492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */,
 				4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */,
 			);
@@ -672,8 +672,6 @@
 				491B930724ECADA70078A2B9 /* HTTPServer.h */,
 				491B92E724ECADA50078A2B9 /* IPAddr.cpp */,
 				491B92E524ECADA40078A2B9 /* IPAddr.h */,
-				493E4F7D24F31EFE00D64430 /* JSON.cpp */,
-				493E4F7E24F31EFE00D64430 /* JSON.h */,
 				491B92EB24ECADA50078A2B9 /* Mallocator.cpp */,
 				491B92F124ECADA50078A2B9 /* Mallocator.h */,
 				491B92EC24ECADA50078A2B9 /* MFS.cpp */,
@@ -793,6 +791,7 @@
 				493E4F5324F31CDF00D64430 /* Iterator.h */,
 				493E4F8124F31FF200D64430 /* JSONProto.cpp */,
 				493E4F8224F31FF200D64430 /* JSONProto.h */,
+				4968D6DF24F48B1600AD089F /* M8rscript.h */,
 				493E4F5F24F31CE000D64430 /* MachineCode.h */,
 				493E4F6624F31D0500D64430 /* Object.cpp */,
 				493E4F5624F31CE000D64430 /* Object.h */,
@@ -1501,7 +1500,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateMarlyValues ../lib/marly/src/SharedAtoms.txt ../lib/marly/src\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateMarlyValues ../lib/marly/src/SharedAtoms.txt ../lib/marly/src marly\n";
 		};
 		493E4F4A24F31AA300D64430 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1518,7 +1517,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../lib/m8rscript/src/SharedAtoms.txt ../lib/m8rscript/src\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../lib/m8rscript/src/SharedAtoms.txt ../lib/m8rscript/src m8rscript\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1607,7 +1606,6 @@
 				491B937424EDE3340078A2B9 /* Application.cpp in Sources */,
 				491B937C24EDE3340078A2B9 /* IPAddr.cpp in Sources */,
 				491B937124EDE31D0078A2B9 /* lfs_util.c in Sources */,
-				493E4F7F24F31EFE00D64430 /* JSON.cpp in Sources */,
 				491B938124EDE3340078A2B9 /* MUDP.cpp in Sources */,
 				491B937E24EDE3340078A2B9 /* Mallocator.cpp in Sources */,
 				491B937824EDE3340078A2B9 /* Error.cpp in Sources */,

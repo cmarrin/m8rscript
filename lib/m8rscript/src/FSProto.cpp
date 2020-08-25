@@ -14,7 +14,7 @@
 #include "SystemInterface.h"
 #include "TCP.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static StaticObject::StaticFunctionProperty _propsFS[] =
 {
@@ -168,14 +168,28 @@ CallReturnValue FileProto::constructor(ExecutionUnit* eu, Value thisValue, uint3
         
     Mad<File> file = system()->fileSystem()->open(filename.c_str(), mode);
     
-    obj->setProperty(SAtom(SA::__nativeObject), Value::asValue(file), Value::SetType::AlwaysAdd);
+    obj->setProperty(SAtom(SA::__impl), Value(file.get()), Value::SetType::AlwaysAdd);
+
+    // Add a destructor for the file
+    Value dtor([](ExecutionUnit*, Value thisValue, uint32_t nparams)
+    {
+        File* file = reinterpret_cast<File*>(thisValue.property(SAtom(SA::__impl)).asRawPointer());
+        if (file) {
+            delete file;
+            thisValue.setProperty(SAtom(SA::__impl), Value(), Value::SetType::AddIfNeeded);
+        }
+        return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
+    });
+    
+    thisValue.setProperty(SAtom(SA::__destructor), dtor, Value::SetType::AddIfNeeded);
+
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
 
 CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
-    if (!file.valid()) {
+    SharedPtr<File> file = thisValue.isObject() ? thisValue.asObject()->impl<File>() : SharedPtr<File>();
+    if (!file) {
         return CallReturnValue(Error::Code::InternalError);
     }
 
@@ -185,8 +199,8 @@ CallReturnValue FileProto::close(ExecutionUnit* eu, Value thisValue, uint32_t np
 
 CallReturnValue FileProto::read(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
-    if (!file.valid()) {
+    SharedPtr<File> file = thisValue.isObject() ? thisValue.asObject()->impl<File>() : SharedPtr<File>();
+    if (!file) {
         return CallReturnValue(Error::Code::InternalError);
     }
 
@@ -230,8 +244,8 @@ CallReturnValue FileProto::eof(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue FileProto::valid(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Mad<File> file = thisValue.isObject() ? thisValue.asObject()->getNative<File>() : Mad<File>();
-    if (!file.valid()) {
+    SharedPtr<File> file = thisValue.isObject() ? thisValue.asObject()->impl<File>() : SharedPtr<File>();
+    if (!file) {
         return CallReturnValue(Error::Code::InternalError);
     }
     eu->stack().push(Value(file->valid()));

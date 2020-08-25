@@ -7,18 +7,22 @@
     found in the LICENSE file.
 -------------------------------------------------------------------------*/
 
-#include "Program.h"
+#pragma once
 
 #include "ExecutionUnit.h"
+#include "ScriptingLanguage.h"
+#include "SharedPtr.h"
 
-using namespace m8rscript;
+namespace m8rscript {
 
-Program::Program()
+class M8rscriptScriptingLanguage : public m8r::ScriptingLanguage
 {
-    // Set a dummy 'consoleListener' property so it can be overwritten
-    setProperty(SAtom(SA::consoleListener), Value::NullValue());
-}
+public:
+    virtual const char* suffix() const override { return "m8r"; }
+    virtual m8r::SharedPtr<m8r::Executable> create() const override
+    {
+        return m8r::SharedPtr<m8r::Executable>(new ExecutionUnit());
+    }
+};
 
-Program::~Program()
-{
 }

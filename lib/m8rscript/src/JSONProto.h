@@ -12,8 +12,10 @@
 #include "Object.h"
 
 namespace m8r {
+    class Scanner;
+}
 
-class Scanner;
+namespace m8rscript {
 
 class JSONProto : public StaticObject {
 public:

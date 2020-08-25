@@ -13,7 +13,7 @@
 #include "Object.h"
 #include <cmath>
 
-using namespace m8r;
+using namespace m8rscript;
 
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {

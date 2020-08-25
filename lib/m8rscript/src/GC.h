@@ -9,12 +9,13 @@
 
 #pragma once
 
+#include "Executable.h"
 #include "Mallocator.h"
 #include "SharedPtr.h"
 
-namespace m8r {
+namespace m8rscript {
 
-class Executable;
+using namespace m8r;
 
 class GC {
 public:

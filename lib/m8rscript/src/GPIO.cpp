@@ -14,7 +14,7 @@
 #include "Program.h"
 #include "SystemInterface.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 PinMode GPIO::_pinMode;
 Trigger GPIO::_trigger;

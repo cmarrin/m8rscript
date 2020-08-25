@@ -46,10 +46,10 @@ static const char _Trigger[] = "Trigger";
 static const char _UDP[] = "UDP";
 static const char _UDPProto[] = "UDPProto";
 static const char ___destructor[] = "__destructor";
+static const char ___impl[] = "__impl";
 static const char ___index[] = "__index";
 static const char ___nativeObject[] = "__nativeObject";
 static const char ___object[] = "__object";
-static const char ___timer[] = "__timer";
 static const char _arguments[] = "arguments";
 static const char _back[] = "back";
 static const char _call[] = "call";
@@ -164,10 +164,10 @@ const char* _sharedAtoms[] = {
     _UDP,
     _UDPProto,
     ___destructor,
+    ___impl,
     ___index,
     ___nativeObject,
     ___object,
-    ___timer,
     _arguments,
     _back,
     _call,
@@ -242,7 +242,7 @@ const char* _sharedAtoms[] = {
     _write,
 };
 
-const char** sharedAtoms(uint16_t& nelts)
+const char** m8rscript::sharedAtoms(uint16_t& nelts)
 {
     nelts = sizeof(_sharedAtoms) / sizeof(const char*);
     return _sharedAtoms;

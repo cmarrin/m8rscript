@@ -13,7 +13,7 @@
 #include "Program.h"
 #include "SystemInterface.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static StaticObject::StaticFunctionProperty _props[] =
 {

@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace m8r {
+namespace m8rscript {
 
 /*
     Opcodes:

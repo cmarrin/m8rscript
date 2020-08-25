@@ -16,7 +16,9 @@
 #include "Mallocator.h"
 #include "SystemTime.h"
 
-namespace m8r {
+namespace m8rscript {
+
+using namespace m8r;
 
 class StaticObject;
 class NativeObject;

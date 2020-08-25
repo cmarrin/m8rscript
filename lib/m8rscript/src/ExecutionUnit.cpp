@@ -17,7 +17,7 @@
 #include "SystemTime.h"
 #include <cmath>
 
-using namespace m8r;
+using namespace m8rscript;
 
 ExecutionUnit::ExecutionUnit()
     : _stack(20)

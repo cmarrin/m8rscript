@@ -15,7 +15,7 @@
 #include "MStream.h"
 #include "SystemInterface.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 static Vector<RawMad> _objectStore;
 static Vector<RawMad> _stringStore;
@@ -112,7 +112,7 @@ void GC::gc(bool force)
     inGC = false;
 }
 
-namespace m8r {
+namespace m8rscript {
 
 template<>
 void GC::addToStore<MemoryType::Object>(RawMad v)

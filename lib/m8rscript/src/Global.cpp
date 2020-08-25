@@ -14,7 +14,7 @@
 #include "StringStream.h"
 #include "SystemInterface.h"
 
-using namespace m8r;
+using namespace m8rscript;
 
 Global Global::_global;
 

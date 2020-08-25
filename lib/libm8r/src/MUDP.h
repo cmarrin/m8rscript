@@ -22,7 +22,7 @@ class IPAddr;
 
 // Native
 
-class UDP : public NativeObject {
+class UDP {
 public:
     enum class Event { Disconnected, ReceivedData, SentData, Error };
 

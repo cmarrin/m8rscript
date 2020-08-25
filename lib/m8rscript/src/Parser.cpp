@@ -14,7 +14,7 @@
 #include "GC.h"
 #include <limits>
 
-using namespace m8r;
+using namespace m8rscript;
 
 uint32_t Parser::_nextLabelId = 1;
 
@@ -693,7 +693,7 @@ Mad<Function> Parser::functionEnd()
     // If this is a ctor, we need to return this, just in case
     if (_functions.back()._ctor) {
         pushThis();
-        emitCallRet(m8r::Op::RET, RegOrConst(), 1);
+        emitCallRet(Op::RET, RegOrConst(), 1);
     }
     
     emitEnd();
