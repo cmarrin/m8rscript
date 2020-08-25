@@ -73,7 +73,7 @@ m8r::String Error::vformatError(Code code, const char* format, va_list args)
 m8r::String Error::vformatError(Code code, int32_t lineno, const char* format, va_list args)
 {
     String s(description(code));
-    s += String(" Error: ");
+    s += String(" Error");
     if (!format) {
         return s;
     }
