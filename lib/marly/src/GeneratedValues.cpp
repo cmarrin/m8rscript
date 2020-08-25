@@ -61,7 +61,7 @@ static const char _tuck[] = "tuck";
 static const char _unpack[] = "unpack";
 static const char _while$[] = "while";
 
-const char* _sharedAtoms[] = {
+const char* _marly_sharedAtoms[] = {
     _Once,
     _Repeat,
     _Timer,
@@ -120,7 +120,7 @@ const char* _sharedAtoms[] = {
 
 const char** marly::sharedAtoms(uint16_t& nelts)
 {
-    nelts = sizeof(_sharedAtoms) / sizeof(const char*);
-    return _sharedAtoms;
+    nelts = sizeof(_marly_sharedAtoms) / sizeof(const char*);
+    return _marly_sharedAtoms;
 }
 

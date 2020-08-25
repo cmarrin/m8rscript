@@ -123,7 +123,7 @@ static const char _value[] = "value";
 static const char _waitForEvent[] = "waitForEvent";
 static const char _write[] = "write";
 
-const char* _sharedAtoms[] = {
+const char* _m8rscript_sharedAtoms[] = {
     _Array,
     _Base64,
     _BothEdges,
@@ -244,7 +244,7 @@ const char* _sharedAtoms[] = {
 
 const char** m8rscript::sharedAtoms(uint16_t& nelts)
 {
-    nelts = sizeof(_sharedAtoms) / sizeof(const char*);
-    return _sharedAtoms;
+    nelts = sizeof(_m8rscript_sharedAtoms) / sizeof(const char*);
+    return _m8rscript_sharedAtoms;
 }
 

@@ -148,7 +148,7 @@ int main(int argc, const char* argv[])
     }
     
     // Write the second .cpp entries
-    fprintf(cppfile, "\nconst char* _sharedAtoms[] = {\n");
+    fprintf(cppfile, "\nconst char* _%s_sharedAtoms[] = {\n", ns);
     for (int32_t i = 0; i < strings.size(); ++i) {
         fprintf(cppfile, "    _%s,\n", strings[i].c_str());
     }
@@ -166,8 +166,8 @@ int main(int argc, const char* argv[])
 
     fprintf(cppfile, "const char** %s::sharedAtoms(uint16_t& nelts)\n", ns);
     fprintf(cppfile, "{\n");
-    fprintf(cppfile, "    nelts = sizeof(_sharedAtoms) / sizeof(const char*);\n");
-    fprintf(cppfile, "    return _sharedAtoms;\n");
+    fprintf(cppfile, "    nelts = sizeof(_%s_sharedAtoms) / sizeof(const char*);\n", ns);
+    fprintf(cppfile, "    return _%s_sharedAtoms;\n", ns);
     fprintf(cppfile, "}\n");
     fprintf(cppfile, "\n");
 
