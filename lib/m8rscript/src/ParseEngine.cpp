@@ -64,7 +64,7 @@ ParseEngine::Token ParseEngine::getToken()
             return Token::Identifier;
         }
     
-        return static_cast<Token>(uint16_t(result[-1]) + 0x100);
+        return static_cast<Token>(uint16_t(uint8_t(result[-1])) + 0x100);
     }
 
     // FIXME: Add implementaton for multi-char operators

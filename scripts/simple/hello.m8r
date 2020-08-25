@@ -1,13 +1,12 @@
-println("Hello");
-//var t = new Timer(function() { println("******* Timer Fired"); });
-//t.start(2.5, Timer.Repeating);
-//
-//var i = 0;
-//while (i < 10) {
-//    println("Hello World");
-//    delay(1);
-//    i++;
-//}
-//
-//currentTime();
-//delay(5);
+var t = new Timer(function() { println("******* Timer Fired"); });
+t.start(2.5, Timer.Repeating);
+
+var i = 0;
+while (i < 10) {
+    println("Hello World");
+    delay(1);
+    i++;
+}
+
+currentTime();
+delay(5);
