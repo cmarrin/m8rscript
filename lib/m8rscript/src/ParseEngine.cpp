@@ -53,15 +53,22 @@ static const char* keywordString(_keywordString);
 // If the word is a keyword, return the enum for it, otherwise return Unknown
 ParseEngine::Token ParseEngine::getToken()
 {
-    // FIXME: Add implementaton for multi-char operators
-    const char* s = getTokenValue().str;
-    int32_t len = static_cast<int32_t>(strlen(s));
-    const char* result = ::strstr(keywordString, s);
-    if (!result || uint8_t(result[len]) < 0x80 || uint8_t(result[-1]) < 0x80) {
-        return Token::None;
-    }
+    Token token = Token(_parser->_scanner.getToken());
     
-    return static_cast<Token>(uint16_t(result[-1]) + 0x100);
+    if (token == Token::Identifier) {
+        // Handle keyword
+        const char* s = getTokenValue().str;
+        int32_t len = static_cast<int32_t>(strlen(s));
+        const char* result = ::strstr(keywordString, s);
+        if (!result || uint8_t(result[len]) < 0x80 || uint8_t(result[-1]) < 0x80) {
+            return Token::Identifier;
+        }
+    
+        return static_cast<Token>(uint16_t(result[-1]) + 0x100);
+    }
+
+    // FIXME: Add implementaton for multi-char operators
+    return token;
 }
 
 ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {

@@ -17,6 +17,11 @@ Program::Program()
 {
     // Set a dummy 'consoleListener' property so it can be overwritten
     setProperty(SAtom(SA::consoleListener), Value::NullValue());
+    
+    // Set sharedAtoms
+    uint16_t count = 0;
+    const char** list = sharedAtoms(count);
+    _atomTable.setSharedAtomList(list, count);
 }
 
 Program::~Program()
