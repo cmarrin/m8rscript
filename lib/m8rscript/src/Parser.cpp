@@ -47,14 +47,9 @@ Mad<Function> Parser::parse(const m8r::Stream& stream, ExecutionUnit* eu, Debug 
     return functionEnd();
 }
 
-void Parser::printError(const char* format, ...)
+void Parser::recordError(const char* format, ...)
 {
     va_list args;
-    va_start(args, format);
-    _eu->printf("***** ");
-    _eu->print(Error::vformatError(Error::Code::ParseError, _scanner.lineno(), format, args).c_str());
-    va_end(args);
-    
     va_start(args, format);
     String s = String::vformat(format, args);
     _syntaxErrors.emplace_back(s.c_str(), _scanner.lineno(), 1, 1);
@@ -64,19 +59,19 @@ void Parser::printError(const char* format, ...)
 void Parser::unknownError(Token token)
 {
     uint8_t c = static_cast<uint8_t>(token);
-    printError("unknown token (%s)", String(c).c_str());
+    recordError("unknown token (%s)", String(c).c_str());
 }
 
 void Parser::expectedError(Token token, const char* s)
 {
     char c = static_cast<char>(token);
     if (c >= 0x20 && c <= 0x7f) {
-        printError("syntax error: expected '%c'", c);
+        recordError("syntax error: expected '%c'", c);
     } else {
         switch(token) {
-            case Token::Identifier: printError("identifier"); break;
-            case Token::EndOfFile: printError("unable to continue parsing"); break;
-            default: printError("*** UNKNOWN TOKEN ***"); break;
+            case Token::Identifier: recordError("identifier"); break;
+            case Token::EndOfFile: recordError("unable to continue parsing"); break;
+            default: recordError("*** UNKNOWN TOKEN ***"); break;
         }
     }
 }
@@ -84,15 +79,15 @@ void Parser::expectedError(Token token, const char* s)
 void Parser::expectedError(Expect expect, const char* s)
 {
     switch(expect) {
-        case Expect::DuplicateDefault: printError("multiple default cases not allowed"); break;
-        case Expect::Expr: assert(s); printError("expected %s%sexpression", s ?: "", s ? " " : ""); break;
-        case Expect::PropertyAssignment: printError("expected object member"); break;
-        case Expect::Statement: printError("statement expected"); break;
-        case Expect::MissingVarDecl: printError("missing var declaration"); break;
-        case Expect::OneVarDeclAllowed: printError("only one var declaration allowed here"); break;
-        case Expect::ConstantValueRequired: printError("constant value required"); break;
-        case Expect::While: printError("while required"); break;
-        default: printError("*** Internal Error ***"); break;
+        case Expect::DuplicateDefault: recordError("multiple default cases not allowed"); break;
+        case Expect::Expr: assert(s); recordError("expected %s%sexpression", s ?: "", s ? " " : ""); break;
+        case Expect::PropertyAssignment: recordError("expected object member"); break;
+        case Expect::Statement: recordError("statement expected"); break;
+        case Expect::MissingVarDecl: recordError("missing var declaration"); break;
+        case Expect::OneVarDeclAllowed: recordError("only one var declaration allowed here"); break;
+        case Expect::ConstantValueRequired: recordError("constant value required"); break;
+        case Expect::While: recordError("while required"); break;
+        default: recordError("*** Internal Error ***"); break;
     }
 }
 
@@ -131,7 +126,7 @@ void Parser::doMatchJump(int32_t matchAddr, int32_t jumpAddr)
     if (nerrors()) return;
     
     if (jumpAddr < -MaxJump || jumpAddr > MaxJump) {
-        printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
+        recordError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
         return;
     }
     
@@ -151,7 +146,7 @@ void Parser::jumpToLabel(Op op, Label& label)
     int32_t jumpAddr = label.label - static_cast<int32_t>(_deferred ? _deferredCode.size() : currentCode().size());
 
     if (jumpAddr < -MaxJump || jumpAddr > MaxJump) {
-        printError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
+        recordError("JUMP ADDRESS TOO BIG TO EXIT LOOP. CODE WILL NOT WORK!\n");
     }
     
     RegOrConst r;
@@ -230,7 +225,7 @@ void Parser::addCode(Op op, RegOrConst reg0, RegOrConst reg1, RegOrConst reg2, u
 Parser::RegOrConst Parser::addConstant(const Value& v)
 {
     if (currentConstants().size() >= std::numeric_limits<uint8_t>::max()) {
-        printError("TOO MANY CONSTANTS IN FUNCTION!\n");
+        recordError("TOO MANY CONSTANTS IN FUNCTION!\n");
         return RegOrConst();
     }
     
@@ -345,7 +340,7 @@ void Parser::emitId(const Atom& atom, IdType type)
                 String s = "nonexistent variable '";
                 s += _program->stringFromAtom(atom);
                 s += "'";
-                printError("%s", s.c_str());
+                recordError("%s", s.c_str());
                 return;
             }
         }
@@ -373,7 +368,7 @@ void Parser::emitMove()
     
     switch(dstType) {
         case ParseStack::Type::This:
-            printError("Assignment to 'this' not allowed\n");
+            recordError("Assignment to 'this' not allowed\n");
             break;
         case ParseStack::Type::Unknown:
         case ParseStack::Type::Constant:
@@ -412,7 +407,7 @@ void Parser::emitMove()
             assert(_parseStack.topReg() == srcReg);
             return;
         case ParseStack::Type::UpValue:
-            printError("assignment to up-value not allowed, use boxed value instead");
+            recordError("assignment to up-value not allowed, use boxed value instead");
             break;
         }
     }
@@ -663,7 +658,7 @@ void Parser::functionAddParam(const Atom& atom)
         m8r::String s = "param '";
         s += _program->stringFromAtom(atom);
         s += "' already exists";
-        printError("%s", s.c_str());
+        recordError("%s", s.c_str());
     }
 }
 
