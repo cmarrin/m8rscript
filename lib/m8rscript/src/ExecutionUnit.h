@@ -32,6 +32,10 @@ public:
     virtual void gcMark() override;
 
     // Executable overrides
+    virtual bool load(const m8r::Stream&) override;
+    virtual const char* runtimeErrorString() const override { return _errorString.c_str(); }
+    virtual const m8r::ParseErrorList* parseErrors() const override { return &_parseErrorList; }
+
     virtual CallReturnValue execute() override;
     virtual bool readyToRun() const override { return !_eventQueue.empty() || !executingDelay(); }
     virtual void requestYield() const override { _yield = true; _checkForExceptions = true; }
@@ -247,6 +251,9 @@ private:
     Value _consoleListener;
     
     Timer _delayTimer;
+    
+    String _errorString;
+    ParseErrorList _parseErrorList;
 };
 
 }

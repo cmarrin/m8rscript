@@ -35,6 +35,20 @@ ExecutionUnit::~ExecutionUnit()
     GC::gc();
 }
 
+bool ExecutionUnit::load(const m8r::Stream& stream)
+{
+    Parser parser;
+    parser.parse(stream, this, Parser::debug);
+    _parseErrorList.swap(parser.syntaxErrors());
+
+    if (_parseErrorList.size() > 0) {
+        return false;
+    }
+    
+    startExecution(parser.program());
+    return true;
+}
+
 Mad<m8r::String> ExecutionUnit::createString(const m8r::String& other)
 {
     Mad<String> s = Mad<String>::create();
