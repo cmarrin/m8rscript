@@ -14,7 +14,7 @@
 
 namespace m8rscript {
 
-class UpValue : public Shared {
+class UpValue : public m8r::Shared {
 public:
     UpValue()
         : _closed(false)
@@ -57,7 +57,7 @@ public:
     
     void init(ExecutionUnit* eu, const Value& function, const Value& thisValue);
     
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Closure") : Object::toString(eu, false); }
+    virtual m8r::String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? m8r::String("Closure") : Object::toString(eu, false); }
 
     virtual void gcMark() override
     {
@@ -73,9 +73,9 @@ public:
         }
     }
     
-    virtual CallReturnValue callProperty(ExecutionUnit* eu, Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
+    virtual m8r::CallReturnValue callProperty(ExecutionUnit* eu, m8r::Atom prop, uint32_t nparams) override { return _func->callProperty(eu, prop, nparams); }
 
-    virtual CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams) override;
+    virtual m8r::CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams) override;
     
     virtual const InstructionVector* code() const override { return _func->code(); }
     virtual uint16_t localCount() const override { return _func->localCount(); }
@@ -83,12 +83,12 @@ public:
     virtual uint16_t formalParamCount() const override { return _func->formalParamCount(); }
     virtual bool loadUpValue(ExecutionUnit* eu, uint32_t index, Value& value) const override;
     
-    virtual Atom name() const override { return _func->name(); }
+    virtual m8r::Atom name() const override { return _func->name(); }
 
 private:
-    Vector<SharedPtr<UpValue>> _upValues;
+    m8r::Vector<m8r::SharedPtr<UpValue>> _upValues;
 
-    Mad<Object> _func;
+    m8r::Mad<Object> _func;
     Value _thisValue;
 };
 

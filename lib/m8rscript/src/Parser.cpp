@@ -15,6 +15,7 @@
 #include <limits>
 
 using namespace m8rscript;
+using namespace m8r;
 
 uint32_t Parser::_nextLabelId = 1;
 
@@ -56,42 +57,7 @@ void Parser::recordError(const char* format, ...)
     va_end(args);
 }
 
-void Parser::unknownError(Token token)
-{
-    uint8_t c = static_cast<uint8_t>(token);
-    recordError("unknown token (%s)", String(c).c_str());
-}
-
-void Parser::expectedError(Token token, const char* s)
-{
-    char c = static_cast<char>(token);
-    if (c >= 0x20 && c <= 0x7f) {
-        recordError("syntax error: expected '%c'", c);
-    } else {
-        switch(token) {
-            case Token::Identifier: recordError("identifier"); break;
-            case Token::EndOfFile: recordError("unable to continue parsing"); break;
-            default: recordError("*** UNKNOWN TOKEN ***"); break;
-        }
-    }
-}
-
-void Parser::expectedError(Expect expect, const char* s)
-{
-    switch(expect) {
-        case Expect::DuplicateDefault: recordError("multiple default cases not allowed"); break;
-        case Expect::Expr: assert(s); recordError("expected %s%sexpression", s ?: "", s ? " " : ""); break;
-        case Expect::PropertyAssignment: recordError("expected object member"); break;
-        case Expect::Statement: recordError("statement expected"); break;
-        case Expect::MissingVarDecl: recordError("missing var declaration"); break;
-        case Expect::OneVarDeclAllowed: recordError("only one var declaration allowed here"); break;
-        case Expect::ConstantValueRequired: recordError("constant value required"); break;
-        case Expect::While: recordError("while required"); break;
-        default: recordError("*** Internal Error ***"); break;
-    }
-}
-
-Label Parser::label()
+Parser::Label Parser::label()
 {
     Label label;
     if (!nerrors()) {
@@ -101,7 +67,7 @@ Label Parser::label()
     return label;
 }
 
-void Parser::addMatchedJump(Op op, Label& label)
+void Parser::addMatchedJump(Op op, Parser::Label& label)
 {
     if (nerrors()) return;
     

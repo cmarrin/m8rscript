@@ -14,6 +14,7 @@
 #include "TCP.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
 static StaticObject::StaticFunctionProperty _props[] =
 {

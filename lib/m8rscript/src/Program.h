@@ -25,10 +25,10 @@ public:
         Function::gcMark();
     }
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Program") : Function::toString(eu, false); }
+    virtual m8r::String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? m8r::String("Program") : Function::toString(eu, false); }
 
-    const char* stringFromAtom(const Atom& atom) const { return _atomTable.stringFromAtom(atom); }
-    Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
+    const char* stringFromAtom(const m8r::Atom& atom) const { return _atomTable.stringFromAtom(atom); }
+    m8r::Atom atomizeString(const char* s) const { return _atomTable.atomizeString(s); }
 
     StringLiteral startStringLiteral() { return StringLiteral(StringLiteral::Raw(static_cast<uint32_t>(_stringLiteralTable.size()))); }
     void addToStringLiteral(char c) { _stringLiteralTable.push_back(c); }
@@ -63,9 +63,9 @@ public:
     }
     
 private:    
-    AtomTable _atomTable;
+    m8r::AtomTable _atomTable;
     
-    Vector<char> _stringLiteralTable;
+    m8r::Vector<char> _stringLiteralTable;
 };
 
 }

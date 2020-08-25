@@ -17,49 +17,49 @@ class FileProto : public StaticObject {
 public:
     FileProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue close(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue seek(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue tell(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
 class DirectoryProto : public StaticObject {
 public:
     DirectoryProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue name(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue size(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue type(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue valid(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue error(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };    
 
 class FSProto : public StaticObject {
 public:
     FSProto();
         
-    static CallReturnValue mount(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
-    static CallReturnValue unmount(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue open(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
-    static CallReturnValue openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue remove(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue rename(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue stat(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue mount(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue mounted(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue unmount(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue format(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue open(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue openDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue makeDirectory(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue remove(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue rename(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue stat(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue lastError(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue errorString(ExecutionUnit*, Value thisValue, uint32_t nparams);
 
-    static String findPath(ExecutionUnit*, const String& filename, const Mad<Object>& env);
+    static m8r::String findPath(ExecutionUnit*, const m8r::String& filename, const m8r::Mad<Object>& env);
 };
 
 }

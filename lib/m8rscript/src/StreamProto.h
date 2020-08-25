@@ -17,10 +17,10 @@ class StreamProto : public StaticObject {
 public:
     StreamProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue eof(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue read(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue write(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

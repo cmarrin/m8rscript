@@ -22,9 +22,9 @@ public:
 
     virtual ~Function() { }
 
-    virtual String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? String("Function") : Object::toString(eu, false); }
+    virtual m8r::String toString(ExecutionUnit* eu, bool typeOnly = false) const override { return typeOnly ? m8r::String("Function") : Object::toString(eu, false); }
         
-    virtual CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams) override;
+    virtual m8r::CallReturnValue callProperty(ExecutionUnit*, m8r::Atom prop, uint32_t nparams) override;
 
     virtual void gcMark() override
     {
@@ -38,14 +38,14 @@ public:
     }
 
     virtual const InstructionVector* code() const override { return &_code; }
-    void setCode(const Vector<uint8_t>& code) { _code = code; }
+    void setCode(const m8r::Vector<uint8_t>& code) { _code = code; }
 
     void setLocalCount(uint16_t size) { _localSize = size; }
     virtual uint16_t localCount() const override { return _localSize; }
     
-    virtual CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) override;
+    virtual m8r::CallReturnValue call(ExecutionUnit*, Value thisValue, uint32_t nparams) override;
 
-    void setConstants(const Vector<Value>& constants) { _constants = constants; }
+    void setConstants(const m8r::Vector<Value>& constants) { _constants = constants; }
 
     void enumerateConstants(std::function<void(const Value&, const ConstantId&)> func)
     {
@@ -66,12 +66,12 @@ public:
         return true;
     }
 
-    void setName(const Atom s) { _name = s; }
-    virtual Atom name() const override { return _name; }
+    void setName(const m8r::Atom s) { _name = s; }
+    virtual m8r::Atom name() const override { return _name; }
     
-    uint32_t addUpValue(uint32_t index, uint16_t frame, Atom name);
+    uint32_t addUpValue(uint32_t index, uint16_t frame, m8r::Atom name);
         
-    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame, Atom& name) const override
+    virtual bool upValue(uint32_t i, uint32_t& index, uint16_t& frame, m8r::Atom& name) const override
     {
         index = _upValues[i]._index;
         frame = _upValues[i]._frame;
@@ -90,7 +90,7 @@ public:
 private:
     struct UpValueEntry {
         UpValueEntry() { }
-        UpValueEntry(uint32_t index, uint16_t frame, Atom name)
+        UpValueEntry(uint32_t index, uint16_t frame, m8r::Atom name)
             : _index(index)
             , _frame(frame)
             , _name(name)
@@ -103,15 +103,15 @@ private:
         
         uint32_t _index = 0;
         uint16_t _frame = 0;
-        Atom _name;
+        m8r::Atom _name;
     };
     
-    Vector<UpValueEntry> _upValues;
+    m8r::Vector<UpValueEntry> _upValues;
     uint16_t _formalParamCount = 0;
     InstructionVector _code;
     uint16_t _localSize = 0;
-    Vector<Value> _constants;
-    Atom _name;
+    m8r::Vector<Value> _constants;
+    m8r::Atom _name;
 };
 
 }

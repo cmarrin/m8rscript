@@ -10,100 +10,92 @@
 #include "ParseEngine.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
-static constexpr ParseEngine::Keyword K(Token t) { return ParseEngine::Keyword(t); }
-
+// Numeric values correspond to Token numbers minus 0x100
 static const char _keywordString[] =
-    "\x01" "break"
-    "\x02" "case"
-    "\x03" "class"
-    "\x04" "constructor"
-    "\x05" "continue"
-    "\x06" "default"
-    "\x07" "delete"
-    "\x08" "do"
-    "\x09" "else"
-    "\x0a" "for"
-    "\x0b" "function"
-    "\x0c" "if"
-    "\x0d" "new"
-    "\x0e" "return"
-    "\x0f" "switch"
-    "\x10" "this"
-    "\x11" "var"
-    "\x12" "while"
+    "\x81" "break"
+    "\x82" "case"
+    "\x83" "class"
+    "\x84" "constructor"
+    "\x85" "continue"
+    "\x86" "default"
+    "\x87" "delete"
+    "\x88" "do"
+    "\x89" "else"
+    "\x8a" "for"
+    "\x8b" "function"
+    "\x8c" "if"
+    "\x8d" "new"
+    "\x8e" "return"
+    "\x8f" "switch"
+    "\x90" "this"
+    "\x91" "var"
+    "\x92" "while"
 
-    "\x13" "+="
-    "\x14" "-="
-    "\x15" "*="
-    "\x16" "/="
-    "\x17" "%="
-    "\x18" "<<="
-    "\x19" ">>="
-    "\x1a" ">>>="
-    "\x1b" "&="
-    "\x1c" "|="
-    "\x1d" "^="
-    "\x1e" "||"
-    "\x1f" "&&"
+    "\x93" "+="
+    "\x94" "-="
+    "\x95" "*="
+    "\x96" "/="
+    "\x97" "%="
+    "\x98" "<<="
+    "\x99" ">>="
+    "\x9a" ">>>="
+    "\x9b" "&="
+    "\x9c" "|="
+    "\x9d" "^="
+    "\x9e" "||"
+    "\x9f" "&&"
 ;
 
 static const char* keywordString(_keywordString);
 
 // If the word is a keyword, return the enum for it, otherwise return Unknown
-ParseEngine::Keyword ParseEngine::scanKeyword()
+ParseEngine::Token ParseEngine::getToken()
 {
+    // FIXME: Add implementaton for multi-char operators
     const char* s = getTokenValue().str;
     int32_t len = static_cast<int32_t>(strlen(s));
     const char* result = ::strstr(keywordString, s);
-    if (!result || result[len] >= 0x20 || result[-1] >= 0x20) {
-        return Keyword::Unknown;
+    if (!result || uint8_t(result[len]) < 0x80 || uint8_t(result[-1]) < 0x80) {
+        return Token::None;
     }
     
-    return static_cast<Keyword>(result[-1]);
-}
-
-ParseEngine::Keyword ParseEngine::tokenToKeyword()
-{
-    if (getToken() != Token::Identifier) {
-        return Keyword::Unknown;
-    }
-    
-    return scanKeyword();
+    return static_cast<Token>(uint16_t(result[-1]) + 0x100);
 }
 
 ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {
-    { Token::STO,         1, OperatorInfo::Assoc::Right, false, Op::MOVE },
-    { Keyword::ADDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::ADD  },
-    { Keyword::SUBSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SUB  },
-    { Keyword::MULSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MUL  },
-    { Keyword::DIVSTO,    1, OperatorInfo::Assoc::Right, true,  Op::DIV  },
-    { Keyword::MODSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MOD  },
-    { Keyword::SHLSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHL  },
-    { Keyword::SHRSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHR  },
-    { Keyword::SARSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SAR  },
-    { Keyword::ANDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::AND  },
-    { Keyword::ORSTO,     1, OperatorInfo::Assoc::Right, true,  Op::OR   },
-    { Keyword::XORSTO,    1, OperatorInfo::Assoc::Right, true,  Op::XOR  },
-    { Keyword::LOR,       6, OperatorInfo::Assoc::Left,  false, Op::LOR  },
-    { Keyword::LAND,      7, OperatorInfo::Assoc::Left,  false, Op::LAND },
-    { Token::OR,          8, OperatorInfo::Assoc::Left,  false, Op::OR   },
-    { Token::XOR,         9, OperatorInfo::Assoc::Left,  false, Op::XOR  },
-    { Token::Ampersand,  10, OperatorInfo::Assoc::Left,  false, Op::OR   },
-    { Keyword::EQ,       11, OperatorInfo::Assoc::Left,  false, Op::EQ   },
-    { Keyword::NE,       11, OperatorInfo::Assoc::Left,  false, Op::NE   },
-    { Token::LT,         12, OperatorInfo::Assoc::Left,  false, Op::LT   },
-    { Token::GT,         12, OperatorInfo::Assoc::Left,  false, Op::GT   },
-    { Keyword::GE,       12, OperatorInfo::Assoc::Left,  false, Op::GE   },
-    { Keyword::LE,       12, OperatorInfo::Assoc::Left,  false, Op::LE   },
-    { Keyword::SHL,      13, OperatorInfo::Assoc::Left,  false, Op::SHL  },
-    { Keyword::SHR,      13, OperatorInfo::Assoc::Left,  false, Op::SHR  },
-    { Keyword::SAR,      13, OperatorInfo::Assoc::Left,  false, Op::SAR  },
-    { Token::Plus,       14, OperatorInfo::Assoc::Left,  false, Op::ADD  },
-    { Token::Minus,      14, OperatorInfo::Assoc::Left,  false, Op::SUB  },
-    { Token::Star,       15, OperatorInfo::Assoc::Left,  false, Op::MUL  },
-    { Token::Slash,      15, OperatorInfo::Assoc::Left,  false, Op::DIV  },
-    { Token::Percent,    15, OperatorInfo::Assoc::Left,  false, Op::MOD  },
+    { Token::STO,       1, OperatorInfo::Assoc::Right, false, Op::MOVE },
+    { Token::ADDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::ADD  },
+    { Token::SUBSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SUB  },
+    { Token::MULSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MUL  },
+    { Token::DIVSTO,    1, OperatorInfo::Assoc::Right, true,  Op::DIV  },
+    { Token::MODSTO,    1, OperatorInfo::Assoc::Right, true,  Op::MOD  },
+    { Token::SHLSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHL  },
+    { Token::SHRSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SHR  },
+    { Token::SARSTO,    1, OperatorInfo::Assoc::Right, true,  Op::SAR  },
+    { Token::ANDSTO,    1, OperatorInfo::Assoc::Right, true,  Op::AND  },
+    { Token::ORSTO,     1, OperatorInfo::Assoc::Right, true,  Op::OR   },
+    { Token::XORSTO,    1, OperatorInfo::Assoc::Right, true,  Op::XOR  },
+    { Token::LOR,       6, OperatorInfo::Assoc::Left,  false, Op::LOR  },
+    { Token::LAND,      7, OperatorInfo::Assoc::Left,  false, Op::LAND },
+    { Token::OR,        8, OperatorInfo::Assoc::Left,  false, Op::OR   },
+    { Token::XOR,       9, OperatorInfo::Assoc::Left,  false, Op::XOR  },
+    { Token::Ampersand,10, OperatorInfo::Assoc::Left,  false, Op::OR   },
+    { Token::EQ,       11, OperatorInfo::Assoc::Left,  false, Op::EQ   },
+    { Token::NE,       11, OperatorInfo::Assoc::Left,  false, Op::NE   },
+    { Token::LT,       12, OperatorInfo::Assoc::Left,  false, Op::LT   },
+    { Token::GT,       12, OperatorInfo::Assoc::Left,  false, Op::GT   },
+    { Token::GE,       12, OperatorInfo::Assoc::Left,  false, Op::GE   },
+    { Token::LE,       12, OperatorInfo::Assoc::Left,  false, Op::LE   },
+    { Token::SHL,      13, OperatorInfo::Assoc::Left,  false, Op::SHL  },
+    { Token::SHR,      13, OperatorInfo::Assoc::Left,  false, Op::SHR  },
+    { Token::SAR,      13, OperatorInfo::Assoc::Left,  false, Op::SAR  },
+    { Token::Plus,     14, OperatorInfo::Assoc::Left,  false, Op::ADD  },
+    { Token::Minus,    14, OperatorInfo::Assoc::Left,  false, Op::SUB  },
+    { Token::Star,     15, OperatorInfo::Assoc::Left,  false, Op::MUL  },
+    { Token::Slash,    15, OperatorInfo::Assoc::Left,  false, Op::DIV  },
+    { Token::Percent,  15, OperatorInfo::Assoc::Left,  false, Op::MOD  },
 };
 
 ParseEngine::ParseEngine(Parser* parser)
@@ -114,25 +106,54 @@ ParseEngine::ParseEngine(Parser* parser)
 bool ParseEngine::expect(Token token)
 {
     if (getToken() != token) {
-        _parser->expectedError(token);
+        expectedError(token);
         return false;
     }
     retireToken();
     return true;
 }
 
-bool ParseEngine::expect(Parser::Expect expect, bool expected, const char* s)
+bool ParseEngine::expect(Expect expect, bool expected, const char* s)
 {
     if (!expected) {
-        _parser->expectedError(expect, s);
+        expectedError(expect, s);
     }
     return expected;
+}
+
+void ParseEngine::expectedError(Token token, const char* s)
+{
+    char c = static_cast<char>(token);
+    if (c >= 0x20 && c <= 0x7f) {
+        _parser->recordError("syntax error: expected '%c'", c);
+    } else {
+        switch(token) {
+            case Token::Identifier: _parser->recordError("identifier"); break;
+            case Token::EndOfFile: _parser->recordError("unable to continue parsing"); break;
+            default: _parser->recordError("*** UNKNOWN TOKEN ***"); break;
+        }
+    }
+}
+
+void ParseEngine::expectedError(Expect expect, const char* s)
+{
+    switch(expect) {
+        case Expect::DuplicateDefault: _parser->recordError("multiple default cases not allowed"); break;
+        case Expect::Expr: assert(s); _parser->recordError("expected %s%sexpression", s ?: "", s ? " " : ""); break;
+        case Expect::PropertyAssignment: _parser->recordError("expected object member"); break;
+        case Expect::Statement: _parser->recordError("statement expected"); break;
+        case Expect::MissingVarDecl: _parser->recordError("missing var declaration"); break;
+        case Expect::OneVarDeclAllowed: _parser->recordError("only one var declaration allowed here"); break;
+        case Expect::ConstantValueRequired: _parser->recordError("constant value required"); break;
+        case Expect::While: _parser->recordError("while required"); break;
+        default: _parser->recordError("*** Internal Error ***"); break;
+    }
 }
 
 void ParseEngine::program()
 {
     while(getToken() != Token::EndOfFile) {
-        if (!expect(Parser::Expect::Statement, statement())) {
+        if (!expect(Expect::Statement, statement())) {
             break;
         }
     }
@@ -154,7 +175,7 @@ bool ParseEngine::statement()
 
 bool ParseEngine::functionStatement()
 {
-    if (tokenToKeyword() != Keyword::Function) {
+    if (getToken() != Token::Function) {
         return false;
     }
     retireToken();
@@ -167,7 +188,7 @@ bool ParseEngine::functionStatement()
 
 bool ParseEngine::classStatement()
 {
-    if (tokenToKeyword() != Keyword::Class) {
+    if (getToken() != Token::Class) {
         return false;
     }
     retireToken();
@@ -177,7 +198,7 @@ bool ParseEngine::classStatement()
 
     expect(Token::Identifier);
     
-    if (!expect(Parser::Expect::Expr, classExpression(), "class")) {
+    if (!expect(Expect::Expr, classExpression(), "class")) {
         return false;
     }
     _parser->emitMove();
@@ -198,21 +219,21 @@ bool ParseEngine::compoundStatement()
 
 bool ParseEngine::selectionStatement()
 {
-    if (tokenToKeyword() != Keyword::If) {
+    if (getToken() != Token::If) {
         return false;
     }
     retireToken();
     expect(Token::LParen);
     commaExpression();
     
-    Label ifLabel = _parser->label();
-    Label elseLabel = _parser->label();
+    Parser::Label ifLabel = _parser->label();
+    Parser::Label elseLabel = _parser->label();
     _parser->addMatchedJump(Op::JF, elseLabel);
 
     expect(Token::RParen);
     statement();
 
-    if (tokenToKeyword() == Keyword::Else) {
+    if (getToken() == Token::Else) {
         retireToken();
         _parser->addMatchedJump(Op::JMP, ifLabel);
         _parser->matchJump(elseLabel);
@@ -226,7 +247,7 @@ bool ParseEngine::selectionStatement()
 
 bool ParseEngine::switchStatement()
 {
-    if (tokenToKeyword() != Keyword::Switch) {
+    if (getToken() != Token::Switch) {
         return false;
     }
     retireToken();
@@ -242,7 +263,7 @@ bool ParseEngine::switchStatement()
     
     Vector<CaseEntry> cases;
     int32_t defaultStatement = 0;
-    Label defaultFromStatementLabel;
+    Parser::Label defaultFromStatementLabel;
     bool haveDefault = false;
     
     while (true) {
@@ -255,11 +276,11 @@ bool ParseEngine::switchStatement()
     
     // We need a JMP statement here. It will either jump after all the case
     // statements or to the default statement
-    Label endJumpLabel = _parser->label();
+    Parser::Label endJumpLabel = _parser->label();
     _parser->addMatchedJump(Op::JMP, endJumpLabel);
     
     int32_t statementStart = _parser->emitDeferred();
-    Label afterStatementsLabel = _parser->label();
+    Parser::Label afterStatementsLabel = _parser->label();
     
     if (haveDefault) {
         _parser->matchJump(endJumpLabel, defaultStatement - deferredStatementStart + statementStart);
@@ -287,8 +308,8 @@ bool ParseEngine::switchStatement()
 
 bool ParseEngine::iterationStatement()
 {
-    Keyword keyword = tokenToKeyword();
-    if (keyword != Keyword::While && keyword != Keyword::Do && keyword != Keyword::For) {
+    Token token = getToken();
+    if (token != Token::While && token != Token::Do && token != Token::For) {
         return false;
     }
     
@@ -296,9 +317,9 @@ bool ParseEngine::iterationStatement()
     
     _breakStack.emplace_back();
     _continueStack.emplace_back();
-    if (keyword == Keyword::While) {
+    if (token == Token::While) {
         expect(Token::LParen);
-        Label label = _parser->label();
+        Parser::Label label = _parser->label();
         commaExpression();
         _parser->addMatchedJump(Op::JF, label);
         expect(Token::RParen);
@@ -311,8 +332,8 @@ bool ParseEngine::iterationStatement()
         
         _parser->jumpToLabel(Op::JMP, label);
         _parser->matchJump(label);
-    } else if (keyword == Keyword::Do) {
-        Label label = _parser->label();
+    } else if (token == Token::Do) {
+        Parser::Label label = _parser->label();
         statement();
 
         // resolve the continue statements
@@ -320,15 +341,15 @@ bool ParseEngine::iterationStatement()
             _parser->matchJump(it);
         }
 
-        expect(Parser::Expect::While);
+        expect(Expect::While);
         expect(Token::LParen);
         commaExpression();
         _parser->jumpToLabel(Op::JT, label);
         expect(Token::RParen);
         expect(Token::Semicolon);
-    } else if (keyword == Keyword::For) {
+    } else if (token == Token::For) {
         expect(Token::LParen);
-        if (tokenToKeyword() == Keyword::Var) {
+        if (getToken() == Token::Var) {
             retireToken();
             
             // Hang onto the identifier. If this is a for..in we need to know it
@@ -338,14 +359,14 @@ bool ParseEngine::iterationStatement()
             }
             
             uint32_t count = variableDeclarationList();
-            expect(Parser::Expect::MissingVarDecl, count  > 0);
+            expect(Expect::MissingVarDecl, count  > 0);
             if (getToken() == Token::Colon) {
                 // for-in case with var
-                expect(Parser::Expect::OneVarDeclAllowed, count == 1);
+                expect(Expect::OneVarDeclAllowed, count == 1);
                 retireToken();
                 forIteration(name);
             } else {
-                expect(Parser::Expect::MissingVarDecl, count > 0);
+                expect(Expect::MissingVarDecl, count > 0);
                 forLoopCondAndIt();
             }
         } else {
@@ -374,14 +395,14 @@ bool ParseEngine::iterationStatement()
 
 bool ParseEngine::jumpStatement()
 {
-    Keyword keyword = tokenToKeyword();
-    if (keyword == Keyword::Break || keyword == Keyword::Continue) {
-        bool isBreak = keyword == Keyword::Break;
+    Token token = getToken();
+    if (token == Token::Break || token == Token::Continue) {
+        bool isBreak = token == Token::Break;
         retireToken();
         expect(Token::Semicolon);
         
         // Add a JMP which will get resolved by the enclosing iteration statement
-        Label label = _parser->label();
+        Parser::Label label = _parser->label();
         _parser->addMatchedJump(Op::JMP, label);
         if (isBreak) {
             _breakStack.back().push_back(label);
@@ -390,7 +411,7 @@ bool ParseEngine::jumpStatement()
         }
         return true;
     }
-    if (keyword == Keyword::Return) {
+    if (token == Token::Return) {
         retireToken();
         uint8_t count = 0;
         if (commaExpression()) {
@@ -412,12 +433,12 @@ bool ParseEngine::jumpStatement()
 
 bool ParseEngine::varStatement()
 {
-    if (tokenToKeyword() != Keyword::Var) {
+    if (getToken() != Token::Var) {
         return false;
     }
     
     retireToken();
-    expect(Parser::Expect::MissingVarDecl, variableDeclarationList() > 0);
+    expect(Expect::MissingVarDecl, variableDeclarationList() > 0);
     expect(Token::Semicolon);
     return true;
 }
@@ -439,9 +460,9 @@ bool ParseEngine::classContents()
         return false;
     }
 
-    Keyword keyword = tokenToKeyword();
+    Token token = getToken();
 
-    if (keyword == Keyword::Function) {
+    if (token == Token::Function) {
         retireToken();
         Atom name = _parser->atomizeString(getTokenValue().str);
         expect(Token::Identifier);
@@ -449,7 +470,7 @@ bool ParseEngine::classContents()
         _parser->currentClass()->setProperty(name, Value(f));
         return true;
     }
-    if (keyword == Keyword::Constructor) {
+    if (token == Token::Constructor) {
         retireToken();
         Mad<Function> f = functionExpression(true);
         if (!f.valid()) {
@@ -458,7 +479,7 @@ bool ParseEngine::classContents()
         _parser->currentClass()->setProperty(SAtom(SA::constructor), Value(f));
         return true;
     }
-    if (keyword == Keyword::Var) {
+    if (token == Token::Var) {
         retireToken();
 
         while (1) {
@@ -479,7 +500,7 @@ bool ParseEngine::classContents()
                     case Token::False: v = Value(false); retireToken(); break;
                     case Token::Null: v = Value::NullValue(); retireToken(); break;
                     case Token::Undefined: v = Value(); retireToken(); break;
-                    default: expect(Parser::Expect::ConstantValueRequired);
+                    default: expect(Expect::ConstantValueRequired);
                 }
             }
             _parser->currentClass()->setProperty(name, v);
@@ -496,16 +517,16 @@ bool ParseEngine::classContents()
 
 bool ParseEngine::caseClause(Vector<CaseEntry>& cases, 
                              int32_t &defaultStatement, 
-                             Label& defaultFromStatementLabel, 
+                             Parser::Label& defaultFromStatementLabel, 
                              bool& haveDefault)
 {
-    Keyword keyword = tokenToKeyword();
-    if (keyword == Keyword::Case || keyword == Keyword::Default) {
-        bool isDefault = keyword == Keyword::Default;
+    Token token = getToken();
+    if (token == Token::Case || token == Token::Default) {
+        bool isDefault = token == Token::Default;
         retireToken();
 
         if (isDefault) {
-            expect(Parser::Expect::DuplicateDefault, !haveDefault);
+            expect(Expect::DuplicateDefault, !haveDefault);
             haveDefault = true;
         } else {
             commaExpression();
@@ -543,7 +564,7 @@ void ParseEngine::forLoopCondAndIt()
 {
     // On entry, we are at the semicolon before the cond expr
     expect(Token::Semicolon);
-    Label label = _parser->label();
+    Parser::Label label = _parser->label();
     commaExpression(); // cond expr
     _parser->addMatchedJump(Op::JF, label);
     _parser->startDeferred();
@@ -585,7 +606,7 @@ void ParseEngine::forIteration(Atom iteratorName)
     _parser->emitMove();
     _parser->discardResult();
     
-    Label label = _parser->label();
+    Parser::Label label = _parser->label();
     _parser->emitId(iteratorName, Parser::IdType::MightBeLocal);
     _parser->emitId(SAtom(SA::done), Parser::IdType::NotLocal);
     _parser->emitDeref(Parser::DerefType::Prop);
@@ -637,7 +658,7 @@ bool ParseEngine::variableDeclaration()
     retireToken();
     _parser->emitId(name, Parser::IdType::MustBeLocal);
 
-    if (!expect(Parser::Expect::Expr, arithmeticExpression(), "variable")) {
+    if (!expect(Expect::Expr, arithmeticExpression(), "variable")) {
         return false;
     }
 
@@ -669,7 +690,7 @@ bool ParseEngine::propertyAssignment()
     if (!propertyName()) {
         return false;
     }
-    return expect(Token::Colon) && expect(Parser::Expect::Expr, arithmeticExpression());
+    return expect(Token::Colon) && expect(Expect::Expr, arithmeticExpression());
 }
 
 bool ParseEngine::propertyName()
@@ -699,7 +720,7 @@ void ParseEngine::formalParameterList()
         }
         retireToken();
         if (getToken() != Token::Identifier) {
-            _parser->expectedError(Token::Identifier);
+            expectedError(Token::Identifier);
             return;
         }
     }
@@ -730,7 +751,7 @@ bool ParseEngine::primaryExpression()
                 _parser->emitAppendElt();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Parser::Expect::Expr, arithmeticExpression(), "array element")) {
+                    if (!expect(Expect::Expr, arithmeticExpression(), "array element")) {
                         break;
                     }
                     _parser->emitAppendElt();
@@ -745,7 +766,7 @@ bool ParseEngine::primaryExpression()
                 _parser->emitAppendProp();
                 while (getToken() == Token::Comma) {
                     retireToken();
-                    if (!expect(Parser::Expect::PropertyAssignment, propertyAssignment())) {
+                    if (!expect(Expect::PropertyAssignment, propertyAssignment())) {
                         break;
                     }
                     _parser->emitAppendProp();
@@ -758,7 +779,7 @@ bool ParseEngine::primaryExpression()
         
         default:
             // Check for 'this'
-            if (tokenToKeyword() == Keyword::This) {
+            if (getToken() == Token::This) {
                 _parser->pushThis(); retireToken();
                 break;
             }
@@ -792,8 +813,8 @@ bool ParseEngine::classExpression()
 
 bool ParseEngine::objectExpression()
 {
-    Keyword keyword = tokenToKeyword();
-    if (keyword == Keyword::New) {
+    Token token = getToken();
+    if (token == Token::New) {
         retireToken();
         primaryExpression();
         uint32_t argCount = 0;
@@ -806,13 +827,13 @@ bool ParseEngine::objectExpression()
         return true;
     }
     
-    if (keyword == Keyword::Delete) {
+    if (token == Token::Delete) {
         retireToken();
         unaryExpression();
         return true;
     } 
     
-    if (keyword == Keyword::Function) {
+    if (token == Token::Function) {
         retireToken();
         Mad<Function> f = functionExpression(false);
         if (!f.valid()) {
@@ -821,7 +842,7 @@ bool ParseEngine::objectExpression()
         _parser->pushK(Value(f));
         return true;
     }
-    if (keyword == Keyword::Class) {
+    if (token == Token::Class) {
         retireToken();
         classExpression();
         return true;
@@ -839,9 +860,9 @@ bool ParseEngine::postfixExpression()
     while(1) {
         Token token = getToken();
         
-        if (K(token) == Keyword::INCR || K(token) == Keyword::DECR) {
+        if (token == Token::INCR || token == Token::DECR) {
             retireToken();
-            _parser->emitUnOp((K(token) == Keyword::INCR) ? Op::POSTINC : Op::POSTDEC);
+            _parser->emitUnOp((token == Token::INCR) ? Op::POSTINC : Op::POSTDEC);
         } else if (getToken() == Token::LParen) {
             retireToken();
             uint32_t argCount = argumentList();
@@ -876,12 +897,12 @@ bool ParseEngine::unaryExpression()
     }
     
     Op op;
-    switch(K(getToken())) {
-        case Keyword::INCR: op = Op::PREINC; break;
-        case Keyword::DECR: op = Op::PREDEC; break;
-        case Keyword::Minus: op = Op::UMINUS; break;
-        case Keyword::Twiddle: op = Op::UNOT; break;
-        case Keyword::Bang: op = Op::UNEG; break;
+    switch(getToken()) {
+        case Token::INCR: op = Op::PREINC; break;
+        case Token::DECR: op = Op::PREDEC; break;
+        case Token::Minus: op = Op::UMINUS; break;
+        case Token::Twiddle: op = Op::UNOT; break;
+        case Token::Bang: op = Op::UNEG; break;
         default: op = Op::UNKNOWN; break;
     }
     
@@ -905,8 +926,8 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
         // Test the value on TOS. If true leave the next value on the stack, otherwise leave the one after that
         retireToken();
 
-        Label ifLabel = _parser->label();
-        Label elseLabel = _parser->label();
+        Parser::Label ifLabel = _parser->label();
+        Parser::Label elseLabel = _parser->label();
         _parser->addMatchedJump(Op::JF, elseLabel);
         _parser->pushTmp();
         commaExpression();
@@ -935,15 +956,15 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
         // here to jump over the next expression if TOS is false in the
         // case of LAND or true in the case of LOR
         if (it->op() == Op::LAND || it->op() == Op::LOR) {
-            Label passLabel = _parser->label();
-            Label skipLabel1 = _parser->label();
-            Label skipLabel2 = _parser->label();
+            Parser::Label passLabel = _parser->label();
+            Parser::Label skipLabel1 = _parser->label();
+            Parser::Label skipLabel2 = _parser->label();
             bool skipResult = it->op() != Op::LAND;
             
             // If the TOS is false (if LAND) or true (if LOR) jump to the skip label
             _parser->addMatchedJump(skipResult ? Op::JT : Op::JF, skipLabel1);
             
-            if (!expect(Parser::Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+            if (!expect(Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             
@@ -962,7 +983,7 @@ bool ParseEngine::arithmeticExpression(uint8_t minPrec)
             _parser->emitMove();
             _parser->matchJump(passLabel);
         } else {
-            if (!expect(Parser::Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
+            if (!expect(Expect::Expr, arithmeticExpression(nextMinPrec), "right-hand side")) {
                 return false;
             }
             _parser->emitBinOp(it->op());
@@ -981,7 +1002,7 @@ bool ParseEngine::commaExpression()
         return false;
     }
     while (getToken() == Token::Comma) {
-        if (!expect(Parser::Expect::Expr, arithmeticExpression(), "expression")) {
+        if (!expect(Expect::Expr, arithmeticExpression(), "expression")) {
             return false;
         }
     }

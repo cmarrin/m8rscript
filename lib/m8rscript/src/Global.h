@@ -39,18 +39,18 @@ public:
     static FileProto _file;
     static DirectoryProto _directory;
 
-    static CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue print(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue println(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue toFloat(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue toUInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue import(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue importString(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue waitForEvent(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue meminfo(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue currentTime(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue delay(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue print(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue println(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue toFloat(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue toInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue toUInt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue arguments(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue import(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue importString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue waitForEvent(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue meminfo(ExecutionUnit*, Value thisValue, uint32_t nparams);
     
     static const Global* shared() { return &_global; }
     

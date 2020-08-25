@@ -17,9 +17,9 @@ class IPAddrProto : public StaticObject {
 public:
     IPAddrProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue toString(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue lookupHostname(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

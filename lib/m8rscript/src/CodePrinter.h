@@ -33,18 +33,18 @@ public:
 private:
     using EnumerationFunction = std::function<void(Op, uint8_t imm, uint32_t pc)>;
     
-    uint8_t regOrConst(const Mad<Object> func, const uint8_t*& code, Value& constant) const;
-    String regString(const ExecutionUnit*, const Mad<Object>, const uint8_t*& code, bool up = false) const;
-    String regString(const ExecutionUnit*, const Mad<Object>, uint8_t r, const Value& constant, bool up = false) const;
+    uint8_t regOrConst(const m8r::Mad<Object> func, const uint8_t*& code, Value& constant) const;
+    m8r::String regString(const ExecutionUnit*, const m8r::Mad<Object>, const uint8_t*& code, bool up = false) const;
+    m8r::String regString(const ExecutionUnit*, const m8r::Mad<Object>, uint8_t r, const Value& constant, bool up = false) const;
  
     void showConstant(const ExecutionUnit*, m8r::String&, const Value&, bool abbreviated = false) const;
-    Value* valueFromId(Atom, const Mad<Object>) const;
-    Value deref(Mad<Program>, Mad<Object>, const Value&);
-    bool deref(Mad<Program>, Value&, const Value&);
-    Atom propertyNameFromValue(Mad<Program>, const Value&);
+    Value* valueFromId(m8r::Atom, const m8r::Mad<Object>) const;
+    Value deref(m8r::Mad<Program>, m8r::Mad<Object>, const Value&);
+    bool deref(m8r::Mad<Program>, Value&, const Value&);
+    m8r::Atom propertyNameFromValue(m8r::Mad<Program>, const Value&);
 
-    String generateCodeString(const ExecutionUnit*, const Mad<Function>, const char* functionName) const;
-    bool enumerateCode(const ExecutionUnit*, const Mad<Function>, EnumerationFunction) const;
+    m8r::String generateCodeString(const ExecutionUnit*, const m8r::Mad<Function>, const char* functionName) const;
+    bool enumerateCode(const ExecutionUnit*, const m8r::Mad<Function>, EnumerationFunction) const;
     
     void advanceAddr(Op, const uint8_t*& code) const;
 
@@ -53,7 +53,7 @@ private:
         uint32_t uniqueID;
     };
     
-    using Annotations = Vector<Annotation>;
+    using Annotations = m8r::Vector<Annotation>;
 
     uint32_t findAnnotation(uint32_t addr) const;
     void preamble(m8r::String& s, uint32_t addr, bool indent = true) const;

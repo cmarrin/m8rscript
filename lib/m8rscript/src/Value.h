@@ -18,8 +18,6 @@
 
 namespace m8rscript {
 
-using namespace m8r;
-
 class StaticObject;
 class NativeObject;
 class MaterObject;
@@ -29,7 +27,10 @@ class ExecutionUnit;
 class Program;
 class Value;
 
-using NativeFunction = CallReturnValue(*)(ExecutionUnit*, Value thisValue, uint32_t nparams);
+using NativeFunction = m8r::CallReturnValue(*)(ExecutionUnit*, Value thisValue, uint32_t nparams);
+class StringLiteral : public m8r::Id<uint32_t> { using Id::Id; };
+class ConstantId : public m8r::Id<uint8_t> { using Id::Id; };
+
 
 class Value {
 public:    
@@ -78,13 +79,13 @@ public:
         _value._intptr = intptr_t(value);
     }
 
-    explicit Value(Mad<Object> value) { setMad(value); _value._type = Type::Object; }
-    explicit Value(Mad<Function> value) { setMad(value); _value._type = Type::Object; }
-    explicit Value(Mad<String> value) { setMad(value); _value._type = Type::String; }
-    explicit Value(Mad<NativeObject> value) { setMad(value); _value._type = Type::NativeObject; }
+    explicit Value(m8r::Mad<Object> value) { setMad(value); _value._type = Type::Object; }
+    explicit Value(m8r::Mad<Function> value) { setMad(value); _value._type = Type::Object; }
+    explicit Value(m8r::Mad<m8r::String> value) { setMad(value); _value._type = Type::String; }
+    explicit Value(m8r::Mad<NativeObject> value) { setMad(value); _value._type = Type::NativeObject; }
 
     explicit Value(int32_t value) { init(); _value._int = value; _value._type = Type::Integer; }
-    explicit Value(Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
+    explicit Value(m8r::Atom value) { init(); _value._int = value.raw(); _value._type = Type::Id; }
     explicit Value(StringLiteral value) { init(); _value._int = value.raw(); _value._type = Type::StringLiteral; }
     
     // Define these to make sure no implicit functions are being called
@@ -108,19 +109,19 @@ public:
     // asXXX() functions are lightweight and simply cast the Value to that type. If not the correct type it returns 0 or null
     // toXXX() functions are heavyweight and attempt to convert the Value type to a primitive of the requested type
     
-    Mad<Object> asObject() const { return (type() == Type::Object) ? getMad<Object>() : Mad<Object>(); }
-    Mad<String> asString() const { return (type() == Type::String) ? getMad<String>() : Mad<String>(); }
+    m8r::Mad<Object> asObject() const { return (type() == Type::Object) ? getMad<Object>() : m8r::Mad<Object>(); }
+    m8r::Mad<m8r::String> asString() const { return (type() == Type::String) ? getMad<m8r::String>() : m8r::Mad<m8r::String>(); }
     StringLiteral asStringLiteralValue() const { return (type() == Type::StringLiteral) ? stringLiteralFromValue() : StringLiteral(); }
     int32_t asIntValue() const { return (type() == Type::Integer) ? int32FromValue() : 0; }
     float asFloatValue() const { return (type() == Type::Float) ? floatFromValue() : 0; }
-    Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : Atom(); }
-    Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? getMad<NativeObject>() : Mad<NativeObject>(); }
+    m8r::Atom asIdValue() const { return (type() == Type::Id) ? atomFromValue() : m8r::Atom(); }
+    m8r::Mad<NativeObject> asNativeObject() const { return (type() == Type::NativeObject) ? getMad<NativeObject>() : m8r::Mad<NativeObject>(); }
     NativeFunction asNativeFunction() { return (type() == Type::NativeFunction) ? nativeFunctionFromValue() : nullptr; }
     StaticObject* asStaticObject() { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
     const StaticObject* asStaticObject() const { return (type() == Type::StaticObject) ? staticObjectFromValue() : nullptr; }
     void* asRawPointer() const { return (type() == Type::RawPointer) ? reinterpret_cast<void*>(_value._intptr) : nullptr; }
 
-    static Value asValue(Mad<NativeObject> obj) { return Value(static_cast<Mad<NativeObject>>(obj)); }
+    static Value asValue(m8r::Mad<NativeObject> obj) { return Value(static_cast<m8r::Mad<NativeObject>>(obj)); }
     
     m8r::String toStringValue(ExecutionUnit*) const;
     const char* toStringPointer(ExecutionUnit*) const;
@@ -155,7 +156,7 @@ public:
         return static_cast<int32_t>(toFloatValue(eu));
     }
     
-    Atom toIdValue(ExecutionUnit* eu) const
+    m8r::Atom toIdValue(ExecutionUnit* eu) const
     {
         if (type() == Type::Id) {
             return atomFromValue();
@@ -177,34 +178,34 @@ public:
     bool isStaticObject() const { return type() == Type::StaticObject; }
     bool isPointer() const { return isObject() || isNativeObject(); }
 
-    bool isType(ExecutionUnit*, Atom);
+    bool isType(ExecutionUnit*, m8r::Atom);
     bool isType(ExecutionUnit*, SA);
 
     void gcMark() const;
     
     enum class SetType { AlwaysAdd, NeverAdd, AddIfNeeded };
 
-    const Value property(const Atom&) const;
-    const Value property(ExecutionUnit*, const Atom&) const;
-    bool setProperty(const Atom& prop, const Value& value, Value::SetType);
+    const Value property(const m8r::Atom&) const;
+    const Value property(ExecutionUnit*, const m8r::Atom&) const;
+    bool setProperty(const m8r::Atom& prop, const Value& value, Value::SetType);
     const Value element(ExecutionUnit* eu, const Value& elt) const;
     bool setElement(ExecutionUnit* eu, const Value& elt, const Value& value, Value::SetType);
 
-    CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
-    CallReturnValue construct(ExecutionUnit* eu, uint32_t nparams);
-    CallReturnValue callProperty(ExecutionUnit*, Atom prop, uint32_t nparams);
+    m8r::CallReturnValue call(ExecutionUnit* eu, Value thisValue, uint32_t nparams);
+    m8r::CallReturnValue construct(ExecutionUnit* eu, uint32_t nparams);
+    m8r::CallReturnValue callProperty(ExecutionUnit*, m8r::Atom prop, uint32_t nparams);
         
     bool needsGC() const { return type() == Type::Object || type() == Type::String; }
     
 private:
     float _toFloatValue(ExecutionUnit*) const;
     Value _toValue(ExecutionUnit*) const;
-    Atom _toIdValue(ExecutionUnit*) const;
+    m8r::Atom _toIdValue(ExecutionUnit*) const;
 
     inline float floatFromValue() const { return _value._float; }
     int32_t int32FromValue() const { return _value._int; }
     uint32_t uint32FromValue() const { return _value._int; }
-    Atom atomFromValue() const { return Atom(static_cast<Atom::value_type>(_value._int)); }
+    m8r::Atom atomFromValue() const { return m8r::Atom(static_cast<m8r::Atom::value_type>(_value._int)); }
     NativeFunction nativeFunctionFromValue() { return reinterpret_cast<NativeFunction>(_value._intptr); }
     StaticObject* staticObjectFromValue() { return reinterpret_cast<StaticObject*>(_value._intptr); }
     const StaticObject* staticObjectFromValue() const { return reinterpret_cast<StaticObject*>(_value._intptr); }
@@ -215,10 +216,10 @@ private:
     }
 
     template<typename T>
-    void setMad(Mad<T> v) { assert(v.valid()); init(); _value._rawMad = v.raw(); }
+    void setMad(m8r::Mad<T> v) { assert(v.valid()); init(); _value._rawMad = v.raw(); }
     
     template<typename T>
-    Mad<T> getMad()const { return Mad<T>(_value._rawMad); }
+    m8r::Mad<T> getMad()const { return m8r::Mad<T>(_value._rawMad); }
     
     // A value is the size of a pointer. This can contain a Float (which can be up to 
     // 64 bits), a NativeFunction or StaticObject pointer, or a structure containing 
@@ -232,7 +233,7 @@ private:
         Type _type;
         union {
             intptr_t _intptr;
-            RawMad _rawMad;
+            m8r::RawMad _rawMad;
             int32_t _int;
             float _float;
         };

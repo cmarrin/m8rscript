@@ -15,6 +15,7 @@
 #include "SystemInterface.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
 Global Global::_global;
 

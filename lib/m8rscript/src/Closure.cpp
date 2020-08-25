@@ -12,6 +12,7 @@
 #include "ExecutionUnit.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
 Closure::~Closure()
 {

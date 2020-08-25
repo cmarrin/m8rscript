@@ -14,6 +14,7 @@
 #include <cmath>
 
 using namespace m8rscript;
+using namespace m8r;
 
 m8r::String Value::toStringValue(ExecutionUnit* eu) const
 {

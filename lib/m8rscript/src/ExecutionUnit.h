@@ -20,11 +20,11 @@ namespace m8rscript {
 
 class Parser;
 
-using ExecutionStack = Stack<Value>;
+using ExecutionStack = m8r::Stack<Value>;
 
-class ExecutionUnit : public Executable {
+class ExecutionUnit : public m8r::Executable {
 public:
-    static MemoryType memoryType() { return MemoryType::ExecutionUnit; }
+    static m8r::MemoryType memoryType() { return m8r::MemoryType::ExecutionUnit; }
 
     ExecutionUnit();
     ~ExecutionUnit();
@@ -36,23 +36,23 @@ public:
     virtual const char* runtimeErrorString() const override { return _errorString.c_str(); }
     virtual const m8r::ParseErrorList* parseErrors() const override { return &_parseErrorList; }
 
-    virtual CallReturnValue execute() override;
+    virtual m8r::CallReturnValue execute() override;
     virtual bool readyToRun() const override { return !_eventQueue.empty() || !executingDelay(); }
     virtual void requestYield() const override { _yield = true; _checkForExceptions = true; }
-    virtual void receivedData(const String& data, KeyAction) override;
+    virtual void receivedData(const m8r::String& data, m8r::KeyAction) override;
 
-    void startExecution(Mad<Program>);
+    void startExecution(m8r::Mad<Program>);
     
-    void startDelay(Duration);
+    void startDelay(m8r::Duration);
     void continueDelay();
     
-    CallReturnValue import(const Stream&, Value);
+    m8r::CallReturnValue import(const m8r::Stream&, Value);
     
     ExecutionStack& stack() { return _stack; }
 
     void requestTermination() { _terminate = true; }
     
-    const Mad<Program> program() const { return _program; }
+    const m8r::Mad<Program> program() const { return _program; }
     
     uint32_t argumentCount() const { return _actualParamCount; }
     Value& argument(int32_t i) { return _stack.inFrame(i); }
@@ -70,21 +70,21 @@ public:
     void stopEventListening() { _numEventListeners--; }
 
     uint32_t upValueStackIndex(uint32_t index, uint16_t frame) const;
-    void addOpenUpValue(const SharedPtr<UpValue>& upValue) { _openUpValues.push_back(upValue); }
+    void addOpenUpValue(const m8r::SharedPtr<UpValue>& upValue) { _openUpValues.push_back(upValue); }
     
-    Mad<Callable> currentFunction() const { return _function; }
+    m8r::Mad<Callable> currentFunction() const { return _function; }
     
     uint32_t lineno() const { return _lineno; }
 
-    String debugString(uint16_t index);
+    m8r::String debugString(uint16_t index);
 
-    static Mad<String> createString(const String& other);
-    static Mad<String> createString(String&& other);
-    static Mad<String> createString(const char* str, int32_t length = -1);
+    static m8r::Mad<m8r::String> createString(const m8r::String& other);
+    static m8r::Mad<m8r::String> createString(m8r::String&& other);
+    static m8r::Mad<m8r::String> createString(const char* str, int32_t length = -1);
     
     void requestTerminate() const { _terminate = true; _checkForExceptions = true; }
 
-    void startFunction(Mad<Object> function, Mad<Object> thisObject, uint32_t nparams);
+    void startFunction(m8r::Mad<Object> function, m8r::Mad<Object> thisObject, uint32_t nparams);
 
 private:
     static constexpr uint32_t MaxRunTimeErrrors = 30;
@@ -112,13 +112,13 @@ private:
         return _checkForExceptions ? checkForExceptions(imm) : opFromCode(_currentAddr, imm);
     }
     
-    CallReturnValue endFunction();
-    CallReturnValue runNextEvent();
+    m8r::CallReturnValue endFunction();
+    m8r::CallReturnValue runNextEvent();
 
     void printError(const char* s, ...) const;
-    void printError(Error) const;
+    void printError(m8r::Error) const;
     
-    Value* valueFromId(Atom, const Object*) const;
+    Value* valueFromId(m8r::Atom, const Object*) const;
 
     void updateCodePointer()
     {
@@ -126,8 +126,8 @@ private:
         _currentAddr = _code;
     }
     
-    Value derefId(Atom);
-    void stoIdRef(Atom, const Value&);
+    Value derefId(m8r::Atom);
+    void stoIdRef(m8r::Atom, const Value&);
     
     void setInFrame(uint32_t r, const Value& v)
     {
@@ -158,9 +158,9 @@ private:
         }
 
         if (shortSharedAtomConstant(r)) {
-            return Value(Atom(byteFromCode(_currentAddr)));
+            return Value(m8r::Atom(byteFromCode(_currentAddr)));
         } else if (longSharedAtomConstant(r)) {
-            return Value(Atom(uNFromCode(_currentAddr)));
+            return Value(m8r::Atom(uNFromCode(_currentAddr)));
         } else {
             Value value;
             _function->constant(r, value);
@@ -195,7 +195,7 @@ private:
     
     struct CallRecord {
         CallRecord() { }
-        CallRecord(uint32_t pc, uint32_t frame, Mad<Object> func, Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, uint32_t localsAdded)
+        CallRecord(uint32_t pc, uint32_t frame, m8r::Mad<Object> func, m8r::Mad<Object> thisObj, uint32_t paramCount, uint32_t lineno, uint32_t localsAdded)
             : _pc(pc)
             , _paramCount(paramCount)
             , _frame(frame)
@@ -208,23 +208,23 @@ private:
         uint32_t _pc : 23;
         uint32_t _paramCount : 8;
         uint32_t _frame;
-        Mad<Object> _func;
-        Mad<Object> _thisObj;
+        m8r::Mad<Object> _func;
+        m8r::Mad<Object> _thisObj;
         uint32_t _lineno = 0;
         uint32_t _localsAdded = 0;
         bool _executingDelay = false;
     };
     
     using EventValue = Value;
-    using CallRecordVector = Vector<CallRecord>;
-    using EventValueVector = Vector<EventValue>;
+    using CallRecordVector = m8r::Vector<CallRecord>;
+    using EventValueVector = m8r::Vector<EventValue>;
 
     CallRecordVector _callRecords;
     ExecutionStack _stack;
     
-    Mad<Program> _program;
-    Mad<Object> _function;
-    Mad<Object> _this;
+    m8r::Mad<Program> _program;
+    m8r::Mad<Object> _function;
+    m8r::Mad<Object> _this;
     uint32_t _localOffset = 0;
     uint16_t _formalParamCount = 0;
     uint32_t _actualParamCount = 0;
@@ -246,14 +246,14 @@ private:
     
     uint32_t _lineno = 0;
     
-    Vector<SharedPtr<UpValue>> _openUpValues;
+    m8r::Vector<m8r::SharedPtr<UpValue>> _openUpValues;
     
     Value _consoleListener;
     
-    Timer _delayTimer;
+    m8r::Timer _delayTimer;
     
-    String _errorString;
-    ParseErrorList _parseErrorList;
+    m8r::String _errorString;
+    m8r::ParseErrorList _parseErrorList;
 };
 
 }

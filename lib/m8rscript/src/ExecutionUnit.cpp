@@ -18,6 +18,7 @@
 #include <cmath>
 
 using namespace m8rscript;
+using namespace m8r;
 
 ExecutionUnit::ExecutionUnit()
     : _stack(20)

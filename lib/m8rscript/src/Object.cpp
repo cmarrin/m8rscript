@@ -17,6 +17,7 @@
 #include "SystemInterface.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
 //void operator delete(void* p) throw()
 //{

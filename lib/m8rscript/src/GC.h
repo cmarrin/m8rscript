@@ -15,22 +15,20 @@
 
 namespace m8rscript {
 
-using namespace m8r;
-
 class GC {
 public:
     static void gc(bool force = false);
     
-    template<MemoryType Type>
-    static void addToStore(RawMad);
+    template<m8r::MemoryType Type>
+    static void addToStore(m8r::RawMad);
 
-    template<MemoryType Type>
-    static void removeFromStore(RawMad);
+    template<m8r::MemoryType Type>
+    static void removeFromStore(m8r::RawMad);
 
-    static void addStaticObject(RawMad);
-    static void removeStaticObject(RawMad);
-    static void addExecutable(const SharedPtr<Executable>&);
-    static void removeExecutable(const SharedPtr<Executable>&);
+    static void addStaticObject(m8r::RawMad);
+    static void removeStaticObject(m8r::RawMad);
+    static void addExecutable(const m8r::SharedPtr<m8r::Executable>&);
+    static void removeExecutable(const m8r::SharedPtr<m8r::Executable>&);
 
 private:
     static constexpr int32_t MaxGCObjectDiff = 10;

@@ -238,77 +238,92 @@ digit: '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
 
 class ParseEngine  {
 public:
-    enum class Keyword {
-        Unknown     = 0x00,
-        Break       = 0x01,
-        Case        = 0x02,
-        Class       = 0x03,
-        Constructor = 0x04,
-        Continue    = 0x05,
-        Default     = 0x06,
-        Delete      = 0x07,
-        Do          = 0x08,
-        Else        = 0x09,
-        For         = 0x0a,
-        Function    = 0x0b,
-        If          = 0x0c,
-        New         = 0x0d,
-        Return      = 0x0e,
-        Switch      = 0x0f,
-        This        = 0x10,
-        Var         = 0x11,
-        While       = 0x12,
-
-        ADDSTO      = 0x13,
-        SUBSTO      = 0x14,
-        MULSTO      = 0x15,
-        DIVSTO      = 0x16,
-        MODSTO      = 0x17,
-        SHLSTO      = 0x18,
-        SHRSTO      = 0x19,
-        SARSTO      = 0x1a,
-        ANDSTO      = 0x1b,
-        ORSTO       = 0x1c,
-        XORSTO      = 0x1d,
-        LOR         = 0x1e,
-        LAND        = 0x1f,
+    enum class Token : uint16_t {
+        Bang        = int(m8r::Token::Bang),
+        Percent     = int(m8r::Token::Percent),
+        Ampersand   = int(m8r::Token::Ampersand),
+        LParen      = int(m8r::Token::LParen),
+        RParen      = int(m8r::Token::RParen),
+        Star        = int(m8r::Token::Star),
+        Plus        = int(m8r::Token::Plus),
+        Comma       = int(m8r::Token::Comma),
+        Minus       = int(m8r::Token::Minus),
+        Period      = int(m8r::Token::Period),
+        Slash       = int(m8r::Token::Slash),
+        Colon       = int(m8r::Token::Colon),
+        Semicolon   = int(m8r::Token::Semicolon),
+        LT          = int(m8r::Token::LT),
+        STO         = int(m8r::Token::STO),
+        GT          = int(m8r::Token::GT),
+        Question    = int(m8r::Token::Question),
+        LBracket    = int(m8r::Token::LBracket),
+        RBracket    = int(m8r::Token::RBracket),
+        XOR         = int(m8r::Token::XOR),
+        LBrace      = int(m8r::Token::LBrace),
+        OR          = int(m8r::Token::OR),
+        RBrace      = int(m8r::Token::RBrace),
+        Twiddle     = int(m8r::Token::Twiddle),
+        At          = int(m8r::Token::At),
+        Dollar      = int(m8r::Token::Dollar),
         
-        Bang        = '!',
-        Percent     = '%',
-        Ampersand   = '&',
-        LParen      = '(',
-        RParen      = ')',
-        Star        = '*',
-        Plus        = '+',
-        Comma       = ',',
-        Minus       = '-',
-        Period      = '.',
-        Slash       = '/',
-        Colon       = ':',
-        Semicolon   = ';',
-        LT          = '<',
-        STO         = '=',
-        GT          = '>',
-        Question    = '?',
-        LBracket    = '[',
-        RBracket    = ']',
-        XOR         = '^',
-        LBrace      = '{',
-        OR          = '|',
-        RBrace      = '}',
-        Twiddle     = '~',
-        At          = '@',
-        Dollar      = '$',
+        False       = int(m8r::Token::False),
+        Null        = int(m8r::Token::Null),
+        True        = int(m8r::Token::True),
+        Undefined   = int(m8r::Token::Undefined),
+        Unknown     = int(m8r::Token::Unknown),
+        Comment     = int(m8r::Token::Comment),
+        Whitespace  = int(m8r::Token::Whitespace),
+        Float       = int(m8r::Token::Float),
+        Identifier  = int(m8r::Token::Identifier),
+        String      = int(m8r::Token::String),
+        Integer     = int(m8r::Token::Integer),
+        None        = int(m8r::Token::None),
+        Special     = int(m8r::Token::Special),
+        Error       = int(m8r::Token::Error),
+        EndOfFile   = int(m8r::Token::EndOfFile),
+        
+        Break       = 0x181,
+        Case        = 0x182,
+        Class       = 0x183,
+        Constructor = 0x184,
+        Continue    = 0x185,
+        Default     = 0x186,
+        Delete      = 0x187,
+        Do          = 0x188,
+        Else        = 0x189,
+        For         = 0x18a,
+        Function    = 0x18b,
+        If          = 0x18c,
+        New         = 0x18d,
+        Return      = 0x18e,
+        Switch      = 0x18f,
+        This        = 0x180,
+        Var         = 0x181,
+        While       = 0x182,
 
-        EQ          = 0x40,       
-        NE          = 0x41,       
-        GE          = 0x42,       
-        LE          = 0x43,       
-        SHL         = 0x44,       
-        SHR         = 0x45,       
-        SAR         = 0x46,       
-        INCR        = 0x47,       
-        DECR        = 0x48,       
+        ADDSTO      = 0x183,
+        SUBSTO      = 0x184,
+        MULSTO      = 0x185,
+        DIVSTO      = 0x186,
+        MODSTO      = 0x187,
+        SHLSTO      = 0x188,
+        SHRSTO      = 0x189,
+        SARSTO      = 0x18a,
+        ANDSTO      = 0x18b,
+        ORSTO       = 0x18c,
+        XORSTO      = 0x18d,
+        LOR         = 0x18e,
+        LAND        = 0x18f,
+
+        EQ          = 0x1a0,       
+        NE          = 0x1a1,       
+        GE          = 0x1a2,       
+        LE          = 0x1a3,       
+        SHL         = 0x1a4,       
+        SHR         = 0x1a5,       
+        SAR         = 0x1a6,       
+        INCR        = 0x1a7,       
+        DECR        = 0x1a8,       
     };
 
   	ParseEngine(Parser* parser);
@@ -327,16 +342,6 @@ private:
         enum class Assoc { Left = 0, Right = 1 };
         
         OperatorInfo() { }
-        OperatorInfo(Keyword keyword, uint8_t prec, Assoc assoc, bool sto, Op op)
-        {
-            OperatorInfo info;
-            info._token = static_cast<uint32_t>(keyword);
-            info._prec = prec;
-            info._op = static_cast<uint32_t>(op);
-            info._assoc = static_cast<uint32_t>(assoc);
-            info._sto = sto;
-            _u = info._u;
-        }
         OperatorInfo(Token token, uint8_t prec, Assoc assoc, bool sto, Op op)
         {
             OperatorInfo info;
@@ -375,14 +380,16 @@ private:
     // OperatorInfo is in Flash, so we need to access it as a single 4 byte read
     static_assert(sizeof(OperatorInfo) == 4, "OperatorInfo must fit in 4 bytes");
 
-    bool expect(Token token);
-    bool expect(Parser::Expect expect, bool expected = false, const char* = nullptr);
-    
-    Keyword scanKeyword();
-    Keyword tokenToKeyword();
+    enum class Expect { Expr, PropertyAssignment, Statement, DuplicateDefault, MissingVarDecl, OneVarDeclAllowed, ConstantValueRequired, While };
 
-    Token getToken() { return _parser->getToken(); }
-    const Scanner::TokenType& getTokenValue() { return _parser->getTokenValue(); }
+    bool expect(Token token);
+    bool expect(Expect expect, bool expected = false, const char* = nullptr);
+    
+    void expectedError(Token token, const char* = nullptr);
+    void expectedError(Expect expect, const char* = nullptr);
+    
+    Token getToken();
+    const m8r::Scanner::TokenType& getTokenValue() { return _parser->_scanner.getTokenValue(); }
     void retireToken() { _parser->retireToken(); }
 
     bool statement();
@@ -397,10 +404,10 @@ private:
     bool varStatement();
     bool expressionStatement();
     
-    using CaseEntry = struct { Label toStatement; Label fromStatement; int32_t statementAddr; };
+    using CaseEntry = struct { Parser::Label toStatement; Parser::Label fromStatement; int32_t statementAddr; };
 
-    bool caseClause(Vector<CaseEntry>& cases, int32_t &defaultStatement, 
-                    Label& defaultFromStatementLabel, bool& haveDefault);
+    bool caseClause(m8r::Vector<CaseEntry>& cases, int32_t &defaultStatement, 
+                    Parser::Label& defaultFromStatementLabel, bool& haveDefault);
 
     bool classContents();
     uint32_t variableDeclarationList();
@@ -408,14 +415,14 @@ private:
     
     uint32_t argumentList();
     void forLoopCondAndIt();
-    void forIteration(Atom iteratorName);
+    void forIteration(m8r::Atom iteratorName);
     bool propertyAssignment();
     bool propertyName();
     void formalParameterList();
     
 
     bool primaryExpression();
-    Mad<Function> functionExpression(bool ctor);
+    m8r::Mad<Function> functionExpression(bool ctor);
     bool classExpression();
     bool objectExpression();
     bool postfixExpression();
@@ -425,10 +432,10 @@ private:
 
     Parser* _parser;
     Token _currentToken = Token::None;
-    Scanner::TokenType _currentTokenValue;
+    m8r::Scanner::TokenType _currentTokenValue;
     
-    Vector<Vector<Label>> _breakStack;
-    Vector<Vector<Label>> _continueStack;
+    m8r::Vector<m8r::Vector<Parser::Label>> _breakStack;
+    m8r::Vector<m8r::Vector<Parser::Label>> _continueStack;
 
     struct CompareTokens
     {
@@ -436,7 +443,6 @@ private:
     };
 
     static OperatorInfo _opInfos[ ];
-
 };
 
 }

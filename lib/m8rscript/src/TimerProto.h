@@ -17,9 +17,9 @@ class TimerProto : public StaticObject {
 public:
     TimerProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue start(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue stop(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue start(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue stop(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

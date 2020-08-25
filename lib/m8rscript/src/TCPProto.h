@@ -17,9 +17,9 @@ class TCPProto : public StaticObject {
 public:
     TCPProto();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue send(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue disconnect(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

@@ -17,11 +17,11 @@ class Iterator : public StaticObject {
 public:
     Iterator();
 
-    static CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue done(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue getValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue setValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue constructor(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue done(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue next(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue getValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue setValue(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

@@ -27,7 +27,7 @@ class Parser  {
     friend class ParseEngine;
     
 public:
-    Parser(Mad<Program> = Mad<Program>());
+    Parser(m8r::Mad<Program> = m8r::Mad<Program>());
     
     ~Parser();
         
@@ -39,28 +39,22 @@ public:
         static constexpr Debug debug = Parser::Debug::None;
     #endif
     
-    Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, Mad<Function> parent = Mad<Function>());
+    m8r::Mad<Function> parse(const m8r::Stream& stream, ExecutionUnit*, Debug, m8r::Mad<Function> parent = m8r::Mad<Function>());
 
 	void recordError(const char* format, ...);
-    ParseErrorList& syntaxErrors() { return _syntaxErrors; }
+    m8r::ParseErrorList& syntaxErrors() { return _syntaxErrors; }
 
     uint32_t nerrors() const { return static_cast<uint32_t>(_syntaxErrors.size()); }
-    Mad<Program> program() const { return _program; }
+    m8r::Mad<Program> program() const { return _program; }
     
-    m8r::String stringFromAtom(const Atom& atom) const { return _program->stringFromAtom(atom); }
-    Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
+    m8r::String stringFromAtom(const m8r::Atom& atom) const { return _program->stringFromAtom(atom); }
+    m8r::Atom atomizeString(const char* s) const { return _program->atomizeString(s); }
 
     StringLiteral startString() { return _program->startStringLiteral(); }
     void addToString(char c) { _program->addToStringLiteral(c); }
     void endString() { _program->endStringLiteral(); }
     
 private:
-    enum class Expect { Expr, PropertyAssignment, Statement, DuplicateDefault, MissingVarDecl, OneVarDeclAllowed, ConstantValueRequired, While };
-
-    void expectedError(Token token, const char* = nullptr);
-    void expectedError(Expect expect, const char* = nullptr);
-    void unknownError(Token token);
-    
     class RegOrConst
     {
     public:
@@ -68,7 +62,7 @@ private:
         
         RegOrConst() { }
         explicit RegOrConst(uint8_t reg) : _reg(reg), _type(Type::Reg) { assert(reg <= MaxRegister); }
-        explicit RegOrConst(ConstantId id, Atom atom = Atom()) : _reg(id.raw()), _type(Type::Constant), _atom(atom) { assert(id.raw() <= MaxRegister); }
+        explicit RegOrConst(ConstantId id, m8r::Atom atom = m8r::Atom()) : _reg(id.raw()), _type(Type::Constant), _atom(atom) { assert(id.raw() <= MaxRegister); }
         
         bool operator==(const RegOrConst& other) { return _reg == other._reg && _type == other._type && _atom == other._atom; }
         
@@ -76,9 +70,9 @@ private:
         uint8_t index() const { return isReg() ? _reg : (_reg + MaxRegister + 1); }
         bool isShortAtom() const { return !isReg() && static_cast<BuiltinConstants>(_reg) == BuiltinConstants::AtomShort; }
         bool isLongAtom() const { return !isReg() && static_cast<BuiltinConstants>(_reg) == BuiltinConstants::AtomLong; }
-        Atom atom() const { return _atom; }
+        m8r::Atom atom() const { return _atom; }
 
-        void push(Vector<uint8_t>* vec)
+        void push(m8r::Vector<uint8_t>* vec)
         {
             vec->push_back(index());
             if (isShortAtom()) {
@@ -95,7 +89,7 @@ private:
     private:
         uint8_t _reg = static_cast<uint8_t>(BuiltinConstants::Undefined);
         Type _type = Type::Constant;
-        Atom _atom;
+        m8r::Atom _atom;
     };
 
     // The next 3 functions work together:
@@ -109,6 +103,12 @@ private:
     // the Label and then fixed up the match location with the location just
     // past the JMP
     //
+    struct Label {
+        int32_t label : 20;
+        uint32_t uniqueID : 12;
+        int32_t matchedAddr : 20;
+    };
+        
     Label label();
     void addMatchedJump(Op op, Label&);
     void matchJump(const Label& matchLabel)
@@ -150,29 +150,29 @@ private:
     void endDeferred() { assert(_deferred); _deferred = false; }
     int32_t emitDeferred();
 
-    void functionAddParam(const Atom& atom);
+    void functionAddParam(const m8r::Atom& atom);
     void functionStart(bool ctor);
     void functionParamsEnd();
     bool functionIsCtor() const { return _functions.back()._ctor; }
-    Mad<Function> functionEnd();
-    Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
-    Vector<uint8_t>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
-    Vector<Value>& currentConstants() { assert(_functions.size()); return _functions.back()._constants; }
+    m8r::Mad<Function> functionEnd();
+    m8r::Mad<Function> currentFunction() const { assert(_functions.size()); return _functions.back()._function; }
+    m8r::Vector<uint8_t>& currentCode() { assert(_functions.size()); return _functions.back()._code; }
+    m8r::Vector<Value>& currentConstants() { assert(_functions.size()); return _functions.back()._constants; }
 
     void classStart() { _classes.push_back(Object::create<MaterObject>()); }
-    void classEnd() { pushK(Value(static_cast<Mad<Object>>(_classes.back()))); _classes.pop_back(); }
-    Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
+    void classEnd() { pushK(Value(static_cast<m8r::Mad<Object>>(_classes.back()))); _classes.pop_back(); }
+    m8r::Mad<MaterObject> currentClass() const { assert(_classes.size()); return _classes.back(); }
         
     void pushK(const char* value);
     void pushK(const Value& value);
     void pushThis();
 
-    void addNamedFunction(Mad<Function>, const Atom&);
+    void addNamedFunction(m8r::Mad<Function>, const m8r::Atom&);
     
     void pushTmp();
     
     enum class IdType : uint8_t { MustBeLocal, MightBeLocal, NotLocal };
-    void emitId(const Atom& value, IdType);
+    void emitId(const m8r::Atom& value, IdType);
     void emitId(const char*, IdType);
 
     void emitDup();
@@ -204,12 +204,10 @@ private:
     }
     
     void emitCallRet(Op value, RegOrConst thisReg, uint8_t params);
-    void addVar(const Atom& name) { _functions.back().addLocal(name); }
+    void addVar(const m8r::Atom& name) { _functions.back().addLocal(name); }
     
     void discardResult();
     
-    Token getToken() { return _scanner.getToken(); }
-    const Scanner::TokenType& getTokenValue() { return _scanner.getTokenValue(); }
     void retireToken() { _scanner.retireToken(); }
     
     RegOrConst addConstant(const Value& v);
@@ -278,7 +276,7 @@ private:
             bool _isValue = false;
         };
         
-        Stack<Entry> _stack;
+        m8r::Stack<Entry> _stack;
         Parser* _parser;
     };
     
@@ -286,16 +284,16 @@ private:
 
     struct FunctionEntry {
         FunctionEntry() { }
-        FunctionEntry(Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
-        Vector<uint8_t> _code;
-        Vector<Value> _constants;
-        Vector<Atom> _locals;
-        Mad<Function> _function;
+        FunctionEntry(m8r::Mad<Function> function, bool ctor) : _function(function), _ctor(ctor) { }
+        m8r::Vector<uint8_t> _code;
+        m8r::Vector<Value> _constants;
+        m8r::Vector<m8r::Atom> _locals;
+        m8r::Mad<Function> _function;
         uint8_t _nextReg = MaxRegister;
         uint8_t _minReg = MaxRegister + 1;
         bool _ctor = false;
 
-        int16_t addLocal(const Atom& atom)
+        int16_t addLocal(const m8r::Atom& atom)
         {
             for (auto name : _locals) {
                 if (name == atom) {
@@ -306,7 +304,7 @@ private:
             return static_cast<int16_t>(_locals.size()) - 1;
         }
 
-        int32_t localIndex(const Atom& name) const
+        int32_t localIndex(const m8r::Atom& name) const
         {
             for (int16_t i = 0; i < static_cast<int16_t>(_locals.size()); ++i) {
                 if (_locals[i] == name) {
@@ -319,24 +317,24 @@ private:
         void markParamEnd() { _function->setFormalParamCount(static_cast<uint16_t>(_locals.size())); }
     };
         
-    using FunctionEntryVector = Vector<FunctionEntry>;
+    using FunctionEntryVector = m8r::Vector<FunctionEntry>;
 
     FunctionEntryVector _functions;
     
-    Vector<Mad<MaterObject>> _classes;
+    m8r::Vector<m8r::Mad<MaterObject>> _classes;
 
-    Scanner _scanner;
-    Mad<Program> _program;
+    m8r::Scanner _scanner;
+    m8r::Mad<Program> _program;
     ExecutionUnit* _eu = nullptr;
-    Vector<size_t> _deferredCodeBlocks;
-    Vector<uint8_t> _deferredCode;
+    m8r::Vector<size_t> _deferredCodeBlocks;
+    m8r::Vector<uint8_t> _deferredCode;
     bool _deferred = false;
     int32_t _emittedLineNumber = -1;
     Debug _debug;
 
     static uint32_t _nextLabelId;
 
-    ParseErrorList _syntaxErrors;
+    m8r::ParseErrorList _syntaxErrors;
 };
 
 }

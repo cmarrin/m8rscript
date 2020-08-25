@@ -32,10 +32,10 @@ public:
     static PinMode _pinMode;
     static Trigger _trigger;
     
-    static CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
-    static CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue setPinMode(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue digitalWrite(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue digitalRead(ExecutionUnit*, Value thisValue, uint32_t nparams);
+    static m8r::CallReturnValue onInterrupt(ExecutionUnit*, Value thisValue, uint32_t nparams);
 };
 
 }

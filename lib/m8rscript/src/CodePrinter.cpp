@@ -13,6 +13,7 @@
 #include "Program.h"
 
 using namespace m8rscript;
+using namespace m8r;
 
 uint32_t CodePrinter::findAnnotation(uint32_t addr) const
 {
