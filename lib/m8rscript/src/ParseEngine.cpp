@@ -33,42 +33,130 @@ static const char _keywordString[] =
     "\x91" "var"
     "\x92" "while"
 
-    "\x93" "+="
-    "\x94" "-="
-    "\x95" "*="
-    "\x96" "/="
-    "\x97" "%="
-    "\x98" "<<="
-    "\x99" ">>="
-    "\x9a" ">>>="
-    "\x9b" "&="
-    "\x9c" "|="
-    "\x9d" "^="
-    "\x9e" "||"
-    "\x9f" "&&"
+    "\xa0" "+="
+    "\xa1" "-="
+    "\xa2" "*="
+    "\xa3" "/="
+    "\xa4" "%="
+    "\xa5" "&="
+    "\xa6" "|="
+    "\xa7" "^="
+    "\xa8" "||"
+    "\xa9" "&&"
+    "\xb0" "=="
+    "\xb1" "!="
+    "\xb2" ">="
+    "\xb3" "<="
+    "\xb4" "<<"
+    "\xb5" ">>"
+    "\xb7" "++"
+    "\xb8" "--"
+    "\xff"
 ;
 
 static const char* keywordString(_keywordString);
 
+static inline ParseEngine::Token keywordCharToToken(char c)
+{
+    assert(c < 0);
+    return static_cast<ParseEngine::Token>(uint16_t(uint8_t(c)) + 0x100);
+}
+
+static inline ParseEngine::Token findKeyword(const char* s)
+{
+    int32_t len = static_cast<int32_t>(strlen(s));
+    const char* result = ::strstr(keywordString, s);
+    if (!result || uint8_t(result[len]) < 0x80 || uint8_t(result[-1]) < 0x80) {
+        return ParseEngine::Token::None;
+    }
+    return keywordCharToToken(result[-1]);
+}
+
 // If the word is a keyword, return the enum for it, otherwise return Unknown
 ParseEngine::Token ParseEngine::getToken()
 {
-    Token token = Token(_parser->_scanner.getToken());
+    if (_currentToken != Token::None) {
+        return _currentToken;
+    }
+    
+    Token token = (_currentToken == Token::None) ? Token(_parser->_scanner.getToken()) : _currentToken;
     
     if (token == Token::Identifier) {
         // Handle keyword
-        const char* s = getTokenValue().str;
-        int32_t len = static_cast<int32_t>(strlen(s));
-        const char* result = ::strstr(keywordString, s);
-        if (!result || uint8_t(result[len]) < 0x80 || uint8_t(result[-1]) < 0x80) {
-            return Token::Identifier;
+        token = findKeyword(getTokenValue().str);
+        if (token == Token::None) {
+            token = Token::Identifier;
         }
+
+        _currentToken = token;
+        return _currentToken;
+    }
     
-        return static_cast<Token>(uint16_t(uint8_t(result[-1])) + 0x100);
+    if (int(token) >= 0x80) {
+        _currentToken = token;
+        return _currentToken;
+    }
+        
+    // Handle multi-char operators
+    // First see if it's a 2 char sequence
+    char buf[3];
+    buf[0] = char(token);
+    
+    _parser->_scanner.retireToken();
+    
+    Token nextToken = Token(_parser->_scanner.getToken());
+    if (int(nextToken) >= 0x80) {
+        // Not a 2 char sequence
+        _retireScannerToken = false;
+        _currentToken = token;
+        return _currentToken;
     }
 
-    // FIXME: Add implementaton for multi-char operators
-    return token;
+    buf[1] = char(nextToken);
+    buf[2] = '\0';
+    Token testToken = findKeyword(buf);
+    if (testToken == Token::None) {
+        // not a 2 char sequence
+        _retireScannerToken = false;
+        _currentToken = token;
+        return _currentToken;
+    }
+    
+    token = testToken;
+    
+    // We have a 2 char sequence. Check for the 3 and 4 char sequences
+    // <<= >>= >>> >>>=
+    if (token != Token::SHL && token != Token::SHR) {
+        _currentToken = token;
+        return _currentToken;
+    }
+    
+    _parser->_scanner.retireToken();
+    
+    nextToken = Token(_parser->_scanner.getToken());
+    if (nextToken == Token::STO) {
+        _currentToken = (token == Token::SHL) ? Token::SHLSTO : Token::SHRSTO;
+        return _currentToken;
+    }
+    
+    if (token == Token::SHR && nextToken == Token::GT) {
+        // Either >>> or >>>=
+        _parser->_scanner.retireToken();
+
+        nextToken = Token(_parser->_scanner.getToken());
+        if (nextToken == Token::STO) {
+            _currentToken = Token::SARSTO;
+            return Token::SARSTO;
+        }
+        
+        _retireScannerToken = false;
+        _currentToken = Token::SAR;
+        return _currentToken;
+    }
+    
+    _retireScannerToken = false;
+    _currentToken = token;
+    return _currentToken;
 }
 
 ParseEngine::OperatorInfo ParseEngine::_opInfos[ ] = {

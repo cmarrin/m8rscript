@@ -238,6 +238,13 @@ digit: '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
 
 class ParseEngine  {
 public:
+    // There is one assumption for these value. Special chars
+    // like Bang and Percent are the same as their m8r::Token
+    // counterparts. And those values are the same as the 
+    // ASCII code for the corresponding character. Furthermore
+    // all non special char m8r::Tokens have values greater than
+    // 0x7f. So you can test if a token is a special char simply
+    // by seeing if it is < 0x80
     enum class Token : uint16_t {
         Bang        = int(m8r::Token::Bang),
         Percent     = int(m8r::Token::Percent),
@@ -301,29 +308,29 @@ public:
         Var         = 0x191,
         While       = 0x192,
 
-        ADDSTO      = 0x193,
-        SUBSTO      = 0x194,
-        MULSTO      = 0x195,
-        DIVSTO      = 0x196,
-        MODSTO      = 0x197,
-        SHLSTO      = 0x198,
-        SHRSTO      = 0x199,
-        SARSTO      = 0x19a,
-        ANDSTO      = 0x19b,
-        ORSTO       = 0x19c,
-        XORSTO      = 0x19d,
-        LOR         = 0x19e,
-        LAND        = 0x19f,
+        ADDSTO      = 0x1a0,
+        SUBSTO      = 0x1a1,
+        MULSTO      = 0x1a2,
+        DIVSTO      = 0x1a3,
+        MODSTO      = 0x1a4,
+        ANDSTO      = 0x1a5,
+        ORSTO       = 0x1a6,
+        XORSTO      = 0x1a7,
+        LOR         = 0x1a8,
+        LAND        = 0x1a9,
+        SHLSTO      = 0x1aa,
+        SHRSTO      = 0x1ab,
+        SARSTO      = 0x1ac,
 
-        EQ          = 0x1a0,       
-        NE          = 0x1a1,       
-        GE          = 0x1a2,       
-        LE          = 0x1a3,       
-        SHL         = 0x1a4,       
-        SHR         = 0x1a5,       
-        SAR         = 0x1a6,       
-        INCR        = 0x1a7,       
-        DECR        = 0x1a8,       
+        EQ          = 0x1b0,       
+        NE          = 0x1b1,       
+        GE          = 0x1b2,       
+        LE          = 0x1b3,       
+        SHL         = 0x1b4,       
+        SHR         = 0x1b5,       
+        SAR         = 0x1b6,       
+        INCR        = 0x1b7,       
+        DECR        = 0x1b8,       
     };
 
   	ParseEngine(Parser* parser);
@@ -367,9 +374,9 @@ private:
     private:
         union {
             struct {
-                uint32_t _token : 8;
-                uint32_t _prec : 8;
+                uint32_t _token : 16;
                 uint32_t _op : 8;
+                uint32_t _prec : 5;
                 uint32_t _assoc : 1;
                 uint32_t _sto : 1;
             };
@@ -390,7 +397,14 @@ private:
     
     Token getToken();
     const m8r::Scanner::TokenType& getTokenValue() { return _parser->_scanner.getTokenValue(); }
-    void retireToken() { _parser->retireToken(); }
+    void retireToken()
+    {
+        if (_retireScannerToken) {
+            _parser->_scanner.retireToken();
+        }
+        _retireScannerToken = true;
+        _currentToken = Token::None;
+    }
 
     bool statement();
 
@@ -432,7 +446,7 @@ private:
 
     Parser* _parser;
     Token _currentToken = Token::None;
-    m8r::Scanner::TokenType _currentTokenValue;
+    bool _retireScannerToken = true;
     
     m8r::Vector<m8r::Vector<Parser::Label>> _breakStack;
     m8r::Vector<m8r::Vector<Parser::Label>> _continueStack;

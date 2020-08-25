@@ -24,7 +24,9 @@ namespace m8r {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// Tokens can't be a special char, so avoid 0x00 - 0x7f
+// Tokens for special chars are the same as their ASCII code. Other tokens 
+// have values above 0x7f. Script parsers rely on these facts. Don't change 
+// them unless you change those other places.
 enum class Token : uint8_t {
     Bang        = '!',
     Percent     = '%',
