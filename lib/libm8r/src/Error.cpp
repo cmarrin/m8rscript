@@ -57,6 +57,7 @@ const char* Error::description(Code code)
         case Code::CannotConvertStringToNumber: return "Cannot Convert String to Number";
         case Code::OutOfRange               : return "Out of Range";
     }
+    return "";
 }
 
 m8r::String Error::formatError(Code code, const char* format, ...)

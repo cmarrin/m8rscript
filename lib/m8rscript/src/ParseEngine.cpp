@@ -58,7 +58,7 @@ static const char* keywordString(_keywordString);
 
 static inline ParseEngine::Token keywordCharToToken(char c)
 {
-    assert(c < 0);
+    assert(uint8_t(c) >= 0x80);
     return static_cast<ParseEngine::Token>(uint16_t(uint8_t(c)) + 0x100);
 }
 

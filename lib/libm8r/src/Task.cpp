@@ -11,7 +11,6 @@
 
 #include "Task.h"
 
-#include "GC.h"
 #include "FileStream.h"
 #include "ScriptingLanguage.h"
 #include "SystemInterface.h"
