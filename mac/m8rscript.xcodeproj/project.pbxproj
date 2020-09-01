@@ -7,10 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		491ED3AC2353F48100DE0C42 /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; };
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
-		492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libmarly.a */; };
-		493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F2475924D45F1100D977D2 /* liblua.a */; };
 		493E4F4924F31A6700D64430 /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		493E4F4F24F31C4B00D64430 /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F4B24F31C4400D64430 /* GeneratedValues.cpp */; };
 		493E4F6F24F31D0600D64430 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F6124F31D0500D64430 /* Parser.cpp */; };
@@ -34,39 +31,9 @@
 		493E4F9124F32AF700D64430 /* TaskProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8B24F32AF700D64430 /* TaskProto.cpp */; };
 		493E4F9424F32AF700D64430 /* IPAddrProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F8E24F32AF700D64430 /* IPAddrProto.cpp */; };
 		493E4F9824F32D1E00D64430 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493E4F9624F32D1E00D64430 /* GC.cpp */; };
-		4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; settings = {ATTRIBUTES = (Required, ); }; };
-		4948AEB024242CC90087EC5A /* NTPClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAE24242CC90087EC5A /* NTPClient.m8r */; };
-		4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */; };
-		494D25631D2E9337003755DB /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 494D254E1D2E9055003755DB /* liblibm8r.a */; };
-		4968D6E024F48C2C00AD089F /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 493E4F4524F31A4100D64430 /* libm8rscript.a */; };
-		499D95F22355323D00F45585 /* m8rtest in CopyFiles */ = {isa = PBXBuildFile; fileRef = 491ED3A32353EFE600DE0C42 /* m8rtest */; };
-		499D95F3235532F100F45585 /* m8rmac in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4945A86F1EC3711D00559CD1 /* m8rmac */; };
-		49BDE1A523714DC000304BE8 /* mem.m8r in Resources */ = {isa = PBXBuildFile; fileRef = 49BDE1A423714DC000304BE8 /* mem.m8r */; };
-		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = libm8rscript;
-		};
-		492C7DA224EDFC420027B75E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 492C7D9B24EDF9390027B75E;
-			remoteInfo = marly;
-		};
-		492C7DB124EECF540027B75E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 49C406E11EB6598B001E4DEC;
-			remoteInfo = generateMarlyValues;
-		};
 		493E4F5024F31C6800D64430 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -74,40 +41,9 @@
 			remoteGlobalIDString = 493E4F3924F31A2700D64430;
 			remoteInfo = generateM8rscriptValues;
 		};
-		493E4F9924F339BC00D64430 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 493E4F4424F31A4100D64430;
-			remoteInfo = m8rscript;
-		};
-		4945A8761EC3712700559CD1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = libm8rscript;
-		};
-		49AD0A1C209B503A00F86278 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = libm8rscript;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		491ED3A12353EFE600DE0C42 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "$(HOME)/bin";
-			dstSubfolderSpec = 0;
-			files = (
-				499D95F22355323D00F45585 /* m8rtest in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		492C7DA724EECBA10027B75E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -126,49 +62,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		4945A86D1EC3711D00559CD1 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "$(HOME)/bin";
-			dstSubfolderSpec = 0;
-			files = (
-				499D95F3235532F100F45585 /* m8rmac in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4988DC3D1F0A3713009F7ED5 /* Embed XPC Services */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			name = "Embed XPC Services";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49C406E01EB6598B001E4DEC /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		49F463351E0DD533004EF625 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		491ED3A32353EFE600DE0C42 /* m8rtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rtest; sourceTree = BUILT_PRODUCTS_DIR; };
-		492C7D9C24EDF9390027B75E /* libmarly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmarly.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		492C7DA424EDFE120027B75E /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../lib/m8rscript/src/SharedAtoms.txt; sourceTree = "<group>"; };
 		492C7DA924EECBA10027B75E /* generator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generator; sourceTree = BUILT_PRODUCTS_DIR; };
 		493E4F3A24F31A2700D64430 /* generateM8rscriptValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateM8rscriptValues; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,10 +112,8 @@
 		493E4F8E24F32AF700D64430 /* IPAddrProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddrProto.cpp; path = ../lib/m8rscript/src/IPAddrProto.cpp; sourceTree = "<group>"; };
 		493E4F9524F32D1E00D64430 /* GC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../lib/m8rscript/src/GC.h; sourceTree = "<group>"; };
 		493E4F9624F32D1E00D64430 /* GC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../lib/m8rscript/src/GC.cpp; sourceTree = "<group>"; };
-		4945A86F1EC3711D00559CD1 /* m8rmac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = m8rmac; sourceTree = BUILT_PRODUCTS_DIR; };
 		4948AEAE24242CC90087EC5A /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = NTPClient.m8r; path = examples/NTPClient.m8r; sourceTree = "<group>"; };
 		4948AEAF24242CC90087EC5A /* TimeZoneDBClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = TimeZoneDBClient.m8r; path = examples/TimeZoneDBClient.m8r; sourceTree = "<group>"; };
-		494D254E1D2E9055003755DB /* liblibm8r.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibm8r.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4968D6DF24F48B1600AD089F /* M8rscript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = M8rscript.h; path = ../lib/m8rscript/src/M8rscript.h; sourceTree = "<group>"; };
 		497139DC24705AA90025CC4D /* m8rFSFile */ = {isa = PBXFileReference; lastKnownFileType = file; name = m8rFSFile; path = ../m8rFSFile; sourceTree = "<group>"; };
 		4978365C24141EEC005735D5 /* timing.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; name = timing.m8r; path = ../../scripts/timing/timing.m8r; sourceTree = "<group>"; };
@@ -240,28 +134,10 @@
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
 		49A39F2123509E5200F6A144 /* mrsh.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; path = mrsh.m8r; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
-		49C406E21EB6598B001E4DEC /* generateMarlyValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateMarlyValues; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generators/generateValues.cpp; sourceTree = "<group>"; };
-		49D9B8181D1C854700724911 /* m8rsim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = m8rsim.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		49F2475924D45F1100D977D2 /* liblua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblua.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		491ED3A02353EFE600DE0C42 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				491ED3AC2353F48100DE0C42 /* liblibm8r.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		492C7D9A24EDF9390027B75E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		492C7DA624EECBA10027B75E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,46 +153,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		493E4F4324F31A4100D64430 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4945A86C1EC3711D00559CD1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4968D6E024F48C2C00AD089F /* libm8rscript.a in Frameworks */,
-				492C7DBA24EF06410027B75E /* libmarly.a in Frameworks */,
-				4945A8781EC3969100559CD1 /* liblibm8r.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		494D254B1D2E9055003755DB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49C406DF1EB6598B001E4DEC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49D9B8151D1C854700724911 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				493E015C24E9C0E100EF89B3 /* liblua.a in Frameworks */,
-				494D25631D2E9337003755DB /* liblibm8r.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49F2475724D45F1100D977D2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -468,13 +304,6 @@
 		49E647E91D00B68F005F5059 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				49D9B8181D1C854700724911 /* m8rsim.app */,
-				494D254E1D2E9055003755DB /* liblibm8r.a */,
-				49C406E21EB6598B001E4DEC /* generateMarlyValues */,
-				4945A86F1EC3711D00559CD1 /* m8rmac */,
-				491ED3A32353EFE600DE0C42 /* m8rtest */,
-				49F2475924D45F1100D977D2 /* liblua.a */,
-				492C7D9C24EDF9390027B75E /* libmarly.a */,
 				492C7DA924EECBA10027B75E /* generator */,
 				493E4F3A24F31A2700D64430 /* generateM8rscriptValues */,
 				493E4F4524F31A4100D64430 /* libm8rscript.a */,
@@ -485,13 +314,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		492C7D9824EDF9390027B75E /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		493E4F4124F31A4100D64430 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -500,59 +322,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		494D254C1D2E9055003755DB /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49F2475524D45F1100D977D2 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		491ED3A22353EFE600DE0C42 /* m8rtest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */;
-			buildPhases = (
-				491ED39F2353EFE600DE0C42 /* Sources */,
-				491ED3A02353EFE600DE0C42 /* Frameworks */,
-				491ED3A12353EFE600DE0C42 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */,
-			);
-			name = m8rtest;
-			productName = m8rtest;
-			productReference = 491ED3A32353EFE600DE0C42 /* m8rtest */;
-			productType = "com.apple.product-type.tool";
-		};
-		492C7D9B24EDF9390027B75E /* marly */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "marly" */;
-			buildPhases = (
-				492C7D9824EDF9390027B75E /* Headers */,
-				492C7D9924EDF9390027B75E /* Sources */,
-				492C7D9A24EDF9390027B75E /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				492C7DB224EECF540027B75E /* PBXTargetDependency */,
-			);
-			name = marly;
-			productName = marly;
-			productReference = 492C7D9C24EDF9390027B75E /* libmarly.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 		492C7DA824EECBA10027B75E /* generator */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 492C7DAD24EECBA10027B75E /* Build configuration list for PBXNativeTarget "generator" */;
@@ -606,98 +378,6 @@
 			productReference = 493E4F4524F31A4100D64430 /* libm8rscript.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		4945A86E1EC3711D00559CD1 /* m8rmac */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8rmac" */;
-			buildPhases = (
-				4945A86B1EC3711D00559CD1 /* Sources */,
-				4945A86C1EC3711D00559CD1 /* Frameworks */,
-				4945A86D1EC3711D00559CD1 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				493E4F9A24F339BC00D64430 /* PBXTargetDependency */,
-				492C7DA324EDFC420027B75E /* PBXTargetDependency */,
-				4945A8771EC3712700559CD1 /* PBXTargetDependency */,
-			);
-			name = m8rmac;
-			productName = m8r;
-			productReference = 4945A86F1EC3711D00559CD1 /* m8rmac */;
-			productType = "com.apple.product-type.tool";
-		};
-		494D254D1D2E9055003755DB /* libm8r */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8r" */;
-			buildPhases = (
-				494D254A1D2E9055003755DB /* Sources */,
-				494D254B1D2E9055003755DB /* Frameworks */,
-				494D254C1D2E9055003755DB /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = libm8r;
-			productName = libm8rscript;
-			productReference = 494D254E1D2E9055003755DB /* liblibm8r.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		49C406E11EB6598B001E4DEC /* generateMarlyValues */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateMarlyValues" */;
-			buildPhases = (
-				49C406DE1EB6598B001E4DEC /* Sources */,
-				49026F1C24CF29BC00CAB23B /* ShellScript */,
-				49C406DF1EB6598B001E4DEC /* Frameworks */,
-				49C406E01EB6598B001E4DEC /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = generateMarlyValues;
-			productName = generateSharedAtoms;
-			productReference = 49C406E21EB6598B001E4DEC /* generateMarlyValues */;
-			productType = "com.apple.product-type.tool";
-		};
-		49D9B8171D1C854700724911 /* m8rsim */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 49D9B8271D1C854700724911 /* Build configuration list for PBXNativeTarget "m8rsim" */;
-			buildPhases = (
-				49D9B8141D1C854700724911 /* Sources */,
-				49D9B8151D1C854700724911 /* Frameworks */,
-				49D9B8161D1C854700724911 /* Resources */,
-				49F463351E0DD533004EF625 /* CopyFiles */,
-				4988DC3D1F0A3713009F7ED5 /* Embed XPC Services */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				49AD0A1D209B503A00F86278 /* PBXTargetDependency */,
-			);
-			name = m8rsim;
-			productName = m8rsim;
-			productReference = 49D9B8181D1C854700724911 /* m8rsim.app */;
-			productType = "com.apple.product-type.application";
-		};
-		49F2475824D45F1100D977D2 /* lua */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 49F2475C24D45F1100D977D2 /* Build configuration list for PBXNativeTarget "lua" */;
-			buildPhases = (
-				49F2475524D45F1100D977D2 /* Headers */,
-				49F2475624D45F1100D977D2 /* Sources */,
-				49F2475724D45F1100D977D2 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = lua;
-			productName = lua;
-			productReference = 49F2475924D45F1100D977D2 /* liblua.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -708,14 +388,6 @@
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
-					491ED3A22353EFE600DE0C42 = {
-						CreatedOnToolsVersion = 11.0;
-						ProvisioningStyle = Automatic;
-					};
-					492C7D9B24EDF9390027B75E = {
-						CreatedOnToolsVersion = 11.6;
-						ProvisioningStyle = Automatic;
-					};
 					492C7DA824EECBA10027B75E = {
 						CreatedOnToolsVersion = 11.6;
 						ProvisioningStyle = Automatic;
@@ -725,27 +397,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					493E4F4424F31A4100D64430 = {
-						CreatedOnToolsVersion = 11.6;
-						ProvisioningStyle = Automatic;
-					};
-					4945A86E1EC3711D00559CD1 = {
-						CreatedOnToolsVersion = 9.0;
-						ProvisioningStyle = Automatic;
-					};
-					494D254D1D2E9055003755DB = {
-						CreatedOnToolsVersion = 8.0;
-						ProvisioningStyle = Automatic;
-					};
-					49C406E11EB6598B001E4DEC = {
-						CreatedOnToolsVersion = 8.2.1;
-						ProvisioningStyle = Automatic;
-					};
-					49D9B8171D1C854700724911 = {
-						CreatedOnToolsVersion = 8.0;
-						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
-					};
-					49F2475824D45F1100D977D2 = {
 						CreatedOnToolsVersion = 11.6;
 						ProvisioningStyle = Automatic;
 					};
@@ -764,51 +415,14 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				494D254D1D2E9055003755DB /* libm8r */,
 				493E4F4424F31A4100D64430 /* m8rscript */,
 				493E4F3924F31A2700D64430 /* generateM8rscriptValues */,
-				49F2475824D45F1100D977D2 /* lua */,
-				492C7D9B24EDF9390027B75E /* marly */,
-				49C406E11EB6598B001E4DEC /* generateMarlyValues */,
-				4945A86E1EC3711D00559CD1 /* m8rmac */,
-				491ED3A22353EFE600DE0C42 /* m8rtest */,
-				49D9B8171D1C854700724911 /* m8rsim */,
 				492C7DA824EECBA10027B75E /* generator */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		49D9B8161D1C854700724911 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4948AEB024242CC90087EC5A /* NTPClient.m8r in Resources */,
-				49BDE1A523714DC000304BE8 /* mem.m8r in Resources */,
-				4948AEB124242CC90087EC5A /* TimeZoneDBClient.m8r in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin PBXShellScriptBuildPhase section */
-		49026F1C24CF29BC00CAB23B /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateMarlyValues ../lib/marly/src/SharedAtoms.txt ../lib/marly/src marly\n";
-		};
 		493E4F4A24F31AA300D64430 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -824,25 +438,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../lib/m8rscript/src/SharedAtoms.txt ../lib/m8rscript/src m8rscript\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../src/SharedAtoms.txt ../src m8rscript\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		491ED39F2353EFE600DE0C42 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		492C7D9924EDF9390027B75E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		492C7DA524EECBA10027B75E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -887,155 +487,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4945A86B1EC3711D00559CD1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		494D254A1D2E9055003755DB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49C406DE1EB6598B001E4DEC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49D9B8141D1C854700724911 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		49F2475624D45F1100D977D2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		491ED3AB2353F44B00DE0C42 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8r */;
-			targetProxy = 491ED3AA2353F44B00DE0C42 /* PBXContainerItemProxy */;
-		};
-		492C7DA324EDFC420027B75E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 492C7D9B24EDF9390027B75E /* marly */;
-			targetProxy = 492C7DA224EDFC420027B75E /* PBXContainerItemProxy */;
-		};
-		492C7DB224EECF540027B75E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 49C406E11EB6598B001E4DEC /* generateMarlyValues */;
-			targetProxy = 492C7DB124EECF540027B75E /* PBXContainerItemProxy */;
-		};
 		493E4F5124F31C6800D64430 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 493E4F3924F31A2700D64430 /* generateM8rscriptValues */;
 			targetProxy = 493E4F5024F31C6800D64430 /* PBXContainerItemProxy */;
 		};
-		493E4F9A24F339BC00D64430 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 493E4F4424F31A4100D64430 /* m8rscript */;
-			targetProxy = 493E4F9924F339BC00D64430 /* PBXContainerItemProxy */;
-		};
-		4945A8771EC3712700559CD1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8r */;
-			targetProxy = 4945A8761EC3712700559CD1 /* PBXContainerItemProxy */;
-		};
-		49AD0A1D209B503A00F86278 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 494D254D1D2E9055003755DB /* libm8r */;
-			targetProxy = 49AD0A1C209B503A00F86278 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		491ED3A82353EFE600DE0C42 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		491ED3A92353EFE600DE0C42 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		492C7D9E24EDF9390027B75E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		492C7D9F24EDF9390027B75E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
 		492C7DAE24EECBA10027B75E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1136,150 +598,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		4945A8741EC3711D00559CD1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		4945A8751EC3711D00559CD1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		494D25501D2E9055003755DB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_X86_VECTOR_INSTRUCTIONS = default;
-				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = "";
-				LLVM_LTO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "";
-			};
-			name = Debug;
-		};
-		494D25511D2E9055003755DB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_X86_VECTOR_INSTRUCTIONS = default;
-				EXECUTABLE_PREFIX = lib;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				HEADER_SEARCH_PATHS = "";
-				LLVM_LTO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "";
-			};
-			name = Release;
-		};
-		49C406E71EB6598B001E4DEC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		49C406E81EB6598B001E4DEC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		49D9B8281D1C854700724911 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = m8rsim/m8rsim.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/m8rsim",
-				);
-				INFOPLIST_FILE = m8rsim/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Debug;
-		};
-		49D9B8291D1C854700724911 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = m8rsim/m8rsim.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "../m8rscript/esp *.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/m8rsim",
-				);
-				INFOPLIST_FILE = m8rsim/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = org.marrin.m8rsim;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1389,66 +707,9 @@
 			};
 			name = Release;
 		};
-		49F2475A24D45F1100D977D2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "-DLUA_USE_MACOSX";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		49F2475B24D45F1100D977D2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "-DLUA_USE_MACOSX";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		491ED3A72353EFE600DE0C42 /* Build configuration list for PBXNativeTarget "m8rtest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				491ED3A82353EFE600DE0C42 /* Debug */,
-				491ED3A92353EFE600DE0C42 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "marly" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				492C7D9E24EDF9390027B75E /* Debug */,
-				492C7D9F24EDF9390027B75E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		492C7DAD24EECBA10027B75E /* Build configuration list for PBXNativeTarget "generator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1476,56 +737,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4945A8731EC3711D00559CD1 /* Build configuration list for PBXNativeTarget "m8rmac" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4945A8741EC3711D00559CD1 /* Debug */,
-				4945A8751EC3711D00559CD1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		494D254F1D2E9055003755DB /* Build configuration list for PBXNativeTarget "libm8r" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				494D25501D2E9055003755DB /* Debug */,
-				494D25511D2E9055003755DB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		49C406E61EB6598B001E4DEC /* Build configuration list for PBXNativeTarget "generateMarlyValues" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49C406E71EB6598B001E4DEC /* Debug */,
-				49C406E81EB6598B001E4DEC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		49D9B8271D1C854700724911 /* Build configuration list for PBXNativeTarget "m8rsim" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49D9B8281D1C854700724911 /* Debug */,
-				49D9B8291D1C854700724911 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		49E647E31D00B68F005F5059 /* Build configuration list for PBXProject "m8rscript" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				49E647ED1D00B68F005F5059 /* Debug */,
 				49E647EE1D00B68F005F5059 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		49F2475C24D45F1100D977D2 /* Build configuration list for PBXNativeTarget "lua" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49F2475A24D45F1100D977D2 /* Debug */,
-				49F2475B24D45F1100D977D2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
