@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "492C7DA824EECBA10027B75E"
-               BuildableName = "generator"
-               BlueprintName = "generator"
+               BlueprintIdentifier = "492C7D9B24EDF9390027B75E"
+               BuildableName = "libm8rscript.a"
+               BlueprintName = "m8rscript"
                ReferencedContainer = "container:m8rscript.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -40,12 +40,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "../../../lib/marly/src/SharedAtoms.txt ../../../lib/marly/src"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -56,9 +50,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "492C7DA824EECBA10027B75E"
-            BuildableName = "generator"
-            BlueprintName = "generator"
+            BlueprintIdentifier = "492C7D9B24EDF9390027B75E"
+            BuildableName = "libm8rscript.a"
+            BlueprintName = "m8rscript"
             ReferencedContainer = "container:m8rscript.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
