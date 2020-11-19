@@ -10,7 +10,6 @@
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		4994036D24FACB45005527CF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4994035124FAC7B1005527CF /* main.cpp */; };
 		4994037224FACBAD005527CF /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libm8rscript.a */; };
-		4994037324FACBB1005527CF /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4994035824FAC93E005527CF /* liblibm8r.a */; };
 		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		49DEED9A24FFDB7900FF0677 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED6D24FFDB7600FF0677 /* Global.cpp */; };
 		49DEED9B24FFDB7900FF0677 /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED6E24FFDB7600FF0677 /* GPIO.cpp */; };
@@ -43,40 +42,12 @@
 			remoteGlobalIDString = 49C406E11EB6598B001E4DEC;
 			remoteInfo = generateMarlyValues;
 		};
-		4994035724FAC93E005527CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4994035224FAC93E005527CF /* libm8r.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 494D254E1D2E9055003755DB;
-			remoteInfo = libm8r;
-		};
-		4994035924FAC93E005527CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4994035224FAC93E005527CF /* libm8r.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 49FAB98424FA991700E71C93;
-			remoteInfo = test;
-		};
-		4994035C24FAC99D005527CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4994035224FAC93E005527CF /* libm8r.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = libm8r;
-		};
 		4994036E24FACBA0005527CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 492C7D9B24EDF9390027B75E;
 			remoteInfo = marly;
-		};
-		4994037024FACBA5005527CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4994035224FAC93E005527CF /* libm8r.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 494D254D1D2E9055003755DB;
-			remoteInfo = libm8r;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -138,7 +109,6 @@
 		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleFunction.m8r; sourceTree = "<group>"; };
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
 		4994035124FAC7B1005527CF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = test/main.cpp; sourceTree = "<group>"; };
-		4994035224FAC93E005527CF /* libm8r.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libm8r.xcodeproj; path = ../libm8r/mac/libm8r.xcodeproj; sourceTree = "<group>"; };
 		4994036624FACB3C005527CF /* testM8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testM8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49A39F2123509E5200F6A144 /* mrsh.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; path = mrsh.m8r; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
@@ -210,7 +180,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4994037324FACBB1005527CF /* liblibm8r.a in Frameworks */,
 				4994037224FACBAD005527CF /* libm8rscript.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -358,15 +327,6 @@
 			name = testM8rscript;
 			sourceTree = "<group>";
 		};
-		4994035324FAC93E005527CF /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4994035824FAC93E005527CF /* liblibm8r.a */,
-				4994035A24FAC93E005527CF /* test */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
 			isa = PBXGroup;
 			children = (
@@ -378,7 +338,6 @@
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
-				4994035224FAC93E005527CF /* libm8r.xcodeproj */,
 				4994035024FAC7A1005527CF /* testM8rscript */,
 				492C7D9424EDF8990027B75E /* m8rscript */,
 				49C406E91EB65A15001E4DEC /* generators */,
@@ -423,7 +382,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4994035D24FAC99D005527CF /* PBXTargetDependency */,
 				492C7DB224EECF540027B75E /* PBXTargetDependency */,
 			);
 			name = m8rscript;
@@ -459,7 +417,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4994037124FACBA5005527CF /* PBXTargetDependency */,
 				4994036F24FACBA0005527CF /* PBXTargetDependency */,
 			);
 			name = testM8rscript;
@@ -524,12 +481,6 @@
 			mainGroup = 49E647DF1D00B68F005F5059;
 			productRefGroup = 49E647E91D00B68F005F5059 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 4994035324FAC93E005527CF /* Products */;
-					ProjectRef = 4994035224FAC93E005527CF /* libm8r.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				492C7D9B24EDF9390027B75E /* m8rscript */,
@@ -539,23 +490,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		4994035824FAC93E005527CF /* liblibm8r.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = liblibm8r.a;
-			remoteRef = 4994035724FAC93E005527CF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4994035A24FAC93E005527CF /* test */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = test;
-			remoteRef = 4994035924FAC93E005527CF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		49026F1C24CF29BC00CAB23B /* ShellScript */ = {
@@ -638,20 +572,10 @@
 			target = 49C406E11EB6598B001E4DEC /* generateM8rscriptValues */;
 			targetProxy = 492C7DB124EECF540027B75E /* PBXContainerItemProxy */;
 		};
-		4994035D24FAC99D005527CF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libm8r;
-			targetProxy = 4994035C24FAC99D005527CF /* PBXContainerItemProxy */;
-		};
 		4994036F24FACBA0005527CF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 492C7D9B24EDF9390027B75E /* m8rscript */;
 			targetProxy = 4994036E24FACBA0005527CF /* PBXContainerItemProxy */;
-		};
-		4994037124FACBA5005527CF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libm8r;
-			targetProxy = 4994037024FACBA5005527CF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
