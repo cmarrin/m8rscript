@@ -1,6 +1,3 @@
 [submodule "esp/spiffs"]
 	path = esp/spiffs
 	url = git@github.com:cmarrin/spiffs.git
-[submodule "libm8r"]
-	path = components/libm8r
-	url = git@github.com:cmarrin/libm8r.git
