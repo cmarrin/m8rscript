@@ -1,11 +1,13 @@
 #
-# "libm8r" pseudo-component makefile.
+# "m8rscript" pseudo-component makefile.
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 
 CXXFLAGS += -std=c++14
 
-COMPONENT_NAME := libm8r
+COMPONENT_NAME := m8rscript
+
+COMPONENT_PRIV_INCLUDEDIRS := ../../libm8r/src
 
 COMPONENT_OBJS := \
     Closure.o \
