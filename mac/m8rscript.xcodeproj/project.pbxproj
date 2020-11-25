@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		49192DAE256D901C001F3B1A /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49192DA2256D8FD1001F3B1A /* liblibm8r.a */; };
+		49192DED256EE34E001F3B1A /* m8rscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49192DB9256D969F001F3B1A /* m8rscript.cpp */; };
+		49192E18256EEBA1001F3B1A /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7A24FFDB7700FF0677 /* GeneratedValues.cpp */; };
+		49192E3A256EF031001F3B1A /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED8024FFDB7700FF0677 /* Closure.cpp */; };
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
-		4994036D24FACB45005527CF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4994035124FAC7B1005527CF /* main.cpp */; };
 		4994037224FACBAD005527CF /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libm8rscript.a */; };
 		49C406EC1EB65A3E001E4DEC /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		49DEED9A24FFDB7900FF0677 /* Global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED6D24FFDB7600FF0677 /* Global.cpp */; };
@@ -19,7 +21,6 @@
 		49DEEDA124FFDB7900FF0677 /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7424FFDB7700FF0677 /* GC.cpp */; };
 		49DEEDA224FFDB7900FF0677 /* TCPProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7524FFDB7700FF0677 /* TCPProto.cpp */; };
 		49DEEDA324FFDB7900FF0677 /* ExecutionUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7624FFDB7700FF0677 /* ExecutionUnit.cpp */; };
-		49DEEDA724FFDB7900FF0677 /* GeneratedValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7A24FFDB7700FF0677 /* GeneratedValues.cpp */; };
 		49DEEDAA24FFDB7900FF0677 /* IPAddrProto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7D24FFDB7700FF0677 /* IPAddrProto.cpp */; };
 		49DEEDAC24FFDB7900FF0677 /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED7F24FFDB7700FF0677 /* Function.cpp */; };
 		49DEEDAD24FFDB7900FF0677 /* Closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49DEED8024FFDB7700FF0677 /* Closure.cpp */; };
@@ -51,6 +52,13 @@
 			remoteInfo = test;
 		};
 		49192DAA256D900A001F3B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 494D254D1D2E9055003755DB;
+			remoteInfo = libm8r;
+		};
+		49192E38256EF024001F3B1A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
 			proxyType = 1;
@@ -113,6 +121,7 @@
 		49192DB6256D9676001F3B1A /* component.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = component.mk; path = ../components/m8rscript/component.mk; sourceTree = "<group>"; };
 		49192DB8256D969F001F3B1A /* component.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = component.mk; path = ../main/component.mk; sourceTree = "<group>"; };
 		49192DB9256D969F001F3B1A /* m8rscript.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = m8rscript.cpp; path = ../main/m8rscript.cpp; sourceTree = "<group>"; };
+		49192E2F256EF00D001F3B1A /* libFoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		492C7D9C24EDF9390027B75E /* libm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		492C7DA924EECBA10027B75E /* generator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generator; sourceTree = BUILT_PRODUCTS_DIR; };
 		4948AEAE24242CC90087EC5A /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = NTPClient.m8r; path = examples/NTPClient.m8r; sourceTree = "<group>"; };
@@ -136,7 +145,6 @@
 		4979404124141E630042B86B /* blink.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = blink.m8r; sourceTree = "<group>"; };
 		4979404224141E630042B86B /* simpleFunction.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleFunction.m8r; sourceTree = "<group>"; };
 		4979404324141E630042B86B /* simpleTest.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = simpleTest.m8r; sourceTree = "<group>"; };
-		4994035124FAC7B1005527CF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = test/main.cpp; sourceTree = "<group>"; };
 		4994036624FACB3C005527CF /* testM8rscript */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testM8rscript; sourceTree = BUILT_PRODUCTS_DIR; };
 		49A39F2123509E5200F6A144 /* mrsh.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; path = mrsh.m8r; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
@@ -190,6 +198,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		49192E2D256EF00D001F3B1A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		492C7D9A24EDF9390027B75E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -252,18 +267,9 @@
 			name = main;
 			sourceTree = "<group>";
 		};
-		49192DC0256DC44B001F3B1A /* mac */ = {
-			isa = PBXGroup;
-			children = (
-				4994035124FAC7B1005527CF /* main.cpp */,
-			);
-			name = mac;
-			sourceTree = "<group>";
-		};
 		492C7D9424EDF8990027B75E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				49192DC0256DC44B001F3B1A /* mac */,
 				49192DB3256D9619001F3B1A /* esp */,
 				49DEED8024FFDB7700FF0677 /* Closure.cpp */,
 				49DEED6A24FFDB7600FF0677 /* Closure.h */,
@@ -387,13 +393,6 @@
 			path = simple;
 			sourceTree = "<group>";
 		};
-		4994035024FAC7A1005527CF /* test */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = test;
-			sourceTree = "<group>";
-		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
 			isa = PBXGroup;
 			children = (
@@ -406,7 +405,6 @@
 			isa = PBXGroup;
 			children = (
 				49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */,
-				4994035024FAC7A1005527CF /* test */,
 				492C7D9424EDF8990027B75E /* src */,
 				49C406E91EB65A15001E4DEC /* generators */,
 				49E647E91D00B68F005F5059 /* Products */,
@@ -422,6 +420,7 @@
 				492C7D9C24EDF9390027B75E /* libm8rscript.a */,
 				492C7DA924EECBA10027B75E /* generator */,
 				4994036624FACB3C005527CF /* testM8rscript */,
+				49192E2F256EF00D001F3B1A /* libFoo.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -429,6 +428,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		49192E2B256EF00D001F3B1A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		492C7D9824EDF9390027B75E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -439,6 +445,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		49192E2E256EF00D001F3B1A /* Foo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49192E30256EF00D001F3B1A /* Build configuration list for PBXNativeTarget "Foo" */;
+			buildPhases = (
+				49192E2B256EF00D001F3B1A /* Headers */,
+				49192E2C256EF00D001F3B1A /* Sources */,
+				49192E2D256EF00D001F3B1A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				49192E39256EF024001F3B1A /* PBXTargetDependency */,
+			);
+			name = Foo;
+			productName = Foo;
+			productReference = 49192E2F256EF00D001F3B1A /* libFoo.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		492C7D9B24EDF9390027B75E /* m8rscript */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "m8rscript" */;
@@ -521,6 +545,10 @@
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = MarrinTech;
 				TargetAttributes = {
+					49192E2E256EF00D001F3B1A = {
+						CreatedOnToolsVersion = 12.2;
+						ProvisioningStyle = Automatic;
+					};
 					492C7D9B24EDF9390027B75E = {
 						CreatedOnToolsVersion = 11.6;
 						ProvisioningStyle = Automatic;
@@ -562,6 +590,7 @@
 				49C406E11EB6598B001E4DEC /* generateM8rscriptValues */,
 				492C7DA824EECBA10027B75E /* generator */,
 				4994036524FACB3C005527CF /* testM8rscript */,
+				49192E2E256EF00D001F3B1A /* Foo */,
 			);
 		};
 /* End PBXProject section */
@@ -604,6 +633,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		49192E2C256EF00D001F3B1A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49192E3A256EF031001F3B1A /* Closure.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		492C7D9924EDF9390027B75E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -619,13 +656,13 @@
 				49DEEDB224FFDB7900FF0677 /* StreamProto.cpp in Sources */,
 				49DEEDBA24FFDB7900FF0677 /* Parser.cpp in Sources */,
 				49DEEDB024FFDB7900FF0677 /* JSONProto.cpp in Sources */,
-				49DEEDA724FFDB7900FF0677 /* GeneratedValues.cpp in Sources */,
 				49DEEDB624FFDB7900FF0677 /* Object.cpp in Sources */,
 				49DEEDBC24FFDB7900FF0677 /* Program.cpp in Sources */,
 				49DEEDB924FFDB7900FF0677 /* FSProto.cpp in Sources */,
 				49DEED9E24FFDB7900FF0677 /* CodePrinter.cpp in Sources */,
 				49DEEDAA24FFDB7900FF0677 /* IPAddrProto.cpp in Sources */,
 				49DEEDA024FFDB7900FF0677 /* TaskProto.cpp in Sources */,
+				49192E18256EEBA1001F3B1A /* GeneratedValues.cpp in Sources */,
 				49DEEDAC24FFDB7900FF0677 /* Function.cpp in Sources */,
 				49DEED9B24FFDB7900FF0677 /* GPIO.cpp in Sources */,
 				49DEED9A24FFDB7900FF0677 /* Global.cpp in Sources */,
@@ -644,7 +681,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4994036D24FACB45005527CF /* main.cpp in Sources */,
+				49192DED256EE34E001F3B1A /* m8rscript.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,6 +701,11 @@
 			name = libm8r;
 			targetProxy = 49192DAA256D900A001F3B1A /* PBXContainerItemProxy */;
 		};
+		49192E39256EF024001F3B1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libm8r;
+			targetProxy = 49192E38256EF024001F3B1A /* PBXContainerItemProxy */;
+		};
 		492C7DB224EECF540027B75E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 49C406E11EB6598B001E4DEC /* generateM8rscriptValues */;
@@ -677,6 +719,45 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		49192E31256EF00D001F3B1A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		49192E32256EF00D001F3B1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		492C7D9E24EDF9390027B75E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -693,7 +774,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Debug/usr/local/include;
+				USER_HEADER_SEARCH_PATHS = FOOBAR;
 			};
 			name = Debug;
 		};
@@ -712,7 +793,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Release/usr/local/include;
+				USER_HEADER_SEARCH_PATHS = FOOBAR;
 			};
 			name = Release;
 		};
@@ -763,7 +844,6 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Debug/usr/local/include;
 			};
 			name = Debug;
 		};
@@ -780,7 +860,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Release/usr/local/include;
 			};
 			name = Release;
 		};
@@ -921,6 +1000,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		49192E30256EF00D001F3B1A /* Build configuration list for PBXNativeTarget "Foo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49192E31256EF00D001F3B1A /* Debug */,
+				49192E32256EF00D001F3B1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		492C7D9D24EDF9390027B75E /* Build configuration list for PBXNativeTarget "m8rscript" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
