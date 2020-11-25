@@ -2,8 +2,7 @@ mac/DerivedData
 mac/m8rscript.xcodeproj/xcuserdata/
 mac/m8rscript.xcodeproj/project.xcworkspace/
 m8rscript/.settings
-esp/out/
-esp/build/
+build/
 SpiffsFSFile
 mac/build
 m8rFSFile

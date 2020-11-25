@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49192DAE256D901C001F3B1A /* liblibm8r.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49192DA2256D8FD1001F3B1A /* liblibm8r.a */; };
 		492C7DB024EECBBE0027B75E /* generateValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49C406EA1EB65A39001E4DEC /* generateValues.cpp */; };
 		4994036D24FACB45005527CF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4994035124FAC7B1005527CF /* main.cpp */; };
 		4994037224FACBAD005527CF /* libm8rscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 492C7D9C24EDF9390027B75E /* libm8rscript.a */; };
@@ -35,6 +36,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		49192DA1256D8FD1001F3B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 494D254E1D2E9055003755DB;
+			remoteInfo = libm8r;
+		};
+		49192DA3256D8FD1001F3B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 49FAB98424FA991700E71C93;
+			remoteInfo = test;
+		};
+		49192DAA256D900A001F3B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 494D254D1D2E9055003755DB;
+			remoteInfo = libm8r;
+		};
 		492C7DB124EECF540027B75E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49E647E01D00B68F005F5059 /* Project object */;
@@ -85,6 +107,12 @@
 		49026F1224C8FA0100CAB23B /* TimeZoneDBClient.marly */ = {isa = PBXFileReference; lastKnownFileType = text; name = TimeZoneDBClient.marly; path = examples/TimeZoneDBClient.marly; sourceTree = "<group>"; };
 		49026F1324C9E73800CAB23B /* NetworkTime.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkTime.marly; sourceTree = "<group>"; };
 		49026F1824CDD4A600CAB23B /* timing.marly */ = {isa = PBXFileReference; lastKnownFileType = text; path = timing.marly; sourceTree = "<group>"; };
+		49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libm8r.xcodeproj; path = ../../libm8r/mac/libm8r.xcodeproj; sourceTree = "<group>"; };
+		49192DB4256D9641001F3B1A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; };
+		49192DB5256D9641001F3B1A /* sdkconfig */ = {isa = PBXFileReference; lastKnownFileType = text; name = sdkconfig; path = ../sdkconfig; sourceTree = "<group>"; };
+		49192DB6256D9676001F3B1A /* component.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = component.mk; path = ../components/m8rscript/component.mk; sourceTree = "<group>"; };
+		49192DB8256D969F001F3B1A /* component.mk */ = {isa = PBXFileReference; lastKnownFileType = text; name = component.mk; path = ../main/component.mk; sourceTree = "<group>"; };
+		49192DB9256D969F001F3B1A /* m8rscript.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = m8rscript.cpp; path = ../main/m8rscript.cpp; sourceTree = "<group>"; };
 		492C7D9C24EDF9390027B75E /* libm8rscript.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libm8rscript.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		492C7DA924EECBA10027B75E /* generator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generator; sourceTree = BUILT_PRODUCTS_DIR; };
 		4948AEAE24242CC90087EC5A /* NTPClient.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; name = NTPClient.m8r; path = examples/NTPClient.m8r; sourceTree = "<group>"; };
@@ -113,52 +141,52 @@
 		49A39F2123509E5200F6A144 /* mrsh.m8r */ = {isa = PBXFileReference; lastKnownFileType = text; path = mrsh.m8r; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		49BDE1A423714DC000304BE8 /* mem.m8r */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; path = mem.m8r; sourceTree = "<group>"; };
 		49C406E21EB6598B001E4DEC /* generateM8rscriptValues */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = generateM8rscriptValues; sourceTree = BUILT_PRODUCTS_DIR; };
-		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = ../libm8r/mac/generator/generateValues.cpp; sourceTree = "<group>"; };
-		49DEED6A24FFDB7600FF0677 /* Closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../src/Closure.h; sourceTree = "<group>"; };
-		49DEED6B24FFDB7600FF0677 /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../src/ParseEngine.h; sourceTree = "<group>"; };
-		49DEED6C24FFDB7600FF0677 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../src/Value.h; sourceTree = "<group>"; };
-		49DEED6D24FFDB7600FF0677 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../src/Global.cpp; sourceTree = "<group>"; };
-		49DEED6E24FFDB7600FF0677 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../src/GPIO.cpp; sourceTree = "<group>"; };
-		49DEED6F24FFDB7600FF0677 /* MachineCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../src/MachineCode.h; sourceTree = "<group>"; };
-		49DEED7024FFDB7600FF0677 /* Function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../src/Function.h; sourceTree = "<group>"; };
-		49DEED7124FFDB7600FF0677 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../src/CodePrinter.cpp; sourceTree = "<group>"; };
-		49DEED7224FFDB7600FF0677 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iterator.h; path = ../src/Iterator.h; sourceTree = "<group>"; };
-		49DEED7324FFDB7600FF0677 /* TaskProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskProto.cpp; path = ../src/TaskProto.cpp; sourceTree = "<group>"; };
-		49DEED7424FFDB7700FF0677 /* GC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../src/GC.cpp; sourceTree = "<group>"; };
-		49DEED7524FFDB7700FF0677 /* TCPProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCPProto.cpp; path = ../src/TCPProto.cpp; sourceTree = "<group>"; };
-		49DEED7624FFDB7700FF0677 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../src/ExecutionUnit.cpp; sourceTree = "<group>"; };
-		49DEED7724FFDB7700FF0677 /* StreamProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StreamProto.h; path = ../src/StreamProto.h; sourceTree = "<group>"; };
-		49DEED7824FFDB7700FF0677 /* TCPProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TCPProto.h; path = ../src/TCPProto.h; sourceTree = "<group>"; };
-		49DEED7924FFDB7700FF0677 /* JSONProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONProto.h; path = ../src/JSONProto.h; sourceTree = "<group>"; };
-		49DEED7A24FFDB7700FF0677 /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../src/GeneratedValues.cpp; sourceTree = "<group>"; };
-		49DEED7B24FFDB7700FF0677 /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../src/GeneratedValues.h; sourceTree = "<group>"; };
-		49DEED7C24FFDB7700FF0677 /* FSProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSProto.h; path = ../src/FSProto.h; sourceTree = "<group>"; };
-		49DEED7D24FFDB7700FF0677 /* IPAddrProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddrProto.cpp; path = ../src/IPAddrProto.cpp; sourceTree = "<group>"; };
-		49DEED7E24FFDB7700FF0677 /* ExecutionUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../src/ExecutionUnit.h; sourceTree = "<group>"; };
-		49DEED7F24FFDB7700FF0677 /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../src/Function.cpp; sourceTree = "<group>"; };
-		49DEED8024FFDB7700FF0677 /* Closure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Closure.cpp; path = ../src/Closure.cpp; sourceTree = "<group>"; };
-		49DEED8124FFDB7700FF0677 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../src/Object.h; sourceTree = "<group>"; };
-		49DEED8224FFDB7700FF0677 /* GC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../src/GC.h; sourceTree = "<group>"; };
-		49DEED8324FFDB7700FF0677 /* JSONProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONProto.cpp; path = ../src/JSONProto.cpp; sourceTree = "<group>"; };
-		49DEED8424FFDB7700FF0677 /* Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../src/Program.h; sourceTree = "<group>"; };
-		49DEED8524FFDB7800FF0677 /* StreamProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StreamProto.cpp; path = ../src/StreamProto.cpp; sourceTree = "<group>"; };
-		49DEED8624FFDB7800FF0677 /* TaskProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskProto.h; path = ../src/TaskProto.h; sourceTree = "<group>"; };
-		49DEED8724FFDB7800FF0677 /* TimerProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimerProto.cpp; path = ../src/TimerProto.cpp; sourceTree = "<group>"; };
-		49DEED8824FFDB7800FF0677 /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../src/SharedAtoms.txt; sourceTree = "<group>"; };
-		49DEED8924FFDB7800FF0677 /* TimerProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimerProto.h; path = ../src/TimerProto.h; sourceTree = "<group>"; };
-		49DEED8A24FFDB7800FF0677 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../src/Object.cpp; sourceTree = "<group>"; };
-		49DEED8B24FFDB7800FF0677 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../src/Global.h; sourceTree = "<group>"; };
-		49DEED8C24FFDB7800FF0677 /* IPAddrProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPAddrProto.h; path = ../src/IPAddrProto.h; sourceTree = "<group>"; };
-		49DEED8D24FFDB7800FF0677 /* FSProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FSProto.cpp; path = ../src/FSProto.cpp; sourceTree = "<group>"; };
-		49DEED8E24FFDB7800FF0677 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../src/Parser.cpp; sourceTree = "<group>"; };
-		49DEED8F24FFDB7800FF0677 /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../src/ParseEngine.cpp; sourceTree = "<group>"; };
-		49DEED9024FFDB7800FF0677 /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../src/Program.cpp; sourceTree = "<group>"; };
-		49DEED9124FFDB7900FF0677 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../src/CodePrinter.h; sourceTree = "<group>"; };
-		49DEED9224FFDB7900FF0677 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../src/GPIO.h; sourceTree = "<group>"; };
-		49DEED9324FFDB7900FF0677 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../src/Value.cpp; sourceTree = "<group>"; };
-		49DEED9424FFDB7900FF0677 /* M8rscript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = M8rscript.h; path = ../src/M8rscript.h; sourceTree = "<group>"; };
-		49DEED9524FFDB7900FF0677 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../src/Iterator.cpp; sourceTree = "<group>"; };
-		49DEED9624FFDB7900FF0677 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
+		49C406EA1EB65A39001E4DEC /* generateValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generateValues.cpp; path = generator/generateValues.cpp; sourceTree = "<group>"; };
+		49DEED6A24FFDB7600FF0677 /* Closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Closure.h; path = ../components/m8rscript/Closure.h; sourceTree = "<group>"; };
+		49DEED6B24FFDB7600FF0677 /* ParseEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseEngine.h; path = ../components/m8rscript/ParseEngine.h; sourceTree = "<group>"; };
+		49DEED6C24FFDB7600FF0677 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../components/m8rscript/Value.h; sourceTree = "<group>"; };
+		49DEED6D24FFDB7600FF0677 /* Global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Global.cpp; path = ../components/m8rscript/Global.cpp; sourceTree = "<group>"; };
+		49DEED6E24FFDB7600FF0677 /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GPIO.cpp; path = ../components/m8rscript/GPIO.cpp; sourceTree = "<group>"; };
+		49DEED6F24FFDB7600FF0677 /* MachineCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MachineCode.h; path = ../components/m8rscript/MachineCode.h; sourceTree = "<group>"; };
+		49DEED7024FFDB7600FF0677 /* Function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../components/m8rscript/Function.h; sourceTree = "<group>"; };
+		49DEED7124FFDB7600FF0677 /* CodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodePrinter.cpp; path = ../components/m8rscript/CodePrinter.cpp; sourceTree = "<group>"; };
+		49DEED7224FFDB7600FF0677 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iterator.h; path = ../components/m8rscript/Iterator.h; sourceTree = "<group>"; };
+		49DEED7324FFDB7600FF0677 /* TaskProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TaskProto.cpp; path = ../components/m8rscript/TaskProto.cpp; sourceTree = "<group>"; };
+		49DEED7424FFDB7700FF0677 /* GC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GC.cpp; path = ../components/m8rscript/GC.cpp; sourceTree = "<group>"; };
+		49DEED7524FFDB7700FF0677 /* TCPProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TCPProto.cpp; path = ../components/m8rscript/TCPProto.cpp; sourceTree = "<group>"; };
+		49DEED7624FFDB7700FF0677 /* ExecutionUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExecutionUnit.cpp; path = ../components/m8rscript/ExecutionUnit.cpp; sourceTree = "<group>"; };
+		49DEED7724FFDB7700FF0677 /* StreamProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StreamProto.h; path = ../components/m8rscript/StreamProto.h; sourceTree = "<group>"; };
+		49DEED7824FFDB7700FF0677 /* TCPProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TCPProto.h; path = ../components/m8rscript/TCPProto.h; sourceTree = "<group>"; };
+		49DEED7924FFDB7700FF0677 /* JSONProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONProto.h; path = ../components/m8rscript/JSONProto.h; sourceTree = "<group>"; };
+		49DEED7A24FFDB7700FF0677 /* GeneratedValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneratedValues.cpp; path = ../components/m8rscript/GeneratedValues.cpp; sourceTree = "<group>"; };
+		49DEED7B24FFDB7700FF0677 /* GeneratedValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeneratedValues.h; path = ../components/m8rscript/GeneratedValues.h; sourceTree = "<group>"; };
+		49DEED7C24FFDB7700FF0677 /* FSProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSProto.h; path = ../components/m8rscript/FSProto.h; sourceTree = "<group>"; };
+		49DEED7D24FFDB7700FF0677 /* IPAddrProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddrProto.cpp; path = ../components/m8rscript/IPAddrProto.cpp; sourceTree = "<group>"; };
+		49DEED7E24FFDB7700FF0677 /* ExecutionUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExecutionUnit.h; path = ../components/m8rscript/ExecutionUnit.h; sourceTree = "<group>"; };
+		49DEED7F24FFDB7700FF0677 /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../components/m8rscript/Function.cpp; sourceTree = "<group>"; };
+		49DEED8024FFDB7700FF0677 /* Closure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Closure.cpp; path = ../components/m8rscript/Closure.cpp; sourceTree = "<group>"; };
+		49DEED8124FFDB7700FF0677 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Object.h; path = ../components/m8rscript/Object.h; sourceTree = "<group>"; };
+		49DEED8224FFDB7700FF0677 /* GC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GC.h; path = ../components/m8rscript/GC.h; sourceTree = "<group>"; };
+		49DEED8324FFDB7700FF0677 /* JSONProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONProto.cpp; path = ../components/m8rscript/JSONProto.cpp; sourceTree = "<group>"; };
+		49DEED8424FFDB7700FF0677 /* Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Program.h; path = ../components/m8rscript/Program.h; sourceTree = "<group>"; };
+		49DEED8524FFDB7800FF0677 /* StreamProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StreamProto.cpp; path = ../components/m8rscript/StreamProto.cpp; sourceTree = "<group>"; };
+		49DEED8624FFDB7800FF0677 /* TaskProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TaskProto.h; path = ../components/m8rscript/TaskProto.h; sourceTree = "<group>"; };
+		49DEED8724FFDB7800FF0677 /* TimerProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimerProto.cpp; path = ../components/m8rscript/TimerProto.cpp; sourceTree = "<group>"; };
+		49DEED8824FFDB7800FF0677 /* SharedAtoms.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SharedAtoms.txt; path = ../components/m8rscript/SharedAtoms.txt; sourceTree = "<group>"; };
+		49DEED8924FFDB7800FF0677 /* TimerProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimerProto.h; path = ../components/m8rscript/TimerProto.h; sourceTree = "<group>"; };
+		49DEED8A24FFDB7800FF0677 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../components/m8rscript/Object.cpp; sourceTree = "<group>"; };
+		49DEED8B24FFDB7800FF0677 /* Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Global.h; path = ../components/m8rscript/Global.h; sourceTree = "<group>"; };
+		49DEED8C24FFDB7800FF0677 /* IPAddrProto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPAddrProto.h; path = ../components/m8rscript/IPAddrProto.h; sourceTree = "<group>"; };
+		49DEED8D24FFDB7800FF0677 /* FSProto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FSProto.cpp; path = ../components/m8rscript/FSProto.cpp; sourceTree = "<group>"; };
+		49DEED8E24FFDB7800FF0677 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../components/m8rscript/Parser.cpp; sourceTree = "<group>"; };
+		49DEED8F24FFDB7800FF0677 /* ParseEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParseEngine.cpp; path = ../components/m8rscript/ParseEngine.cpp; sourceTree = "<group>"; };
+		49DEED9024FFDB7800FF0677 /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../components/m8rscript/Program.cpp; sourceTree = "<group>"; };
+		49DEED9124FFDB7900FF0677 /* CodePrinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodePrinter.h; path = ../components/m8rscript/CodePrinter.h; sourceTree = "<group>"; };
+		49DEED9224FFDB7900FF0677 /* GPIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GPIO.h; path = ../components/m8rscript/GPIO.h; sourceTree = "<group>"; };
+		49DEED9324FFDB7900FF0677 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../components/m8rscript/Value.cpp; sourceTree = "<group>"; };
+		49DEED9424FFDB7900FF0677 /* M8rscript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = M8rscript.h; path = ../components/m8rscript/M8rscript.h; sourceTree = "<group>"; };
+		49DEED9524FFDB7900FF0677 /* Iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iterator.cpp; path = ../components/m8rscript/Iterator.cpp; sourceTree = "<group>"; };
+		49DEED9624FFDB7900FF0677 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../components/m8rscript/Parser.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +194,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49192DAE256D901C001F3B1A /* liblibm8r.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,9 +223,48 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		492C7D9424EDF8990027B75E /* m8rscript */ = {
+		49192D9D256D8FD1001F3B1A /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				49192DA2256D8FD1001F3B1A /* liblibm8r.a */,
+				49192DA4256D8FD1001F3B1A /* test */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		49192DB3256D9619001F3B1A /* esp */ = {
+			isa = PBXGroup;
+			children = (
+				49192DB7256D968D001F3B1A /* main */,
+				49192DB6256D9676001F3B1A /* component.mk */,
+				49192DB4256D9641001F3B1A /* Makefile */,
+				49192DB5256D9641001F3B1A /* sdkconfig */,
+			);
+			name = esp;
+			sourceTree = "<group>";
+		};
+		49192DB7256D968D001F3B1A /* main */ = {
+			isa = PBXGroup;
+			children = (
+				49192DB8256D969F001F3B1A /* component.mk */,
+				49192DB9256D969F001F3B1A /* m8rscript.cpp */,
+			);
+			name = main;
+			sourceTree = "<group>";
+		};
+		49192DC0256DC44B001F3B1A /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				4994035124FAC7B1005527CF /* main.cpp */,
+			);
+			name = mac;
+			sourceTree = "<group>";
+		};
+		492C7D9424EDF8990027B75E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				49192DC0256DC44B001F3B1A /* mac */,
+				49192DB3256D9619001F3B1A /* esp */,
 				49DEED8024FFDB7700FF0677 /* Closure.cpp */,
 				49DEED6A24FFDB7600FF0677 /* Closure.h */,
 				49DEED7124FFDB7600FF0677 /* CodePrinter.cpp */,
@@ -243,7 +311,7 @@
 				49DEED9324FFDB7900FF0677 /* Value.cpp */,
 				49DEED6C24FFDB7600FF0677 /* Value.h */,
 			);
-			name = m8rscript;
+			name = src;
 			sourceTree = "<group>";
 		};
 		4942EA891D0C86BB00E02088 /* scripts */ = {
@@ -319,12 +387,11 @@
 			path = simple;
 			sourceTree = "<group>";
 		};
-		4994035024FAC7A1005527CF /* testM8rscript */ = {
+		4994035024FAC7A1005527CF /* test */ = {
 			isa = PBXGroup;
 			children = (
-				4994035124FAC7B1005527CF /* main.cpp */,
 			);
-			name = testM8rscript;
+			name = test;
 			sourceTree = "<group>";
 		};
 		49C406E91EB65A15001E4DEC /* generators */ = {
@@ -338,8 +405,9 @@
 		49E647DF1D00B68F005F5059 = {
 			isa = PBXGroup;
 			children = (
-				4994035024FAC7A1005527CF /* testM8rscript */,
-				492C7D9424EDF8990027B75E /* m8rscript */,
+				49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */,
+				4994035024FAC7A1005527CF /* test */,
+				492C7D9424EDF8990027B75E /* src */,
 				49C406E91EB65A15001E4DEC /* generators */,
 				49E647E91D00B68F005F5059 /* Products */,
 				4942EA891D0C86BB00E02088 /* scripts */,
@@ -382,6 +450,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				49192DAB256D900A001F3B1A /* PBXTargetDependency */,
 				492C7DB224EECF540027B75E /* PBXTargetDependency */,
 			);
 			name = m8rscript;
@@ -481,6 +550,12 @@
 			mainGroup = 49E647DF1D00B68F005F5059;
 			productRefGroup = 49E647E91D00B68F005F5059 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 49192D9D256D8FD1001F3B1A /* Products */;
+					ProjectRef = 49192D9C256D8FD1001F3B1A /* libm8r.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				492C7D9B24EDF9390027B75E /* m8rscript */,
@@ -490,6 +565,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		49192DA2256D8FD1001F3B1A /* liblibm8r.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibm8r.a;
+			remoteRef = 49192DA1256D8FD1001F3B1A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		49192DA4256D8FD1001F3B1A /* test */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test;
+			remoteRef = 49192DA3256D8FD1001F3B1A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		49026F1C24CF29BC00CAB23B /* ShellScript */ = {
@@ -507,7 +599,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../src/SharedAtoms.txt ../src m8rscript\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$TARGET_BUILD_DIR/generateM8rscriptValues ../components/m8rscript/SharedAtoms.txt ../components/m8rscript m8rscript\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -567,6 +659,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		49192DAB256D900A001F3B1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libm8r;
+			targetProxy = 49192DAA256D900A001F3B1A /* PBXContainerItemProxy */;
+		};
 		492C7DB224EECF540027B75E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 49C406E11EB6598B001E4DEC /* generateM8rscriptValues */;
@@ -596,7 +693,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Debug/usr/local/include;
 			};
 			name = Debug;
 		};
@@ -615,7 +712,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Release/usr/local/include;
 			};
 			name = Release;
 		};
@@ -666,7 +763,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Debug/usr/local/include;
 			};
 			name = Debug;
 		};
@@ -683,7 +780,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				USER_HEADER_SEARCH_PATHS = ../../libm8r/mac/build/Release/usr/local/include;
 			};
 			name = Release;
 		};
@@ -766,6 +863,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -816,6 +914,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};

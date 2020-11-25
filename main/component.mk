@@ -8,7 +8,7 @@ CXXFLAGS += -std=c++14
 
 COMPONENT_NAME := test
 
-COMPONENT_PRIV_INCLUDEDIRS := ../../src ../../libm8r/src
+COMPONENT_PRIV_INCLUDEDIRS :=  ../../libm8r/components/libm8r ../components/m8rscript
 
 COMPONENT_OBJS := \
     m8rscript.o \

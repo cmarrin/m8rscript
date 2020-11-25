@@ -7,7 +7,7 @@ IDF_PATH=$(HOME)/esp/ESP8266_RTOS_SDK
 
 PROJECT_NAME := m8resp
 
-EXTRA_COMPONENT_DIRS := ../src
+EXTRA_COMPONENT_DIRS := ../libm8r/components
 
 include $(IDF_PATH)/make/project.mk
 
