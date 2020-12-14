@@ -12,4 +12,4 @@ EXTRA_COMPONENT_DIRS := ../libm8r/components
 include $(IDF_PATH)/make/project.mk
 
 upload_fs:
-	$(ESPTOOLPY_WRITE_FLASH) 0x100000 ../m8rFSFile
+	$(ESPTOOLPY_WRITE_FLASH) 0x100000 m8rFSFile
