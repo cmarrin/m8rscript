@@ -2,9 +2,11 @@
 // Timing test
 //
 
-var n = 4000;
 var a = [ ];
+var n = 200;
 a.length = n;
+
+println("\n\nm8rscript timing test: " + n + " squared iterations");
 
 var startTime = currentTime();
 
@@ -16,7 +18,5 @@ for (var i = 0; i < n; ++i) {
 }
 
 var t = currentTime() - startTime;
-println("Run time: " + (t * 1000.) + "ms");
-
-println("a[100] = " + a[100]);
+print("Run time: " + (t * 1000.) + "ms\n\n");
 

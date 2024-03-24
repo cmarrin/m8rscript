@@ -1,8 +1,0 @@
-file build/obj/m8rscript.elf
-#set remotedebug 1
-set remotelogfile gdb_rsp_logfile.txt
-set remotebaud 115200
-set remote hardware-breakpoint-limit 1
-set remote hardware-watchpoint-limit 1
-#set debug xtensa 4
-target remote /dev/cu.usbserial-AD02CUJ5

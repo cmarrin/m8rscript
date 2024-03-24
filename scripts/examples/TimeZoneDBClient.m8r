@@ -13,7 +13,6 @@
 class Clock
 {
 	var _port = 80;
-	var year, month, day, hour, minute, second, dst, zone;
 	var _client;
 	
 	constructor(host, port) {
@@ -24,10 +23,10 @@ class Clock
 	
 	function fetchTime(func) {
 		var eventFunc = function(socket, event, connectionId, dataValue) {
-			printf("TCP server got event %d\n", event);
+			println("TCP server got event " + event);
 			switch(event) {
 				case TCP.Error: {
-					printf("***** TCP Error: %s, error=%d\n", dataValue, connectionId);
+					println("***** TCP Error: " + dataValue + ", error=" + connectionId);
 				}
 				case TCP.Connected: {
 //    				socket.send(0, "GET /v2.1/get-time-zone?key=OFTZYMX4MSPG&format=json&by=zone&zone=America%2FLos_Angeles HTTP/1.0\r\n");
@@ -52,10 +51,10 @@ class Clock
 						}
 					}
 					if (!found) {
-						printf("***** Error: Did not find JSON string\n");
+						println("***** Error: Did not find JSON string");
 					} else {
 						var json = JSON.parse(jsonString);
-						printf("Result: %s\n", json);
+						println("Result: " + json);
 					}
 					
 					var json = JSON.parse(jsonString);
@@ -63,27 +62,29 @@ class Clock
 					var timeDateArray = timeDateString.split(" ", true);
 										
 					var dateArray = timeDateArray[0].split("-");
-					year = toInt(dateArray[0]);
-					month = toInt(dateArray[1]);
-					day = toInt(dateArray[2]);
+                    var time = { };
+                    
+					time["year"] = toInt(dateArray[0]);
+					time["month"] = toInt(dateArray[1]);
+					time["day"] = toInt(dateArray[2]);
 					
 					var timeArray = timeDateArray[1].split(":");
-					hour = toInt(timeArray[0]);
-					minute = toInt(timeArray[1]);
-					second = toInt(timeArray[2]);
+					time["hour"] = toInt(timeArray[0]);
+					time["minute"] = toInt(timeArray[1]);
+					time["second"] = toInt(timeArray[2]);
 					
-					dst = toInt(json.dst) != 0;
-					zone = json.abbreviation;
-					func();
+					time["dst"] = toInt(json.dst) != 0;
+					time["zone"] = json.abbreviation;
+					func(time);
 					_client = null;
 				}
 			}
 		};
 		
 		IPAddr.lookupHostname("api.timezonedb.com", function(name, ip) {
-			printf("Looked up %s, got %s\n", name, ip);
+			println("Looked up " + name + ", got " + ip);
 			if (ip) {
-				printf("Connecting to %s:%d\n", ip, _port);
+				println("Connecting to " + ip + ":" + _port);
 				_client = new TCP(ip, _port, eventFunc);
                 println("****************** returning");
 			}
@@ -93,17 +94,17 @@ class Clock
 
 var current = new Clock();
 var done = [false];
-current.fetchTime(function() {
+current.fetchTime(function(time) {
 	var isPM = false;
-	var hr = current.hour;
+	var hr = time.hour;
 	if (hr > 12) {
 		isPM = true;
 		hr -= 12;
 	}
-	printf("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
-		hr, current.minute, current.second, isPM ? "pm" : "am", current.zone,
-		current.month, current.day, current.year,
-		current.dst ? "" : " not");
+	println("\nIt is currently %d:%02d:%02d%s %s on %d/%d/%d. It is%s daylight savings time\n\n",
+		hr, time.minute, time.second, isPM ? "pm" : "am", time.zone,
+		time.month, time.day, time.year,
+		time.dst ? "" : " not");
   
     done[0] = true;
 });

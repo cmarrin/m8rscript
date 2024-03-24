@@ -1,12 +1,12 @@
-var t = new Timer(2.5, Timer.Repeating, function() { printf("******* Timer Fired\n"); });
-t.start();
+var t = new Timer(function() { println("******* Timer Fired"); });
+t.start(2.5, Timer.Repeating);
 
 var i = 0;
 while (i < 10) {
-    printf("Hello World\n");
+    println("Hello World");
     delay(1);
     i++;
 }
 
 currentTime();
-delay(10);
+delay(5);

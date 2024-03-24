@@ -18,7 +18,7 @@ function f0(a0) {
 }
 
 var g = f0(1);
-printf("1) Nested function call test (no capture): result (s/b 31): %d\n", g);
+println("1) Nested function call test (no capture): result (s/b 31): " + g);
 
 // Test 2: Simple test of nested function with closure
 function Test2(b) {
@@ -29,7 +29,7 @@ function Test2(b) {
 }
 
 var f = Test2(3);
-printf("2) Simple test nested function with closure (s/b 15): %d\n", f(7));
+println("2) Simple test nested function with closure (s/b 15): " + f(7));
 
 // Test 3: Test of when Closure is captured
 function Test3() {
@@ -40,12 +40,12 @@ function Test3() {
 }
 
 var f = Test3();
-printf("3) Test of when Closure is captured (s/b 10): %f\n", f());
+println("3) Test of when Closure is captured (s/b 10): " + f());
 
 // Test 4: Simple test of capturing passed function
 function Test4(func)
 {
-	printf("4) Test of capturing passed function (s/b 20): %f\n", func());
+	println("4) Test of capturing passed function (s/b 20): " + func());
 }
 
 var a = 10;
@@ -95,7 +95,7 @@ class Clock
 	var port = 8080;
 	function fetchTime(host) {
 		IPAddr.lookupHostname(host, function(name, ip) {
-			printf("6) Looked up %s, got %s, port=%d\n", name, ip, port);
+			println("6) Looked up " + name + ", got " + ip + ", port=" + port);
 		});
 	}
 }
